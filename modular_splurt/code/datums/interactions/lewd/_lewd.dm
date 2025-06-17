@@ -614,6 +614,7 @@ SPLURT теперь обрабатывают все это дело в /mob/livi
 
 	message = "<span class='lewd'>\The <b>[src]</b> [pick(lines)]</span>"
 	visible_message(message, ignored_mobs = get_unconsenting())
+	playlewdinteractionsound(loc, pick('modular_sand/sound/interactions/swallow.ogg'), 70, 1, -1)
 	target.handle_post_sex(lust_increase, CUM_TARGET_MOUTH, src, ORGAN_SLOT_TESTICLES)
 
 /mob/living/proc/do_cockfuck(mob/living/target)
@@ -944,13 +945,9 @@ SPLURT теперь обрабатывают все это дело в /mob/livi
 
 	message = "<span class='lewd'>\The <b>[src]</b> [pick(hell)]</span>"
 	visible_message(message, ignored_mobs = get_unconsenting(unholy = TRUE), ignored_mobs = get_unconsenting(unholy = TRUE))
-	playlewdinteractionsound(target.loc, pick(GLOB.brap_noises), 70, 1, -1)
-	playlewdinteractionsound(target.loc, pick('modular_sand/sound/interactions/bang1.ogg',
-						'modular_sand/sound/interactions/bang2.ogg',
-						'modular_sand/sound/interactions/bang3.ogg',
-						'modular_sand/sound/interactions/bang4.ogg',
-						'modular_sand/sound/interactions/bang5.ogg',
-						'modular_sand/sound/interactions/bang6.ogg'), 70, 1, -1)
+	playlewdinteractionsound(target.loc, pick('modular_sand/sound/interactions/asscrap1.ogg',
+						'modular_sand/sound/interactions/asscrap2.ogg',
+						'modular_sand/sound/interactions/asscrap3.ogg'), 70, 1, -1)
 	if(can_penetrating_genital_cum())
 		handle_post_sex(NORMAL_LUST, CUM_TARGET_ANUS, target, ORGAN_SLOT_PENIS)
 	target.handle_post_sex(NORMAL_LUST, null, src)
@@ -993,6 +990,7 @@ SPLURT теперь обрабатывают все это дело в /mob/livi
 
 	message = "<span class='lewd'>\The <b>[src]</b> [pick(hell)]</span>"
 	visible_message(message, ignored_mobs = get_unconsenting(unholy = TRUE))
+	playlewdinteractionsound(target.loc, pick('modular_sand/sound/interactions/voda.ogg'), 70, 1, -1)
 	if(get_lust() < 10)
 		add_lust(10)
 
@@ -1007,6 +1005,7 @@ SPLURT теперь обрабатывают все это дело в /mob/livi
 
 	message = "<span class='lewd'>\The <b>[src]</b> [pick(hell)]</span>"
 	visible_message(message, ignored_mobs = get_unconsenting(unholy = TRUE))
+	playlewdinteractionsound(target.loc, pick('modular_sand/sound/interactions/voda.ogg'), 70, 1, -1)
 	if(!is_fucking(target, CUM_TARGET_MOUTH))
 		set_is_fucking(target, CUM_TARGET_MOUTH, pee_pee)
 	handle_post_sex(NORMAL_LUST, CUM_TARGET_MOUTH, target, pee_pee)
