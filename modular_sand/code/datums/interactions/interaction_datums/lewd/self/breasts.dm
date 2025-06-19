@@ -56,7 +56,7 @@
 					'modular_bluemoon/sound/emotes/softmoan3.ogg',
 					'modular_bluemoon/sound/emotes/softmoan4.ogg',
 					'modular_bluemoon/sound/emotes/softmoan5.ogg',
-					'modular_bluemoon/sound/emotes/softmoan6.ogg') 70, 1, -1)
+					'modular_bluemoon/sound/emotes/softmoan6.ogg'), 70, 1, -1)
 
 	if(liquid_container)
 		message += " прямо в [liquid_container]"
