@@ -12,9 +12,11 @@
 	interaction_sound = 'sound/weapons/thudswoosh.ogg'
 
 /datum/interaction/cheer
-	description = "Подбодрить!"
+	description = "Подбодрить посвистыванием!"
 	required_from_user = INTERACTION_REQUIRE_MOUTH
-	simple_message = "USER подбадривает TARGET радостными выкриками!"
+	simple_message = "USER подбадривает TARGET радостным посвистыванием!"
+	interaction_sound = 'modular_bluemoon\sound\emotes\svist.ogg'
+	max_distance = 25
 	interaction_flags = NONE
 
 /datum/interaction/highfive
@@ -51,6 +53,7 @@
 	simple_message = "USER хватается за руку TARGET."
 	required_from_user = INTERACTION_REQUIRE_HANDS
 	required_from_target = INTERACTION_REQUIRE_HANDS
+	interaction_sound = 'sound/weapons/thudswoosh.ogg'
 
 /datum/interaction/salute
 	description = "Исполнить Воинское Приветствие!"
@@ -71,5 +74,6 @@
 	description = "Показать Средний Палец"
 	simple_message = "USER демонстрирует TARGET средний палец!"
 	required_from_user = INTERACTION_REQUIRE_HANDS
+	interaction_sound = 'modular_splurt/sound/voice/vineboom.ogg'
 	max_distance = 25
 	interaction_flags = NONE
