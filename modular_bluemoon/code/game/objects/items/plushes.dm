@@ -328,7 +328,12 @@
 	name = "Millie plush"
 	desc = "A cute pink girl. The soft silicone gives off a pleasant strawberry-raspberry scent. When you squeeze the doll slightly, her tongue comes out in a funny way."
 	icon_state = "millie"
-	squeak_override = list('modular_bluemoon/sound/plush/millie.ogg' = 1)
+	squeak_override = list(
+		'modular_bluemoon/sound/plush/milp1.ogg' = 1,
+		'modular_bluemoon/sound/plush/milp2.ogg' = 1,
+		'modular_bluemoon/sound/plush/milp3.ogg' = 1,
+		'modular_bluemoon/sound/plush/milp4.ogg' = 1
+		)
 	var/obj/item/dildo/flared/huge/clash_target
 
 /obj/item/toy/plush/bm/millie/Moved()
