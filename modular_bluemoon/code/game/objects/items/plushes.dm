@@ -332,7 +332,9 @@
 		'modular_bluemoon/sound/plush/milp1.ogg' = 1,
 		'modular_bluemoon/sound/plush/milp2.ogg' = 1,
 		'modular_bluemoon/sound/plush/milp3.ogg' = 1,
-		'modular_bluemoon/sound/plush/milp4.ogg' = 1
+		'modular_bluemoon/sound/plush/milp4.ogg' = 1,
+		'modular_bluemoon/sound/plush/milp5.ogg' = 1,
+		'modular_bluemoon/sound/plush/milp6.ogg' = 1
 		)
 	var/obj/item/dildo/flared/huge/clash_target
 
