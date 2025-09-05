@@ -174,9 +174,17 @@
 	.["bg_icon"] = ui_style
 	.["bg_state"] = "template"
 
+/datum/hud
+	var/action_buttons_hidden = FALSE // отслеживание состояния видимости кнопок
+
+/datum/hud/proc/hide_toggle()
+	action_buttons_hidden = !action_buttons_hidden
+
 //see human and alien hud for specific implementations.
 
 /mob/proc/update_action_buttons_icon(status_only = FALSE)
+	if(hud_used?.action_buttons_hidden) // проверка на скрытие
+		return
 	for(var/X in actions)
 		var/datum/action/A = X
 		A.UpdateButtons(status_only)
@@ -196,6 +204,13 @@
 	if(hud_used.hud_shown != HUD_STYLE_STANDARD)
 		return
 
+	// логика скрытия/показа кнопок
+	if(hud_used.action_buttons_hidden)
+		for(var/datum/action/action as anything in actions)
+			var/atom/movable/screen/movable/action_button/button = action.viewers[hud_used]
+			client.screen -= button
+		return
+
 	for(var/datum/action/action as anything in actions)
 		var/atom/movable/screen/movable/action_button/button = action.viewers[hud_used]
 		action.UpdateButtons()
@@ -208,7 +223,7 @@
 	hud_used.palette_actions.refresh_actions()
 
 /atom/movable/screen/button_palette
-	desc = "<b>Drag</b> buttons to move them<br><b>Shift-click</b> any button to reset it<br><b>Alt-click</b> this to reset all buttons"
+	desc = "<b>Drag</b> buttons to move them<br><b>Shift-click</b> any button to reset it<br><b>Alt-click</b> this to reset all buttons<br><b>Ctrl-click</b> to hide/show buttons"
 	icon = 'icons/hud/64x16_actions.dmi'
 	icon_state = "screen_gen_palette"
 	screen_loc = ui_action_palette
@@ -304,6 +319,15 @@ GLOBAL_LIST_INIT(palette_removed_matrix, list(1.4,0,0,0, 0.7,0.4,0,0, 0.4,0,0.6,
 				var/atom/movable/screen/movable/action_button/button = action.viewers[hud]
 				hud.position_action(button, SCRN_OBJ_DEFAULT)
 		to_chat(usr, span_notice("Action button positions have been reset."))
+		return TRUE
+
+	// обработка Ctrl+Click для переключения видимости
+	if(LAZYACCESS(modifiers, CTRL_CLICK))
+		our_hud.hide_toggle()
+		if(our_hud.action_buttons_hidden)
+			to_chat(usr, span_notice("Action buttons hidden."))
+		else
+			to_chat(usr, span_notice("Action buttons shown."))
 		return TRUE
 
 	set_expanded(!expanded)
