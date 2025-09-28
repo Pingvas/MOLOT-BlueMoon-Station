@@ -1861,3 +1861,17 @@
 	path = /obj/item/clothing/mask/gas/syndicate/legion_mask
 	ckeywhitelist = list("dimofon", "devildeadspace", "dimakr", "oroshimuraiori", "troubleneko17th", "dcp9371", "oni3288")
 	subcategory = LOADOUT_SUBCATEGORIES_DON03
+
+/datum/gear/donator/bm/kladmen_dress
+	name = "Gothic Dress"
+	slot = ITEM_SLOT_BACKPACK
+	path = /obj/item/clothing/under/donator/bm/kladmen_dress
+	ckeywhitelist = list("kladmenuwu")
+	subcategory = LOADOUT_SUBCATEGORIES_DON03
+
+/datum/gear/donator/bm/modsuit_syndicate
+	name = "Syndicate Modsuit"
+	slot = ITEM_SLOT_BACKPACK
+	path = /obj/item/mod/control/pre_equipped/security/syndicate
+	ckeywhitelist = list("domilion")
+	subcategory = LOADOUT_SUBCATEGORIES_DON03
