@@ -16087,6 +16087,7 @@
 	dir = 6
 	},
 /obj/item/inducer/syndicate,
+/obj/item/stack/cable_coil,
 /turf/open/floor/plasteel/dark,
 /area/ruin/lavaland/unpowered/deepspaceone/testlab)
 "mEi" = (
@@ -16144,11 +16145,14 @@
 	dir = 8
 	},
 /obj/structure/table/glass,
-/obj/item/stack/cable_coil,
 /obj/item/storage/toolbox/syndicate{
 	pixel_y = 9
 	},
 /obj/effect/turf_decal/siding/dark,
+/obj/item/circuitboard/machine/circuit_imprinter/hacked{
+	pixel_x = -1;
+	pixel_y = -4
+	},
 /turf/open/floor/plasteel/dark,
 /area/ruin/lavaland/unpowered/deepspaceone/testlab)
 "mGJ" = (
@@ -28531,13 +28535,13 @@
 /turf/open/floor/plasteel/smooth/diagonal,
 /area/ruin/lavaland/unpowered/deepspaceone/dormitories)
 "wyi" = (
-/obj/effect/mob_spawn/human/lavaland_syndicate/comms{
-	dir = 4
-	},
 /obj/structure/bed/double{
 	dir = 1
 	},
 /obj/item/bedsheet/hos/double{
+	dir = 4
+	},
+/obj/effect/mob_spawn/human/lavaland_syndicate/offcomm{
 	dir = 4
 	},
 /turf/open/floor/carpet/royalblack,

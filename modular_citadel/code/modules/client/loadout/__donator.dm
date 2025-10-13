@@ -32,6 +32,14 @@
 	subcategory = LOADOUT_SUBCATEGORIES_DON02
 	donator_group_id = DONATOR_GROUP_TIER_2
 
+/datum/gear/donator/money
+	name = "Тысяча Денег (красивое)"
+	slot = ITEM_SLOT_BACKPACK
+	path = /obj/item/stack/spacecash/c1000
+	ckeywhitelist = list()
+	donator_group_id = DONATOR_GROUP_TIER_2
+	subcategory = LOADOUT_SUBCATEGORIES_DON02
+
 /datum/gear/donator/cleanercloak
 	name = "Teshari Cleaner Cloak"
 	slot = ITEM_SLOT_NECK
@@ -102,14 +110,6 @@
 	ckeywhitelist = list()
 	donator_group_id = DONATOR_GROUP_TIER_1
 
-/datum/gear/donator/money
-	name = "Тысяча Денег (красивое)"
-	slot = ITEM_SLOT_BACKPACK
-	path = /obj/item/stack/spacecash/c1000
-	ckeywhitelist = list()
-	donator_group_id = DONATOR_GROUP_TIER_2
-	subcategory = LOADOUT_SUBCATEGORIES_DON02
-
 /datum/gear/donator/gasmask_syndicate
 	name = "The Syndicate Mask"
 	slot = ITEM_SLOT_MASK
@@ -156,9 +156,9 @@
 	donator_group_id = DONATOR_GROUP_TIER_1
 
 /datum/gear/donator/agent_card
-	name = "Callsign ID Card" //BLUEMOON CHANGES
+	name = "Syndicate Employee ID Card" //BLUEMOON CHANGES
 	slot = ITEM_SLOT_BACKPACK
-	path = /obj/item/card/id/callsign/loadout  //BLUEMOON CHANGES
+	path = /obj/item/card/id/syndicate_citizen  //BLUEMOON CHANGES
 	ckeywhitelist = list()
 	donator_group_id = DONATOR_GROUP_TIER_1
 
@@ -918,3 +918,28 @@
 	path = /obj/item/clothing/head/assu_helmet/bp_helmet
 	ckeywhitelist = list()
 	donator_group_id = DONATOR_GROUP_TIER_1
+
+/datum/gear/donator/bm/aviator_helmet
+	name = "Aviator Helmet"
+	slot = ITEM_SLOT_HEAD
+	path = /obj/item/clothing/head/helmet/aviator_helmet/no_armor
+	subcategory = LOADOUT_SUBCATEGORIES_DON01
+
+/datum/gear/donator/bm/old_wrappings
+	name = "Old Wrappings"
+	slot = ITEM_SLOT_NECK
+	path = /obj/item/clothing/neck/mantle/cowboy
+	subcategory = LOADOUT_SUBCATEGORIES_DON01
+
+/datum/gear/donator/bm/old_wrappings
+	name = "Old Wrappings"
+	slot = ITEM_SLOT_NECK
+	path = /obj/item/clothing/neck/mantle/cowboy
+	subcategory = LOADOUT_SUBCATEGORIES_DON01
+
+/datum/gear/donator/bm/book_alch
+	name = "Alchemist's Book"
+	slot = ITEM_SLOT_BACKPACK
+	path = /obj/item/paper/book_alch
+	subcategory = LOADOUT_SUBCATEGORIES_DON01
+	loadout_flags = LOADOUT_CAN_NAME | LOADOUT_CAN_DESCRIPTION

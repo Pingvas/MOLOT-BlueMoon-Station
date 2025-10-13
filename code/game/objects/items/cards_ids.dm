@@ -202,6 +202,7 @@
 	var/icon/cached_flat_icon
 	var/card_sticker = FALSE //BLUEMOON ADD часть карт можно навешивать на другие карты
 	var/list/previous_icon_data[3] //BLUEMOON ADD лист для наклеек на карты, порядок icon, icon_state, assignment
+	var/special_assignment = null // BLUEMOOD ADD для особых карт и их HUD, техническое
 
 /obj/item/card/id/Initialize(mapload)
 	. = ..()
@@ -254,7 +255,6 @@
 			previous_icon_data[3] = assignment
 			icon = ID.icon
 			icon_state = ID.icon_state
-			assignment = ID.assignment
 			return
 		//BLUEMOON ADD END
 
@@ -446,17 +446,19 @@
 	return src
 
 /obj/item/card/id/update_overlays()
-	. = ..()
-	if(!uses_overlays)
-		return
-	cached_flat_icon = null
-	var/job = assignment ? ckey(get_job_name()) : null
-	job = replacetext(job, " ", "")
-	job = lowertext(job)
-	if(registered_name && registered_name != "Captain")
-		. += mutable_appearance(icon, "assigned")
-	if(job)
-		. += mutable_appearance(icon, "id[job]")
+    . = ..()
+    if(!uses_overlays)
+        return
+    cached_flat_icon = null
+    var/job = assignment ? ckey(get_job_name()) : null
+    var/list/specialjobs = list(/obj/item/card/id/syndicate/advanced/ds) // Для спец. ролей с уникальными картами
+    job = replacetext(job, " ", "")
+    job = replacetext(job, "-", "") // Для учёта более сложных assigment'ов, как на DS-1/2
+    job = lowertext(job)
+    if(registered_name && registered_name != "Captain" && !is_type_in_list(src, specialjobs))
+        . += mutable_appearance(icon, "assigned")
+    if(job)
+        . += mutable_appearance(icon, "id[job]")
 
 /obj/item/card/id/proc/get_cached_flat_icon()
 	if(!cached_flat_icon)
@@ -1001,5 +1003,59 @@
 
 /obj/item/card/id/death
 	name = "\improper Death Commando ID"
-	icon_state = "centcom"
+	icon_state = "deathsquad"
 	assignment = "Death Commando"
+	special_assignment = "deathcommando"
+
+/obj/item/forensic_card
+    name = "Fingerprint card"
+    desc = "Пустая карточка для снятия отпечатков пальцев."
+    icon = 'icons/obj/card.dmi'
+    icon_state = "fingerprint0"
+    w_class = WEIGHT_CLASS_TINY
+    var/has_print = FALSE
+    var/fingerprint_data = null
+
+/obj/item/forensic_card/attack(mob/living/carbon/human/target, mob/user)
+    if(has_print)
+        to_chat(user, "<span class='notice'>Эта карточка уже содержит отпечаток.</span>")
+        return
+
+    if(!ishuman(target))
+        to_chat(user, "<span class='warning'>Можно снять отпечатки только с человека.</span>")
+        return
+
+    var/mob/living/carbon/human/H = target
+
+    if(H.gloves)
+        to_chat(user, "<span class='warning'>У [H] надеты перчатки — отпечатков не видно.</span>")
+        return
+
+    to_chat(user, "<span class='notice'>Ты начинаешь аккуратно снимать отпечатки с [H]...</span>")
+    user.visible_message(
+        "<span class='info'>[user] прикладывает карточку к руке [H], пытаясь снять отпечатки.</span>",
+        "<span class='notice'>Ты осторожно прижимаешь карточку к пальцам [H].</span>"
+    )
+
+    // 5 секунд неподвижности для дела
+    if(!do_after(user, 5 SECONDS, target = H))
+        to_chat(user, "<span class='warning'>Ты прерываешь процесс, отпечаток не снят.</span>")
+        return
+
+    if(H.gloves) // повторная проверка если одели в момент перчатки.
+        to_chat(user, "<span class='warning'>Пока ты возился, [H] надел перчатки!</span>")
+        return
+
+    fingerprint_data = md5(H.dna.uni_identity)
+    has_print = TRUE
+    icon_state = "fingerprint1"
+
+    to_chat(user, "<span class='notice'>Ты успешно снял отпечатки пальцев с [H].</span>")
+    playsound(src, 'sound/items/taperecorder/taperecorder_print.ogg', 40, FALSE)
+
+/obj/item/forensic_card/examine(mob/user)
+    . = ..()
+    if(has_print)
+        . += "<span class='info'>На карточке виден отпечаток с кодом: [fingerprint_data]</span>"
+    else
+        . += "<span class='notice'>Карточка пуста. Используй её на человеке без перчаток, чтобы снять отпечатки.</span>"

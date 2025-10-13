@@ -237,7 +237,7 @@
 
 /datum/reagent/consumable/milk/on_mob_life(mob/living/carbon/M)
 	if(HAS_TRAIT(M, TRAIT_CALCIUM_HEALER))
-		M.heal_bodypart_damage(1.5,0, 0)
+		M.heal_bodypart_damage(1.5, 1.5, 0)
 		for(var/i in M.all_wounds)
 			var/datum/wound/iter_wound = i
 			iter_wound.on_xadone(2)
@@ -658,11 +658,8 @@
 	..()
 
 /datum/reagent/consumable/buzz_fuzz/reaction_mob(mob/living/M, method=TOUCH, reac_volume)
-	if(iscarbon(M) && (method in list(TOUCH, VAPOR, PATCH)))
-		var/mob/living/carbon/C = M
-		for(var/s in C.surgeries)
-			var/datum/surgery/S = s
-			S.success_multiplier = max(0.1, S.success_multiplier) // +10% success probability on each step, compared to bacchus' blessing's ~46%
+	if(method in list(TOUCH, VAPOR, PATCH))
+		M.sterilize(10, 1 MINUTES * reac_volume/5) // +10% success probability on each step, compared to bacchus' blessing's ~46%
 	..()
 
 /datum/reagent/consumable/buzz_fuzz/addiction_act_stage1(mob/living/M)

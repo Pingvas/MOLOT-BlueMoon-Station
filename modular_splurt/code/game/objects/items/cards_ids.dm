@@ -13,12 +13,14 @@
 	icon = 'modular_bluemoon/icons/obj/card.dmi' //BLUEMOON EDIT респрайт
 	icon_state = "vampire"
 	assignment = "Bloodsucker Fledgling"
+	special_assignment = "bloodsuckerfledgling" // BLUEMOON ADD
 	uses_overlays = FALSE
 	card_sticker = TRUE //BLUEMOON ADD
 
 /obj/item/card/id/away/hotel/splurt
 	name = "Staff ID"
 	assignment = "Hotel Staff"
+	icon_state = "hotel"
 	desc = "A staff ID used to access the hotel's doors."
 	access = list(ACCESS_AWAY_GENERAL, ACCESS_AWAY_MAINT, ACCESS_AWAY_ENGINE)
 
@@ -31,3 +33,9 @@
 	name = "Manager ID"
 	assignment = "Hotel Manager"
 	access = list(ACCESS_AWAY_GENERAL, ACCESS_AWAY_MAINT, ACCESS_AWAY_ENGINE, ACCESS_AWAY_SEC, ACCESS_AWAY_GENERIC1)
+
+/obj/item/card/id/away/hotel/splurt/tourist
+	name = "Tourist ID"
+	assignment = "Hotel Tourist"
+	desc = "A hotel tourist ID used by rich people."
+	access = list(ACCESS_AWAY_GENERAL)

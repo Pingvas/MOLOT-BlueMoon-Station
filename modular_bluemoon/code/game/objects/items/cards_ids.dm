@@ -1,6 +1,10 @@
 /obj/item/card/id/syndicate
 	var/uses = 10 // Даём гражданской Синди-Карте одно использование вместо десяти.
 
+/obj/item/card/id/syndicate/one_access_copy
+	name = "Civilian Syndicate Card"
+	uses = 1
+
 /obj/item/card/id/callsign
 	name = "сallsign id card"
 	desc = "A card used to provide ID and determine access across various facilities. This one belongs to NanoTrasen and has a small graved in label, marking it as \"Callsing Changing ID\"."
@@ -100,6 +104,8 @@
 			visible_message(span_warning("ID карта из лодаута не нашла цель для копирования доступа, сообщите разработчикам."))
 	. = ..()
 
+//////////////////////////////////////////////////////
+
 /obj/item/card/id/nri
 	name = "\improper NRI Military ID"
 	desc = "An Novaya Rossiyskya Imperia Spetsnaz ID card."
@@ -107,6 +113,7 @@
 	registered_name = "NRI"
 	assignment = "NRI"
 	uses_overlays = FALSE
+	special_assignment = "nri"
 
 /obj/item/card/id/nri/Initialize(mapload)
 	access = get_all_accesses()+get_ert_access("commander")-ACCESS_CHANGE_IDS
@@ -119,6 +126,7 @@
 	registered_name = "Sol"
 	assignment = "Sol"
 	uses_overlays = FALSE
+	special_assignment = "sol"
 
 /obj/item/card/id/sol/Initialize(mapload)
 	access = get_all_accesses()+get_ert_access("commander")-ACCESS_CHANGE_IDS
@@ -132,6 +140,7 @@
 	assignment = "Herecit"
 	uses_overlays = FALSE
 	card_sticker = TRUE
+	special_assignment = "heresy"
 
 /obj/item/card/id/lust
 	icon = 'modular_bluemoon/icons/obj/card.dmi'
@@ -141,6 +150,7 @@
 	assignment = "Sex worker"
 	uses_overlays = FALSE
 	card_sticker = TRUE
+	special_assignment = "lust"
 
 /obj/item/card/id/agony
 	icon = 'modular_bluemoon/icons/obj/card.dmi'
@@ -150,6 +160,7 @@
 	assignment = "Ravenheart Resident"
 	uses_overlays = FALSE
 	card_sticker = TRUE
+	special_assignment = "agony"
 
 /obj/item/card/id/muck
 	icon = 'modular_bluemoon/icons/obj/card.dmi'
@@ -159,3 +170,22 @@
 	assignment = "Mucker"
 	uses_overlays = FALSE
 	card_sticker = TRUE
+	special_assignment = "muck"
+
+/obj/item/card/id/blumenland_citizen
+	name = "Blumenland Citizen ID"
+	desc = "An ID made to recognize Blumenland Confederation habbitants and tourists."
+	icon_state = "blumland"
+	assignment = "Blumenland Citizen"
+	uses_overlays = FALSE
+	card_sticker = TRUE
+	special_assignment = "bmland"
+
+/obj/item/card/id/syndicate_citizen
+	name = "Syndicate Employee ID"
+	desc = "An ID made to recognize Triglav Syndicate off-duty agents and supportives."
+	icon_state = "card_black"
+	assignment = "Syndicate Employee"
+	uses_overlays = FALSE
+	card_sticker = TRUE
+	special_assignment = "syndicate"
