@@ -16845,11 +16845,11 @@
 /area/awaymission/InteQ)
 "sgB" = (
 /obj/structure/rack/shelf,
-/obj/item/gun/ballistic/automatic/wt550,
-/obj/item/gun/ballistic/automatic/wt550{
+/obj/item/gun/ballistic/automatic/fal,
+/obj/item/gun/ballistic/automatic/fal{
 	pixel_y = -11
 	},
-/obj/item/gun/ballistic/automatic/wt550{
+/obj/item/gun/ballistic/automatic/fal{
 	pixel_y = 9
 	},
 /turf/open/floor/catwalk_floor,
@@ -20161,15 +20161,15 @@
 /turf/open/floor/grass/grass0,
 /area/awaymission/InteQ/lvl2)
 "vJH" = (
-/obj/item/ammo_box/magazine/wt550m9,
-/obj/item/ammo_box/magazine/wt550m9,
-/obj/item/ammo_box/magazine/wt550m9,
-/obj/item/ammo_box/magazine/wt550m9,
-/obj/item/ammo_box/magazine/wt550m9,
-/obj/item/ammo_box/magazine/wt550m9,
-/obj/item/ammo_box/magazine/wt550m9,
-/obj/item/ammo_box/magazine/wt550m9,
-/obj/item/ammo_box/magazine/wt550m9,
+/obj/item/ammo_box/magazine/fal,
+/obj/item/ammo_box/magazine/fal,
+/obj/item/ammo_box/magazine/fal,
+/obj/item/ammo_box/magazine/fal,
+/obj/item/ammo_box/magazine/fal,
+/obj/item/ammo_box/magazine/fal,
+/obj/item/ammo_box/magazine/fal,
+/obj/item/ammo_box/magazine/fal,
+/obj/item/ammo_box/magazine/fal,
 /obj/structure/closet/crate/large/urbanismcratelarge,
 /turf/open/floor/catwalk_floor/iron_dark,
 /area/awaymission/InteQ)
@@ -21188,7 +21188,7 @@
 /obj/structure/table/reinforced,
 /obj/effect/decal/cleanable/dirt,
 /obj/item/flashlight,
-/obj/item/gun/ballistic/automatic/wt550/wtadler,
+/obj/item/gun/ballistic/automatic/fal,
 /turf/open/floor/catwalk_floor,
 /area/awaymission/InteQ)
 "wNw" = (

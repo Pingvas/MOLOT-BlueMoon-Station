@@ -380,15 +380,22 @@
 		set_new_account(user)
 		return
 
-	// BLUEMOON ADD START
 	if(!withdraw_allowed)
-		var/message = span_warning("ERROR: This card is not allowed withdraw credits.")
-		if(registered_account)
-			registered_account.bank_card_talk(message)
-		else
-			to_chat(user, message)
-		return
-	// BLUEMOON ADD END
+		if(!HAS_TRAIT(user.mind, TRAIT_FENCER))
+			if(user.mind?.antag_datums && !user.mind?.has_antag_datum(/datum/antagonist/ghost_role))
+				var/message = span_warning("ОШИБКА: Замечена попытка кр... добро пожаловать в систему, Джон Доу.")
+				playsound(src, "sparks", 100, 1)
+				if(registered_account)
+					registered_account.bank_card_talk(message)
+				else
+					to_chat(user, message)
+			else
+				var/message = span_warning("ОШИБКА: С этой карты нельзя снимать кредиты.")
+				if(registered_account)
+					registered_account.bank_card_talk(message)
+				else
+					to_chat(user, message)
+				return
 
 	if (world.time < registered_account.withdrawDelay)
 		registered_account.bank_card_talk("<span class='warning'>ERROR: UNABLE TO LOGIN DUE TO SCHEDULED MAINTENANCE. MAINTENANCE IS SCHEDULED TO COMPLETE IN [(registered_account.withdrawDelay - world.time)/10] SECONDS.</span>", TRUE)

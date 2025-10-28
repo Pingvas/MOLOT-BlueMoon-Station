@@ -146,6 +146,17 @@
 	qdel(tip)
 	return ..()
 
+/obj/item/spear/throw_at(atom/target, range, speed, mob/thrower, spin, diagonals_first, datum/callback/callback, quickstart, params)
+	. = ..(target, range, speed, thrower, FALSE, diagonals_first, callback)
+
+/obj/item/spear/New(loc, ...)
+	. = ..()
+	dir = 5
+
+/obj/item/spear/pickup(mob/user)
+	. = ..()
+	dir = 5
+
 //GREY TIDE
 /obj/item/spear/grey_tide
 	icon_state = "spearglass0"

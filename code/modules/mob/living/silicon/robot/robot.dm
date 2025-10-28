@@ -198,6 +198,9 @@
 
 	module.transform_to(modulelist[input_module])
 
+	// Добавляем видимость проводки инженерным киборгам
+	if(istype(module, /obj/item/robot_module/engineering) || istype(module, /obj/item/robot_module/saboteur))
+		ADD_TRAIT(src, TRAIT_KNOW_ENGI_WIRES, JOB_TRAIT)
 
 /mob/living/silicon/robot/proc/updatename(client/C)
 	if(shell)

@@ -268,7 +268,7 @@
 		reveal_wires = TRUE
 
 	// BLUEMOON ADD engineers, roboticist with required TRAIT can see a purpose of wire for needed machinery
-	if (visibility_trait && HAS_TRAIT(user.mind, visibility_trait))
+	if (visibility_trait && (HAS_TRAIT(user.mind, visibility_trait) || HAS_TRAIT(user, visibility_trait)))
 		reveal_wires = TRUE
 
 	// Same for anyone with an abductor multitool.

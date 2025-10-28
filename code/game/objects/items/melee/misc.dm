@@ -158,7 +158,7 @@
 	parry_failed_stagger_duration = 3 SECONDS
 
 /obj/item/melee/sabre/directional_block(mob/living/owner, atom/object, damage, attack_text, attack_type, armour_penetration, mob/attacker, def_zone, final_block_chance, list/block_return, override_direction)
-	if((attack_type & ATTACK_TYPE_PROJECTILE) && is_energy_reflectable_projectile(object))
+	if((attack_type & ATTACK_TYPE_PROJECTILE) && is_bullet_reflectable_projectile(object))
 		var/reflect_chance = HAS_TRAIT(owner, TRAIT_FENCER) ? 60 : 20 // Определение шанса на рефлект.
 		if(prob(reflect_chance))
 			block_return[BLOCK_RETURN_REDIRECT_METHOD] = REDIRECT_METHOD_RETURN_TO_SENDER
@@ -172,7 +172,7 @@
 		. |= BLOCK_SHOULD_REDIRECT
 
 /obj/item/melee/sabre/run_block(mob/living/owner, atom/object, damage, attack_text, attack_type, armour_penetration, mob/attacker, def_zone, final_block_chance, list/block_return)
-	if(!is_energy_reflectable_projectile(object) && (attack_type & ATTACK_TYPE_PROJECTILE))
+	if(is_bullet_reflectable_projectile(object) && (attack_type & ATTACK_TYPE_PROJECTILE))
 		var/reflect_chance = HAS_TRAIT(owner, TRAIT_FENCER) ? 60 : 20 // Определение шанса на рефлект.
 		if(prob(reflect_chance))
 			block_return[BLOCK_RETURN_REDIRECT_METHOD] = REDIRECT_METHOD_RETURN_TO_SENDER			//no you

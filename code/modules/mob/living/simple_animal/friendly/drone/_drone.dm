@@ -101,6 +101,7 @@
 		equip_to_slot_or_del(I, ITEM_SLOT_HEAD)
 
 	ADD_TRAIT(access_card, TRAIT_NODROP, ABSTRACT_ITEM_TRAIT)
+	ADD_TRAIT(src, TRAIT_KNOW_ENGI_WIRES, JOB_TRAIT) // Добавляем видимость проводки дронам
 
 	alert_drones(DRONE_NET_CONNECT)
 

@@ -37,7 +37,7 @@
 						ACCESS_BRIDGE_OFFICER, ACCESS_MAILSORTING)
 	paycheck = PAYCHECK_COMMAND
 
-	mind_traits = list(TRAIT_FENCER) //BLUEMOON ADD use TRAIT system for jobs
+	mind_traits = list(TRAIT_FENCER)
 
 	paycheck = PAYCHECK_COMMAND
 	paycheck_department = ACCOUNT_SEC

@@ -31,25 +31,51 @@
 //handles impregnation, also prefs
 /mob/living/proc/impregnate(mob/living/partner, obj/item/organ/W, baby_type = /mob/living/carbon/human)
 	var/obj/item/organ/container = W
-
 	if(!container)
 		container = getorganslot(ORGAN_SLOT_WOMB)
 	if(!container)
 		return
 
-	var/can_impregnate = 100
-	if(partner?.client?.prefs)
-		can_impregnate = partner.client.prefs.virility
-	var/can_get_pregnant = (client?.prefs?.fertility && !is_type_in_typecache(src.type, GLOB.pregnancy_blocked_mob_typecache))
-	if(!(can_impregnate && can_get_pregnant))
+	var/virility = partner?.client?.prefs?.virility || 0
+	var/fertility = client?.prefs?.fertility || 0
+	if(!fertility || is_type_in_typecache(src.type, GLOB.pregnancy_blocked_mob_typecache))
 		return
 
-	var/avg = (can_impregnate + client.prefs.fertility) / 2
+	// Базовый шанс Делаем в пользу женщин.. Почему ? Потому что девочки у нас вынашивают. и если у них фертильность 100 то пусть потом не удивляюьтся что залетели от парня.
+	var/chance = min(virility * 0.8, fertility * 1.2) * (1 + (rand(-15, 15) / 100)) // Обновил формулу для большей точности
 
-	if(prob(avg))
-		var/obj/item/oviposition_egg/eggo = new()
-		eggo.forceMove(container)
-		eggo.AddComponent(/datum/component/pregnancy, src, partner, baby_type)
+	// Делаем квирк Эстральный цикл пизже
+	var/estrus_total_bonus = 0
+
+	// Проверяем квирк у вынашивающего (src)
+	if(HAS_TRAIT(src, TRAIT_ESTROUS_ACTIVE))
+		var/datum/quirk/estrous_active/Q = src.get_quirk(/datum/quirk/estrous_active)
+		if(Q)
+			var/estrus_bonus = round((0.05 + Q.time_bonus) * 100)
+			estrus_total_bonus += estrus_bonus
+
+	// Проверяем квирк у партнёра (вносителя)
+	if(HAS_TRAIT(partner, TRAIT_ESTROUS_ACTIVE))
+		var/datum/quirk/estrous_active/Qp = partner.get_quirk(/datum/quirk/estrous_active)
+		if(Qp)
+			var/estrus_bonus_p = round((0.05 + Qp.time_bonus) * 100)
+			estrus_total_bonus += estrus_bonus_p
+
+	// Добавляем итоговый бонус
+	if(estrus_total_bonus)
+		chance += estrus_total_bonus
+
+	chance = clamp(chance, 0, 100)
+
+	if(prob(chance))
+		var/num_eggs = rand(1, 2)
+		if(fertility > 80 && prob(30))
+			num_eggs += 1
+
+		for(var/i = 1, i <= num_eggs, i++)
+			var/obj/item/oviposition_egg/eggo = new()
+			eggo.forceMove(container)
+			eggo.AddComponent(/datum/component/pregnancy, src, partner, baby_type)
 
 /mob/living/carbon/human/do_climax(datum/reagents/R, atom/target, obj/item/organ/genital/sender, spill, cover = FALSE, obj/item/organ/genital/receiver, anonymous = FALSE)
 	if(!sender)

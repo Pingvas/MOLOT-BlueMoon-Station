@@ -1027,6 +1027,11 @@
 	var/obj/item/projectile/P = A
 	return istype(P) && P.is_reflectable
 
+/// Это основанный на проке выше хелпер для определения сугубо пулевых снарядов.
+/proc/is_bullet_reflectable_projectile(atom/A)
+	var/obj/item/projectile/bullet/BP = A
+	return istype(BP) && BP.is_reflectable
+
 #undef MOVES_HITSCAN
 #undef MINIMUM_PIXELS_TO_ANIMATE
 #undef MUZZLE_EFFECT_PIXEL_INCREMENT

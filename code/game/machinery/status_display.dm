@@ -32,7 +32,7 @@
 	var/obj/effect/overlay/status_display_text/message1_overlay
 	var/obj/effect/overlay/status_display_text/message2_overlay
 	var/mutable_appearance/ai_vtuber_overlay
-	var/current_picture = ""
+	var/current_picture = "greenalert"
 	var/current_mode = SD_BLANK
 	var/message1 = ""
 	var/message2 = ""

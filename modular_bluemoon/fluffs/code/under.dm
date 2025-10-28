@@ -174,6 +174,14 @@
 	can_adjust = TRUE
 	fitted = FEMALE_UNIFORM_TOP
 
+/obj/item/clothing/under/donator/bm/braskirt
+	name = "Red bra and striped skirt"
+	desc = "Red side-slit skirt with stripes! Comes with a matching two-tone bra."
+	icon_state = "braskirt"
+	item_state = "braskirt"
+	can_adjust = TRUE
+	fitted = FEMALE_UNIFORM_TOP
+
 /obj/item/clothing/underwear/briefs/kladmen_panties
 	name = "Panties"
 	icon_state = "kladmen_panties"
@@ -444,3 +452,25 @@
 	icon_state = "kladmen_dress"
 	item_state = "kladmen_dress"
 	anthro_mob_worn_overlay = 'modular_bluemoon/fluffs/icons/mob/clothing/under_digi.dmi'
+
+/obj/item/clothing/under/donator/bm/ranger_uniform
+	name = "Ranger Uniform"
+	desc = "The standard uniform of the Special Unit Rangers is designed for long-term and moderate wear, and the lightweight composite fabrics provide good mobility and lightness."
+	icon = 'modular_bluemoon/fluffs/icons/obj/clothing/under.dmi'
+	mob_overlay_icon = 'modular_bluemoon/fluffs/icons/mob/clothing/under.dmi'
+	anthro_mob_worn_overlay = 'modular_bluemoon/fluffs/icons/mob/clothing/under_digi.dmi'
+	lefthand_file = 'modular_bluemoon/fluffs/icons/mob/inhands/clothing_left.dmi'
+	righthand_file = 'modular_bluemoon/fluffs/icons/mob/inhands/clothing_right.dmi'
+	icon_state = "ranger_uniform"
+	item_state = "ranger_uniform"
+	can_adjust = FALSE
+
+/obj/item/clothing/under/donator/bm/soviet_uniform
+	name = "Soviet Black Uniform"
+	desc = "The standard uniform of the Special Unit Rangers is designed for long-term and moderate wear, and the lightweight composite fabrics provide good mobility and lightness."
+	icon = 'modular_bluemoon/fluffs/icons/obj/clothing/under.dmi'
+	mob_overlay_icon = 'modular_bluemoon/fluffs/icons/mob/clothing/under.dmi'
+	anthro_mob_worn_overlay = 'modular_bluemoon/fluffs/icons/mob/clothing/under_digi.dmi'
+	icon_state = "sovietblack"
+	item_state = "syndicate-black"
+	can_adjust = FALSE
