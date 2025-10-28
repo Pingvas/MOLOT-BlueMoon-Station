@@ -53,6 +53,7 @@
 #define STOWAWAY		(1<<14)
 #define BOUNCER	    	(1<<15)
 #define ENTERTAINER		(1<<16) // BLUEMOON ADD
+#define FISHING			(1<<17) // BLUEMOON ADD
 
 #define JOB_AVAILABLE 0
 #define JOB_UNAVAILABLE_GENERIC 1
@@ -111,6 +112,7 @@
 #define JOB_DISPLAY_ORDER_ASSISTANT 42
 #define JOB_DISPLAY_ORDER_PRISONER 43 //BlueMoon
 #define JOB_DISPLAY_ORDER_STOWAWAY 44 // Сплюрт, сука.
+#define JOB_DISPLAY_ORDER_FISHING 45 // нафармил карасей как скуф, пусти про нас слух
 
 #define DEPARTMENT_UNASSIGNED "No department assigned"
 
