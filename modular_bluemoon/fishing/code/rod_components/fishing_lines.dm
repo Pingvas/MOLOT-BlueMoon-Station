@@ -17,7 +17,7 @@
 	name = "fishing sinew line"
 	desc = "An all-natural fishing line made of stretched out sinew."
 	icon_state = "sinew"
-	fishing_value = 200
+	fishing_value = 0.2
 	line_color = "#d1cca3"
 
 /datum/crafting_recipe/sinew_line
@@ -27,9 +27,22 @@
 	time = 2 SECONDS
 	category = CAT_MISC
 
+/obj/item/fishing_component/line/woven
+	name = "woven fishing line reel"
+	desc = "Stronger fishing line, used by veteran fishermen."
+	icon_state = "white"
+	fishing_value = 0.3
+
 /obj/item/fishing_component/line/reinforced
 	name = "reinforced fishing line reel"
 	desc = "Essential for fishing in extreme environments."
 	icon_state = "green"
-	fishing_value = 400
+	fishing_value = 0.4
 	line_color = "#2b9c2b"
+
+/obj/item/fishing_component/line/clan
+	name = "resurgence clan fishing line reel"
+	desc = "Essential for fishing in the outskirts."
+	icon_state = "clan"
+	fishing_value = 0.6
+	line_color = "#057A71"
