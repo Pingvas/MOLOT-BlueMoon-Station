@@ -958,6 +958,12 @@
 	ckeywhitelist = list("stasdvrz", "vlonger", "vidl")
 
 /datum/gear/donator/bm/dedication_kit
+	name = "P320 kit"
+	slot = ITEM_SLOT_BACKPACK
+	path = /obj/item/modkit/p320_kit
+	ckeywhitelist = list("pingvas", "ty4ka.ha.hebe")
+
+/datum/gear/donator/bm/dedication_kit
 	name = "Dedication kit"
 	slot = ITEM_SLOT_BACKPACK
 	path = /obj/item/modkit/dedication_kit
