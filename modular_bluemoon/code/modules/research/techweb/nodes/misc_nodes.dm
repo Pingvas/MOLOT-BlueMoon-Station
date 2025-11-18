@@ -5,8 +5,8 @@
 	display_name = "Slime Power Theory"
 	description = "Seems like Dr. Prescott Joule was wrong. We got energy-replenishment data after researching into slime power cells. It does have a lot of potential, but more to do."
 	prereq_ids = list("datatheory", "biotech")
-	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 5000)
-	autounlock_by_boost = FALSE
+	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 50000)
+	autounlock_by_boost = TRUE // Специально выделяю для понятности, как обойти конский ценник
 
 /datum/techweb_node/joule_was_wrong/New()
 	. = ..()

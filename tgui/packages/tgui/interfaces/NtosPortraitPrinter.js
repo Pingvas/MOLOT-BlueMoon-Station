@@ -11,6 +11,8 @@ export const NtosPortraitPrinter = (props, context) => {
     library,
     library_secure,
     library_private,
+    library_large,
+    library_large_private,
   } = data;
   const TABS = [
     {
@@ -27,6 +29,16 @@ export const NtosPortraitPrinter = (props, context) => {
       name: 'Private Portraits',
       asset_prefix: "library_private",
       list: library_private,
+    },
+    {
+      name: 'Large Portraits',
+      asset_prefix: "library_large",
+      list: library_large,
+    },
+    {
+      name: 'Large Private Portraits',
+      asset_prefix: "library_large_private",
+      list: library_large_private,
     },
   ];
   const tab2list = TABS[tabIndex].list;
@@ -67,7 +79,6 @@ export const NtosPortraitPrinter = (props, context) => {
                   <img
                     src={resolveAsset(current_portrait_asset_name)}
                     height="128px"
-                    width="128px"
                     style={{
                       'vertical-align': 'middle',
                       '-ms-interpolation-mode': 'nearest-neighbor',

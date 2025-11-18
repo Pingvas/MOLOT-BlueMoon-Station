@@ -286,6 +286,15 @@
 		to_chat(user, "<span class='notice'>You stuff [I] into [src]. It disappears in a small puff of bluespace smoke, adding [cash_money] credits to the linked account.</span>")
 	else
 		to_chat(user, "<span class='notice'>You insert [I] into [src], adding [cash_money] credits to the linked account.</span>")
+	// после успешного зачисления:
+	if(registered_account)
+		registered_account.makeTransactionLog(
+			cash_money,
+			"Deposit via [I.name]",
+			"[src.name]",
+			user ? user.real_name : "Unknown depositor",
+			FALSE
+		)
 
 	to_chat(user, "<span class='notice'>The linked account now reports a balance of [registered_account.account_balance] cr.</span>")
 	qdel(I)
@@ -305,6 +314,14 @@
 		CHECK_TICK
 
 	registered_account.adjust_money(total)
+	if(registered_account && total > 0)
+		registered_account.makeTransactionLog(
+			total,
+			"Deposit via money bag",
+			"[src.name]",
+			user ? user.real_name : "Unknown depositor",
+			FALSE
+		)
 
 	QDEL_LIST(money)
 
@@ -412,6 +429,15 @@
 		var/obj/item/holochip/holochip = new (user.drop_location(), amount_to_remove)
 		user.put_in_hands(holochip)
 		to_chat(user, "<span class='notice'>You withdraw [amount_to_remove] credits into a holochip.</span>")
+
+		// 🧾 Добавляем запись о снятии в историю транзакций
+		registered_account.makeTransactionLog(
+			-amount_to_remove,
+			"Withdrawal via ID Card",
+			"[src.name]",
+			user ? user.real_name : "Unknown user",
+			FALSE
+		)
 		return
 	registered_account.bank_card_talk("<span class='warning'>ERROR: The linked account has no sufficient credits to perform that withdrawal.</span>", TRUE)
 

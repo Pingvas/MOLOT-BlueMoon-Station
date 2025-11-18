@@ -7431,11 +7431,37 @@
 /turf/open/floor/plasteel/textured/large,
 /area/hallway/primary/central)
 "aPf" = (
-/obj/structure/table/wood,
+/obj/structure/closet/crate,
+/obj/item/book{
+	desc = "An undeniably handy book.";
+	icon_state = "bookknock";
+	name = "A Simpleton's Guide to Safe-cracking with Stethoscopes"
+	},
+/obj/item/book/manual/wiki/grenades,
+/obj/item/book/manual/wiki/toxins,
+/obj/item/book/manual/hydroponics_pod_people,
+/obj/item/book/manual/ripley_build_and_repair,
+/obj/item/book/manual/wiki/infections,
+/obj/item/book/manual/wiki/medical_cloning,
+/obj/item/book/manual/wiki/medicine,
+/obj/item/book/manual/splurt_space_law,
+/obj/item/book/manual/wiki/robotics_cyborgs,
+/obj/item/book/manual/wiki/research_and_development,
+/obj/item/book/manual/wiki/experimentor,
+/obj/item/book/manual/wiki/engineering_singulo_tesla,
+/obj/item/book/manual/wiki/tcomms,
+/obj/item/book/manual/wiki/detective,
+/obj/item/book/manual/wiki/atmospherics,
+/obj/item/book/manual/wiki/engineering_construction,
+/obj/item/book/manual/wiki/engineering_guide,
+/obj/item/book/manual/wiki/telescience,
 /turf/open/floor/wood/wood_large,
 /area/service/library)
 "aPg" = (
 /obj/structure/chair/comfy/brown,
+/obj/structure/sign/painting/library_private{
+	pixel_x = -32
+	},
 /turf/open/floor/carpet,
 /area/service/library)
 "aPk" = (
@@ -7757,6 +7783,7 @@
 "aQs" = (
 /obj/structure/bed,
 /obj/item/bedsheet/black,
+/obj/structure/sign/painting/large/library_private/directional/east,
 /turf/open/floor/carpet,
 /area/service/library)
 "aQx" = (
@@ -10148,15 +10175,12 @@
 /turf/open/floor/plasteel/freezer,
 /area/service/kitchen)
 "bas" = (
-/obj/structure/table/wood,
-/obj/machinery/fax{
-	fax_name = "General Fax";
-	name = "General Fax"
+/obj/item/kirbyplants{
+	icon_state = "plant-08"
 	},
 /turf/open/floor/wood,
 /area/service/library)
 "bat" = (
-/obj/structure/table/wood,
 /obj/item/pen/red,
 /obj/machinery/atmospherics/components/unary/vent_pump/on/layer1{
 	dir = 1
@@ -10164,6 +10188,7 @@
 /obj/structure/transmitter{
 	pixel_y = 6
 	},
+/obj/structure/table/wood,
 /turf/open/floor/wood,
 /area/service/library)
 "bau" = (
@@ -35634,9 +35659,6 @@
 	pixel_x = 9;
 	pixel_y = 24
 	},
-/obj/structure/sign/painting/library{
-	pixel_x = -32
-	},
 /turf/open/floor/carpet/royalblack,
 /area/service/library)
 "diL" = (
@@ -46808,30 +46830,11 @@
 /turf/open/floor/plasteel/dark/textured/large,
 /area/medical/morgue)
 "hMQ" = (
-/obj/structure/closet/crate,
-/obj/item/book/manual/wiki/telescience,
-/obj/item/book/manual/wiki/engineering_guide,
-/obj/item/book/manual/wiki/engineering_construction,
-/obj/item/book/manual/wiki/atmospherics,
-/obj/item/book/manual/wiki/detective,
-/obj/item/book/manual/wiki/tcomms,
-/obj/item/book/manual/wiki/engineering_singulo_tesla,
-/obj/item/book/manual/wiki/experimentor,
-/obj/item/book/manual/wiki/research_and_development,
-/obj/item/book/manual/wiki/robotics_cyborgs,
-/obj/item/book/manual/splurt_space_law,
-/obj/item/book/manual/wiki/medicine,
-/obj/item/book/manual/wiki/medical_cloning,
-/obj/item/book/manual/wiki/infections,
-/obj/item/book/manual/ripley_build_and_repair,
-/obj/item/book/manual/hydroponics_pod_people,
-/obj/item/book/manual/wiki/toxins,
-/obj/item/book/manual/wiki/grenades,
-/obj/item/book{
-	desc = "An undeniably handy book.";
-	icon_state = "bookknock";
-	name = "A Simpleton's Guide to Safe-cracking with Stethoscopes"
+/obj/machinery/fax{
+	fax_name = "General Fax";
+	name = "General Fax"
 	},
+/obj/structure/table/wood,
 /turf/open/floor/wood,
 /area/service/library)
 "hMS" = (
@@ -51723,6 +51726,7 @@
 /obj/machinery/atmospherics/components/unary/vent_pump/on/layer1{
 	dir = 4
 	},
+/obj/structure/sign/painting/large/library/directional/west,
 /turf/open/floor/carpet/royalblack,
 /area/service/library)
 "jSr" = (
@@ -68181,12 +68185,10 @@
 	dir = 1;
 	light_color = "#c1caff"
 	},
-/obj/structure/sign/painting/library{
-	pixel_y = 32
-	},
 /obj/structure/chair/comfy/black{
 	color = "#777777"
 	},
+/obj/structure/sign/painting/large/library/directional/north,
 /turf/open/floor/carpet/royalblack,
 /area/service/library)
 "qSo" = (
@@ -73157,9 +73159,6 @@
 /turf/open/floor/plasteel/dark/textured/edge,
 /area/commons/dorms)
 "tap" = (
-/obj/structure/sign/painting/library{
-	pixel_y = 32
-	},
 /obj/structure/chair/comfy/black{
 	color = "#777777"
 	},
@@ -76764,9 +76763,11 @@
 	},
 /area/hallway/primary/starboard)
 "uwl" = (
-/obj/structure/table/wood,
 /obj/structure/window/reinforced{
 	dir = 8
+	},
+/obj/machinery/modular_computer/console/preset/curator{
+	dir = 4
 	},
 /turf/open/floor/wood/wood_large,
 /area/service/library)

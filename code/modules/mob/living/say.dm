@@ -103,9 +103,11 @@ GLOBAL_LIST_INIT(department_radio_keys, list(
 
 	var/ic_blocked = FALSE
 
-	if(client && !forced && CHAT_FILTER_CHECK(message))
-		//The filter doesn't act on the sanitized message, but the raw message.
-		ic_blocked = TRUE
+	if(!isclownjob(src))
+		if(!(src?.onCentCom()))
+			if(client && !forced && CHAT_FILTER_CHECK(message))
+				ic_blocked = TRUE
+
 
 	if(sanitize)
 		message = trim(copytext_char(sanitize(message), 1, MAX_MESSAGE_LEN))
@@ -113,10 +115,12 @@ GLOBAL_LIST_INIT(department_radio_keys, list(
 		return
 
 	if(ic_blocked)
-		//The filter warning message shows the sanitized message though.
-		to_chat(src, "<span class='warning'>Здравствуйте. Вам следует исключить сказанное слово из своего словесного запаса во время игры на нашем сервере. Вы предупреждены.\n<span replaceRegex='show_filtered_ic_chat'>\"[message]\"</span></span>")
-		SSblackbox.record_feedback("tally", "ic_blocked_words", 1, lowertext(config.ic_filter_regex.match))
-		src.adjustOrganLoss(ORGAN_SLOT_BRAIN, 25, 75)
+		var/matched_word = find_any_whole_word(message, config.ic_filter_regex)
+		SSblackbox.record_feedback("tally", "ic_blocked_words", 1, lowertext(matched_word))
+		to_chat(src, "<span class='warning'>Вы сказали:\n<span replaceRegex='show_filtered_ic_chat'>\"[lowertext(matched_word)]\".</span> Это плохое слово. Вы будете за это наказаны повреждением мозга.</span>")
+		log_admin("[ADMIN_LOOKUPFLW(usr)] сказал плохое слово: [lowertext(matched_word)].")
+		message_admins("[ADMIN_LOOKUPFLW(usr)] сказал плохое слово: [lowertext(matched_word)].")
+		src.adjustOrganLoss(ORGAN_SLOT_BRAIN, 25, 175)
 
 	var/datum/saymode/saymode = SSradio.saymodes[talk_key]
 	var/message_mode = get_message_mode(message)

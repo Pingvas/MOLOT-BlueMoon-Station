@@ -2064,6 +2064,9 @@
 	icon_state = "box_1";
 	state = 2
 	},
+/obj/structure/fans/tiny{
+	dir = 4
+	},
 /turf/open/floor/engine,
 /area/ruin/space/has_grav/bluemoon/deepspacetwo/engineering)
 "hy" = (
@@ -8214,6 +8217,9 @@
 	icon_state = "box_1";
 	state = 2
 	},
+/obj/structure/fans/tiny{
+	dir = 4
+	},
 /turf/open/floor/engine,
 /area/ruin/space/has_grav/bluemoon/deepspacetwo/engineering)
 "Gl" = (
@@ -11337,12 +11343,16 @@
 /obj/machinery/firealarm/directional/west,
 /obj/structure/rack,
 /obj/item/gun/ballistic/automatic/acr5m30{
-	pixel_y = 9
+	pixel_y = 9;
+	pin = /obj/item/firing_pin/implant/pindicate
 	},
 /obj/item/gun/ballistic/automatic/acr5m30{
-	pixel_y = -10
+	pixel_y = -10;
+	pin = /obj/item/firing_pin/implant/pindicate
 	},
-/obj/item/gun/ballistic/automatic/acr5m30,
+/obj/item/gun/ballistic/automatic/acr5m30{
+	pin = /obj/item/firing_pin/implant/pindicate
+	},
 /turf/open/floor/mineral/plastitanium/red,
 /area/ruin/space/has_grav/bluemoon/deepspacetwo/security/armory)
 "Sq" = (
@@ -13055,9 +13065,6 @@
 "Yd" = (
 /obj/effect/turf_decal/stripes/yellow/line,
 /obj/effect/turf_decal/siding/dark,
-/obj/structure/fans/tiny{
-	dir = 4
-	},
 /turf/open/floor/engine,
 /area/ruin/space/has_grav/bluemoon/deepspacetwo/engineering)
 "Ye" = (

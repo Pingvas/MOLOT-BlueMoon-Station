@@ -4,7 +4,7 @@ import { useBackend } from '../backend';
 import { Box, Button } from '../components';
 import { Window } from '../layouts';
 
-const PX_PER_UNIT = 24;
+const PX_PER_UNIT = 20;
 
 class PaintCanvas extends Component {
   constructor(props) {
@@ -90,8 +90,8 @@ export const Canvas = (props, context) => {
   const [width, height] = getImageSize(data.grid);
   return (
     <Window
-      width={Math.min(700, width * dotsize + 72)}
-      height={Math.min(700, height * dotsize + 72)}>
+      width={Math.min(1280, width * dotsize + 72)}
+      height={Math.min(720, height * dotsize + 72)}>
       <Window.Content>
         <Box textAlign="center">
           <PaintCanvas

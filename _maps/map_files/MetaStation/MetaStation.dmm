@@ -78927,6 +78927,7 @@
 	fax_name = "General Fax";
 	name = "General Fax"
 	},
+/obj/structure/sign/painting/large/library_private/directional/south,
 /turf/open/floor/wood,
 /area/service/library)
 "rSi" = (
@@ -80449,6 +80450,9 @@
 	pixel_y = 7
 	},
 /obj/item/pen/invisible,
+/obj/structure/sign/painting/library_private{
+	pixel_y = -32
+	},
 /turf/open/floor/engine/cult,
 /area/service/library)
 "sBo" = (
@@ -86701,6 +86705,10 @@
 	dir = 1
 	},
 /area/medical/surgery)
+"vxd" = (
+/obj/structure/sign/painting/large/library/directional/north,
+/turf/open/floor/wood,
+/area/service/library)
 "vxf" = (
 /obj/machinery/atmospherics/pipe/simple/supply/hidden,
 /obj/machinery/light{
@@ -86797,11 +86805,6 @@
 /turf/open/floor/engine,
 /area/science/xenobiology)
 "vzE" = (
-/obj/structure/table/wood,
-/obj/item/flashlight/lamp/green{
-	pixel_x = 1;
-	pixel_y = 5
-	},
 /obj/structure/window/reinforced{
 	dir = 8
 	},
@@ -86809,6 +86812,7 @@
 	dir = 1;
 	layer = 2.9
 	},
+/obj/machinery/modular_computer/console/preset/curator,
 /turf/open/floor/wood,
 /area/service/library)
 "vAp" = (
@@ -89106,6 +89110,10 @@
 	},
 /turf/open/floor/plasteel,
 /area/hallway/secondary/service)
+"wCt" = (
+/obj/structure/sign/painting/large/library/directional/south,
+/turf/open/floor/wood,
+/area/service/library)
 "wCQ" = (
 /obj/structure/cable/yellow{
 	icon_state = "4-8"
@@ -93101,6 +93109,10 @@
 /obj/structure/window/reinforced{
 	dir = 1;
 	layer = 2.9
+	},
+/obj/item/flashlight/lamp/green{
+	pixel_x = 1;
+	pixel_y = 5
 	},
 /turf/open/floor/wood,
 /area/service/library)
@@ -113855,8 +113867,8 @@ boe
 bql
 bsH
 glc
-qwv
-dRL
+vxd
+wCt
 glc
 snU
 yhY
@@ -114112,8 +114124,8 @@ bof
 bqu
 bsz
 glc
-qwv
-dRL
+fEX
+fEX
 glc
 xuF
 yhY

@@ -290,9 +290,7 @@
 		else
 			user.adjustBruteLoss(rand(force/2,force))
 	if(!wielded)
-		force = rand(25, 40)
-	else
-		force = 40
+		target.apply_damage(rand(0, 15), BRUTE)
 	..()
 
 /obj/item/energy_naginata/proc/explode()

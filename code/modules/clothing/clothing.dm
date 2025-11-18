@@ -106,6 +106,9 @@ MOVED TO: modular_splurt/code/module/clothing/clothing.dm
 
 /obj/item/clothing/attackby(obj/item/W, mob/user, params)
 	if(damaged_clothes && istype(W, repairable_by))
+		if(current_equipped_slot && (current_equipped_slot in user.check_obscured_slots()))
+			to_chat(user, "<span class='warning'>You are unable to repair [src] while wearing other garments over it!</span>")
+			return
 		var/obj/item/stack/S = W
 		switch(damaged_clothes)
 			if(CLOTHING_DAMAGED)

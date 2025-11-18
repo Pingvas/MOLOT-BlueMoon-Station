@@ -1009,7 +1009,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "ERP : <a href='?_src_=prefs;preference=erp_pref'>[erppref]</a><br>"
 					dat += "Non-Con : <a href='?_src_=prefs;preference=noncon_pref'>[nonconpref]</a><br>"
 					dat += "Vore : <a href='?_src_=prefs;preference=vore_pref'>[vorepref]</a><br>"
-					dat += "Mob-Sex : <a href='?_src_=prefs;preference=mobsex_pref'>[mobsexpref]</a><br>"
+					dat += "Mob Non-Con Sex : <a href='?_src_=prefs;preference=mobsex_pref'>[mobsexpref]</a><br>"
 					dat += "Horny Antags : <a href='?_src_=prefs;preference=hornyantags_pref'>[hornyantagspref]</a><br>"
 
 					dat += "<h2>Lewd preferences</h2>"
@@ -4777,12 +4777,21 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					user_gear[LOADOUT_CUSTOM_DESCRIPTION] = new_description
 			// BLUEMOON ADD START - выбор вещей из лодаута как family heirloom
 			if(href_list["loadout_addheirloom"])
+				// Выбран ли предмет среди категории неприемлемых для реликвии?
+				var/typepath = user_gear[LOADOUT_ITEM]
+				var/forbidden = FALSE
+				var/datum/gear/temp_gear = new typepath()
+				if (is_typeof_list(temp_gear.path, LOADOUT_IS_DISALLOWED_HEIRLOOM))
+					forbidden = TRUE
+				qdel(temp_gear) // На всякий случай, чтобы не засирало память лишними датумами
 				// Выбран ли какой-либо другой предмет как семейная реликвия, и если да, то какой?
 				var/existing = find_gear_with_property(loadout_slot, LOADOUT_IS_HEIRLOOM, TRUE)
-				if(!existing)
+				if(!existing && !forbidden)
 					user_gear[LOADOUT_IS_HEIRLOOM] = TRUE
-				else
+				else if(existing)
 					to_chat(user, "<font color='red'>У вас уже выбрана ваша семейная реликвия!</font>")
+				else if(forbidden)
+					to_chat(user, "<font color ='red'>Это не подойдёт в качестве семейной реликвии!</font>")
 			if(href_list["loadout_removeheirloom"])
 				user_gear[LOADOUT_IS_HEIRLOOM] = FALSE
 			// BLUEMOON ADD END

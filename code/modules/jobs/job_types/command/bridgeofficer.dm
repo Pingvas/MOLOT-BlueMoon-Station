@@ -43,7 +43,7 @@
 	paycheck_department = ACCOUNT_SEC
 	alt_titles = list("NT Junior Manager", "Syndicate Junior Officer", "Command Secretary", "Command Officer", "Bridge Secretary", "Ensign", "Bridge Bitch", "Bridge Canine", "Captain Pet", "Command Pet", "Dick Attachment", "Pussy Attachment", "Bridge Advisor", "Bridge Intern", "Bridge Pet")
 	display_order = JOB_DISPLAY_ORDER_BO
-	blacklisted_quirks = list(/datum/quirk/mute, /datum/quirk/brainproblems, /datum/quirk/insanity)
+	blacklisted_quirks = list(/datum/quirk/mute, /datum/quirk/brainproblems, /datum/quirk/insanity, /datum/quirk/illiterate)
 	threat = 1
 
 /datum/outfit/job/bridgeofficer

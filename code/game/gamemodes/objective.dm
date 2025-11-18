@@ -564,7 +564,7 @@ If not set, defaults to check_completion instead. Set it. It's used by cryo.
 
 /datum/objective/nuclear/revert
 	name = "revert_nuclear"
-	explanation_text = "Защити Космическую Станцию и Ядерный Диск любой ценой."
+	explanation_text = "Авторизуйся, защищай Космическую Станцию и обеспечивай охрану Ядерного Диска любой ценой."
 	martyr_compatible = 1
 
 /datum/objective/nuclear/revert/check_completion()

@@ -27662,20 +27662,6 @@
 /turf/open/floor/plasteel/showroomfloor,
 /area/medical/chemistry)
 "aUT" = (
-/obj/structure/table/wood,
-/obj/item/flashlight/lamp/green{
-	pixel_x = -5;
-	pixel_y = 7
-	},
-/obj/item/pen{
-	pixel_x = 8;
-	pixel_y = 5
-	},
-/obj/item/pen/red{
-	pixel_x = 5;
-	pixel_y = 1
-	},
-/obj/item/toy/figure/curator,
 /obj/structure/window/reinforced{
 	dir = 8
 	},
@@ -27683,6 +27669,7 @@
 	dir = 1;
 	layer = 2.9
 	},
+/obj/machinery/modular_computer/console/preset/curator,
 /turf/open/floor/plasteel/grimy,
 /area/service/library)
 "aUU" = (
@@ -28843,6 +28830,7 @@
 /obj/structure/chair/office{
 	dir = 1
 	},
+/obj/structure/sign/painting/large/library/directional/south,
 /turf/open/floor/plasteel/dark,
 /area/service/bar)
 "aWC" = (
@@ -43802,6 +43790,19 @@
 /obj/structure/window/reinforced{
 	dir = 1;
 	layer = 2.9
+	},
+/obj/item/toy/figure/curator,
+/obj/item/flashlight/lamp/green{
+	pixel_x = -5;
+	pixel_y = 7
+	},
+/obj/item/pen/red{
+	pixel_x = 5;
+	pixel_y = 1
+	},
+/obj/item/pen{
+	pixel_x = 8;
+	pixel_y = 5
 	},
 /turf/open/floor/plasteel/dark,
 /area/service/library)
@@ -83932,6 +83933,16 @@
 /obj/item/toy/cards/deck,
 /turf/open/floor/wood,
 /area/commons/vacant_room/office)
+"laT" = (
+/obj/effect/turf_decal/tile/neutral,
+/obj/effect/turf_decal/tile/neutral{
+	dir = 1
+	},
+/obj/structure/sign/painting/library{
+	pixel_x = -32
+	},
+/turf/open/floor/plasteel/dark,
+/area/service/bar)
 "lcb" = (
 /obj/machinery/door/firedoor,
 /obj/machinery/door/airlock/security/glass{
@@ -110620,7 +110631,7 @@ aJi
 aOG
 btE
 btK
-btF
+btE
 btE
 aPK
 aLU
@@ -110877,7 +110888,7 @@ aaJ
 btE
 btE
 bvi
-aTe
+laT
 buu
 bvf
 aTe
@@ -111653,7 +111664,7 @@ ann
 bum
 bup
 aWB
-buE
+buC
 but
 bvp
 aUH
@@ -111910,7 +111921,7 @@ aoU
 bun
 buq
 aWC
-buE
+buC
 buL
 bvp
 aUT

@@ -26,13 +26,17 @@
 	data["library"] = SSpersistence.paintings["library"] ? SSpersistence.paintings["library"] : 0
 	data["library_secure"] = SSpersistence.paintings["library_secure"] ? SSpersistence.paintings["library_secure"] : 0
 	data["library_private"] = SSpersistence.paintings["library_private"] ? SSpersistence.paintings["library_private"] : 0 //i'm gonna regret this, won't i? Yes you should.
+	data["library_large"] = SSpersistence.paintings["library_large"] ? SSpersistence.paintings["library_large"] : 0
+	data["library_large_private"] = SSpersistence.paintings["library_large_private"] ? SSpersistence.paintings["library_large_private"] : 0
 	return data
 
 /datum/computer_file/program/portrait_printer/ui_assets(mob/user)
 	return list(
 		get_asset_datum(/datum/asset/simple/portraits/library),
 		get_asset_datum(/datum/asset/simple/portraits/library_secure),
-		get_asset_datum(/datum/asset/simple/portraits/library_private)
+		get_asset_datum(/datum/asset/simple/portraits/library_private),
+		get_asset_datum(/datum/asset/simple/portraits/library_large),
+		get_asset_datum(/datum/asset/simple/portraits/library_large_private)
 	)
 
 /datum/computer_file/program/portrait_printer/ui_act(action, params)
@@ -53,7 +57,7 @@
 	printer.stored_paper -= CANVAS_PAPER_COST
 
 	//canvas printing!
-	var/list/tab2key = list(TAB_LIBRARY = "library", TAB_SECURE = "library_secure", TAB_PRIVATE = "library_private")
+	var/list/tab2key = list(TAB_LIBRARY = "library", TAB_SECURE = "library_secure", TAB_PRIVATE = "library_private" , TAB_LARGE = "library_large", TAB_LARGE_PRIVATE = "library_large_private")
 	var/folder = tab2key[params["tab"]]
 	var/list/current_list = SSpersistence.paintings[folder]
 	var/list/chosen_portrait = current_list[params["selected"]]

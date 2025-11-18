@@ -97,7 +97,7 @@
 	icon_state = "flektarn_montur"
 	item_state = "flektarn_montur"
 
-/obj/item/clothing/suit/donator/bm/SH_jacket
+/obj/item/clothing/suit/donator/bm/sh_jacket
 	name = "Shiro's Samurai Jacket"
 	desc = "Iconic jacket of the Shiro Silverhand he wore in his Samurai days."
 	mutantrace_variation = STYLE_DIGITIGRADE | STYLE_NO_ANTHRO_ICON
@@ -469,3 +469,29 @@
 	mutantrace_variation = STYLE_DIGITIGRADE | STYLE_NO_ANTHRO_ICON
 	icon_state = "ranger_coat"
 	item_state = "ranger_coat"
+
+/obj/item/clothing/suit/armor/vest/bluesheid/mu88
+	name = "M.U. 88 New hope coat"
+	desc = "Длинный плащ полевого медицинского сотрудника службы безопасности. Внутренняя часть имеет прослойку подвижного кевлара, от чего не стесняет движения носителя, немного весит и обладает базовой защитой от пулевых, режущих и колющих видов повреждений. Дополнительно имеется множество карманов и различного рода ремешков для хранения и переноски разнообразного медицинских расходников и обороудования. В одном из внутренних карманов расположился логотип производителя, в виде чёрной розы, а также надпись - Black Rose atelier."
+	mutantrace_variation = STYLE_DIGITIGRADE | STYLE_NO_ANTHRO_ICON
+	icon = 'modular_bluemoon/fluffs/icons/obj/clothing/suit.dmi'
+	mob_overlay_icon = 'modular_bluemoon/fluffs/icons/mob/clothing/suit.dmi'
+	lefthand_file = 'modular_bluemoon/fluffs/icons/mob/inhands/clothing_left.dmi'
+	righthand_file = 'modular_bluemoon/fluffs/icons/mob/inhands/clothing_right.dmi'
+	icon_state = "mu88"
+	item_state = "mu88"
+
+///////////////////////////////////////////////
+
+/obj/item/clothing/suit/donator/bm/dm_pzgrnd_suit
+	name = "motorized infantry jacket"
+	desc = "A spacious jacket designed for vehicle escort units. It features numerous pockets, as well as a sturdy leather belt! The label inside shows the inscription \"DM Arms\"."
+	icon = 'modular_bluemoon/fluffs/icons/obj/clothing/suit.dmi'
+	mob_overlay_icon = 'modular_bluemoon/fluffs/icons/mob/clothing/suit.dmi'
+	lefthand_file = 'modular_bluemoon/fluffs/icons/mob/inhands/clothing_left.dmi'
+	righthand_file = 'modular_bluemoon/fluffs/icons/mob/inhands/clothing_right.dmi'
+	mutantrace_variation = STYLE_DIGITIGRADE | STYLE_NO_ANTHRO_ICON
+	icon_state = "pz_grenadierjacket"
+	item_state = "pz_grenadierjacket"
+
+///////////////////////////////////////////////

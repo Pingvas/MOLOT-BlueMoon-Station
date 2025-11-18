@@ -1248,6 +1248,12 @@
 	},
 /turf/open/lava/smooth/lava_land_surface,
 /area/lavaland/surface/outdoors)
+"bam" = (
+/obj/structure/sign/painting/library{
+	pixel_y = 32
+	},
+/turf/open/floor/wood,
+/area/mine/xenoarch_area_b)
 "baK" = (
 /obj/structure/window/plasma/reinforced/spawner/east,
 /obj/machinery/door/firedoor/border_only{
@@ -10424,6 +10430,7 @@
 /obj/effect/turf_decal/tile/dark_green/half{
 	dir = 1
 	},
+/obj/structure/sign/painting/large/library/directional/north,
 /turf/open/floor/plasteel/dark/textured/half{
 	dir = 4
 	},
@@ -75561,7 +75568,7 @@ dVa
 dVa
 naW
 eQh
-nwQ
+bam
 nwQ
 iDB
 nwQ
@@ -76332,7 +76339,7 @@ dVa
 dVa
 abj
 eQh
-nwQ
+bam
 nwQ
 nwQ
 nwQ

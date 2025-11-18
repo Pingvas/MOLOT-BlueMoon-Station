@@ -71526,9 +71526,7 @@
 /obj/machinery/door/window{
 	name = "Secure Art Exhibition"
 	},
-/obj/structure/sign/painting/library_secure{
-	pixel_y = 32
-	},
+/obj/structure/sign/painting/large/library_private/directional/north,
 /turf/open/floor/carpet,
 /area/service/library)
 "haL" = (
@@ -84023,6 +84021,14 @@
 /obj/structure/extinguisher_cabinet/directional/north,
 /turf/open/floor/plasteel/dark,
 /area/security/prison)
+"kpT" = (
+/obj/structure/window/reinforced,
+/obj/structure/table/wood/fancy,
+/obj/structure/sign/painting/library_secure{
+	pixel_y = 32
+	},
+/turf/open/floor/carpet,
+/area/service/library)
 "kpU" = (
 /obj/structure/table/wood,
 /obj/structure/cable/white{
@@ -84120,12 +84126,8 @@
 /area/engineering/break_room)
 "krd" = (
 /obj/structure/table/wood/fancy,
-/obj/structure/window/reinforced{
-	dir = 4
-	},
-/obj/structure/window/reinforced,
-/obj/structure/sign/painting/library_secure{
-	pixel_y = 32
+/obj/machinery/door/window{
+	name = "Secure Art Exhibition"
 	},
 /turf/open/floor/carpet,
 /area/service/library)
@@ -93601,6 +93603,9 @@
 /obj/effect/turf_decal/tile/neutral{
 	dir = 8
 	},
+/obj/structure/sign/painting/library_private{
+	pixel_y = 32
+	},
 /turf/open/floor/plasteel/dark,
 /area/service/library)
 "nfq" = (
@@ -97831,6 +97836,9 @@
 /area/service/chapel/office)
 "oor" = (
 /obj/item/kirbyplants/random,
+/obj/machinery/status_display/evac{
+	pixel_y = -32
+	},
 /turf/open/floor/plasteel/grimy,
 /area/service/library)
 "ooL" = (
@@ -116210,6 +116218,8 @@
 	name = "Station Intercom";
 	pixel_y = -26
 	},
+/obj/item/taperecorder,
+/obj/item/storage/bag/books,
 /turf/open/floor/plasteel/grimy,
 /area/service/library)
 "tzz" = (
@@ -121913,12 +121923,12 @@
 /turf/open/floor/plasteel/dark/textured,
 /area/security/brig_cells)
 "vem" = (
-/obj/structure/table/wood,
-/obj/item/storage/bag/books,
-/obj/item/taperecorder,
 /obj/structure/noticeboard{
 	dir = 8;
 	pixel_x = 32
+	},
+/obj/machinery/modular_computer/console/preset/curator{
+	dir = 8
 	},
 /turf/open/floor/plasteel/grimy,
 /area/service/library)
@@ -125552,9 +125562,7 @@
 /turf/open/floor/plasteel,
 /area/engineering/atmos)
 "wjj" = (
-/obj/structure/sign/painting/library{
-	pixel_y = -32
-	},
+/obj/structure/sign/painting/large/library/directional/south,
 /turf/open/floor/wood,
 /area/service/library)
 "wjm" = (
@@ -128029,9 +128037,7 @@
 	name = "Station Intercom";
 	pixel_x = -26
 	},
-/obj/structure/sign/painting/library{
-	pixel_y = -32
-	},
+/obj/structure/sign/painting/large/library/directional/south,
 /turf/open/floor/wood,
 /area/service/library)
 "wRU" = (
@@ -164472,7 +164478,7 @@ bYR
 uhj
 gXc
 ojB
-wjj
+mfn
 uhj
 sVU
 jEh
@@ -164986,7 +164992,7 @@ bYM
 uhj
 gXc
 ojB
-wjj
+mfn
 uhj
 uub
 jEh
@@ -166024,7 +166030,7 @@ iFc
 sQF
 iFc
 oor
-tHr
+uhj
 nfc
 eJH
 lhi
@@ -166269,7 +166275,7 @@ bUr
 bWD
 sRE
 uhj
-hrK
+kpT
 qVe
 lMF
 hkG

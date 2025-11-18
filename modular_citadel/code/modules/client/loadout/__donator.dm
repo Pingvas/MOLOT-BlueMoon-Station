@@ -939,23 +939,36 @@
 	name = "Aviator Helmet"
 	slot = ITEM_SLOT_HEAD
 	path = /obj/item/clothing/head/helmet/aviator_helmet/no_armor
+	ckeywhitelist = list()
 	subcategory = LOADOUT_SUBCATEGORIES_DON01
 
 /datum/gear/donator/bm/old_wrappings
 	name = "Old Wrappings"
 	slot = ITEM_SLOT_NECK
 	path = /obj/item/clothing/neck/mantle/cowboy
+	ckeywhitelist = list()
 	subcategory = LOADOUT_SUBCATEGORIES_DON01
 
 /datum/gear/donator/bm/old_wrappings
 	name = "Old Wrappings"
 	slot = ITEM_SLOT_NECK
 	path = /obj/item/clothing/neck/mantle/cowboy
+	ckeywhitelist = list()
 	subcategory = LOADOUT_SUBCATEGORIES_DON01
 
 /datum/gear/donator/bm/book_alch
 	name = "Alchemist's Book"
 	slot = ITEM_SLOT_BACKPACK
 	path = /obj/item/paper/book_alch
+	ckeywhitelist = list()
 	subcategory = LOADOUT_SUBCATEGORIES_DON01
 	loadout_flags = LOADOUT_CAN_NAME | LOADOUT_CAN_DESCRIPTION
+
+/datum/gear/donator/bm/cigpack_cannabis
+	name = "Freak Brother's Special Cigpack"
+	slot = ITEM_SLOT_BACKPACK
+	path = /obj/item/storage/fancy/cigarettes/cigpack_cannabis
+	ckeywhitelist = list()
+	subcategory = LOADOUT_SUBCATEGORIES_DON01
+	loadout_flags = LOADOUT_CAN_NAME | LOADOUT_CAN_DESCRIPTION
+

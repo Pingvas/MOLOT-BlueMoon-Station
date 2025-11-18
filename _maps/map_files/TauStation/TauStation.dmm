@@ -21404,20 +21404,14 @@
 /turf/open/floor/plasteel/dark,
 /area/security/prison/cells)
 "hsw" = (
-/obj/structure/table/wood,
-/obj/item/paper_bin/bundlenatural{
-	pixel_x = 6;
-	pixel_y = 4
-	},
-/obj/item/paper_bin{
-	pixel_x = -6;
-	pixel_y = 4
-	},
-/obj/item/pen/fountain,
 /obj/item/radio/intercom{
 	name = "Station Intercom (General)";
 	pixel_y = 22
 	},
+/obj/structure/window/reinforced{
+	dir = 4
+	},
+/obj/machinery/modular_computer/console/preset/curator,
 /turf/open/floor/wood/wood_large,
 /area/service/library)
 "hsH" = (
@@ -28961,6 +28955,10 @@
 /obj/item/stock_parts/manipulator,
 /turf/open/floor/plasteel/dark/telecomms,
 /area/tcommsat/server)
+"kct" = (
+/obj/structure/sign/painting/large/library/directional/north,
+/turf/open/floor/carpet/black,
+/area/service/library)
 "kcu" = (
 /obj/structure/disposalpipe/segment,
 /turf/open/floor/plasteel,
@@ -44352,9 +44350,6 @@
 /turf/open/floor/plasteel,
 /area/security/brig)
 "pqY" = (
-/obj/structure/sign/painting/library{
-	pixel_x = 32
-	},
 /obj/machinery/atmospherics/pipe/simple/scrubbers/hidden{
 	dir = 9
 	},
@@ -45223,17 +45218,17 @@
 /area/maintenance/bar)
 "pIh" = (
 /obj/structure/table/wood,
-/obj/item/camera_film{
-	pixel_x = -3;
-	pixel_y = 5
-	},
-/obj/item/camera_film{
-	pixel_x = 3;
-	pixel_y = 3
-	},
-/obj/item/camera/spooky,
 /obj/structure/window/reinforced{
 	dir = 4
+	},
+/obj/item/paper_bin/bundlenatural{
+	pixel_x = 6;
+	pixel_y = 4
+	},
+/obj/item/pen/fountain,
+/obj/item/paper_bin{
+	pixel_x = -6;
+	pixel_y = 4
 	},
 /turf/open/floor/wood/wood_large,
 /area/service/library)
@@ -45405,9 +45400,7 @@
 /turf/open/floor/plasteel,
 /area/engineering/atmos)
 "pLK" = (
-/obj/structure/sign/painting/library{
-	pixel_x = 32
-	},
+/obj/structure/sign/painting/large/library/directional/east,
 /turf/open/floor/wood/wood_large,
 /area/service/library)
 "pMh" = (
@@ -51127,12 +51120,20 @@
 /obj/machinery/atmospherics/pipe/simple/yellow/hidden{
 	dir = 8
 	},
-/obj/item/book/manual/random,
 /obj/structure/table/wood,
 /obj/structure/window/reinforced{
 	dir = 4
 	},
 /obj/structure/window/reinforced,
+/obj/item/camera/spooky,
+/obj/item/camera_film{
+	pixel_x = 3;
+	pixel_y = 3
+	},
+/obj/item/camera_film{
+	pixel_x = -3;
+	pixel_y = 5
+	},
 /turf/open/floor/wood/wood_large,
 /area/service/library)
 "rIK" = (
@@ -63352,6 +63353,9 @@
 /obj/machinery/atmospherics/components/unary/vent_pump/on,
 /obj/structure/bed,
 /obj/item/bedsheet/black,
+/obj/structure/sign/painting/library_private{
+	pixel_x = 32
+	},
 /turf/open/floor/carpet,
 /area/service/library)
 "vMn" = (
@@ -66068,6 +66072,7 @@
 	default_raw_text = "As her shirt was lifted, and those two, twin melons were relased...";
 	name = "Suspicious Paper"
 	},
+/obj/structure/sign/painting/large/library_private/directional/north,
 /turf/open/floor/carpet/black,
 /area/service/library)
 "wEb" = (
@@ -67477,6 +67482,7 @@
 	name = "Library Desk Door";
 	req_access_txt = "37"
 	},
+/obj/item/book/manual/random,
 /turf/open/floor/wood/wood_large,
 /area/service/library)
 "xby" = (
@@ -113962,7 +113968,7 @@ pqY
 pLK
 pXL
 yeD
-qNc
+kct
 roG
 ccX
 ccX

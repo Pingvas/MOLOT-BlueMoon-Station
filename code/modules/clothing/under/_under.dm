@@ -42,6 +42,9 @@
 
 /obj/item/clothing/under/attackby(obj/item/I, mob/user, params)
 	if((sensordamage || (has_sensor < HAS_SENSORS && has_sensor != NO_SENSORS)) && istype(I, /obj/item/stack/cable_coil))
+		if(current_equipped_slot && (current_equipped_slot in user.check_obscured_slots()))
+			to_chat(user, "<span class='warning'>You are unable to repair [src] sensors while wearing other garments over it!</span>")
+			return
 		if(damaged_clothes == CLOTHING_SHREDDED)
 			to_chat(user,"<span class='warning'>[src] is too damaged to have its suit sensors repaired! Repair it first.</span>")
 			return FALSE
@@ -59,6 +62,9 @@
 /obj/item/clothing/under/take_damage_zone(def_zone, damage_amount, damage_type, armour_penetration)
 	..()
 	if(sensormaxintegrity == 0 || has_sensor == NO_SENSORS || sensordamage >= sensormaxintegrity) return //sensors are invincible if max integrity is 0
+	var/mob/living/carbon/human/H = src.loc
+	if(istype(H) && clothing_protected(H, def_zone, damage_type))
+		return
 	var/damage_dealt = take_damage(damage_amount * 0.1, damage_type, armour_penetration, FALSE) * 10 // only deal 10% of the damage to the general integrity damage, then multiply it by 10 so we know how much to deal to limb
 	sensordamage += damage_dealt
 	var/integ = has_sensor
@@ -95,6 +101,19 @@
 			if(sensor_mode > SENSOR_LIVING) sensor_mode = SENSOR_LIVING
 		if(BROKEN_SENSORS)
 			sensor_mode = NO_SENSORS
+
+/// Прок проверяет закрытую часть тела на предмет одежды (Включая слои, униформа + костюм; шлем + противогаз)
+/// После этого производится проверка на броню. Если найденный armor лазера у носимой одежды больше 25, то униформа не повредится
+/obj/item/clothing/under/proc/clothing_protected(mob/living/carbon/human/H, def_zone, damage_type)
+	var/list/clothing_armor = list(H.w_uniform, H.wear_suit, H.gloves, H.shoes)
+	for(var/obj/item/clothing/clothing_piece in clothing_armor)
+		if(!clothing_piece || !((clothing_piece.body_parts_covered & zone2body_parts_covered_complicated(def_zone)))) // Нет одежды? Не проверяем. Одежда не покрывает часть тела? Не проверяем.
+			continue
+		var/protection = clothing_piece.get_armor_rating(LASER)
+		if(protection >= 25)
+			return TRUE
+
+	return FALSE
 
 
 /obj/item/clothing/under/update_clothes_damaged_state()
