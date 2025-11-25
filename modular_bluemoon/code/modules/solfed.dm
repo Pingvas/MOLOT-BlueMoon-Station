@@ -7,9 +7,9 @@
 	item_state = "formal_solgov"
 	alt_covers_chest = TRUE
 	can_adjust = TRUE
-	icon = 'modular_bluemoon/kovac_shitcode/icons/solfed/obj_sol.dmi'
-	mob_overlay_icon = 'modular_bluemoon/kovac_shitcode/icons/solfed/mob_sol.dmi'
-	anthro_mob_worn_overlay = 'modular_bluemoon/kovac_shitcode/icons/solfed/mob_sol_digi.dmi'
+	icon = 'modular_bluemoon/icons/solfed/obj_sol.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/solfed/mob_sol.dmi'
+	anthro_mob_worn_overlay = 'modular_bluemoon/icons/solfed/mob_sol_digi.dmi'
 	unique_reskin = list()
 
 /obj/item/clothing/under/rank/security/officer/formal/sol/armorless
@@ -21,9 +21,9 @@
 	icon_state = "solfed"
 	item_state = "solfed"
 	can_adjust = FALSE
-	icon = 'modular_bluemoon/kovac_shitcode/icons/solfed/obj_sol.dmi'
-	mob_overlay_icon = 'modular_bluemoon/kovac_shitcode/icons/solfed/mob_sol.dmi'
-	anthro_mob_worn_overlay = 'modular_bluemoon/kovac_shitcode/icons/solfed/mob_sol_digi.dmi'
+	icon = 'modular_bluemoon/icons/solfed/obj_sol.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/solfed/mob_sol.dmi'
+	anthro_mob_worn_overlay = 'modular_bluemoon/icons/solfed/mob_sol_digi.dmi'
 	unique_reskin = list(
 		"Military" = list("icon_state" = "solfed"),
 	)
@@ -34,9 +34,9 @@
 	icon_state = "solgov_captain"
 	item_state = "solgov_captain"
 	can_adjust = FALSE
-	icon = 'modular_bluemoon/kovac_shitcode/icons/solfed/obj_sol.dmi'
-	mob_overlay_icon = 'modular_bluemoon/kovac_shitcode/icons/solfed/mob_sol.dmi'
-	anthro_mob_worn_overlay = 'modular_bluemoon/kovac_shitcode/icons/solfed/mob_sol_digi.dmi'
+	icon = 'modular_bluemoon/icons/solfed/obj_sol.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/solfed/mob_sol.dmi'
+	anthro_mob_worn_overlay = 'modular_bluemoon/icons/solfed/mob_sol_digi.dmi'
 
 /obj/item/clothing/under/sol_dress
 	name = "solfed dress"
@@ -45,8 +45,8 @@
 	item_state = "solgov_dress"
 	body_parts_covered = CHEST|GROIN
 	mutantrace_variation = STYLE_DIGITIGRADE|STYLE_NO_ANTHRO_ICON
-	icon = 'modular_bluemoon/kovac_shitcode/icons/solfed/obj_sol.dmi'
-	mob_overlay_icon = 'modular_bluemoon/kovac_shitcode/icons/solfed/mob_sol.dmi'
+	icon = 'modular_bluemoon/icons/solfed/obj_sol.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/solfed/mob_sol.dmi'
 
 /// Suits
 
@@ -56,8 +56,8 @@
 	icon_state = "solgov_robe"
 	item_state = "solgov_robe"
 	mutantrace_variation = STYLE_DIGITIGRADE|STYLE_NO_ANTHRO_ICON
-	icon = 'modular_bluemoon/kovac_shitcode/icons/solfed/obj_sol.dmi'
-	mob_overlay_icon = 'modular_bluemoon/kovac_shitcode/icons/solfed/mob_sol.dmi'
+	icon = 'modular_bluemoon/icons/solfed/obj_sol.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/solfed/mob_sol.dmi'
 	unique_reskin = list(
 		"Robe" = list("icon_state" = "solgov_robe"),
 		"Bureaucrat Robe" = list("icon_state" = "solgov_bureaucrat_robe")
@@ -68,8 +68,8 @@
 	desc = "A greatcoat enhanced with a special alloy for some extra protection and style for those with a commanding presence."
 	icon_state = "armor_solgov_trenchcoat"
 	item_state = "armor_solgov_trenchcoat"
-	icon = 'modular_bluemoon/kovac_shitcode/icons/solfed/obj_sol.dmi'
-	mob_overlay_icon = 'modular_bluemoon/kovac_shitcode/icons/solfed/mob_sol.dmi'
+	icon = 'modular_bluemoon/icons/solfed/obj_sol.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/solfed/mob_sol.dmi'
 	mutantrace_variation = STYLE_DIGITIGRADE|STYLE_NO_ANTHRO_ICON
 	armor = list(MELEE = 55, BULLET = 65, LASER = 65, ENERGY = 65, BOMB = 40, BIO = 50, RAD = 100, FIRE = 40, ACID = 50,  WOUND = 40)
 
@@ -79,16 +79,16 @@
 	desc = "Worn by the servants of Sol."
 	icon_state = "solgov_weibel"
 	item_state = "solgov_weibel"
-	icon = 'modular_bluemoon/kovac_shitcode/icons/solfed/obj_sol.dmi'
-	mob_overlay_icon = 'modular_bluemoon/kovac_shitcode/icons/solfed/mob_sol.dmi'
+	icon = 'modular_bluemoon/icons/solfed/obj_sol.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/solfed/mob_sol.dmi'
 
 /obj/item/clothing/neck/cloak/cloak
 	name = "solar federation cloak"
 	desc = "Property of the Solar fleet commanders and diplomacy personnel."
 	icon_state = "solgov_cloak"
 	item_state = "solgov_cloak"
-	icon = 'modular_bluemoon/kovac_shitcode/icons/solfed/obj_sol.dmi'
-	mob_overlay_icon = 'modular_bluemoon/kovac_shitcode/icons/solfed/mob_sol.dmi'
+	icon = 'modular_bluemoon/icons/solfed/obj_sol.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/solfed/mob_sol.dmi'
 
 /// Hats and Headphones
 
@@ -97,8 +97,8 @@
 	desc = "A robust beret for the combatants of Solar Federation."
 	icon_state = "beret_solgov"
 	item_state = "beret_solgov"
-	icon = 'modular_bluemoon/kovac_shitcode/icons/solfed/obj_sol_head.dmi'
-	mob_overlay_icon = 'modular_bluemoon/kovac_shitcode/icons/solfed/mob_sol_head.dmi'
+	icon = 'modular_bluemoon/icons/solfed/obj_sol_head.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/solfed/mob_sol_head.dmi'
 
 /obj/item/clothing/head/HoS/beret/sol/security
 	armor = list(MELEE = 40, BULLET = 30, LASER = 30,ENERGY = 10, BOMB = 25, BIO = 0, RAD = 0, FIRE = 50, ACID = 50)
@@ -128,9 +128,9 @@
 	desc = "A bluish headset, used by SolFed personnel"
 	icon_state = "solgov_headset"
 	item_state = "solgov_headset"
-	icon = 'modular_bluemoon/kovac_shitcode/icons/solfed/obj_sol_head.dmi'
-	//mob_overlay_icon = 'modular_bluemoon/kovac_shitcode/icons/solfed/mob_sol_head.dmi'
-	radiosound = 'modular_bluemoon/kovac_shitcode/sound/radio.ogg'
+	icon = 'modular_bluemoon/icons/solfed/obj_sol_head.dmi'
+	//mob_overlay_icon = 'modular_bluemoon/icons/solfed/mob_sol_head.dmi'
+	radiosound = 'modular_bluemoon/sound/radio.ogg'
 	freerange = FALSE
 	freqlock = TRUE
 	bowman = FALSE
@@ -166,8 +166,8 @@
 	max_heat_protection_temperature = FIRE_IMMUNITY_MAX_TEMP_PROTECT
 	actions_types = list()
 	mutantrace_variation = STYLE_DIGITIGRADE|STYLE_NO_ANTHRO_ICON
-	icon = 'modular_bluemoon/kovac_shitcode/icons/solfed/obj_sol_head.dmi'
-	mob_overlay_icon = 'modular_bluemoon/kovac_shitcode/icons/solfed/mob_sol_head.dmi'
+	icon = 'modular_bluemoon/icons/solfed/obj_sol_head.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/solfed/mob_sol_head.dmi'
 
 /obj/item/clothing/suit/space/hardsuit/ert/alert/sol
 	name = "FCS SolFed hardsuit"
@@ -180,10 +180,10 @@
 	resistance_flags = FIRE_PROOF | ACID_PROOF
 	max_heat_protection_temperature = FIRE_IMMUNITY_MAX_TEMP_PROTECT
 	//mutantrace_variation = STYLE_DIGITIGRADE|STYLE_NO_ANTHRO_ICON
-	icon = 'modular_bluemoon/kovac_shitcode/icons/solfed/obj_sol.dmi'
-	mob_overlay_icon = 'modular_bluemoon/kovac_shitcode/icons/solfed/mob_sol.dmi'
+	icon = 'modular_bluemoon/icons/solfed/obj_sol.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/solfed/mob_sol.dmi'
 	tail_state = "ce"
-	anthro_mob_worn_overlay = 'modular_bluemoon/kovac_shitcode/icons/solfed/mob_sol_digi.dmi'
+	anthro_mob_worn_overlay = 'modular_bluemoon/icons/solfed/mob_sol_digi.dmi'
 
 /// Advanced hardsuit
 

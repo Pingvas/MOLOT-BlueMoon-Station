@@ -63,14 +63,14 @@ obj/vehicle/sealed/mecha/combat/durand/tu802/generate_actions()
 /obj/vehicle/sealed/mecha/combat/durand/zeus
 	desc = "The Standart Issue Solar Federation Exosuit, powered with Mark.1 tesla cannon. Designated to provide support to Solar Marines."
 	name = "\improper Zeus"
-	icon = 'modular_bluemoon/kovac_shitcode/icons/mecha/solfed_mecha.dmi'
+	icon = 'modular_bluemoon/icons/mecha/solfed_mecha.dmi'
 	icon_state = "zeus"
 	armor = list(MELEE = 40, BULLET = 50, LASER = 70, ENERGY = 75, BOMB = 0, BIO = 0, RAD = 0, FIRE = 100, ACID = 100)
 	max_temperature = 70000
 	wreckage = /obj/structure/mecha_wreckage/zeus
 	max_equip = 6
-	turnsound = 'modular_bluemoon/kovac_shitcode/sound/mecha/turn.ogg'
-	nominalphrase = 'modular_bluemoon/kovac_shitcode/sound/mecha/nominal_sol.ogg'
+	turnsound = 'modular_bluemoon/sound/mecha/turn.ogg'
+	nominalphrase = 'modular_bluemoon/sound/mecha/nominal_sol.ogg'
 
 /obj/vehicle/sealed/mecha/combat/durand/zeus/generate_actions()
 	. = ..()
@@ -105,7 +105,7 @@ obj/vehicle/sealed/mecha/combat/durand/tu802/generate_actions()
 
 /obj/structure/mecha_wreckage/zeus
 	name = "\improper Zeus wreckage"
-	icon = 'modular_bluemoon/kovac_shitcode/icons/mecha/solfed_mecha.dmi'
+	icon = 'modular_bluemoon/icons/mecha/solfed_mecha.dmi'
 	icon_state = "zeus-broken"
 	parts = list(
 			/obj/item/mecha_parts/part/durand_torso,

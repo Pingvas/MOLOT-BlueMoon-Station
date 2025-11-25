@@ -49,8 +49,8 @@
 	icon_state = "russian_green_helmet"
 	item_state = "russian_green_helmet"
 	desc = "One of the newest NRI helmets, also widely spread asross space corporations security forces."
-	icon = 'modular_bluemoon/kovac_shitcode/icons/rus/obj_rus.dmi'
-	mob_overlay_icon = 'modular_bluemoon/kovac_shitcode/icons/rus/mob_rus.dmi'
+	icon = 'modular_bluemoon/icons/rus/obj_rus.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/rus/mob_rus.dmi'
 
 /obj/item/clothing/head/helmet/aviator_helmet
 	name = "aviator helmet"
@@ -98,8 +98,8 @@
 	item_state = "nri_gas"
 	flags_inv = HIDEFACE|HIDEFACIALHAIR|HIDESNOUT
 	mutantrace_variation = STYLE_DIGITIGRADE|STYLE_NO_ANTHRO_ICON
-	icon = 'modular_bluemoon/kovac_shitcode/icons/rus/obj_rus.dmi'
-	mob_overlay_icon = 'modular_bluemoon/kovac_shitcode/icons/rus/mob_rus.dmi'
+	icon = 'modular_bluemoon/icons/rus/obj_rus.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/rus/mob_rus.dmi'
 
 /obj/item/storage/backpack/rucksack
 	name = "Rucksack"
@@ -488,13 +488,13 @@
 /mob/living/simple_animal/pet/dog/corgi/pig/assistant
 	name = "Danya"
 	real_name = "Danya"
-	icon = 'modular_bluemoon/kovac_shitcode/icons/animals.dmi'
+	icon = 'modular_bluemoon/icons/animals.dmi'
 	maxHealth = 250
 	health = 250
 	gender = MALE
 
 /mob/living/simple_animal/pet/fox/fennec/eldritch
-	icon = 'modular_bluemoon/kovac_shitcode/icons/animals.dmi'
+	icon = 'modular_bluemoon/icons/animals.dmi'
 	maxHealth = 100
 	health = 100
 	held_icon = "fennec_eldritch"
@@ -512,7 +512,7 @@
 	health = 250
 	gender = MALE
 	speak = list("*meow", "*meow2", "*meow3", "*meow4", "*meow5", "*meow6", "*mrrp", "*mrrp3", "*purr", "*oink1")
-	icon = 'modular_bluemoon/kovac_shitcode/icons/animals.dmi'
+	icon = 'modular_bluemoon/icons/animals.dmi'
 
 /mob/living/simple_animal/pet/cat/alta
 	name = "Alta"
@@ -524,7 +524,7 @@
 	unique_pet = TRUE
 	gender = FEMALE
 	speak = list("*meow", "*meow2", "*meow3", "*meow4", "*meow5", "*meow6", "*mrrp", "*mrrp3", "*purr")
-	icon = 'modular_bluemoon/kovac_shitcode/icons/animals.dmi'
+	icon = 'modular_bluemoon/icons/animals.dmi'
 
 /mob/living/simple_animal/pet/cat/space/alta
 	name = "Space Alta"
@@ -536,7 +536,7 @@
 	unique_pet = TRUE
 	gender = FEMALE
 	speak = list("*meow", "*meow2", "*meow3", "*meow4", "*meow5", "*meow6", "*mrrp", "*mrrp3", "*purr")
-	icon = 'modular_bluemoon/kovac_shitcode/icons/animals.dmi'
+	icon = 'modular_bluemoon/icons/animals.dmi'
 
 /mob/living/simple_animal/pet/cat/space/alta/Initialize(mapload)
 	. = ..()
@@ -556,7 +556,7 @@
 	unique_pet = TRUE
 	gender = MALE
 	speak = list("*meow", "*meow2", "*meow3", "*meow4", "*meow5", "*meow6", "*mrrp", "*mrrp3", "*purr")
-	icon = 'modular_bluemoon/kovac_shitcode/icons/animals.dmi'
+	icon = 'modular_bluemoon/icons/animals.dmi'
 
 /mob/living/simple_animal/pet/dog/corgi/Lisa/ada
 	name = "Ada"
@@ -569,7 +569,7 @@
 	icon_living = "ada"
 	icon_dead = "ada_dead"
 	held_icon = "ada"
-	icon = 'modular_bluemoon/kovac_shitcode/icons/animals.dmi'
+	icon = 'modular_bluemoon/icons/animals.dmi'
 
 /mob/living/simple_animal/pet/dog/juda
 	name = "Juda"
@@ -582,7 +582,7 @@
 	gender = MALE
 	speak = list("*growl", "*rawr2")
 	emote_see = list("Булькает", "Булькает гениально", "Надувает пузырь", "Крутится вокруг себя")
-	icon = 'modular_bluemoon/kovac_shitcode/icons/animals.dmi'
+	icon = 'modular_bluemoon/icons/animals.dmi'
 
 /mob/living/simple_animal/pet/dog/corgi/Lisa/zlatchek
 	name = "Zlat"
@@ -595,7 +595,7 @@
 	icon_living = "zlat"
 	icon_dead = "zlat_dead"
 	held_icon = "ada"
-	icon = 'modular_bluemoon/kovac_shitcode/icons/animals.dmi'
+	icon = 'modular_bluemoon/icons/animals.dmi'
 
 /mob/living/simple_animal/pet/fox/emma
 	name = "Emma"
@@ -605,7 +605,7 @@
 	held_icon = "emma"
 	see_in_dark = 10
 	gender = FEMALE
-	icon = 'modular_bluemoon/kovac_shitcode/icons/animals.dmi'
+	icon = 'modular_bluemoon/icons/animals.dmi'
 
 /mob/living/simple_animal/pet/cat/jruttie
 	name = "Jruttie"
@@ -617,7 +617,7 @@
 	unique_pet = TRUE
 	gender = FEMALE
 	speak = list("*meow3", "*meow4", "*meow5", "*mrrp", "*mrrp3", "*purr", "*mew")
-	icon = 'modular_bluemoon/kovac_shitcode/icons/animals.dmi'
+	icon = 'modular_bluemoon/icons/animals.dmi'
 	vocal_bark_id = "meow"
 	speak_chance = 10
 	loot = list(/obj/item/clothing/head/wizard/fake = 1)

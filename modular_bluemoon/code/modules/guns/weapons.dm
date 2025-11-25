@@ -3,11 +3,11 @@
 /obj/item/gun/ballistic/automatic/vss
 	name = "\improper Vintovka Snayperskya Spetszyalnya"
 	desc = "Russian Empire Spetznaz weapon, intended for use with 9x39 ammo caliber. SolGov capitalists and politicians are enormously afraid of this thingy."
-	icon = 'modular_bluemoon/kovac_shitcode/icons/obj/weapons/weapons.dmi'
+	icon = 'modular_bluemoon/icons/obj/weapons/weapons.dmi'
 	icon_state = "vintorez_scope"
 	item_state = "vintorez_scope"
-	lefthand_file = 'modular_bluemoon/kovac_shitcode/icons/mob/weapons/weapons_l.dmi'
-	righthand_file = 'modular_bluemoon/kovac_shitcode/icons/mob/weapons/weapons_r.dmi'
+	lefthand_file = 'modular_bluemoon/icons/mob/weapons/weapons_l.dmi'
+	righthand_file = 'modular_bluemoon/icons/mob/weapons/weapons_r.dmi'
 	slot_flags = ITEM_SLOT_BELT | ITEM_SLOT_BACK
 	w_class = WEIGHT_CLASS_BULKY
 	mag_type = /obj/item/ammo_box/magazine/vss_mag
@@ -18,7 +18,7 @@
 	zoomable = TRUE
 	zoom_amt = 8 //Long range, enough to see in front of you, but no tiles behind you.
 	zoom_out_amt = 5
-	fire_sound = 'modular_bluemoon/kovac_shitcode/sound/weapons/vss_shoot.ogg'
+	fire_sound = 'modular_bluemoon/sound/weapons/vss_shoot.ogg'
 
 /obj/item/gun/ballistic/automatic/vss/update_icon_state()
 	if(magazine)
@@ -38,12 +38,12 @@
 /obj/item/gun/ballistic/automatic/l6_saw/pkmp
 	name = "\improper PKMP Machinegun"
 	desc = "Modified 7.12x82mm russian machinegun, also known as L6 SAW counterpart."
-	icon = 'modular_bluemoon/kovac_shitcode/icons/obj/weapons/weapons.dmi'
+	icon = 'modular_bluemoon/icons/obj/weapons/weapons.dmi'
 	icon_state = "pkmp"
 	item_state = "pkmp"
-	lefthand_file = 'modular_bluemoon/kovac_shitcode/icons/mob/weapons/weapons_l.dmi'
-	righthand_file = 'modular_bluemoon/kovac_shitcode/icons/mob/weapons/weapons_r.dmi'
-	fire_sound = 'modular_bluemoon/kovac_shitcode/sound/weapons/pkmp_shoot.ogg'
+	lefthand_file = 'modular_bluemoon/icons/mob/weapons/weapons_l.dmi'
+	righthand_file = 'modular_bluemoon/icons/mob/weapons/weapons_r.dmi'
+	fire_sound = 'modular_bluemoon/sound/weapons/pkmp_shoot.ogg'
 	pin = /obj/item/firing_pin
 
 /obj/item/gun/ballistic/automatic/l6_saw/pkmp/update_icon_state()
@@ -64,11 +64,11 @@
 	desc = "A moden Russian-made semi-automatic revolver, intended to used with 12 gauge."
 	icon_state = "rsh12"
 	item_state = "rsh12"
-	icon = 'modular_bluemoon/kovac_shitcode/icons/obj/weapons/weapons.dmi'
-	lefthand_file = 'modular_bluemoon/kovac_shitcode/icons/mob/weapons/weapons_l.dmi'
-	righthand_file = 'modular_bluemoon/kovac_shitcode/icons/mob/weapons/weapons_r.dmi'
-	fire_sound = 'modular_bluemoon/kovac_shitcode/sound/weapons/rsh12.ogg'
-	pumpsound = 'modular_bluemoon/kovac_shitcode/sound/weapons/rsh12_drum.ogg'
+	icon = 'modular_bluemoon/icons/obj/weapons/weapons.dmi'
+	lefthand_file = 'modular_bluemoon/icons/mob/weapons/weapons_l.dmi'
+	righthand_file = 'modular_bluemoon/icons/mob/weapons/weapons_r.dmi'
+	fire_sound = 'modular_bluemoon/sound/weapons/rsh12.ogg'
+	pumpsound = 'modular_bluemoon/sound/weapons/rsh12_drum.ogg'
 	fire_delay = 5
 	recoil = 5
 	spread = 3
@@ -82,9 +82,9 @@
 	desc = "Solar Federation Marine Corps pistol, downgraded in order to be used by the NT Security. Can be loaded with enlarged 10mm magazines."
 	icon_state = "g22"
 	item_state = "g22"
-	icon = 'modular_bluemoon/kovac_shitcode/icons/obj/weapons/weapons.dmi'
-	lefthand_file = 'modular_bluemoon/kovac_shitcode/icons/mob/weapons/weapons_l.dmi'
-	righthand_file = 'modular_bluemoon/kovac_shitcode/icons/mob/weapons/weapons_r.dmi'
+	icon = 'modular_bluemoon/icons/obj/weapons/weapons.dmi'
+	lefthand_file = 'modular_bluemoon/icons/mob/weapons/weapons_l.dmi'
+	righthand_file = 'modular_bluemoon/icons/mob/weapons/weapons_r.dmi'
 	mag_type = /obj/item/ammo_box/magazine/m10mm_large
 	w_class = WEIGHT_CLASS_NORMAL
 	can_suppress = FALSE
@@ -93,7 +93,7 @@
 	fire_select_modes = list(SELECT_SEMI_AUTOMATIC, SELECT_BURST_SHOT, SELECT_FULLY_AUTOMATIC)
 	automatic_burst_overlay = TRUE
 	spawnwithmagazine = FALSE
-	fire_sound = 'modular_bluemoon/kovac_shitcode/sound/weapons/g22.ogg'
+	fire_sound = 'modular_bluemoon/sound/weapons/g22.ogg'
 	can_flashlight = 1
 	flight_x_offset = 18
 	flight_y_offset = 14
@@ -195,9 +195,9 @@
 	name = "sledgehammer"
 	desc = "Just a normal engineering tool, ain't it?"
 	icon_state = "sledgehammer"
-	icon = 'modular_bluemoon/kovac_shitcode/icons/obj/weapons/weapons.dmi'
-	lefthand_file = 'modular_bluemoon/kovac_shitcode/icons/mob/weapons/weapons_l.dmi'
-	righthand_file = 'modular_bluemoon/kovac_shitcode/icons/mob/weapons/weapons_r.dmi'
+	icon = 'modular_bluemoon/icons/obj/weapons/weapons.dmi'
+	lefthand_file = 'modular_bluemoon/icons/mob/weapons/weapons_l.dmi'
+	righthand_file = 'modular_bluemoon/icons/mob/weapons/weapons_r.dmi'
 	force = 10
 	block_chance = 30
 	throwforce = 5
@@ -212,7 +212,7 @@
 	block_parry_data = /datum/block_parry_data/inteq_sledgehammer
 	slot_flags = ITEM_SLOT_BACK
 	attack_verb = list("smashed", "rammed", "slammed")
-	hitsound = 'modular_bluemoon/kovac_shitcode/sound/weapons/sledge.ogg'
+	hitsound = 'modular_bluemoon/sound/weapons/sledge.ogg'
 	var/swiping = FALSE
 	var/wielded = FALSE // track wielded status on item
 
@@ -243,7 +243,7 @@
 		var/obj/item/bodypart/BP = C.get_bodypart(BODY_ZONE_HEAD)
 		if(BP)
 			BP.drop_limb()
-			playsound(src,pick('modular_bluemoon/kovac_shitcode/sound/weapons/sledge.ogg') ,50, 1, -1)
+			playsound(src,pick('modular_bluemoon/sound/weapons/sledge.ogg') ,50, 1, -1)
 	return (BRUTELOSS)
 
 /obj/item/inteq_sledgehammer/directional_block(mob/living/owner, atom/object, damage, attack_text, attack_type, armour_penetration, mob/attacker, def_zone, final_block_chance, list/block_return, override_direction)

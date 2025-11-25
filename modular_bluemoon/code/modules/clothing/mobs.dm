@@ -172,7 +172,7 @@
 	maxHealth = 180
 	health = 180
 	casingtype = /obj/item/ammo_casing/a9x39
-	projectilesound = 'modular_bluemoon/kovac_shitcode/sound/weapons/vss_shoot.ogg'
+	projectilesound = 'modular_bluemoon/sound/weapons/vss_shoot.ogg'
 	loot = list(/obj/effect/gibspawner/human)
 	atmos_requirements = list("min_oxy" = 0, "max_oxy" = 0, "min_tox" = 0, "max_tox" = 0, "min_co2" = 0, "max_co2" = 0, "min_n2" = 0, "max_n2" = 0)
 	minbodytemp = 0

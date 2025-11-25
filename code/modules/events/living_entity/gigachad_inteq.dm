@@ -41,7 +41,7 @@
 
 	var/turf/T = get_turf(pick(spawn_locs))
 	var/mob/living/simple_animal/hostile/gigachad_inteq/S = new(T)
-	playsound(S, 'modular_bluemoon/kovac_shitcode/sound/weapons/sledge.ogg', 75, 1, 1000)
+	playsound(S, 'modular_bluemoon/sound/weapons/sledge.ogg', 75, 1, 1000)
 	message_admins("An InteQ mutant has been spawned at [COORD(T)][ADMIN_JMP(T)]")
 	log_game("An InteQ mutant has been spawned at [COORD(T)]")
 	return SUCCESSFUL_SPAWN
@@ -50,7 +50,7 @@
 /mob/living/simple_animal/hostile/gigachad_inteq
 	name = "InteQ Agent"
 	real_name = "InteQ Agent"
-	icon = 'modular_bluemoon/kovac_shitcode/icons/gigachad_inteq.dmi'
+	icon = 'modular_bluemoon/icons/gigachad_inteq.dmi'
 	desc = "An experiment had gone out of control.."
 	icon_state = "gigachad_inteq"
 	icon_living = "gigachad_inteq"
@@ -68,7 +68,7 @@
 	attack_verb_simple = "smashes sledgehammer into"
 	speed = 0.8
 	environment_smash = ENVIRONMENT_SMASH_WALLS
-	attack_sound = 'modular_bluemoon/kovac_shitcode/sound/weapons/sledge.ogg'
+	attack_sound = 'modular_bluemoon/sound/weapons/sledge.ogg'
 	status_flags = 0
 	mob_size = MOB_SIZE_LARGE
 	del_on_death = TRUE
@@ -183,7 +183,7 @@
 
 	var/turf/T = get_turf(pick(spawn_locs))
 	var/mob/living/simple_animal/hostile/space_mosquito/S = new(T)
-	playsound(S, 'modular_bluemoon/kovac_shitcode/sound/komar_spawn.ogg', 75, 1, 1000)
+	playsound(S, 'modular_bluemoon/sound/komar_spawn.ogg', 75, 1, 1000)
 	message_admins("A Space Mosquito has been spawned at [COORD(T)][ADMIN_JMP(T)]")
 	log_game("A Space Mosquito has been spawned at [COORD(T)]")
 	return SUCCESSFUL_SPAWN
@@ -192,7 +192,7 @@
 /mob/living/simple_animal/hostile/space_mosquito
 	name = "Space Mosquito"
 	real_name = "Space Mosquito"
-	icon = 'modular_bluemoon/kovac_shitcode/icons/animals.dmi'
+	icon = 'modular_bluemoon/icons/animals.dmi'
 	desc = "An expert of battle and survival in extremal environment."
 	icon_state = "komar"
 	icon_living = "komar"
@@ -210,7 +210,7 @@
 	attack_verb_simple = "slashes"
 	speed = -10
 	environment_smash = ENVIRONMENT_SMASH_WALLS
-	attack_sound = 'modular_bluemoon/kovac_shitcode/sound/komar.ogg'
+	attack_sound = 'modular_bluemoon/sound/komar.ogg'
 	status_flags = 0
 	mob_size = MOB_SIZE_HUMAN
 	del_on_death = TRUE

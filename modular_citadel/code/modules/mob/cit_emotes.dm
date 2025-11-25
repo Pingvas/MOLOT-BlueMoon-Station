@@ -59,7 +59,7 @@
 			if (is_species(user, /datum/species/fly) || is_species(user, /datum/species/insect))
 				sound = 'modular_citadel/sound/voice/scream_moth.ogg'
 			if(is_species(user, /datum/species/mammal/vox))
-				sound = 'modular_bluemoon/kovac_shitcode/sound/species/voxscream.ogg'
+				sound = 'modular_bluemoon/sound/species/voxscream.ogg'
 			// BLUEMOON ADD START - xenohybrids_improvements - вариация крика для ксеногибридов (АДАМ, ПЕРЕПИШИ ГОВНОКОД СВЕРХУ, ПОЖАЛУЙСТА)
 			if(is_species(user, /datum/species/xeno))
 				sound = pick('sound/alien/Voice/hurt1.ogg', 'sound/alien/Voice/hurt2.ogg')

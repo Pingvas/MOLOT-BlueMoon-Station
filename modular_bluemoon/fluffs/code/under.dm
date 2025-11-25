@@ -64,9 +64,9 @@
 	desc = "A non-descript and slightly suspicious looking uniform."
 	icon_state = "nri_drg"
 	item_state = "nri_drg"
-	icon = 'modular_bluemoon/kovac_shitcode/icons/rus/obj_drg.dmi'
-	mob_overlay_icon = 'modular_bluemoon/kovac_shitcode/icons/rus/mob_drg.dmi'
-	anthro_mob_worn_overlay = 'modular_bluemoon/kovac_shitcode/icons/rus/mob_drg_digi.dmi'
+	icon = 'modular_bluemoon/icons/rus/obj_drg.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/rus/mob_drg.dmi'
+	anthro_mob_worn_overlay = 'modular_bluemoon/icons/rus/mob_drg_digi.dmi'
 	can_adjust = FALSE
 	unique_reskin = list(
 		"Camo" = list("icon_state" = "nri_drg"),

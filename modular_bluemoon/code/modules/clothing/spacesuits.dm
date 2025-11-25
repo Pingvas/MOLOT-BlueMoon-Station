@@ -31,8 +31,8 @@
 	icon_state = "hardsuit0-clown"
 	item_state = "hardsuit0-clown"
 	hardsuit_type = "clown"
-	icon = 'modular_bluemoon/kovac_shitcode/icons/obj/clothing/suits.dmi'
-	mob_overlay_icon = 'modular_bluemoon/kovac_shitcode/icons/mob/clothing/suit.dmi'
+	icon = 'modular_bluemoon/icons/obj/clothing/suits.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing/suit.dmi'
 	mutantrace_variation = STYLE_DIGITIGRADE|STYLE_NO_ANTHRO_ICON
 	helmettype = /obj/item/clothing/head/helmet/space/hardsuit/syndi/elite/clown
 
@@ -42,8 +42,8 @@
 	desc = "Get out of my sword or I will rip your honking asshole."
 	icon_state = "hardsuit0-clown"
 	item_state = "hardsuit0-clown"
-	icon = 'modular_bluemoon/kovac_shitcode/icons/obj/clothing/hats.dmi'
-	mob_overlay_icon = 'modular_bluemoon/kovac_shitcode/icons/mob/clothing/head.dmi'
+	icon = 'modular_bluemoon/icons/obj/clothing/hats.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing/head.dmi'
 	hardsuit_type = "clown"
 	mutantrace_variation = STYLE_DIGITIGRADE|STYLE_NO_ANTHRO_ICON
 //Suit_SHIELDED
@@ -53,8 +53,8 @@
 	icon_state = "hardsuit0-clown"
 	item_state = "hardsuit0-clown"
 	hardsuit_type = "clown"
-	icon = 'modular_bluemoon/kovac_shitcode/icons/obj/clothing/suits.dmi'
-	mob_overlay_icon = 'modular_bluemoon/kovac_shitcode/icons/mob/clothing/suit.dmi'
+	icon = 'modular_bluemoon/icons/obj/clothing/suits.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing/suit.dmi'
 	mutantrace_variation = STYLE_DIGITIGRADE|STYLE_NO_ANTHRO_ICON
 	helmettype = /obj/item/clothing/head/helmet/space/hardsuit/shielded/syndi/clown
 //////////

@@ -105,16 +105,16 @@
 
 #define REEBE list('sound/ambience/ambireebe1.ogg', 'sound/ambience/ambireebe2.ogg', 'sound/ambience/ambireebe3.ogg')
 
-#define SHUTTLE list('modular_bluemoon/kovac_shitcode/sound/ambience/enc/alarm_radio.ogg', 'modular_bluemoon/kovac_shitcode/sound/ambience/enc/alarm_small_09.ogg', 'modular_bluemoon/kovac_shitcode/sound/ambience/enc/engine_ignit_int.ogg',\
-							'modular_bluemoon/kovac_shitcode/sound/ambience/enc/env_ship_down.ogg', 'modular_bluemoon/kovac_shitcode/sound/ambience/enc/gear_loop.ogg', 'modular_bluemoon/kovac_shitcode/sound/ambience/enc/gear_start.ogg',\
-							'modular_bluemoon/kovac_shitcode/sound/ambience/enc/gear_stop.ogg', 'modular_bluemoon/kovac_shitcode/sound/ambience/enc/intercom_loop.ogg', 'modular_bluemoon/kovac_shitcode/sound/ambience/enc/morse.ogg' )
+#define SHUTTLE list('modular_bluemoon/sound/ambience/enc/alarm_radio.ogg', 'modular_bluemoon/sound/ambience/enc/alarm_small_09.ogg', 'modular_bluemoon/sound/ambience/enc/engine_ignit_int.ogg',\
+							'modular_bluemoon/sound/ambience/enc/env_ship_down.ogg', 'modular_bluemoon/sound/ambience/enc/gear_loop.ogg', 'modular_bluemoon/sound/ambience/enc/gear_start.ogg',\
+							'modular_bluemoon/sound/ambience/enc/gear_stop.ogg', 'modular_bluemoon/sound/ambience/enc/intercom_loop.ogg', 'modular_bluemoon/sound/ambience/enc/morse.ogg' )
 
-#define SHUTTLE_MILITARY list('modular_bluemoon/kovac_shitcode/sound/ambience/enc/alarm_radio.ogg', 'modular_bluemoon/kovac_shitcode/sound/ambience/enc/alarm_small_09.ogg', 'modular_bluemoon/kovac_shitcode/sound/ambience/enc/engine_ignit_int.ogg',\
-							'modular_bluemoon/kovac_shitcode/sound/ambience/enc/env_ship_down.ogg', 'modular_bluemoon/kovac_shitcode/sound/ambience/enc/gear_loop.ogg', 'modular_bluemoon/kovac_shitcode/sound/ambience/enc/gear_start.ogg',\
-							'modular_bluemoon/kovac_shitcode/sound/ambience/enc/gear_stop.ogg', 'modular_bluemoon/kovac_shitcode/sound/ambience/enc/intercom_loop.ogg', 'modular_bluemoon/kovac_shitcode/sound/ambience/enc/morse.ogg',\
-							'modular_bluemoon/kovac_shitcode/sound/ambience/mission_danger_01.ogg', 'modular_bluemoon/kovac_shitcode/sound/ambience/mission_end_02.ogg', 'modular_bluemoon/kovac_shitcode/sound/ambience/mission_start_03.ogg',\
-							'modular_bluemoon/kovac_shitcode/sound/ambience/radio_burn_engine_04.ogg', 'modular_bluemoon/kovac_shitcode/sound/ambience/radio_fuel_20.ogg', 'modular_bluemoon/kovac_shitcode/sound/ambience/radio_fuel_50.ogg',\
-							'modular_bluemoon/kovac_shitcode/sound/ambience/radio_go.ogg', 'modular_bluemoon/kovac_shitcode/sound/ambience/radio_lost_missile_01.ogg', 'modular_bluemoon/kovac_shitcode/sound/ambience/radio_missile_01.ogg' )
+#define SHUTTLE_MILITARY list('modular_bluemoon/sound/ambience/enc/alarm_radio.ogg', 'modular_bluemoon/sound/ambience/enc/alarm_small_09.ogg', 'modular_bluemoon/sound/ambience/enc/engine_ignit_int.ogg',\
+							'modular_bluemoon/sound/ambience/enc/env_ship_down.ogg', 'modular_bluemoon/sound/ambience/enc/gear_loop.ogg', 'modular_bluemoon/sound/ambience/enc/gear_start.ogg',\
+							'modular_bluemoon/sound/ambience/enc/gear_stop.ogg', 'modular_bluemoon/sound/ambience/enc/intercom_loop.ogg', 'modular_bluemoon/sound/ambience/enc/morse.ogg',\
+							'modular_bluemoon/sound/ambience/mission_danger_01.ogg', 'modular_bluemoon/sound/ambience/mission_end_02.ogg', 'modular_bluemoon/sound/ambience/mission_start_03.ogg',\
+							'modular_bluemoon/sound/ambience/radio_burn_engine_04.ogg', 'modular_bluemoon/sound/ambience/radio_fuel_20.ogg', 'modular_bluemoon/sound/ambience/radio_fuel_50.ogg',\
+							'modular_bluemoon/sound/ambience/radio_go.ogg', 'modular_bluemoon/sound/ambience/radio_lost_missile_01.ogg', 'modular_bluemoon/sound/ambience/radio_missile_01.ogg' )
 
 #define CREEPY_SOUNDS list('sound/effects/ghost.ogg', 'sound/effects/ghost2.ogg', 'sound/effects/heart_beat.ogg', 'sound/effects/screech.ogg',\
 	'sound/hallucinations/behind_you1.ogg', 'sound/hallucinations/behind_you2.ogg', 'sound/hallucinations/far_noise.ogg', 'sound/hallucinations/growl1.ogg', 'sound/hallucinations/growl2.ogg',\
@@ -133,11 +133,11 @@
 #define SPASEMAR_SCREAMS list('modular_bluemoon/sound/screams/he_die.ogg', 'modular_bluemoon/sound/screams/aah_1.ogg', 'modular_bluemoon/sound/screams/nooh.ogg', 'modular_bluemoon/sound/screams/nyaahaa.ogg',\
 	'modular_bluemoon/sound/screams/oh.ogg') // BLUEMOON ADD
 
-#define BLOOD_SCREAMS list('modular_bluemoon/kovac_shitcode/sound/blood/cult_1.ogg', 'modular_bluemoon/kovac_shitcode/sound/blood/cult_2.ogg', 'modular_bluemoon/kovac_shitcode/sound/blood/cult_3.ogg',\
-	'modular_bluemoon/kovac_shitcode/sound/blood/cult_4.ogg', 'modular_bluemoon/kovac_shitcode/sound/blood/cult_5.ogg')
+#define BLOOD_SCREAMS list('modular_bluemoon/sound/blood/cult_1.ogg', 'modular_bluemoon/sound/blood/cult_2.ogg', 'modular_bluemoon/sound/blood/cult_3.ogg',\
+	'modular_bluemoon/sound/blood/cult_4.ogg', 'modular_bluemoon/sound/blood/cult_5.ogg')
 
-#define BLOOD_SCREAMS_PICK pick('modular_bluemoon/kovac_shitcode/sound/blood/cult_1.ogg', 'modular_bluemoon/kovac_shitcode/sound/blood/cult_2.ogg', 'modular_bluemoon/kovac_shitcode/sound/blood/cult_3.ogg',\
-	'modular_bluemoon/kovac_shitcode/sound/blood/cult_4.ogg', 'modular_bluemoon/kovac_shitcode/sound/blood/cult_5.ogg')
+#define BLOOD_SCREAMS_PICK pick('modular_bluemoon/sound/blood/cult_1.ogg', 'modular_bluemoon/sound/blood/cult_2.ogg', 'modular_bluemoon/sound/blood/cult_3.ogg',\
+	'modular_bluemoon/sound/blood/cult_4.ogg', 'modular_bluemoon/sound/blood/cult_5.ogg')
 
 #define ARENA_MUSIC list('sound/music/arena/hotline1.ogg', 'sound/music/arena/hotline2.ogg', 'sound/music/arena/hotline3.ogg', 'sound/music/arena/hotline4.ogg',\
 	'sound/music/arena/hotline5.ogg', 'sound/music/arena/hotline6.ogg', 'sound/music/arena/hotline7.ogg', 'sound/music/arena/hotline8.ogg', 'sound/music/arena/hotline9.ogg',\

@@ -8,7 +8,7 @@
 	var/datum/team/vox_scavengers/crew
 
 /datum/antagonist/vox_scavengers/greet()
-	SEND_SOUND(owner.current, sound('modular_bluemoon/kovac_shitcode/sound/vox_spawn.ogg'))
+	SEND_SOUND(owner.current, sound('modular_bluemoon/sound/vox_spawn.ogg'))
 	to_chat(owner, "<span class='boldannounce'>Вы - вокс-налётчик!</span>")
 	to_chat(owner, "<B>Вам необходимо обокрасть станцию и выполнить свои цели. Вы можете как представиться торговцами, так и действовать скрытно и нелегально. Не начинайте конфликтов первыми и избегайте их: ваша философия не допускает напрасной потери жизней с обеих сторон. Кроме того, никто из воксов не должен оказаться за бортом.</B>")
 	owner.announce_objectives()

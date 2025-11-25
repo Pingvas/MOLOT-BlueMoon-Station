@@ -1,6 +1,6 @@
 /// Skyrat Tattoos //////////////
 /datum/sprite_accessory/mam_body_markings/tattoo
-	icon = 'modular_bluemoon/kovac_shitcode/icons/tattoo_markings.dmi'
+	icon = 'modular_bluemoon/icons/tattoo_markings.dmi'
 	recommended_species = list("Human")
 
 /datum/sprite_accessory/mam_body_markings/tattoo/heart
@@ -66,7 +66,7 @@
 	name = "Teshari"
 	icon_state = "teshari"
 	color_src = MATRIXED
-	icon = 'modular_bluemoon/kovac_shitcode/icons/tails.dmi'
+	icon = 'modular_bluemoon/icons/tails.dmi'
 	matrixed_sections = MATRIX_RED
 
 /datum/sprite_accessory/tails/mam_tails/teshari/teshari_thin
@@ -77,7 +77,7 @@
 	name = "Murid II"
 	icon_state = "murid_two"
 	color_src = MATRIXED
-	icon = 'modular_bluemoon/kovac_shitcode/icons/tails.dmi'
+	icon = 'modular_bluemoon/icons/tails.dmi'
 	matrixed_sections = MATRIX_ALL
 */
 /datum/sprite_accessory/tails/mam_tails/leopard
@@ -85,35 +85,35 @@
 	icon_state = "leopard"
 	color_src = MATRIXED
 	matrixed_sections = MATRIX_RED_BLUE
-	icon = 'modular_bluemoon/kovac_shitcode/icons/tails.dmi'
+	icon = 'modular_bluemoon/icons/tails.dmi'
 
 /datum/sprite_accessory/tails_animated/mam_tails_animated/leopard
 	name = "Leopard Tail"
 	icon_state = "leopard"
 	color_src = MATRIXED
 	matrixed_sections = MATRIX_RED_BLUE
-	icon = 'modular_bluemoon/kovac_shitcode/icons/tails.dmi'
+	icon = 'modular_bluemoon/icons/tails.dmi'
 
 /datum/sprite_accessory/tails/mam_tails/otiea
 	name = "Otie (Alt)"
 	icon_state = "otiea"
 	color_src = MATRIXED
 	matrixed_sections = MATRIX_RED_GREEN
-	icon = 'modular_bluemoon/kovac_shitcode/icons/tails.dmi'
+	icon = 'modular_bluemoon/icons/tails.dmi'
 
 /datum/sprite_accessory/tails_animated/mam_tails_animated/otiea
 	name = "Otie (Alt)"
 	icon_state = "otiea"
 	color_src = MATRIXED
 	matrixed_sections = MATRIX_RED_GREEN
-	icon = 'modular_bluemoon/kovac_shitcode/icons/tails.dmi'
+	icon = 'modular_bluemoon/icons/tails.dmi'
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /datum/sprite_accessory/hair/zoey
 	name = "Zoey"
 	icon_state = "hair_zoey"
-	icon = 'modular_bluemoon/kovac_shitcode/icons/hair.dmi'
+	icon = 'modular_bluemoon/icons/hair.dmi'
 	recommended_species = list("Human")
 
 /datum/sprite_accessory/hair/zoey/tri_bun_long
@@ -200,21 +200,21 @@
 	icon_state = "vulp"
 	color_src = MATRIXED
 	matrixed_sections = MATRIX_RED_BLUE
-	icon = 'modular_bluemoon/kovac_shitcode/icons/tails.dmi'
+	icon = 'modular_bluemoon/icons/tails.dmi'
 
 /datum/sprite_accessory/ears/mam_ears/mouse_two
 	name = "Mouse II"
 	icon_state = "mouse_two"
 	color_src = MATRIXED
 	matrixed_sections = MATRIX_RED_BLUE
-	icon = 'modular_bluemoon/kovac_shitcode/icons/tails.dmi'
+	icon = 'modular_bluemoon/icons/tails.dmi'
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
 /datum/sprite_accessory/ears/human/elf/elf_wide
 	name = "Elf Wide"
 	icon_state = "elfwide"
-	icon = 'modular_bluemoon/kovac_shitcode/icons/tails.dmi'
+	icon = 'modular_bluemoon/icons/tails.dmi'
 
 /datum/sprite_accessory/ears/human/elf/elf_wide/elf_broad
 	name = "Elf Broad"
@@ -231,7 +231,7 @@
 	icon_state = "leporid"
 	color_src = MATRIXED
 	matrixed_sections = MATRIX_RED_BLUE
-	icon = 'modular_bluemoon/kovac_shitcode/icons/tails.dmi'
+	icon = 'modular_bluemoon/icons/tails.dmi'
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
@@ -248,7 +248,7 @@
 	icon_state = "scolo"
 	color_src = MATRIXED
 	matrixed_sections = MATRIX_ALL
-	icon = 'modular_bluemoon/kovac_shitcode/icons/tails.dmi'
+	icon = 'modular_bluemoon/icons/tails.dmi'
 	relevant_layers = list(BODY_BEHIND_LAYER, BODY_FRONT_LAYER)
 
 /datum/sprite_accessory/tails/human/leopard
@@ -256,7 +256,7 @@
 	icon_state = "leopard"
 	color_src = MATRIXED
 	matrixed_sections = MATRIX_RED_BLUE
-	icon = 'modular_bluemoon/kovac_shitcode/icons/tails.dmi'
+	icon = 'modular_bluemoon/icons/tails.dmi'
 	relevant_layers = list(BODY_BEHIND_LAYER, BODY_FRONT_LAYER)
 
 /datum/sprite_accessory/tails_animated/human/leopard
@@ -264,7 +264,7 @@
 	icon_state = "leopard"
 	color_src = MATRIXED
 	matrixed_sections = MATRIX_RED_BLUE
-	icon = 'modular_bluemoon/kovac_shitcode/icons/tails.dmi'
+	icon = 'modular_bluemoon/icons/tails.dmi'
 	relevant_layers = list(BODY_BEHIND_LAYER, BODY_FRONT_LAYER)
 
 /////////////////////////////
@@ -272,18 +272,18 @@
 /datum/sprite_accessory/insect_fluff/mantis
 	name = "Mantis"
 	icon_state = "mantis"
-	icon = 'modular_bluemoon/kovac_shitcode/icons/tails.dmi'
+	icon = 'modular_bluemoon/icons/tails.dmi'
 	color_src = MATRIXED
 	matrixed_sections = MATRIX_RED_GREEN
 
 /datum/sprite_accessory/insect_fluff/mantis_mono
 	name = "Mantis Mono"
 	icon_state = "mantis2"
-	icon = 'modular_bluemoon/kovac_shitcode/icons/tails.dmi'
+	icon = 'modular_bluemoon/icons/tails.dmi'
 
 /////////////////////////////
 
 /datum/sprite_accessory/horns/scolo_antennae
 	name = "Centipede Antennae"
 	icon_state = "scolo_antennae"
-	icon = 'modular_bluemoon/kovac_shitcode/icons/tails.dmi'
+	icon = 'modular_bluemoon/icons/tails.dmi'

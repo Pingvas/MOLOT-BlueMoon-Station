@@ -200,7 +200,7 @@
 	H.physiology.brute_mod *= 0.5
 	H.physiology.burn_mod *= 0.5
 	H.client?.give_award(/datum/award/achievement/misc/rust_ascension, H)
-	priority_announce("$^@&#*$^@(#&$(@&#^$&#^@# Бойтесь разложения, что несёт Ржавый Всадник, [user.real_name], возносясь над вами! Никто не избежит от коррозии! $^@&#*$^@(#&$(@&#^$&#^@#","#$^@&#*$^@(#&$(@&#^$&#^@#", 'modular_bluemoon/kovac_shitcode/sound/eldritch/rust_lore.ogg')
+	priority_announce("$^@&#*$^@(#&$(@&#^$&#^@# Бойтесь разложения, что несёт Ржавый Всадник, [user.real_name], возносясь над вами! Никто не избежит от коррозии! $^@&#*$^@(#&$(@&#^$&#^@#","#$^@&#*$^@(#&$(@&#^$&#^@#", 'modular_bluemoon/sound/eldritch/rust_lore.ogg')
 	new /datum/rust_spread(loc)
 	var/datum/antagonist/heretic/ascension = H.mind.has_antag_datum(/datum/antagonist/heretic)
 	ascension.ascended = TRUE

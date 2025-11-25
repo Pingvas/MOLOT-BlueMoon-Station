@@ -54,7 +54,7 @@
 		if("Insect")
 			choosen_sound += 'sound/voice/moth/mothlaugh.ogg'
 		if("Vox")
-			choosen_sound += 'modular_bluemoon/kovac_shitcode/sound/species/voxrustle.ogg'
+			choosen_sound += 'modular_bluemoon/sound/species/voxrustle.ogg'
 		if("Slime Cat")
 			choosen_sound = list('sound/voice/jelly/nyahaha1.ogg',
 							'sound/voice/jelly/nyahaha2.ogg',

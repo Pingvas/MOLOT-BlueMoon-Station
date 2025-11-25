@@ -4,7 +4,7 @@
 /datum/sprite_accessory/tails/mam_tails/vox
 	name = "Vox"
 	icon_state = "vox_tail"
-	icon = 'modular_bluemoon/kovac_shitcode/icons/species/vox_body.dmi'
+	icon = 'modular_bluemoon/icons/species/vox_body.dmi'
 	color_src = MUTCOLORS
 	recommended_species = list("vox")
 
@@ -12,7 +12,7 @@
 	name = "Vox"
 	icon_state = "vox_snout"
 	color_src = MUTCOLORS
-	icon = 'modular_bluemoon/kovac_shitcode/icons/species/vox_body.dmi'
+	icon = 'modular_bluemoon/icons/species/vox_body.dmi'
 	recommended_species = list("vox")
 
 ///Внутренние органы вокса. Дыхание с помощью азота
@@ -261,7 +261,7 @@
 /datum/sprite_accessory/hair/vox_afro
 	name = "Vox Afro"
 	icon_state = "hair_vox_afro"
-	icon = 'modular_bluemoon/kovac_shitcode/icons/hair.dmi'
+	icon = 'modular_bluemoon/icons/hair.dmi'
 	recommended_species = list("Vox")
 
 /datum/sprite_accessory/hair/vox_afro/vox_crestedquills

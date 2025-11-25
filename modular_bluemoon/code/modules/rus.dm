@@ -6,9 +6,9 @@
 	icon_state = "nri_soldier"
 	item_state = "nri_soldier"
 	can_adjust = FALSE
-	icon = 'modular_bluemoon/kovac_shitcode/icons/rus/obj_rus.dmi'
-	mob_overlay_icon = 'modular_bluemoon/kovac_shitcode/icons/rus/mob_rus.dmi'
-	anthro_mob_worn_overlay = 'modular_bluemoon/kovac_shitcode/icons/rus/mob_rus_digi.dmi'
+	icon = 'modular_bluemoon/icons/rus/obj_rus.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/rus/mob_rus.dmi'
+	anthro_mob_worn_overlay = 'modular_bluemoon/icons/rus/mob_rus_digi.dmi'
 	alternate_screams = RUSSIAN_SCREAMS
 	unique_reskin = list(
 		"Spetsnaz" = list("icon_state" = "nri_soldier"),
@@ -22,8 +22,8 @@
 	desc = "A greatcoat with armored fibers included to protect Empire officials."
 	icon_state = "nri_coat"
 	item_state = "nri_coat"
-	icon = 'modular_bluemoon/kovac_shitcode/icons/rus/obj_rus.dmi'
-	mob_overlay_icon = 'modular_bluemoon/kovac_shitcode/icons/rus/mob_rus.dmi'
+	icon = 'modular_bluemoon/icons/rus/obj_rus.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/rus/mob_rus.dmi'
 	mutantrace_variation = STYLE_DIGITIGRADE|STYLE_NO_ANTHRO_ICON
 	alternate_screams = RUSSIAN_SCREAMS
 	armor = list(MELEE = 55, BULLET = 65, LASER = 65, ENERGY = 65, BOMB = 40, BIO = 50, RAD = 100, FIRE = 40, ACID = 50,  WOUND = 40)
@@ -46,16 +46,16 @@
 	desc = "Worn by the servants of NRI."
 	icon_state = "nri_cape"
 	item_state = "nri_cape"
-	icon = 'modular_bluemoon/kovac_shitcode/icons/rus/obj_rus.dmi'
-	mob_overlay_icon = 'modular_bluemoon/kovac_shitcode/icons/rus/mob_rus.dmi'
+	icon = 'modular_bluemoon/icons/rus/obj_rus.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/rus/mob_rus.dmi'
 
 /obj/item/clothing/neck/cloak/nri_cloak
 	name = "new russian empire cloak"
 	desc = "Belongs to the Russian diplomacy personnel and commanders."
 	icon_state = "nri_cloak"
 	item_state = "nri_cloak"
-	icon = 'modular_bluemoon/kovac_shitcode/icons/rus/obj_rus.dmi'
-	mob_overlay_icon = 'modular_bluemoon/kovac_shitcode/icons/rus/mob_rus.dmi'
+	icon = 'modular_bluemoon/icons/rus/obj_rus.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/rus/mob_rus.dmi'
 
 /// Hats and Headphones
 
@@ -65,8 +65,8 @@
 	icon_state = "rus_beret"
 	item_state = "rus_beret"
 	alternate_screams = RUSSIAN_SCREAMS
-	icon = 'modular_bluemoon/kovac_shitcode/icons/rus/obj_rus.dmi'
-	mob_overlay_icon = 'modular_bluemoon/kovac_shitcode/icons/rus/mob_rus.dmi'
+	icon = 'modular_bluemoon/icons/rus/obj_rus.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/rus/mob_rus.dmi'
 
 /obj/item/clothing/head/HoS/beret/nri/security
 	armor = list(MELEE = 40, BULLET = 30, LASER = 30,ENERGY = 10, BOMB = 25, BIO = 0, RAD = 0, FIRE = 50, ACID = 50)
@@ -86,9 +86,9 @@
 	desc = "A green headset, used by NRI personnel"
 	icon_state = "rus_headset"
 	item_state = "rus_headset"
-	icon = 'modular_bluemoon/kovac_shitcode/icons/rus/obj_rus.dmi'
-	mob_overlay_icon = 'modular_bluemoon/kovac_shitcode/icons/rus/mob_rus.dmi'
-	radiosound = 'modular_bluemoon/kovac_shitcode/sound/radio_rus.ogg'
+	icon = 'modular_bluemoon/icons/rus/obj_rus.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/rus/mob_rus.dmi'
+	radiosound = 'modular_bluemoon/sound/radio_rus.ogg'
 	freerange = FALSE
 	freqlock = TRUE
 	bowman = FALSE
@@ -263,9 +263,9 @@
 	desc = "A non-descript and slightly suspicious looking uniform."
 	icon_state = "nri_drg"
 	item_state = "nri_drg"
-	icon = 'modular_bluemoon/kovac_shitcode/icons/rus/obj_drg.dmi'
-	mob_overlay_icon = 'modular_bluemoon/kovac_shitcode/icons/rus/mob_drg.dmi'
-	anthro_mob_worn_overlay = 'modular_bluemoon/kovac_shitcode/icons/rus/mob_drg_digi.dmi'
+	icon = 'modular_bluemoon/icons/rus/obj_drg.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/rus/mob_drg.dmi'
+	anthro_mob_worn_overlay = 'modular_bluemoon/icons/rus/mob_drg_digi.dmi'
 	can_adjust = FALSE
 	unique_reskin = list(
 		"Camo" = list("icon_state" = "nri_drg"),

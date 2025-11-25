@@ -240,7 +240,7 @@
 
 /datum/eldritch_knowledge/final_eldritch/flesh_final/on_finished_recipe(mob/living/user, list/atoms, loc)
 	. = ..()
-	priority_announce("$^@&#*$^@(#&$(@&#^$&#^@# Вихрь крутится в вечном танце. Реальность выворачивается наизнанку. ПОВЕЛИТЕЛЬ, [user.real_name] вознёсся! Бойтесь длани господня! $^@&#*$^@(#&$(@&#^$&#^@#","#$^@&#*$^@(#&$(@&#^$&#^@#", 'modular_bluemoon/kovac_shitcode/sound/eldritch/flesh_lore.ogg')
+	priority_announce("$^@&#*$^@(#&$(@&#^$&#^@# Вихрь крутится в вечном танце. Реальность выворачивается наизнанку. ПОВЕЛИТЕЛЬ, [user.real_name] вознёсся! Бойтесь длани господня! $^@&#*$^@(#&$(@&#^$&#^@#","#$^@&#*$^@(#&$(@&#^$&#^@#", 'modular_bluemoon/sound/eldritch/flesh_lore.ogg')
 	user.mind.AddSpell(new /obj/effect/proc_holder/spell/targeted/shed_human_form)
 	if(!ishuman(user))
 		return

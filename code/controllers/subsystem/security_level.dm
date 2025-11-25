@@ -260,7 +260,7 @@ SUBSYSTEM_DEF(security_level)
 
 /proc/lambda_process()
 	minor_announce(CONFIG_GET(string/alert_lambda), "Внимание! Код - ЛЯМБДА!")
-	sound_to_playing_players('modular_bluemoon/kovac_shitcode/sound/lambda_code.ogg')
+	sound_to_playing_players('modular_bluemoon/sound/lambda_code.ogg')
 	GLOB.security_level = SEC_LEVEL_LAMBDA
 	SEND_SIGNAL(SSsecurity_level, COMSIG_SECURITY_LEVEL_CHANGED) // Без этого никакие сигнал_хендлеры, связанные со сменой кода, не ловят лямбду. Включая мой сейф.
 	for(var/obj/machinery/firealarm/FA in GLOB.machines)

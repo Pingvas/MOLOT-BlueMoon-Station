@@ -418,7 +418,7 @@ GLOBAL_DATUM_INIT(ahelp_tickets, /datum/admin_help_tickets, new)
 	if(initiator)
 		to_chat(initiator, msg)
 
-	SEND_SOUND(initiator, sound('modular_bluemoon/kovac_shitcode/sound/misc/ic_issue.ogg'))
+	SEND_SOUND(initiator, sound('modular_bluemoon/sound/misc/ic_issue.ogg'))
 
 	SSblackbox.record_feedback("tally", "ahelp_stats", 1, "IC")
 	msg = "Ticket [TicketHref("#[id]")] marked as IC by [key_name]"
@@ -438,7 +438,7 @@ GLOBAL_DATUM_INIT(ahelp_tickets, /datum/admin_help_tickets, new)
 	if(initiator)
 		to_chat(initiator, msg)
 
-	SEND_SOUND(initiator, sound('modular_bluemoon/kovac_shitcode/sound/misc/skill_issue.ogg'))
+	SEND_SOUND(initiator, sound('modular_bluemoon/sound/misc/skill_issue.ogg'))
 
 	SSblackbox.record_feedback("tally", "ahelp_stats", 1, "SI")
 	msg = "Ticket [TicketHref("#[id]")] marked as Skill Issue by [key_name]"

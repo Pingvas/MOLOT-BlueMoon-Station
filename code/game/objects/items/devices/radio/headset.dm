@@ -136,9 +136,9 @@ GLOBAL_LIST_INIT(channel_tokens, list(
 	item_state = "inteq_headset_alt"
 	//freqlock = TRUE
 	bowman = TRUE
-	icon = 'modular_bluemoon/kovac_shitcode/icons/solfed/obj_sol_head.dmi'
-	//mob_overlay_icon = 'modular_bluemoon/kovac_shitcode/icons/solfed/mob_sol_head.dmi'
-	radiosound = 'modular_bluemoon/kovac_shitcode/sound/radio.ogg'
+	icon = 'modular_bluemoon/icons/solfed/obj_sol_head.dmi'
+	//mob_overlay_icon = 'modular_bluemoon/icons/solfed/mob_sol_head.dmi'
+	radiosound = 'modular_bluemoon/sound/radio.ogg'
 
 /obj/item/radio/headset/inteq/alt/leader
 	name = "Team Leader InteQ Headset"

@@ -128,7 +128,7 @@
 	mag_type = /obj/item/ammo_box/magazine/m357
 	can_suppress = FALSE
 	automatic_burst_overlay = FALSE
-	fire_sound = 'modular_bluemoon/kovac_shitcode/sound/weapons/deagle.ogg'
+	fire_sound = 'modular_bluemoon/sound/weapons/deagle.ogg'
 	obj_flags = UNIQUE_RENAME
 	unique_reskin = list(
 		"Default" = list("icon_state" = "deagle"),

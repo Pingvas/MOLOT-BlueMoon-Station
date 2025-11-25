@@ -163,7 +163,7 @@
 		addtimer(CALLBACK(src, PROC_REF(play_alarm)), 10 SECONDS)
 
 /datum/looping_sound/server_alarm_small // BLUEMOON ADD Ввиду того что данное будет использоваться только для серверов, располагаю немодульно. Следует модулить, если будут ещё loop'ы от нас
-	mid_sounds = 'modular_bluemoon/kovac_shitcode/sound/ambience/enc/alarm_small_09.ogg'
+	mid_sounds = 'modular_bluemoon/sound/ambience/enc/alarm_small_09.ogg'
 	mid_length = 60
 	volume = 5
 

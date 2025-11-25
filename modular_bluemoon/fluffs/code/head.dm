@@ -69,8 +69,8 @@
 	desc = "A special headger containing unknown fibers and electronics, providing the NVG effect for it's user. Formerly."
 	icon_state = "nri_drg_ushanka"
 	item_state = "nri_drg_ushanka"
-	icon = 'modular_bluemoon/kovac_shitcode/icons/rus/obj_drg.dmi'
-	mob_overlay_icon = 'modular_bluemoon/kovac_shitcode/icons/rus/mob_drg.dmi'
+	icon = 'modular_bluemoon/icons/rus/obj_drg.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/rus/mob_drg.dmi'
 	unique_reskin = list(
 		"Ushanka" = list("icon_state" = "nri_drg_ushanka"),
 		"Beret" = list("icon_state" = "nri_drg_beret")

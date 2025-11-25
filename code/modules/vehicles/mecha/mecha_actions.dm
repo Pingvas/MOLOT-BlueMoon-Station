@@ -344,7 +344,7 @@
         to_chat(owner, "[icon2html(chassis, owner)]<font color='[chassis.zoom_mode?"blue":"red"]'>Zoom mode [chassis.zoom_mode?"en":"dis"]abled.</font>")
         if(chassis.zoom_mode)
             owner.client.view_size.setTo(4.5)
-            SEND_SOUND(owner, sound('modular_bluemoon/kovac_shitcode/sound/mecha/imag_enh_sol.ogg',volume=50))
+            SEND_SOUND(owner, sound('modular_bluemoon/sound/mecha/imag_enh_sol.ogg',volume=50))
         else
             owner.client.view_size.resetToDefault()
         UpdateButton()

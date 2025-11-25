@@ -60,9 +60,9 @@
 	desc = "A greatcoat enhanced with a special alloy for some extra protection and style for those with a commanding presence."
 	icon_state = "ntr"
 	item_state = "ntr"
-	icon = 'modular_bluemoon/kovac_shitcode/icons/obj/clothing/suits.dmi'
-	mob_overlay_icon = 'modular_bluemoon/kovac_shitcode/icons/mob/clothing/suit.dmi'
-	anthro_mob_worn_overlay = 'modular_bluemoon/kovac_shitcode/icons/mob/clothing/suit.dmi'
+	icon = 'modular_bluemoon/icons/obj/clothing/suits.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing/suit.dmi'
+	anthro_mob_worn_overlay = 'modular_bluemoon/icons/mob/clothing/suit.dmi'
 	unique_reskin = list(
 		"Syndicate Officer Coat" = list("icon_state" = "str"),
 		"Trenchcoat" = list("icon_state" = "detective"),
@@ -75,8 +75,8 @@
 	desc = "The standard-issue cap of the NanoTrasen Central Command. For showing the officers and HoS who's in charge."
 	icon_state = "ntr"
 	item_state = "ntr"
-	icon = 'modular_bluemoon/kovac_shitcode/icons/obj/clothing/hats.dmi'
-	mob_overlay_icon = 'modular_bluemoon/kovac_shitcode/icons/mob/clothing/head.dmi'
+	icon = 'modular_bluemoon/icons/obj/clothing/hats.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing/head.dmi'
 
 /obj/item/clothing/head/beret/sec/ntr_beret
 	name = "NanoTrasen Representative Beret"

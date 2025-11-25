@@ -544,9 +544,9 @@ GLOBAL_VAR_INIT(fscpassword, generate_password())
 	desc = "Стандартный наушник InteQ."
 	icon_state = "inteq_headset"
 	item_state = "inteq_headset"
-	icon = 'modular_bluemoon/kovac_shitcode/icons/solfed/obj_sol_head.dmi'
-	mob_overlay_icon = 'modular_bluemoon/kovac_shitcode/icons/solfed/mob_sol_head.dmi'
-	radiosound = 'modular_bluemoon/kovac_shitcode/sound/radio.ogg'
+	icon = 'modular_bluemoon/icons/solfed/obj_sol_head.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/solfed/mob_sol_head.dmi'
+	radiosound = 'modular_bluemoon/sound/radio.ogg'
 
 /obj/item/radio/headset/ghost_inteq/leader
 	name = "InteQ Headset"

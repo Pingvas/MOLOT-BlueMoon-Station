@@ -92,7 +92,7 @@
 		title = "Секретно: [command_name()]"
 
 	if(announce)
-		priority_announce("Отчет был загружен и распечатан на всех коммуникационных консолях.", "Входящее Секретное Сообщение", 'modular_bluemoon/kovac_shitcode/sound/ambience/enc/morse.ogg', has_important_message = TRUE)
+		priority_announce("Отчет был загружен и распечатан на всех коммуникационных консолях.", "Входящее Секретное Сообщение", 'modular_bluemoon/sound/ambience/enc/morse.ogg', has_important_message = TRUE)
 
 	var/datum/comm_message/M  = new
 	M.title = title

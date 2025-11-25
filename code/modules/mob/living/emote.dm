@@ -362,7 +362,7 @@
 		else if(isinsect(C))
 			playsound(C, 'sound/voice/moth/mothlaugh.ogg', 50, 1)
 		else if(isvox(C))
-			playsound(C, 'modular_bluemoon/kovac_shitcode/sound/species/voxrustle.ogg', 50, 1)
+			playsound(C, 'modular_bluemoon/sound/species/voxrustle.ogg', 50, 1)
 		else if(isjellyperson(C))
 			var/mob/living/carbon/human/H = C
 			if(H.dna.features["mam_ears"] == "Cat" || H.dna.features["mam_ears"] == "Cat, Big") //slime have cat ear. slime go nya.

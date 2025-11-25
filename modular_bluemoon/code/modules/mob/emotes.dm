@@ -235,7 +235,7 @@
 			if (is_species(user, /datum/species/fly) || is_species(user, /datum/species/insect))
 				sound = 'modular_citadel/sound/voice/scream_moth.ogg'
 			if(is_species(user, /datum/species/mammal/vox))
-				sound = 'modular_bluemoon/kovac_shitcode/sound/species/voxscream.ogg'
+				sound = 'modular_bluemoon/sound/species/voxscream.ogg'
 		if(isalien(user))
 			sound = 'sound/voice/hiss6.ogg'
 		LAZYINITLIST(user.alternate_screams)

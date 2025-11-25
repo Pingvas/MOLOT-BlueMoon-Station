@@ -93,7 +93,7 @@
 	loot = list(/obj/effect/gibspawner/human)
 	attack_verb_continuous = "slashes"
 	attack_verb_simple = "slash"
-	attack_sound = 'modular_bluemoon/kovac_shitcode/sound/weapons/sledge.ogg'
+	attack_sound = 'modular_bluemoon/sound/weapons/sledge.ogg'
 	status_flags = 0
 
 /mob/living/simple_animal/hostile/syndicate/melee/space

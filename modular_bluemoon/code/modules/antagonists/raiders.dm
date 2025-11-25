@@ -8,7 +8,7 @@
 	var/datum/team/raiders/crew
 
 /datum/antagonist/raiders/greet()
-	SEND_SOUND(owner.current, sound('modular_bluemoon/kovac_shitcode/sound/inteq_raiders_spawn.ogg'))
+	SEND_SOUND(owner.current, sound('modular_bluemoon/sound/inteq_raiders_spawn.ogg'))
 	to_chat(owner, "<span class='boldannounce'>Вы - наёмник InteQ!</span>")
 	to_chat(owner, "<B>Капитан станции отказался заплатить. Атакуйте её: похищайте ресурсы, берите заложников. Избегайте ненужных жертв. Не забывайте следить за своим кораблём.</B>")
 	owner.announce_objectives()
