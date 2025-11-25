@@ -20,7 +20,7 @@
 /obj/item/fastcodes_guide
 	name = "Dirty Fast codes guide"
 	desc = "Пыльный мануал. В нём собраны коды, шифровки, позывные и ответы на любую ситуацию. Хоть сейчас все эти шифры выглядят архаично и слишком сложными, но прекрасно выполняют свою работу."
-	icon = 'modular_bluemoon/Ren/Icons/Obj/infiltrator.dmi'
+	icon = 'modular_bluemoon/icons/obj/infiltrator.dmi'
 	icon_state = "guide"
 	var/charges = 1
 

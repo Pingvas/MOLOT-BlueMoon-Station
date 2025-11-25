@@ -5,17 +5,17 @@
 	desc = "Элегантный кейс с отделкой из кожи и эмблемой золотого щита. Содержит внутри костюм, разработанный для понижения заметности пользователя в условиях тесных пространств замкнутых помещений. Сам кейс же отлично подходит для переноса всего того арсенала оружия, что ты взял с собой на 'тихую' миссию."
 	icon_state = "infiltrator_case"
 	item_state = "infiltrator_case"
-	icon = 'modular_bluemoon/Ren/Icons/Obj/infiltrator.dmi'
-	lefthand_file = 'modular_bluemoon/Ren/Icons/Mob/inhand_l.dmi'
-	righthand_file = 'modular_bluemoon/Ren/Icons/Mob/inhand_r.dmi'
+	icon = 'modular_bluemoon/icons/obj/infiltrator.dmi'
+	lefthand_file = 'modular_bluemoon/icons/mob/inhand_l.dmi'
+	righthand_file = 'modular_bluemoon/icons/mob/inhand_r.dmi'
 //тулбокс интека
 /obj/item/storage/toolbox/inteq
 	name = "Brown toolbox"
 	icon_state = "toolbox_inteq"
 	item_state = "toolbox_inteq"
-	icon = 'modular_bluemoon/Ren/Icons/Obj/infiltrator.dmi'
-	lefthand_file = 'modular_bluemoon/Ren/Icons/Mob/inhand_l.dmi'
-	righthand_file = 'modular_bluemoon/Ren/Icons/Mob/inhand_r.dmi'
+	icon = 'modular_bluemoon/icons/obj/infiltrator.dmi'
+	lefthand_file = 'modular_bluemoon/icons/mob/inhand_l.dmi'
+	righthand_file = 'modular_bluemoon/icons/mob/inhand_r.dmi'
 	desc = "Элегантный ящик с инструментами. Ярко оранжевая полоса проходит вдоль стыка крышки, а в центре виднеется голографическая наклейка в виде жёлтого щита."
 	force = 15
 	throwforce = 18
@@ -25,10 +25,10 @@
 	desc = "Обычный чехол от гитары. В него поместится много всего."
 	icon_state = "guitarbag"
 	item_state = "guitarbag"
-	mob_overlay_icon = 'modular_bluemoon/Ren/Icons/Mob/clothing.dmi'
-	icon = 'modular_bluemoon/Ren/Icons/Obj/cloth.dmi'
-	lefthand_file = 'modular_bluemoon/Ren/Icons/Mob/inhand_l.dmi'
-	righthand_file = 'modular_bluemoon/Ren/Icons/Mob/inhand_r.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing.dmi'
+	icon = 'modular_bluemoon/icons/obj/cloth.dmi'
+	lefthand_file = 'modular_bluemoon/icons/mob/inhand_l.dmi'
+	righthand_file = 'modular_bluemoon/icons/mob/inhand_r.dmi'
 
 /obj/item/storage/backpack/guitarbag/ComponentInitialize()
 	. = ..()
@@ -41,17 +41,17 @@
 //--------------------------------------------------------[Инструменты]----------------------------------------------------------------------------------------------
 /obj/item/screwdriver/nuke/inteq
 	icon_state = "screwdriver_caravan"
-	icon = 'modular_bluemoon/Ren/Icons/Obj/infiltrator.dmi'
+	icon = 'modular_bluemoon/icons/obj/infiltrator.dmi'
 
 /obj/item/crowbar/brown
-	icon = 'modular_bluemoon/Ren/Icons/Obj/infiltrator.dmi'
+	icon = 'modular_bluemoon/icons/obj/infiltrator.dmi'
 	desc = "A small brown crowbar that seems to have extra sharped edges."
 	icon_state = "crowbar_brown"
 	force = 8
 	toolspeed = 0.9
 
 /obj/item/wirecutters/brown
-	icon = 'modular_bluemoon/Ren/Icons/Obj/infiltrator.dmi'
+	icon = 'modular_bluemoon/icons/obj/infiltrator.dmi'
 	desc = "Pair of brown wirecutters with fairly sharp blades."
 	icon_state = "cutters"
 	random_color = FALSE
@@ -64,9 +64,9 @@
 	desc = "Карманный электроинструмент. Теперь в элегантной обёртке. Установлена насадка крестовой отвёртки."
 	icon_state = "drill_inteq_screw"
 	item_state = "drill"
-	icon = 'modular_bluemoon/Ren/Icons/Obj/infiltrator.dmi'
-	lefthand_file = 'modular_bluemoon/Ren/Icons/Mob/inhand_l.dmi'
-	righthand_file = 'modular_bluemoon/Ren/Icons/Mob/inhand_r.dmi'
+	icon = 'modular_bluemoon/icons/obj/infiltrator.dmi'
+	lefthand_file = 'modular_bluemoon/icons/mob/inhand_l.dmi'
+	righthand_file = 'modular_bluemoon/icons/mob/inhand_r.dmi'
 	force = 11
 	toolspeed = 0.30
 
@@ -82,9 +82,9 @@
 	desc = "Карманный электроинструмент. Теперь в элегантной обёртке. Установлена насадка с шестигранником."
 	icon_state = "drill_inteq_bolt"
 	item_state = "drill"
-	icon = 'modular_bluemoon/Ren/Icons/Obj/infiltrator.dmi'
-	lefthand_file = 'modular_bluemoon/Ren/Icons/Mob/inhand_l.dmi'
-	righthand_file = 'modular_bluemoon/Ren/Icons/Mob/inhand_r.dmi'
+	icon = 'modular_bluemoon/icons/obj/infiltrator.dmi'
+	lefthand_file = 'modular_bluemoon/icons/mob/inhand_l.dmi'
+	righthand_file = 'modular_bluemoon/icons/mob/inhand_r.dmi'
 
 /obj/item/screwdriver/power/inteq/attack_self(mob/user)
 	playsound(get_turf(user),'sound/items/change_drill.ogg',50,1)
@@ -96,10 +96,10 @@
 /obj/item/crowbar/power/inteq
 	name = "Brown jaws of life"
 	icon_state = "jaws_inteq_pry"
-	lefthand_file = 'modular_bluemoon/Ren/Icons/Mob/inhand_l.dmi'
-	righthand_file = 'modular_bluemoon/Ren/Icons/Mob/inhand_r.dmi'
+	lefthand_file = 'modular_bluemoon/icons/mob/inhand_l.dmi'
+	righthand_file = 'modular_bluemoon/icons/mob/inhand_r.dmi'
 	desc = "Карманный пневматический инструмент. Нет, мы не украли контейнер клешней с транспортника НТ и просто перекрасили его. Устанановлена насадка клешней."
-	icon = 'modular_bluemoon/Ren/Icons/Obj/infiltrator.dmi'
+	icon = 'modular_bluemoon/icons/obj/infiltrator.dmi'
 	force = 15
 	toolspeed = 0.30
 
@@ -116,9 +116,9 @@
 	desc = "Карманный пневматический инструмент. Нет, мы не украли контейнер клешней с транспортника НТ и просто перекрасили его. Установлена насадка кусачек."
 	icon_state = "jaws_inteq_cutter"
 	item_state = "jawsoflife"
-	icon = 'modular_bluemoon/Ren/Icons/Obj/infiltrator.dmi'
-	lefthand_file = 'modular_bluemoon/Ren/Icons/Mob/inhand_l.dmi'
-	righthand_file = 'modular_bluemoon/Ren/Icons/Mob/inhand_r.dmi'
+	icon = 'modular_bluemoon/icons/obj/infiltrator.dmi'
+	lefthand_file = 'modular_bluemoon/icons/mob/inhand_l.dmi'
+	righthand_file = 'modular_bluemoon/icons/mob/inhand_r.dmi'
 	force = 15
 	toolspeed = 0.30
 
@@ -135,21 +135,21 @@
 	icon_state = "exwelder"
 	item_state = "brasswelder"
 	desc = "Небольшой сварочный аппарат с самовостанавливающимся топливным блоком. Выглядит довольно нелегально."
-	icon = 'modular_bluemoon/Ren/Icons/Obj/infiltrator.dmi'
+	icon = 'modular_bluemoon/icons/obj/infiltrator.dmi'
 //боевой ключ
 /obj/item/wrench/combat/inteq
-	icon = 'modular_bluemoon/Ren/Icons/Obj/infiltrator.dmi'
+	icon = 'modular_bluemoon/icons/obj/infiltrator.dmi'
 	desc = "Перекраска твёрдого света повысила уровень военных преступлений на 20%"
-	icon = 'modular_bluemoon/Ren/Icons/Obj/infiltrator.dmi'
-	lefthand_file = 'modular_bluemoon/Ren/Icons/Mob/inhand_l.dmi'
-	righthand_file = 'modular_bluemoon/Ren/Icons/Mob/inhand_r.dmi'
+	icon = 'modular_bluemoon/icons/obj/infiltrator.dmi'
+	lefthand_file = 'modular_bluemoon/icons/mob/inhand_l.dmi'
+	righthand_file = 'modular_bluemoon/icons/mob/inhand_r.dmi'
 //индуктор
 /obj/item/inducer/inteq
 	icon_state = "inducer"
 	item_state = "inducer"
-	icon = 'modular_bluemoon/Ren/Icons/Obj/infiltrator.dmi'
-	lefthand_file = 'modular_bluemoon/Ren/Icons/Mob/inhand_l.dmi'
-	righthand_file = 'modular_bluemoon/Ren/Icons/Mob/inhand_r.dmi'
+	icon = 'modular_bluemoon/icons/obj/infiltrator.dmi'
+	lefthand_file = 'modular_bluemoon/icons/mob/inhand_l.dmi'
+	righthand_file = 'modular_bluemoon/icons/mob/inhand_r.dmi'
 	powertransfer = 2000
 	cell_type = /obj/item/stock_parts/cell/super
 //---------------------------------------------------------------------[хлам]--------------------------------------------------------------------------------
@@ -157,11 +157,11 @@
 /obj/item/toy/inteqballoon
 	name = "InteQ balloon"
 	desc = "Сзади видна странная бирка \"НАХУЙ ПАКТ!!1111\"."
-	icon = 'modular_bluemoon/Ren/Icons/Obj/infiltrator.dmi'
+	icon = 'modular_bluemoon/icons/obj/infiltrator.dmi'
 	icon_state = "inteqballoon"
 	item_state = "inteqballoon"
-	lefthand_file = 'modular_bluemoon/Ren/Icons/Mob/inhand_l.dmi'
-	righthand_file = 'modular_bluemoon/Ren/Icons/Mob/inhand_r.dmi'
+	lefthand_file = 'modular_bluemoon/icons/mob/inhand_l.dmi'
+	righthand_file = 'modular_bluemoon/icons/mob/inhand_r.dmi'
 	w_class = WEIGHT_CLASS_BULKY
 ///Sandman - превращает тебя в симпл моба с руками и механикой морфа. Уязвим к лазерам.
 /obj/item/reagent_containers/syringe/sand
@@ -201,13 +201,13 @@
 	infectable_biotypes = MOB_ORGANIC|MOB_MINERAL|MOB_UNDEAD
 //Автохирург
 /obj/item/autosurgeon/syndicate/inteq
-	icon = 'modular_bluemoon/Ren/Icons/Obj/infiltrator.dmi'
+	icon = 'modular_bluemoon/icons/obj/infiltrator.dmi'
 //Библия интека
 /obj/item/storage/book/bible/syndicate/inteq
 	name = "InteQ Tome"
-	icon = 'modular_bluemoon/Ren/Icons/Obj/infiltrator.dmi'
-	lefthand_file = 'modular_bluemoon/Ren/Icons/Mob/inhand_l.dmi'
-	righthand_file = 'modular_bluemoon/Ren/Icons/Mob/inhand_r.dmi'
+	icon = 'modular_bluemoon/icons/obj/infiltrator.dmi'
+	lefthand_file = 'modular_bluemoon/icons/mob/inhand_l.dmi'
+	righthand_file = 'modular_bluemoon/icons/mob/inhand_r.dmi'
 //Секретные документы
 /obj/item/documents/inteq
 	name = "orange secret documents"
@@ -256,9 +256,9 @@
 /obj/item/shield/inteq_energy
 	name = "Old energy shield"
 	desc = "Устаревшая на несколько поколений модель энергетического щита. Использует механические ограничители силового поля и эргономика немного страдает, но всё ещё является желанным элементом экипировки."
-	icon = 'modular_bluemoon/Ren/Icons/Obj/misc.dmi'
-	lefthand_file = 'modular_bluemoon/Ren/Icons/Mob/inhand_l.dmi'
-	righthand_file = 'modular_bluemoon/Ren/Icons/Mob/inhand_r.dmi'
+	icon = 'modular_bluemoon/icons/obj/misc.dmi'
+	lefthand_file = 'modular_bluemoon/icons/mob/inhand_l.dmi'
+	righthand_file = 'modular_bluemoon/icons/mob/inhand_r.dmi'
 	w_class = WEIGHT_CLASS_TINY
 	base_icon_state = "shield"
 	var/on_force = 10
@@ -342,7 +342,7 @@
 		/obj/item/clockwork/slab/cyborg/engineer,
 		/obj/item/clockwork/replica_fabricator/cyborg)
 	cyborg_base_icon = "mekainteq"
-	cyborg_icon_override = 'modular_bluemoon/Ren/Icons/Mob/robot.dmi'
+	cyborg_icon_override = 'modular_bluemoon/icons/mob/robot.dmi'
 	hasrest = TRUE
 	magpulsing = TRUE
 	hat_offset = -4
@@ -362,7 +362,7 @@
 /obj/structure/oldtrap
 	name = "old trap"
 	desc = "Ты не должен этого видеть"
-	icon = 'modular_bluemoon/Ren/Icons/Obj/misc.dmi'
+	icon = 'modular_bluemoon/icons/obj/misc.dmi'
 	icon_state = "razor"
 	anchored = TRUE
 	density = FALSE
@@ -470,7 +470,7 @@
 /obj/structure/billboard/fishstore
 	name = "Billboard"
 	desc = "An advertisement for a fishing store."
-	icon = 'modular_bluemoon/Ren/Icons/Obj/billboard.dmi'
+	icon = 'modular_bluemoon/icons/obj/billboard.dmi'
 	icon_state = "billboard_fishstore"
 	max_integrity = 1000
 	bound_width = 96

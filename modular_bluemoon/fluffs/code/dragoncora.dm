@@ -59,8 +59,8 @@
 	desc = "Стандартный бронежилет охраны свободных торговцев без бронепластин. Обеспечивает оптимальную защиту жизненно важных органов в тесных коридорах кораблей и трюмов."
 	icon_state = "epic_bp_armor"
 	item_state = "epic_bp_armor"
-	mob_overlay_icon = 'modular_bluemoon/Ren/Icons/Mob/clothing.dmi'
-	icon = 'modular_bluemoon/Ren/Icons/Obj/cloth.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing.dmi'
+	icon = 'modular_bluemoon/icons/obj/cloth.dmi'
 	body_parts_covered = CHEST|GROIN|ARMS
 	cold_protection = CHEST|GROIN|ARMS
 	heat_protection = CHEST|GROIN|ARMS
@@ -80,9 +80,9 @@
 	desc = "Боевые перчатки предназначенные для усиления навыков владельца. Встроенные наночипы напрямую посылают сигналы в нервные окончания рук, доводя движения владельца до идеала, что позволяет укладывать жертв на землю и перетаскивать их с максимальной эффективностью."
 	icon_state = "infiltrator_g"
 	item_state = "infiltrator_g"
-	icon = 'modular_bluemoon/Ren/Icons/Obj/infiltrator.dmi'
-	mob_overlay_icon = 'modular_bluemoon/Ren/Icons/Mob/clothing.dmi'
-	anthro_mob_worn_overlay = 'modular_bluemoon/Ren/Icons/Mob/clothing_digi.dmi'
+	icon = 'modular_bluemoon/icons/obj/infiltrator.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing.dmi'
+	anthro_mob_worn_overlay = 'modular_bluemoon/icons/mob/clothing_digi.dmi'
 
 // // // // // // // //
 

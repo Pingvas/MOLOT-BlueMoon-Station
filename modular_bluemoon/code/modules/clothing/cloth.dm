@@ -4,9 +4,9 @@
 	desc = "Лёгкий шлем с панорамным визором. Покрыт защитной плёнкой, спасающей владельца от ярких вспышек, а армированный визор сможет выдержать не одну пулю во время твоей 'скрытной' миссии."
 	icon_state = "infiltrator_h"
 	item_state = "infiltrator_h"
-	icon = 'modular_bluemoon/Ren/Icons/Obj/infiltrator.dmi'
-	mob_overlay_icon = 'modular_bluemoon/Ren/Icons/Mob/clothing.dmi'
-	anthro_mob_worn_overlay = 'modular_bluemoon/Ren/Icons/Mob/clothing_digi.dmi'
+	icon = 'modular_bluemoon/icons/obj/infiltrator.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing.dmi'
+	anthro_mob_worn_overlay = 'modular_bluemoon/icons/mob/clothing_digi.dmi'
 
 /obj/item/clothing/head/helmet/infiltrator/inteq/equipped(mob/living/carbon/human/user, slot)
 	..()
@@ -25,26 +25,26 @@
 	desc = "Боевые перчатки предназначенные для усиления навыков владельца. Встроенные наночипы напрямую посылают сигналы в нервные окончания рук, доводя движения владельца до идеала, что позволяет укладывать жертв на землю и перетаскивать их с максимальной эффективностью."
 	icon_state = "infiltrator_g"
 	item_state = "infiltrator_g"
-	icon = 'modular_bluemoon/Ren/Icons/Obj/infiltrator.dmi'
-	mob_overlay_icon = 'modular_bluemoon/Ren/Icons/Mob/clothing.dmi'
-	anthro_mob_worn_overlay = 'modular_bluemoon/Ren/Icons/Mob/clothing_digi.dmi'
+	icon = 'modular_bluemoon/icons/obj/infiltrator.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing.dmi'
+	anthro_mob_worn_overlay = 'modular_bluemoon/icons/mob/clothing_digi.dmi'
 
 /obj/item/clothing/mask/infiltrator/inteq
 	name = "SpecOps Balaclava"
 	desc = "Необычная балаклава со встроенным блоком изменения голоса. Выглядит немного кустарно, но идеально справляется со своими задачами"
 	icon_state = "infiltrator_m"
 	item_state = "infiltrator_m"
-	icon = 'modular_bluemoon/Ren/Icons/Obj/infiltrator.dmi'
-	mob_overlay_icon = 'modular_bluemoon/Ren/Icons/Mob/clothing.dmi'
-	anthro_mob_worn_overlay = 'modular_bluemoon/Ren/Icons/Mob/clothing_digi.dmi'
+	icon = 'modular_bluemoon/icons/obj/infiltrator.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing.dmi'
+	anthro_mob_worn_overlay = 'modular_bluemoon/icons/mob/clothing_digi.dmi'
 
 /obj/item/clothing/suit/armor/vest/infiltrator/inteq
 	name = "SpecOps combat vest"
 	desc = "Качественный бронежилет с броне пластиной из многослойной пластали. Совмещает в себе лёгкость и прочность, имеет буферный подкладки и идеально прилегает к телу, не издавая лишних звуков при ношении."
 	icon_state = "infiltrator_a"
 	item_state = "infiltrator_a"
-	icon = 'modular_bluemoon/Ren/Icons/Obj/infiltrator.dmi'
-	mob_overlay_icon = 'modular_bluemoon/Ren/Icons/Mob/clothing.dmi'
+	icon = 'modular_bluemoon/icons/obj/infiltrator.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing.dmi'
 
 /obj/item/clothing/under/inteq/tactical_gorka
 	name = "SpecOps gorka"
@@ -54,26 +54,26 @@
 	armor = list(MELEE = 10, BULLET = 10, LASER = 10,ENERGY = 10, BOMB = 0, BIO = 0, RAD = 10, FIRE = 50, ACID = 20, WOUND = 5)
 	resistance_flags = FIRE_PROOF | ACID_PROOF
 	can_adjust = FALSE
-	icon = 'modular_bluemoon/Ren/Icons/Obj/infiltrator.dmi'
-	mob_overlay_icon = 'modular_bluemoon/Ren/Icons/Mob/clothing.dmi'
-	anthro_mob_worn_overlay = 'modular_bluemoon/Ren/Icons/Mob/clothing_digi.dmi'
+	icon = 'modular_bluemoon/icons/obj/infiltrator.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing.dmi'
+	anthro_mob_worn_overlay = 'modular_bluemoon/icons/mob/clothing_digi.dmi'
 
 /obj/item/clothing/shoes/combat/sneakboots/inteq
 	name = "SpecOps sneakboots"
 	desc = "Пара ботинок с высоким берцем. Подошва покрыта звукопоглощающим слоем, почти полностью сводя шум шагов на нет. Выполнены в карго стиле, воплощая в себе саму идею практичности."
 	icon_state = "sneakboots"
 	item_state = "sneakboots"
-	icon = 'modular_bluemoon/Ren/Icons/Obj/infiltrator.dmi'
-	mob_overlay_icon = 'modular_bluemoon/Ren/Icons/Mob/clothing.dmi'
-	anthro_mob_worn_overlay = 'modular_bluemoon/Ren/Icons/Mob/clothing_digi.dmi'
+	icon = 'modular_bluemoon/icons/obj/infiltrator.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing.dmi'
+	anthro_mob_worn_overlay = 'modular_bluemoon/icons/mob/clothing_digi.dmi'
 
 // -----------------------------------------------[Железное надгробие]-------------------------------------------
 /obj/item/clothing/head/helmet/space/hardsuit/iron_tombstone
 	name = "Iron Tombstone helmet"
 	desc = "Ты чувствуешь тяжесть  просто смотря на эту броню."
-	icon = 'modular_bluemoon/Ren/Icons/Obj/cloth.dmi'
-	mob_overlay_icon = 'modular_bluemoon/Ren/Icons/Mob/clothing.dmi'
-	anthro_mob_worn_overlay = 'modular_bluemoon/Ren/Icons/Mob/clothing_digi.dmi'
+	icon = 'modular_bluemoon/icons/obj/cloth.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing.dmi'
+	anthro_mob_worn_overlay = 'modular_bluemoon/icons/mob/clothing_digi.dmi'
 	item_state = "hardsuit0-iron_tombstone"
 	icon_state = "hardsuit0-iron_tombstone"
 	hardsuit_type = "iron_tombstone"
@@ -87,9 +87,9 @@
 /obj/item/clothing/suit/space/hardsuit/iron_tombstone
 	name = "Iron Tombstone armor"
 	desc = "Ты чувствуешь тяжесть просто смотря на эту броню."
-	icon = 'modular_bluemoon/Ren/Icons/Obj/cloth.dmi'
-	mob_overlay_icon = 'modular_bluemoon/Ren/Icons/Mob/clothing.dmi'
-	anthro_mob_worn_overlay = 'modular_bluemoon/Ren/Icons/Mob/clothing_digi.dmi'
+	icon = 'modular_bluemoon/icons/obj/cloth.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing.dmi'
+	anthro_mob_worn_overlay = 'modular_bluemoon/icons/mob/clothing_digi.dmi'
 	item_state = "hardsuit-iron_tombstone"
 	icon_state = "hardsuit-iron_tombstone"
 	tail_state = "syndicate-elite"
@@ -123,17 +123,17 @@
 	desc = "Громоздкий шлем, созданный что бы вселять страх в сердца предателей и ксеносов."
 	icon_state = "darktemplar_helm"
 	item_state = "darktemplar_helm"
-	mob_overlay_icon = 'modular_bluemoon/Ren/Icons/Mob/clothing.dmi'
-	icon = 'modular_bluemoon/Ren/Icons/Obj/cloth.dmi'
-	lefthand_file = 'modular_bluemoon/Ren/Icons/Mob/inhand_l.dmi'
-	righthand_file = 'modular_bluemoon/Ren/Icons/Mob/inhand_r.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing.dmi'
+	icon = 'modular_bluemoon/icons/obj/cloth.dmi'
+	lefthand_file = 'modular_bluemoon/icons/mob/inhand_l.dmi'
+	righthand_file = 'modular_bluemoon/icons/mob/inhand_r.dmi'
 	equip_delay_self = 50
 	resistance_flags = FIRE_PROOF | ACID_PROOF
 	heat_protection = HEAD
 	max_heat_protection_temperature = FIRE_IMMUNITY_MAX_TEMP_PROTECT
 	alternate_screams = SPASEMAR_SCREAMS
 	armor = list(MELEE = 50, BULLET = 50, LASER = 35, ENERGY = 30, BOMB = 60, BIO = 100, RAD = 100, FIRE = 100, ACID = 100, WOUND = 20)
-	equip_sound = 'modular_bluemoon/Ren/Sound/equp1.ogg'
+	equip_sound = 'modular_bluemoon/sound/equp1.ogg'
 	mutantrace_variation = NONE
 	unique_reskin = list("Dark Power Armour helmet holy patern" = list(RESKIN_ICON_STATE = "darktemplar_chaplai_helm"), "Dark Power Armour helmet InteQ patern MKI" = list(RESKIN_ICON_STATE = "darktemplar_helm_inteq"), "Dark Power Armour helmet InteQ patern MKII" = list(RESKIN_ICON_STATE = "darktemplar_helm_inteq_alt"))
 
@@ -154,18 +154,18 @@
 	desc = "Силовая броня древнего паттерна которому уже несколько сотен лет. Хоть и успела морально устареть по сравнению с современной бронёй, но до сих пор отлично защищает носителя от разной ксеноугрозы. "
 	icon_state = "darktemplar"
 	item_state = "darktemplar"
-	mob_overlay_icon = 'modular_bluemoon/Ren/Icons/Mob/clothing.dmi'
-	icon = 'modular_bluemoon/Ren/Icons/Obj/cloth.dmi'
-	mob_overlay_icon = 'modular_bluemoon/Ren/Icons/Mob/clothing.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing.dmi'
+	icon = 'modular_bluemoon/icons/obj/cloth.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing.dmi'
 	equip_delay_self = 50
 	resistance_flags = FIRE_PROOF | ACID_PROOF
 	heat_protection = CHEST|GROIN|LEGS|FEET|ARMS|HANDS
 	max_heat_protection_temperature = FIRE_IMMUNITY_MAX_TEMP_PROTECT
 	alternate_screams = SPASEMAR_SCREAMS
 	armor = list(MELEE = 50, BULLET = 50, LASER = 35, ENERGY = 30, BOMB = 60, BIO = 100, RAD = 100, FIRE = 100, ACID = 100, WOUND = 20)
-	equip_sound = 'modular_bluemoon/Ren/Sound/equp.ogg'
+	equip_sound = 'modular_bluemoon/sound/equp.ogg'
 	mutantrace_variation = STYLE_DIGITIGRADE|STYLE_SNEK_TAURIC
-	anthro_mob_worn_overlay = 'modular_bluemoon/Ren/Icons/Mob/clothing_digi.dmi'
+	anthro_mob_worn_overlay = 'modular_bluemoon/icons/mob/clothing_digi.dmi'
 	unique_reskin = list("Dark Power Armour holy patern" = list(RESKIN_ICON_STATE = "darktemplar_chaplai"), "Dark Power Armour InteQ patern MKI" = list(RESKIN_ICON_STATE = "darktemplar_inteq"), "Dark Power Armour InteQ patern MKII" = list(RESKIN_ICON_STATE = "darktemplar_inteq_alt") )
 
 ///Кричалка с крутыми фразами. Они прописаны в коде хайлера.
@@ -187,7 +187,7 @@
 
 /obj/item/clothing/shoes/jackboots/powerbots/Initialize(mapload)
 	. = ..()
-	AddComponent(/datum/component/squeak, list('modular_bluemoon/Ren/Sound/step/ast_step1.ogg'=1,'modular_bluemoon/Ren/Sound/step/ast_step2.ogg'=1), 60)
+	AddComponent(/datum/component/squeak, list('modular_bluemoon/sound/step/ast_step1.ogg'=1,'modular_bluemoon/sound/step/ast_step2.ogg'=1), 60)
 
 /obj/item/clothing/shoes/jackboots/powerbots/equipped(mob/user, slot)
 	. = ..()
@@ -238,8 +238,8 @@
 	desc = "Чёрная бандана на голову, призванная скрыть бинты. В этих красных очках виднелось отражение не одной сотни смертей."
 	icon_state = "hank_m"
 	item_state = "hank_m"
-	mob_overlay_icon = 'modular_bluemoon/Ren/Icons/Mob/clothing.dmi'
-	icon = 'modular_bluemoon/Ren/Icons/Mob/clothing.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing.dmi'
+	icon = 'modular_bluemoon/icons/mob/clothing.dmi'
 	armor = list(MELEE = 20, BULLET = 20, LASER = 20, ENERGY = 10, BOMB = 0, BIO = 50, RAD = 0, FIRE = 50, ACID = 50, WOUND = 35)
 	flags_inv = HIDEMASK|HIDEEARS|HIDEEYES|HIDEFACE|HIDEHAIR|HIDEFACIALHAIR|HIDESNOUT
 	flags_cover = HEADCOVERSEYES | HEADCOVERSMOUTH
@@ -261,8 +261,8 @@
 	desc = "Поношенный временем костюм. Его чернота отдаёт красным оттенком, а сам он удивительно хорошо прилегает к телу."
 	icon_state = "hank"
 	item_state = "hank"
-	mob_overlay_icon = 'modular_bluemoon/Ren/Icons/Mob/clothing.dmi'
-	icon = 'modular_bluemoon/Ren/Icons/Mob/clothing.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing.dmi'
+	icon = 'modular_bluemoon/icons/mob/clothing.dmi'
 	armor = list(MELEE = 20, BULLET = 20, LASER = 20, ENERGY = 10, BOMB = 0, BIO = 50, RAD = 0, FIRE = 50, ACID = 50, WOUND = 35)
 	resistance_flags = FIRE_PROOF | ACID_PROOF
 	mutantrace_variation = NONE
@@ -296,8 +296,8 @@
 /obj/item/electropack/shockcollar/bomb
 	name = "Bomb collar"
 	desc = "Металлический ошейник с покрытием из кожи. В центре красуется странное устройство с мигающей лампочкой. Он.. точно должен пикать?"
-	icon = 'modular_bluemoon/Ren/Icons/Obj/infiltrator.dmi'
-	mob_overlay_icon = 'modular_bluemoon/Ren/Icons/Mob/clothing.dmi'
+	icon = 'modular_bluemoon/icons/obj/infiltrator.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing.dmi'
 	icon_state = "bombcollar"
 	item_state = "bombcollar"
 	equip_delay_other = 40
@@ -324,8 +324,8 @@
 	desc = "На столько же высокотехнологичные, на столько же и хрупкие очки полного виденья. Держать подальше от ЭМИ"
 	icon_state = "xray"
 	item_state = "xray"
-	icon = 'modular_bluemoon/Ren/Icons/Obj/cloth.dmi'
-	mob_overlay_icon = 'modular_bluemoon/Ren/Icons/Mob/clothing.dmi'
+	icon = 'modular_bluemoon/icons/obj/cloth.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing.dmi'
 	flags_cover = GLASSESCOVERSEYES
 	darkness_view = 3
 	flash_protect = -3
@@ -349,7 +349,7 @@
 	name = "Quiet kid armor kit"
 	desc = "Набор гибких армированных пластин которые будут совершенно незаметно сидеть под твоей толстовкой, с которой ты так не захотел расставаться даже на миссии, хиккан."
 	icon_state = "inteq_armor_kit"
-	icon = 'modular_bluemoon/Ren/Icons/Obj/misc.dmi'
+	icon = 'modular_bluemoon/icons/obj/misc.dmi'
 	w_class = WEIGHT_CLASS_SMALL
 
 /obj/item/armorkit/inteq/afterattack(obj/item/target, mob/user, proximity_flag, click_parameters)
@@ -388,7 +388,7 @@
 	name = "Quiet kid helmet kit"
 	desc = "Набор гибких армированных пластин которые будут совершенно незаметно сидеть под твоей кепкой, с которой ты так не захотел расставаться даже на миссии, хиккан."
 	icon_state = "inteq_helm_kit"
-	icon = 'modular_bluemoon/Ren/Icons/Obj/misc.dmi'
+	icon = 'modular_bluemoon/icons/obj/misc.dmi'
 	w_class = WEIGHT_CLASS_SMALL
 
 /obj/item/armorkit/helmet/afterattack(obj/item/target, mob/user, proximity_flag, click_parameters)
@@ -425,9 +425,9 @@
 /obj/item/clothing/under/inteq/baseball
 	name = "Striped white shirt"
 	desc = "Just a striped shirt whith turtleneck under it."
-	icon = 'modular_bluemoon/Ren/Icons/Obj/cloth.dmi'
-	mob_overlay_icon = 'modular_bluemoon/Ren/Icons/Mob/clothing.dmi'
-	anthro_mob_worn_overlay = 'modular_bluemoon/Ren/Icons/Mob/clothing_digi.dmi'
+	icon = 'modular_bluemoon/icons/obj/cloth.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing.dmi'
+	anthro_mob_worn_overlay = 'modular_bluemoon/icons/mob/clothing_digi.dmi'
 	icon_state = "ghostbaseball"
 	item_state = "ghostbaseball"
 	armor = list(MELEE = 15, BULLET = 20, LASER = 0,ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 50, ACID = 40, WOUND = 10)
@@ -438,8 +438,8 @@
 	icon_state = "baseballsoft"
 	soft_type = "baseball"
 	item_state = "baseballsoft"
-	icon = 'modular_bluemoon/Ren/Icons/Obj/cloth.dmi'
-	mob_overlay_icon = 'modular_bluemoon/Ren/Icons/Mob/clothing.dmi'
+	icon = 'modular_bluemoon/icons/obj/cloth.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing.dmi'
 	flags_inv = HIDEEYES|HIDEFACE
 	armor = list(MELEE = 35, BULLET = 35, LASER = 25, ENERGY = 10, BOMB = 25, BIO = 0, RAD = 0, FIRE = 20, ACID = 90, WOUND = 5)
 	strip_delay = 90 //You dont take a Major Leage cap
@@ -457,7 +457,7 @@
 	hardsuit_type = "explorer"
 	armor = list(MELEE = 20, BULLET = 40, LASER = 20, ENERGY = 50, BOMB = 30, BIO = 100, RAD = 50, FIRE = 75, ACID = 75, WOUND = 50)
 	mob_overlay_icon = 'modular_sand/icons/mob/clothing/head.dmi'
-	icon = 'modular_bluemoon/Ren/Icons/Obj/cloth.dmi'
+	icon = 'modular_bluemoon/icons/obj/cloth.dmi'
 	anthro_mob_worn_overlay = 'modular_sand/icons/mob/clothing/head_muzzled.dmi'
 	brightness_on = 12 // Эу ты куда прёш на дальнем свете
 
@@ -468,7 +468,7 @@
 	item_state = "hardsuit-explorer"
 	armor = list(MELEE = 20, BULLET = 40, LASER = 20, ENERGY = 50, BOMB = 30, BIO = 100, RAD = 50, FIRE = 75, ACID = 75, WOUND = 50) // сниженная защита от лазеров и пуль - ценой повешенной мобильности и защиты от бомб
 	mob_overlay_icon = 'modular_sand/icons/mob/clothing/suit.dmi'
-	icon = 'modular_bluemoon/Ren/Icons/Obj/cloth.dmi'
+	icon = 'modular_bluemoon/icons/obj/cloth.dmi'
 	helmettype = /obj/item/clothing/head/helmet/space/hardsuit/security/explorer
 	anthro_mob_worn_overlay = 'modular_sand/icons/mob/clothing/suit_digi.dmi' // у нас забрали джет, терпим.
 	unique_reskin = list()
@@ -482,9 +482,9 @@
 	icon_state = "hardsuit0-ftu_combat"
 	item_state = "hardsuit0-ftu_combat"
 	hardsuit_type = "ftu_combat"
-	mob_overlay_icon = 'modular_bluemoon/Ren/Icons/Mob/clothing.dmi'
-	icon = 'modular_bluemoon/Ren/Icons/Obj/cloth.dmi'
-	anthro_mob_worn_overlay = 'modular_bluemoon/Ren/Icons/Mob/clothing_digi.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing.dmi'
+	icon = 'modular_bluemoon/icons/obj/cloth.dmi'
+	anthro_mob_worn_overlay = 'modular_bluemoon/icons/mob/clothing_digi.dmi'
 
 /obj/item/clothing/suit/space/hardsuit/security/ftu
 	name = "Fleet security hardsuit"
@@ -492,11 +492,11 @@
 	icon_state = "hardsuit-ftu_combat"
 	item_state = "hardsuit-ftu_combat"
 	tail_state = "syndicate-winter"
-	mob_overlay_icon = 'modular_bluemoon/Ren/Icons/Mob/clothing.dmi'
-	icon = 'modular_bluemoon/Ren/Icons/Obj/cloth.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing.dmi'
+	icon = 'modular_bluemoon/icons/obj/cloth.dmi'
 	helmettype = /obj/item/clothing/head/helmet/space/hardsuit/security/ftu
-	anthro_mob_worn_overlay = 'modular_bluemoon/Ren/Icons/Mob/clothing_digi.dmi'
-	equip_sound = 'modular_bluemoon/Ren/Sound/equp.ogg'
+	anthro_mob_worn_overlay = 'modular_bluemoon/icons/mob/clothing_digi.dmi'
+	equip_sound = 'modular_bluemoon/sound/equp.ogg'
 	slowdown = 0.1
 	jetpack = /obj/item/tank/jetpack/suit/fast
 	unique_reskin = list()
@@ -509,7 +509,7 @@
 	item_state = "hardsuit0-odst"
 	hardsuit_type = "odst"
 	mob_overlay_icon = 'modular_sand/icons/mob/clothing/head.dmi'
-	icon = 'modular_bluemoon/Ren/Icons/Obj/cloth.dmi'
+	icon = 'modular_bluemoon/icons/obj/cloth.dmi'
 	anthro_mob_worn_overlay = 'modular_sand/icons/mob/clothing/head_muzzled.dmi'
 	heat_protection = HEAD
 	max_heat_protection_temperature = FIRE_IMMUNITY_MAX_TEMP_PROTECT
@@ -522,7 +522,7 @@
 	item_state = "hardsuit-odst"
 	tail_state = "juggernaut"
 	mob_overlay_icon = 'modular_sand/icons/mob/clothing/suit.dmi'
-	icon = 'modular_bluemoon/Ren/Icons/Obj/cloth.dmi'
+	icon = 'modular_bluemoon/icons/obj/cloth.dmi'
 	helmettype = /obj/item/clothing/head/helmet/space/hardsuit/engine/ftu
 	anthro_mob_worn_overlay = 'modular_sand/icons/mob/clothing/suit_digi.dmi'
 	heat_protection = CHEST|GROIN|LEGS|FEET|ARMS|HANDS
@@ -536,8 +536,8 @@
 	desc = "Стандартный бронежилет охраны свободных торговцев. Обеспечивает оптимальную защиту жизненно важных органов в тесных коридорах кораблей и трюмов."
 	icon_state = "epic_bp_armor"
 	item_state = "epic_bp_armor"
-	mob_overlay_icon = 'modular_bluemoon/Ren/Icons/Mob/clothing.dmi'
-	icon = 'modular_bluemoon/Ren/Icons/Obj/cloth.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing.dmi'
+	icon = 'modular_bluemoon/icons/obj/cloth.dmi'
 	body_parts_covered = CHEST|GROIN|ARMS
 	cold_protection = CHEST|GROIN|ARMS
 	heat_protection = CHEST|GROIN|ARMS
@@ -555,7 +555,7 @@
 /obj/item/clothing/head/helmet/skull/ftu
 	name = "FTU Combat Skull"
 	desc = "Бронированная маска из полимеров стилизованная под череп. Вселяет страх в каждого пирата."
-	anthro_mob_worn_overlay = 'modular_bluemoon/Ren/Icons/Mob/clothing_digi.dmi'
+	anthro_mob_worn_overlay = 'modular_bluemoon/icons/mob/clothing_digi.dmi'
 	flash_protect = 2
 	armor = list(MELEE = 30, BULLET = 60, LASER = 25, ENERGY = 20, BOMB = 25, BIO = 0, RAD = 0, FIRE = 50, ACID = 50, WOUND = 30)
 	flags_inv = HIDEEYES | HIDEFACE | HIDEMASK
@@ -573,28 +573,28 @@
 	icon_state = "kaminacape"
 	item_state = "kaminacape"
 	mob_overlay_icon = 'modular_splurt/icons/mob/clothing/suit.dmi'
-	icon = 'modular_bluemoon/Ren/Icons/Obj/cloth.dmi'
+	icon = 'modular_bluemoon/icons/obj/cloth.dmi'
 
 /obj/item/clothing/neck/cloak/ftu
 	name = "FTU Cape"
 	desc = "Плащ флота объединённых свободных торговцев. Теперь и ты стал частью чего-то великого."
 	icon_state = "ftu_cape"
-	mob_overlay_icon = 'modular_bluemoon/Ren/Icons/Mob/clothing.dmi'
-	icon = 'modular_bluemoon/Ren/Icons/Obj/cloth.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing.dmi'
+	icon = 'modular_bluemoon/icons/obj/cloth.dmi'
 
 /obj/item/clothing/neck/cloak/inteq
 	name = "Inteq cloak"
 	desc = "Плащ членов группировки InteQ."
 	icon_state = "inteq_cape"
-	mob_overlay_icon = 'modular_bluemoon/Ren/Icons/Mob/clothing.dmi'
-	icon = 'modular_bluemoon/Ren/Icons/Obj/cloth.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing.dmi'
+	icon = 'modular_bluemoon/icons/obj/cloth.dmi'
 
 /obj/item/clothing/neck/cloak/diver
 	name = "Diver cloak"
 	desc = "Солидный плащ, который отлично подошёл бы настоящему герою"
 	icon_state = "mittle_brown"
-	mob_overlay_icon = 'modular_bluemoon/Ren/Icons/Mob/clothing.dmi'
-	icon = 'modular_bluemoon/Ren/Icons/Obj/cloth.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing.dmi'
+	icon = 'modular_bluemoon/icons/obj/cloth.dmi'
 	unique_reskin = list(
 		"Red" = list("icon_state" = "mittle_red"),
 		"Black" = list("icon_state" = "mittle_black"),
@@ -604,9 +604,9 @@
 /obj/item/clothing/mask/gas/inteq
 	name = "Ballistic mask"
 	desc = "Чёрная маска из кевлара. Защитит тебя от осколков и опознания."
-	icon = 'modular_bluemoon/Ren/Icons/Obj/cloth.dmi'
-	mob_overlay_icon = 'modular_bluemoon/Ren/Icons/Mob/clothing.dmi'
-	anthro_mob_worn_overlay = 'modular_bluemoon/Ren/Icons/Mob/clothing_digi.dmi'
+	icon = 'modular_bluemoon/icons/obj/cloth.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing.dmi'
+	anthro_mob_worn_overlay = 'modular_bluemoon/icons/mob/clothing_digi.dmi'
 	icon_state = "ballistic"
 	item_state = "ballistic"
 	flags_inv = HIDEFACE|HIDEFACIALHAIR
@@ -620,10 +620,10 @@
 ///Личный жетон
 /obj/item/clothing/accessory/indiv_number
 	desc = "Небольшой металлический жетон. На нём виднеется цифровой код, плата микрочипа с данными о владельце и немного свободного места для гравировки."
-	icon = 'modular_bluemoon/Ren/Icons/Obj/cloth.dmi'
-	mob_overlay_icon = 'modular_bluemoon/Ren/Icons/Mob/clothing.dmi'
-	lefthand_file = 'modular_bluemoon/Ren/Icons/Mob/inhand_l.dmi'
-	righthand_file = 'modular_bluemoon/Ren/Icons/Mob/inhand_r.dmi'
+	icon = 'modular_bluemoon/icons/obj/cloth.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing.dmi'
+	lefthand_file = 'modular_bluemoon/icons/mob/inhand_l.dmi'
+	righthand_file = 'modular_bluemoon/icons/mob/inhand_r.dmi'
 	icon_state = "tag"
 	item_state = "tag"
 	obj_flags = UNIQUE_RENAME
@@ -649,62 +649,62 @@
 /obj/item/clothing/underwear/socks/thigh/stockings/socks_garterbelt
 	name = "Socks garterbelt"
 	icon_state = "socks_garterbelt"
-	icon = 'modular_bluemoon/Ren/Icons/Mob/random_cloth/more_stockings.dmi'
-	mob_overlay_icon = 'modular_bluemoon/Ren/Icons/Mob/random_cloth/more_stockings.dmi'
-	anthro_mob_worn_overlay = 'modular_bluemoon/Ren/Icons/Mob/random_cloth/more_stockings_digi.dmi'
+	icon = 'modular_bluemoon/icons/mob/random_cloth/more_stockings.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/random_cloth/more_stockings.dmi'
+	anthro_mob_worn_overlay = 'modular_bluemoon/icons/mob/random_cloth/more_stockings_digi.dmi'
 
 /obj/item/clothing/underwear/socks/thigh/stockings/stocking_2strip
 	name = "Two strip stocking"
 	icon_state = "stocking_2strip"
-	icon = 'modular_bluemoon/Ren/Icons/Mob/random_cloth/more_stockings.dmi'
-	mob_overlay_icon = 'modular_bluemoon/Ren/Icons/Mob/random_cloth/more_stockings.dmi'
-	anthro_mob_worn_overlay = 'modular_bluemoon/Ren/Icons/Mob/random_cloth/more_stockings_digi.dmi'
+	icon = 'modular_bluemoon/icons/mob/random_cloth/more_stockings.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/random_cloth/more_stockings.dmi'
+	anthro_mob_worn_overlay = 'modular_bluemoon/icons/mob/random_cloth/more_stockings_digi.dmi'
 
 /obj/item/clothing/underwear/socks/thigh/stockings/stocking_checkered
 	name = "Checkered stocking"
 	icon_state = "stocking_checkered"
-	icon = 'modular_bluemoon/Ren/Icons/Mob/random_cloth/more_stockings.dmi'
-	mob_overlay_icon = 'modular_bluemoon/Ren/Icons/Mob/random_cloth/more_stockings.dmi'
-	anthro_mob_worn_overlay = 'modular_bluemoon/Ren/Icons/Mob/random_cloth/more_stockings_digi.dmi'
+	icon = 'modular_bluemoon/icons/mob/random_cloth/more_stockings.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/random_cloth/more_stockings.dmi'
+	anthro_mob_worn_overlay = 'modular_bluemoon/icons/mob/random_cloth/more_stockings_digi.dmi'
 
 /obj/item/clothing/underwear/socks/thigh/stockings/stocking_1strip
 	name = "One strip stocking"
 	icon_state = "stocking_1strip"
-	icon = 'modular_bluemoon/Ren/Icons/Mob/random_cloth/more_stockings.dmi'
-	mob_overlay_icon = 'modular_bluemoon/Ren/Icons/Mob/random_cloth/more_stockings.dmi'
-	anthro_mob_worn_overlay = 'modular_bluemoon/Ren/Icons/Mob/random_cloth/more_stockings_digi.dmi'
+	icon = 'modular_bluemoon/icons/mob/random_cloth/more_stockings.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/random_cloth/more_stockings.dmi'
+	anthro_mob_worn_overlay = 'modular_bluemoon/icons/mob/random_cloth/more_stockings_digi.dmi'
 
 /obj/item/clothing/underwear/socks/thigh/stockings/stocking_line
 	name = "Line stocking"
 	icon_state = "stocking_line"
-	icon = 'modular_bluemoon/Ren/Icons/Mob/random_cloth/more_stockings.dmi'
-	mob_overlay_icon = 'modular_bluemoon/Ren/Icons/Mob/random_cloth/more_stockings.dmi'
-	anthro_mob_worn_overlay = 'modular_bluemoon/Ren/Icons/Mob/random_cloth/more_stockings_digi.dmi'
+	icon = 'modular_bluemoon/icons/mob/random_cloth/more_stockings.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/random_cloth/more_stockings.dmi'
+	anthro_mob_worn_overlay = 'modular_bluemoon/icons/mob/random_cloth/more_stockings_digi.dmi'
 
 /obj/item/clothing/underwear/socks/socks_2strip
 	name = "Two strip socks"
 	icon_state = "socks_2strip"
-	icon = 'modular_bluemoon/Ren/Icons/Mob/random_cloth/more_stockings.dmi'
-	mob_overlay_icon = 'modular_bluemoon/Ren/Icons/Mob/random_cloth/more_stockings.dmi'
-	anthro_mob_worn_overlay = 'modular_bluemoon/Ren/Icons/Mob/random_cloth/more_stockings_digi.dmi'
+	icon = 'modular_bluemoon/icons/mob/random_cloth/more_stockings.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/random_cloth/more_stockings.dmi'
+	anthro_mob_worn_overlay = 'modular_bluemoon/icons/mob/random_cloth/more_stockings_digi.dmi'
 
 /obj/item/clothing/underwear/socks/socks_checkered
 	name = "Checkered socks"
 	icon_state = "socks_checkered"
-	icon = 'modular_bluemoon/Ren/Icons/Mob/random_cloth/more_stockings.dmi'
-	mob_overlay_icon = 'modular_bluemoon/Ren/Icons/Mob/random_cloth/more_stockings.dmi'
-	anthro_mob_worn_overlay = 'modular_bluemoon/Ren/Icons/Mob/random_cloth/more_stockings_digi.dmi'
+	icon = 'modular_bluemoon/icons/mob/random_cloth/more_stockings.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/random_cloth/more_stockings.dmi'
+	anthro_mob_worn_overlay = 'modular_bluemoon/icons/mob/random_cloth/more_stockings_digi.dmi'
 
 /obj/item/clothing/underwear/socks/socks_2strip
 	name = "Two strip socks"
 	icon_state = "socks_2strip"
-	icon = 'modular_bluemoon/Ren/Icons/Mob/random_cloth/more_stockings.dmi'
-	mob_overlay_icon = 'modular_bluemoon/Ren/Icons/Mob/random_cloth/more_stockings.dmi'
-	anthro_mob_worn_overlay = 'modular_bluemoon/Ren/Icons/Mob/random_cloth/more_stockings_digi.dmi'
+	icon = 'modular_bluemoon/icons/mob/random_cloth/more_stockings.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/random_cloth/more_stockings.dmi'
+	anthro_mob_worn_overlay = 'modular_bluemoon/icons/mob/random_cloth/more_stockings_digi.dmi'
 
 /obj/item/clothing/underwear/socks/socks_line
 	name = "Line socks"
 	icon_state = "socks_line"
-	icon = 'modular_bluemoon/Ren/Icons/Mob/random_cloth/more_stockings.dmi'
-	mob_overlay_icon = 'modular_bluemoon/Ren/Icons/Mob/random_cloth/more_stockings.dmi'
-	anthro_mob_worn_overlay = 'modular_bluemoon/Ren/Icons/Mob/random_cloth/more_stockings_digi.dmi'
+	icon = 'modular_bluemoon/icons/mob/random_cloth/more_stockings.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/random_cloth/more_stockings.dmi'
+	anthro_mob_worn_overlay = 'modular_bluemoon/icons/mob/random_cloth/more_stockings_digi.dmi'

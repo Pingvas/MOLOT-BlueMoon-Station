@@ -52,7 +52,7 @@
 /obj/structure/sign/ftu_display
 	name = "Ship display"
 	desc = "Дисплей с логотипом Объединения Свободных Торговцев."
-	icon = 'modular_bluemoon/Ren/Icons/Obj/decale.dmi'
+	icon = 'modular_bluemoon/icons/obj/decale.dmi'
 	icon_state = "ftu_display"
 
 /obj/item/paper/fluff/traid_ship/qm/Initialize(mapload)

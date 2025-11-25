@@ -1,15 +1,15 @@
 /// USHM
 /obj/item/pickaxe/drill/jackhammer/angle_grinder
 	name = "USHM"
-	icon = 'modular_bluemoon/Ren/Icons/Obj/USM.dmi'
+	icon = 'modular_bluemoon/icons/obj/USM.dmi'
 	icon_state = "RSHM_vrum-vrum"
-	lefthand_file = 'modular_bluemoon/Ren/Icons/Mob/ushm_r.dmi'
-	righthand_file = 'modular_bluemoon/Ren/Icons/Mob/ushm_r.dmi'
+	lefthand_file = 'modular_bluemoon/icons/mob/ushm_r.dmi'
+	righthand_file = 'modular_bluemoon/icons/mob/ushm_r.dmi'
 	item_state = "ushm_r"
 	w_class = WEIGHT_CLASS_BULKY
 	toolspeed = 0.3
-	usesound = 'modular_bluemoon/Ren/Sound/USHM_hit.ogg'
-	hitsound = 'modular_bluemoon/Ren/Sound/USHM_hit.ogg'
+	usesound = 'modular_bluemoon/sound/USHM_hit.ogg'
+	hitsound = 'modular_bluemoon/sound/USHM_hit.ogg'
 	desc = "УШМ с алмазным диском и четырёх тактовым двигателем на жидкой плазме. Что ещё может быть нужно, когда требуется взять штурмом чью то крепость? "
 	force = 30
 	throwforce = 10
@@ -25,19 +25,19 @@
 	if(istype(A, /obj/structure/window))
 		var/obj/structure/window/W = A
 		W.take_damage(200, BRUTE, MELEE, 0)
-		playsound(user, 'modular_bluemoon/Ren/Sound/USHM_hit.ogg', 50, 1)
+		playsound(user, 'modular_bluemoon/sound/USHM_hit.ogg', 50, 1)
 	if(istype(A, /obj/structure/grille))
 		var/obj/structure/grille/G = A
 		G.take_damage(40, BRUTE, MELEE, 0)
-		playsound(user, 'modular_bluemoon/Ren/Sound/USHM_hit.ogg', 50, 1)
+		playsound(user, 'modular_bluemoon/sound/USHM_hit.ogg', 50, 1)
 	if(istype(A, /obj/machinery))
 		var/obj/machinery/M = A
 		M.take_damage(100, BRUTE, MELEE, 0)
-		playsound(user, 'modular_bluemoon/Ren/Sound/USHM_hit.ogg', 50, 1)
+		playsound(user, 'modular_bluemoon/sound/USHM_hit.ogg', 50, 1)
 	if(istype(A, /obj/structure))
 		var/obj/structure/S = A
 		S.take_damage(100, BRUTE, MELEE, 0)
-		playsound(user, 'modular_bluemoon/Ren/Sound/USHM_hit.ogg', 50, 1)
+		playsound(user, 'modular_bluemoon/sound/USHM_hit.ogg', 50, 1)
 
 /obj/item/pickaxe/drill/jackhammer/angle_grinder/ComponentInitialize()
 	. = ..()
@@ -47,7 +47,7 @@
 /obj/item/gun/energy/pulse/pistol/inteq
 	name = "Melter"
 	desc = "<span class='danger'>Не направлять рабочую часть на органику</span>"
-	icon = 'modular_bluemoon/Ren/Icons/Obj/guns.dmi'
+	icon = 'modular_bluemoon/icons/obj/guns.dmi'
 	icon_state = "melter"
 	charge_delay = 4
 	ammo_type = list(/obj/item/ammo_casing/energy/laser/melter, /obj/item/ammo_casing/energy/laser/melter/destroy)
@@ -62,13 +62,13 @@
 	projectile_type = /obj/item/projectile/beam/melter
 	e_cost = 1400
 	select_name = "Kill"
-	fire_sound = 'modular_bluemoon/Ren/Sound/Melter.ogg'
+	fire_sound = 'modular_bluemoon/sound/Melter.ogg'
 
 /obj/item/ammo_casing/energy/laser/melter/destroy
 	projectile_type = /obj/item/projectile/beam/melter/destroy
 	e_cost = 5000
 	select_name = "MELT"
-	fire_sound = 'modular_bluemoon/Ren/Sound/Melter.ogg'
+	fire_sound = 'modular_bluemoon/sound/Melter.ogg'
 
 /obj/item/projectile/beam/melter
 	icon_state = "heavylaser"
@@ -97,9 +97,9 @@
 	desc = "Энергетический пистолет довольно старого образца. Создан для использования спецслужбами Солнечной Федерации, но со временем был замещён более удачными образцами. Выглядит сильно модернизированным."
 	icon_state = "canceller"
 	item_state = "canceller"
-	icon = 'modular_bluemoon/Ren/Icons/Obj/guns.dmi'
-	lefthand_file = 'modular_bluemoon/Ren/Icons/Mob/inhand_l.dmi'
-	righthand_file = 'modular_bluemoon/Ren/Icons/Mob/inhand_r.dmi'
+	icon = 'modular_bluemoon/icons/obj/guns.dmi'
+	lefthand_file = 'modular_bluemoon/icons/mob/inhand_l.dmi'
+	righthand_file = 'modular_bluemoon/icons/mob/inhand_r.dmi'
 	ammo_type = list(/obj/item/ammo_casing/energy/disabler)
 	fire_select_modes = list(SELECT_SEMI_AUTOMATIC, SELECT_BURST_SHOT)
 	selfcharge = EGUN_SELFCHARGE
@@ -113,7 +113,7 @@
 	name = "AA12 magazine (12g buckshot)"
 	desc = "Здоровый коробчатый магазин для патрон 12 калибра"
 	icon_state = "mag-aa-small"
-	icon = 'modular_bluemoon/Ren/Icons/Obj/guns.dmi'
+	icon = 'modular_bluemoon/icons/obj/guns.dmi'
 	w_class = WEIGHT_CLASS_SMALL
 	max_ammo = 8
 
@@ -125,7 +125,7 @@
 	name = "AA12 drum magazine (12g buckshot)"
 	desc = "Здоровый барабанный магазин для патрон 12 калибра"
 	icon_state = "mag-aa"
-	icon = 'modular_bluemoon/Ren/Icons/Obj/guns.dmi'
+	icon = 'modular_bluemoon/icons/obj/guns.dmi'
 	w_class = WEIGHT_CLASS_NORMAL
 	ammo_type = /obj/item/ammo_casing/shotgun/buckshot
 	caliber = "shotgun"
@@ -140,9 +140,9 @@
 	desc = "Древняя, но очень грозная оружейная система. Почему то на ней отсутствует одиночный огонь."
 	icon_state = "minotaur"
 	item_state = "minotaur"
-	lefthand_file = 'modular_bluemoon/Ren/Icons/Mob/inhand_l.dmi'
-	righthand_file =  'modular_bluemoon/Ren/Icons/Mob/inhand_r.dmi'
-	icon = 'modular_bluemoon/Ren/Icons/Obj/guns.dmi'
+	lefthand_file = 'modular_bluemoon/icons/mob/inhand_l.dmi'
+	righthand_file =  'modular_bluemoon/icons/mob/inhand_r.dmi'
+	icon = 'modular_bluemoon/icons/obj/guns.dmi'
 	w_class = WEIGHT_CLASS_BULKY
 	weapon_weight = WEAPON_HEAVY
 	recoil = 2
@@ -199,7 +199,7 @@
 	item_state = "m240_0"
 	lefthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_left.dmi'
 	righthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_right.dmi'
-	icon = 'modular_bluemoon/Ren/Icons/Obj/guns.dmi'
+	icon = 'modular_bluemoon/icons/obj/guns.dmi'
 	ammo_type = list(/obj/item/ammo_casing/energy/laser/m2a100)
 	attack_verb = list("attacked", "bumped", "hited")
 	force = 12
@@ -253,11 +253,11 @@
 
 	name = "Omni rifle"
 	desc = "Sniper Energy Rifle against Drones"
-	icon = 'modular_bluemoon/Ren/Icons/Obj/40x32.dmi'
+	icon = 'modular_bluemoon/icons/obj/40x32.dmi'
 	icon_state = "railgun"
 	item_state = "railgun"
-	lefthand_file = 'modular_bluemoon/Ren/Icons/Mob/inhand_l.dmi'
-	righthand_file =  'modular_bluemoon/Ren/Icons/Mob/inhand_r.dmi'
+	lefthand_file = 'modular_bluemoon/icons/mob/inhand_l.dmi'
+	righthand_file =  'modular_bluemoon/icons/mob/inhand_r.dmi'
 	ammo_type = list(/obj/item/ammo_casing/energy/laser/omni)
 	cell_type = /obj/item/stock_parts/cell/beam_rifle
 	slot_flags = ITEM_SLOT_BACK
@@ -375,14 +375,14 @@
 	desc = "Где вообще посреди космоса ты умудрился найти этот знак?!"
 	icon_state = "stop1"
 	icon_prefix = "stop"
-	icon = 'modular_bluemoon/Ren/Icons/Obj/misc.dmi'
-	lefthand_file = 'modular_bluemoon/Ren/Icons/Mob/inhand_l.dmi'
-	righthand_file = 'modular_bluemoon/Ren/Icons/Mob/inhand_r.dmi'
-	mob_overlay_icon = 'modular_bluemoon/Ren/Icons/Mob/clothing.dmi'
+	icon = 'modular_bluemoon/icons/obj/misc.dmi'
+	lefthand_file = 'modular_bluemoon/icons/mob/inhand_l.dmi'
+	righthand_file = 'modular_bluemoon/icons/mob/inhand_r.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing.dmi'
 	throwforce = 40
 	block_chance = 50
 	sharpness = SHARP_NONE
-	hitsound = 'modular_bluemoon/Ren/Sound/metal.ogg'
+	hitsound = 'modular_bluemoon/sound/metal.ogg'
 	attack_verb = list("attacked", "slam", "jabbed", "torn", "gored")
 
 /obj/item/spear/electrospear/ComponentInitialize()
@@ -404,9 +404,9 @@
 
 ///Ретекстуры
 /obj/item/melee/baseball_bat/telescopic/inteq
-	lefthand_file = 'modular_bluemoon/Ren/Icons/Mob/inhand_l.dmi'
-	righthand_file = 'modular_bluemoon/Ren/Icons/Mob/inhand_r.dmi'
-	icon = 'modular_bluemoon/Ren/Icons/Obj/infiltrator.dmi'
+	lefthand_file = 'modular_bluemoon/icons/mob/inhand_l.dmi'
+	righthand_file = 'modular_bluemoon/icons/mob/inhand_r.dmi'
+	icon = 'modular_bluemoon/icons/obj/infiltrator.dmi'
 
 /obj/item/grenade/spawnergrenade/syndiesoap/inteq
 	name = "Mister Scrubby"

@@ -4,9 +4,9 @@
 	desc = "Клинок из чистой плазмы разогретой от двух до девяти тысяч градусов по желанию владельца. Силовой модуль выполненный в виде рукояти разогревает газ и поддерживает его форму сильнейшим магнитным полем. Кажется таких клинков не выпускали со времён открытия световых мечей."
 	icon_state = "psword_2k"
 	icon_state_on = "psword_2k_on"
-	icon = 'modular_bluemoon/Ren/Icons/Obj/misc.dmi'
-	lefthand_file = 'modular_bluemoon/Ren/Icons/Mob/inhand_l.dmi'
-	righthand_file = 'modular_bluemoon/Ren/Icons/Mob/inhand_r.dmi'
+	icon = 'modular_bluemoon/icons/obj/misc.dmi'
+	lefthand_file = 'modular_bluemoon/icons/mob/inhand_l.dmi'
+	righthand_file = 'modular_bluemoon/icons/mob/inhand_r.dmi'
 	armour_penetration = 35
 	force_on = 35
 	damtype = "brute"
@@ -14,9 +14,9 @@
 	force = 3
 	throwforce = 5
 	hitsound = "swing_hit" //it starts deactivated plasma_hit
-	hitsound_on = 'modular_bluemoon/Ren/Sound/4.111.ogg'
-	transform_on_sound = 'modular_bluemoon/Ren/Sound/2.1.ogg'
-	transform_off_sound = 'modular_bluemoon/Ren/Sound/2.1.ogg'
+	hitsound_on = 'modular_bluemoon/sound/4.111.ogg'
+	transform_on_sound = 'modular_bluemoon/sound/2.1.ogg'
+	transform_off_sound = 'modular_bluemoon/sound/2.1.ogg'
 	attack_verb_off = list("tapped", "poked")
 	throw_speed = 3
 	throw_range = 5
@@ -60,7 +60,7 @@
 		return NONE
 	if(is_energy_reflectable_projectile(object) && (attack_type & ATTACK_TYPE_PROJECTILE) && prob(50))
 		owner.visible_message("<span class='danger'>[owner] just melted bullet in air!</span>")
-		playsound(src, pick('modular_bluemoon/Ren/Sound/plasma_hit.ogg'), 75, 1)
+		playsound(src, pick('modular_bluemoon/sound/plasma_hit.ogg'), 75, 1)
 		var/turf/owner_turf = get_turf(owner)
 		new /obj/effect/decal/cleanable/plasma(drop_location(owner_turf))
 		new /obj/effect/temp_visual/scythe_block(owner_turf)
@@ -81,9 +81,9 @@
 	desc = "Handle with care."
 	icon_state = "plasma_axealt"	// Прошло голосование за смену спрайта с аниме косы на топор
 	var/icon_state_on = "plasma_axealt_on"
-	icon = 'modular_bluemoon/Ren/Icons/Obj/misc.dmi'
-	lefthand_file = 'modular_bluemoon/Ren/Icons/Mob/64_64_l.dmi'
-	righthand_file =  'modular_bluemoon/Ren/Icons/Mob/64_64_r.dmi'
+	icon = 'modular_bluemoon/icons/obj/misc.dmi'
+	lefthand_file = 'modular_bluemoon/icons/mob/64_64_l.dmi'
+	righthand_file =  'modular_bluemoon/icons/mob/64_64_r.dmi'
 	inhand_x_dimension = -2
 	inhand_y_dimension = -2
 	force = 3
@@ -96,7 +96,7 @@
 	var/w_class_on = WEIGHT_CLASS_BULKY
 	heat = 300
 	hitsound = "swing_hit"
-	var/hitsound_on = 'modular_bluemoon/Ren/Sound/4.111.ogg'
+	var/hitsound_on = 'modular_bluemoon/Sound/4.111.ogg'
 	armour_penetration = 70
 	light_color = "#FF3900"
 	attack_verb = list("attacked", "slashed", "stabbed", "sliced", "torn", "ripped", "diced", "cut")
@@ -125,7 +125,7 @@
 /obj/effect/temp_visual/scythe_block
 	name = "scythe block"
 	desc = "A shimmering plasma blade."
-	icon = 'modular_bluemoon/Ren/Icons/Obj/misc.dmi'
+	icon = 'modular_bluemoon/icons/obj/misc.dmi'
 	layer = FLY_LAYER
 	light_range = 2
 	duration = 5
@@ -166,7 +166,7 @@
 	if((attack_type & ATTACK_TYPE_PROJECTILE) && is_energy_reflectable_projectile(object))
 		block_return[BLOCK_RETURN_REDIRECT_METHOD] = REDIRECT_METHOD_RETURN_TO_SENDER
 		owner.visible_message("<span class='danger'>[owner] just reflected the beam in air!</span>")
-		playsound(src, pick('modular_bluemoon/Ren/Sound/plasma_hit.ogg'), 75, 1)
+		playsound(src, pick('modular_bluemoon/sound/plasma_hit.ogg'), 75, 1)
 		var/turf/owner_turf = get_turf(owner)
 		if(icon_state == "plasma_scythe_on" || icon_state == "plasma_axe_on" )
 			new /obj/effect/temp_visual/scythe_block(owner_turf)
@@ -188,7 +188,7 @@
 /obj/item/plasmascythe/ComponentInitialize()
 	. = ..()
 	AddComponent(/datum/component/two_handed, force_unwielded=3, force_wielded=45, \
-					wieldsound='modular_bluemoon/Ren/Sound/2.1.ogg', unwieldsound='modular_bluemoon/Ren/Sound/2.1.ogg')
+					wieldsound='modular_bluemoon/sound/2.1.ogg', unwieldsound='modular_bluemoon/sound/2.1.ogg')
 
 /// Triggered on wield of two handed item
 /// Specific hulk checks due to reflection chance for balance issues and switches hitsounds.

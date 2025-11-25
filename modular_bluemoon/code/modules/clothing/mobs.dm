@@ -5,7 +5,7 @@
 	name = "sandman"
 	unique_name = FALSE
 	desc = "Who the fuck is he?!"
-	icon = 'modular_bluemoon/Ren/Icons/Mob/sandman.dmi'
+	icon = 'modular_bluemoon/icons/mob/sandman.dmi'
 	icon_state = "sandman"
 	icon_living = "sandman"
 	icon_dead = "sandman_dead"
@@ -111,7 +111,7 @@
 	ranged = 1
 	retreat_distance = 4
 	minimum_distance = 4
-	icon = 'modular_bluemoon/Ren/Icons/Mob/mobs.dmi'
+	icon = 'modular_bluemoon/icons/mob/mobs.dmi'
 	icon_state = "infiltrator_sniper"
 	icon_living = "infiltrator_sniper"
 	casingtype = /obj/item/ammo_casing/p50
@@ -136,13 +136,13 @@
 	wound_bonus = 40
 	bare_wound_bonus = 15
 	sharpness = SHARP_EDGED
-	icon = 'modular_bluemoon/Ren/Icons/Mob/mobs.dmi'
+	icon = 'modular_bluemoon/icons/mob/mobs.dmi'
 	icon_state = "infiltrator_mele"
 	icon_living = "infiltrator_mele"
 	loot = list(/obj/effect/gibspawner/human)
 	attack_verb_continuous = "slashes"
 	attack_verb_simple = "slash"
-	attack_sound = 'modular_bluemoon/Ren/Sound/USHM_hit.ogg'
+	attack_sound = 'modular_bluemoon/sound/USHM_hit.ogg'
 	status_flags = 0
 
 //Рандомные мобы
@@ -154,7 +154,7 @@
 	sharpness = SHARP_EDGED
 	wound_bonus = 10
 	bare_wound_bonus = 10
-	icon = 'modular_bluemoon/Ren/Icons/Mob/mobs.dmi'
+	icon = 'modular_bluemoon/icons/mob/mobs.dmi'
 	var/number
 
 /mob/living/simple_animal/hostile/skeleton/meatguy/Initialize(mapload)
@@ -168,7 +168,7 @@
 	name = "Red alert"
 	icon_state = "komunist"
 	icon_living = "komunist"
-	icon = 'modular_bluemoon/Ren/Icons/Mob/mobs.dmi'
+	icon = 'modular_bluemoon/icons/mob/mobs.dmi'
 	maxHealth = 180
 	health = 180
 	casingtype = /obj/item/ammo_casing/a9x39
@@ -234,7 +234,7 @@
 
 	var/turf/T = get_turf(pick(spawn_locs))
 	var/mob/living/simple_animal/hostile/syndicate/ranged/sniper/S = new(T)
-	playsound(S, 'modular_bluemoon/Ren/Sound/rifle-loading.ogg', 150, 1, 1000)
+	playsound(S, 'modular_bluemoon/sound/rifle-loading.ogg', 150, 1, 1000)
 	message_admins("A mad shooter has been spawned at [COORD(T)][ADMIN_JMP(T)]")
 	log_game("A mad shooter has been spawned at [COORD(T)]")
 	return SUCCESSFUL_SPAWN
