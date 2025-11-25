@@ -416,7 +416,7 @@
 
 /obj/item/ammo_casing/energy/bolt/spike
 	projectile_type = /obj/item/projectile/spike
-	fire_sound = 'modular_bluemoon/sound/weapon/taser.ogg'
+	fire_sound = 'modular_bluemoon/fluffs/sound/weapon/taser.ogg'
 
 /obj/item/gun/energy/kinetic_accelerator/spikethrower
 	name = "spike thrower"

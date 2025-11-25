@@ -13,7 +13,7 @@
 
 /obj/item/clothing/gloves/toggled/update_overlays()
 	. = ..()
-	var/mutable_appearance/active_overlay = mutable_appearance('modular_bluemoon/icons/obj/misc.dmi', "active")
+	var/mutable_appearance/active_overlay = mutable_appearance('modular_bluemoon/fluffs/icons/obj/misc.dmi', "active")
 	active_overlay.color = active_overlay_color
 	cut_overlay(active_overlay)
 	if(active)

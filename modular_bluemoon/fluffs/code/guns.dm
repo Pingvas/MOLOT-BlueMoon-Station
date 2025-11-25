@@ -32,10 +32,10 @@
 /obj/item/gun/ballistic/automatic/pistol/enforcer/steyr
 	name = "\improper Steyr MWS"
 	desc = "An antique semi-automatic pistol, heavily modified by the MWS defence manufacturing company. Provided with a better ammo cartridge and reinforced parts, it fits perfectly for resolving various security tasks. You can also notice Kovac's family sign drawn on it's handgrip."
-	icon = 'modular_bluemoon/icons/obj/guns.dmi'
+	icon = 'modular_bluemoon/fluffs/icons/obj/guns.dmi'
 	icon_state = "steyr_m1912"
 	can_suppress = FALSE
-	fire_sound = 'modular_bluemoon/sound/weapon/steyr_shoot.ogg'
+	fire_sound = 'modular_bluemoon/fluffs/sound/weapon/steyr_shoot.ogg'
 	pin = /obj/item/firing_pin/alert_level/blue
 
 /obj/item/modkit/auto9_kit
@@ -47,12 +47,12 @@
 /obj/item/gun/ballistic/automatic/wt550/auto9
 	name = "\improper Auto 9"
 	desc = "Come quitely or there will be troubles."
-	icon = 'modular_bluemoon/icons/obj/guns.dmi'
-	lefthand_file = 'modular_bluemoon/icons/mob/guns_left.dmi'
-	righthand_file = 'modular_bluemoon/icons/mob/guns_right.dmi'
+	icon = 'modular_bluemoon/fluffs/icons/obj/guns.dmi'
+	lefthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_left.dmi'
+	righthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_right.dmi'
 	icon_state = "auto9"
 	item_state = "auto9"
-	fire_sound = 'modular_bluemoon/sound/weapon/auto9_shoot.ogg'
+	fire_sound = 'modular_bluemoon/fluffs/sound/weapon/auto9_shoot.ogg'
 	can_suppress = FALSE
 	can_bayonet = FALSE
 
@@ -71,12 +71,12 @@
 /obj/item/gun/ballistic/automatic/wt550/at41
 	name = "\improper AT-41"
 	desc = "Старый кусок металла, который работает по принципу - и палка стреляет раз в год"
-	icon = 'modular_bluemoon/icons/obj/at41.dmi'
-	lefthand_file = 'modular_bluemoon/icons/mob/guns_left.dmi'
-	righthand_file = 'modular_bluemoon/icons/mob/guns_right.dmi'
+	icon = 'modular_bluemoon/fluffs/icons/obj/at41.dmi'
+	lefthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_left.dmi'
+	righthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_right.dmi'
 	icon_state = "at41"
 	item_state = "at41"
-	fire_sound = 'modular_bluemoon/sound/weapon/at41_fire.ogg'
+	fire_sound = 'modular_bluemoon/fluffs/sound/weapon/at41_fire.ogg'
 	can_suppress = FALSE
 	can_bayonet = TRUE
 
@@ -92,12 +92,12 @@
 /obj/item/gun/ballistic/automatic/wt550/wtadler
 	name = "\improper Adler assault rifle"
 	desc = "A assault rifle manufactured by the military industrial complex Adler. Manufactured for use by militarized law enforcement security services."
-	icon = 'modular_bluemoon/icons/obj/wtadler.dmi'
-	lefthand_file = 'modular_bluemoon/icons/mob/guns_left.dmi'
-	righthand_file = 'modular_bluemoon/icons/mob/guns_right.dmi'
+	icon = 'modular_bluemoon/fluffs/icons/obj/wtadler.dmi'
+	lefthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_left.dmi'
+	righthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_right.dmi'
 	icon_state = "wtadler"
 	item_state = "wtadler"
-	fire_sound = 'modular_bluemoon/sound/weapon/adlershot.ogg'
+	fire_sound = 'modular_bluemoon/fluffs/sound/weapon/adlershot.ogg'
 	can_suppress = FALSE
 	can_bayonet = TRUE
 	knife_x_offset = 25
@@ -115,13 +115,13 @@
 /obj/item/gun/ballistic/automatic/wt550/a46
 	name = "\improper A46-Cord"
 	desc = "Сбалансированная и простая в использовании автоматическая винтовка, сделанная на базе АЕК-971 и хоть придумана она была давно, но не получила такую популярность как её аналог AK-12."
-	icon = 'modular_bluemoon/icons/obj/a46.dmi'
-	lefthand_file = 'modular_bluemoon/icons/mob/guns_left.dmi'
-	righthand_file = 'modular_bluemoon/icons/mob/guns_right.dmi'
+	icon = 'modular_bluemoon/fluffs/icons/obj/a46.dmi'
+	lefthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_left.dmi'
+	righthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_right.dmi'
 	icon_state = "a46"
 	item_state = "a46"
-	fire_sound = 'modular_bluemoon/sound/weapon/a46shot1.ogg'
-	pickup_sound = "modular_bluemoon/sound/weapon/a46grab.ogg"
+	fire_sound = 'modular_bluemoon/fluffs/sound/weapon/a46shot1.ogg'
+	pickup_sound = "modular_bluemoon/fluffs/sound/weapon/a46grab.ogg"
 	can_suppress = FALSE
 	can_bayonet = TRUE
 	knife_x_offset = 42
@@ -139,13 +139,13 @@
 /obj/item/gun/ballistic/automatic/wt550/ots18
 	name = "\improper OTs-18 Groza"
 	desc = "Компактный штурмовой стрелково-гранатометный комплекс, сделанный на базе калашникова и переделанный под калибр 4.6x30."
-	icon = 'modular_bluemoon/icons/obj/groza.dmi'
-	lefthand_file = 'modular_bluemoon/icons/mob/guns_left.dmi'
-	righthand_file = 'modular_bluemoon/icons/mob/guns_right.dmi'
+	icon = 'modular_bluemoon/fluffs/icons/obj/groza.dmi'
+	lefthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_left.dmi'
+	righthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_right.dmi'
 	icon_state = "groza"
 	item_state = "groza"
-	fire_sound = 'modular_bluemoon/sound/weapon/groza-shot1.ogg'
-	pickup_sound = "modular_bluemoon/sound/weapon/groza-grab.ogg"
+	fire_sound = 'modular_bluemoon/fluffs/sound/weapon/groza-shot1.ogg'
+	pickup_sound = "modular_bluemoon/fluffs/sound/weapon/groza-grab.ogg"
 	can_suppress = FALSE
 	can_bayonet = TRUE
 	knife_x_offset = 40
@@ -163,12 +163,12 @@
 /obj/item/gun/ballistic/automatic/wt550/rs9
 	name = "\improper RS9"
 	desc = "The RS9 is an assault rifle designed for combat in narrow street areas. It has bayonet mount and is relatively lightweight. This model uses 4.6x30mm caliber."
-	icon = 'modular_bluemoon/icons/obj/acrador_guns.dmi'
-	lefthand_file = 'modular_bluemoon/icons/mob/guns_left.dmi'
-	righthand_file = 'modular_bluemoon/icons/mob/guns_right.dmi'
+	icon = 'modular_bluemoon/fluffs/icons/obj/acrador_guns.dmi'
+	lefthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_left.dmi'
+	righthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_right.dmi'
 	icon_state = "rs9"
 	item_state = "rs9"
-	fire_sound = 'modular_bluemoon/sound/weapon/rs9shot.ogg'
+	fire_sound = 'modular_bluemoon/fluffs/sound/weapon/rs9shot.ogg'
 	can_suppress = FALSE
 	can_bayonet = TRUE
 	knife_x_offset = 40
@@ -185,13 +185,13 @@
 
 /obj/item/flamethrower/full/tank/m240
 	name = "M240 Flamethrower"
-	icon = 'modular_bluemoon/icons/obj/guns.dmi'
+	icon = 'modular_bluemoon/fluffs/icons/obj/guns.dmi'
 	icon_state = "m240"
 	item_state = "m240_0"
-	lefthand_file = 'modular_bluemoon/icons/mob/guns_left.dmi'
-	righthand_file = 'modular_bluemoon/icons/mob/guns_right.dmi'
+	lefthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_left.dmi'
+	righthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_right.dmi'
 	create_with_tank = TRUE
-	fire_sound = 'modular_bluemoon/sound/weapon/flamethrower.ogg'
+	fire_sound = 'modular_bluemoon/fluffs/sound/weapon/flamethrower.ogg'
 
 /obj/item/flamethrower/update_icon_state()
 	item_state = "m240_[lit]"
@@ -207,9 +207,9 @@
 	desc = "An upgraded hybrid taser gun with several stripes, manufactured by the SolFed H&K arms company."
 	icon_state = "old"
 	item_state = "taser"
-	icon = 'modular_bluemoon/icons/obj/guns.dmi'
-	lefthand_file = 'modular_bluemoon/icons/mob/guns_left.dmi'
-	righthand_file = 'modular_bluemoon/icons/mob/guns_right.dmi'
+	icon = 'modular_bluemoon/fluffs/icons/obj/guns.dmi'
+	lefthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_left.dmi'
+	righthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_right.dmi'
 	ammo_type = list(/obj/item/ammo_casing/energy/disabler/old, /obj/item/ammo_casing/energy/electrode/old = FALSE)
 	ammo_x_offset = 0
 	var/last_altfire = 0
@@ -226,12 +226,12 @@
 	last_altfire = world.time
 
 /obj/item/ammo_casing/energy/disabler/old
-	fire_sound = 'modular_bluemoon/sound/weapon/disabler.ogg'
+	fire_sound = 'modular_bluemoon/fluffs/sound/weapon/disabler.ogg'
 
 /obj/item/ammo_casing/energy/electrode/old
 	projectile_type = /obj/item/projectile/energy/electrode
 	select_name = "stun"
-	fire_sound = 'modular_bluemoon/sound/weapon/taser.ogg'
+	fire_sound = 'modular_bluemoon/fluffs/sound/weapon/taser.ogg'
 	e_cost = 200
 	harmful = FALSE
 
@@ -248,9 +248,9 @@
 	name = "\improper Dominator"
 	icon_state = "dominator"
 	item_state = "taser"
-	icon = 'modular_bluemoon/icons/obj/guns.dmi'
-	lefthand_file = 'modular_bluemoon/icons/mob/guns_left.dmi'
-	righthand_file = 'modular_bluemoon/icons/mob/guns_right.dmi'
+	icon = 'modular_bluemoon/fluffs/icons/obj/guns.dmi'
+	lefthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_left.dmi'
+	righthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_right.dmi'
 	ammo_x_offset = 0
 
 /////////////////
@@ -264,10 +264,10 @@
 /obj/item/gun/ballistic/automatic/pistol/enforcer/nue
 	name = "\improper Araki Arms Nue"
 	desc = "Elegant, reliable and deadly, the semi-automatic, double-action pistol that fires .45 caliber ammunition and engineered to fit any hand. The handle is decorated with orange-colored ergonomic rubber with a Vulpkanin muzzle on it. It's looks familiar."
-	icon = 'modular_bluemoon/icons/obj/32x36.dmi'
+	icon = 'modular_bluemoon/fluffs/icons/obj/32x36.dmi'
 	icon_state = "nue"
 	can_suppress = FALSE
-	fire_sound = 'modular_bluemoon/sound/weapon/nue_shoot.ogg'
+	fire_sound = 'modular_bluemoon/fluffs/sound/weapon/nue_shoot.ogg'
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -286,15 +286,15 @@
 /obj/item/gun/ballistic/automatic/pistol/enforcer/malorian
 	name = "\improper Araki Arms 2563"
 	desc = "The only one of it's kind, unique heavy pistol made specially for Vulpboy Shiro Araki. Sleek, sexy, rebellious. Equipped with a smart link, compatible with various ammunition types, highest quality and the collector's value is through the roof. "
-	icon = 'modular_bluemoon/icons/obj/48x32.dmi'
+	icon = 'modular_bluemoon/fluffs/icons/obj/48x32.dmi'
 	icon_state = "arakiarms"
 	can_suppress = FALSE
-	fire_sound = 'modular_bluemoon/sound/weapon/nue_shoot.ogg'
+	fire_sound = 'modular_bluemoon/fluffs/sound/weapon/nue_shoot.ogg'
 	mag_type = /obj/item/ammo_box/magazine/e45/malorian
 
 /obj/item/ammo_box/magazine/e45/malorian
 	name = "Araki Arms magazine"
-	icon = 'modular_bluemoon/icons/obj/guns.dmi'
+	icon = 'modular_bluemoon/fluffs/icons/obj/guns.dmi'
 	//icon_state = "mag"
 	desc = "An Araki Arms magazine. Can be loaded with .45 ammo."
 
@@ -314,11 +314,11 @@
 /obj/item/gun/ballistic/revolver/r45l/rt46
 	name = "\improper RT-46 The Tempest"
 	desc = "The Tempest belongs to the museum as a benchmark of Soviet design. Is it beautiful to look at? No. Comfortable to use? No. Safe? No. But effective? Damn effective."
-	icon = 'modular_bluemoon/icons/obj/guns.dmi'
+	icon = 'modular_bluemoon/fluffs/icons/obj/guns.dmi'
 	icon_state = "rt46"
 	item_state = "rt46"
-	lefthand_file = 'modular_bluemoon/icons/mob/guns_left.dmi'
-	righthand_file = 'modular_bluemoon/icons/mob/guns_right.dmi'
+	lefthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_left.dmi'
+	righthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_right.dmi'
 
 /obj/item/modkit/rt46
 	name = "RT-46 The Tempest Kit"
@@ -331,7 +331,7 @@
 /obj/item/gun/ballistic/automatic/AM4B_pchelik
 	name = "GFYS"
 	desc = "На донк-софт оружии видна гравировка: 'Coopie'. Предназначено для нетравмирующего выкидывания существ из бара и самозащиты от приставал."
-	icon = 'modular_bluemoon/icons/obj/guns.dmi'
+	icon = 'modular_bluemoon/fluffs/icons/obj/guns.dmi'
 	icon_state = "coopie"
 	item_state = "arifle-wielded"
 	mag_type = /obj/item/ammo_box/magazine/toy/AM4B
@@ -356,15 +356,15 @@
 	desc = "A stunblade made of several segments collapse into each other much like a spyglass, thus it can fit inside of the handle entirely. This utility combined with its dense metal makes it perfect for defensive maneuvers."
 	item_state = "stunblade"
 	icon_state = "stunblade"
-	icon = 'modular_bluemoon/icons/obj/guns.dmi'
-	lefthand_file = 'modular_bluemoon/icons/mob/guns_left.dmi'
-	righthand_file = 'modular_bluemoon/icons/mob/guns_right.dmi'
+	icon = 'modular_bluemoon/fluffs/icons/obj/guns.dmi'
+	lefthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_left.dmi'
+	righthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_right.dmi'
 
 /obj/item/melee/baton/stunblade/switch_status(new_status = FALSE, silent = FALSE)
 	if(turned_on != new_status)
 		turned_on = new_status
 		if(!silent)
-			playsound(loc, 'modular_bluemoon/sound/weapon/stunblade.ogg', 75, 1, -1)
+			playsound(loc, 'modular_bluemoon/fluffs/sound/weapon/stunblade.ogg', 75, 1, -1)
 		if(turned_on)
 			START_PROCESSING(SSobj, src)
 		else
@@ -398,15 +398,15 @@
 	desc = "A telescopic katana made of vibrating steel. The mechanism is very simple, but quite very sturdy. About 100 copies were made in production, because the limited material would not allow making many of these melee weapons. But this instance is the Razorsong MK-III, a more homemade modified version designed to work in the Security Service for non-lethal close-range combat."
 	item_state = "razorsong"
 	icon_state = "razorsong"
-	icon = 'modular_bluemoon/icons/obj/guns.dmi'
-	lefthand_file = 'modular_bluemoon/icons/mob/guns_left.dmi'
-	righthand_file = 'modular_bluemoon/icons/mob/guns_right.dmi'
+	icon = 'modular_bluemoon/fluffs/icons/obj/guns.dmi'
+	lefthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_left.dmi'
+	righthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_right.dmi'
 
 /obj/item/melee/baton/razorsong/switch_status(new_status = FALSE, silent = FALSE)
 	if(turned_on != new_status)
 		turned_on = new_status
 		if(!silent)
-			playsound(loc, 'modular_bluemoon/sound/weapon/razorsong.ogg', 75, 1, -1)
+			playsound(loc, 'modular_bluemoon/fluffs/sound/weapon/razorsong.ogg', 75, 1, -1)
 		if(turned_on)
 			START_PROCESSING(SSobj, src)
 		else
@@ -437,9 +437,9 @@
 	desc = "A combat stun sword manufactured by the military industrial Complex Adler. It was created for the rapid neutralization of civilians and the use of peacekeepers by troops for destructive purposes."
 	item_state = "stunadler"
 	icon_state = "stunadler"
-	icon = 'modular_bluemoon/icons/obj/guns.dmi'
-	lefthand_file = 'modular_bluemoon/icons/mob/guns_left.dmi'
-	righthand_file = 'modular_bluemoon/icons/mob/guns_right.dmi'
+	icon = 'modular_bluemoon/fluffs/icons/obj/guns.dmi'
+	lefthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_left.dmi'
+	righthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_right.dmi'
 
 /obj/item/melee/baton/stunadler/switch_status(new_status = FALSE, silent = FALSE)
 	if(turned_on != new_status)
@@ -476,15 +476,15 @@
 	desc = "A non-lethal baton for suppressing manpower. Developed during the riots when the existence of the rifters was confirmed."
 	item_state = "tonfa"
 	icon_state = "tonfa"
-	icon = 'modular_bluemoon/icons/obj/acrador_guns.dmi'
-	lefthand_file = 'modular_bluemoon/icons/mob/guns_left.dmi'
-	righthand_file = 'modular_bluemoon/icons/mob/guns_right.dmi'
+	icon = 'modular_bluemoon/fluffs/icons/obj/acrador_guns.dmi'
+	lefthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_left.dmi'
+	righthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_right.dmi'
 
 /obj/item/melee/baton/tonfa/switch_status(new_status = FALSE, silent = FALSE)
 	if(turned_on != new_status)
 		turned_on = new_status
 		if(!silent)
-			playsound(loc, 'modular_bluemoon/sound/weapon/tonfa.ogg', 75, 1, -1)
+			playsound(loc, 'modular_bluemoon/fluffs/sound/weapon/tonfa.ogg', 75, 1, -1)
 		if(turned_on)
 			START_PROCESSING(SSobj, src)
 		else
@@ -518,15 +518,15 @@
 	desc = "На вид потрепанная временем трость которая украшена золотом с не раз отреставрированным деревом и на ручке еле поблескивал алмаз. Такие имеют на некоторых станция Представители НТ как показатель статуса, этот же видимо скорее как память раз уж не заменялся владельцем видимо годами."
 	item_state = "cane_nt"
 	icon_state = "cane_nt"
-	icon = 'modular_bluemoon/icons/obj/guns.dmi'
-	lefthand_file = 'modular_bluemoon/icons/mob/guns_left.dmi'
-	righthand_file = 'modular_bluemoon/icons/mob/guns_right.dmi'
+	icon = 'modular_bluemoon/fluffs/icons/obj/guns.dmi'
+	lefthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_left.dmi'
+	righthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_right.dmi'
 
 /obj/item/melee/baton/stunntcane/switch_status(new_status = FALSE, silent = FALSE)
 	if(turned_on != new_status)
 		turned_on = new_status
 		if(!silent)
-			playsound(loc, 'modular_bluemoon/sound/weapon/stunblade.ogg', 75, 1, -1)
+			playsound(loc, 'modular_bluemoon/fluffs/sound/weapon/stunblade.ogg', 75, 1, -1)
 		if(turned_on)
 			START_PROCESSING(SSobj, src)
 		else
@@ -564,18 +564,18 @@
 /obj/item/gun/ballistic/automatic/pistol/enforcer/pf940
 	name = "\improper PF940"
 	desc = "A heavily modified Glock 21 pistol with some ergonomic parts and a caliber converted to .45, making it easy to find ammo at Edem stations. Your team is down, you're the only fella left. You- You'll just have to figure it out."
-	icon = 'modular_bluemoon/icons/obj/guns.dmi'
+	icon = 'modular_bluemoon/fluffs/icons/obj/guns.dmi'
 	icon_state = "pf940"
 	can_suppress = FALSE
-	fire_sound = 'modular_bluemoon/sound/weapon/pf940_shoot.ogg'
+	fire_sound = 'modular_bluemoon/fluffs/sound/weapon/pf940_shoot.ogg'
 
 /obj/item/gun/ballistic/automatic/pistol/g22/pf940
 	name = "\improper PF940"
 	desc = "A heavily modified Glock 21 pistol with some ergonomic parts and a caliber converted to .45, making it easy to find ammo at Edem stations. Your team is down, you're the only fella left. You- You'll just have to figure it out."
-	icon = 'modular_bluemoon/icons/obj/guns.dmi'
+	icon = 'modular_bluemoon/fluffs/icons/obj/guns.dmi'
 	icon_state = "pf940"
 	can_suppress = FALSE
-	fire_sound = 'modular_bluemoon/sound/weapon/pf940_shoot.ogg'
+	fire_sound = 'modular_bluemoon/fluffs/sound/weapon/pf940_shoot.ogg'
 
 /obj/item/modkit/ks23_kit
 	name = "KS-23 Shotgun Kit"
@@ -586,13 +586,13 @@
 /obj/item/gun/ballistic/shotgun/riot/ks_23
 	name = "\improper KS-23"
 	desc = "Карабин Специальный-23М - ружьё с нарезным стволом. Многофункциональное полицейское оружие, предназначенное для пресечения массовых беспорядков, избирательного силового, психического и химического воздействия на правонарушителей."
-	icon = 'modular_bluemoon/icons/obj/guns.dmi'
-	lefthand_file = 'modular_bluemoon/icons/mob/guns_left.dmi'
-	righthand_file = 'modular_bluemoon/icons/mob/guns_right.dmi'
+	icon = 'modular_bluemoon/fluffs/icons/obj/guns.dmi'
+	lefthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_left.dmi'
+	righthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_right.dmi'
 	//chosen_icon = 'icons/mob/clothing/back.dmi'
 	icon_state = "KS-23M"
 	can_suppress = FALSE
-	fire_sound = 'modular_bluemoon/sound/shoot.ogg'
+	fire_sound = 'modular_bluemoon/fluffs/sound/shoot.ogg'
 
 /obj/item/gun/ballistic/shotgun/riot/ks_23/update_icon_state()
 	. = ..()
@@ -607,9 +607,9 @@
 /obj/item/gun/ballistic/automatic/ak12/g36
 	name = "\improper G-36"
 	desc = "Heckler & Koch Gewehr 36, G36 - семейство стрелкового оружия, разработанное в начале 1990-х немецкой компанией Heckler & Koch, под внутрифирменным обозначением HK 50, для замены хорошо известной автоматической винтовки HK G3."
-	icon = 'modular_bluemoon/icons/obj/guns.dmi'
-	lefthand_file = 'modular_bluemoon/icons/mob/guns_left.dmi'
-	righthand_file = 'modular_bluemoon/icons/mob/guns_right.dmi'
+	icon = 'modular_bluemoon/fluffs/icons/obj/guns.dmi'
+	lefthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_left.dmi'
+	righthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_right.dmi'
 	mag_type = /obj/item/ammo_box/magazine/ak12/r
 	//chosen_icon = 'icons/mob/clothing/back.dmi'
 	icon_state = "G36"
@@ -641,10 +641,10 @@
 	desc = "It is a straight sword with blade made of iron and plasteel alloy. Its handle is covered with cloth for better grip as a sort of field modification, with the emblem of Rohai engraved under it. It doesn't feel well balanced or sharp enough, but at least may look stylish"
 	item_state = "cmg"
 	icon_state = "cmg"
-	icon = 'modular_bluemoon/icons/obj/cmg.dmi'
-	lefthand_file = 'modular_bluemoon/icons/mob/guns_left.dmi'
-	righthand_file = 'modular_bluemoon/icons/mob/guns_right.dmi'
-	mob_overlay_icon = 'modular_bluemoon/icons/mob/back.dmi'
+	icon = 'modular_bluemoon/fluffs/icons/obj/cmg.dmi'
+	lefthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_left.dmi'
+	righthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_right.dmi'
+	mob_overlay_icon = 'modular_bluemoon/fluffs/icons/mob/back.dmi'
 
 /obj/item/modkit/rs14_kit
 	name = "RS14 Kit"
@@ -657,10 +657,10 @@
 	desc = "Shotgun revolver. It was formerly a hunting weapon, but has since been adopted by the Rohai armies because of its ease of use, effectiveness and cheapness. This model uses 12 gauge."
 	item_state = "rs14"
 	icon_state = "rs14"
-	icon = 'modular_bluemoon/icons/obj/acrador_guns.dmi'
-	lefthand_file = 'modular_bluemoon/icons/mob/guns_left.dmi'
-	righthand_file = 'modular_bluemoon/icons/mob/guns_right.dmi'
-	fire_sound = 'modular_bluemoon/sound/weapon/rs14shot.ogg'
+	icon = 'modular_bluemoon/fluffs/icons/obj/acrador_guns.dmi'
+	lefthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_left.dmi'
+	righthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_right.dmi'
+	fire_sound = 'modular_bluemoon/fluffs/sound/weapon/rs14shot.ogg'
 
 /obj/item/modkit/rshield_kit
 	name = "Telescopic riot shield Kit"
@@ -672,9 +672,9 @@
 	name = "Telescopic riot shield"
 	desc = "A shield used to quell civil unrest in the cities of Irelia. It is easy to use and can be folded into a more compact form for carrying."
 	icon_state = "rshield0"
-	icon = 'modular_bluemoon/icons/obj/acrador_guns.dmi'
-	lefthand_file = 'modular_bluemoon/icons/mob/guns_left.dmi'
-	righthand_file = 'modular_bluemoon/icons/mob/guns_right.dmi'
+	icon = 'modular_bluemoon/fluffs/icons/obj/acrador_guns.dmi'
+	lefthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_left.dmi'
+	righthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_right.dmi'
 	slot_flags = null
 	force = 3
 	throwforce = 3
@@ -721,9 +721,9 @@
 /obj/item/gun/ballistic/automatic/pistol/enforcer/anstrum
 	name = "\improper SP 488 Anstrum"
 	desc = "A series of semi-automatic pistols designed and manufactured specifically for the Rohai Law Enforcement Units and as personal weapons for the senior army officers. The design is old but reliable, combining compactness with sufficient combat power for everyday tasks."
-	icon = 'modular_bluemoon/icons/obj/acrador_guns.dmi'
+	icon = 'modular_bluemoon/fluffs/icons/obj/acrador_guns.dmi'
 	icon_state = "anstrum"
-	fire_sound = 'modular_bluemoon/sound/weapon/anstrumshot.ogg'
+	fire_sound = 'modular_bluemoon/fluffs/sound/weapon/anstrumshot.ogg'
 	pin = /obj/item/firing_pin/alert_level/blue
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -731,7 +731,7 @@
 /obj/item/gun/energy/e_gun/hos/dreadmk3
 	name = "\improper Законодатель MK3"
 	desc = "Стандартное оружие судей из Мега-Города Солнечной Федерации. Пистолет комплектуется несколькими типами боеприпасов, иногда набор снарядов отличается от стандартного в зависимости от миссии судьи. Оснащён биометрическим датчиком ладони — оружие может применять только судья, а при несанкционированном использовании в рукояти срабатывает взрывное устройство. Этот же пистолет на радость недругов что преступают Закон, со сломанной биометрией ради стандартизации электронных бойков."
-	icon = 'modular_bluemoon/icons/obj/dreadmk3.dmi'
+	icon = 'modular_bluemoon/fluffs/icons/obj/dreadmk3.dmi'
 	icon_state = "dreadmk3"
 	item_state = "dreadmk3"
 	ammo_type = list(/obj/item/ammo_casing/energy/disabler/dreadmk3, /obj/item/ammo_casing/energy/laser/hos/dreadmk3, /obj/item/ammo_casing/energy/ion/hos/dreadmk3, /obj/item/ammo_casing/energy/electrode/hos/dreadmk3)
@@ -810,10 +810,10 @@
 	desc = "A heavy-duty hammer designed for all types of working conditions. Extremely durable and reliable. Made of high-quality black metal, with a rubberized silicone handle."
 	item_state = "hammercrowbar"
 	icon_state = "hammercrowbar"
-	icon = 'modular_bluemoon/icons/obj/guns.dmi'
-	lefthand_file = 'modular_bluemoon/icons/mob/guns_left.dmi'
-	righthand_file = 'modular_bluemoon/icons/mob/guns_right.dmi'
-	hitsound = "modular_bluemoon/sound/weapon/stab_hammer.ogg"
+	icon = 'modular_bluemoon/fluffs/icons/obj/guns.dmi'
+	lefthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_left.dmi'
+	righthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_right.dmi'
+	hitsound = "modular_bluemoon/fluffs/sound/weapon/stab_hammer.ogg"
 
 /obj/item/modkit/hammercrowbar_kit
 	name = "Heavy pocket hammer Kit"
@@ -832,12 +832,12 @@
 /obj/item/gun/ballistic/automatic/pistol/enforcer/p320
 	name = "\improper P320"
 	desc = "P320 — модульный полуавтоматический пистолет. Данная версия пистолета была собрана под .45 калибр."
-	icon = 'modular_bluemoon/icons/obj/P320.dmi'
-	lefthand_file = 'modular_bluemoon/icons/mob/guns_left.dmi'
-	righthand_file = 'modular_bluemoon/icons/mob/guns_right.dmi'
+	icon = 'modular_bluemoon/fluffs/icons/obj/P320.dmi'
+	lefthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_left.dmi'
+	righthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_right.dmi'
 	icon_state = "p320"
 	item_state = "p320"
-	fire_sound = 'modular_bluemoon/sound/weapon/archivo.ogg'
+	fire_sound = 'modular_bluemoon/fluffs/sound/weapon/archivo.ogg'
 	unique_reskin = null
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -851,12 +851,12 @@
 /obj/item/gun/ballistic/automatic/pistol/enforcer/dedication
 	name = "\improper Magnetic Pistol Dedication"
 	desc = "A magnetic pistol used in all units of Adler's armed peacekeepers. It is mass-produced by the Adler military-industrial complex and has already entered the space trade market. It includes several advantages, for example, an identifier built into the handle, which transmits the remaining ammunition to the interface of the helmet or glasses, which allows better control of the weapon, as well as an integrated sight, which, however, is effective only at close ranges. He usually has a badge corresponding to his military rank, but this one doesn't seem to have any identification marks on it. Most often, because the owner belongs to Adler's foreign armed formations, which are not controlled by the general directorate of corporate officials. For example, he is assigned to a high-ranking officer."
-	icon = 'modular_bluemoon/icons/obj/guns.dmi'
-	lefthand_file = 'modular_bluemoon/icons/mob/guns_left.dmi'
-	righthand_file = 'modular_bluemoon/icons/mob/guns_right.dmi'
+	icon = 'modular_bluemoon/fluffs/icons/obj/guns.dmi'
+	lefthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_left.dmi'
+	righthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_right.dmi'
 	icon_state = "dedication"
 	item_state = "dedication"
-	fire_sound = 'modular_bluemoon/sound/weapon/adlershot.ogg'
+	fire_sound = 'modular_bluemoon/fluffs/sound/weapon/adlershot.ogg'
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
@@ -869,9 +869,9 @@
 /obj/item/melee/sabre/cleaver
 	name = "\improper Light Officer's Cleaver"
 	desc = "The blade is made of nanoalloys, sharpened with a high-precision laser, a handle with a winding made of special synthetic leather and, of course, an engraving on the blade corresponding to a personal identification code. This is a weapon of the composition of corporate officials and high-ranking military officers of Adler, in order to earn it, each officer must go a long way in the hierarchy or earn high trust from the highest ranks of Adler. There are only 10,000 such swords produced."
-	icon = 'modular_bluemoon/icons/obj/guns.dmi'
-	lefthand_file = 'modular_bluemoon/icons/mob/guns_left.dmi'
-	righthand_file = 'modular_bluemoon/icons/mob/guns_right.dmi'
+	icon = 'modular_bluemoon/fluffs/icons/obj/guns.dmi'
+	lefthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_left.dmi'
+	righthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_right.dmi'
 	icon_state = "cleaver"
 	item_state = "cleaver"
 
@@ -885,7 +885,7 @@
 /obj/item/gun/energy/e_gun/hos/Anabel
 	name = "\improper Anabel"
 	desc = "This is an expensive, modern recreation of an antique laser gun. This gun has several unique firemodes, but lacks the ability to recharge over time in exchange for inbuilt advanced firearm EMP shielding. <span class='boldnotice'>Right click in combat mode to fire a taser shot with a cooldown.</span>"
-	icon = 'modular_bluemoon/icons/obj/guns.dmi'
+	icon = 'modular_bluemoon/fluffs/icons/obj/guns.dmi'
 	icon_state = "Anabel"
 	cell_type = /obj/item/stock_parts/cell{charge = 1500; maxcharge = 1500}
 	ammo_type = list(/obj/item/ammo_casing/energy/disabler, /obj/item/ammo_casing/energy/laser/lightliz)
@@ -895,7 +895,7 @@
 	projectile_type = /obj/item/projectile/beam/laser/heavylaser
 	e_cost = 300
 	select_name = "kill"
-	fire_sound = 'modular_bluemoon/sound/weapon/Anabel_shot.ogg'
+	fire_sound = 'modular_bluemoon/fluffs/sound/weapon/Anabel_shot.ogg'
 
 /obj/item/modkit/Anabel_kit
 	name = "Anabel Kit"
@@ -908,12 +908,12 @@
 /obj/item/gun/ballistic/revolver/detective/rsh_future
 	name = "RSH-Future"
 	desc = " A custom-made revolver .38 caliber, engraved on the cylinder of the drum - 228321. The special body of this revolver, made of an unusual list of materials, allows you to muffle the sound of shots of this caliber, by about 25 percent. But still, there is a minus - a strong recoil, what a without a strong grip - It will be painfully."
-	icon = 'modular_bluemoon/icons/obj/guns.dmi'
+	icon = 'modular_bluemoon/fluffs/icons/obj/guns.dmi'
 	icon_state = "rsh_future"
 	item_state = "rsh_future"
-	lefthand_file = 'modular_bluemoon/icons/mob/guns_left.dmi'
-	righthand_file = 'modular_bluemoon/icons/mob/guns_right.dmi'
-	fire_sound = 'modular_bluemoon/sound/weapon/rshfuture_shot.ogg'
+	lefthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_left.dmi'
+	righthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_right.dmi'
+	fire_sound = 'modular_bluemoon/fluffs/sound/weapon/rshfuture_shot.ogg'
 
 /obj/item/modkit/rsh_future
 	name = "Special .38 Mars Kit"
@@ -926,12 +926,12 @@
 /obj/item/gun/ballistic/automatic/wt550/stg56
 	name = "\improper StG-56"
 	desc = "Recreated from old blueprints using the latest materials and a pinch of technology. This rifle will still serve well in its lifetime."
-	icon = 'modular_bluemoon/icons/obj/48x32.dmi'
-	lefthand_file = 'modular_bluemoon/icons/mob/guns_left.dmi'
-	righthand_file = 'modular_bluemoon/icons/mob/guns_right.dmi'
+	icon = 'modular_bluemoon/fluffs/icons/obj/48x32.dmi'
+	lefthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_left.dmi'
+	righthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_right.dmi'
 	icon_state = "stg56"
 	item_state = "stg56"
-	fire_sound = 'modular_bluemoon/sound/weapon/stg56_shoot.ogg'
+	fire_sound = 'modular_bluemoon/fluffs/sound/weapon/stg56_shoot.ogg'
 	can_bayonet = FALSE
 
 /obj/item/gun/ballistic/automatic/wt550/stg56/update_icon_state()

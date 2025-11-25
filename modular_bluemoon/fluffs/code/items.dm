@@ -1,7 +1,7 @@
 /obj/item/lighter/donator/bm/militaryzippo
 	name = "military zippo"
 	desc = "Army styled zippo with graved \"Dmitry Strelnikov\" on backside. Has a much hotter flame than normal."
-	icon = 'modular_bluemoon/icons/obj/items.dmi'
+	icon = 'modular_bluemoon/fluffs/icons/obj/items.dmi'
 	icon_state = "mzippo"
 	heat = 2000
 	light_color = LIGHT_COLOR_FIRE
@@ -13,7 +13,7 @@
 	desc = "Фиолетовая бутылка, что выглядет очень старой. \
 		Она выглядет так буд-то её используют для хранения зелий.  \
 		На этикетке написано 'Зелье снятия одежды'."
-	icon = 'modular_bluemoon/icons/obj/items.dmi'
+	icon = 'modular_bluemoon/fluffs/icons/obj/items.dmi'
 	icon_state = "elf_bottle"
 	volume = 150
 	possible_transfer_amounts = list(1,2,3,5,10,25,50,100,150)
@@ -32,9 +32,9 @@
 /obj/item/jukebox/hahun
 	name = "Irellian music player"
 	desc = "An Irellian musical player, resembles a phone with acratorian design, have two little antennas and a port for headphones"
-	icon = 'modular_bluemoon/icons/obj/items.dmi'
-	lefthand_file = 'modular_bluemoon/icons/mob/inhands/items_left.dmi'
-	righthand_file = 'modular_bluemoon/icons/mob/inhands/items_right.dmi'
+	icon = 'modular_bluemoon/fluffs/icons/obj/items.dmi'
+	lefthand_file = 'modular_bluemoon/fluffs/icons/mob/inhands/items_left.dmi'
+	righthand_file = 'modular_bluemoon/fluffs/icons/mob/inhands/items_right.dmi'
 	icon_state = "hahun_jukebox"
 	item_state = "hahun_jukebox"
 
