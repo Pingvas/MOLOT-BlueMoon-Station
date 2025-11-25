@@ -1,3 +1,0 @@
-/code/modules/clothing - файлы одежды датум.
-/icons/obj/clothing/ - файлы одежды иконки.
-/icons/mob/clothing/ - файлы одежды на мобе.
