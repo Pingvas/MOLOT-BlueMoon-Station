@@ -2,7 +2,7 @@
 /obj/item/wrench/power/science
 	name = "research hand dril"
 	desc = "This one sports a nifty power/science paintjob, but is otherwise normal."
-	icon = 'modular_bluemoon/phenyamomota/icon/obj/tools.dmi'
+	icon = 'modular_bluemoon/icons/obj/tools.dmi'
 	icon_state = "drill_sci_wrench"
 	item_state = "drill_sci"
 	lefthand_file = 'modular_bluemoon/icons/mob/inhands/equipment/tools_lefthand.dmi'

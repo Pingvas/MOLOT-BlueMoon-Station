@@ -71,8 +71,8 @@
 /obj/item/radio/headset/headset_exp
 	name = "expeditor's headset"
 	desc = "This is used by expeditors."
-	icon = 'modular_bluemoon/phenyamomota/icon/obj/radio.dmi'
-	//mob_overlay_icon = 'modular_bluemoon/phenyamomota/icon/mob/ears.dmi'
+	icon = 'modular_bluemoon/icons/obj/radio.dmi'
+	//mob_overlay_icon = 'modular_bluemoon/icon/mob/ears.dmi'
 	icon_state = "exp_headset"
 	item_state = "exp_headset"
 	keyslot = new /obj/item/encryptionkey/headset_sci
@@ -100,17 +100,17 @@
 	mutantrace_variation = STYLE_DIGITIGRADE|USE_SNEK_CLIP_MASK|USE_QUADRUPED_CLIP_MASK
 
 /obj/item/clothing/shoes/combat/exp
-	icon = 'modular_bluemoon/phenyamomota/icon/obj/clothing/shoes.dmi'
-	mob_overlay_icon = 'modular_bluemoon/phenyamomota/icon/mob/clothing/shoes.dmi'
-	anthro_mob_worn_overlay = 'modular_bluemoon/phenyamomota/icon/mob/clothing/shoes_digi.dmi'
+	icon = 'modular_bluemoon/icons/obj/clothing/shoes.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing/shoes.dmi'
+	anthro_mob_worn_overlay = 'modular_bluemoon/icons/mob/clothing/shoes_digi.dmi'
 	name = "expeditionary boots"
 	desc = "Black hardboots with solid sole."
 	icon_state = "combat_exp"
 	item_state = "combat_exp"
 
 /obj/item/clothing/suit/armor/vest/exp
-	icon = 'modular_bluemoon/phenyamomota/icon/obj/clothing/suits.dmi'
-	mob_overlay_icon = 'modular_bluemoon/phenyamomota/icon/mob/clothing/suits.dmi'
+	icon = 'modular_bluemoon/icons/obj/clothing/suits.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing/suits.dmi'
 	name = "expeditionary armor vest"
 	desc = "Base armor vest designed for ordinary expeditors. With cool speedy violet vertical line."
 	icon_state = "vest_exp"
@@ -135,8 +135,8 @@
 	)
 
 /obj/item/clothing/head/helmet/exp
-	icon = 'modular_bluemoon/phenyamomota/icon/obj/clothing/head.dmi'
-	mob_overlay_icon = 'modular_bluemoon/phenyamomota/icon/mob/clothing/head.dmi'
+	icon = 'modular_bluemoon/icons/obj/clothing/head.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing/head.dmi'
 	name = "expeditionary helmet"
 	desc = "Sturdy ballistic helmet with violet protective glass."
 	icon_state = "helmet_exp"

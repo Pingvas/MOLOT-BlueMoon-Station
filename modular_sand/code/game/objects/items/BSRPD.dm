@@ -52,7 +52,7 @@ GLOBAL_LIST_INIT(bsatmos_pipe_recipes, list(
 /obj/item/pipe_dispenser/bluespace
 	name = "Bluespace Rapid Piping Device (BSRPD)"
 	desc = "A device used to rapidly pipe things at a distance."
-	icon = /*'modular_sand/icons/obj/tools.dmi'*/ 'modular_bluemoon/phenyamomota/icon/obj/tools.dmi'
+	icon = /*'modular_sand/icons/obj/tools.dmi'*/ 'modular_bluemoon/icons/obj/tools.dmi'
 	icon_state = "bsrpd"
 	lefthand_file = /*'modular_sand/icons/mob/inhands/equipment/tools_righthand.dmi'*/ 'modular_bluemoon/icons/mob/inhands/equipment/tools_lefthand.dmi'
 	righthand_file = /*'modular_sand/icons/mob/inhands/equipment/tools_righthand.dmi'*/ 'modular_bluemoon/icons/mob/inhands/equipment/tools_righthand.dmi'

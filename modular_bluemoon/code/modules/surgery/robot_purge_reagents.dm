@@ -18,7 +18,7 @@
 			/datum/surgery_step/mechanic_close)
 	possible_locs = list(BODY_ZONE_CHEST)
 	target_mobtypes = list(/mob/living/carbon/human)
-	icon = 'modular_bluemoon/phenyamomota/icon/obj/tools.dmi'
+	icon = 'modular_bluemoon/icons/obj/tools.dmi'
 	icon_state = "multitool_yellow"
 	radial_priority = SURGERY_RADIAL_PRIORITY_HEAL_ADDITIONAL
 

@@ -39,7 +39,7 @@
 /obj/item/ammo_box/magazine/m16
 	name = "\improper M16A4 magazine"
 	desc = "A double-stack translucent polymer magazine for use with the M16A4 rifles. Holds 30 rounds of 5.56."
-	icon = 'modular_bluemoon/phenyamomota/icon/obj/guns/ammo.dmi'
+	icon = 'modular_bluemoon/icons/obj/guns/ammo.dmi'
 	icon_state = "m16e"
 	ammo_type = /obj/item/ammo_casing/a556
 	caliber = "a556"
@@ -66,7 +66,7 @@
 /obj/item/ammo_box/magazine/ak47
 	name = "\improper AK-47 magazine"
 	desc = "a banana-shaped double-stack magazine able to hold 30 rounds of 7.62 ammo."
-	icon = 'modular_bluemoon/phenyamomota/icon/obj/guns/ammo.dmi'
+	icon = 'modular_bluemoon/icons/obj/guns/ammo.dmi'
 	icon_state = "ak47"
 	ammo_type = /obj/item/ammo_casing/a762x39
 	caliber = "a762x39"

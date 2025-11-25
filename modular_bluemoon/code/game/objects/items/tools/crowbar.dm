@@ -18,7 +18,7 @@
 /obj/item/crowbar/power/science
 	name = "hybrid cutters"
 	desc = "Quite similar to the jaws of life, this tool combines the utility of a crowbar and a set of wirecutters without the hydraulic force required to pry open doors."
-	icon = 'modular_bluemoon/phenyamomota/icon/obj/tools.dmi'
+	icon = 'modular_bluemoon/icons/obj/tools.dmi'
 	icon_state = "jaws_sci_pry"
 	item_state = "jaws_sci"
 	lefthand_file = 'modular_bluemoon/icons/mob/inhands/equipment/tools_lefthand.dmi'

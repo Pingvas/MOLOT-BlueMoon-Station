@@ -144,7 +144,7 @@
 /obj/item/card/id/hsc
 	name = "\improper HSC ID"
 	desc = "Health Safety Control ID card."
-	icon = 'modular_bluemoon/phenyamomota/icon/obj/card.dmi'
+	icon = 'modular_bluemoon/icons/obj/card.dmi'
 	icon_state = "hsc"
 	registered_name = "Health Safety Control Security"
 	assignment = "Health Safety Control Security"

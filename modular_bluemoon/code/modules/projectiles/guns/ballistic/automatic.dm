@@ -32,11 +32,11 @@
 /obj/item/gun/ballistic/automatic/m16a4
 	name = "\improper M16A4 rifle"
 	desc = "A Solar Federation automatic rifle chambered for the 5.56 round, designed for use by SWAT."
-	icon = 'modular_bluemoon/phenyamomota/icon/obj/guns/rifles.dmi'
+	icon = 'modular_bluemoon/icons/obj/guns/rifles.dmi'
 	icon_state = "m16"
-	lefthand_file = 'modular_bluemoon/phenyamomota/icon/mob/inhand/guns_lefthand.dmi'
-	righthand_file = 'modular_bluemoon/phenyamomota/icon/mob/inhand/guns_righthand.dmi'
-	mob_overlay_icon = 'modular_bluemoon/phenyamomota/icon/mob/rifles_back.dmi'
+	lefthand_file = 'modular_bluemoon/icons/mob/inhands/guns_lefthand.dmi'
+	righthand_file = 'modular_bluemoon/icons/mob/inhands/guns_righthand.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/rifles_back.dmi'
 	item_state = "m16"
 	slot_flags = ITEM_SLOT_BELT | ITEM_SLOT_BACK
 	w_class = WEIGHT_CLASS_BULKY
@@ -45,7 +45,7 @@
 	weapon_weight = WEAPON_HEAVY
 	burst_size = 3
 	fire_delay = 2
-	fire_sound = 'modular_bluemoon/phenyamomota/sound/guns/m16_fire.ogg'
+	fire_sound = 'modular_bluemoon/sound/guns/m16_fire.ogg'
 
 /obj/item/gun/ballistic/automatic/m16a4/update_icon_state()
 	if(magazine)
@@ -86,11 +86,11 @@
 /obj/item/gun/ballistic/automatic/ak47
 	name = "\improper AK-47 rifle"
 	desc = "A timeless human design of a carbine chambered for the 7.62 ammo. A weapon so simple that even a child could use it - and they often did. Respected by illegal mercenaries."
-	icon = 'modular_bluemoon/phenyamomota/icon/obj/guns/rifles.dmi'
+	icon = 'modular_bluemoon/icons/obj/guns/rifles.dmi'
 	icon_state = "ak47"
-	lefthand_file = 'modular_bluemoon/phenyamomota/icon/mob/inhand/guns_lefthand.dmi'
-	righthand_file = 'modular_bluemoon/phenyamomota/icon/mob/inhand/guns_righthand.dmi'
-	mob_overlay_icon = 'modular_bluemoon/phenyamomota/icon/mob/rifles_back.dmi'
+	lefthand_file = 'modular_bluemoon/icons/mob/inhands/guns_lefthand.dmi'
+	righthand_file = 'modular_bluemoon/icons/mob/inhands/guns_righthand.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/rifles_back.dmi'
 	item_state = "ak47"
 	slot_flags = ITEM_SLOT_BELT | ITEM_SLOT_BACK
 	w_class = WEIGHT_CLASS_BULKY
@@ -99,7 +99,7 @@
 	weapon_weight = WEAPON_HEAVY
 	burst_size = 3
 	fire_delay = 2
-	fire_sound = 'modular_bluemoon/phenyamomota/sound/guns/ak47_fire.ogg'
+	fire_sound = 'modular_bluemoon/sound/guns/ak47_fire.ogg'
 
 /obj/item/gun/ballistic/automatic/ak47/update_icon_state()
 	if(magazine)

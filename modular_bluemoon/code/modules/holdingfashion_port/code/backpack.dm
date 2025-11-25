@@ -1,7 +1,7 @@
 /obj/item/BoH_inert
 	name = "inert bag of nothing"
 	desc = "What is currently a just an unwieldly block of metal with without slot ready to accept a bluespace anomaly core."
-	icon = 'modular_bluemoon/phenyamomota/code/modules/holdingfashion_port/icons/items.dmi'
+	icon = 'modular_bluemoon/code/modules/holdingfashion_port/icons/items.dmi'
 	icon_state = "bag-inert"
 
 /obj/item/BoH_inert/bag

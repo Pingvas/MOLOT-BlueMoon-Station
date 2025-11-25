@@ -6,7 +6,7 @@
 	possible_locs = list(BODY_ZONE_HEAD)
 	requires_bodypart_type = BODYPART_ROBOTIC	//If you are a Synth with a organic head (somehow), this won't work.
 	steps = list(/datum/surgery_step/mechanic_open, /datum/surgery_step/open_hatch, /datum/surgery_step/mechanic_unwrench, /datum/surgery_step/force_reboot, /datum/surgery_step/mechanic_wrench, /datum/surgery_step/mechanic_close)
-	icon = 'modular_bluemoon/phenyamomota/icon/obj/tools.dmi'
+	icon = 'modular_bluemoon/icons/obj/tools.dmi'
 	icon_state = "multitool_wiring"
 	radial_priority = SURGERY_RADIAL_PRIORITY_HEAL_EMERGENCY
 
