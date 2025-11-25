@@ -11,7 +11,7 @@
 	name = "improvised explosive"
 	desc = "An improvised explosive device."
 	w_class = WEIGHT_CLASS_SMALL
-	icon = 'modular_bluemoon/oni3288/icons/weapons/pipebomb/grenade.dmi'
+	icon = 'modular_bluemoon/icons/weapons/pipebomb/grenade.dmi'
 	base_icon_state = "pipebomb"
 	icon_state = "slicedapart"
 	item_state = "flashbang"
@@ -192,7 +192,7 @@
 	name = "halved pipe"
 	desc = "Two half-size pipes made from one."
 	w_class = WEIGHT_CLASS_SMALL
-	icon = 'modular_bluemoon/oni3288/icons/weapons/pipebomb/grenade.dmi'
+	icon = 'modular_bluemoon/icons/weapons/pipebomb/grenade.dmi'
 	icon_state = "slicedapart"
 	/// Are wires inserted? If so, we are on the final step
 	var/wires_are_in = FALSE
