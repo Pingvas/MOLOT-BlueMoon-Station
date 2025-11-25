@@ -15,8 +15,8 @@
 	. = ..()
 	var/list/all_parts = mod_parts.Copy() + src
 	for(var/obj/item/piece as anything in all_parts)
-		piece.icon = 'modular_bluemoon/fluffs/icons/obj/clothing/modsuit/mod_clothing.dmi'
-		piece.mob_overlay_icon = 'modular_bluemoon/fluffs/icons/mob/clothing/modsuit/mod_clothing.dmi'
+		piece.icon = 'modular_bluemoon/icons/obj/clothing/modsuit/mod_clothing.dmi'
+		piece.mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing/modsuit/mod_clothing.dmi'
 
 /datum/mod_theme/anomalous_archeotech
 	name = "anomalous archeotech"

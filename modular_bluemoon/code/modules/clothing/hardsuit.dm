@@ -3,9 +3,9 @@
 	name = "T-51 Power Armor Helmet"
 	desc = "Шлем силовой брони еще со старых времён, разработанный с довольно герметичной для нулевого давления, имеет встроенный фонарь \
 	и внутренний дисплей показателей состояние брони. Технология довольно устарела и модификации какие либо уже невозможны."
-	icon = 'modular_bluemoon/fluffs/icons/obj/clothing/head.dmi'
-	mob_overlay_icon = 'modular_bluemoon/fluffs/icons/mob/clothing/head.dmi'
-	anthro_mob_worn_overlay = 'modular_bluemoon/fluffs/icons/mob/clothing/head_muzzled.dmi'
+	icon = 'modular_bluemoon/icons/obj/clothing/head.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing/head.dmi'
+	anthro_mob_worn_overlay = 'modular_bluemoon/icons/mob/clothing/head_muzzled.dmi'
 	icon_state = "hardsuit0-sec_t51"
 	item_state = "hardsuit0-sec_t51"
 	hardsuit_type = "sec_t51"
@@ -20,10 +20,10 @@
 	не уступают с современными моделями. Броня герметична и защищает от низкого давления и сохраняет температуру в оптимальном при \
 	штатной работе в космосе, а ядерный блок что ранее питал экзоскелет брони, заменен на блюспейсовую батарею реакторного типа или же БСР. \
 	Технология довольно устарела и модификации какие либо уже невозможны. "
-	icon = 'modular_bluemoon/fluffs/icons/obj/clothing/suit.dmi'
-	mob_overlay_icon = 'modular_bluemoon/fluffs/icons/mob/clothing/suit.dmi'
-	anthro_mob_worn_overlay = 'modular_bluemoon/fluffs/icons/mob/clothing/suit_digi.dmi'
-	taur_mob_worn_overlay = 'modular_bluemoon/fluffs/icons/mob/large-worn-icons/32x64/suit_taur.dmi'
+	icon = 'modular_bluemoon/icons/obj/clothing/suit.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing/suit.dmi'
+	anthro_mob_worn_overlay = 'modular_bluemoon/icons/mob/clothing/suit_digi.dmi'
+	taur_mob_worn_overlay = 'modular_bluemoon/icons/mob/large-worn-icons/32x64/suit_taur.dmi'
 	icon_state = "hardsuit-sec_t51"
 	item_state = "hardsuit-sec_t51"
 	tail_state = "syndicate-winter"
@@ -66,8 +66,8 @@
 			frame that enhances the wearer's strength and endurance. Ideal for high-risk operations in space or industrial zones, \
 			the suit offers protection against extreme temperatures, radiation, and debris."
 	icon_state = "hardsuit0-praxil_seven"
-	icon = 'modular_bluemoon/fluffs/icons/obj/clothing/head.dmi'
-	mob_overlay_icon = 'modular_bluemoon/fluffs/icons/mob/clothing/head.dmi'
+	icon = 'modular_bluemoon/icons/obj/clothing/head.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing/head.dmi'
 	hardsuit_type = "praxil_seven"
 	mutantrace_variation = NONE
 
@@ -76,9 +76,9 @@
 	desc = "The ariral helmet is a sleek, high-tech design with an integrated visor that offers 360-degree vision and advanced HUD display. \
 			Equipped with a filtration system for breathable air in toxic atmospheres, it also has reinforced shielding against impacts and radiation. \
 			The helmet is compatible with a communication system for secure, real-time team coordination."
-	icon = 'modular_bluemoon/fluffs/icons/obj/clothing/suit.dmi'
-	mob_overlay_icon = 'modular_bluemoon/fluffs/icons/mob/clothing/suit.dmi'
-	tail_suit_worn_overlay = 'modular_bluemoon/fluffs/icons/mob/clothing/tails_digi.dmi'
+	icon = 'modular_bluemoon/icons/obj/clothing/suit.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing/suit.dmi'
+	tail_suit_worn_overlay = 'modular_bluemoon/icons/mob/clothing/tails_digi.dmi'
 	icon_state = "praxil_seven_engi"
 	tail_state = "praxil_seven_engi"
 	helmettype = /obj/item/clothing/head/helmet/space/hardsuit/engine/fluff_praxil_seven
@@ -99,8 +99,8 @@
 			Elegant blue lines trace the helmet’s sides—these are cooling channels and dispersal pathways for medical aerosols. \
 			A sealed module at the rear houses communication systems, transmitting real-time data to the central medical hub aboard a ship or station."
 	icon_state = "m_9922_medical"
-	icon = 'modular_bluemoon/fluffs/icons/obj/clothing/head.dmi'
-	mob_overlay_icon = 'modular_bluemoon/fluffs/icons/mob/clothing/head.dmi'
+	icon = 'modular_bluemoon/icons/obj/clothing/head.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing/head.dmi'
 	mutantrace_variation = NONE
 
 /obj/item/modkit/fluff_m_9922_helmet_kit
@@ -114,11 +114,11 @@
 	desc = "Crafted for the medics of the Ariral, this suit is a seamless fusion of protection, mobility, and advanced support systems. \
 			Its sleek silhouette follows the elegant contours of the wearer, accentuating the grace and biomechanics of the Ariral physique. \
 			The primary hue is a sterile white, accented with iridescent blue panels tracing the joints, ribs, and spine."
-	icon = 'modular_bluemoon/fluffs/icons/obj/clothing/suit.dmi'
-	mob_overlay_icon = 'modular_bluemoon/fluffs/icons/mob/clothing/suit.dmi'
-	lefthand_file = 'modular_bluemoon/fluffs/icons/mob/inhands/clothing_left.dmi'
-	righthand_file = 'modular_bluemoon/fluffs/icons/mob/inhands/clothing_right.dmi'
-	tail_suit_worn_overlay = 'modular_bluemoon/fluffs/icons/mob/clothing/tails_digi.dmi'
+	icon = 'modular_bluemoon/icons/obj/clothing/suit.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing/suit.dmi'
+	lefthand_file = 'modular_bluemoon/icons/mob/inhands/clothing_left.dmi'
+	righthand_file = 'modular_bluemoon/icons/mob/inhands/clothing_right.dmi'
+	tail_suit_worn_overlay = 'modular_bluemoon/icons/mob/clothing/tails_digi.dmi'
 	icon_state = "m_9922_medical"
 	item_state = "m_9922_medical"
 	tail_state = "m_9922_medical"

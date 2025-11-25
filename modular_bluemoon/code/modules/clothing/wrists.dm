@@ -1,6 +1,6 @@
 /obj/item/clothing/wrists/donator/bm
-	icon = 'modular_bluemoon/fluffs/icons/obj/clothing/hands.dmi'
-	mob_overlay_icon = 'modular_bluemoon/fluffs/icons/mob/clothing/hands.dmi'
+	icon = 'modular_bluemoon/icons/obj/clothing/hands.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing/hands.dmi'
 
 /obj/item/clothing/wrists/donator/bm/modern_watch
 	name = "modern watch"

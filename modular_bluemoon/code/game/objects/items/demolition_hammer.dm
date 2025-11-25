@@ -17,7 +17,7 @@
 	bare_wound_bonus = 14
 	max_integrity = 200
 	attack_verb = list("crushed", "big ironed", "smashed", "destroyed", "demolished", "nailed")
-	hitsound = 'modular_bluemoon/fluffs/sound/weapon/stab_hammer.ogg'
+	hitsound = 'modular_bluemoon/sound/weapon/stab_hammer.ogg'
 	usesound = 'sound/weapons/sonic_jackhammer.ogg'
 
 	// Track wielded status on item.

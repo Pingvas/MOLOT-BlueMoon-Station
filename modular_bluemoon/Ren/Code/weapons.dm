@@ -190,15 +190,15 @@
 	variance = 35
 	e_cost = 50
 	select_name = "Fire"
-	fire_sound = 'modular_bluemoon/fluffs/sound/weapon/flamethrower.ogg'
+	fire_sound = 'modular_bluemoon/sound/weapon/flamethrower.ogg'
 
 /obj/item/gun/energy/m2a100
 	name = "M2A100"
 	desc = "Удачная модернизация старых моделей огнемётов из солнечной системы. Совмещает в себе компактность, простоту использования и использование твёрдой плазмы в качестве топлива."
 	icon_state = "m240"
 	item_state = "m240_0"
-	lefthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_left.dmi'
-	righthand_file = 'modular_bluemoon/fluffs/icons/mob/guns_right.dmi'
+	lefthand_file = 'modular_bluemoon/icons/mob/guns_left.dmi'
+	righthand_file = 'modular_bluemoon/icons/mob/guns_right.dmi'
 	icon = 'modular_bluemoon/Ren/Icons/Obj/guns.dmi'
 	ammo_type = list(/obj/item/ammo_casing/energy/laser/m2a100)
 	attack_verb = list("attacked", "bumped", "hited")
