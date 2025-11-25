@@ -173,13 +173,13 @@
 /obj/item/storage/box/syndie_kit
 	name = "box"
 	desc = "A sleek, sturdy box."
-	icon = 'modular_bluemoon/krashly/icons/obj/box.dmi'
+	icon = 'modular_bluemoon/icons/obj/box.dmi'
 	icon_state = "syndiebox"
 
 /obj/item/storage/box/inteq_kit
 	name = "InteQ Box"
 	desc = "A sleek, sturdy box."
-	icon = 'modular_bluemoon/krashly/icons/obj/box.dmi'
+	icon = 'modular_bluemoon/icons/obj/box.dmi'
 	icon_state = "inteqbox"
 
 /obj/item/storage/box/syndie_kit/imp_freedom
@@ -478,7 +478,7 @@
 /obj/item/storage/box/syndicate/contractor_loadout
 	name = "standard loadout"
 	desc = "Supplied to InteQ contractors, providing their specialised space suit and chameleon uniform."
-	icon = 'modular_bluemoon/krashly/icons/obj/box.dmi'
+	icon = 'modular_bluemoon/icons/obj/box.dmi'
 	icon_state = "inteqbox"
 
 /obj/item/paper/contractor_guide

@@ -58,8 +58,8 @@
 /obj/item/clothing/suit/donator/bm/censor_fem_suit
 	name = "censor coat"
 	desc = "Бронированная шинель... Или то что от неё осталось? Наручи и поножи отсутствуют, хотя должны иметься в комплекте. На всю грудь раскинуто красное полотно с рисунком чёрной птицы на нём."
-	icon = 'modular_bluemoon/krashly/icons/obj/clothing/suits.dmi'
-	mob_overlay_icon = 'modular_bluemoon/krashly/icons/mob/clothing/suits.dmi'
+	icon = 'modular_bluemoon/icons/obj/clothing/suits.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing/suits.dmi'
 	icon_state = "censor_fem"
 	item_state = "censor_fem"
 

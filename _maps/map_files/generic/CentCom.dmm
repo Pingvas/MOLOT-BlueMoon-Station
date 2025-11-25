@@ -11949,7 +11949,7 @@
 /obj/effect/turf_decal/stripes/yellow/line,
 /obj/effect/turf_decal/tile/brown/fourcorners,
 /obj/structure/showcase/mecha/marauder{
-	icon = 'modular_bluemoon/krashly/icons/obj/mecha/hermes.dmi';
+	icon = 'modular_bluemoon/icons/obj/mecha/hermes.dmi';
 	icon_state = "hermes"
 	},
 /turf/open/floor/plasteel/dark,
@@ -31271,7 +31271,7 @@
 	dir = 1
 	},
 /obj/structure/showcase/mecha/marauder{
-	icon = 'modular_bluemoon/krashly/icons/obj/mecha/ares.dmi';
+	icon = 'modular_bluemoon/icons/obj/mecha/ares.dmi';
 	icon_state = "ares"
 	},
 /turf/open/floor/plasteel/dark,

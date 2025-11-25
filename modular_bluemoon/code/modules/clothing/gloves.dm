@@ -41,3 +41,20 @@
 	departmental_flags = DEPARTMENTAL_FLAG_MEDICAL
 
 //////////////////////////////////////////////////////////////////////
+// Начало перчатки крашли
+
+/obj/item/clothing/gloves/combat/maid/inteq
+	icon = 'modular_bluemoon/icons/obj/clothing/gloves.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing/gloves.dmi'
+	icon_state = "inteqmaid_arms"
+	item_state = "inteqmaid_arms"
+
+/obj/item/clothing/gloves/color/latex/nitrile/plaguedoc_new
+	name = "plague doctor gloves"
+	desc = "They look extremely unhygienic... They just look, right..?"
+	icon = 'modular_bluemoon/icons/obj/clothing/gloves.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing/gloves.dmi'
+	icon_state = "plaguedoc_gloves"
+	item_state = "plaguedoc_gloves"
+
+// Конец перчатки крашли

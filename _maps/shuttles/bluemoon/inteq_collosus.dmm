@@ -825,7 +825,7 @@
 	dir = 8
 	},
 /obj/item/icona_madonna{
-	icon = 'modular_bluemoon/krashly/icons/obj/structures.dmi';
+	icon = 'modular_bluemoon/icons/obj/structures.dmi';
 	pixel_x = 25;
 	layer = 5
 	},
