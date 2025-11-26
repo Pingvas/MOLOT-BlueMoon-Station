@@ -160,3 +160,25 @@
 		winners += haystack[i]
 
 	return winners
+
+/**
+ * Прок берёт указанный список для jointext запятых и союза "и" текста листа, с дифферентным окочанием в конце.
+ * Например, "1, 2, 3 и 4" или "1 и 2", или "1".
+ *
+ * Для "1 и 2" лучше юзать jointext(), если не ожидается пополнение листа в будущем (Новый код, динамический текст).
+ */
+/proc/jointext_ru_comma_plus_and(list/L)
+	var/count = L.len
+	if(!count)
+		return ""
+
+	if(count == 1)
+		return L[1]
+
+	if(count == 2)
+		return "[L[1]] и [L[2]]"
+
+	var/text = jointext(L.Copy(1, count), ", ")
+	text += " и [L[count]]"
+
+	return text

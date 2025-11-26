@@ -633,7 +633,7 @@ SUBSYSTEM_DEF(ticker)
 
 /datum/controller/subsystem/ticker/proc/send_news_report()
 	var/news_message
-	var/news_source = "Новости Пакта Синие Луны"
+	var/news_source = "Новости ПАКТа Синие Луны"
 	switch(news_report)
 		if(NUKE_SYNDICATE_BASE)
 			news_message = "Во время недавней попытки Рейдерского Захвата [station_name()] со стороны ИнтеКью, станции удалось уничтожить отряд тяжело вооружённых Террористов."
