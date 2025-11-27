@@ -8,6 +8,13 @@
 	icon_state = "raiqbawks"
 	verb_say = "states"
 	density = FALSE
+	unique_reskin = list(
+		"Black" = list(
+			"icon_state" = "raiqbawks_black",
+			"item_state" = "raiqbawks_black",
+			"name" = "Black Handled Jukebox"
+		)
+	)
 	var/active = FALSE
 	var/list/rangers = list()
 	var/stop = 0
