@@ -589,7 +589,8 @@ Class Procs:
 
 /obj/proc/can_be_unfasten_wrench(mob/user, silent) //if we can unwrench this object; returns SUCCESSFUL_UNFASTEN and FAILED_UNFASTEN, which are both TRUE, or CANT_UNFASTEN, which isn't.
 	if(!(isfloorturf(loc) || istype(loc, /turf/open/indestructible)) && !anchored)
-		to_chat(user, "<span class='warning'>[src] должен находится на полу, чтобы закрутить!</span>")
+		if(!silent)
+			to_chat(user, "<span class='warning'>[src] должен находится на полу, чтобы закрутить!</span>")
 		return FAILED_UNFASTEN
 	return SUCCESSFUL_UNFASTEN
 
@@ -635,8 +636,7 @@ Class Procs:
 	if(!machine_board)
 		return FALSE
 	var/P
-	if(W.works_from_distance)
-		to_chat(user, display_parts(user))
+	var/list/message_list = list()
 	for(var/obj/item/A in component_parts)
 		for(var/D in machine_board.req_components)
 			if(istype(A, D))
@@ -659,9 +659,14 @@ Class Procs:
 							B.moveToNullspace()
 					SEND_SIGNAL(W, COMSIG_TRY_STORAGE_INSERT, A, null, null, TRUE)
 					component_parts -= A
-					to_chat(user, "<span class='notice'>[capitalize(A.name)] replaced with [B.name].</span>")
+					message_list += span_notice("[icon2html(A, user)] [capitalize(A.name)] replaced with [icon2html(B, user)] [B.name].")
 					shouldplaysound = 1 //Only play the sound when parts are actually replaced!
 					break
+	if(message_list.len)
+		var/message = jointext(message_list, "\n")
+		to_chat(user,message)
+	if(W.works_from_distance)
+		to_chat(user, display_parts(user))
 	RefreshParts()
 	if(shouldplaysound)
 		W.play_rped_sound()
