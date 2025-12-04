@@ -93,7 +93,7 @@
 		// BLUEMOON ADD START - самооперирование - чертовски сложное дело
 		if(HAS_TRAIT(target, TRAIT_BLUEMOON_COMPLEX_MAINTENANCE)) // только роботехники, РД и борги могут ремонтировать таких роботов
 			if(HAS_TRAIT(target, TRAIT_ROBOTIC_ORGANISM))
-				if(!HAS_TRAIT(user.mind, QUALIFIED_ROBOTIC_MAINTER) && !user.mind.antag_datums) // гост роли и обученный персонал могут оперировать таких синтов
+				if(!HAS_TRAIT(user.mind, QUALIFIED_ROBOTIC_MAINTER) && !user.mind.antag_datums && istype(user, /mob/living/carbon/integral)) // гост роли и обученный персонал могут оперировать таких синтов. А еще интегралка тоже может)
 					to_chat(user, span_warning("Этот протез выглядит слишком сложно... Здесь необходим специалист!"))
 					prob_chance = 0
 		if(target == user)
@@ -165,8 +165,7 @@
 	playsound(get_turf(target), success_sound, 75, TRUE, falloff_exponent = 12, falloff_distance = 1)
 
 /datum/surgery_step/proc/failure(mob/user, mob/living/target, target_zone, obj/item/tool, datum/surgery/surgery)
-	// CSS .warning{color:#c51e1e;font-style:italic}
-	target.balloon_alert(user, "<span style='color:#c51e1e'>[pick("Ошибка!", "Провал!", "Неудача!")]</span>")
+	target.balloon_alert(user, span_balloon_warning("[pick("Ошибка!", "Провал!", "Неудача!")]"))
 	return FALSE
 
 /datum/surgery_step/proc/play_failure_sound(mob/user, mob/living/carbon/target, target_zone, obj/item/tool, datum/surgery/surgery)

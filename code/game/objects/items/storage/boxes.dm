@@ -1717,10 +1717,10 @@
 
 /obj/item/storage/box/coffeepack
 	name = "Arabica Beans"
-	desc = "A bag containing fresh, dry coffee arabica beans. Ethically sourced and packaged by Waffle Corp."
+	desc = "Пачка свежих, сухих зёрен кофе-арабики. Собранных и упакованных фирмой Waffle Corp с учётом этических норм."
 	icon_state = "arabica_beans"
 	illustration = null
-	icon = 'icons/obj/food/containers.dmi'
+	icon = 'modular_bluemoon/icons/obj/food/containers.dmi'
 	var/beantype = /obj/item/reagent_containers/food/snacks/grown/coffee
 
 /obj/item/storage/box/coffeepack/ComponentInitialize()
@@ -1736,7 +1736,8 @@
 
 /obj/item/storage/box/coffeepack/robusta
 	name = "Robusta Beans"
-	desc = "A bag containing fresh, dry coffee robusta beans. Ethically sourced and packaged by Waffle Corp."
+	desc = "Пачка свежих, сухих зёрен кофе-робасты. Собранных и упакованных фирмой Waffle Corp с учётом этических норм."
+	icon = 'modular_bluemoon/icons/obj/food/containers.dmi'
 	icon_state = "robusta_beans"
 	beantype = /obj/item/reagent_containers/food/snacks/grown/coffee/robusta
 

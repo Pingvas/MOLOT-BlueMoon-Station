@@ -5,6 +5,8 @@
 	name = "civilian bounty pad"
 	desc = "A machine designed to send civilian bounty targets to centcom."
 	layer = TABLE_LAYER
+	warmup_time = 3 SECONDS
+	circuit = /obj/item/circuitboard/machine/bountypad
 
 ///Computer for assigning new civilian bounties, and sending bounties for collection.
 /obj/machinery/computer/piratepad_control/civilian
@@ -13,7 +15,7 @@
 	status_report = "Ready for delivery."
 	icon_screen = "civ_bounty"
 	icon_keyboard = "id_key"
-	warmup_time = 3 SECONDS
+	circuit = /obj/item/circuitboard/computer/bountypad
 	var/obj/item/card/id/inserted_scan_id
 
 /obj/machinery/computer/piratepad_control/civilian/Initialize()

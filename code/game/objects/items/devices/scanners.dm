@@ -423,6 +423,8 @@ GENETICS SCANNER
 			msg += "<span class='alert'><b>У субъекта отсутствуют глаза.</b></span>\n"
 		if(!M.getorganslot(ORGAN_SLOT_EARS))
 			msg += "<span class='alert'><b>У субъекта отсутсвуют уши.</b></span>\n"
+		if(!M.getorganslot(ORGAN_SLOT_TONGUE))
+			msg += "<span class='alert'><b>У субъекта отсутсвует язык.</b></span>\n"
 		if(!M.getorganslot(ORGAN_SLOT_BRAIN))
 			msg += "<span class='alert'><b>У субъекта отсутствуют функции мозга!</b></span>\n"
 		if(has_liver && !M.getorganslot(ORGAN_SLOT_LIVER))
@@ -436,7 +438,10 @@ GENETICS SCANNER
 
 
 		if(M.radiation)
-			msg += "<span class='alert'>Субъект заражен радиацией.</span>\n"
+			if(M.radiation > RAD_MOB_SAFE)
+				msg += "<span class='alert'>Субъект заражен опасной дозой радиацией!</span>\n"
+			else
+				msg += "<span class='red'>Субъект подвергся безопасному уровню радиационного воздействия.</span>\n"
 			msg += "<span class='info'>Показатели радиационного заражения: [M.radiation] rad</span>\n"
 
 

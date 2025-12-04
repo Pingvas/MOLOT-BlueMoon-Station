@@ -672,7 +672,7 @@
 	name = "Alta's dogtag"
 	slot = ITEM_SLOT_NECK
 	path = /obj/item/clothing/neck/tie/dogtag
-	ckeywhitelist = list("oni3288", "ghos7ik", "discord980", "mihana964", "romontesque", "enigma418", "smol42", "notlikeluls",  "kladmenuwu", "alexsandoor", "scramblescream", "nai1ten", "devildeadspace", "zetneskov", "hazzi", "definitelynotnesuby", "silverfoxpaws", "pr1zrak", "earthphobia", "wafflemeow", "trora", "kosep", "urfdrf", "mikolaostavkin", "xaeshkavd", "deltarayx", "korinfellori", "troubleneko17th", "dimofon", "lichfail", "gisya", "dimakr", "cupteazee", "nopeingeneer", "silyamg", "lomodno", "valsons", "nyctealust", "abrikos", "spoopyman228", "stasdvrz", "shizalrp", "tblkba", "dragon9090")
+	ckeywhitelist = list("oni3288", "ghos7ik", "discord980", "mihana964", "romontesque", "enigma418", "smol42", "notlikeluls",  "kladmenuwu", "alexsandoor", "scramblescream", "nai1ten", "devildeadspace", "zetneskov", "hazzi", "definitelynotnesuby", "silverfoxpaws", "pr1zrak", "earthphobia", "wafflemeow", "trora", "kosep", "urfdrf", "mikolaostavkin", "xaeshkavd", "deltarayx", "korinfellori", "troubleneko17th", "dimofon", "lichfail", "gisya", "dimakr", "cupteazee", "nopeingeneer", "silyamg", "lomodno", "valsons", "nyctealust", "abrikos", "spoopyman228", "stasdvrz", "shizalrp", "tblkba", "dragon9090", "avtobuspng", "ninjapikachushka")
 
 /datum/gear/donator/bm/hateredsoul_dogtag
 	name = "Combat Dogtag"
@@ -1517,7 +1517,7 @@
 	name = "Dar Jr beacon"
 	slot = ITEM_SLOT_BACKPACK
 	path = /obj/item/choice_beacon/pet/dar
-	ckeywhitelist = list("avtobuspng", "dimofon")
+	ckeywhitelist = list("avtobuspng", "dimofon", "definitelynotnesuby")
 
 /datum/gear/donator/bm/pawpack
 	name = "Paw Backpack"
@@ -1740,9 +1740,9 @@
 	ckeywhitelist = list("kladmenuwu")
 
 /datum/gear/donator/bm/modsuit_syndicate
-	name = "Syndicate Modsuit"
+	name = "Syndicate Modsuit Plate"
 	slot = ITEM_SLOT_BACKPACK
-	path = /obj/item/mod/control/pre_equipped/security/syndicate
+	path = /obj/item/mod/construction/armor/security/syndicate
 	ckeywhitelist = list("domilion")
 	restricted_desc = "Security, Head of Security, Warden, Detective, Security Officer, Brig Physician, Peacekeeper, Blueshield."
 	restricted_roles = list("Captain", "Head of Security", "Warden", "Detective", "Security Officer", "Brig Physician", "Peacekeeper", "Blueshield")
@@ -1907,3 +1907,37 @@
 	slot = ITEM_SLOT_ICLOTHING
 	path = /obj/item/clothing/under/donator/bm/mk6_suit
 	ckeywhitelist = list("dragon9090")
+
+/datum/gear/donator/bm/apronchef_red
+	name = "Gubby Family Apron"
+	slot = ITEM_SLOT_OCLOTHING
+	path = /obj/item/clothing/suit/donator/bm/apronchef_red
+	ckeywhitelist = list("artgel11")
+
+///////////////////////////////////////////////
+
+/datum/gear/donator/bm/shark_pajamas
+	name = "Shark Pajamas"
+	slot = ITEM_SLOT_ICLOTHING
+	path = /obj/item/clothing/suit/toggle/shark
+	ckeywhitelist = list("shizalrp", "deltarayx")
+
+///////////////////////////////////////////////
+
+/datum/gear/donator/bm/lsweater
+	name = "Sweater"
+	slot = ITEM_SLOT_OCLOTHING
+	path = /obj/item/clothing/suit/toggle/lsweater
+	ckeywhitelist = list("lindaastereih")
+
+/datum/gear/donator/bm/longtie
+	name = "Long Tie"
+	slot = ITEM_SLOT_NECK
+	path = /obj/item/clothing/neck/petcollar/longtie
+	ckeywhitelist = list("lindaastereih")
+
+/datum/gear/donator/bm/lskirt
+	name = "Short Skirt"
+	slot = ITEM_SLOT_ICLOTHING
+	path = /obj/item/clothing/under/dress/skirt/lskirt
+	ckeywhitelist = list("lindaastereih")
