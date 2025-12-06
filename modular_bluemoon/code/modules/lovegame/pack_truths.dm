@@ -1,10 +1,4 @@
-// Truth Cards - Deep and personal questions
-
-/datum/love_card/truths
-	name = "Truth Card"
-	desc = "A card with a truth question"
-	icon = 'icons/obj/lovecard/pack_1.dmi'
-	icon_state = "vopros"
+/// Truth Cards - Deep and personal questions
 
 /datum/love_card/truths/truth_1
 	name = "First crush"

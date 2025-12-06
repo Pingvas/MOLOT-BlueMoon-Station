@@ -1,11 +1,5 @@
 // Action Cards - Commands and activities to perform
 
-/datum/love_card/actions
-	name = "Action Card"
-	desc = "A card with an action to perform"
-	icon = 'icons/obj/lovecard/pack_1.dmi'
-	icon_state = "deystvie"
-
 /datum/love_card/actions/action_1
 	name = "Give a massage"
 	desc = "Give the person on your left a shoulder massage for 30 seconds."

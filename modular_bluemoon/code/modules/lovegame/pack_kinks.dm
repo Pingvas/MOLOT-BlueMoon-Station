@@ -1,11 +1,5 @@
 // Kink Cards - Romantic and flirty questions
 
-/datum/love_card/kinks
-	name = "Kink Card"
-	desc = "A card with an interesting question"
-	icon = 'icons/obj/lovecard/pack_1.dmi'
-	icon_state = "kink"
-
 /datum/love_card/kinks/kink_1
 	name = "Ideal date"
 	desc = "Describe your ideal romantic evening."
