@@ -241,18 +241,18 @@ MOVED TO: modular_splurt/code/module/clothing/clothing.dm
 /obj/item/clothing/examine(mob/user)
 	. = ..()
 	if(damaged_clothes == CLOTHING_SHREDDED)
-		. += "<span class='warning'><b>It is completely shredded and requires mending!</b></span>"
+		. += "<span class='warning'><b>Эта вещь больше походит на лохмотья и требует ремонта!</b></span>"
 		return
 	for(var/zone in damage_by_parts)
 		var/pct_damage_part = damage_by_parts[zone] / limb_integrity * 100
-		var/zone_name = parse_zone(zone)
+		var/zone_name = ru_gde_zone(zone)
 		switch(pct_damage_part)
 			if(100 to INFINITY)
-				. += "<span class='warning'><b>The [zone_name] is useless and requires mending!</b></span>"
+				. += "<span class='warning'><b>Материал на [zone_name] разорван на части и требует ремонта!</b></span>"
 			if(60 to 99)
-				. += "<span class='warning'>The [zone_name] is heavily shredded!</span>"
+				. += "<span class='warning'>Материал на [zone_name] сильно порван!</span>"
 			if(30 to 59)
-				. += "<span class='danger'>The [zone_name] is partially shredded.</span>"
+				. += "<span class='danger'>Материал на [zone_name] надорван и имеет дыры.</span>"
 	var/datum/component/storage/pockets = GetComponent(/datum/component/storage)
 	if(pockets)
 		var/list/how_cool_are_your_threads = list("<span class='notice'>")
@@ -296,20 +296,20 @@ MOVED TO: modular_splurt/code/module/clothing/clothing.dm
 		durability_list += list("ACID" = armor.acid)
 
 	if(LAZYLEN(armor_list) || LAZYLEN(durability_list))
-		. += "<span class='notice'>It has a <a href='?src=[REF(src)];list_armor=1'>tag</a> listing its protection classes.</span>"
+		. += "<span class='notice'>Содержит <a href='?src=[REF(src)];list_armor=1'>бирку</a> с перечислением классов защиты.</span>"
 
 /obj/item/clothing/Topic(href, href_list)
 	. = ..()
 
 	if(href_list["list_armor"])
-		var/list/readout = list("<span class='notice'><u><b>PROTECTION CLASSES (I-X)</u></b>")
+		var/list/readout = list("<span class='notice'><u><b>КЛАССЫ ЗАЩИТЫ (I-X)</u></b>")
 		if(LAZYLEN(armor_list))
-			readout += "\n<b>ARMOR</b>"
+			readout += "\n<b>БРОНЯ</b>"
 			for(var/dam_type in armor_list)
 				var/armor_amount = armor_list[dam_type]
 				readout += "\n[dam_type] [armor_to_protection_class(armor_amount)]" //e.g. BOMB IV
 		if(LAZYLEN(durability_list))
-			readout += "\n<b>DURABILITY</b>"
+			readout += "\n<b>УСТОЙЧИВОСТЬ</b>"
 			for(var/dam_type in durability_list)
 				var/durability_amount = durability_list[dam_type]
 				readout += "\n[dam_type] [armor_to_protection_class(durability_amount)]" //e.g. FIRE II

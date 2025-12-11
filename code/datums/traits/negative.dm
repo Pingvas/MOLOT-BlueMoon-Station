@@ -322,6 +322,7 @@ GLOBAL_LIST_EMPTY(family_heirlooms)
 				if(I.fingerprintslast == quirk_holder.ckey)
 					quirk_holder.put_in_hands(I)
 
+/* Квирк нефунцкиональный и не задействован в механе
 /datum/quirk/poor_aim
 	name = "Ужасный стрелок"
 	desc = "Ваши навыки обращения с оружием не позволяют точно прицелиться даже для того, чтобы спасти свою жизнь. Стрельба с двух рук даже не обсуждается."
@@ -329,6 +330,7 @@ GLOBAL_LIST_EMPTY(family_heirlooms)
 	mob_trait = TRAIT_POOR_AIM
 	flavor_quirk = TRUE
 	medical_record_text = "Обе руки пациента подвержены тремору."
+*/
 
 /datum/quirk/prosopagnosia
 	name = "Прозопагнозия"

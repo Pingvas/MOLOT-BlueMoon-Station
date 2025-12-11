@@ -533,3 +533,18 @@
 		"Red" = list("icon_state" = "mk6_red"),
 		"Gray" = list("icon_state" = "mk6_gray")
 	)
+
+///////////////////////////////////////////////
+
+/obj/item/clothing/under/dress/skirt/lskirt
+	name = "Short skirt"
+	desc = "A short pleated skirt."
+	icon = 'modular_bluemoon/fluffs/icons/obj/clothing/under.dmi'
+	mob_overlay_icon = 'modular_bluemoon/fluffs/icons/mob/clothing/under.dmi'
+	icon_state = "lskirt"
+	item_state = "lskirt"
+	body_parts_covered = GROIN
+	mutantrace_variation = STYLE_DIGITIGRADE|STYLE_NO_ANTHRO_ICON
+	fitted = NO_FEMALE_UNIFORM
+	can_adjust = FALSE
+	alternate_worn_layer = BELT_LAYER

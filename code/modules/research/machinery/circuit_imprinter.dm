@@ -49,9 +49,9 @@
 		t = check_mat(D, M)
 		temp_material += " | "
 		if (t < 1)
-			temp_material += "<span class='bad'>[all_materials[M] * coeff] [CallMaterialName(M)]</span>"
+			temp_material += "<span class='bad'>[all_materials[M] * coeff] [CallMaterialName_RuGenitive(M)]</span>"
 		else
-			temp_material += " [all_materials[M] * coeff] [CallMaterialName(M)]"
+			temp_material += " [all_materials[M] * coeff] [CallMaterialName_RuGenitive(M)]"
 		c = min(c,t)
 
 	var/clearance = !(obj_flags & EMAGGED) && (offstation_security_levels || is_station_level(z))
