@@ -34,7 +34,8 @@
 	var/obj/item/toy/cards/singlecard/love_card/H = new/obj/item/toy/cards/singlecard/love_card(user.loc)
 	if(holo)
 		holo.spawned += H
-	var/choice = popleft(cards)
+	var/choice = pick(cards)
+	cards -= choice
 	H.cardname = choice
 	H.parentdeck = src
 	H.card_desk = src
