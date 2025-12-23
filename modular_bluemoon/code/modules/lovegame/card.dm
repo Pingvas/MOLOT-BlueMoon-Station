@@ -81,13 +81,13 @@
 	name = "Deck of Truths"
 	desc = "Колода вопросов."
 	icon = 'icons/obj/lovecard/pack_1.dmi'
-	icon_state = "deck_lovecard_full"
-	deckstyle = "lovecard"
+	icon_state = "deck_lovecardvopros_full"
+	deckstyle = "lovecardvopros"
 	card_type = /datum/love_card/truths
 	card_group = "vopros"
 
 /obj/item/toy/cards/deck/love_cards/kinks
-	name = "Deck of Flirty Prompts"
+	name = "Deck of Kinks"
 	desc = "Колода с сексуальными действиями и вопросами."
 	icon = 'icons/obj/lovecard/pack_1.dmi'
 	icon_state = "deck_lovecard_full"
@@ -99,7 +99,7 @@
 	name = "Deck of Actions"
 	desc = "Колода с игровыми действиями."
 	icon = 'icons/obj/lovecard/pack_1.dmi'
-	icon_state = "deck_lovecard_full"
-	deckstyle = "lovecard"
+	icon_state = "deck_lovecarddeystvie_full"
+	deckstyle = "lovecarddeystvie"
 	card_type = /datum/love_card/actions
 	card_group = "deystvie"
