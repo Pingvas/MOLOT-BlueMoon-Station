@@ -4,6 +4,7 @@
 
 /obj/item/toy/cards/deck/love_cards
 	var/card_type = null
+	var/card_group = null
 	var/list/card_map = list()
 
 /obj/item/toy/cards/deck/love_cards/Initialize(mapload)
@@ -19,7 +20,7 @@
 	for(var/typ in typecacheof(card_type, TRUE))
 		var/datum/love_card/D = new typ()
 		cards += D.name
-		card_map[D.name] = list(type = typ, desc = D.desc, pack = D.pack)
+		card_map[D.name] = list(type = typ, desc = D.desc, pack = D.pack, face_state = D.icon_state)
 		qdel(D)
 
 // Override attack-hand so we avoid declaring draw_card duplicate with parent
@@ -56,8 +57,36 @@
 
 /obj/item/toy/cards/singlecard/love_card
 	// only add the deck link; inherit everything else from parent singlecard
-	var/card_desk = null
+	var/obj/item/toy/cards/deck/love_cards/card_desk = null
+	icon = 'icons/obj/lovecard/pack_1.dmi'
+	icon_state = "singlecard_down_lovecard"
 
+
+/obj/item/toy/cards/singlecard/love_card/Flip()
+	if(!ishuman(usr) || !usr.canUseTopic(src, BE_CLOSE))
+		return
+	if(!flipped)
+		src.flipped = 1
+		// Only three face sprites are allowed: vopros, kink, deystvie.
+		if(card_desk && card_desk.card_group)
+			if(card_desk.icon)
+				src.icon = card_desk.icon
+			// e.g. sc_vopros_lovecard, sc_kink_lovecard, sc_deystvie_lovecard
+			src.icon_state = "sc_[card_desk.card_group]_[deckstyle]"
+		else
+			// default to vopros if no group set
+			src.icon_state = "sc_vopros_[deckstyle]"
+		// keep the readable card name but do not use it for sprite selection
+		src.name = cardname ? src.cardname : "card"
+		src.pixel_x = 5
+	else
+		src.flipped = 0
+		// restore deck DMI and down state
+		if(card_desk)
+			src.icon = card_desk.icon
+		src.icon_state = "singlecard_down_[deckstyle]"
+		src.name = "card"
+		src.pixel_x = -5
 
 // Child decks that simply set `card_type`
 
@@ -68,6 +97,7 @@
 	icon_state = "deck_lovecard_full"
 	deckstyle = "lovecard"
 	card_type = /datum/love_card/truths
+	card_group = "vopros"
 
 
 
@@ -78,6 +108,7 @@
 	icon_state = "deck_lovecard_full"
 	deckstyle = "lovecard"
 	card_type = /datum/love_card/kinks
+	card_group = "kink"
 
 
 
@@ -88,5 +119,6 @@
 	icon_state = "deck_lovecard_full"
 	deckstyle = "lovecard"
 	card_type = /datum/love_card/actions
+	card_group = "deystvie"
 
 
