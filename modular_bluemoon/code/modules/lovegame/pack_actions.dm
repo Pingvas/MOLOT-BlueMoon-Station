@@ -26,7 +26,7 @@
 
 /datum/love_card/actions/action_7
 	name = "Tell a poem"
-	desc = "Сочини стих состоящий из одной строчки о любом присутствующем."
+	desc = "Сочини стих состоящий из четырёх строчек о любом присутствующем."
 
 /datum/love_card/actions/action_8
 	name = "Act out a scene"
@@ -38,7 +38,7 @@
 
 /datum/love_card/actions/action_10
 	name = "Do impressions"
-	desc = ""
+	desc = "Произведи впечатление на любого из игроков."
 
 /datum/love_card/actions/action_11
 	name = "Give a hug"
@@ -62,7 +62,7 @@
 
 /datum/love_card/actions/action_16
 	name = "Swap pants"
-	desc = "Обменяйся штанами с участником слева."
+	desc = "Обменяйся штанами с любым из участников."
 
 /datum/love_card/actions/action_17
 	name = "Stand-up comedy"
@@ -73,8 +73,8 @@
 	desc = "Обними, сидящего рядом с тобой человека, и просиди так минимум три раунда."
 
 /datum/love_card/actions/action_19
-	name = "Copy PDA message"
-	desc = "Скопируй последнее сообщение, отправленное в ПДА, который выберет участник слева и отправь второму человеку, которую назовет участник напротив."
+	name = "PDA message"
+	desc = "Выбери любого из из игроков. Он должен продиктовать тебе сообщение, которое ты дожен будешь отправить кому-то на его выбор."
 
 /datum/love_card/actions/action_20
 	name = "Gesture communication"
@@ -82,7 +82,7 @@
 
 /datum/love_card/actions/action_21
 	name = "Eat fruit with no hands"
-	desc = "Съешь фрукт без использования рук."
+	desc = "Съешь что-то без использования рук."
 
 /datum/love_card/actions/action_22
 	name = "Write a letter"

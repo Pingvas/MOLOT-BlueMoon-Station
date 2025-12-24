@@ -30,7 +30,7 @@
 
 /datum/love_card/kinks/kink_8
 	name = "Type preference"
-	desc = "Опиши свой тип - что ты выбираешь партнеров?"
+	desc = "Опиши своего идеального партнёра."
 
 /datum/love_card/kinks/kink_9
 	name = "Flirt style"
@@ -42,7 +42,7 @@
 
 /datum/love_card/kinks/kink_11
 	name = "Seduction method"
-	desc = "Как бы ты пытался соблазнить кого-то, кого действительно хотел(а)?"
+	desc = "Как бы ты пытался соблазнить кого-то, кого действительно хотел/а?"
 
 /datum/love_card/kinks/kink_12
 	name = "Fantasy scenario"
@@ -58,7 +58,7 @@
 
 /datum/love_card/kinks/kink_15
 	name = "Descriptive body"
-	desc = "Опиши обнаженное тело своего партнера или симпатичного тебе человека, используя необычные эпитеты"
+	desc = "Опиши обнаженное тело своего партнера или симпатичного тебе человека, используя необычные эпитеты."
 
 /datum/love_card/kinks/kink_16
 	name = "Hot outfit"
@@ -78,7 +78,7 @@
 
 /datum/love_card/kinks/kink_20
 	name = "Adult movie link"
-	desc = "Скинь ссылку на последний фильм для взрослых, который ты просматривал (а) — только не ври."
+	desc = "Скинь ссылку на последний фильм для взрослых, который ты просматривал/а. Если нет возможности, опиши его."
 
 /datum/love_card/kinks/kink_21
 	name = "Strip tease"
@@ -142,7 +142,7 @@
 
 /datum/love_card/kinks/kink_36
 	name = "back help~"
-	desc = "Встань на четвереньки , красиво прогни спину и позволь участникам делать с твоим телом что угодно"
+	desc = "Встань на четвереньки , красиво прогни спину и позволь участникам делать с твоим телом что угодно."
 
 /datum/love_card/kinks/kink_37
 	name = "Dirty talk"
@@ -162,7 +162,7 @@
 
 /datum/love_card/kinks/kink_41
 	name = "Fantasy"
-	desc = "Исполни откровенную фантазию своего партнёра без нытья."
+	desc = "Исполни откровенную фантазию своего партнёра или любого из игроков."
 
 /datum/love_card/kinks/kink_42
 	name = "Favorite position"
@@ -235,3 +235,23 @@
 /datum/love_card/kinks/kink_59
 	name = "Number of partners"
 	desc = "Сколько партнеров было в твоей жизни?"
+
+/datum/love_card/kinks/kink_60
+	name = "First time"
+	desc = "Расскажи о своем первом сексуальном опыте."
+
+/datum/love_card/kinks/kink_61
+	name = "Secret guest"
+	desc = "Разденьтесь, пригласите в комнату случайного человека. Вытянувший карту должен встать на коленки перед входом, а любой из участников должен его рекламировать как товар."
+
+/datum/love_card/kinks/kink_62
+	name = "Fantasy roleplay"
+	desc = "Выбери любую ролевую игру и сыграй её с любым из участников."
+
+/datum/love_card/kinks/kink_63
+	name = "Panty"
+	desc = "Сними свои трусики и отдай их любому из участников игры."
+
+/datum/love_card/kinks/kink_64
+	name = "Twerk"
+	desc = "Встань на стол и станцуй твёрк перед всеми участниками игры."

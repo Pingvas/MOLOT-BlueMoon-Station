@@ -102,7 +102,7 @@
 
 /datum/love_card/truths/truth_26
 	name = "Sleeping hours"
-	desc = "Какое рекордное количество часов ты проспал(а) за день?"
+	desc = "Какое рекордное количество часов ты проспал/а за день?"
 
 /datum/love_card/truths/truth_27
 	name = "Next life"
@@ -110,7 +110,7 @@
 
 /datum/love_card/truths/truth_28
 	name = "Second profession"
-	desc = "Какую вторую профессию ты бы хотел(а) получить помимо основной?"
+	desc = "Какую вторую профессию ты бы хотел/а получить помимо основной?"
 
 /datum/love_card/truths/truth_29
 	name = "Favorite names"
@@ -118,7 +118,7 @@
 
 /datum/love_card/truths/truth_30
 	name = "Most expensive purchase"
-	desc = "Какая твоя самая дорогая покупка, которую ты совершил(а) на собственные деньги."
+	desc = "Какая твоя самая дорогая покупка, которую ты совершил/а на собственные деньги."
 
 /datum/love_card/truths/truth_31
 	name = "Evening outfit"
