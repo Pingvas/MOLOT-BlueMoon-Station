@@ -85,8 +85,10 @@
 
 /obj/item/toy/cards/cardhand/attackby(obj/item/toy/cards/singlecard/love_card/C, mob/living/user, params)
     // Prevent adding love cards into any cardhand
-    to_chat(user, "<span class='warning'>Love cards can't be added to a hand.</span>")
-    return
+    if(istype(C))
+        to_chat(user, "<span class='warning'>Love cards can't be added to a hand.</span>")
+        return
+    return ..()
 
 
 /obj/item/toy/cards/deck/love_cards/truths
