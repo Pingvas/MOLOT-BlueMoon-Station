@@ -175,9 +175,19 @@
     . = ..()
 
 /datum/interaction/lewd/titgrope_self/post_interaction(mob/living/user, mob/living/target, apply_cooldown = TRUE)
-    if(user.ckey == "dimakr")
+    if(user.ckey == "dimakr" || user.ckey == "pingvas")
         if(apply_cooldown)
             COOLDOWN_START(user, last_interaction_time, 3 SECONDS)
         playsound(get_turf(user), 'modular_bluemoon/sound/plush/milp6.ogg', 50, FALSE, -1)
         return
     . = ..()
+
+/datum/interaction/handwave/post_interaction(mob/living/user, mob/living/target, apply_cooldown = TRUE)
+	var/obj/item/clothing/mask/screammask/mask = locate() in user.get_equipped_items()
+	if(mask)
+		if(apply_cooldown)
+			COOLDOWN_START(user, last_interaction_time, 3 SECONDS)
+		var/soundfile_to_play = pick('modular_bluemoon/sound/interactions/chuv2.ogg', 'modular_bluemoon/sound/interactions/chuv3.ogg')
+		playsound(get_turf(user), soundfile_to_play, 80, FALSE, -1)
+		return
+	. = ..()
