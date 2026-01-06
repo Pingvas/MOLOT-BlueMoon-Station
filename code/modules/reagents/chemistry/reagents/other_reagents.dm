@@ -2671,7 +2671,7 @@
 	layer = ABOVE_NORMAL_TURF_LAYER
 	icon = 'icons/obj/genitals/effects.dmi'
 	icon_state = "semen1"
-	random_icon_states = list("semen1", "semen2", "semen3", "semen4", "semen5", "semen6", "semen7", "semen8", "semen9", "semen10")
+	random_icon_states = list("semen1", "semen2", "semen3", "semen4", "semen5", "semen6", "semen7", "semen8", "semen9", "semen10", "semen11", "semen12", "semen13", "semen14")
 	var/datum/reagent/my_liquid_type = /datum/reagent/consumable/semen
 
 /obj/effect/decal/cleanable/semen/Initialize(mapload)
@@ -2711,7 +2711,7 @@
 /obj/effect/decal/cleanable/semen/femcum
 	name = "female ejaculate"
 	icon_state = "fem1"
-	random_icon_states = list("fem1", "fem2", "fem3", "fem4", "fem5", "fem6")
+	random_icon_states = list("fem1", "fem2", "fem3", "fem4", "fem5", "fem6", "fem7", "fem8", "fem9", "fem10")
 	blood_state = null
 	bloodiness = null
 	my_liquid_type = /datum/reagent/consumable/semen/femcum

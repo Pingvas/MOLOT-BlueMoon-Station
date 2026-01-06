@@ -1116,6 +1116,13 @@
 	required_temp = 296 //Just above room temp (22.85'C)
 	mix_message = "The drink bubbles over the rim as it settles, and the smell of wet fur and felines makes it feel like you're in heat."
 
+/datum/chemical_reaction/millie_kiss
+	name = "Millie Kiss"
+	id = /datum/reagent/consumable/ethanol/species_drink/millie_kiss
+	results = list(/datum/reagent/consumable/ethanol/species_drink/millie_kiss = 2)
+	required_reagents = list(/datum/reagent/consumable/ethanol/irishcoffee = 1,  /datum/reagent/consumable/milk/pinkmilk = 1)
+	mix_message = "The drink bubbles, forming pink hearts on the surface."
+
 /datum/chemical_reaction/jell_wyrm
 	name = "Jell Wyrm"
 	id = /datum/reagent/consumable/ethanol/species_drink/jell_wyrm
