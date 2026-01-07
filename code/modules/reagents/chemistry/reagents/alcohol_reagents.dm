@@ -2536,7 +2536,7 @@ All effects don't start immediately, but rather get worse over time; the rate is
 	if(iscatperson(M))
 		if(prob(5))
 			M.emote(pick("mrrp","meow6"))
-			to_chat(M, "<span class = 'notice'>[pick("So delicious~", "Perfect!","~")]</span>")
+			to_chat(M, "<span class = 'notice'>[pick("Вкуснятина~", "Замурррчательно!","Мой банан требует джема~", "Трахнешь мою жопу?<3", "Клубничка во рту~~")]</span>")
 	return ..()
 
 /datum/reagent/consumable/ethanol/species_drink/jell_wyrm
