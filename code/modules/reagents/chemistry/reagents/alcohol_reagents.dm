@@ -2371,6 +2371,23 @@ All effects don't start immediately, but rather get worse over time; the rate is
 	glass_name = "Malibu Sunset"
 	glass_desc = "Tropical looking drinks, with ice cubes hovering on the surface and grenadine coloring the bottom."
 
+/datum/reagent/consumable/ethanol/millie_kiss
+	name = "Millie Kiss"
+	color = "#e7aee7"
+	description = "Cold coffee with strawberry flavor."
+	boozepwr = 10 // Подрочите
+	taste_description = "Purrrrifying~"
+	quality = DRINK_VERYGOOD
+	glass_icon_state = "milliecum"
+	glass_name = "glass of Millie Kiss"
+	glass_desc = "Cold coffee with strawberry flavor."
+
+/datum/reagent/consumable/ethanol/millie_kiss/on_mob_life(mob/living/carbon/M)
+	if(iscatperson(M) && prob(5))
+		M.emote(pick("mrrp","meow6"))
+		to_chat(M, span_notice(pick("Вкуснятина~", "Замурррчательно!","Мой банан требует джема~", "Трахнешь мою жопу?<3", "Клубничка во рту~~")))
+	return ..()
+
 /datum/reagent/consumable/ethanol/hotlime_miami
 	name = "Hotlime Miami"
 	description = "The essence of the 90's, if they were a bloody mess that is."
@@ -2518,25 +2535,6 @@ All effects don't start immediately, but rather get worse over time; the rate is
 		if(prob(5))
 			M.emote(pick("nya","purr"))
 			to_chat(M, "<span class = 'notice'>[pick("So tasty~", "Ahh~ can't hold my hapiness!","Tastes perfectly!")]</span>")
-	return ..()
-
-/datum/reagent/consumable/ethanol/species_drink/millie_kiss
-	name = "Millie Kiss"
-	color = "#e7aee7"
-	description = "Cold coffee with strawberry flavor."
-	boozepwr = 10 // Подрочите
-	taste_description = "Purrrrifying~"
-	quality = DRINK_NICE
-	glass_icon_state = "milliecum"
-	glass_name = "glass of Millie kiss"
-	glass_desc = "Cold coffee with strawberry flavor."
-	species_required = "furry"
-
-/datum/reagent/consumable/ethanol/species_drink/millie_kiss/on_mob_life(mob/living/carbon/M)
-	if(iscatperson(M))
-		if(prob(5))
-			M.emote(pick("mrrp","meow6"))
-			to_chat(M, "<span class = 'notice'>[pick("Вкуснятина~", "Замурррчательно!","Мой банан требует джема~", "Трахнешь мою жопу?<3", "Клубничка во рту~~")]</span>")
 	return ..()
 
 /datum/reagent/consumable/ethanol/species_drink/jell_wyrm
