@@ -2528,9 +2528,9 @@ All effects don't start immediately, but rather get worse over time; the rate is
 	taste_description = "Purrrrifying~"
 	quality = DRINK_NICE
 	glass_icon_state = "milliecum"
-	glass_name = "glass of Millie kiss"
+	glass_name = "glass of Millie Kiss"
 	glass_desc = "Cold coffee with strawberry flavor."
-	species_required = "furry"
+	species_required = SPECIES_CATEGORY_FURRY
 
 /datum/reagent/consumable/ethanol/species_drink/millie_kiss/on_mob_life(mob/living/carbon/M)
 	if(iscatperson(M))
