@@ -36,6 +36,12 @@
 /obj/item/stack/medical/proc/begin_heal_loop(mob/living/patient, mob/living/user, auto_change_zone = TRUE)
 	if(INTERACTING_WITH(user, patient))
 		return FALSE
+	if(iscarbon(patient))
+		var/mob/living/carbon/carbon_patient = patient
+		if(!has_healable_damage(carbon_patient))
+			patient.balloon_alert(user, "нечего лечить")
+			return FALSE
+
 	var/heal_zone = check_zone(user.zone_selected)
 
 	// Проверяем выбранную зону
@@ -50,11 +56,14 @@
 					damaged_limbs += limb.body_zone
 
 			if(!length(damaged_limbs))
+				if(carbon_patient.getBruteLoss_nonProsthetic() > 0 || carbon_patient.getFireLoss_nonProsthetic() > 0)
+					return FALSE
 				patient.balloon_alert(user, "полностью здоров[patient.ru_a()]")
 				return FALSE
 
 			// Берем первую поврежденную часть
 			heal_zone = damaged_limbs[1]
+			patient.balloon_alert(user, "лечим [ru_parse_zone(heal_zone)]...")
 		else
 			// В ручном режиме или для не-карбонов просто выходим
 			return FALSE
@@ -143,6 +152,8 @@
 		other_affected_limbs += limb.body_zone
 
 	if(!length(other_affected_limbs))
+		if(patient.getBruteLoss_nonProsthetic() > 0 || patient.getFireLoss_nonProsthetic() > 0)
+			return
 		patient.balloon_alert(user, "полностью вылечен[patient.ru_a()]")
 		return
 
@@ -164,6 +175,17 @@
 
 /obj/item/stack/medical/proc/can_heal(mob/living/patient, mob/living/user, healed_zone, silent = FALSE)
 	return patient.can_inject(user, !silent)
+
+/obj/item/stack/medical/proc/has_healable_damage(mob/living/carbon/patient)
+	if(heal_brute && patient.getBruteLoss_nonProsthetic() > 0)
+		return TRUE
+	if(heal_burn && patient.getFireLoss_nonProsthetic() > 0)
+		return TRUE
+
+	if((stop_bleeding || flesh_regeneration || sanitization) && LAZYLEN(patient.all_wounds))
+		return TRUE
+
+	return FALSE
 
 /// Проверяет множество условий для определения возможности лечения пациента, включая can_heal
 /// Даёт обратную связь если мы не можем вылечить пациента (если только silent не TRUE)
@@ -236,18 +258,33 @@
 	if(!affecting.is_organic_limb(FALSE))
 		return FALSE
 
-	if(affecting.brute_dam && heal_brute || affecting.burn_dam && heal_burn)
+	var/healed_something = FALSE
+
+	if((affecting.brute_dam && heal_brute) || (affecting.burn_dam && heal_burn))
 		user.visible_message("<span class='green'>[user] наносит \the [src] на [ru_kogo_zone(affecting.name)] [C].</span>", "<span class='green'>Вы наносите \the [src] на [ru_kogo_zone(affecting.name)] [C].</span>")
 		if(affecting.heal_damage(heal_brute*efficiency, heal_burn*efficiency))
 			C.update_damage_overlays()
+		healed_something = TRUE
 
-		// Handle wounds
-		if(stop_bleeding && LAZYLEN(affecting.wounds))
-			// Wounds have their own blood flow management
-			pass()
+	if(LAZYLEN(affecting.wounds))
+		for(var/datum/wound/iter_wound as anything in affecting.wounds)
+			if(stop_bleeding > 0 && (istype(iter_wound, /datum/wound/slash) || istype(iter_wound, /datum/wound/pierce)))
+				iter_wound.blood_flow -= stop_bleeding * efficiency
+				if(!healed_something)
+					user.visible_message("<span class='green'>[user] обрабатывает раны на [ru_kogo_zone(affecting.name)] [C].</span>", "<span class='green'>Вы обрабатываете раны на [ru_kogo_zone(affecting.name)] [C].</span>")
+				healed_something = TRUE
 
-		return TRUE
-	return FALSE
+			if((flesh_regeneration > 0 || sanitization > 0) && istype(iter_wound, /datum/wound/burn))
+				var/datum/wound/burn/burn_wound = iter_wound
+				if(flesh_regeneration > 0)
+					burn_wound.flesh_healing += flesh_regeneration * efficiency
+				if(sanitization > 0)
+					burn_wound.sanitization += sanitization * efficiency
+				if(!healed_something)
+					user.visible_message("<span class='green'>[user] обрабатывает раны на [ru_kogo_zone(affecting.name)] [C].</span>", "<span class='green'>Вы обрабатываете раны на [ru_kogo_zone(affecting.name)] [C].</span>")
+				healed_something = TRUE
+
+	return healed_something
 
 /obj/item/stack/medical/proc/heal_animal(mob/living/simple_animal/M, mob/user)
 	var/efficiency = 1
@@ -654,8 +691,8 @@
 		. = TRUE
 		affecting.threshhold_burn_passed = FALSE
 	if(.)
-		user.visible_message("<span class='green'>Наногель вступает в реакцию на теле [C], ремонтируя внутренние повреждения [affecting].</span>", "<span_class='green'>Вы наблюдаете как наногель начинает работу по ремонту внутренних повреждений [affecting]</span>")
+		user.visible_message("<span class='green'>Наногель вступает в реакцию на теле [C], ремонтируя внутренние повреждения [affecting].</span>", "<span class='green'>Вы наблюдаете как наногель начинает работу по ремонту внутренних повреждений [affecting]</span>")
 		return TRUE
 	// Если дошли сюда: Провал, давайте скажем пользователю почему.
-	to_chat(user, "<span class='warning'>[src] терпит неудачу в с [affecting] из-за остаточного урона [(affecting.threshhold_burn_passed && affecting.threshhold_burn_passed) ? "травм и ожогов" : "[affecting.threshhold_burn_passed ? "ожогами" : "травмами"]"]! Проведите внешне обслуживание перед применением.</span>")
+	to_chat(user, "<span class='warning'>[src] терпит неудачу в с [affecting] из-за остаточного урона [(affecting.threshhold_brute_passed && affecting.threshhold_burn_passed) ? "травм и ожогов" : "[affecting.threshhold_burn_passed ? "ожогами" : "травмами"]"]! Проведите внешне обслуживание перед применением.</span>")
 	return FALSE
