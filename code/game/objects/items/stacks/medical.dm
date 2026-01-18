@@ -37,12 +37,30 @@
 	if(INTERACTING_WITH(user, patient))
 		return FALSE
 	var/heal_zone = check_zone(user.zone_selected)
-	if(!try_heal_checks(patient, user, heal_zone))
-		return FALSE
 
-	// Показываем какую часть тела будем лечить при автоматическом режиме
-	if(iscarbon(patient) && auto_change_zone)
-		to_chat(user, "<span class='notice'>Лечим [ru_parse_zone(heal_zone)]...</span>")
+	// Проверяем выбранную зону
+	if(!try_heal_checks(patient, user, heal_zone, silent = TRUE))
+		// Если выбранная зона не нуждается в лечении и включен автоматический режим
+		if(iscarbon(patient) && auto_change_zone)
+			// Ищем любую поврежденную часть тела
+			var/mob/living/carbon/carbon_patient = patient
+			var/list/damaged_limbs = list()
+			for(var/obj/item/bodypart/limb as anything in carbon_patient.bodyparts)
+				if(try_heal_checks(patient, user, limb.body_zone, silent = TRUE))
+					damaged_limbs += limb.body_zone
+
+			if(!length(damaged_limbs))
+				patient.balloon_alert(user, "полностью здоров[patient.ru_a()]")
+				return FALSE
+
+			// Берем первую поврежденную часть
+			heal_zone = damaged_limbs[1]
+		else
+			// В ручном режиме или для не-карбонов просто выходим
+			return FALSE
+	else
+		// Выбранная часть тела повреждена, начинаем лечение
+		pass()
 
 	INVOKE_ASYNC(src, PROC_REF(try_heal), patient, user, heal_zone, FALSE, iscarbon(patient) && auto_change_zone)
 	return TRUE
@@ -102,14 +120,14 @@
 	var/preferred_target = check_zone(user.zone_selected)
 	if(try_heal_checks(patient, user, preferred_target, silent = TRUE))
 		if(preferred_target != healed_zone)
-			to_chat(user, "<span class='notice'>Переключаем лечение на [ru_parse_zone(preferred_target)]...</span>")
+			patient.balloon_alert(user, "переключаем на [ru_parse_zone(preferred_target)]...")
 		try_heal(patient, user, preferred_target, TRUE, auto_change_zone, TRUE)
 		return
 
 	// second, handle what happens otherwise
 	if(!iscarbon(patient))
 		// behavior 0: non-carbons have no limbs so we can assume they are fully healed
-		to_chat(user, "<span class='notice'>[patient] полностью вылечен[patient.ru_a()].</span>")
+		patient.balloon_alert(user, "полностью вылечен[patient.ru_a()]")
 	else if(auto_change_zone)
 		// behavior 1: automatically pick another zone to heal
 		try_heal_auto_change_zone(patient, user, preferred_target, healed_zone)
@@ -125,21 +143,22 @@
 		other_affected_limbs += limb.body_zone
 
 	if(!length(other_affected_limbs))
-		to_chat(user, "<span class='notice'>[patient] полностью вылечен[patient.ru_a()].</span>")
+		patient.balloon_alert(user, "полностью вылечен[patient.ru_a()]")
 		return
 
 	var/next_picked = (preferred_target in other_affected_limbs) ? preferred_target : other_affected_limbs[1]
-	to_chat(user, "<span class='notice'>Переключаем лечение на [ru_parse_zone(next_picked)]...</span>")
+	if(next_picked != last_zone)
+		patient.balloon_alert(user, "переключаем на [ru_parse_zone(next_picked)]...")
 	try_heal(patient, user, next_picked, silent = TRUE, auto_change_zone = TRUE, continuous = TRUE)
 
 /obj/item/stack/medical/proc/try_heal_manual_target(mob/living/carbon/patient, mob/living/user)
-	to_chat(user, "<span class='notice'>Оцениваем состояние...</span>")
+	patient.balloon_alert(user, "оцениваем состояние...")
 	if(!do_after(user, 1 SECONDS, patient))
 		return
 	var/new_zone = check_zone(user.zone_selected)
 	if(!try_heal_checks(patient, user, new_zone))
 		return
-	to_chat(user, "<span class='notice'>Лечим [ru_parse_zone(new_zone)]...</span>")
+	patient.balloon_alert(user, "лечим [ru_parse_zone(new_zone)]...")
 	try_heal(patient, user, new_zone, silent = TRUE, auto_change_zone = FALSE, continuous = TRUE)
 
 
