@@ -641,16 +641,31 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "<center>"
 					var/name
 					var/unspaced_slots = 0
+					var/has_empty_slot = FALSE
+					var/first_empty_slot = 0
+					
+					// Показываем заполненные слоты; кнопку создания выводим позже в первый пустой
 					for(var/i=1, i<=max_save_slots, i++)
-						unspaced_slots++
-						if(unspaced_slots > 4)
-							dat += "<br>"
-							unspaced_slots = 0
+						name = null
 						S.cd = "/character[i]"
 						S["real_name"] >> name
-						if(!name)
-							name = "Character[i]"
-						dat += "<a style='white-space:nowrap;' href='?_src_=prefs;preference=changeslot;num=[i];' [i == default_slot ? "class='linkOn'" : ""]>[name]</a> "
+						if(name) // Показываем только слоты с именами
+							unspaced_slots++
+							if(unspaced_slots > 4)
+								dat += "<br>"
+								unspaced_slots = 0
+							dat += "<a style='white-space:nowrap;' href='?_src_=prefs;preference=changeslot;num=[i];' [i == default_slot ? "class='linkOn'" : ""]>[name]</a> "
+							dat += "<a style='white-space:nowrap; color: red;' href='?_src_=prefs;preference=deleteslot;num=[i];' title='Удалить персонажа'>X</a> "
+						else if(!has_empty_slot)
+							has_empty_slot = TRUE
+							first_empty_slot = i
+
+					// Добавляем кнопку создания нового персонажа в первый пустой слот в конце списка
+					if(has_empty_slot)
+						if(unspaced_slots >= 4)
+							dat += "<br>"
+						dat += "<a style='white-space:nowrap; font-size: 18px; font-weight: bold;' href='?_src_=prefs;preference=changeslot;num=[first_empty_slot];' title='Создать нового персонажа'>+</a> "
+					
 					dat += "</center>"
 
 			dat += "<HR>"
@@ -4717,6 +4732,65 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					if(user.client?.prefs) //custom emote panel is attached to the character
 						var/list/payload = user.client.prefs.custom_emote_panel
 						user.client.tgui_panel?.window.send_message("emotes/setList", payload)
+
+				if("deleteslot")
+					var/slot_to_delete = text2num(href_list["num"])
+					if(!slot_to_delete || slot_to_delete < 1 || slot_to_delete > max_save_slots)
+						return FALSE
+					
+					// Проверяем, есть ли персонаж в этом слоте
+					if(!path)
+						return FALSE
+					var/savefile/S = new /savefile(path)
+					if(!S)
+						return FALSE
+					S.cd = "/character[slot_to_delete]"
+					var/character_name
+					S["real_name"] >> character_name
+					
+					if(!character_name)
+						to_chat(user, span_warning("Этот слот уже пуст!"))
+						return FALSE
+					
+					// Подтверждение удаления
+					if(tgui_alert(user, "Вы уверены, что хотите удалить персонажа '[character_name]'? Это действие нельзя отменить!", "Подтверждение удаления", list("Да", "Нет")) != "Да")
+						return FALSE
+					
+					// Удаляем персонажа, очищая все данные в слоте
+					S.cd = "/character[slot_to_delete]"
+					S.dir.Cut() // Очищаем все данные в директории слота
+					
+					// Компактим слоты: сдвигаем следующие занятые вверх
+					var/target = slot_to_delete
+					for(var/i = slot_to_delete + 1, i <= max_save_slots, i++)
+						var/next_name = null
+						S.cd = "/character[i]"
+						S["real_name"] >> next_name
+						if(!next_name)
+							continue
+						// копируем i -> target через ExportText/ImportText
+						var/exported = S.ExportText("/character[i]")
+						if(exported)
+							S.ImportText("/character[target]", exported)
+						// очищаем исходный слот
+						S.cd = "/character[i]"
+						S.dir.Cut()
+						target++
+					
+					// Обновляем default_slot, если он оказался за границей
+					var/new_default = min(default_slot, max(1, target - 1))
+					default_slot = new_default
+					S.cd = "/"
+					S["default_slot"] << default_slot
+					
+					to_chat(user, span_notice("Персонаж '[character_name]' был удален."))
+					
+					// Переключаемся на первый слот
+					if(slot_to_delete == default_slot)
+						if(!load_character(1))
+							random_character()
+							real_name = random_unique_name(gender)
+							save_character()
 
 				if("tab")
 					if(href_list["tab"])
