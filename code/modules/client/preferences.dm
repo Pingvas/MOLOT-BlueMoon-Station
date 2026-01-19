@@ -736,7 +736,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 			dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_NAKED_AROUSED]' [preview_pref == PREVIEW_PREF_NAKED_AROUSED ? "class='linkOn'" : ""] style='padding: 4px 10px; font-size: 11px;'>[PREVIEW_PREF_NAKED_AROUSED]</a>"
 			dat += "</center>"
 
-			dat += "<HR>"
 			if(character_settings_tab == LOADOUT_CHAR_TAB) //if loadout
 				//calculate your gear points from the chosen item
 				gear_points = CONFIG_GET(number/initial_gear_points) + (IS_CKEY_DONATOR_GROUP(user.ckey, DONATOR_GROUP_TIER_1) ? CONFIG_GET(number/subscriber_extra_gear_points) : 0) + (IS_CKEY_DONATOR_GROUP(user.ckey, DONATOR_GROUP_TIER_2) ? CONFIG_GET(number/sponsor_extra_gear_points) : 0)
@@ -763,6 +762,14 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 			switch(character_settings_tab)
 				//General
 				if(GENERAL_CHAR_TAB)
+					// Текущие квирки: красивая панель с оформлением
+					var/current_quirks_str = all_quirks.len ? english_list(all_quirks) : "None"
+					dat += "<style>"
+					dat += ".quirks-info-panel { max-width: 800px; margin: 10px auto; padding: 12px; background: [theme["bg_secondary"]]; border: 1px solid [theme["border_color"]]; border-radius: 6px; border-left: 4px solid [theme["accent_color"]]; }"
+					dat += ".quirks-title { color: [theme["text_primary"]]; font-weight: bold; margin-bottom: 8px; }"
+					dat += ".quirks-list { color: [theme["text_secondary"]]; word-break: break-word; }"
+					dat += "</style>"
+					dat += "<div class='quirks-info-panel'><div class='quirks-title'>Текущие квирки:</div><div class='quirks-list'>[current_quirks_str]</div></div>"
 					dat += "<center><h2>Выбор должностей</h2>"
 					dat += "<a href='?_src_=prefs;preference=job;task=menu'>Установить предпочтения должностей</a><br></center>"
 					dat += "<h2>Identity</h2>"
@@ -972,9 +979,9 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "<table><tr><td width='20%' height='300px' valign='top'>"
 
 					dat += "<h2>Body</h2>"
-					dat += "<b>Mismatched parts:</b><br>"
-					dat += "<a href='?_src_=prefs;preference=mismatched_markings;task=input' title=\"Показывать несовместимые части тела (например, киберконечности с органическим телом). Если отключено, несовместимые варианты будут скрыты в списке выбора.\">[(show_mismatched_markings) ? "Enabled" : "Disabled"]</a><BR>"
-					dat += "<b>Advanced colors:</b><br>"
+					dat += "<b>Mismatched parts:</b> <span style='border-radius: 2px;border:1px dotted white;cursor:help;' title=\"Показывать несовместимые части тела (например, киберконечности с органическим телом). Если отключено, несовместимые варианты будут скрыты в списке выбора.\">?</span><br>"
+					dat += "<a href='?_src_=prefs;preference=mismatched_markings;task=input' title=\"Показывать несовместимые части тела (например, киберконечности с органическим телом). Если отключено, несовместимые варианты будут скрыты в списке выбора.\">[(show_mismatched_markings) ? \"Enabled\" : \"Disabled\"]</a><BR>"
+					dat += "<b>Advanced colors:</b> <span style='border-radius: 2px;border:1px dotted white;cursor:help;' title=\"Режим продвинутой настройки цветов персонажа. Включите для доступа к расширенной палитре цветов и дополнительным опциям окраски.\">?</span><br>"
 					var/color_scheme_status = (features["color_scheme"] == ADVANCED_CHARACTER_COLORING) ? "Enabled" : "Disabled"
 					dat += "<a href='?_src_=prefs;preference=color_scheme;task=input' title=\"Режим продвинутой настройки цветов персонажа. Включите для доступа к расширенной палитре цветов и дополнительным опциям окраски.\">[color_scheme_status]</a><BR>"
 					dat += "<BR>"
