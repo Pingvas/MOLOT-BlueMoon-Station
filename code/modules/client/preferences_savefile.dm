@@ -530,6 +530,10 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	S["new_character_creator"]	>> new_character_creator
 	S["view_pixelshift"]		>> view_pixelshift
 
+	// BLUEMOON ADD - Character setup theme
+	S["character_setup_theme"]	>> character_setup_theme
+	// BLUEMOON ADD END
+
 	//favorite outfits
 	S["favorite_outfits"] >> favorite_outfits
 
@@ -599,6 +603,11 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	color_presets_matrix = SANITIZE_LIST(color_presets_matrix) // BLUEMOON ADD
 	screentip_color = sanitize_hexcolor(screentip_color, 6, 1, initial(screentip_color))
 	screentip_pref = sanitize_inlist(screentip_pref, GLOB.screentip_pref_options, SCREENTIP_PREFERENCE_ENABLED)
+
+	// BLUEMOON ADD - Character setup theme sanitization
+	var/list/available_themes = get_available_themes()
+	character_setup_theme = sanitize_inlist(character_setup_theme, available_themes, "dark")
+	// BLUEMOON ADD END
 
 	//SKYRAT CHANGES BEGIN
 	see_chat_emotes	= sanitize_integer(see_chat_emotes, 0, 1, initial(see_chat_emotes))

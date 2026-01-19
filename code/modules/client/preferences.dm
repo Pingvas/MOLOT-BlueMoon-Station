@@ -903,8 +903,10 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 							dat += "[medical_records]"
 					else
 						dat += "[TextPreview(medical_records)]..."
+					dat += "</td>"
 
-					// BLUEMOON ADD
+					// BLUEMOON ADD - Обычные Headshots в отдельной колонке
+					dat += "<td valign='top'>"
 					dat += "<h2>Headshots</h2>"
 
 					dat += "<a href='?_src_=prefs;preference=headshot'><b>Set Headshot 1 Image</b></a><br>"
@@ -920,8 +922,11 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "<a href='?_src_=prefs;preference=headshot2'><b>Set Headshot 3 Image</b></a><br>"
 					if(features["headshot_link2"])
 						dat += "<img src='[features["headshot_link2"]]' style='border: 1px solid black' width='140px' height='140px'>"
-					//dat += "<br><br>"
+					dat += "</td>"
+					// BLUEMOON ADD END
 
+					// BLUEMOON ADD - NSFW Headshots в еще более правой колонке
+					dat += "<td valign='top'>"
 					dat += "<h2>Naked (NSFW) Headshots</h2>"
 
 					dat += "<a href='?_src_=prefs;preference=headshot_naked'><b>Set Headshot 1 Image</b></a><br>"
