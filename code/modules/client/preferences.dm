@@ -1585,13 +1585,25 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 										if(gear.loadout_flags & LOADOUT_CAN_COLOR_POLYCHROMIC)
 											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color_polychromic=1;loadout_gear_name=[html_encode(gear.name)];'>Color</a>"
 											for(var/loadout_color in loadout_item[LOADOUT_COLOR])
-												extra_loadout_data += "<span style='border: 1px solid #161616; background-color: [loadout_color];'><font color='[color_hex2num(loadout_color) < 200 ? "FFFFFF" : "000000"]'>[loadout_color]</font></span>"
+												var/list/loadout_color_preview = get_loadout_color_preview(loadout_color)
+												var/display_color = loadout_color_preview["color"]
+												var/font_color = color_hex2num(display_color) < 200 ? "FFFFFF" : "000000"
+												extra_loadout_data += "<span style='border: 1px solid #161616; background-color: [display_color];'><font color='[font_color]'>[display_color]</font></span>"
+												if(loadout_color_preview["is_matrix"])
+													extra_loadout_data += " (matrix color)"
 										else
 											var/loadout_color_non_poly = "#FFFFFF"
+											var/is_matrix_color = FALSE
 											if(length(loadout_item[LOADOUT_COLOR]))
-												loadout_color_non_poly = loadout_item[LOADOUT_COLOR][1]
+												var/first_color = islist(loadout_item[LOADOUT_COLOR]) ? loadout_item[LOADOUT_COLOR][1] : loadout_item[LOADOUT_COLOR]
+												var/list/non_poly_preview = get_loadout_color_preview(first_color)
+												loadout_color_non_poly = non_poly_preview["color"]
+												is_matrix_color = non_poly_preview["is_matrix"]
 											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color=1;loadout_gear_name=[html_encode(gear.name)];'>Color</a>"
-											extra_loadout_data += "<span style='border: 1px solid #161616; background-color: [loadout_color_non_poly];'><font color='[color_hex2num(loadout_color_non_poly) < 200 ? "FFFFFF" : "000000"]'>[loadout_color_non_poly]</font></span>"
+											var/non_poly_font = color_hex2num(loadout_color_non_poly) < 200 ? "FFFFFF" : "000000"
+											extra_loadout_data += "<span style='border: 1px solid #161616; background-color: [loadout_color_non_poly];'><font color='[non_poly_font]'>[loadout_color_non_poly]</font></span>"
+											if(is_matrix_color)
+												extra_loadout_data += " (matrix color)"
 											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color_HSV=1;loadout_gear_name=[html_encode(gear.name)];'>HSV Color</a>" // SPLURT EDIT
 										if(gear.loadout_flags & LOADOUT_CAN_NAME)
 											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_rename=1;loadout_gear_name=[html_encode(gear.name)];'>Name</a> [loadout_item[LOADOUT_CUSTOM_NAME] ? loadout_item[LOADOUT_CUSTOM_NAME] : "N/A"]"
@@ -5255,6 +5267,21 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 
 /datum/preferences/proc/is_loadout_slot_available(slot)
 	return TRUE // No category limits - loadout points handle balance
+
+// Returns a safe preview color and whether the original value was a color matrix.
+/datum/preferences/proc/get_loadout_color_preview(color_value)
+	var/preview_color = "#FFFFFF"
+	var/is_matrix = FALSE
+	if(istext(color_value) && findtext(color_value, GLOB.is_color))
+		preview_color = color_value
+	else if(islist(color_value))
+		is_matrix = TRUE
+		var/list/color_list = color_value
+		var/r = (color_list && color_list.len >= 1 && isnum(color_list[1])) ? color_list[1] : 1
+		var/g = (color_list && color_list.len >= 5 && isnum(color_list[5])) ? color_list[5] : r
+		var/b = (color_list && color_list.len >= 9 && isnum(color_list[9])) ? color_list[9] : r
+		preview_color = rgb(clamp(round(r * 255), 0, 255), clamp(round(g * 255), 0, 255), clamp(round(b * 255), 0, 255))
+	return list("color" = preview_color, "is_matrix" = is_matrix)
 
 // BLUEMOON ADD START - выбор вещей из лодаута как семейной реликвии
 ///Searching for loadout item which `property` ([LOADOUT_ITEM], [LOADOUT_COLOR], etc) equals to `value`; returns this items, or FALSE if no gear matched conditions
