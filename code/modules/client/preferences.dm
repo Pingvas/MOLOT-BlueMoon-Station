@@ -703,7 +703,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[APPEARANCE_CHAR_TAB]' [character_settings_tab == APPEARANCE_CHAR_TAB ? "class='linkOn'" : ""]>Appearance</a>"
 			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[MARKINGS_CHAR_TAB]' [character_settings_tab == MARKINGS_CHAR_TAB ? "class='linkOn'" : ""]>Markings</a>"
 			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[SPEECH_CHAR_TAB]' [character_settings_tab == SPEECH_CHAR_TAB ? "class='linkOn'" : ""]>Speech</a>"
-			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[LOADOUT_CHAR_TAB]' [character_settings_tab == LOADOUT_CHAR_TAB ? "class='linkOn'" : ""]>Loadout</a>" //If you change the index of this tab, change all the logic regarding tab
+			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[LOADOUT_CHAR_TAB]' [character_settings_tab == LOADOUT_CHAR_TAB ? "class='linkOn'" : ""]>Loadout</a>"
+			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[QUIRKS_CHAR_TAB]' [character_settings_tab == QUIRKS_CHAR_TAB ? "class='linkOn'" : ""]>Quirks</a>"
 			dat += "</center>"
 
 			dat += "<HR>"
@@ -763,10 +764,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 				if(GENERAL_CHAR_TAB)
 					dat += "<center><h2>Выбор должностей</h2>"
 					dat += "<a href='?_src_=prefs;preference=job;task=menu'>Установить предпочтения должностей</a><br></center>"
-					if(CONFIG_GET(flag/roundstart_traits))
-						dat += "<center><h2>Quirk Setup ([GetQuirkBalance(user)] points left)</h2>"
-						dat += "<a href='?_src_=prefs;preference=trait;task=menu'>Configure Quirks</a><br></center>"
-						dat += "<center><b>Current Quirks:</b> [english_list(all_quirks, "None")]</center>"
 					dat += "<h2>Identity</h2>"
 					dat += "<table width='100%'><tr><td width='30%' valign='top'>"
 					if(jobban_isbanned(user, "appearance"))
@@ -1691,6 +1688,105 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 									dat += json_encode(other_data)
 									dat += "</td></tr>"
 					dat += "</table>"
+				if(QUIRKS_CHAR_TAB)
+					if(!SSquirks || !SSquirks.quirks.len)
+						dat += "<center><div class='notice'>The quirk subsystem hasn't finished initializing, please hold...</div></center>"
+					else
+						// Build quirks CSS inline with theme
+						dat += "<style>"
+						dat += ".quirk-container { max-width: 1200px; margin: 0 auto; }"
+						dat += ".quirk-summary { margin: 10px 0; padding: 12px; background: " + theme["bg_secondary"] + "; border: 1px solid " + theme["border_color"] + "; border-radius: 6px; }"
+						dat += ".quirk-tabs-container { display: flex; gap: 8px; justify-content: center; margin: 12px 0; }"
+						dat += ".quirk-tabs-container a { min-width: 100px; text-align: center; }"
+						dat += ".quirk-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px; margin-top: 12px; }"
+						dat += ".quirk-item { border: 1px solid " + theme["border_color"] + "; border-left: 4px solid " + theme["accent_color"] + "; background: " + theme["bg_secondary"] + "; padding: 10px; border-radius: 6px; }"
+						dat += ".quirk-item.positive { border-left-color: #4aa96c; }"
+						dat += ".quirk-item.negative { border-left-color: #c0392b; }"
+						dat += ".quirk-item.neutral { border-left-color: " + theme["accent_color"] + "; }"
+						dat += ".quirk-item.active { box-shadow: 0 0 0 2px " + theme["accent_color"] + "; }"
+						dat += ".quirk-item.locked { opacity: 0.55; }"
+						dat += ".quirk-name { font-weight: bold; margin-bottom: 6px; color: " + theme["text_primary"] + "; }"
+						dat += ".quirk-desc { color: " + theme["text_secondary"] + "; font-size: 13px; margin-bottom: 6px; }"
+						dat += ".quirk-lock { color: #c0392b; font-size: 12px; margin-top: 4px; }"
+						dat += ".quirk-small { font-size: 12px; color: " + theme["text_secondary"] + "; }"
+						dat += ".quirk-inline-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin: 10px 0; font-size: 13px; }"
+						dat += "</style>"
+
+						dat += "<div class='quirk-container'>"
+						
+						// Inline trait configuration links
+						dat += "<div class='quirk-inline-actions'>"
+						var/summon_delim = summon_nickname ? ": " : ""
+						dat += "<a href='?_src_=prefs;preference=traits_setup;task=change_shriek_option'>([BLUEMOON_TRAIT_NAME_SHRIEK]) Тип Крика: [shriek_type]</a>"
+						dat += "<a href='?_src_=prefs;preference=traits_setup;task=lewd_summon_nickname'>([TRAIT_LEWD_SUMMON]) Прозвище для призываемого[summon_delim][summon_nickname]</a>"
+						dat += "</div>"
+
+						// Summary
+						var/current_quirks_str = all_quirks.len ? english_list(all_quirks) : "None"
+						dat += "<div class='quirk-summary'>"
+						dat += "<b>Current quirks:</b> [current_quirks_str]<br>"
+						dat += "[GetPositiveQuirkCount()] / [MAX_QUIRKS] max positive quirks<br>"
+						dat += "<b>Quirk balance remaining:</b> [GetQuirkBalance(user)]"
+						dat += "</div>"
+
+						// Category tabs
+						dat += "<div class='quirk-tabs-container'>"
+						dat += "<a href='?_src_=prefs;quirk_category=[QUIRK_POSITIVE]' [quirk_category == QUIRK_POSITIVE ? "class='linkOn'" : ""]>[QUIRK_POSITIVE]</a>"
+						dat += "<a href='?_src_=prefs;quirk_category=[QUIRK_NEUTRAL]' [quirk_category == QUIRK_NEUTRAL ? "class='linkOn'" : ""]>[QUIRK_NEUTRAL]</a>"
+						dat += "<a href='?_src_=prefs;quirk_category=[QUIRK_NEGATIVE]' [quirk_category == QUIRK_NEGATIVE ? "class='linkOn'" : ""]>[QUIRK_NEGATIVE]</a>"
+						dat += "<a href='?_src_=prefs;preference=trait;task=reset' style='background: #7d1f1f; border-color: #a33;'>Reset Quirks</a>"
+						dat += "</div>"
+
+						// Quirks grid
+						dat += "<div class='quirk-list'>"
+						for(var/V in SSquirks.quirks)
+							var/datum/quirk/T = SSquirks.quirks[V]
+							var/value = initial(T.value)
+							if((value > 0 && quirk_category != QUIRK_POSITIVE) || (value < 0 && quirk_category != QUIRK_NEGATIVE) || (value == 0 && quirk_category != QUIRK_NEUTRAL))
+								continue
+
+							var/quirk_name = initial(T.name)
+							var/has_quirk = (quirk_name in all_quirks)
+							var/quirk_cost = initial(T.value) * -1
+							var/lock_reason = "This trait is unavailable."
+							var/quirk_conflict = FALSE
+
+							if(initial(T.mood_quirk) && CONFIG_GET(flag/disable_human_mood))
+								lock_reason = "Mood is disabled."
+								quirk_conflict = TRUE
+
+							if(has_quirk)
+								if(quirk_conflict)
+									all_quirks -= quirk_name
+									has_quirk = FALSE
+								else
+									quirk_cost *= -1
+
+							if(quirk_cost > 0)
+								quirk_cost = "+[quirk_cost]"
+
+							var/category_class = "neutral"
+							if(value > 0)
+								category_class = "positive"
+							else if(value < 0)
+								category_class = "negative"
+
+							var/locked_class = quirk_conflict ? " locked" : ""
+							var/active_class = has_quirk ? " active" : ""
+
+							dat += "<div class='quirk-item [category_class][locked_class][active_class]'>"
+							dat += "<div class='quirk-name'>[quirk_name]</div>"
+							dat += "<div class='quirk-desc'>[initial(T.desc)]</div>"
+
+							if(quirk_conflict)
+								dat += "<div class='quirk-lock'>LOCKED: [lock_reason]</div>"
+							else
+								var/action = has_quirk ? "Remove" : "Take"
+								dat += "<div class='quirk-small'><a href='?_src_=prefs;preference=trait;task=update;trait=[quirk_name]'>[action] ([quirk_cost] pts.)</a></div>"
+
+							dat += "</div>"
+						dat += "</div>"
+						dat += "</div>"
 		if(PREFERENCES_TAB) // Game Preferences
 			dat += "<center>"
 			dat += "<a href='?_src_=prefs;preference=preferences_tab;tab=[GAME_PREFS_TAB]' [preferences_tab == GAME_PREFS_TAB ? "class='linkOn'" : ""]>General</a>"
@@ -2301,71 +2397,154 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 		to_chat(user, "<span class='danger'>The quirk subsystem is still initializing! Try again in a minute.</span>")
 		return
 
-	var/list/dat = list()
+	// If the subsystem hasn't populated yet, show a minimal message
 	if(!SSquirks.quirks.len)
-		dat += "The quirk subsystem hasn't finished initializing, please hold..."
-		dat += "<center><a href='?_src_=prefs;preference=trait;task=close'>Done</a></center><br>"
+		var/list/wait_dat = list()
+		wait_dat += "<div class='quirk-wrapper'>"
+		wait_dat += "<div class='notice'>The quirk subsystem hasn't finished initializing, please hold...</div>"
+		wait_dat += "<div class='quirk-actions'><a href='?_src_=prefs;preference=trait;task=close'>Done</a></div>"
+		wait_dat += "</div>"
+		var/datum/browser/wait_popup = new(user, "mob_occupation", "<div align='center'>Quirk Preferences</div>", 900, 650)
+		wait_popup.set_window_options("can_close=0")
+		wait_popup.set_content(wait_dat.Join())
+		wait_popup.open(FALSE)
+		return
 
-	else
-		dat += "<center><b>Choose quirk setup</b></center><br>"
-		// BLUEMOON ADD START - настройки для отдельных квирков
-		dat += "Настройки для отдельных квирков. Если нужный квирк не будет выставлен, то они работать не будут.<br>"
-		dat += "<a href='?_src_=prefs;preference=traits_setup;task=change_shriek_option'>([BLUEMOON_TRAIT_NAME_SHRIEK]) Тип Крика: [shriek_type]</a>"
-		dat += "<a href='?_src_=prefs;preference=traits_setup;task=lewd_summon_nickname'>([TRAIT_LEWD_SUMMON]) Прозвище для призываемого[summon_nickname ? ": ": ""][summon_nickname]</a>"
-		dat += "<hr>"
-		// BLUEMOON ADD END
-		dat += "<div align='center'>Left-click to add or remove quirks. You need negative quirks to have positive ones.<br>\
-		Quirks are applied at roundstart and cannot normally be removed.</div>"
-		dat += "<center><a href='?_src_=prefs;preference=trait;task=close'>Done</a></center>"
-		dat += "<hr>"
-		dat += "<center><b>Current quirks:</b> [all_quirks.len ? all_quirks.Join(", ") : "None"]</center>"
-		dat += "<center>[GetPositiveQuirkCount()] / [MAX_QUIRKS] max positive quirks<br>\
-		<b>Quirk balance remaining:</b> [GetQuirkBalance(user)]<br>"
-		dat += " <a href='?_src_=prefs;quirk_category=[QUIRK_POSITIVE]' [quirk_category == QUIRK_POSITIVE ? "class='linkOn'" : ""]>[QUIRK_POSITIVE]</a> "
-		dat += " <a href='?_src_=prefs;quirk_category=[QUIRK_NEUTRAL]' [quirk_category == QUIRK_NEUTRAL ? "class='linkOn'" : ""]>[QUIRK_NEUTRAL]</a> "
-		dat += " <a href='?_src_=prefs;quirk_category=[QUIRK_NEGATIVE]' [quirk_category == QUIRK_NEGATIVE ? "class='linkOn'" : ""]>[QUIRK_NEGATIVE]</a> "
-		dat += "</center><br>"
-		for(var/V in SSquirks.quirks)
-			var/datum/quirk/T = SSquirks.quirks[V]
-			var/value = initial(T.value)
-			if((value > 0 && quirk_category != QUIRK_POSITIVE) || (value < 0 && quirk_category != QUIRK_NEGATIVE) || (value == 0 && quirk_category != QUIRK_NEUTRAL))
-				continue
+	var/list/theme = get_theme_colors()
+	var/list/dat = list()
+	var/scroll_key = "quirk-scroll-" + character_setup_theme
 
-			var/quirk_name = initial(T.name)
-			var/has_quirk
-			var/quirk_cost = initial(T.value) * -1
-			var/lock_reason = "This trait is unavailable."
-			var/quirk_conflict = FALSE
-			for(var/_V in all_quirks)
-				if(_V == quirk_name)
-					has_quirk = TRUE
-			if(initial(T.mood_quirk) && CONFIG_GET(flag/disable_human_mood))
-				lock_reason = "Mood is disabled."
-				quirk_conflict = TRUE
-			if(has_quirk)
-				if(quirk_conflict)
-					all_quirks -= quirk_name
-					has_quirk = FALSE
-				else
-					quirk_cost *= -1 //invert it back, since we'd be regaining this amount
-			if(quirk_cost > 0)
-				quirk_cost = "+[quirk_cost]"
-			var/font_color = "#AAAAFF"
-			if(initial(T.value) != 0)
-				font_color = value > 0 ? "#AAFFAA" : "#FFAAAA"
+	// Extract theme values to avoid quoted keys inside embedded expressions
+	var/bg_primary = theme["bg_primary"]
+	var/text_primary = theme["text_primary"]
+	var/text_secondary = theme["text_secondary"]
+	var/bg_secondary = theme["bg_secondary"]
+	var/bg_pattern = theme["bg_pattern"]
+	var/border_color = theme["border_color"]
+	var/accent_color = theme["accent_color"]
+	var/button_bg = theme["button_bg"]
+	var/button_hover = theme["button_hover"]
+	var/button_active = theme["button_active"]
+	var/button_text = theme["button_text"]
+
+	var/css = "<style>\n"
+	css += "* { box-sizing: border-box; }\n"
+	css += "body { margin: 0; padding: 12px; font-family: 'Arial', 'Helvetica', sans-serif; background-color: " + bg_primary + "; color: " + text_primary + "; background-image: " + bg_pattern + "; background-size: 24px 24px; }\n"
+	css += "a { color: " + text_primary + "; text-decoration: none; }\n"
+	css += ".quirk-wrapper { background: " + bg_secondary + "; border: 1px solid " + border_color + "; border-radius: 8px; padding: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.25); }\n"
+	css += ".quirk-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }\n"
+	css += ".quirk-title { font-size: 18px; font-weight: bold; color: " + accent_color + "; }\n"
+	css += ".quirk-actions { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }\n"
+	css += ".quirk-actions a { background: " + button_bg + "; border: 1px solid " + border_color + "; padding: 6px 12px; border-radius: 6px; transition: all 0.2s ease; }\n"
+	css += ".quirk-actions a:hover { background: " + button_hover + "; }\n"
+	css += ".quirk-actions a.reset { background: #7d1f1f; border-color: #a33; color: #f8f8f8; }\n"
+	css += ".quirk-tip { margin: 6px 0 10px; color: " + text_secondary + "; }\n"
+	css += ".quirk-summary { margin: 10px 0; padding: 10px; background: " + bg_primary + "; border: 1px solid " + border_color + "; border-radius: 6px; }\n"
+	css += ".quirk-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 6px 0 10px; }\n"
+	css += ".quirk-tabs a { padding: 6px 12px; background: " + button_bg + "; border: 1px solid " + border_color + "; border-radius: 6px; }\n"
+	css += ".quirk-tabs a.linkOn { background: " + button_active + "; color: " + button_text + "; }\n"
+	css += ".quirk-inline-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; font-size: 13px; }\n"
+	css += ".quirk-list { margin-top: 8px; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 8px; max-height: 420px; overflow-y: auto; padding: 6px; background: " + bg_primary + "; border: 1px solid " + border_color + "; border-radius: 6px; }\n"
+	css += ".quirk-item { border: 1px solid " + border_color + "; border-left: 4px solid " + accent_color + "; background: rgba(0,0,0,0.08); padding: 8px; border-radius: 6px; }\n"
+	css += ".quirk-item.positive { border-left-color: #4aa96c; }\n"
+	css += ".quirk-item.negative { border-left-color: #c0392b; }\n"
+	css += ".quirk-item.neutral { border-left-color: " + accent_color + "; }\n"
+	css += ".quirk-item.active { box-shadow: 0 0 0 1px " + accent_color + "; }\n"
+	css += ".quirk-item.locked { opacity: 0.55; }\n"
+	css += ".quirk-name { font-weight: bold; margin-bottom: 4px; color: " + text_primary + "; }\n"
+	css += ".quirk-desc { color: " + text_secondary + "; font-size: 13px; }\n"
+	css += ".quirk-lock { color: #c0392b; font-size: 12px; margin-top: 4px; }\n"
+	css += ".quirk-small { font-size: 12px; color: " + text_secondary + "; }\n"
+	css += "</style>\n"
+
+	var/scroll_script = "<script>\n"
+	scroll_script += "(function() {\n"
+	scroll_script += "  var list = document.getElementById('quirk-list');\n"
+	scroll_script += "  var key = '" + scroll_key + "';\n"
+	scroll_script += "  if(list) {\n"
+	scroll_script += "    var saved = parseInt(localStorage.getItem(key)) || 0;\n"
+	scroll_script += "    if(saved) list.scrollTop = saved;\n"
+	scroll_script += "    list.addEventListener('scroll', function() { localStorage.setItem(key, list.scrollTop); });\n"
+	scroll_script += "  }\n"
+	scroll_script += "})();\n"
+	scroll_script += "</script>\n"
+
+	dat += css
+	var/summon_delim = summon_nickname ? ": " : ""
+	var/current_quirks_str = all_quirks.len ? all_quirks.Join(", ") : "None"
+	dat += "<div class='quirk-wrapper'>"
+	dat += "<div class='quirk-header'>"
+	dat += "<div class='quirk-title'>Choose quirk setup</div>"
+	dat += "<div class='quirk-actions'><a href='?_src_=prefs;preference=trait;task=close'>Done</a></div>"
+	dat += "</div>"
+	dat += "<div class='quirk-tip'>Left-click to add or remove quirks. You need negative quirks to have positive ones. Quirks are applied at roundstart and cannot normally be removed.</div>"
+	// BLUEMOON ADD START - настройки для отдельных квирков
+	dat += "<div class='quirk-inline-actions'>"
+	dat += "<a href='?_src_=prefs;preference=traits_setup;task=change_shriek_option'>([BLUEMOON_TRAIT_NAME_SHRIEK]) Тип Крика: [shriek_type]</a>"
+	dat += "<a href='?_src_=prefs;preference=traits_setup;task=lewd_summon_nickname'>([TRAIT_LEWD_SUMMON]) Прозвище для призываемого[summon_delim][summon_nickname]</a>"
+	dat += "</div>"
+	// BLUEMOON ADD END
+	dat += "<div class='quirk-summary'><b>Current quirks:</b> [current_quirks_str]<br>"
+	dat += "[GetPositiveQuirkCount()] / [MAX_QUIRKS] max positive quirks<br>"
+	dat += "<b>Quirk balance remaining:</b> [GetQuirkBalance(user)]</div>"
+	var/pos_tab_class = (quirk_category == QUIRK_POSITIVE) ? " class='linkOn'" : ""
+	var/neu_tab_class = (quirk_category == QUIRK_NEUTRAL) ? " class='linkOn'" : ""
+	var/neg_tab_class = (quirk_category == QUIRK_NEGATIVE) ? " class='linkOn'" : ""
+	dat += "<div class='quirk-tabs'>"
+	dat += "<a href='?_src_=prefs;quirk_category=[QUIRK_POSITIVE]'[pos_tab_class]>[QUIRK_POSITIVE]</a>"
+	dat += "<a href='?_src_=prefs;quirk_category=[QUIRK_NEUTRAL]'[neu_tab_class]>[QUIRK_NEUTRAL]</a>"
+	dat += "<a href='?_src_=prefs;quirk_category=[QUIRK_NEGATIVE]'[neg_tab_class]>[QUIRK_NEGATIVE]</a>"
+	dat += "</div>"
+	dat += "<div class='quirk-list' id='quirk-list'>"
+	for(var/V in SSquirks.quirks)
+		var/datum/quirk/T = SSquirks.quirks[V]
+		var/value = initial(T.value)
+		if((value > 0 && quirk_category != QUIRK_POSITIVE) || (value < 0 && quirk_category != QUIRK_NEGATIVE) || (value == 0 && quirk_category != QUIRK_NEUTRAL))
+			continue
+
+		var/quirk_name = initial(T.name)
+		var/has_quirk
+		var/quirk_cost = initial(T.value) * -1
+		var/lock_reason = "This trait is unavailable."
+		var/quirk_conflict = FALSE
+		for(var/_V in all_quirks)
+			if(_V == quirk_name)
+				has_quirk = TRUE
+		if(initial(T.mood_quirk) && CONFIG_GET(flag/disable_human_mood))
+			lock_reason = "Mood is disabled."
+			quirk_conflict = TRUE
+		if(has_quirk)
 			if(quirk_conflict)
-				dat += "<font color='[font_color]'>[quirk_name]</font> - [initial(T.desc)] \
-				<font color='red'><b>LOCKED: [lock_reason]</b></font><br>"
+				all_quirks -= quirk_name
+				has_quirk = FALSE
 			else
-				if(has_quirk)
-					dat += "<a href='?_src_=prefs;preference=trait;task=update;trait=[quirk_name]'>[has_quirk ? "Remove" : "Take"] ([quirk_cost] pts.)</a> \
-					<b><font color='[font_color]'>[quirk_name]</font></b> - [initial(T.desc)]<br>"
-				else
-					dat += "<a href='?_src_=prefs;preference=trait;task=update;trait=[quirk_name]'>[has_quirk ? "Remove" : "Take"] ([quirk_cost] pts.)</a> \
-					<font color='[font_color]'>[quirk_name]</font> - [initial(T.desc)]<br>"
-		dat += "<br><center><a href='?_src_=prefs;preference=trait;task=reset'>Reset Quirks</a></center>"
+				quirk_cost *= -1 //invert it back, since we'd be regaining this amount
+		if(quirk_cost > 0)
+			quirk_cost = "+[quirk_cost]"
 
-	var/datum/browser/popup = new(user, "mob_occupation", "<div align='center'>Quirk Preferences</div>", 900, 600) //no reason not to reuse the occupation window, as it's cleaner that way
+		var/category_class = "neutral"
+		if(value > 0)
+			category_class = "positive"
+		else if(value < 0)
+			category_class = "negative"
+		var/locked_class = quirk_conflict ? " locked" : ""
+		var/active_class = has_quirk ? " active" : ""
+		dat += "<div class='quirk-item [category_class][locked_class][active_class]'>"
+		dat += "<div class='quirk-name'>[quirk_name]</div>"
+		dat += "<div class='quirk-desc'>[initial(T.desc)]</div>"
+		if(quirk_conflict)
+			dat += "<div class='quirk-lock'>LOCKED: [lock_reason]</div>"
+		else
+			var/action = has_quirk ? "Remove" : "Take"
+			var/action_cost = quirk_cost
+			dat += "<div class='quirk-small'><a href='?_src_=prefs;preference=trait;task=update;trait=[quirk_name]'>[action] ([action_cost] pts.)</a></div>"
+		dat += "</div>"
+	dat += "</div>" // close quirk-list
+	dat += "<div class='quirk-actions'><a href='?_src_=prefs;preference=trait;task=reset' class='reset'>Reset Quirks</a></div>"
+	dat += "</div>" // close quirk-wrapper
+	dat += scroll_script
+
+	var/datum/browser/popup = new(user, "mob_occupation", "<div align='center'>Quirk Preferences</div>", 900, 650)
 	popup.set_window_options("can_close=0")
 	popup.set_content(dat.Join())
 	popup.open(FALSE)
@@ -2475,6 +2654,9 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 
 	else if(href_list["preference"] == "trait")
 		switch(href_list["task"])
+			if("menu")
+				character_settings_tab = QUIRKS_CHAR_TAB
+				ShowChoices(user)
 			if("close")
 				user << browse(null, "window=mob_occupation")
 				ShowChoices(user)
@@ -2503,12 +2685,12 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 						to_chat(user, "<span class='warning'>You don't have enough balance to gain this quirk!</span>")
 						return
 					all_quirks += quirk
-				SetQuirks(user)
+				ShowChoices(user)
 			if("reset")
 				all_quirks = list()
-				SetQuirks(user)
+				ShowChoices(user)
 			else
-				SetQuirks(user)
+				ShowChoices(user)
 	// BLUEMOON ADD START - возможность настраивать квирки
 	else if(href_list["preference"] == "traits_setup")
 		switch(href_list["task"])
@@ -2518,7 +2700,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					var/new_shriek_type = tgui_input_list(user, "Choose your character's shriek type.", "Character Preference", GLOB.shriek_types)
 					if(new_shriek_type)
 						shriek_type = new_shriek_type
-						SetQuirks(user)
+						ShowChoices(user)
 			if("lewd_summon_nickname")
 				var/client/C = usr.client
 				if(C)
@@ -2527,7 +2709,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 						new_summon_nickname = reject_bad_name(new_summon_nickname, allow_numbers = TRUE)
 						if(new_summon_nickname)
 							summon_nickname = new_summon_nickname
-							SetQuirks(user)
+							ShowChoices(user)
 						else
 							to_chat(user, "<font color='red'>Invalid name. Your name should be at least 2 and at most [MAX_NAME_LEN] characters long. It may only contain the characters A-Z, a-z, А-Я, а-я, -, ' and .</font>")
 
@@ -2538,7 +2720,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 		var/temp_quirk_category = href_list["quirk_category"]
 		if(temp_quirk_category == QUIRK_POSITIVE || temp_quirk_category == QUIRK_NEUTRAL || temp_quirk_category == QUIRK_NEGATIVE)
 			quirk_category = temp_quirk_category
-			SetQuirks(user)
+			character_settings_tab = QUIRKS_CHAR_TAB
+			ShowChoices(user)
 
 	else if(href_list["preference"] == "language")
 		switch(href_list["task"])
