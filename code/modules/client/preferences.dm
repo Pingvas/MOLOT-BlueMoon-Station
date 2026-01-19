@@ -305,6 +305,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	//Quirk list
 	var/list/all_quirks = list()
 
+
 	//Quirk category currently selected
 	var/quirk_category = QUIRK_POSITIVE // defaults to positive, the first tab!
 
@@ -663,7 +664,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					var/unspaced_slots = 0
 					var/has_empty_slot = FALSE
 					var/first_empty_slot = 0
-					
+
 					// Показываем заполненные слоты; кнопку создания выводим позже в первый пустой
 					for(var/i=1, i<=max_save_slots, i++)
 						name = null
@@ -685,7 +686,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 						if(unspaced_slots >= 4)
 							dat += "<br>"
 						dat += "<a style='white-space:nowrap; font-size: 18px; font-weight: bold;' href='?_src_=prefs;preference=changeslot;num=[first_empty_slot];' title='Создать нового персонажа'>+</a> "
-					
+
 					dat += "</center>"
 
 			dat += "<HR>"
@@ -897,7 +898,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "<h2>Headshot Image</h2>"
 					dat += "<a href='?_src_=prefs;preference=headshot'><b>Set Headshot Image</b></a><br>"
 					if(features["headshot_link"])
-						dat += "<img src='[features["headshot_link"]]' width='160px' height='120px'>"
+						dat += "<b>Current quirks:</b> [current_quirks_str]<br>"
+
 					dat += "<br><br>"
 					*/
 					// BLUEMOON REMOVE END
@@ -1266,7 +1268,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 							dat += "<b>Vagina Visibility:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=vag_visibility;task=input'>[features["vag_visibility"]]</a>"
 							dat += "<b>Vagina Always Accessible:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=vag_accessible'>[features["vag_accessible"] ? "Yes" : "No"]</a>"
 							dat += "<b>Toys and Egg Stuffing:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=vag_stuffing'>[features["vag_stuffing"] == TRUE ? "Yes" : "No"]</a>" //SPLURT Edit
-							dat += "<b>Vagina Always Accessible:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=vag_accessible'>[features["vag_accessible"] ? "Yes" : "No"]</a>"
 							dat += "<b>Has Womb:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=has_womb'>[features["has_womb"] == TRUE ? "Yes" : "No"]</a>"
 							//SPLURT Edit
 							if(features["has_womb"] == TRUE)
@@ -1335,7 +1336,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 								dat += "<b>Butthole Always Accessible:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=anus_accessible'>[features["anus_accessible"] ? "Yes" : "No"]</a>"
 								dat += "<b>Toys and Egg Stuffing:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=anus_stuffing'>[features["anus_stuffing"] == TRUE ? "Yes" : "No"]</a>"
 
-							dat += "<b>Butt Always Accessible:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=butt_accessible'>[features["butt_accessible"] ? "Yes" : "No"]</a>"
 						dat += "<h3>Anus</h3>"
 						dat += "<b>Anus Always Accessible:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=anus_accessible'>[features["anus_accessible"] ? "Yes" : "No"]</a>"
 						dat += "</td>"
@@ -1705,7 +1705,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 						dat += "</style>"
 
 						dat += "<div class='quirk-container'>"
-						
+
 						// Inline trait configuration links
 						dat += "<div class='quirk-inline-actions'>"
 						var/summon_delim = summon_nickname ? ": " : ""
@@ -1817,6 +1817,16 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "<b>Auto-Capitalize Speech:</b> <a href='?_src_=prefs;preference=auto_capitalize_enabled'>[(auto_capitalize_enabled ? "Enabled" : "Disabled")]</a><br>"
 					dat += "<b>Preferred Chaos Level:</b> <a style='display:block;width:30px' href='?_src_=prefs;preference=preferred_chaos_level'>[preferred_chaos_level]</a><br>"
 
+					dat += "<br>"
+
+					// Current quirks summary
+					var/current_quirks_str = all_quirks.len ? english_list(all_quirks) : "None"
+					dat += "<div class='quirk-summary'>"
+					dat += "<b>Current quirks:</b> [current_quirks_str]<br>"
+					dat += "[GetPositiveQuirkCount()] / [MAX_QUIRKS] max positive quirks<br>"
+					dat += "<b>Quirk balance remaining:</b> [GetQuirkBalance(user)]"
+					dat += "</div>"
+
 					dat += "</td>"
 
 					dat += "<td width='300px' height='300px' valign='top'>"
@@ -1855,7 +1865,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 
 					dat += "</td></tr></table>"
 
-				if(OOC_PREFS_TAB)
+				else if(preferences_tab == OOC_PREFS_TAB)
 					dat += "<table>"
 					dat += "<tr><td width='340px' height='300px' valign='top'>"
 					dat += "<h2>OOC Settings</h2>"
@@ -2003,7 +2013,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 
 					dat += "</td></tr></table>"
 
-				if(CONTENT_PREFS_TAB)
+				else if(preferences_tab == CONTENT_PREFS_TAB)
 					dat += "<table><tr><td width='340px' height='300px' valign='top'>"
 					dat += "<h2>Fetish content prefs</h2>"
 					dat += "<b>Allow Lewd Verbs:</b> <a href='?_src_=prefs;preference=verb_consent'>[(toggles & VERB_CONSENT) ? "Yes":"No"]</a><br>" // Skyrat - ERP Mechanic Addition
@@ -4910,7 +4920,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					var/slot_to_delete = text2num(href_list["num"])
 					if(!slot_to_delete || slot_to_delete < 1 || slot_to_delete > max_save_slots)
 						return FALSE
-					
+
 					// Проверяем, есть ли персонаж в этом слоте
 					if(!path)
 						return FALSE
@@ -4920,19 +4930,19 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					S.cd = "/character[slot_to_delete]"
 					var/character_name
 					S["real_name"] >> character_name
-					
+
 					if(!character_name)
 						to_chat(user, span_warning("Этот слот уже пуст!"))
 						return FALSE
-					
+
 					// Подтверждение удаления
 					if(alert(user, "Вы уверены, что хотите удалить персонажа '[character_name]'? Это действие нельзя отменить!", "Подтверждение удаления", "Да", "Нет") != "Да")
 						return FALSE
-					
+
 					// Удаляем персонажа, очищая все данные в слоте
 					S.cd = "/character[slot_to_delete]"
 					S.dir.Cut() // Очищаем все данные в директории слота
-					
+
 					// Компактим слоты: сдвигаем следующие занятые вверх
 					var/target = slot_to_delete
 					for(var/i = slot_to_delete + 1, i <= max_save_slots, i++)
@@ -4949,15 +4959,24 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 						S.cd = "/character[i]"
 						S.dir.Cut()
 						target++
-					
+
 					// Обновляем default_slot, если он оказался за границей
 					var/new_default = min(default_slot, max(1, target - 1))
 					default_slot = new_default
 					S.cd = "/"
 					S["default_slot"] << default_slot
-					
+
 					to_chat(user, span_notice("Персонаж '[character_name]' был удален."))
-					
+
+					// Reset all character data to prevent conflicts
+					all_quirks = list()
+					be_special = list()
+					features.Cut()
+					if(pref_species)
+						features["mcolor"] = pref_species.default_color
+					else
+						features["mcolor"] = "#FFFFFF"
+
 					// Переключаемся на первый слот
 					if(slot_to_delete == default_slot)
 						if(!load_character(1))
