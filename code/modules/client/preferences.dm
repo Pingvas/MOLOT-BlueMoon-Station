@@ -100,6 +100,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/be_victim = null
 	var/use_new_playerpanel = TRUE // BLUEMOON - ENABELING-MODERN-PLAYER-PANEL-AS-DEFAULT
 	var/disable_combat_cursor = FALSE
+	var/character_setup_theme = "dark"	/// BLUEMOON ADD - тема для меню настройки персонажа
 	var/tg_playerpanel = "TG"
 	var/pda_style = MONO
 	var/pda_color = "#808000"
@@ -481,15 +482,149 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 #define APPEARANCE_CATEGORY_COLUMN "<td valign='top' width='17%'>"
 #define MAX_MUTANT_ROWS 5
 
+/// Получить список доступных тем для меню настройки персонажа
+/datum/preferences/proc/get_available_themes()
+	return list("dark" = "Тёмная", "classic" = "Классическая", "neutral" = "Нейтральная")
+
+/// Получить CSS стили для выбранной темы
+/datum/preferences/proc/get_theme_colors()
+	var/theme_colors = list()
+
+	switch(character_setup_theme)
+		if("classic")
+			// Классическая тема с оригинальной синей палитрой BYOND
+			theme_colors["bg_primary"] = "#272727"
+			theme_colors["bg_secondary"] = "#1a1a1a"
+			theme_colors["bg_pattern"] = "none"
+			theme_colors["text_primary"] = "#ffffff"
+			theme_colors["text_secondary"] = "#c0c0c0"
+			theme_colors["button_bg"] = "#40628a"
+			theme_colors["button_hover"] = "#2f943c"
+			theme_colors["button_active"] = "#2f943c"
+			theme_colors["button_text"] = "#ffffff"
+			theme_colors["border_color"] = "#161616"
+			theme_colors["accent_color"] = "#40628a"
+
+		if("neutral")
+			// Нейтральная тема, чуть светлее темной
+			theme_colors["bg_primary"] = "#f2f2f2"
+			theme_colors["bg_secondary"] = "#ffffff"
+			theme_colors["bg_pattern"] = "repeating-linear-gradient(90deg, rgba(255,255,255,0.32) 0px, rgba(255,255,255,0.32) 10px, rgba(0,0,0,0.035) 10px, rgba(0,0,0,0.035) 20px)"
+			theme_colors["text_primary"] = "#222222"
+			theme_colors["text_secondary"] = "#555555"
+			theme_colors["button_bg"] = "#e4e4e4"
+			theme_colors["button_hover"] = "#d9d9d9"
+			theme_colors["button_active"] = "#e0e7ff"
+			theme_colors["button_text"] = "#1f2b4d"
+			theme_colors["border_color"] = "#cccccc"
+			theme_colors["accent_color"] = "#6a8cff"
+
+		else // "dark" или значение по умолчанию
+			// Тёмная тема для новых игроков
+			theme_colors["bg_primary"] = "#121212"
+			theme_colors["bg_secondary"] = "#1c1c1c"
+			theme_colors["bg_pattern"] = "none"
+			theme_colors["text_primary"] = "#e6e6e6"
+			theme_colors["text_secondary"] = "#a8a8a8"
+			theme_colors["button_bg"] = "#1f1f1f"
+			theme_colors["button_hover"] = "#2a2a2a"
+			theme_colors["button_active"] = "#4da3ff"
+			theme_colors["button_text"] = "#0b1c2f"
+			theme_colors["border_color"] = "#2f2f2f"
+			theme_colors["accent_color"] = "#4da3ff"
+
+	return theme_colors
+
 /datum/preferences/proc/ShowChoices(mob/user)
 	if(!user || !user.client)
 		return
 	update_preview_icon(current_tab)
-	var/list/dat = list("<center>")
 
-	dat += "<a href='?_src_=prefs;preference=tab;tab=[SETTINGS_TAB]' [current_tab == SETTINGS_TAB ? "class='linkOn'" : ""]>Character Settings</a>"
-	dat += "<a href='?_src_=prefs;preference=tab;tab=[PREFERENCES_TAB]' [current_tab == PREFERENCES_TAB ? "class='linkOn'" : ""]>Preferences</a>"
-	dat += "<a href='?_src_=prefs;preference=tab;tab=[KEYBINDINGS_TAB]' [current_tab == KEYBINDINGS_TAB ? "class='linkOn'" : ""]>Keybindings</a>"
+	// Получаем цвета для текущей темы
+	var/list/theme = get_theme_colors()
+	var/list/available_themes = get_available_themes()
+	var/list/theme_swatches = list("dark" = "#121212", "classic" = "#40628a", "neutral" = "#bfc2c7")
+
+	// Генерируем CSS стили на основе темы
+	var/css_styles = "<style>\n\
+		* { box-sizing: border-box; }\n\
+		body, #main, body.dark { background-color: [theme["bg_primary"]]; color: [theme["text_primary"]]; font-family: 'Arial', 'Helvetica', sans-serif; margin: 0; padding: 10px; position: relative; background-image: [theme["bg_pattern"]]; background-size: 24px 24px; }\n\
+		.linkOn { background-color: [theme["button_active"]]; color: [theme["button_text"]]; padding: 6px 12px; border-radius: 4px; font-weight: bold; }\n\
+		a { color: [theme["text_primary"]]; text-decoration: none; padding: 6px 12px; margin: 2px; display: inline-block; background-color: [theme["button_bg"]]; border-radius: 4px; border: 1px solid [theme["border_color"]]; transition: all 0.25s ease; cursor: pointer; font-size: 13px; vertical-align: middle; }\n\
+		a:hover { background-color: [theme["button_hover"]]; transform: translateY(-2px); }\n\
+		a.linkOff { color: [theme["text_secondary"]]; cursor: not-allowed; opacity: 0.5; }\n\
+		.notice { background-color: [theme["bg_secondary"]]; border: 1px solid [theme["border_color"]]; padding: 12px; border-radius: 4px; color: [theme["accent_color"]]; margin: 10px 0; text-align: center; }\n\
+		hr { border: none; border-top: 1px solid [theme["border_color"]]; margin: 15px 0; }\n\
+		center { margin: 10px 0; }\n\
+		table { background-color: [theme["bg_secondary"]]; border-collapse: collapse; width: 100%; }\n\
+		td, th { padding: 10px; color: [theme["text_primary"]]; text-align: left; border-bottom: 1px solid [theme["border_color"]]; }\n\
+		td:not(:last-child) { border-right: 1px solid [theme["border_color"]]; }\n\
+		h2, h3 { color: [theme["accent_color"]]; margin-top: 15px; margin-bottom: 10px; }\n\
+		b { color: [theme["text_primary"]]; }\n\
+		.tab-link { white-space: nowrap; }\n\
+		.theme-selector { position: absolute; top: 8px; right: 8px; display: flex; align-items: center; gap: 6px; background-color: [theme["bg_secondary"]]; padding: 6px 8px; border-radius: 6px; border: 1px solid [theme["border_color"]]; box-shadow: 0 2px 8px rgba(0,0,0,0.35); }\n\
+		.theme-emoji { margin-right: 4px; font-size: 14px; }\n\
+		.theme-swatch { padding: 0 !important; margin: 0 4px; width: 18px; height: 18px; border-radius: 4px; border: 2px solid [theme["border_color"]]; background-color: transparent; display: inline-block; box-shadow: none; transition: all 0.25s ease; }\n\
+		.theme-swatch:hover { transform: translateY(-2px) scale(1.05); }\n\
+		.theme-swatch.active { border-color: [theme["accent_color"]]; box-shadow: 0 0 8px [theme["accent_color"]]; }\n\
+		</style>"
+
+	// Скрипт для сохранения позиции скролла при клике на ссылки
+	var/scroll_script = "<script>\n\
+(function(){\n\
+  // Восстанавливаем скролл после загрузки страницы\n\
+  function restoreScroll(){\n\
+    try{\n\
+      var saved = localStorage.getItem('prefMenuScroll');\n\
+      if(saved){\n\
+        var y = parseInt(saved, 10);\n\
+        window.scrollTo(0, y);\n\
+        localStorage.removeItem('prefMenuScroll');\n\
+      }\n\
+    } catch(e) {}\n\
+  }\n\
+  // При клике сохраняем скролл перед переходом\n\
+  function attachScrollHandlers(){\n\
+    var links = document.querySelectorAll('a');\n\
+    Array.prototype.forEach.call(links, function(a){\n\
+      var onclick = a.onclick;\n\
+      a.onclick = function(e){\n\
+        try{ localStorage.setItem('prefMenuScroll', (window.scrollY || document.documentElement.scrollTop || 0).toString()); } catch(e) {}\n\
+        if(onclick) return onclick.call(a, e);\n\
+      };\n\
+    });\n\
+  }\n\
+  if(document.readyState === 'complete' || document.readyState === 'interactive'){\n\
+    restoreScroll();\n\
+    attachScrollHandlers();\n\
+  } else {\n\
+    document.addEventListener('DOMContentLoaded', function(){\n\
+      restoreScroll();\n\
+      attachScrollHandlers();\n\
+    });\n\
+  }\n\
+  // Дополнительное восстановление через небольшую задержку\n\
+  setTimeout(restoreScroll, 100);\n\
+})();\n\
+</script>"
+
+	var/list/dat = list(css_styles, scroll_script)
+
+	// Селектор темы в правом верхнем углу
+	dat += "<div class='theme-selector'>"
+	dat += "<span class='theme-emoji'>🎨</span>"
+	for(var/theme_id in available_themes)
+		var/theme_name = available_themes[theme_id]
+		var/is_active = (character_setup_theme == theme_id)
+		var/swatch_color = theme_swatches[theme_id] ? theme_swatches[theme_id] : theme["accent_color"]
+		dat += "<a href='?_src_=prefs;preference=setup_theme;theme=[theme_id]' class='[is_active ? "theme-swatch active" : "theme-swatch"]' style='background-color: [swatch_color];' title='[theme_name]'></a>"
+	dat += "</div>"
+
+	dat += "<center>"
+
+	dat += "<a class='tab-link' href='?_src_=prefs;preference=tab;tab=[SETTINGS_TAB]' [current_tab == SETTINGS_TAB ? "class='linkOn tab-link'" : ""]>Параметры персонажа</a>"
+	dat += "<a class='tab-link' href='?_src_=prefs;preference=tab;tab=[PREFERENCES_TAB]' [current_tab == PREFERENCES_TAB ? "class='linkOn tab-link'" : ""]>Настройки</a>"
+	dat += "<a class='tab-link' href='?_src_=prefs;preference=tab;tab=[KEYBINDINGS_TAB]' [current_tab == KEYBINDINGS_TAB ? "class='linkOn tab-link'" : ""]>Горячие клавиши</a>"
 
 	if(!path)
 		dat += "<div class='notice'>Please create an account to save your preferences</div>"
@@ -611,8 +746,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 			switch(character_settings_tab)
 				//General
 				if(GENERAL_CHAR_TAB)
-					dat += "<center><h2>Occupation Choices</h2>"
-					dat += "<a href='?_src_=prefs;preference=job;task=menu'>Set Occupation Preferences</a><br></center>"
+					dat += "<center><h2>Выбор должностей</h2>"
+					dat += "<a href='?_src_=prefs;preference=job;task=menu'>Установить предпочтения должностей</a><br></center>"
 					if(CONFIG_GET(flag/roundstart_traits))
 						dat += "<center><h2>Quirk Setup ([GetQuirkBalance(user)] points left)</h2>"
 						dat += "<a href='?_src_=prefs;preference=trait;task=menu'>Configure Quirks</a><br></center>"
@@ -681,8 +816,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 				if(BACKGROUND_CHAR_TAB)
 					dat += "<table width='100%'><tr><td width='30%' valign='top'>"
 
-					dat += "<h2>Flavor Text</h2>"
-					dat += "<a href='?_src_=prefs;preference=flavor_text;task=input'><b>Set Examine Text</b></a><br>"
+					dat += "<h2>Текст описания</h2>"
+					dat += "<a href='?_src_=prefs;preference=flavor_text;task=input'><b>Установить текст осмотра</b></a><br>"
 					if(length(features["flavor_text"]) <= MAX_FLAVOR_PREVIEW_LEN)
 						if(!length(features["flavor_text"]))
 							dat += "\[...\]"
@@ -702,8 +837,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 						dat += "[TextPreview(html_encode(features["naked_flavor_text"]))]...<BR>"
 					//SPLURT edit end
 					// BLUEMOON ADD START - пользовательский эмоут смерти
-					dat += "<h2>Custom Deathgasp</h2>"
-					dat += "<a href='?_src_=prefs;preference=custom_deathgasp;task=input'><b>Set Custom Deathgasp</b></a><br>"
+					dat += "<h2>Пользовательский звук смерти</h2>"
+					dat += "<a href='?_src_=prefs;preference=custom_deathgasp;task=input'><b>Установить пользовательский звук смерти</b></a><br>"
 					if(length(features["custom_deathgasp"]) <= MAX_FLAVOR_PREVIEW_LEN)
 						if(!length(features["custom_deathgasp"]))
 							dat += "\[...\]<BR>"
@@ -711,10 +846,10 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 							dat += "[html_encode(features["custom_deathgasp"])]<BR>"
 					else
 						dat += "[TextPreview(html_encode(features["custom_deathgasp"]))]...<BR>"
-					dat += "<h2>Custom Deathgasp Sound</h2>"
-					dat += "<a href='?_src_=prefs;preference=custom_deathsound;task=input'><b>Set Custom Deathsound</b></a><br>"
+					dat += "<h2>Звук пользовательской смерти</h2>"
+					dat += "<a href='?_src_=prefs;preference=custom_deathsound;task=input'><b>Установить пользовательский звук смерти</b></a><br>"
 					dat += "[features["custom_deathsound"]]<BR>"
-					dat += "<BR><a href='?_src_=prefs;preference=deathsoundpreview;task=input''>Preview Deathsound</a><BR>"
+					dat += "<BR><a href='?_src_=prefs;preference=deathsoundpreview;task=input''>Предпросмотр звука смерти</a><BR>"
 					// BLUEMOON ADD END
 					dat += "<h2>Silicon Flavor Text</h2>"
 					dat += "<a href='?_src_=prefs;preference=silicon_flavor_text;task=input'><b>Set Silicon Examine Text</b></a><br>"
@@ -734,8 +869,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 							dat += "[features["custom_species_lore"]]<BR>"
 					else
 						dat += "[TextPreview(features["custom_species_lore"])]...<BR>"
-					dat += "<h2>OOC notes</h2>"
-					dat += "<a href='?_src_=prefs;preference=ooc_notes;task=input'><b>Set OOC notes</b></a><br>"
+					dat += "<h2>Заметки OOC</h2>"
+					dat += "<a href='?_src_=prefs;preference=ooc_notes;task=input'><b>Установить заметки OOC</b></a><br>"
 					var/ooc_notes_len = length(features["ooc_notes"])
 					if(ooc_notes_len <= MAX_FLAVOR_PREVIEW_LEN)
 						if(!ooc_notes_len)
@@ -758,8 +893,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "</td>"
 
 					dat += "<td valign='top'>"
-					dat += "<h2>Records</h2>"
-					dat += "<a href='?_src_=prefs;preference=security_records;task=input'><b>Security Records</b></a><br>"
+					dat += "<h2>Записи</h2>"
+					dat += "<a href='?_src_=prefs;preference=security_records;task=input'><b>Записи безопасности</b></a><br>"
 					if(length_char(security_records) <= 40)
 						if(!length(security_records))
 							dat += "\[...\]"
@@ -768,7 +903,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					else
 						dat += "[TextPreview(security_records)]..."
 
-					dat += "<br><a href='?_src_=prefs;preference=medical_records;task=input'><b>Medical Records</b></a><br>"
+					dat += "<br><a href='?_src_=prefs;preference=medical_records;task=input'><b>Медицинские записи</b></a><br>"
 					if(length_char(medical_records) <= 40)
 						if(!length(medical_records))
 							dat += "\[...\]"
@@ -2261,6 +2396,14 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 			to_chat(user, text, confidential = TRUE)
 		qdel(query_get_jobban)
 		return
+
+	// Обработка выбора темы для меню настройки
+	if(href_list["preference"] == "setup_theme")
+		if(href_list["theme"])
+			character_setup_theme = href_list["theme"]
+			save_preferences()
+		ShowChoices(user)
+		return TRUE
 
 	if(href_list["preference"] == "job")
 		switch(href_list["task"])
