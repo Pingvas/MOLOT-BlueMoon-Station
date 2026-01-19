@@ -1622,7 +1622,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 									if(is_disabled)
 										item_html += "<div class='[item_class]' style='display:inline-block; vertical-align:top; width:180px; margin:8px;'>"
 									else
-										item_html += "<div class='[item_class] gear-tooltip' style='display:inline-block; vertical-align:top; width:180px; margin:8px;' onclick=\"window.location.href='[link_href]'\">"
+										item_html += "<div class='[item_class] gear-tooltip' style='display:inline-block; vertical-align:top; width:180px; margin:8px;' onclick=\"try{localStorage.setItem('prefMenuScroll',(window.scrollY||document.documentElement.scrollTop||0).toString());}catch(e){}window.location.href='[link_href]'\">"
 									item_html += "<div class='gear-icon'>"
 									if(gear.base64icon)
 										item_html += "<img src='data:image/jpeg;base64,[gear.base64icon]'>"
@@ -1638,20 +1638,20 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 									if(loadout_item)
 										item_html += "<div style='margin-top: 8px; padding-top: 8px; border-top: 1px solid #404040; font-size: 9px; line-height: 1.3;'>"
 										if(gear.loadout_flags & LOADOUT_CAN_COLOR_POLYCHROMIC)
-											item_html += "<a href='?_src_=prefs;preference=gear;loadout_color_polychromic=1;loadout_gear_name=[html_encode(gear.name)];' style='display:block; color: #ffcc66; margin-bottom: 3px;'>Цвет</a>"
+											item_html += "<a href='?_src_=prefs;preference=gear;loadout_color_polychromic=1;loadout_gear_name=[html_encode(gear.name)];' onclick='event.stopPropagation();' style='display:block; color: #ffcc66; margin-bottom: 3px;'>Цвет</a>"
 										else
-											item_html += "<a href='?_src_=prefs;preference=gear;loadout_color=1;loadout_gear_name=[html_encode(gear.name)];' style='display:block; color: #ffcc66; margin-bottom: 3px;'>Цвет</a>"
-											item_html += "<a href='?_src_=prefs;preference=gear;loadout_color_HSV=1;loadout_gear_name=[html_encode(gear.name)];' style='display:block; color: #ffaa44; margin-bottom: 3px;'>HSV</a>"
+											item_html += "<a href='?_src_=prefs;preference=gear;loadout_color=1;loadout_gear_name=[html_encode(gear.name)];' onclick='event.stopPropagation();' style='display:block; color: #ffcc66; margin-bottom: 3px;'>Цвет</a>"
+											item_html += "<a href='?_src_=prefs;preference=gear;loadout_color_HSV=1;loadout_gear_name=[html_encode(gear.name)];' onclick='event.stopPropagation();' style='display:block; color: #ffaa44; margin-bottom: 3px;'>HSV</a>"
 										if(gear.loadout_flags & LOADOUT_CAN_NAME)
-											item_html += "<a href='?_src_=prefs;preference=gear;loadout_rename=1;loadout_gear_name=[html_encode(gear.name)];' style='display:block; color: #99ff99; margin-bottom: 3px;'>Имя</a>"
+											item_html += "<a href='?_src_=prefs;preference=gear;loadout_rename=1;loadout_gear_name=[html_encode(gear.name)];' onclick='event.stopPropagation();' style='display:block; color: #99ff99; margin-bottom: 3px;'>Имя</a>"
 										if(gear.loadout_flags & LOADOUT_CAN_DESCRIPTION)
-											item_html += "<a href='?_src_=prefs;preference=gear;loadout_redescribe=1;loadout_gear_name=[html_encode(gear.name)];' style='display:block; color: #99ccff; margin-bottom: 3px;'>Описание</a>"
+											item_html += "<a href='?_src_=prefs;preference=gear;loadout_redescribe=1;loadout_gear_name=[html_encode(gear.name)];' onclick='event.stopPropagation();' style='display:block; color: #99ccff; margin-bottom: 3px;'>Описание</a>"
 										if(loadout_item[LOADOUT_IS_HEIRLOOM])
-											item_html += "<a href='?_src_=prefs;preference=gear;loadout_removeheirloom=1;loadout_gear_name=[html_encode(gear.name)];' style='display:block; color: #ffd700; margin-bottom: 3px;'>★ Реликвия</a>"
+											item_html += "<a href='?_src_=prefs;preference=gear;loadout_removeheirloom=1;loadout_gear_name=[html_encode(gear.name)];' onclick='event.stopPropagation();' style='display:block; color: #ffd700; margin-bottom: 3px;'>★ Реликвия</a>"
 										else
-											item_html += "<a href='?_src_=prefs;preference=gear;loadout_addheirloom=1;loadout_gear_name=[html_encode(gear.name)];' style='display:block; color: #cccccc; margin-bottom: 3px;'>☆ Реликвия</a>"
+											item_html += "<a href='?_src_=prefs;preference=gear;loadout_addheirloom=1;loadout_gear_name=[html_encode(gear.name)];' onclick='event.stopPropagation();' style='display:block; color: #cccccc; margin-bottom: 3px;'>☆ Реликвия</a>"
 										if(ispath(gear.path, /obj/item/clothing/neck/petcollar))
-											item_html += "<a href='?_src_=prefs;preference=gear;loadout_tagname=1;loadout_gear_name=[html_encode(gear.name)];' style='display:block; color: #ff99ff;'>Бирка</a>"
+											item_html += "<a href='?_src_=prefs;preference=gear;loadout_tagname=1;loadout_gear_name=[html_encode(gear.name)];' onclick='event.stopPropagation();' style='display:block; color: #ff99ff;'>Бирка</a>"
 										item_html += "</div>"
 									item_html += "</div>"
 									dat += item_html
@@ -4926,7 +4926,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 						return FALSE
 					
 					// Подтверждение удаления
-					if(tgui_alert(user, "Вы уверены, что хотите удалить персонажа '[character_name]'? Это действие нельзя отменить!", "Подтверждение удаления", list("Да", "Нет")) != "Да")
+					if(alert(user, "Вы уверены, что хотите удалить персонажа '[character_name]'? Это действие нельзя отменить!", "Подтверждение удаления", "Да", "Нет") != "Да")
 						return FALSE
 					
 					// Удаляем персонажа, очищая все данные в слоте
