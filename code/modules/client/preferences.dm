@@ -567,6 +567,26 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 		.theme-swatch { padding: 0 !important; margin: 0 4px; width: 18px; height: 18px; border-radius: 4px; border: 2px solid [theme["border_color"]]; background-color: transparent; display: inline-block; box-shadow: none; transition: all 0.25s ease; }\n\
 		.theme-swatch:hover { transform: translateY(-2px) scale(1.05); }\n\
 		.theme-swatch.active { border-color: [theme["accent_color"]]; box-shadow: 0 0 8px [theme["accent_color"]]; }\n\
+		/* Loadout gear grid styles */\n\
+		.gear-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 15px; padding: 20px; }\n\
+		.gear-item { border: 2px solid #404040; border-radius: 8px; padding: 12px; text-align: center; cursor: pointer; transition: all 0.2s ease; background-color: #1a1f26; width: 100%; max-width: 200px; margin: 0 auto; }\n\
+		.gear-item:hover { border-color: #6b9eff; box-shadow: 0 0 10px rgba(107,158,255,0.3); background-color: #232b38; }\n\
+		.gear-item.selected { border-color: #ffd700; box-shadow: 0 0 15px rgba(255,215,0,0.4); background-color: #2a3340; }\n\
+		.gear-item.disabled { opacity: 0.5; cursor: not-allowed; border-color: #404040; }\n\
+		.gear-item.disabled:hover { border-color: #404040; box-shadow: none; background-color: #1a1f26; }\n\
+		.gear-item.locked { opacity: 0.4; cursor: not-allowed; border-color: #5a3030; }\n\
+		.gear-item.donor { background-color: #2a2410; border-color: #8b7500; }\n\
+		.gear-item.donor:hover { border-color: #ebc42e; box-shadow: 0 0 10px rgba(235,196,46,0.3); }\n\
+		.gear-icon { height: 80px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }\n\
+		.gear-icon img { max-height: 80px; max-width: 80px; object-fit: contain; }\n\
+		.gear-name { font-weight: bold; font-size: 12px; margin-bottom: 4px; color: #b0b0ff; white-space: normal; word-wrap: break-word; }\n\
+		.gear-cost { font-size: 11px; color: #80ff80; margin-bottom: 4px; }\n\
+		.gear-tooltip { position: relative; }\n\
+		.gear-tooltip-text { visibility: hidden; width: 250px; background-color: #1a1f26; color: #c0c0ff; text-align: left; border: 1px solid #404040; border-radius: 6px; padding: 10px; position: absolute; z-index: 1000; bottom: 125%; left: 50%; margin-left: -125px; opacity: 0; transition: opacity 0.3s; font-size: 11px; box-shadow: 0 4px 8px rgba(0,0,0,0.5); }\n\
+		.gear-item:hover .gear-tooltip-text { visibility: visible; opacity: 1; }\n\
+		.gear-tooltip-desc { margin-bottom: 6px; border-bottom: 1px solid #404040; padding-bottom: 6px; }\n\
+		.gear-tooltip-restrictions { color: #ff9090; font-size: 10px; margin-top: 6px; }\n\
+		.gear-tooltip-cost { color: #80ff80; font-size: 10px; margin-top: 4px; }\n\
 		</style>"
 
 	// Скрипт для сохранения позиции скролла при клике на ссылки
@@ -1536,7 +1556,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 								dat += " <a href='?_src_=prefs;preference=gear;select_category=[html_encode(category)]'>[(category == LOADOUT_CATEGORY_ERROR && loadout_errors) ? "[category] (<font color=\"red\">!</font>)" : category]</a> "
 
 						dat += "</b></center></td></tr>"
-						dat += "<tr><td colspan=4><hr></td></tr>"
 
 						dat += "<tr><td colspan=4><center><b>"
 
@@ -1558,105 +1577,87 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 								else
 									dat += " <a href='?_src_=prefs;preference=gear;select_subcategory=[html_encode(subcategory)]'>[subcategory]</a> "
 							dat += "</b></center></td></tr>"
+							dat += "</table>"
 
-							var/even = FALSE
 							if(gear_category != LOADOUT_CATEGORY_ERROR)
-								dat += "<table align='center'; width='100%'; height='100%'; style='background-color:#13171C'>"
-								dat += "<center>"
-								dat += "<tr width=10% style='vertical-align:top;'><td width=15%><b>Name</b></td>"
-								dat += "<td style='vertical-align:top'><b>Cost</b></td>"
-								dat += "<td width=10%><font size=2><b>Restrictions</b></font></td>"
-								dat += "<td width=80%><font size=2><b>Description</b></font></td></tr>"
-								dat += "</center>"
-
+								dat += "<div class='gear-grid'>"
 								for(var/name in GLOB.loadout_items[gear_category][gear_subcategory])
 									var/datum/gear/gear = GLOB.loadout_items[gear_category][gear_subcategory][name]
 									var/donoritem = gear.donoritem
 									if(donoritem && !gear.donator_ckey_check(user.ckey))
 										continue
-									var/background_cl = "#23273C"
-									if(even)
-										background_cl = "#17191C"
-									even = !even
-									var/class_link = ""
 									var/list/loadout_item = has_loadout_gear(loadout_slot, "[gear.type]")
-									var/extra_loadout_data = ""
-									if(gear.base64icon)
-										extra_loadout_data += "<center><img src=data:image/jpeg;base64,[gear.base64icon]></center>"
+									var/item_class = "gear-item"
+									var/link_href = ""
+									var/is_disabled = FALSE
 									if(loadout_item)
-										class_link = "style='white-space:normal;' class='linkOn' href='?_src_=prefs;preference=gear;toggle_gear_path=[html_encode(name)];toggle_gear=0'"
-										if(gear.loadout_flags & LOADOUT_CAN_COLOR_POLYCHROMIC)
-											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color_polychromic=1;loadout_gear_name=[html_encode(gear.name)];'>Color</a>"
-											for(var/loadout_color in loadout_item[LOADOUT_COLOR])
-												var/list/loadout_color_preview = get_loadout_color_preview(loadout_color)
-												var/display_color = loadout_color_preview["color"]
-												var/font_color = color_hex2num(display_color) < 200 ? "FFFFFF" : "000000"
-												extra_loadout_data += "<span style='border: 1px solid #161616; background-color: [display_color];'><font color='[font_color]'>[display_color]</font></span>"
-												if(loadout_color_preview["is_matrix"])
-													extra_loadout_data += " (matrix color)"
-										else
-											var/loadout_color_non_poly = "#FFFFFF"
-											var/is_matrix_color = FALSE
-											if(length(loadout_item[LOADOUT_COLOR]))
-												var/first_color = islist(loadout_item[LOADOUT_COLOR]) ? loadout_item[LOADOUT_COLOR][1] : loadout_item[LOADOUT_COLOR]
-												var/list/non_poly_preview = get_loadout_color_preview(first_color)
-												loadout_color_non_poly = non_poly_preview["color"]
-												is_matrix_color = non_poly_preview["is_matrix"]
-											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color=1;loadout_gear_name=[html_encode(gear.name)];'>Color</a>"
-											var/non_poly_font = color_hex2num(loadout_color_non_poly) < 200 ? "FFFFFF" : "000000"
-											extra_loadout_data += "<span style='border: 1px solid #161616; background-color: [loadout_color_non_poly];'><font color='[non_poly_font]'>[loadout_color_non_poly]</font></span>"
-											if(is_matrix_color)
-												extra_loadout_data += " (matrix color)"
-											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color_HSV=1;loadout_gear_name=[html_encode(gear.name)];'>HSV Color</a>" // SPLURT EDIT
-										if(gear.loadout_flags & LOADOUT_CAN_NAME)
-											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_rename=1;loadout_gear_name=[html_encode(gear.name)];'>Name</a> [loadout_item[LOADOUT_CUSTOM_NAME] ? loadout_item[LOADOUT_CUSTOM_NAME] : "N/A"]"
-										if(gear.loadout_flags & LOADOUT_CAN_DESCRIPTION)
-											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_redescribe=1;loadout_gear_name=[html_encode(gear.name)];'>Description</a>"
-										else
-											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_addheirloom=1;loadout_gear_name=[html_encode(gear.name)];'>Select as Heirloom</a><BR>"
-										// BLUEMOON ADD START - выбор вещей из лодаута как family heirloom
-										if(loadout_item[LOADOUT_IS_HEIRLOOM])
-											extra_loadout_data += "<BR><a class='linkOn' href='?_src_=prefs;preference=gear;loadout_removeheirloom=1;loadout_gear_name=[html_encode(gear.name)];'>Select as Heirloom</a><BR>"
-										else
-											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_addheirloom=1;loadout_gear_name=[html_encode(gear.name)];'>Select as Heirloom</a><BR>"
-										if(ispath(gear.path, /obj/item/clothing/neck/petcollar)) //"name tag" sounds better for me, but in petcollar code "tagname" is used so let it be.
-											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_tagname=1;loadout_gear_name=[html_encode(gear.name)];'>Name tag</a> [loadout_item["loadout_custom_tagname"] ? loadout_item["loadout_custom_tagname"] : "Name tag is visible for everyone looking at wearer."]"
-								  // BLUEMOON ADD END
+										item_class += " selected"
+										link_href = "?_src_=prefs;preference=gear;toggle_gear_path=[html_encode(name)];toggle_gear=0"
 									else if(!is_loadout_slot_available(gear.category))
-										class_link = "style='white-space:normal;' class='linkOff'"
+										item_class += " disabled"
+										is_disabled = TRUE
 									else if((gear_points - gear.cost) < 0)
-										class_link = "style='white-space:normal;' class='linkOff'"
+										item_class += " disabled"
+										is_disabled = TRUE
 									else if(donoritem)
-										class_link = "style='white-space:normal;background:#ebc42e;' href='?_src_=prefs;preference=gear;toggle_gear_path=[html_encode(name)];toggle_gear=1'"
+										item_class += " donor"
+										link_href = "?_src_=prefs;preference=gear;toggle_gear_path=[html_encode(name)];toggle_gear=1"
 									else if(!istype(gear, /datum/gear/unlockable) || can_use_unlockable(gear))
-										class_link = "style='white-space:normal;' href='?_src_=prefs;preference=gear;toggle_gear_path=[html_encode(name)];toggle_gear=1'"
+										link_href = "?_src_=prefs;preference=gear;toggle_gear_path=[html_encode(name)];toggle_gear=1"
 									else
-										class_link = "style='white-space:normal;background:#eb2e2e;' class='linkOff'"
-									dat += "<tr style='vertical-align:top; background-color: [background_cl];'><td width=15%><a [class_link]>[name]</a>[extra_loadout_data]</td>"
-									dat += "<td width = 5% style='vertical-align:top'>[gear.cost]</td><td>"
-									if(islist(gear.restricted_roles))
-										if(gear.restricted_roles.len)
-											if(gear.restricted_desc)
-												dat += "<font size=2>"
-												dat += gear.restricted_desc
-												dat += "</font>"
-											else
-												dat += "<font size=2>"
-												dat += gear.restricted_roles.Join(";")
-												dat += "</font>"
-									if(!istype(gear, /datum/gear/unlockable))
-										var/is_heirloom_string = loadout_item ? (loadout_item[LOADOUT_IS_HEIRLOOM] ? "<br><br><center><b>Ваша семейная реликвия!</b></center>" : "") : "" // BLUEMOON EDIT - выбор вещей из лодаута как family heirloom
-										// the below line essentially means "if the loadout item is picked by the user and has a custom description, give it the custom description, otherwise give it the default description"
-										dat += "</td><td><font size=2><i>[loadout_item ? (loadout_item[LOADOUT_CUSTOM_DESCRIPTION] ? loadout_item[LOADOUT_CUSTOM_DESCRIPTION] : gear.description) : gear.description]</i> [is_heirloom_string]</font></td></tr>" // BLUEMOON EDIT - выбор вещей из лодаута как family heirloom
+										item_class += " locked"
+										is_disabled = TRUE
+									var/tooltip_text = ""
+									if(gear.description)
+										tooltip_text += "<div class='gear-tooltip-desc'>[gear.description]</div>"
+									if(islist(gear.restricted_roles) && gear.restricted_roles.len)
+										if(gear.restricted_desc)
+											tooltip_text += "<div class='gear-tooltip-restrictions'><b>Требования:</b> [gear.restricted_desc]</div>"
+										else
+											tooltip_text += "<div class='gear-tooltip-restrictions'><b>Требования:</b> [english_list(gear.restricted_roles)]</div>"
+									tooltip_text += "<div class='gear-tooltip-cost'><b>Стоимость:</b> [gear.cost]</div>"
+									if(loadout_item && loadout_item[LOADOUT_IS_HEIRLOOM])
+										tooltip_text += "<div style='color: #ffd700; margin-top: 4px;'><b>★ Семейная реликвия ★</b></div>"
+									var/item_html = ""
+									if(is_disabled)
+										item_html += "<div class='[item_class]' style='display:inline-block; vertical-align:top; width:180px; margin:8px;'>"
 									else
-										//we add the user's progress to the description assuming they have progress
-										var/datum/gear/unlockable/unlockable = gear
-										var/progress_made = unlockable_loadout_data[unlockable.progress_key]
-										if(!progress_made)
-											progress_made = 0
-										dat += "</td><td><font size=2><i>[loadout_item ? (loadout_item[LOADOUT_CUSTOM_DESCRIPTION] ? loadout_item[LOADOUT_CUSTOM_DESCRIPTION] : gear.description) : gear.description] Progress: [min(progress_made, unlockable.progress_required)]/[unlockable.progress_required]</i></font></td></tr>"
-								dat += "</table>"
+										item_html += "<div class='[item_class] gear-tooltip' style='display:inline-block; vertical-align:top; width:180px; margin:8px;' onclick=\"window.location.href='[link_href]'\">"
+									item_html += "<div class='gear-icon'>"
+									if(gear.base64icon)
+										item_html += "<img src='data:image/jpeg;base64,[gear.base64icon]'>"
+									else
+										item_html += "<span style='color: #666;'>No icon</span>"
+									item_html += "</div>"
+									item_html += "<div class='gear-name'>[name]</div>"
+									item_html += "<div class='gear-cost'>[gear.cost] pts</div>"
+									if(!is_disabled)
+										item_html += "<div class='gear-tooltip-text'>[tooltip_text]</div>"
+									else
+										item_html += "<div style='font-size: 10px; color: #888; margin-top: 8px;'>[tooltip_text]</div>"
+									if(loadout_item)
+										item_html += "<div style='margin-top: 8px; padding-top: 8px; border-top: 1px solid #404040; font-size: 9px; line-height: 1.3;'>"
+										if(gear.loadout_flags & LOADOUT_CAN_COLOR_POLYCHROMIC)
+											item_html += "<a href='?_src_=prefs;preference=gear;loadout_color_polychromic=1;loadout_gear_name=[html_encode(gear.name)];' style='display:block; color: #ffcc66; margin-bottom: 3px;'>Цвет</a>"
+										else
+											item_html += "<a href='?_src_=prefs;preference=gear;loadout_color=1;loadout_gear_name=[html_encode(gear.name)];' style='display:block; color: #ffcc66; margin-bottom: 3px;'>Цвет</a>"
+											item_html += "<a href='?_src_=prefs;preference=gear;loadout_color_HSV=1;loadout_gear_name=[html_encode(gear.name)];' style='display:block; color: #ffaa44; margin-bottom: 3px;'>HSV</a>"
+										if(gear.loadout_flags & LOADOUT_CAN_NAME)
+											item_html += "<a href='?_src_=prefs;preference=gear;loadout_rename=1;loadout_gear_name=[html_encode(gear.name)];' style='display:block; color: #99ff99; margin-bottom: 3px;'>Имя</a>"
+										if(gear.loadout_flags & LOADOUT_CAN_DESCRIPTION)
+											item_html += "<a href='?_src_=prefs;preference=gear;loadout_redescribe=1;loadout_gear_name=[html_encode(gear.name)];' style='display:block; color: #99ccff; margin-bottom: 3px;'>Описание</a>"
+										if(loadout_item[LOADOUT_IS_HEIRLOOM])
+											item_html += "<a href='?_src_=prefs;preference=gear;loadout_removeheirloom=1;loadout_gear_name=[html_encode(gear.name)];' style='display:block; color: #ffd700; margin-bottom: 3px;'>★ Реликвия</a>"
+										else
+											item_html += "<a href='?_src_=prefs;preference=gear;loadout_addheirloom=1;loadout_gear_name=[html_encode(gear.name)];' style='display:block; color: #cccccc; margin-bottom: 3px;'>☆ Реликвия</a>"
+										if(ispath(gear.path, /obj/item/clothing/neck/petcollar))
+											item_html += "<a href='?_src_=prefs;preference=gear;loadout_tagname=1;loadout_gear_name=[html_encode(gear.name)];' style='display:block; color: #ff99ff;'>Бирка</a>"
+										item_html += "</div>"
+									item_html += "</div>"
+									dat += item_html
+								dat += "</div>"
 							else
+								var/even = FALSE
 								dat += "<table align='center'; width='100%'; height='100%'; style='background-color:#13171C'>"
 								dat += "<center>"
 								dat += "<tr width=10% style='vertical-align:top;'><td width=15%><b>Item type</b></td>"
