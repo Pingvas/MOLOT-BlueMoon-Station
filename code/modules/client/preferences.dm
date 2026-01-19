@@ -707,20 +707,15 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[QUIRKS_CHAR_TAB]' [character_settings_tab == QUIRKS_CHAR_TAB ? "class='linkOn'" : ""]>Quirks</a>"
 			dat += "</center>"
 
-			dat += "<HR>"
-			dat += "<center>"
-			dat += "<table width='100%'>"
-			dat += "<tr>"
-			dat += "<td width=35% style=\"line-height:5px\">"
-			dat += "<center><b>Preview:</b></center><br>"
-			dat += "<center style=\"line-height:20px\">"
-			dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_JOB]' [preview_pref == PREVIEW_PREF_JOB ? "class='linkOn'" : ""]>[PREVIEW_PREF_JOB]</a>"
-			dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_LOADOUT]' [preview_pref == PREVIEW_PREF_LOADOUT ? "class='linkOn'" : ""]>[PREVIEW_PREF_LOADOUT]</a>"
-			dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_NAKED]' [preview_pref == PREVIEW_PREF_NAKED ? "class='linkOn'" : ""]>[PREVIEW_PREF_NAKED]</a>"
-			dat += "<br>"
-			dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_NAKED_AROUSED]' [preview_pref == PREVIEW_PREF_NAKED_AROUSED ? "class='linkOn'" : ""]>[PREVIEW_PREF_NAKED_AROUSED]</a>"
+			dat += "<center style='margin-top: 8px;'>"
+			dat += "<b style='color: [theme["text_secondary"]]; font-size: 11px;'>Preview mode:</b> "
+			dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_JOB]' [preview_pref == PREVIEW_PREF_JOB ? "class='linkOn'" : ""] style='padding: 4px 10px; font-size: 11px;'>[PREVIEW_PREF_JOB]</a>"
+			dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_LOADOUT]' [preview_pref == PREVIEW_PREF_LOADOUT ? "class='linkOn'" : ""] style='padding: 4px 10px; font-size: 11px;'>[PREVIEW_PREF_LOADOUT]</a>"
+			dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_NAKED]' [preview_pref == PREVIEW_PREF_NAKED ? "class='linkOn'" : ""] style='padding: 4px 10px; font-size: 11px;'>[PREVIEW_PREF_NAKED]</a>"
+			dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_NAKED_AROUSED]' [preview_pref == PREVIEW_PREF_NAKED_AROUSED ? "class='linkOn'" : ""] style='padding: 4px 10px; font-size: 11px;'>[PREVIEW_PREF_NAKED_AROUSED]</a>"
 			dat += "</center>"
-			dat += "</td>"
+
+			dat += "<HR>"
 			if(character_settings_tab == LOADOUT_CHAR_TAB) //if loadout
 				//calculate your gear points from the chosen item
 				gear_points = CONFIG_GET(number/initial_gear_points) + (IS_CKEY_DONATOR_GROUP(user.ckey, DONATOR_GROUP_TIER_1) ? CONFIG_GET(number/subscriber_extra_gear_points) : 0) + (IS_CKEY_DONATOR_GROUP(user.ckey, DONATOR_GROUP_TIER_2) ? CONFIG_GET(number/sponsor_extra_gear_points) : 0)
@@ -740,24 +735,9 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 				else
 					chosen_gear = list()
 
-				dat += "<td width=65% style=\"line-height:10px\">"
 				dat += "<center><b><font color='[gear_points == 0 ? "#E62100" : "#CCDDFF"]'>[gear_points]</font> loadout point[gear_points == 1 ? "" : "s"] remaining</center><br>"
 				dat += "<center><a href='?_src_=prefs;preference=gear;clear_loadout=1'>Clear Loadout</a></b></center>"
-				dat += "</td>"
-			else
-				dat += "<td width=35% style=\"line-height:10px\">"
-				dat += "<center><b>Mismatched parts:</b></center><br>"
-				dat += "<center><a href='?_src_=prefs;preference=mismatched_markings;task=input'>[(show_mismatched_markings) ? "Enabled" : "Disabled"]</a></center>"
-				dat += "</td>"
 
-				dat += "<td width=30% style=\"line-height:10px\">"
-				dat += "<center><b>Advanced colors:</b></center><br>"
-				dat += "<center><a href='?_src_=prefs;preference=color_scheme;task=input'>[(features["color_scheme"] == ADVANCED_CHARACTER_COLORING) ? "Enabled" : "Disabled"]</a></center>"
-				dat += "</td>"
-
-			dat += "</tr>"
-			dat += "</table>"
-			dat += "</center>"
 			dat += "<HR>"
 			switch(character_settings_tab)
 				//General
@@ -965,6 +945,12 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "<table><tr><td width='20%' height='300px' valign='top'>"
 
 					dat += "<h2>Body</h2>"
+					dat += "<b>Mismatched parts:</b><br>"
+					dat += "<a href='?_src_=prefs;preference=mismatched_markings;task=input' title=\"Показывать несовместимые части тела (например, киберконечности с органическим телом). Если отключено, несовместимые варианты будут скрыты в списке выбора.\">[(show_mismatched_markings) ? "Enabled" : "Disabled"]</a><BR>"
+					dat += "<b>Advanced colors:</b><br>"
+					var/color_scheme_status = (features["color_scheme"] == ADVANCED_CHARACTER_COLORING) ? "Enabled" : "Disabled"
+					dat += "<a href='?_src_=prefs;preference=color_scheme;task=input' title=\"Режим продвинутой настройки цветов персонажа. Включите для доступа к расширенной палитре цветов и дополнительным опциям окраски.\">[color_scheme_status]</a><BR>"
+					dat += "<BR>"
 					dat += "<b>Gender:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=gender;task=input'>[gender == MALE ? "Male" : (gender == FEMALE ? "Female" : (gender == PLURAL ? "Non-binary" : "Object"))]</a><BR>"
 					if(pref_species.sexes)
 						dat += "<b>Body Model:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=body_model'>[features["body_model"] == MALE ? "Masculine" : "Feminine"]</a><BR>"
@@ -1805,9 +1791,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "<b>Outline Color:</b> [outline_color ? "<span style='border:1px solid #161616; background-color: [outline_color];'>" : "Theme-based (null)"]<font color='[color_hex2num(outline_color) < 200 ? "FFFFFF" : "000000"]'>[outline_color]</font></span> <a href='?_src_=prefs;preference=outline_color'>Change</a><BR>"
 					dat += "<b>Screentip:</b> <a href='?_src_=prefs;preference=screentip_pref'>[screentip_pref]</a><br>"
 					dat += "<b>Screentip Color:</b> <span style='border:1px solid #161616; background-color: [screentip_color];'><font color='[color_hex2num(screentip_color) < 200 ? "FFFFFF" : "000000"]'>[screentip_color]</font></span> <a href='?_src_=prefs;preference=screentip_color'>Change</a><BR>"
-					dat += "<font style='border-bottom:2px dotted white; cursor:help;'\
-						title=\"This is an accessibility preference, if disabled, fallbacks to only text which colorblind people can understand better\">\
-						<b>Screentip context with images:</b></font> <a href='?_src_=prefs;preference=screentip_images'>[screentip_images ? "Allowed" : "Disallowed"]</a><br>"
+					dat += "<b>Screentip context with images:</b> <a href='?_src_=prefs;preference=screentip_images' title=\"This is an accessibility preference. If disabled, falls back to only text which colorblind people can understand better\">[screentip_images ? "Allowed" : "Disallowed"]</a><br>"
 					dat += "<b>tgui Monitors:</b> <a href='?_src_=prefs;preference=tgui_lock'>[(tgui_lock) ? "Primary" : "All"]</a><br>"
 					dat += "<b>tgui Style:</b> <a href='?_src_=prefs;preference=tgui_fancy'>[(tgui_fancy) ? "Fancy" : "No Frills"]</a><br>"
 					dat += "<b>Show Runechat Chat Bubbles:</b> <a href='?_src_=prefs;preference=chat_on_map'>[chat_on_map ? "Enabled" : "Disabled"]</a><br>"
