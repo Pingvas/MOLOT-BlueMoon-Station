@@ -979,9 +979,9 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "<table><tr><td width='20%' height='300px' valign='top'>"
 
 					dat += "<h2>Body</h2>"
-					dat += "<b>Mismatched parts:</b> <span style='border-radius: 2px;border:1px dotted white;cursor:help;' title=\"Показывать несовместимые части тела (например, киберконечности с органическим телом). Если отключено, несовместимые варианты будут скрыты в списке выбора.\">?</span><br>"
-					dat += "<a href='?_src_=prefs;preference=mismatched_markings;task=input' title=\"Показывать несовместимые части тела (например, киберконечности с органическим телом). Если отключено, несовместимые варианты будут скрыты в списке выбора.\">[(show_mismatched_markings) ? \"Enabled\" : \"Disabled\"]</a><BR>"
-					dat += "<b>Advanced colors:</b> <span style='border-radius: 2px;border:1px dotted white;cursor:help;' title=\"Режим продвинутой настройки цветов персонажа. Включите для доступа к расширенной палитре цветов и дополнительным опциям окраски.\">?</span><br>"
+					dat += "<b>Mismatched parts:</b><br>"
+					dat += "<a href='?_src_=prefs;preference=mismatched_markings;task=input' title=\"Показывать несовместимые части тела (например, киберконечности с органическим телом). Если отключено, несовместимые варианты будут скрыты в списке выбора.\">[(show_mismatched_markings) ? "Enabled" : "Disabled"]</a><BR>"
+					dat += "<b>Advanced colors:</b><br>"
 					var/color_scheme_status = (features["color_scheme"] == ADVANCED_CHARACTER_COLORING) ? "Enabled" : "Disabled"
 					dat += "<a href='?_src_=prefs;preference=color_scheme;task=input' title=\"Режим продвинутой настройки цветов персонажа. Включите для доступа к расширенной палитре цветов и дополнительным опциям окраски.\">[color_scheme_status]</a><BR>"
 					dat += "<BR>"
