@@ -5,6 +5,34 @@
  * Target: compact layout (closer to PR #2535 feel).
  */
 
+/*
+ * Classic theme (New UI baseline)
+ *
+ * The New (classic) character creator uses the same HTML node structure as Modern
+ * (e.g. .csetup_character_node/.csetup_character_label/.csetup_character_input),
+ * but without these layout rules it can render "shifted"/misaligned.
+ *
+ * Keep this strictly scoped so it doesn't affect Old creator or Modern look.
+ */
+
+.csetup-root.csetup-theme-classic .csetup_character_node {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+}
+
+.csetup-root.csetup-theme-classic .csetup_character_label {
+	flex: 1 1 auto;
+	min-width: 160px;
+}
+
+.csetup-root.csetup-theme-classic .csetup_character_input {
+	flex: 0 0 auto;
+	text-align: right;
+	white-space: nowrap;
+}
+
 .csetup-root.csetup-theme-modern {
 	--csetup-bg: #0b0f16;
 	--csetup-panel: rgba(255, 255, 255, 0.06);

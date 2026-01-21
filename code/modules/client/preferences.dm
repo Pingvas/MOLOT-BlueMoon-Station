@@ -2,16 +2,10 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 
 /datum/preferences
 	var/client/parent
-//doohickeys for savefiles
 	var/path
 	var/vr_path
 	var/default_slot = 1				//Holder so it doesn't default to slot 1, rather the last one used
 	var/max_save_slots = 40
-
-	// Intra-round persistence begin
-	/// Flags for admin mutes
-	var/muted = NONE
-	/// Last IP the person was seen on
 	var/last_ip
 	/// Last CID the person was seen on
 	var/last_id
@@ -89,6 +83,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/deadmin = NONE
 	var/db_flags
 	var/chat_toggles = TOGGLES_DEFAULT_CHAT
+	/// Bitfield for chat mutes (MUTE_* flags).
+	var/muted = 0
 	var/ghost_form = "ghost"
 	var/ghost_orbit = GHOST_ORBIT_CIRCLE
 	var/ghost_accs = GHOST_ACCS_DEFAULT_OPTION
@@ -505,9 +501,19 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 				theme_class = "csetup-theme-modern csetup-accent-blue"
 	var/list/dat = list("<div class='csetup-root [theme_class]'>", "<center>")
 
-	dat += "<a href='?_src_=prefs;preference=tab;tab=[SETTINGS_TAB]' [current_tab == SETTINGS_TAB ? "class='linkOn'" : ""]>Character Settings</a>"
-	dat += "<a href='?_src_=prefs;preference=tab;tab=[PREFERENCES_TAB]' [current_tab == PREFERENCES_TAB ? "class='linkOn'" : ""]>Preferences</a>"
-	dat += "<a href='?_src_=prefs;preference=tab;tab=[KEYBINDINGS_TAB]' [current_tab == KEYBINDINGS_TAB ? "class='linkOn'" : ""]>Keybindings</a>"
+	var/tab_class_settings = ""
+	var/tab_class_preferences = ""
+	var/tab_class_keybindings = ""
+	if(current_tab == SETTINGS_TAB)
+		tab_class_settings = "class='linkOn'"
+	if(current_tab == PREFERENCES_TAB)
+		tab_class_preferences = "class='linkOn'"
+	if(current_tab == KEYBINDINGS_TAB)
+		tab_class_keybindings = "class='linkOn'"
+
+	dat += "<a href='?_src_=prefs;preference=tab;tab=[SETTINGS_TAB]' [tab_class_settings]>Character Settings</a>"
+	dat += "<a href='?_src_=prefs;preference=tab;tab=[PREFERENCES_TAB]' [tab_class_preferences]>Preferences</a>"
+	dat += "<a href='?_src_=prefs;preference=tab;tab=[KEYBINDINGS_TAB]' [tab_class_keybindings]>Keybindings</a>"
 
 	if(!path)
 		dat += "<div class='notice'>Please create an account to save your preferences</div>"
@@ -533,7 +539,10 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 						S["real_name"] >> name
 						if(!name)
 							name = "Character[i]"
-						dat += "<a style='white-space:nowrap;' href='?_src_=prefs;preference=changeslot;num=[i];' [i == default_slot ? "class='linkOn'" : ""]>[name]</a> "
+						var/slot_attr = ""
+						if(i == default_slot)
+							slot_attr = "class='linkOn'"
+						dat += "<a style='white-space:nowrap;' href='?_src_=prefs;preference=changeslot;num=[i];' [slot_attr]>[name]</a> "
 					dat += "</center>"
 
 			dat += "<HR>"
@@ -547,13 +556,21 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 				if(istype(client_file, /savefile))
 					if(!client_file["deleted"] || savefile_needs_update(client_file) != -2)
 						client_file["real_name"] >> savefile_name
-			dat += "Local storage: [savefile_name ? savefile_name : "Empty"]"
+			dat += "Local storage: " + (savefile_name ? savefile_name : "Empty")
 			dat += "<br />"
 			dat += "<a href='?_src_=prefs;preference=export_slot'>Export current slot</a>"
-			dat += "<a [savefile_name ? "href='?_src_=prefs;preference=import_slot' style='white-space:normal;'" : "class='linkOff'"]>Import into current slot</a>"
+			var/import_attr = "class='linkOff'"
+			if(savefile_name)
+				import_attr = "href='?_src_=prefs;preference=import_slot' style='white-space:normal;'"
+			var/offer_style = ""
+			var/offer_text = "Offer slot"
+			if(offer)
+				offer_style = "style='white-space:normal;background:#eb2e2e;'"
+				offer_text = "Cancel offer"
+			dat += "<a [import_attr]>Import into current slot</a>"
 			dat += "<a href='?_src_=prefs;preference=delete_local_copy' style='white-space:normal;background:#eb2e2e;'>Delete locally saved character</a>"
 			dat += "<br />"
-			dat += "<a href='?_src_=prefs;preference=give_slot' [offer ? "style='white-space:normal;background:#eb2e2e;'" : ""]>[offer ? "Cancel offer" : "Offer slot"]</a>"
+			dat += "<a href='?_src_=prefs;preference=give_slot' [offer_style]>[offer_text]</a>"
 			dat += "<a href='?_src_=prefs;preference=retrieve_slot'>Retrieve offered character</a>"
 			if(offer)
 				dat += "<br />"
@@ -566,26 +583,62 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 			dat += "<HR>"
 
 			dat += "<center>"
-			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[GENERAL_CHAR_TAB]' [character_settings_tab == GENERAL_CHAR_TAB ? "class='linkOn'" : ""]>General</a>"
-			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[BACKGROUND_CHAR_TAB]' [character_settings_tab == BACKGROUND_CHAR_TAB ? "class='linkOn'" : ""]>Background</a>"
-			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[APPEARANCE_CHAR_TAB]' [character_settings_tab == APPEARANCE_CHAR_TAB ? "class='linkOn'" : ""]>Appearance</a>"
-			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[MARKINGS_CHAR_TAB]' [character_settings_tab == MARKINGS_CHAR_TAB ? "class='linkOn'" : ""]>Markings</a>"
-			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[SPEECH_CHAR_TAB]' [character_settings_tab == SPEECH_CHAR_TAB ? "class='linkOn'" : ""]>Speech</a>"
-			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[LOADOUT_CHAR_TAB]' [character_settings_tab == LOADOUT_CHAR_TAB ? "class='linkOn'" : ""]>Loadout</a>" //If you change the index of this tab, change all the logic regarding tab
+			var/char_tab_class_general = ""
+			var/char_tab_class_background = ""
+			var/char_tab_class_appearance = ""
+			var/char_tab_class_markings = ""
+			var/char_tab_class_speech = ""
+			var/char_tab_class_loadout = ""
+			var/char_tab_class_quirks = ""
+			if(character_settings_tab == GENERAL_CHAR_TAB)
+				char_tab_class_general = "class='linkOn'"
+			if(character_settings_tab == BACKGROUND_CHAR_TAB)
+				char_tab_class_background = "class='linkOn'"
+			if(character_settings_tab == APPEARANCE_CHAR_TAB)
+				char_tab_class_appearance = "class='linkOn'"
+			if(character_settings_tab == MARKINGS_CHAR_TAB)
+				char_tab_class_markings = "class='linkOn'"
+			if(character_settings_tab == SPEECH_CHAR_TAB)
+				char_tab_class_speech = "class='linkOn'"
+			if(character_settings_tab == LOADOUT_CHAR_TAB)
+				char_tab_class_loadout = "class='linkOn'"
+			if(character_settings_tab == QUIRKS_CHAR_TAB)
+				char_tab_class_quirks = "class='linkOn'"
+
+			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[GENERAL_CHAR_TAB]' [char_tab_class_general]>General</a>"
+			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[BACKGROUND_CHAR_TAB]' [char_tab_class_background]>Background</a>"
+			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[APPEARANCE_CHAR_TAB]' [char_tab_class_appearance]>Appearance</a>"
+			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[MARKINGS_CHAR_TAB]' [char_tab_class_markings]>Markings</a>"
+			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[SPEECH_CHAR_TAB]' [char_tab_class_speech]>Speech</a>"
+			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[LOADOUT_CHAR_TAB]' [char_tab_class_loadout]>Loadout</a>" //If you change the index of this tab, change all the logic regarding tab
 			if(is_modern_theme && CONFIG_GET(flag/roundstart_traits))
-				dat += "<a href='?_src_=prefs;preference=character_tab;tab=[QUIRKS_CHAR_TAB]' [character_settings_tab == QUIRKS_CHAR_TAB ? "class='linkOn'" : ""]>Quirks</a>"
+				dat += "<a href='?_src_=prefs;preference=character_tab;tab=[QUIRKS_CHAR_TAB]' [char_tab_class_quirks]>Quirks</a>"
 			dat += "</center>"
 
 			dat += "<HR>"
 			dat += "<center>"
 			dat += "<table width='100%'>"
 			dat += "<tr>"
-			dat += "<td width=35% style=\"line-height:5px\">"
+			dat += "<td width='35%'>"
 			dat += "<center><b>Preview:</b></center><br>"
-			dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_JOB]' [preview_pref == PREVIEW_PREF_JOB ? "class='linkOn'" : ""]>[PREVIEW_PREF_JOB]</a>"
-			dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_LOADOUT]' [preview_pref == PREVIEW_PREF_LOADOUT ? "class='linkOn'" : ""]>[PREVIEW_PREF_LOADOUT]</a>"
-			dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_NAKED]' [preview_pref == PREVIEW_PREF_NAKED ? "class='linkOn'" : ""]>[PREVIEW_PREF_NAKED]</a>"
-			dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_NAKED_AROUSED]' [preview_pref == PREVIEW_PREF_NAKED_AROUSED ? "class='linkOn'" : ""]>[PREVIEW_PREF_NAKED_AROUSED]</a>"
+			var/preview_class_job = ""
+			var/preview_class_loadout = ""
+			var/preview_class_naked = ""
+			var/preview_class_naked_aroused = ""
+			if(preview_pref == PREVIEW_PREF_JOB)
+				preview_class_job = "class='linkOn'"
+			if(preview_pref == PREVIEW_PREF_LOADOUT)
+				preview_class_loadout = "class='linkOn'"
+			if(preview_pref == PREVIEW_PREF_NAKED)
+				preview_class_naked = "class='linkOn'"
+			if(preview_pref == PREVIEW_PREF_NAKED_AROUSED)
+				preview_class_naked_aroused = "class='linkOn'"
+			dat += "<center style=\"line-height:20px\">"
+			dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_JOB]' [preview_class_job]>[PREVIEW_PREF_JOB]</a>"
+			dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_LOADOUT]' [preview_class_loadout]>[PREVIEW_PREF_LOADOUT]</a>"
+			dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_NAKED]' [preview_class_naked]>[PREVIEW_PREF_NAKED]</a>"
+			dat += "<br>"
+			dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_NAKED_AROUSED]' [preview_class_naked_aroused]>[PREVIEW_PREF_NAKED_AROUSED]</a>"
 			dat += "</center>"
 			dat += "</td>"
 			if(character_settings_tab == LOADOUT_CHAR_TAB) //if loadout
@@ -607,16 +660,25 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 				else
 					chosen_gear = list()
 
-				dat += "<td width=65% style=\"line-height:10px\">"
+				dat += "<td width='65%'>"
 				dat += "<center><b><font color='[gear_points == 0 ? "#E62100" : "#CCDDFF"]'>[gear_points]</font> loadout point[gear_points == 1 ? "" : "s"] remaining</center><br>"
 				dat += "<center><a href='?_src_=prefs;preference=gear;clear_loadout=1'>Clear Loadout</a></b></center>"
 				dat += "</td>"
 			else
-				dat += "<td width=65% style=\"line-height:10px\">"
-				dat += "<center><b>Mismatched:</b> <a href='?_src_=prefs;preference=mismatched_markings;task=input'>" + (show_mismatched_markings ? "On" : "Off") + "</a></center>"
-				if(!is_modern_theme)
-					dat += "<center><b>Advanced coloring:</b> <a href='?_src_=prefs;preference=color_scheme;task=input'>" + ((features["color_scheme"] == ADVANCED_CHARACTER_COLORING) ? "Enabled" : "Disabled") + "</a></center>"
-				dat += "</td>"
+				if(is_modern_theme)
+					dat += "<td width='65%' style=\"line-height:10px\">"
+					dat += "<center><b>Mismatched parts:</b></center><br>"
+					dat += "<center><a href='?_src_=prefs;preference=mismatched_markings;task=input'>" + (show_mismatched_markings ? "Enabled" : "Disabled") + "</a></center>"
+					dat += "</td>"
+				else
+					dat += "<td width='35%' style=\"line-height:10px\">"
+					dat += "<center><b>Mismatched parts:</b></center><br>"
+					dat += "<center><a href='?_src_=prefs;preference=mismatched_markings;task=input'>" + (show_mismatched_markings ? "Enabled" : "Disabled") + "</a></center>"
+					dat += "</td>"
+					dat += "<td width='30%' style=\"line-height:10px\">"
+					dat += "<center><b>Advanced colors:</b></center><br>"
+					dat += "<center><a href='?_src_=prefs;preference=color_scheme;task=input'>" + ((features["color_scheme"] == ADVANCED_CHARACTER_COLORING) ? "Enabled" : "Disabled") + "</a></center>"
+					dat += "</td>"
 			dat += "</tr>"
 			dat += "</table>"
 			dat += "</center>"
@@ -1944,9 +2006,10 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 
 	winshow(user, "preferences_window", TRUE)
 	var/datum/browser/popup = new(user, "preferences_browser", "<div align='center'>Character Setup</div>", 640, 770)
-	if(findtext(charcreation_theme, "modern"))
+	if(new_character_creator)
 		popup.add_stylesheet("preferences_modern", 'html/browser/preferences_modern.css')
-		popup.add_script("prefs_state", 'html/browser/prefs_state.js')
+		if(findtext(charcreation_theme, "modern"))
+			popup.add_script("prefs_state", 'html/browser/prefs_state.js')
 	popup.set_content(dat.Join())
 	popup.open(FALSE)
 	onclose(user, "preferences_window", src)
