@@ -612,21 +612,11 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 				dat += "<center><a href='?_src_=prefs;preference=gear;clear_loadout=1'>Clear Loadout</a></b></center>"
 				dat += "</td>"
 			else
-				if(is_modern_theme)
-					dat += "<td width=65% style=\"line-height:10px\">"
-					dat += "<center><b>Mismatched:</b> <a href='?_src_=prefs;preference=mismatched_markings;task=input'>[(show_mismatched_markings) ? "On" : "Off"]</a></center>"
-					dat += "</td>"
-				else
-					dat += "<td width=35% style=\"line-height:10px\">"
-					dat += "<center><b>Mismatched:</b> <a href='?_src_=prefs;preference=mismatched_markings;task=input'>" + (show_mismatched_markings ? "On" : "Off") + "</a></center>"
-					dat += "<center><a href='?_src_=prefs;preference=mismatched_markings;task=input'>" + (show_mismatched_markings ? "Enabled" : "Disabled") + "</a></center>"
-					dat += "</td>"
-
-					dat += "<td width=30% style=\"line-height:10px\">"
-					dat += "<center><b>Advanced colors:</b></center><br>"
-					dat += "<center><a href='?_src_=prefs;preference=color_scheme;task=input'>" + ((features["color_scheme"] == ADVANCED_CHARACTER_COLORING) ? "Enabled" : "Disabled") + "</a></center>"
-					dat += "</td>"
-
+				dat += "<td width=65% style=\"line-height:10px\">"
+				dat += "<center><b>Mismatched:</b> <a href='?_src_=prefs;preference=mismatched_markings;task=input'>" + (show_mismatched_markings ? "On" : "Off") + "</a></center>"
+				if(!is_modern_theme)
+					dat += "<center><b>Advanced coloring:</b> <a href='?_src_=prefs;preference=color_scheme;task=input'>" + ((features["color_scheme"] == ADVANCED_CHARACTER_COLORING) ? "Enabled" : "Disabled") + "</a></center>"
+				dat += "</td>"
 			dat += "</tr>"
 			dat += "</table>"
 			dat += "</center>"
@@ -637,13 +627,18 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "<center><h2>Occupation Choices</h2>"
 					dat += "<a href='?_src_=prefs;preference=job;task=menu'>Set Occupation Preferences</a><br></center>"
 					if(CONFIG_GET(flag/roundstart_traits))
+						var/current_quirks_display = english_list(all_quirks, "None")
 						if(is_modern_theme)
-							dat += "<center><h2>Quirks</h2>"
-							dat += "<a href='?_src_=prefs;preference=character_tab;tab=[QUIRKS_CHAR_TAB]'>Открыть вкладку квирков</a><br></center>"
+							dat += "<h2>Quirks</h2>"
+							dat += "<div class='notice csetup-quirks-summary'>"
+							dat += "<div class='csetup-quirks-summary-title'><b>Quirk balance remaining:</b> " + "[GetQuirkBalance(user)]" + "</div>"
+							dat += "<div class='csetup-quirks-summary-current'><b>Current:</b> " + current_quirks_display + "</div>"
+							dat += "<div class='csetup-quirks-summary-actions'><a href='?_src_=prefs;preference=character_tab;tab=[QUIRKS_CHAR_TAB]'>Открыть вкладку квирков</a></div>"
+							dat += "</div>"
 						else
 							dat += "<center><h2>Quirk Setup ([GetQuirkBalance(user)] points left)</h2>"
 							dat += "<a href='?_src_=prefs;preference=trait;task=menu'>Configure Quirks</a><br></center>"
-							dat += "<center><b>Current Quirks:</b> [english_list(all_quirks, "None")]</center>"
+							dat += "<center><b>Current Quirks:</b> " + current_quirks_display + "</center>"
 					dat += "<h2>Identity</h2>"
 					dat += "<table width='100%'><tr><td width='30%' valign='top'>"
 					if(jobban_isbanned(user, "appearance"))
@@ -708,9 +703,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 				if(QUIRKS_CHAR_TAB)
 					if(is_modern_theme)
 						if(CONFIG_GET(flag/roundstart_traits))
-							dat += "<center><h2>Quirk Setup ([GetQuirkBalance(user)] points left)</h2>"
-							dat += "<a href='?_src_=prefs;preference=trait;task=menu'>Configure Quirks</a><br></center>"
-							dat += "<center><b>Current Quirks:</b> [english_list(all_quirks, "None")]</center>"
+							dat += GetInlineQuirksMarkup(user)
 						else
 							dat += "<center><i>Quirks are disabled on this server.</i></center>"
 					else
@@ -1730,6 +1723,14 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "<b>Disable combat mode cursor:</b> <a href='?_src_=prefs;preference=disable_combat_cursor'>[disable_combat_cursor?"Yes":"No"]</a><br>"
 					dat += "<b>Splashscreen Player Panel Style:</b> <a href='?_src_=prefs;preference=tg_playerpanel'>[(toggles & TG_PLAYER_PANEL)?"TG":"Old"]</a><br>"
 					dat += "<b>Character Creation Menu Style:</b> <a href='?_src_=prefs;preference=charcreation_style'>[(new_character_creator) ? ((findtext(charcreation_theme, "modern")) ? "Modern" : "New") : "Old"]</a><br>"
+					if(new_character_creator && findtext(charcreation_theme, "modern"))
+						var/accent_label = "Blue"
+						switch(charcreation_theme)
+							if("modern_purple")
+								accent_label = "Purple"
+							if("modern_green")
+								accent_label = "Green"
+						dat += "<b>Modern Accent:</b> <a href='?_src_=prefs;preference=charcreation_accent'>[accent_label]</a><br>"
 					//SPLURT Edit end
 
 					dat += "<br>"
@@ -1951,7 +1952,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	onclose(user, "preferences_window", src)
 
 /datum/preferences/proc/cycle_character_creation_menu_style()
-	// Cycle: Old -> New (classic) -> New (modern blue) -> New (modern purple) -> New (modern green) -> Old
+	// Cycle: Old -> New (classic) -> New (modern) -> Old
 	if(!new_character_creator)
 		new_character_creator = TRUE
 		charcreation_theme = "classic"
@@ -1960,15 +1961,30 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	if(charcreation_theme == "classic")
 		charcreation_theme = "modern"
 		return
+
+	// Any modern variant should go back to Old with one click.
+	if(findtext(charcreation_theme, "modern"))
+		charcreation_theme = "classic"
+		new_character_creator = FALSE
+		return
+
+	charcreation_theme = "classic"
+	new_character_creator = FALSE
+
+/datum/preferences/proc/cycle_character_creation_modern_accent()
+	// Only cycles the accent for Modern themes. Style cycle remains 3-state.
+	if(!new_character_creator)
+		return
+	if(!findtext(charcreation_theme, "modern"))
+		return
 	if(charcreation_theme == "modern")
 		charcreation_theme = "modern_purple"
 		return
 	if(charcreation_theme == "modern_purple")
 		charcreation_theme = "modern_green"
 		return
-
-	charcreation_theme = "classic"
-	new_character_creator = FALSE
+	// includes modern_green and any unknown modern variant
+	charcreation_theme = "modern"
 
 #undef SETUP_START_NODE
 #undef SETUP_GET_LINK
@@ -2280,6 +2296,130 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	popup.set_content(dat.Join())
 	popup.open(FALSE)
 
+/datum/preferences/proc/GetInlineQuirksMarkup(mob/user)
+	if(!SSquirks)
+		return "<center><i>Quirks are disabled on this server.</i></center>"
+
+	var/list/dat = list()
+	if(!SSquirks.quirks.len)
+		dat += "<center><i>The quirk subsystem hasn't finished initializing, please hold...</i></center>"
+		return dat.Join()
+
+	dat += "<div class='csetup-quirks'>"
+	dat += "<center><h2>Quirk Setup ([GetQuirkBalance(user)] points left)</h2></center>"
+	dat += "<div class='notice csetup-quirks-help'>ЛКМ — добавить/убрать квирк. Позитивные тратят очки, негативные дают. Применяются в начале раунда.</div>"
+
+	// BLUEMOON: per-quirk settings (kept inline)
+	dat += "<h3>Настройки квирков</h3>"
+	var/display_summon_nickname = summon_nickname ? summon_nickname : "—"
+	dat += "<div class='csetup-quirk-settings'>"
+	dat += "<a class='csetup-quirk-setting' href='?_src_=prefs;preference=traits_setup;task=change_shriek_option'>Тип крика: <b>[shriek_type]</b></a>"
+	dat += "<a class='csetup-quirk-setting' href='?_src_=prefs;preference=traits_setup;task=lewd_summon_nickname'>Прозвище: <b>[display_summon_nickname]</b></a>"
+	dat += "</div>"
+
+	dat += "<h3>Текущие квирки</h3>"
+	var/display_current_quirks = english_list(all_quirks, "None")
+	var/positive_quirk_count = GetPositiveQuirkCount()
+	dat += "<div class='notice csetup-quirks-summary'>"
+	dat += "<div class='csetup-quirks-summary-title'><b>Quirk balance remaining:</b> " + "[GetQuirkBalance(user)]" + "</div>"
+	dat += "<div class='csetup-quirks-summary-current'><b>Current:</b> " + display_current_quirks + "</div>"
+	dat += "<div class='csetup-quirks-summary-meta'><b>Positive:</b> [positive_quirk_count] / [MAX_QUIRKS]</div>"
+	dat += "</div>"
+	dat += "<div class='csetup-quirk-tabs'>"
+	dat += "<a href='?_src_=prefs;quirk_category=[QUIRK_POSITIVE]' " + (quirk_category == QUIRK_POSITIVE ? "class='linkOn'" : "") + ">[QUIRK_POSITIVE]</a>"
+	dat += "<a href='?_src_=prefs;quirk_category=[QUIRK_NEUTRAL]' " + (quirk_category == QUIRK_NEUTRAL ? "class='linkOn'" : "") + ">[QUIRK_NEUTRAL]</a>"
+	dat += "<a href='?_src_=prefs;quirk_category=[QUIRK_NEGATIVE]' " + (quirk_category == QUIRK_NEGATIVE ? "class='linkOn'" : "") + ">[QUIRK_NEGATIVE]</a>"
+	dat += "</div>"
+
+	dat += "<div class='csetup-quirk-list'>"
+	var/list/selected_rows = list()
+	var/list/other_rows = list()
+
+	for(var/V in SSquirks.quirks)
+		var/datum/quirk/T = SSquirks.quirks[V]
+		var/value = initial(T.value)
+		if((value > 0 && quirk_category != QUIRK_POSITIVE) || (value < 0 && quirk_category != QUIRK_NEGATIVE) || (value == 0 && quirk_category != QUIRK_NEUTRAL))
+			continue
+
+		var/quirk_name = initial(T.name)
+		var/has_quirk = (quirk_name in all_quirks)
+		var/quirk_cost = value * -1
+		var/lock_reason = "This trait is unavailable."
+		var/quirk_conflict = FALSE
+		if(initial(T.mood_quirk) && CONFIG_GET(flag/disable_human_mood))
+			lock_reason = "Mood is disabled."
+			quirk_conflict = TRUE
+
+		// Conflict with currently selected quirks (blacklist)
+		if(!has_quirk)
+			var/list/blacklist_conflicts = list()
+			for(var/_V in SSquirks.quirk_blacklist) // _V is a list
+				var/list/L = _V
+				if(!(quirk_name in L))
+					continue
+				for(var/Q in all_quirks)
+					if(Q == quirk_name)
+						continue
+					if(Q in L)
+						if(!(Q in blacklist_conflicts))
+							blacklist_conflicts += Q
+			if(blacklist_conflicts.len)
+				lock_reason = "Incompatible with: " + english_list(blacklist_conflicts)
+				quirk_conflict = TRUE
+
+		if(has_quirk)
+			if(quirk_conflict)
+				all_quirks -= quirk_name
+				has_quirk = FALSE
+			else
+				quirk_cost *= -1
+		var/quirk_cost_text = "[quirk_cost]"
+		if(quirk_cost > 0)
+			quirk_cost_text = "+[quirk_cost]"
+
+		var/value_class = "neutral"
+		if(value > 0)
+			value_class = "positive"
+		else if(value < 0)
+			value_class = "negative"
+
+		var/row_classes = "csetup-quirk-row is-[value_class]"
+		if(has_quirk)
+			row_classes += " is-selected"
+		if(quirk_conflict)
+			row_classes += " is-locked"
+
+		var/title_html = "<span class='csetup-quirk-title'>[quirk_name]</span>"
+		var/cost_html = "<span class='csetup-quirk-cost is-[value_class]'>[quirk_cost_text] pts</span>"
+
+		if(quirk_conflict)
+			var/safe_lock_reason = html_encode(lock_reason)
+			var/row_html = "<div class='[row_classes]' title='[safe_lock_reason]'>"
+			row_html += "<div class='csetup-quirk-head'>[title_html][cost_html]</div>"
+			row_html += "<div class='csetup-quirk-desc'>[initial(T.desc)]</div>"
+			row_html += "</div>"
+			other_rows += row_html
+			continue
+
+		var/row_action_href = "?_src_=prefs;preference=trait;task=update;trait=[quirk_name]"
+		var/row_html = "<div class='[row_classes]'>"
+		row_html += "<a class='csetup-quirk-hitbox' href='[row_action_href]'></a>"
+		row_html += "<div class='csetup-quirk-head'>[title_html][cost_html]</div>"
+		row_html += "<div class='csetup-quirk-desc'>[initial(T.desc)]</div>"
+		row_html += "</div>"
+		if(has_quirk)
+			selected_rows += row_html
+		else
+			other_rows += row_html
+
+	dat += selected_rows
+	dat += other_rows
+
+	dat += "</div>" // csetup-quirk-list
+	dat += "<br><center><a href='?_src_=prefs;preference=trait;task=reset'>Reset Quirks</a></center>"
+	dat += "</div>" // csetup-quirks
+	return dat.Join()
+
 /datum/preferences/proc/GetQuirkBalance(mob/user)
 	var/bal = 0
 	for(var/V in all_quirks)
@@ -2339,6 +2479,11 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 		ShowChoices(user)
 		return TRUE
 
+	if(href_list["preference"] == "charcreation_accent")
+		cycle_character_creation_modern_accent()
+		ShowChoices(user)
+		return TRUE
+
 	if(href_list["preference"] == "job")
 		switch(href_list["task"])
 			if("close")
@@ -2381,6 +2526,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 		return TRUE
 
 	else if(href_list["preference"] == "trait")
+		var/is_inline_quirks = (new_character_creator && findtext(charcreation_theme, "modern") && character_settings_tab == QUIRKS_CHAR_TAB && CONFIG_GET(flag/roundstart_traits))
 		switch(href_list["task"])
 			if("close")
 				user << browse(null, "window=mob_occupation")
@@ -2410,14 +2556,24 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 						to_chat(user, "<span class='warning'>You don't have enough balance to gain this quirk!</span>")
 						return
 					all_quirks += quirk
-				SetQuirks(user)
+				if(is_inline_quirks)
+					ShowChoices(user)
+				else
+					SetQuirks(user)
 			if("reset")
 				all_quirks = list()
-				SetQuirks(user)
+				if(is_inline_quirks)
+					ShowChoices(user)
+				else
+					SetQuirks(user)
 			else
-				SetQuirks(user)
+				if(is_inline_quirks)
+					ShowChoices(user)
+				else
+					SetQuirks(user)
 	// BLUEMOON ADD START - возможность настраивать квирки
 	else if(href_list["preference"] == "traits_setup")
+		var/is_inline_quirks = (new_character_creator && findtext(charcreation_theme, "modern") && character_settings_tab == QUIRKS_CHAR_TAB && CONFIG_GET(flag/roundstart_traits))
 		switch(href_list["task"])
 			if("change_shriek_option") // изменение вида крика от квирка крикуна
 				var/client/C = usr.client
@@ -2425,7 +2581,10 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					var/new_shriek_type = tgui_input_list(user, "Choose your character's shriek type.", "Character Preference", GLOB.shriek_types)
 					if(new_shriek_type)
 						shriek_type = new_shriek_type
-						SetQuirks(user)
+						if(is_inline_quirks)
+							ShowChoices(user)
+						else
+							SetQuirks(user)
 			if("lewd_summon_nickname")
 				var/client/C = usr.client
 				if(C)
@@ -2434,7 +2593,10 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 						new_summon_nickname = reject_bad_name(new_summon_nickname, allow_numbers = TRUE)
 						if(new_summon_nickname)
 							summon_nickname = new_summon_nickname
-							SetQuirks(user)
+							if(is_inline_quirks)
+								ShowChoices(user)
+							else
+								SetQuirks(user)
 						else
 							to_chat(user, "<font color='red'>Invalid name. Your name should be at least 2 and at most [MAX_NAME_LEN] characters long. It may only contain the characters A-Z, a-z, А-Я, а-я, -, ' and .</font>")
 
@@ -2442,10 +2604,14 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 		return TRUE
 
 	else if(href_list["quirk_category"])
+		var/is_inline_quirks = (new_character_creator && findtext(charcreation_theme, "modern") && character_settings_tab == QUIRKS_CHAR_TAB && CONFIG_GET(flag/roundstart_traits))
 		var/temp_quirk_category = href_list["quirk_category"]
 		if(temp_quirk_category == QUIRK_POSITIVE || temp_quirk_category == QUIRK_NEUTRAL || temp_quirk_category == QUIRK_NEGATIVE)
 			quirk_category = temp_quirk_category
-			SetQuirks(user)
+			if(is_inline_quirks)
+				ShowChoices(user)
+			else
+				SetQuirks(user)
 
 	else if(href_list["preference"] == "language")
 		switch(href_list["task"])
