@@ -98,7 +98,7 @@ const CryoContent = (props, context) => {
             <Button
               icon={data.isOpen ? "unlock" : "lock"}
               onClick={() => act('door')}
-              content={data.isOpen ? "Open" : "Closed"} />
+              content={data.isOpen ? "Открыты" : "Закрыты"} />
             <Button
               icon={data.autoEject ? "sign-out-alt" : "sign-in-alt"}
               onClick={() => act('autoeject')}

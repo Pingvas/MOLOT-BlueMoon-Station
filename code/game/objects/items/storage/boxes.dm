@@ -1611,6 +1611,15 @@
 	for (var/i in 1 to 5)
 		new /obj/item/reagent_containers/food/snacks/marshmallow(src)
 
+/obj/item/storage/box/material/ComponentInitialize()
+	. = ..()
+	var/datum/component/storage/STR = GetComponent(/datum/component/storage)
+	STR.max_w_class = MAX_WEIGHT_CLASS_BACKPACK
+	STR.storage_flags = STORAGE_FLAGS_LEGACY_DEFAULT
+	STR.max_volume = STORAGE_VOLUME_BAG_OF_HOLDING_DEBUG
+	STR.max_combined_w_class = 50
+	STR.max_items = 20
+
 /obj/item/storage/box/material/PopulateContents() 	//less uranium because radioactive
 	var/static/items_inside = list(
 		/obj/item/stack/sheet/metal/fifty=1,\
@@ -1638,6 +1647,15 @@
 /obj/item/storage/box/debugtools
 	name = "box of debug tools"
 	icon_state = "syndiebox"
+
+/obj/item/storage/box/debugtools/ComponentInitialize()
+	. = ..()
+	var/datum/component/storage/STR = GetComponent(/datum/component/storage)
+	STR.max_w_class = MAX_WEIGHT_CLASS_BACKPACK
+	STR.storage_flags = STORAGE_FLAGS_LEGACY_DEFAULT
+	STR.max_volume = STORAGE_VOLUME_BAG_OF_HOLDING_DEBUG
+	STR.max_combined_w_class = 50
+	STR.max_items = 16
 
 /obj/item/storage/box/debugtools/PopulateContents()
 	var/static/items_inside = list(

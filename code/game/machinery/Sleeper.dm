@@ -170,7 +170,7 @@
 	. += "<span class='notice'>Alt-click для того, чтобы [state_open ? "закрыть" : "открыть"].</span>"
 	if(in_range(user, src) || isobserver(user))
 		. += "<span class='notice'>Статус-дисплей сообщает: \n\
-		- Эффективность дозирования: <b>[efficiency*100]%</b>.</span>"
+		- Эффективность дозировок: <b>[efficiency*100]%</b>.</span>"
 
 /obj/machinery/sleeper/process()
 	..()

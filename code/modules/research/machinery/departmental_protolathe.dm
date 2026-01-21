@@ -1,6 +1,6 @@
 /obj/machinery/rnd/production/protolathe/department
 	name = "Department Protolathe"
-	desc = "Специальный протолат совстроенным интерфейсом для использования конкретным отделом, \
+	desc = "Специальный протолат со встроенным интерфейсом для использования конкретным отделом, \
 	и встроеннымыми приёмниками ExoSync для распечатки исследованных проектов, совместимых с ROM-закодированным типом отделения."
 	icon_state = "protolathe"
 	circuit = /obj/item/circuitboard/machine/protolathe/department

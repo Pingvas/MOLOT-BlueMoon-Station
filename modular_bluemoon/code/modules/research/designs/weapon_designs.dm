@@ -52,7 +52,7 @@
 	materials = list(/datum/material/iron = 25000)
 	build_path = /obj/item/ammo_box/magazine/m556
 	category = list("Imported")
-
+/*
 //////////////////
 //ACR5m30 design//
 //////////////////
@@ -106,7 +106,7 @@
 	build_path = /obj/item/ammo_box/a58mm/hs
 	category = list("Ammo")
 	departmental_flags = DEPARTMENTAL_FLAG_SECURITY
-
+*/
 
 ////////////////////////
 //Enforcer drum design//

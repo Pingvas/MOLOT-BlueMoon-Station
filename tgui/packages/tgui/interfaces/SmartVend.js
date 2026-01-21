@@ -45,14 +45,14 @@ export const SmartVend = (props, context) => {
                   </Table.Cell>
                   <Table.Cell collapsing>
                     <Button
-                      content="One"
+                      content="Одно"
                       disabled={value.amount < 1}
                       onClick={() => act('Release', {
                         name: value.name,
                         amount: 1,
                       })} />
                     <Button
-                      content="Many"
+                      content="Неск."
                       disabled={value.amount <= 1}
                       onClick={() => act('Release', {
                         name: value.name,

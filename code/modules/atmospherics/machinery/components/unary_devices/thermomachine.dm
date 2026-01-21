@@ -62,7 +62,7 @@
 	. += "<span class='notice'>Термостат настроен на [target_temperature]K ([target_temperature-T0C]C).</span>"
 	if(in_range(user, src) || isobserver(user))
 		. += "<span class='notice'>Статус-дисплей сообщает: \n\
-		- Теплоёмкость работы с газами: <b>[heat_capacity] J/K</b>.</span> \n\
+		- Теплоёмкость работы с газами: <b>[heat_capacity] J/K</b>. \n\
 		- Диапазон T: <b>[min_temperature]K - [max_temperature]K ([min_temperature-T0C]C - [max_temperature-T0C]C)</b>.</span>"
 
 /obj/machinery/atmospherics/components/unary/thermomachine/process_atmos()

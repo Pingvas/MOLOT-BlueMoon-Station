@@ -250,7 +250,7 @@
 		var/datum/material/M = mat_id
 		var/amount = materials.mat_container.materials[mat_id]
 		var/ref = REF(M)
-		l += "* [amount] см² [material_to_ru_genitive(M.name)]: "
+		l += "* [amount] см³ [material_to_ru_genitive(M.name)]: "
 		if(amount >= MINERAL_MATERIAL_AMOUNT) l += "<A href='?src=[REF(src)];ejectsheet=[ref];eject_amt=1'>1x</A> [RDSCREEN_NOBREAK]"
 		if(amount >= MINERAL_MATERIAL_AMOUNT*5) l += "<A href='?src=[REF(src)];ejectsheet=[ref];eject_amt=5'>5x</A> [RDSCREEN_NOBREAK]"
 		if(amount >= MINERAL_MATERIAL_AMOUNT*10) l += "<A href='?src=[REF(src)];ejectsheet=[ref];eject_amt=10'>10x</A> [RDSCREEN_NOBREAK]"

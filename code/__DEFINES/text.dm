@@ -272,6 +272,7 @@ GLOBAL_LIST_INIT(mat_ru_nominative, list(
 	"cardboard" = "картон",
 	"bone" = "кость",
 	"bamboo" = "бамбук",
+	"rigid material" = "твёрдый материал",
 ))
 
 /// Лист-словарь для examine string'а материалов в родительном падеже
@@ -304,4 +305,27 @@ GLOBAL_LIST_INIT(mat_ru_genitive, list(
 	"cardboard" = "картона",
 	"bone" = "кости",
 	"bamboo" = "бамбука",
+	"rigid material" = "твёрдого материала",
+))
+
+/// Лист-словарь для examine string'а бюджетов
+
+GLOBAL_LIST_INIT(budget_ru_nominative, list(
+	"civil budget" = "Гражданский бюджет",
+	"engineering budget" = "Бюджет инженерного отдела",
+	"scientific budget" = "Бюджет научного отдела",
+	"medical budget" = "Бюджет медицинского отдела",
+	"service budget" = "Бюджет отдела сервиса",
+	"cargo budget" = "Бюджет отдела карго",
+	"defense budget" = "Бюджет службы безопасности",
+))
+
+GLOBAL_LIST_INIT(budget_ru_genitive, list(
+	"civil budget" = "гражданского отдела",
+	"engineering budget" = "инженерного отдела",
+	"scientific budget" = "научного отдела",
+	"medical budget" = "медицинского отдела",
+	"service budget" = "отдела сервиса",
+	"cargo budget" = "отдела карго",
+	"defense budget" = "отдела службы безопасности",
 ))
