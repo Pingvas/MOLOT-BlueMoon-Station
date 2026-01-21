@@ -5715,6 +5715,7 @@
 #include "modular_splurt\code\modules\cargo\sweatshop\sweatshop.dm"
 #include "modular_splurt\code\modules\cargo\sweatshop\wooden.dm"
 #include "modular_splurt\code\modules\client\client_procs.dm"
+#include "modular_splurt\code\modules\client\genital_fluids.dm"
 #include "modular_splurt\code\modules\client\preferences.dm"
 #include "modular_splurt\code\modules\client\preferences_savefile.dm"
 #include "modular_splurt\code\modules\client\loadout\accessory.dm"

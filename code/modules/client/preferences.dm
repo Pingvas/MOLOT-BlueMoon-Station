@@ -435,6 +435,10 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/preferred_chaos_level = 2
 	var/auto_capitalize_enabled = FALSE
 
+	/// Character Setup browser UI theme (used by the "new" character creator UI).
+	/// Supported values: "classic", "modern"
+	var/charcreation_theme = "classic"
+
 /datum/preferences/New(client/C)
 	parent = C
 
@@ -485,7 +489,21 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	if(!user || !user.client)
 		return
 	update_preview_icon(current_tab)
-	var/list/dat = list("<center>")
+	var/is_modern_theme = !!findtext(charcreation_theme, "modern")
+	var/theme_class = "csetup-theme-classic"
+	switch(charcreation_theme)
+		if("classic")
+			theme_class = "csetup-theme-classic"
+		if("modern")
+			theme_class = "csetup-theme-modern csetup-accent-blue"
+		if("modern_purple")
+			theme_class = "csetup-theme-modern csetup-accent-purple"
+		if("modern_green")
+			theme_class = "csetup-theme-modern csetup-accent-green"
+		else
+			if(is_modern_theme)
+				theme_class = "csetup-theme-modern csetup-accent-blue"
+	var/list/dat = list("<div class='csetup-root [theme_class]'>", "<center>")
 
 	dat += "<a href='?_src_=prefs;preference=tab;tab=[SETTINGS_TAB]' [current_tab == SETTINGS_TAB ? "class='linkOn'" : ""]>Character Settings</a>"
 	dat += "<a href='?_src_=prefs;preference=tab;tab=[PREFERENCES_TAB]' [current_tab == PREFERENCES_TAB ? "class='linkOn'" : ""]>Preferences</a>"
@@ -554,6 +572,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[MARKINGS_CHAR_TAB]' [character_settings_tab == MARKINGS_CHAR_TAB ? "class='linkOn'" : ""]>Markings</a>"
 			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[SPEECH_CHAR_TAB]' [character_settings_tab == SPEECH_CHAR_TAB ? "class='linkOn'" : ""]>Speech</a>"
 			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[LOADOUT_CHAR_TAB]' [character_settings_tab == LOADOUT_CHAR_TAB ? "class='linkOn'" : ""]>Loadout</a>" //If you change the index of this tab, change all the logic regarding tab
+			if(is_modern_theme && CONFIG_GET(flag/roundstart_traits))
+				dat += "<a href='?_src_=prefs;preference=character_tab;tab=[QUIRKS_CHAR_TAB]' [character_settings_tab == QUIRKS_CHAR_TAB ? "class='linkOn'" : ""]>Quirks</a>"
 			dat += "</center>"
 
 			dat += "<HR>"
@@ -562,11 +582,9 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 			dat += "<tr>"
 			dat += "<td width=35% style=\"line-height:5px\">"
 			dat += "<center><b>Preview:</b></center><br>"
-			dat += "<center style=\"line-height:20px\">"
 			dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_JOB]' [preview_pref == PREVIEW_PREF_JOB ? "class='linkOn'" : ""]>[PREVIEW_PREF_JOB]</a>"
 			dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_LOADOUT]' [preview_pref == PREVIEW_PREF_LOADOUT ? "class='linkOn'" : ""]>[PREVIEW_PREF_LOADOUT]</a>"
 			dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_NAKED]' [preview_pref == PREVIEW_PREF_NAKED ? "class='linkOn'" : ""]>[PREVIEW_PREF_NAKED]</a>"
-			dat += "<br>"
 			dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_NAKED_AROUSED]' [preview_pref == PREVIEW_PREF_NAKED_AROUSED ? "class='linkOn'" : ""]>[PREVIEW_PREF_NAKED_AROUSED]</a>"
 			dat += "</center>"
 			dat += "</td>"
@@ -594,15 +612,20 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 				dat += "<center><a href='?_src_=prefs;preference=gear;clear_loadout=1'>Clear Loadout</a></b></center>"
 				dat += "</td>"
 			else
-				dat += "<td width=35% style=\"line-height:10px\">"
-				dat += "<center><b>Mismatched parts:</b></center><br>"
-				dat += "<center><a href='?_src_=prefs;preference=mismatched_markings;task=input'>[(show_mismatched_markings) ? "Enabled" : "Disabled"]</a></center>"
-				dat += "</td>"
+				if(is_modern_theme)
+					dat += "<td width=65% style=\"line-height:10px\">"
+					dat += "<center><b>Mismatched:</b> <a href='?_src_=prefs;preference=mismatched_markings;task=input'>[(show_mismatched_markings) ? "On" : "Off"]</a></center>"
+					dat += "</td>"
+				else
+					dat += "<td width=35% style=\"line-height:10px\">"
+					dat += "<center><b>Mismatched:</b> <a href='?_src_=prefs;preference=mismatched_markings;task=input'>" + (show_mismatched_markings ? "On" : "Off") + "</a></center>"
+					dat += "<center><a href='?_src_=prefs;preference=mismatched_markings;task=input'>" + (show_mismatched_markings ? "Enabled" : "Disabled") + "</a></center>"
+					dat += "</td>"
 
-				dat += "<td width=30% style=\"line-height:10px\">"
-				dat += "<center><b>Advanced colors:</b></center><br>"
-				dat += "<center><a href='?_src_=prefs;preference=color_scheme;task=input'>[(features["color_scheme"] == ADVANCED_CHARACTER_COLORING) ? "Enabled" : "Disabled"]</a></center>"
-				dat += "</td>"
+					dat += "<td width=30% style=\"line-height:10px\">"
+					dat += "<center><b>Advanced colors:</b></center><br>"
+					dat += "<center><a href='?_src_=prefs;preference=color_scheme;task=input'>" + ((features["color_scheme"] == ADVANCED_CHARACTER_COLORING) ? "Enabled" : "Disabled") + "</a></center>"
+					dat += "</td>"
 
 			dat += "</tr>"
 			dat += "</table>"
@@ -614,9 +637,13 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "<center><h2>Occupation Choices</h2>"
 					dat += "<a href='?_src_=prefs;preference=job;task=menu'>Set Occupation Preferences</a><br></center>"
 					if(CONFIG_GET(flag/roundstart_traits))
-						dat += "<center><h2>Quirk Setup ([GetQuirkBalance(user)] points left)</h2>"
-						dat += "<a href='?_src_=prefs;preference=trait;task=menu'>Configure Quirks</a><br></center>"
-						dat += "<center><b>Current Quirks:</b> [english_list(all_quirks, "None")]</center>"
+						if(is_modern_theme)
+							dat += "<center><h2>Quirks</h2>"
+							dat += "<a href='?_src_=prefs;preference=character_tab;tab=[QUIRKS_CHAR_TAB]'>Открыть вкладку квирков</a><br></center>"
+						else
+							dat += "<center><h2>Quirk Setup ([GetQuirkBalance(user)] points left)</h2>"
+							dat += "<a href='?_src_=prefs;preference=trait;task=menu'>Configure Quirks</a><br></center>"
+							dat += "<center><b>Current Quirks:</b> [english_list(all_quirks, "None")]</center>"
 					dat += "<h2>Identity</h2>"
 					dat += "<table width='100%'><tr><td width='30%' valign='top'>"
 					if(jobban_isbanned(user, "appearance"))
@@ -677,6 +704,17 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 								"<br>", "<br>")
 
 					dat += "</td></tr></table>"
+				//Character quirks (Modern only)
+				if(QUIRKS_CHAR_TAB)
+					if(is_modern_theme)
+						if(CONFIG_GET(flag/roundstart_traits))
+							dat += "<center><h2>Quirk Setup ([GetQuirkBalance(user)] points left)</h2>"
+							dat += "<a href='?_src_=prefs;preference=trait;task=menu'>Configure Quirks</a><br></center>"
+							dat += "<center><b>Current Quirks:</b> [english_list(all_quirks, "None")]</center>"
+						else
+							dat += "<center><i>Quirks are disabled on this server.</i></center>"
+					else
+						character_settings_tab = GENERAL_CHAR_TAB
 				//Character background
 				if(BACKGROUND_CHAR_TAB)
 					dat += "<table width='100%'><tr><td width='30%' valign='top'>"
@@ -757,7 +795,10 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					//SPLURT EDIT END
 					dat += "</td>"
 
-					dat += "<td valign='top'>"
+					if(is_modern_theme)
+						dat += "<td width='35%' valign='top'>"
+					else
+						dat += "<td valign='top'>"
 					dat += "<h2>Records</h2>"
 					dat += "<a href='?_src_=prefs;preference=security_records;task=input'><b>Security Records</b></a><br>"
 					if(length_char(security_records) <= 40)
@@ -776,6 +817,10 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 							dat += "[medical_records]"
 					else
 						dat += "[TextPreview(medical_records)]..."
+
+					if(is_modern_theme)
+						dat += "</td>"
+						dat += "<td width='35%' valign='top'>"
 
 					// BLUEMOON ADD
 					dat += "<h2>Headshots</h2>"
@@ -821,6 +866,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "<b>Gender:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=gender;task=input'>[gender == MALE ? "Male" : (gender == FEMALE ? "Female" : (gender == PLURAL ? "Non-binary" : "Object"))]</a><BR>"
 					if(pref_species.sexes)
 						dat += "<b>Body Model:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=body_model'>[features["body_model"] == MALE ? "Masculine" : "Feminine"]</a><BR>"
+					if(is_modern_theme)
+						dat += "<b><span title='Включает расширенную раскраску отдельных частей тела (если поддерживается видом).'>Advanced colors:</span></b><a style='display:block;width:100px' href='?_src_=prefs;preference=color_scheme;task=input'>[(features["color_scheme"] == ADVANCED_CHARACTER_COLORING) ? "Enabled" : "Disabled"]</a><BR>"
 					dat += "<b>Limb Modification:</b><BR>"
 					dat += "<a href='?_src_=prefs;preference=modify_limbs;task=input'>Modify Limbs</a><BR>"
 					for(var/modification in modified_limbs)
@@ -1682,7 +1729,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "<b>Be Antagonist Victim:</b> <a href='?_src_=prefs;preference=be_victim;task=input'>[be_victim ? be_victim : BEVICTIM_ASK]</a><br>"
 					dat += "<b>Disable combat mode cursor:</b> <a href='?_src_=prefs;preference=disable_combat_cursor'>[disable_combat_cursor?"Yes":"No"]</a><br>"
 					dat += "<b>Splashscreen Player Panel Style:</b> <a href='?_src_=prefs;preference=tg_playerpanel'>[(toggles & TG_PLAYER_PANEL)?"TG":"Old"]</a><br>"
-					dat += "<b>Character Creation Menu Style:</b> <a href='?_src_=prefs;preference=charcreation_style'>[new_character_creator ? "New" : "Old"]</a><br>"
+					dat += "<b>Character Creation Menu Style:</b> <a href='?_src_=prefs;preference=charcreation_style'>[(new_character_creator) ? ((findtext(charcreation_theme, "modern")) ? "Modern" : "New") : "Old"]</a><br>"
 					//SPLURT Edit end
 
 					dat += "<br>"
@@ -1854,7 +1901,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					var/datum/keybinding/kb = i
 					var/current_independent_binding = user_modless_binds[kb.name] || "Unbound"
 					if(!length(user_binds[kb.name]))
-						dat += "<span class='bindname'>[kb.full_name]</span><span class='bindings'><a href ='?_src_=prefs;preference=keybindings_capture;keybinding=[kb.name];old_key=["Unbound"]'>Unbound</a>"
+						dat += "<span class='bindname'>[kb.full_name]</span><span class='bindings'><a href ='?_src_=prefs;preference=keybindings_capture;keybinding=[kb.name];old_key=Unbound'>Unbound</a>"
 						var/list/default_keys = hotkeys ? kb.hotkey_keys : kb.classic_keys
 						if(LAZYLEN(default_keys))
 							dat += "| Default: [default_keys.Join(", ")]"
@@ -1892,11 +1939,36 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	dat += "<a href='?_src_=prefs;preference=reset_all'>Reset Setup</a>"
 	dat += "</center>"
 
+	dat += "</div>"
+
 	winshow(user, "preferences_window", TRUE)
 	var/datum/browser/popup = new(user, "preferences_browser", "<div align='center'>Character Setup</div>", 640, 770)
+	if(findtext(charcreation_theme, "modern"))
+		popup.add_stylesheet("preferences_modern", 'html/browser/preferences_modern.css')
+		popup.add_script("prefs_state", 'html/browser/prefs_state.js')
 	popup.set_content(dat.Join())
 	popup.open(FALSE)
 	onclose(user, "preferences_window", src)
+
+/datum/preferences/proc/cycle_character_creation_menu_style()
+	// Cycle: Old -> New (classic) -> New (modern blue) -> New (modern purple) -> New (modern green) -> Old
+	if(!new_character_creator)
+		new_character_creator = TRUE
+		charcreation_theme = "classic"
+		return
+
+	if(charcreation_theme == "classic")
+		charcreation_theme = "modern"
+		return
+	if(charcreation_theme == "modern")
+		charcreation_theme = "modern_purple"
+		return
+	if(charcreation_theme == "modern_purple")
+		charcreation_theme = "modern_green"
+		return
+
+	charcreation_theme = "classic"
+	new_character_creator = FALSE
 
 #undef SETUP_START_NODE
 #undef SETUP_GET_LINK
@@ -2261,6 +2333,11 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 			to_chat(user, text, confidential = TRUE)
 		qdel(query_get_jobban)
 		return
+
+	if(href_list["preference"] == "charcreation_style")
+		cycle_character_creation_menu_style()
+		ShowChoices(user)
+		return TRUE
 
 	if(href_list["preference"] == "job")
 		switch(href_list["task"])
@@ -4599,7 +4676,10 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 
 				if("character_tab")
 					if(href_list["tab"])
-						character_settings_tab = text2num(href_list["tab"])
+						var/new_tab = text2num(href_list["tab"])
+						if(new_tab == QUIRKS_CHAR_TAB && !(findtext(charcreation_theme, "modern") && CONFIG_GET(flag/roundstart_traits)))
+							new_tab = GENERAL_CHAR_TAB
+						character_settings_tab = new_tab
 
 				if("preferences_tab")
 					if(href_list["tab"])
