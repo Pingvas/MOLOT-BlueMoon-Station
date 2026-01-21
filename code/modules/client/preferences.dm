@@ -1,3 +1,7 @@
+#define DEFAULT_SLOT_AMT	2
+#define HANDS_SLOT_AMT		2
+#define BACKPACK_SLOT_AMT	4
+
 GLOBAL_LIST_EMPTY(preferences_datums)
 
 /datum/preferences
@@ -100,7 +104,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/be_victim = null
 	var/use_new_playerpanel = TRUE // BLUEMOON - ENABELING-MODERN-PLAYER-PANEL-AS-DEFAULT
 	var/disable_combat_cursor = FALSE
-	var/character_setup_theme = "dark"	/// BLUEMOON ADD - тема для меню настройки персонажа
 	var/tg_playerpanel = "TG"
 	var/pda_style = MONO
 	var/pda_color = "#808000"
@@ -115,13 +118,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/uses_glasses_colour = 0
 	var/surgical_disable_radial = FALSE 		// BLUEMOON ADD
 
-	// BLUEMOON ADD START || Colormate presets
-	// Листы состоят из ключа, типа предмета и листа с именами престов и настройками цвета
-	var/list/color_presets_tint = list() // Пример: list(/obj/item/clothing = list("Стандарт" = "#ffffff"))
-	var/list/color_presets_hsv = list() // Пример: list(/obj/item/clothing = list("Стандарт" = list("hue" = 0, "sat" = 1, "val" = 1)))
-	var/list/color_presets_matrix = list() // Пример: list(/obj/item/clothing = list("Стандарт" = list(1,0,0,0,1,0,0,0,1,0,0,0)))
-	// BLUEMOON ADD END
-
 	//character preferences
 	var/real_name							//our character's name
 	var/nameless = FALSE					//whether or not our character is nameless
@@ -135,7 +131,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/vorepref = "Ask"
 	var/mobsexpref = "No" 					//Added by Gardelin0 - Sex(mostly non-con) with hostile mobs(tentacles)
 	var/hornyantagspref = "No" 				//Added by Gardelin0 - Interactions(mostly non-con) with horny antags(Qareen)
-	var/tattoopref = "Ask"					//BLUEMOON ADD - Tattoo consent preference
 	var/extremepref = "No" 					//This is for extreme shit, maybe even literal shit, better to keep it on no by default
 	var/extremeharm = "No" 					//If "extreme content" is enabled, this option serves as a toggle for the related interactions to cause damage or not
 	var/see_chat_emotes = TRUE
@@ -304,7 +299,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 
 	//Quirk list
 	var/list/all_quirks = list()
-
 
 	//Quirk category currently selected
 	var/quirk_category = QUIRK_POSITIVE // defaults to positive, the first tab!
@@ -483,169 +477,15 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 #define APPEARANCE_CATEGORY_COLUMN "<td valign='top' width='17%'>"
 #define MAX_MUTANT_ROWS 5
 
-/// Получить список доступных тем для меню настройки персонажа
-/datum/preferences/proc/get_available_themes()
-	return list("dark" = "Тёмная", "classic" = "Классическая", "neutral" = "Нейтральная")
-
-/// Получить CSS стили для выбранной темы
-/datum/preferences/proc/get_theme_colors()
-	var/theme_colors = list()
-
-	switch(character_setup_theme)
-		if("classic")
-			// Классическая тема с оригинальной синей палитрой BYOND
-			theme_colors["bg_primary"] = "#272727"
-			theme_colors["bg_secondary"] = "#1a1a1a"
-			theme_colors["bg_pattern"] = "none"
-			theme_colors["text_primary"] = "#ffffff"
-			theme_colors["text_secondary"] = "#c0c0c0"
-			theme_colors["button_bg"] = "#40628a"
-			theme_colors["button_hover"] = "#2f943c"
-			theme_colors["button_active"] = "#2f943c"
-			theme_colors["button_text"] = "#ffffff"
-			theme_colors["border_color"] = "#161616"
-			theme_colors["accent_color"] = "#40628a"
-
-		if("neutral")
-			// Нейтральная тема, чуть светлее темной
-			theme_colors["bg_primary"] = "#f2f2f2"
-			theme_colors["bg_secondary"] = "#ffffff"
-			theme_colors["bg_pattern"] = "repeating-linear-gradient(90deg, rgba(255,255,255,0.32) 0px, rgba(255,255,255,0.32) 10px, rgba(0,0,0,0.035) 10px, rgba(0,0,0,0.035) 20px)"
-			theme_colors["text_primary"] = "#222222"
-			theme_colors["text_secondary"] = "#555555"
-			theme_colors["button_bg"] = "#e4e4e4"
-			theme_colors["button_hover"] = "#d9d9d9"
-			theme_colors["button_active"] = "#e0e7ff"
-			theme_colors["button_text"] = "#1f2b4d"
-			theme_colors["border_color"] = "#cccccc"
-			theme_colors["accent_color"] = "#6a8cff"
-
-		else // "dark" или значение по умолчанию
-			// Тёмная тема для новых игроков
-			theme_colors["bg_primary"] = "#121212"
-			theme_colors["bg_secondary"] = "#1c1c1c"
-			theme_colors["bg_pattern"] = "none"
-			theme_colors["text_primary"] = "#e6e6e6"
-			theme_colors["text_secondary"] = "#a8a8a8"
-			theme_colors["button_bg"] = "#1f1f1f"
-			theme_colors["button_hover"] = "#2a2a2a"
-			theme_colors["button_active"] = "#4da3ff"
-			theme_colors["button_text"] = "#0b1c2f"
-			theme_colors["border_color"] = "#2f2f2f"
-			theme_colors["accent_color"] = "#4da3ff"
-
-	return theme_colors
-
 /datum/preferences/proc/ShowChoices(mob/user)
 	if(!user || !user.client)
 		return
 	update_preview_icon(current_tab)
+	var/list/dat = list("<center>")
 
-	// Получаем цвета для текущей темы
-	var/list/theme = get_theme_colors()
-	var/list/available_themes = get_available_themes()
-	var/list/theme_swatches = list("dark" = "#121212", "classic" = "#40628a", "neutral" = "#bfc2c7")
-
-	// Генерируем CSS стили на основе темы
-	var/css_styles = "<style>\n\
-		* { box-sizing: border-box; }\n\
-		body, #main, body.dark { background-color: [theme["bg_primary"]]; color: [theme["text_primary"]]; font-family: 'Arial', 'Helvetica', sans-serif; margin: 0; padding: 10px; position: relative; background-image: [theme["bg_pattern"]]; background-size: 24px 24px; }\n\
-		.linkOn { background-color: [theme["button_active"]]; color: [theme["button_text"]]; padding: 6px 12px; border-radius: 4px; font-weight: bold; }\n\
-		a { color: [theme["text_primary"]]; text-decoration: none; padding: 6px 12px; margin: 2px; display: inline-block; background-color: [theme["button_bg"]]; border-radius: 4px; border: 1px solid [theme["border_color"]]; transition: all 0.25s ease; cursor: pointer; font-size: 13px; vertical-align: middle; }\n\
-		a:hover { background-color: [theme["button_hover"]]; transform: translateY(-2px); }\n\
-		a.linkOff { color: [theme["text_secondary"]]; cursor: not-allowed; opacity: 0.5; }\n\
-		.notice { background-color: [theme["bg_secondary"]]; border: 1px solid [theme["border_color"]]; padding: 12px; border-radius: 4px; color: [theme["accent_color"]]; margin: 10px 0; text-align: center; }\n\
-		hr { border: none; border-top: 1px solid [theme["border_color"]]; margin: 15px 0; }\n\
-		center { margin: 10px 0; }\n\
-		table { background-color: [theme["bg_secondary"]]; border-collapse: collapse; width: 100%; }\n\
-		td, th { padding: 10px; color: [theme["text_primary"]]; text-align: left; border-bottom: 1px solid [theme["border_color"]]; }\n\
-		td:not(:last-child) { border-right: 1px solid [theme["border_color"]]; }\n\
-		h2, h3 { color: [theme["accent_color"]]; margin-top: 15px; margin-bottom: 10px; }\n\
-		b { color: [theme["text_primary"]]; }\n\
-		.tab-link { white-space: nowrap; }\n\
-		.theme-selector { position: absolute; top: 8px; right: 8px; display: flex; align-items: center; gap: 6px; background-color: [theme["bg_secondary"]]; padding: 6px 8px; border-radius: 6px; border: 1px solid [theme["border_color"]]; box-shadow: 0 2px 8px rgba(0,0,0,0.35); }\n\
-		.theme-emoji { margin-right: 4px; font-size: 14px; }\n\
-		.theme-swatch { padding: 0 !important; margin: 0 4px; width: 18px; height: 18px; border-radius: 4px; border: 2px solid [theme["border_color"]]; background-color: transparent; display: inline-block; box-shadow: none; transition: all 0.25s ease; }\n\
-		.theme-swatch:hover { transform: translateY(-2px) scale(1.05); }\n\
-		.theme-swatch.active { border-color: [theme["accent_color"]]; box-shadow: 0 0 8px [theme["accent_color"]]; }\n\
-		/* Loadout gear grid styles */\n\
-		.gear-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 15px; padding: 20px; }\n\
-		.gear-item { border: 2px solid #404040; border-radius: 8px; padding: 12px; text-align: center; cursor: pointer; transition: all 0.2s ease; background-color: #1a1f26; width: 100%; max-width: 200px; margin: 0 auto; }\n\
-		.gear-item:hover { border-color: #6b9eff; box-shadow: 0 0 10px rgba(107,158,255,0.3); background-color: #232b38; }\n\
-		.gear-item.selected { border-color: #ffd700; box-shadow: 0 0 15px rgba(255,215,0,0.4); background-color: #2a3340; }\n\
-		.gear-item.disabled { opacity: 0.5; cursor: not-allowed; border-color: #404040; }\n\
-		.gear-item.disabled:hover { border-color: #404040; box-shadow: none; background-color: #1a1f26; }\n\
-		.gear-item.locked { opacity: 0.4; cursor: not-allowed; border-color: #5a3030; }\n\
-		.gear-item.donor { background-color: #2a2410; border-color: #8b7500; }\n\
-		.gear-item.donor:hover { border-color: #ebc42e; box-shadow: 0 0 10px rgba(235,196,46,0.3); }\n\
-		.gear-icon { height: 80px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }\n\
-		.gear-icon img { max-height: 80px; max-width: 80px; object-fit: contain; }\n\
-		.gear-name { font-weight: bold; font-size: 12px; margin-bottom: 4px; color: #b0b0ff; white-space: normal; word-wrap: break-word; }\n\
-		.gear-cost { font-size: 11px; color: #80ff80; margin-bottom: 4px; }\n\
-		.gear-tooltip { position: relative; }\n\
-		.gear-tooltip-text { visibility: hidden; width: 250px; background-color: #1a1f26; color: #c0c0ff; text-align: left; border: 1px solid #404040; border-radius: 6px; padding: 10px; position: absolute; z-index: 1000; bottom: 125%; left: 50%; margin-left: -125px; opacity: 0; transition: opacity 0.3s; font-size: 11px; box-shadow: 0 4px 8px rgba(0,0,0,0.5); }\n\
-		.gear-item:hover .gear-tooltip-text { visibility: visible; opacity: 1; }\n\
-		.gear-tooltip-desc { margin-bottom: 6px; border-bottom: 1px solid #404040; padding-bottom: 6px; }\n\
-		.gear-tooltip-restrictions { color: #ff9090; font-size: 10px; margin-top: 6px; }\n\
-		.gear-tooltip-cost { color: #80ff80; font-size: 10px; margin-top: 4px; }\n\
-		</style>"
-
-	// Скрипт для сохранения позиции скролла при клике на ссылки
-	var/scroll_script = "<script>\n\
-(function(){\n\
-  // Восстанавливаем скролл после загрузки страницы\n\
-  function restoreScroll(){\n\
-    try{\n\
-      var saved = localStorage.getItem('prefMenuScroll');\n\
-      if(saved){\n\
-        var y = parseInt(saved, 10);\n\
-        window.scrollTo(0, y);\n\
-        localStorage.removeItem('prefMenuScroll');\n\
-      }\n\
-    } catch(e) {}\n\
-  }\n\
-  // При клике сохраняем скролл перед переходом\n\
-  function attachScrollHandlers(){\n\
-    var links = document.querySelectorAll('a');\n\
-    Array.prototype.forEach.call(links, function(a){\n\
-      var onclick = a.onclick;\n\
-      a.onclick = function(e){\n\
-        try{ localStorage.setItem('prefMenuScroll', (window.scrollY || document.documentElement.scrollTop || 0).toString()); } catch(e) {}\n\
-        if(onclick) return onclick.call(a, e);\n\
-      };\n\
-    });\n\
-  }\n\
-  if(document.readyState === 'complete' || document.readyState === 'interactive'){\n\
-    restoreScroll();\n\
-    attachScrollHandlers();\n\
-  } else {\n\
-    document.addEventListener('DOMContentLoaded', function(){\n\
-      restoreScroll();\n\
-      attachScrollHandlers();\n\
-    });\n\
-  }\n\
-  // Дополнительное восстановление через небольшую задержку\n\
-  setTimeout(restoreScroll, 100);\n\
-})();\n\
-</script>"
-
-	var/list/dat = list(css_styles, scroll_script)
-
-	// Селектор темы в правом верхнем углу
-	dat += "<div class='theme-selector'>"
-	dat += "<span class='theme-emoji'>🎨</span>"
-	for(var/theme_id in available_themes)
-		var/theme_name = available_themes[theme_id]
-		var/is_active = (character_setup_theme == theme_id)
-		var/swatch_color = theme_swatches[theme_id] ? theme_swatches[theme_id] : theme["accent_color"]
-		dat += "<a href='?_src_=prefs;preference=setup_theme;theme=[theme_id]' class='[is_active ? "theme-swatch active" : "theme-swatch"]' style='background-color: [swatch_color];' title='[theme_name]'></a>"
-	dat += "</div>"
-
-	dat += "<center>"
-
-	dat += "<a class='tab-link' href='?_src_=prefs;preference=tab;tab=[SETTINGS_TAB]' [current_tab == SETTINGS_TAB ? "class='linkOn tab-link'" : ""]>Параметры персонажа</a>"
-	dat += "<a class='tab-link' href='?_src_=prefs;preference=tab;tab=[PREFERENCES_TAB]' [current_tab == PREFERENCES_TAB ? "class='linkOn tab-link'" : ""]>Настройки</a>"
-	dat += "<a class='tab-link' href='?_src_=prefs;preference=tab;tab=[KEYBINDINGS_TAB]' [current_tab == KEYBINDINGS_TAB ? "class='linkOn tab-link'" : ""]>Горячие клавиши</a>"
+	dat += "<a href='?_src_=prefs;preference=tab;tab=[SETTINGS_TAB]' [current_tab == SETTINGS_TAB ? "class='linkOn'" : ""]>Character Settings</a>"
+	dat += "<a href='?_src_=prefs;preference=tab;tab=[PREFERENCES_TAB]' [current_tab == PREFERENCES_TAB ? "class='linkOn'" : ""]>Preferences</a>"
+	dat += "<a href='?_src_=prefs;preference=tab;tab=[KEYBINDINGS_TAB]' [current_tab == KEYBINDINGS_TAB ? "class='linkOn'" : ""]>Keybindings</a>"
 
 	if(!path)
 		dat += "<div class='notice'>Please create an account to save your preferences</div>"
@@ -662,31 +502,16 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "<center>"
 					var/name
 					var/unspaced_slots = 0
-					var/has_empty_slot = FALSE
-					var/first_empty_slot = 0
-
-					// Показываем заполненные слоты; кнопку создания выводим позже в первый пустой
 					for(var/i=1, i<=max_save_slots, i++)
-						name = null
+						unspaced_slots++
+						if(unspaced_slots > 4)
+							dat += "<br>"
+							unspaced_slots = 0
 						S.cd = "/character[i]"
 						S["real_name"] >> name
-						if(name) // Показываем только слоты с именами
-							unspaced_slots++
-							if(unspaced_slots > 4)
-								dat += "<br>"
-								unspaced_slots = 0
-							dat += "<a style='white-space:nowrap;' href='?_src_=prefs;preference=changeslot;num=[i];' [i == default_slot ? "class='linkOn'" : ""]>[name]</a> "
-							dat += "<a style='white-space:nowrap; color: red;' href='?_src_=prefs;preference=deleteslot;num=[i];' title='Удалить персонажа'>X</a> "
-						else if(!has_empty_slot)
-							has_empty_slot = TRUE
-							first_empty_slot = i
-
-					// Добавляем кнопку создания нового персонажа в первый пустой слот в конце списка
-					if(has_empty_slot)
-						if(unspaced_slots >= 4)
-							dat += "<br>"
-						dat += "<a style='white-space:nowrap; font-size: 18px; font-weight: bold;' href='?_src_=prefs;preference=changeslot;num=[first_empty_slot];' title='Создать нового персонажа'>+</a> "
-
+						if(!name)
+							name = "Character[i]"
+						dat += "<a style='white-space:nowrap;' href='?_src_=prefs;preference=changeslot;num=[i];' [i == default_slot ? "class='linkOn'" : ""]>[name]</a> "
 					dat += "</center>"
 
 			dat += "<HR>"
@@ -724,21 +549,26 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[APPEARANCE_CHAR_TAB]' [character_settings_tab == APPEARANCE_CHAR_TAB ? "class='linkOn'" : ""]>Appearance</a>"
 			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[MARKINGS_CHAR_TAB]' [character_settings_tab == MARKINGS_CHAR_TAB ? "class='linkOn'" : ""]>Markings</a>"
 			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[SPEECH_CHAR_TAB]' [character_settings_tab == SPEECH_CHAR_TAB ? "class='linkOn'" : ""]>Speech</a>"
-			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[LOADOUT_CHAR_TAB]' [character_settings_tab == LOADOUT_CHAR_TAB ? "class='linkOn'" : ""]>Loadout</a>"
-			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[QUIRKS_CHAR_TAB]' [character_settings_tab == QUIRKS_CHAR_TAB ? "class='linkOn'" : ""]>Quirks</a>"
+			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[LOADOUT_CHAR_TAB]' [character_settings_tab == LOADOUT_CHAR_TAB ? "class='linkOn'" : ""]>Loadout</a>" //If you change the index of this tab, change all the logic regarding tab
 			dat += "</center>"
 
-			dat += "<center style='margin-top: 8px;'>"
-			dat += "<b style='color: [theme["text_secondary"]]; font-size: 11px;'>Preview mode:</b> "
-			dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_JOB]' [preview_pref == PREVIEW_PREF_JOB ? "class='linkOn'" : ""] style='padding: 4px 10px; font-size: 11px;'>[PREVIEW_PREF_JOB]</a>"
-			dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_LOADOUT]' [preview_pref == PREVIEW_PREF_LOADOUT ? "class='linkOn'" : ""] style='padding: 4px 10px; font-size: 11px;'>[PREVIEW_PREF_LOADOUT]</a>"
-			dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_NAKED]' [preview_pref == PREVIEW_PREF_NAKED ? "class='linkOn'" : ""] style='padding: 4px 10px; font-size: 11px;'>[PREVIEW_PREF_NAKED]</a>"
-			dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_NAKED_AROUSED]' [preview_pref == PREVIEW_PREF_NAKED_AROUSED ? "class='linkOn'" : ""] style='padding: 4px 10px; font-size: 11px;'>[PREVIEW_PREF_NAKED_AROUSED]</a>"
+			dat += "<HR>"
+			dat += "<center>"
+			dat += "<table width='100%'>"
+			dat += "<tr>"
+			dat += "<td width=35% style=\"line-height:5px\">"
+			dat += "<center><b>Preview:</b></center><br>"
+			dat += "<center style=\"line-height:20px\">"
+			dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_JOB]' [preview_pref == PREVIEW_PREF_JOB ? "class='linkOn'" : ""]>[PREVIEW_PREF_JOB]</a>"
+			dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_LOADOUT]' [preview_pref == PREVIEW_PREF_LOADOUT ? "class='linkOn'" : ""]>[PREVIEW_PREF_LOADOUT]</a>"
+			dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_NAKED]' [preview_pref == PREVIEW_PREF_NAKED ? "class='linkOn'" : ""]>[PREVIEW_PREF_NAKED]</a>"
+			dat += "<br>"
+			dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_NAKED_AROUSED]' [preview_pref == PREVIEW_PREF_NAKED_AROUSED ? "class='linkOn'" : ""]>[PREVIEW_PREF_NAKED_AROUSED]</a>"
 			dat += "</center>"
-
+			dat += "</td>"
 			if(character_settings_tab == LOADOUT_CHAR_TAB) //if loadout
 				//calculate your gear points from the chosen item
-				gear_points = CONFIG_GET(number/initial_gear_points) + (IS_CKEY_DONATOR_GROUP(user.ckey, DONATOR_GROUP_TIER_1) ? CONFIG_GET(number/subscriber_extra_gear_points) : 0) + (IS_CKEY_DONATOR_GROUP(user.ckey, DONATOR_GROUP_TIER_2) ? CONFIG_GET(number/sponsor_extra_gear_points) : 0)
+				gear_points = CONFIG_GET(number/initial_gear_points)
 				var/list/chosen_gear = loadout_data["SAVE_[loadout_slot]"]
 				if(islist(chosen_gear))
 					loadout_errors = 0
@@ -755,23 +585,34 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 				else
 					chosen_gear = list()
 
+				dat += "<td width=65% style=\"line-height:10px\">"
 				dat += "<center><b><font color='[gear_points == 0 ? "#E62100" : "#CCDDFF"]'>[gear_points]</font> loadout point[gear_points == 1 ? "" : "s"] remaining</center><br>"
 				dat += "<center><a href='?_src_=prefs;preference=gear;clear_loadout=1'>Clear Loadout</a></b></center>"
+				dat += "</td>"
+			else
+				dat += "<td width=35% style=\"line-height:10px\">"
+				dat += "<center><b>Mismatched parts:</b></center><br>"
+				dat += "<center><a href='?_src_=prefs;preference=mismatched_markings;task=input'>[(show_mismatched_markings) ? "Enabled" : "Disabled"]</a></center>"
+				dat += "</td>"
 
+				dat += "<td width=30% style=\"line-height:10px\">"
+				dat += "<center><b>Advanced colors:</b></center><br>"
+				dat += "<center><a href='?_src_=prefs;preference=color_scheme;task=input'>[(features["color_scheme"] == ADVANCED_CHARACTER_COLORING) ? "Enabled" : "Disabled"]</a></center>"
+				dat += "</td>"
+
+			dat += "</tr>"
+			dat += "</table>"
+			dat += "</center>"
 			dat += "<HR>"
 			switch(character_settings_tab)
 				//General
 				if(GENERAL_CHAR_TAB)
-					// Текущие квирки: красивая панель с оформлением
-					var/current_quirks_str = all_quirks.len ? english_list(all_quirks) : "None"
-					dat += "<style>"
-					dat += ".quirks-info-panel { max-width: 800px; margin: 10px auto; padding: 12px; background: [theme["bg_secondary"]]; border: 1px solid [theme["border_color"]]; border-radius: 6px; border-left: 4px solid [theme["accent_color"]]; }"
-					dat += ".quirks-title { color: [theme["text_primary"]]; font-weight: bold; margin-bottom: 8px; }"
-					dat += ".quirks-list { color: [theme["text_secondary"]]; word-break: break-word; }"
-					dat += "</style>"
-					dat += "<div class='quirks-info-panel'><div class='quirks-title'>Текущие квирки:</div><div class='quirks-list'>[current_quirks_str]</div></div>"
-					dat += "<center><h2>Выбор должностей</h2>"
-					dat += "<a href='?_src_=prefs;preference=job;task=menu'>Установить предпочтения должностей</a><br></center>"
+					dat += "<center><h2>Occupation Choices</h2>"
+					dat += "<a href='?_src_=prefs;preference=job;task=menu'>Set Occupation Preferences</a><br></center>"
+					if(CONFIG_GET(flag/roundstart_traits))
+						dat += "<center><h2>Quirk Setup ([GetQuirkBalance(user)] points left)</h2>"
+						dat += "<a href='?_src_=prefs;preference=trait;task=menu'>Configure Quirks</a><br></center>"
+						dat += "<center><b>Current Quirks:</b> [english_list(all_quirks, "None")]</center>"
 					dat += "<h2>Identity</h2>"
 					dat += "<table width='100%'><tr><td width='30%' valign='top'>"
 					if(jobban_isbanned(user, "appearance"))
@@ -836,8 +677,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 				if(BACKGROUND_CHAR_TAB)
 					dat += "<table width='100%'><tr><td width='30%' valign='top'>"
 
-					dat += "<h2>Текст описания</h2>"
-					dat += "<a href='?_src_=prefs;preference=flavor_text;task=input'><b>Установить текст осмотра</b></a><br>"
+					dat += "<h2>Flavor Text</h2>"
+					dat += "<a href='?_src_=prefs;preference=flavor_text;task=input'><b>Set Examine Text</b></a><br>"
 					if(length(features["flavor_text"]) <= MAX_FLAVOR_PREVIEW_LEN)
 						if(!length(features["flavor_text"]))
 							dat += "\[...\]"
@@ -857,8 +698,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 						dat += "[TextPreview(html_encode(features["naked_flavor_text"]))]...<BR>"
 					//SPLURT edit end
 					// BLUEMOON ADD START - пользовательский эмоут смерти
-					dat += "<h2>Пользовательский звук смерти</h2>"
-					dat += "<a href='?_src_=prefs;preference=custom_deathgasp;task=input'><b>Установить пользовательский звук смерти</b></a><br>"
+					dat += "<h2>Custom Deathgasp</h2>"
+					dat += "<a href='?_src_=prefs;preference=custom_deathgasp;task=input'><b>Set Custom Deathgasp</b></a><br>"
 					if(length(features["custom_deathgasp"]) <= MAX_FLAVOR_PREVIEW_LEN)
 						if(!length(features["custom_deathgasp"]))
 							dat += "\[...\]<BR>"
@@ -866,10 +707,10 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 							dat += "[html_encode(features["custom_deathgasp"])]<BR>"
 					else
 						dat += "[TextPreview(html_encode(features["custom_deathgasp"]))]...<BR>"
-					dat += "<h2>Звук пользовательской смерти</h2>"
-					dat += "<a href='?_src_=prefs;preference=custom_deathsound;task=input'><b>Установить пользовательский звук смерти</b></a><br>"
+					dat += "<h2>Custom Deathgasp Sound</h2>"
+					dat += "<a href='?_src_=prefs;preference=custom_deathsound;task=input'><b>Set Custom Deathsound</b></a><br>"
 					dat += "[features["custom_deathsound"]]<BR>"
-					dat += "<BR><a href='?_src_=prefs;preference=deathsoundpreview;task=input''>Предпросмотр звука смерти</a><BR>"
+					dat += "<BR><a href='?_src_=prefs;preference=deathsoundpreview;task=input''>Preview Deathsound</a><BR>"
 					// BLUEMOON ADD END
 					dat += "<h2>Silicon Flavor Text</h2>"
 					dat += "<a href='?_src_=prefs;preference=silicon_flavor_text;task=input'><b>Set Silicon Examine Text</b></a><br>"
@@ -889,8 +730,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 							dat += "[features["custom_species_lore"]]<BR>"
 					else
 						dat += "[TextPreview(features["custom_species_lore"])]...<BR>"
-					dat += "<h2>Заметки OOC</h2>"
-					dat += "<a href='?_src_=prefs;preference=ooc_notes;task=input'><b>Установить заметки OOC</b></a><br>"
+					dat += "<h2>OOC notes</h2>"
+					dat += "<a href='?_src_=prefs;preference=ooc_notes;task=input'><b>Set OOC notes</b></a><br>"
 					var/ooc_notes_len = length(features["ooc_notes"])
 					if(ooc_notes_len <= MAX_FLAVOR_PREVIEW_LEN)
 						if(!ooc_notes_len)
@@ -905,8 +746,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "<h2>Headshot Image</h2>"
 					dat += "<a href='?_src_=prefs;preference=headshot'><b>Set Headshot Image</b></a><br>"
 					if(features["headshot_link"])
-						dat += "<b>Current quirks:</b> [current_quirks_str]<br>"
-
+						dat += "<img src='[features["headshot_link"]]' width='160px' height='120px'>"
 					dat += "<br><br>"
 					*/
 					// BLUEMOON REMOVE END
@@ -914,8 +754,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "</td>"
 
 					dat += "<td valign='top'>"
-					dat += "<h2>Записи</h2>"
-					dat += "<a href='?_src_=prefs;preference=security_records;task=input'><b>Записи безопасности</b></a><br>"
+					dat += "<h2>Records</h2>"
+					dat += "<a href='?_src_=prefs;preference=security_records;task=input'><b>Security Records</b></a><br>"
 					if(length_char(security_records) <= 40)
 						if(!length(security_records))
 							dat += "\[...\]"
@@ -924,7 +764,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					else
 						dat += "[TextPreview(security_records)]..."
 
-					dat += "<br><a href='?_src_=prefs;preference=medical_records;task=input'><b>Медицинские записи</b></a><br>"
+					dat += "<br><a href='?_src_=prefs;preference=medical_records;task=input'><b>Medical Records</b></a><br>"
 					if(length_char(medical_records) <= 40)
 						if(!length(medical_records))
 							dat += "\[...\]"
@@ -932,10 +772,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 							dat += "[medical_records]"
 					else
 						dat += "[TextPreview(medical_records)]..."
-					dat += "</td>"
 
-					// BLUEMOON ADD - Обычные Headshots в отдельной колонке
-					dat += "<td valign='top'>"
+					// BLUEMOON ADD
 					dat += "<h2>Headshots</h2>"
 
 					dat += "<a href='?_src_=prefs;preference=headshot'><b>Set Headshot 1 Image</b></a><br>"
@@ -951,11 +789,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "<a href='?_src_=prefs;preference=headshot2'><b>Set Headshot 3 Image</b></a><br>"
 					if(features["headshot_link2"])
 						dat += "<img src='[features["headshot_link2"]]' style='border: 1px solid black' width='140px' height='140px'>"
-					dat += "</td>"
-					// BLUEMOON ADD END
+					//dat += "<br><br>"
 
-					// BLUEMOON ADD - NSFW Headshots в еще более правой колонке
-					dat += "<td valign='top'>"
 					dat += "<h2>Naked (NSFW) Headshots</h2>"
 
 					dat += "<a href='?_src_=prefs;preference=headshot_naked'><b>Set Headshot 1 Image</b></a><br>"
@@ -979,12 +814,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "<table><tr><td width='20%' height='300px' valign='top'>"
 
 					dat += "<h2>Body</h2>"
-					dat += "<b>Mismatched parts:</b><br>"
-					dat += "<a href='?_src_=prefs;preference=mismatched_markings;task=input' title=\"Показывать несовместимые части тела (например, киберконечности с органическим телом). Если отключено, несовместимые варианты будут скрыты в списке выбора.\">[(show_mismatched_markings) ? "Enabled" : "Disabled"]</a><BR>"
-					dat += "<b>Advanced colors:</b><br>"
-					var/color_scheme_status = (features["color_scheme"] == ADVANCED_CHARACTER_COLORING) ? "Enabled" : "Disabled"
-					dat += "<a href='?_src_=prefs;preference=color_scheme;task=input' title=\"Режим продвинутой настройки цветов персонажа. Включите для доступа к расширенной палитре цветов и дополнительным опциям окраски.\">[color_scheme_status]</a><BR>"
-					dat += "<BR>"
 					dat += "<b>Gender:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=gender;task=input'>[gender == MALE ? "Male" : (gender == FEMALE ? "Female" : (gender == PLURAL ? "Non-binary" : "Object"))]</a><BR>"
 					if(pref_species.sexes)
 						dat += "<b>Body Model:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=body_model'>[features["body_model"] == MALE ? "Masculine" : "Feminine"]</a><BR>"
@@ -1233,32 +1062,29 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 							dat += "<b>Penis Visibility:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=cock_visibility;task=input'>[features["cock_visibility"]]</a>"
 							dat += "<b>Penis Always Accessible:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=cock_accessible'>[features["cock_accessible"] ? "Yes" : "No"]</a>"
 							dat += "<b>Toys and Egg Stuffing:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=cock_stuffing'>[features["cock_stuffing"] == TRUE ? "Yes" : "No"]</a>" //SPLURT Edit
+							dat += "<b>Has Testicles:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=has_balls'>[features["has_balls"] == TRUE ? "Yes" : "No"]</a>"
+							if(features["has_balls"])
+								if(pref_species.use_skintones && features["genitals_use_skintone"] == TRUE)
+									dat += "<b>Testicles Color:</b></a><BR>"
+									dat += "<span style='border: 1px solid #161616; background-color: [SKINTONE2HEX(skin_tone)];'><font color='[color_hex2num(SKINTONE2HEX(skin_tone)) < 200 ? "FFFFFF" : "000000"]'>[SKINTONE2HEX(skin_tone)]</font></span>(Skin tone overriding)<br>"
+								else
+									dat += "<b>Testicles Color:</b></a><BR>"
+									dat += "<span style='border: 1px solid #161616; background-color: #[features["balls_color"]];'><font color='[color_hex2num(features["balls_color"]) < 200 ? "FFFFFF" : "000000"]'>#[features["balls_color"]]</font></span> <a href='?_src_=prefs;preference=balls_color;task=input'>Change</a><br>"
+								dat += "<b>Testicles Shape:</b> <a style='display:block;width:120px' href='?_src_=prefs;preference=balls_shape;task=input'>[features["balls_shape"]]</a>"
+								dat += "<b>Testicles Visibility:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=balls_visibility;task=input'>[features["balls_visibility"]]</a>"
+								dat += "<b>Testicles Always Accessible:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=balls_accessible'>[features["balls_accessible"] ? "Yes" : "No"]</a>"
 
-						dat += "<h3>Testicles</h3>"
-						dat += "<a style='display:block;width:50px' href='?_src_=prefs;preference=has_balls'>[features["has_balls"] == TRUE ? "Yes" : "No"]</a>"
-						if(features["has_balls"])
-							if(pref_species.use_skintones && features["genitals_use_skintone"] == TRUE)
-								dat += "<b>Testicles Color:</b></a><BR>"
-								dat += "<span style='border: 1px solid #161616; background-color: [SKINTONE2HEX(skin_tone)];'><font color='[color_hex2num(SKINTONE2HEX(skin_tone)) < 200 ? "FFFFFF" : "000000"]'>[SKINTONE2HEX(skin_tone)]</font></span>(Skin tone overriding)<br>"
-							else
-								dat += "<b>Testicles Color:</b></a><BR>"
-								dat += "<span style='border: 1px solid #161616; background-color: #[features["balls_color"]];'><font color='[color_hex2num(features["balls_color"]) < 200 ? "FFFFFF" : "000000"]'>#[features["balls_color"]]</font></span> <a href='?_src_=prefs;preference=balls_color;task=input'>Change</a><br>"
-							dat += "<b>Testicles Shape:</b> <a style='display:block;width:120px' href='?_src_=prefs;preference=balls_shape;task=input'>[features["balls_shape"]]</a>"
-							dat += "<b>Testicles Size:</b> <a style='display:block;width:120px' href='?_src_=prefs;preference=balls_size;task=input'>[features["balls_size"]]</a>"
-							dat += "<b>Testicles Visibility:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=balls_visibility;task=input'>[features["balls_visibility"]]</a>"
-							dat += "<b>Testicles Always Accessible:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=balls_accessible'>[features["balls_accessible"] ? "Yes" : "No"]</a>"
-
-							//SPLURT Edit
-							dat += "<b>Toys and Egg Stuffing:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=balls_stuffing'>[features["balls_stuffing"] == TRUE ? "Yes" : "No"]</a>"
-							dat += "<b>Max Size:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=balls_max_size;task=input'>[features["balls_max_size"] ? features["balls_max_size"] : "Disabled"]</a>"
-							dat += "<b>Min Size:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=balls_min_size;task=input'>[features["balls_min_size"] ? features["balls_min_size"] : "Disabled"]</a>"
-							dat += "<b>Produces:</b>"
-							var/datum/reagent/balls_fluid = find_reagent_object_from_type(features["balls_fluid"])
-							if(balls_fluid && (balls_fluid in GLOB.genital_fluids_list))
-								dat += "<a style='display:block;width:50px' href='?_src_=prefs;preference=balls_fluid;task=input'>[balls_fluid.name]</a>"
-							else
-								dat += "<a style='display:block;width:50px' href='?_src_=prefs;preference=balls_fluid;task=input'>Nothing?</a>"
-							//SPLURT Edit end
+								//SPLURT Edit
+								dat += "<b>Toys and Egg Stuffing:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=balls_stuffing'>[features["balls_stuffing"] == TRUE ? "Yes" : "No"]</a>"
+								dat += "<b>Max Size:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=balls_max_size;task=input'>[features["balls_max_size"] ? features["balls_max_size"] : "Disabled"]</a>"
+								dat += "<b>Min Size:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=balls_min_size;task=input'>[features["balls_min_size"] ? features["balls_min_size"] : "Disabled"]</a>"
+								dat += "<b>Produces:</b>"
+								var/datum/reagent/balls_fluid = find_reagent_object_from_type(features["balls_fluid"])
+								if(balls_fluid && (balls_fluid in GLOB.genital_fluids_list))
+									dat += "<a style='display:block;width:50px' href='?_src_=prefs;preference=balls_fluid;task=input'>[balls_fluid.name]</a>"
+								else
+									dat += "<a style='display:block;width:50px' href='?_src_=prefs;preference=balls_fluid;task=input'>Nothing?</a>"
+								//SPLURT Edit end
 
 						dat += "</td>"
 						dat += APPEARANCE_CATEGORY_COLUMN
@@ -1275,6 +1101,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 							dat += "<b>Vagina Visibility:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=vag_visibility;task=input'>[features["vag_visibility"]]</a>"
 							dat += "<b>Vagina Always Accessible:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=vag_accessible'>[features["vag_accessible"] ? "Yes" : "No"]</a>"
 							dat += "<b>Toys and Egg Stuffing:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=vag_stuffing'>[features["vag_stuffing"] == TRUE ? "Yes" : "No"]</a>" //SPLURT Edit
+							dat += "<b>Vagina Always Accessible:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=vag_accessible'>[features["vag_accessible"] ? "Yes" : "No"]</a>"
 							dat += "<b>Has Womb:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=has_womb'>[features["has_womb"] == TRUE ? "Yes" : "No"]</a>"
 							//SPLURT Edit
 							if(features["has_womb"] == TRUE)
@@ -1343,6 +1170,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 								dat += "<b>Butthole Always Accessible:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=anus_accessible'>[features["anus_accessible"] ? "Yes" : "No"]</a>"
 								dat += "<b>Toys and Egg Stuffing:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=anus_stuffing'>[features["anus_stuffing"] == TRUE ? "Yes" : "No"]</a>"
 
+							dat += "<b>Butt Always Accessible:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=butt_accessible'>[features["butt_accessible"] ? "Yes" : "No"]</a>"
 						dat += "<h3>Anus</h3>"
 						dat += "<b>Anus Always Accessible:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=anus_accessible'>[features["anus_accessible"] ? "Yes" : "No"]</a>"
 						dat += "</td>"
@@ -1377,13 +1205,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "</tr></table>"
 				//Markings
 				if(MARKINGS_CHAR_TAB)
-					// BLUEMOON ADD - Tattoo Manager Button
-					dat += "<center>"
-					dat += "<h3>Татуировки персонажа</h3>"
-					dat += "<a href='?_src_=prefs;preference=open_tattoo_manager'>Просмотр и удаление татуировок</a>"
-					dat += "</center>"
-					dat += "<hr>"
-					// BLUEMOON ADD END
 					var/iterated_markings = 0
 					var/total_pages = 0
 					// rp marking selection
@@ -1563,6 +1384,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 								dat += " <a href='?_src_=prefs;preference=gear;select_category=[html_encode(category)]'>[(category == LOADOUT_CATEGORY_ERROR && loadout_errors) ? "[category] (<font color=\"red\">!</font>)" : category]</a> "
 
 						dat += "</b></center></td></tr>"
+						dat += "<tr><td colspan=4><hr></td></tr>"
 
 						dat += "<tr><td colspan=4><center><b>"
 
@@ -1584,87 +1406,91 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 								else
 									dat += " <a href='?_src_=prefs;preference=gear;select_subcategory=[html_encode(subcategory)]'>[subcategory]</a> "
 							dat += "</b></center></td></tr>"
-							dat += "</table>"
 
+							var/even = FALSE
 							if(gear_category != LOADOUT_CATEGORY_ERROR)
-								dat += "<div class='gear-grid'>"
+								dat += "<table align='center'; width='100%'; height='100%'; style='background-color:#13171C'>"
+								dat += "<center>"
+								dat += "<tr width=10% style='vertical-align:top;'><td width=15%><b>Name</b></td>"
+								dat += "<td style='vertical-align:top'><b>Cost</b></td>"
+								dat += "<td width=10%><font size=2><b>Restrictions</b></font></td>"
+								dat += "<td width=80%><font size=2><b>Description</b></font></td></tr>"
+								dat += "</center>"
+
 								for(var/name in GLOB.loadout_items[gear_category][gear_subcategory])
 									var/datum/gear/gear = GLOB.loadout_items[gear_category][gear_subcategory][name]
 									var/donoritem = gear.donoritem
 									if(donoritem && !gear.donator_ckey_check(user.ckey))
 										continue
+									var/background_cl = "#23273C"
+									if(even)
+										background_cl = "#17191C"
+									even = !even
+									var/class_link = ""
 									var/list/loadout_item = has_loadout_gear(loadout_slot, "[gear.type]")
-									var/item_class = "gear-item"
-									var/link_href = ""
-									var/is_disabled = FALSE
-									if(loadout_item)
-										item_class += " selected"
-										link_href = "?_src_=prefs;preference=gear;toggle_gear_path=[html_encode(name)];toggle_gear=0"
-									else if(!is_loadout_slot_available(gear.category))
-										item_class += " disabled"
-										is_disabled = TRUE
-									else if((gear_points - gear.cost) < 0)
-										item_class += " disabled"
-										is_disabled = TRUE
-									else if(donoritem)
-										item_class += " donor"
-										link_href = "?_src_=prefs;preference=gear;toggle_gear_path=[html_encode(name)];toggle_gear=1"
-									else if(!istype(gear, /datum/gear/unlockable) || can_use_unlockable(gear))
-										link_href = "?_src_=prefs;preference=gear;toggle_gear_path=[html_encode(name)];toggle_gear=1"
-									else
-										item_class += " locked"
-										is_disabled = TRUE
-									var/tooltip_text = ""
-									if(gear.description)
-										tooltip_text += "<div class='gear-tooltip-desc'>[gear.description]</div>"
-									if(islist(gear.restricted_roles) && gear.restricted_roles.len)
-										if(gear.restricted_desc)
-											tooltip_text += "<div class='gear-tooltip-restrictions'><b>Требования:</b> [gear.restricted_desc]</div>"
-										else
-											tooltip_text += "<div class='gear-tooltip-restrictions'><b>Требования:</b> [english_list(gear.restricted_roles)]</div>"
-									tooltip_text += "<div class='gear-tooltip-cost'><b>Стоимость:</b> [gear.cost]</div>"
-									if(loadout_item && loadout_item[LOADOUT_IS_HEIRLOOM])
-										tooltip_text += "<div style='color: #ffd700; margin-top: 4px;'><b>★ Семейная реликвия ★</b></div>"
-									var/item_html = ""
-									if(is_disabled)
-										item_html += "<div class='[item_class]' style='display:inline-block; vertical-align:top; width:180px; margin:8px;'>"
-									else
-										item_html += "<div class='[item_class] gear-tooltip' style='display:inline-block; vertical-align:top; width:180px; margin:8px;' onclick=\"try{localStorage.setItem('prefMenuScroll',(window.scrollY||document.documentElement.scrollTop||0).toString());}catch(e){}window.location.href='[link_href]'\">"
-									item_html += "<div class='gear-icon'>"
+									var/extra_loadout_data = ""
 									if(gear.base64icon)
-										item_html += "<img src='data:image/jpeg;base64,[gear.base64icon]'>"
-									else
-										item_html += "<span style='color: #666;'>No icon</span>"
-									item_html += "</div>"
-									item_html += "<div class='gear-name'>[name]</div>"
-									item_html += "<div class='gear-cost'>[gear.cost] pts</div>"
-									if(!is_disabled)
-										item_html += "<div class='gear-tooltip-text'>[tooltip_text]</div>"
-									else
-										item_html += "<div style='font-size: 10px; color: #888; margin-top: 8px;'>[tooltip_text]</div>"
+										extra_loadout_data += "<center><img src=data:image/jpeg;base64,[gear.base64icon]></center>"
 									if(loadout_item)
-										item_html += "<div style='margin-top: 8px; padding-top: 8px; border-top: 1px solid #404040; font-size: 9px; line-height: 1.3;'>"
+										class_link = "style='white-space:normal;' class='linkOn' href='?_src_=prefs;preference=gear;toggle_gear_path=[html_encode(name)];toggle_gear=0'"
 										if(gear.loadout_flags & LOADOUT_CAN_COLOR_POLYCHROMIC)
-											item_html += "<a href='?_src_=prefs;preference=gear;loadout_color_polychromic=1;loadout_gear_name=[html_encode(gear.name)];' onclick='event.stopPropagation();' style='display:block; color: #ffcc66; margin-bottom: 3px;'>Цвет</a>"
+											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color_polychromic=1;loadout_gear_name=[html_encode(gear.name)];'>Color</a>"
+											for(var/loadout_color in loadout_item[LOADOUT_COLOR])
+												extra_loadout_data += "<span style='border: 1px solid #161616; background-color: [loadout_color];'><font color='[color_hex2num(loadout_color) < 200 ? "FFFFFF" : "000000"]'>[loadout_color]</font></span>"
 										else
-											item_html += "<a href='?_src_=prefs;preference=gear;loadout_color=1;loadout_gear_name=[html_encode(gear.name)];' onclick='event.stopPropagation();' style='display:block; color: #ffcc66; margin-bottom: 3px;'>Цвет</a>"
-											item_html += "<a href='?_src_=prefs;preference=gear;loadout_color_HSV=1;loadout_gear_name=[html_encode(gear.name)];' onclick='event.stopPropagation();' style='display:block; color: #ffaa44; margin-bottom: 3px;'>HSV</a>"
+											var/loadout_color_non_poly = "#FFFFFF"
+											if(length(loadout_item[LOADOUT_COLOR]))
+												loadout_color_non_poly = loadout_item[LOADOUT_COLOR][1]
+											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color=1;loadout_gear_name=[html_encode(gear.name)];'>Color</a>"
+											extra_loadout_data += "<span style='border: 1px solid #161616; background-color: [loadout_color_non_poly];'><font color='[color_hex2num(loadout_color_non_poly) < 200 ? "FFFFFF" : "000000"]'>[loadout_color_non_poly]</font></span>"
+											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color_HSV=1;loadout_gear_name=[html_encode(gear.name)];'>HSV Color</a>" // SPLURT EDIT
 										if(gear.loadout_flags & LOADOUT_CAN_NAME)
-											item_html += "<a href='?_src_=prefs;preference=gear;loadout_rename=1;loadout_gear_name=[html_encode(gear.name)];' onclick='event.stopPropagation();' style='display:block; color: #99ff99; margin-bottom: 3px;'>Имя</a>"
+											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_rename=1;loadout_gear_name=[html_encode(gear.name)];'>Name</a> [loadout_item[LOADOUT_CUSTOM_NAME] ? loadout_item[LOADOUT_CUSTOM_NAME] : "N/A"]"
 										if(gear.loadout_flags & LOADOUT_CAN_DESCRIPTION)
-											item_html += "<a href='?_src_=prefs;preference=gear;loadout_redescribe=1;loadout_gear_name=[html_encode(gear.name)];' onclick='event.stopPropagation();' style='display:block; color: #99ccff; margin-bottom: 3px;'>Описание</a>"
-										if(loadout_item[LOADOUT_IS_HEIRLOOM])
-											item_html += "<a href='?_src_=prefs;preference=gear;loadout_removeheirloom=1;loadout_gear_name=[html_encode(gear.name)];' onclick='event.stopPropagation();' style='display:block; color: #ffd700; margin-bottom: 3px;'>★ Реликвия</a>"
+											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_redescribe=1;loadout_gear_name=[html_encode(gear.name)];'>Description</a>"
 										else
-											item_html += "<a href='?_src_=prefs;preference=gear;loadout_addheirloom=1;loadout_gear_name=[html_encode(gear.name)];' onclick='event.stopPropagation();' style='display:block; color: #cccccc; margin-bottom: 3px;'>☆ Реликвия</a>"
-										if(ispath(gear.path, /obj/item/clothing/neck/petcollar))
-											item_html += "<a href='?_src_=prefs;preference=gear;loadout_tagname=1;loadout_gear_name=[html_encode(gear.name)];' onclick='event.stopPropagation();' style='display:block; color: #ff99ff;'>Бирка</a>"
-										item_html += "</div>"
-									item_html += "</div>"
-									dat += item_html
-								dat += "</div>"
+											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_addheirloom=1;loadout_gear_name=[html_encode(gear.name)];'>Select as Heirloom</a><BR>"
+										// BLUEMOON ADD START - выбор вещей из лодаута как family heirloom
+										if(loadout_item[LOADOUT_IS_HEIRLOOM])
+											extra_loadout_data += "<BR><a class='linkOn' href='?_src_=prefs;preference=gear;loadout_removeheirloom=1;loadout_gear_name=[html_encode(gear.name)];'>Select as Heirloom</a><BR>"
+										else
+											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_addheirloom=1;loadout_gear_name=[html_encode(gear.name)];'>Select as Heirloom</a><BR>"
+										if(ispath(gear.path, /obj/item/clothing/neck/petcollar)) //"name tag" sounds better for me, but in petcollar code "tagname" is used so let it be.
+											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_tagname=1;loadout_gear_name=[html_encode(gear.name)];'>Name tag</a> [loadout_item["loadout_custom_tagname"] ? loadout_item["loadout_custom_tagname"] : "Name tag is visible for everyone looking at wearer."]"
+									  // BLUEMOON ADD END
+									else if((gear_points - gear.cost) < 0)
+										class_link = "style='white-space:normal;' class='linkOff'"
+									else if(donoritem)
+										class_link = "style='white-space:normal;background:#ebc42e;' href='?_src_=prefs;preference=gear;toggle_gear_path=[html_encode(name)];toggle_gear=1'"
+									else if(!istype(gear, /datum/gear/unlockable) || can_use_unlockable(gear))
+										class_link = "style='white-space:normal;' href='?_src_=prefs;preference=gear;toggle_gear_path=[html_encode(name)];toggle_gear=1'"
+									else
+										class_link = "style='white-space:normal;background:#eb2e2e;' class='linkOff'"
+									dat += "<tr style='vertical-align:top; background-color: [background_cl];'><td width=15%><a [class_link]>[name]</a>[extra_loadout_data]</td>"
+									dat += "<td width = 5% style='vertical-align:top'>[gear.cost]</td><td>"
+									if(islist(gear.restricted_roles))
+										if(gear.restricted_roles.len)
+											if(gear.restricted_desc)
+												dat += "<font size=2>"
+												dat += gear.restricted_desc
+												dat += "</font>"
+											else
+												dat += "<font size=2>"
+												dat += gear.restricted_roles.Join(";")
+												dat += "</font>"
+									if(!istype(gear, /datum/gear/unlockable))
+										var/is_heirloom_string = loadout_item ? (loadout_item[LOADOUT_IS_HEIRLOOM] ? "<br><br><center><b>Ваша семейная реликвия!</b></center>" : "") : "" // BLUEMOON EDIT - выбор вещей из лодаута как family heirloom
+										// the below line essentially means "if the loadout item is picked by the user and has a custom description, give it the custom description, otherwise give it the default description"
+										dat += "</td><td><font size=2><i>[loadout_item ? (loadout_item[LOADOUT_CUSTOM_DESCRIPTION] ? loadout_item[LOADOUT_CUSTOM_DESCRIPTION] : gear.description) : gear.description]</i> [is_heirloom_string]</font></td></tr>" // BLUEMOON EDIT - выбор вещей из лодаута как family heirloom
+									else
+										//we add the user's progress to the description assuming they have progress
+										var/datum/gear/unlockable/unlockable = gear
+										var/progress_made = unlockable_loadout_data[unlockable.progress_key]
+										if(!progress_made)
+											progress_made = 0
+										dat += "</td><td><font size=2><i>[loadout_item ? (loadout_item[LOADOUT_CUSTOM_DESCRIPTION] ? loadout_item[LOADOUT_CUSTOM_DESCRIPTION] : gear.description) : gear.description] Progress: [min(progress_made, unlockable.progress_required)]/[unlockable.progress_required]</i></font></td></tr>"
+								dat += "</table>"
 							else
-								var/even = FALSE
 								dat += "<table align='center'; width='100%'; height='100%'; style='background-color:#13171C'>"
 								dat += "<center>"
 								dat += "<tr width=10% style='vertical-align:top;'><td width=15%><b>Item type</b></td>"
@@ -1687,105 +1513,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 									dat += json_encode(other_data)
 									dat += "</td></tr>"
 					dat += "</table>"
-				if(QUIRKS_CHAR_TAB)
-					if(!SSquirks || !SSquirks.quirks.len)
-						dat += "<center><div class='notice'>The quirk subsystem hasn't finished initializing, please hold...</div></center>"
-					else
-						// Build quirks CSS inline with theme
-						dat += "<style>"
-						dat += ".quirk-container { max-width: 1200px; margin: 0 auto; }"
-						dat += ".quirk-summary { margin: 10px 0; padding: 12px; background: " + theme["bg_secondary"] + "; border: 1px solid " + theme["border_color"] + "; border-radius: 6px; }"
-						dat += ".quirk-tabs-container { display: flex; gap: 8px; justify-content: center; margin: 12px 0; }"
-						dat += ".quirk-tabs-container a { min-width: 100px; text-align: center; }"
-						dat += ".quirk-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px; margin-top: 12px; }"
-						dat += ".quirk-item { border: 1px solid " + theme["border_color"] + "; border-left: 4px solid " + theme["accent_color"] + "; background: " + theme["bg_secondary"] + "; padding: 10px; border-radius: 6px; }"
-						dat += ".quirk-item.positive { border-left-color: #4aa96c; }"
-						dat += ".quirk-item.negative { border-left-color: #c0392b; }"
-						dat += ".quirk-item.neutral { border-left-color: " + theme["accent_color"] + "; }"
-						dat += ".quirk-item.active { box-shadow: 0 0 0 2px " + theme["accent_color"] + "; }"
-						dat += ".quirk-item.locked { opacity: 0.55; }"
-						dat += ".quirk-name { font-weight: bold; margin-bottom: 6px; color: " + theme["text_primary"] + "; }"
-						dat += ".quirk-desc { color: " + theme["text_secondary"] + "; font-size: 13px; margin-bottom: 6px; }"
-						dat += ".quirk-lock { color: #c0392b; font-size: 12px; margin-top: 4px; }"
-						dat += ".quirk-small { font-size: 12px; color: " + theme["text_secondary"] + "; }"
-						dat += ".quirk-inline-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin: 10px 0; font-size: 13px; }"
-						dat += "</style>"
-
-						dat += "<div class='quirk-container'>"
-
-						// Inline trait configuration links
-						dat += "<div class='quirk-inline-actions'>"
-						var/summon_delim = summon_nickname ? ": " : ""
-						dat += "<a href='?_src_=prefs;preference=traits_setup;task=change_shriek_option'>([BLUEMOON_TRAIT_NAME_SHRIEK]) Тип Крика: [shriek_type]</a>"
-						dat += "<a href='?_src_=prefs;preference=traits_setup;task=lewd_summon_nickname'>([TRAIT_LEWD_SUMMON]) Прозвище для призываемого[summon_delim][summon_nickname]</a>"
-						dat += "</div>"
-
-						// Summary
-						var/current_quirks_str = all_quirks.len ? english_list(all_quirks) : "None"
-						dat += "<div class='quirk-summary'>"
-						dat += "<b>Current quirks:</b> [current_quirks_str]<br>"
-						dat += "[GetPositiveQuirkCount()] / [MAX_QUIRKS] max positive quirks<br>"
-						dat += "<b>Quirk balance remaining:</b> [GetQuirkBalance(user)]"
-						dat += "</div>"
-
-						// Category tabs
-						dat += "<div class='quirk-tabs-container'>"
-						dat += "<a href='?_src_=prefs;quirk_category=[QUIRK_POSITIVE]' [quirk_category == QUIRK_POSITIVE ? "class='linkOn'" : ""]>[QUIRK_POSITIVE]</a>"
-						dat += "<a href='?_src_=prefs;quirk_category=[QUIRK_NEUTRAL]' [quirk_category == QUIRK_NEUTRAL ? "class='linkOn'" : ""]>[QUIRK_NEUTRAL]</a>"
-						dat += "<a href='?_src_=prefs;quirk_category=[QUIRK_NEGATIVE]' [quirk_category == QUIRK_NEGATIVE ? "class='linkOn'" : ""]>[QUIRK_NEGATIVE]</a>"
-						dat += "<a href='?_src_=prefs;preference=trait;task=reset' style='background: #7d1f1f; border-color: #a33;'>Reset Quirks</a>"
-						dat += "</div>"
-
-						// Quirks grid
-						dat += "<div class='quirk-list'>"
-						for(var/V in SSquirks.quirks)
-							var/datum/quirk/T = SSquirks.quirks[V]
-							var/value = initial(T.value)
-							if((value > 0 && quirk_category != QUIRK_POSITIVE) || (value < 0 && quirk_category != QUIRK_NEGATIVE) || (value == 0 && quirk_category != QUIRK_NEUTRAL))
-								continue
-
-							var/quirk_name = initial(T.name)
-							var/has_quirk = (quirk_name in all_quirks)
-							var/quirk_cost = initial(T.value) * -1
-							var/lock_reason = "This trait is unavailable."
-							var/quirk_conflict = FALSE
-
-							if(initial(T.mood_quirk) && CONFIG_GET(flag/disable_human_mood))
-								lock_reason = "Mood is disabled."
-								quirk_conflict = TRUE
-
-							if(has_quirk)
-								if(quirk_conflict)
-									all_quirks -= quirk_name
-									has_quirk = FALSE
-								else
-									quirk_cost *= -1
-
-							if(quirk_cost > 0)
-								quirk_cost = "+[quirk_cost]"
-
-							var/category_class = "neutral"
-							if(value > 0)
-								category_class = "positive"
-							else if(value < 0)
-								category_class = "negative"
-
-							var/locked_class = quirk_conflict ? " locked" : ""
-							var/active_class = has_quirk ? " active" : ""
-
-							dat += "<div class='quirk-item [category_class][locked_class][active_class]'>"
-							dat += "<div class='quirk-name'>[quirk_name]</div>"
-							dat += "<div class='quirk-desc'>[initial(T.desc)]</div>"
-
-							if(quirk_conflict)
-								dat += "<div class='quirk-lock'>LOCKED: [lock_reason]</div>"
-							else
-								var/action = has_quirk ? "Remove" : "Take"
-								dat += "<div class='quirk-small'><a href='?_src_=prefs;preference=trait;task=update;trait=[quirk_name]'>[action] ([quirk_cost] pts.)</a></div>"
-
-							dat += "</div>"
-						dat += "</div>"
-						dat += "</div>"
 		if(PREFERENCES_TAB) // Game Preferences
 			dat += "<center>"
 			dat += "<a href='?_src_=prefs;preference=preferences_tab;tab=[GAME_PREFS_TAB]' [preferences_tab == GAME_PREFS_TAB ? "class='linkOn'" : ""]>General</a>"
@@ -1804,7 +1531,9 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "<b>Outline Color:</b> [outline_color ? "<span style='border:1px solid #161616; background-color: [outline_color];'>" : "Theme-based (null)"]<font color='[color_hex2num(outline_color) < 200 ? "FFFFFF" : "000000"]'>[outline_color]</font></span> <a href='?_src_=prefs;preference=outline_color'>Change</a><BR>"
 					dat += "<b>Screentip:</b> <a href='?_src_=prefs;preference=screentip_pref'>[screentip_pref]</a><br>"
 					dat += "<b>Screentip Color:</b> <span style='border:1px solid #161616; background-color: [screentip_color];'><font color='[color_hex2num(screentip_color) < 200 ? "FFFFFF" : "000000"]'>[screentip_color]</font></span> <a href='?_src_=prefs;preference=screentip_color'>Change</a><BR>"
-					dat += "<b>Screentip context with images:</b> <a href='?_src_=prefs;preference=screentip_images' title=\"This is an accessibility preference. If disabled, falls back to only text which colorblind people can understand better\">[screentip_images ? "Allowed" : "Disallowed"]</a><br>"
+					dat += "<font style='border-bottom:2px dotted white; cursor:help;'\
+						title=\"This is an accessibility preference, if disabled, fallbacks to only text which colorblind people can understand better\">\
+						<b>Screentip context with images:</b></font> <a href='?_src_=prefs;preference=screentip_images'>[screentip_images ? "Allowed" : "Disallowed"]</a><br>"
 					dat += "<b>tgui Monitors:</b> <a href='?_src_=prefs;preference=tgui_lock'>[(tgui_lock) ? "Primary" : "All"]</a><br>"
 					dat += "<b>tgui Style:</b> <a href='?_src_=prefs;preference=tgui_fancy'>[(tgui_fancy) ? "Fancy" : "No Frills"]</a><br>"
 					dat += "<b>Show Runechat Chat Bubbles:</b> <a href='?_src_=prefs;preference=chat_on_map'>[chat_on_map ? "Enabled" : "Disabled"]</a><br>"
@@ -1823,16 +1552,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "<br>"
 					dat += "<b>Auto-Capitalize Speech:</b> <a href='?_src_=prefs;preference=auto_capitalize_enabled'>[(auto_capitalize_enabled ? "Enabled" : "Disabled")]</a><br>"
 					dat += "<b>Preferred Chaos Level:</b> <a style='display:block;width:30px' href='?_src_=prefs;preference=preferred_chaos_level'>[preferred_chaos_level]</a><br>"
-
-					dat += "<br>"
-
-					// Current quirks summary
-					var/current_quirks_str = all_quirks.len ? english_list(all_quirks) : "None"
-					dat += "<div class='quirk-summary'>"
-					dat += "<b>Current quirks:</b> [current_quirks_str]<br>"
-					dat += "[GetPositiveQuirkCount()] / [MAX_QUIRKS] max positive quirks<br>"
-					dat += "<b>Quirk balance remaining:</b> [GetQuirkBalance(user)]"
-					dat += "</div>"
 
 					dat += "</td>"
 
@@ -1872,7 +1591,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 
 					dat += "</td></tr></table>"
 
-				else if(preferences_tab == OOC_PREFS_TAB)
+				if(OOC_PREFS_TAB)
 					dat += "<table>"
 					dat += "<tr><td width='340px' height='300px' valign='top'>"
 					dat += "<h2>OOC Settings</h2>"
@@ -2020,11 +1739,10 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 
 					dat += "</td></tr></table>"
 
-				else if(preferences_tab == CONTENT_PREFS_TAB)
+				if(CONTENT_PREFS_TAB)
 					dat += "<table><tr><td width='340px' height='300px' valign='top'>"
 					dat += "<h2>Fetish content prefs</h2>"
 					dat += "<b>Allow Lewd Verbs:</b> <a href='?_src_=prefs;preference=verb_consent'>[(toggles & VERB_CONSENT) ? "Yes":"No"]</a><br>" // Skyrat - ERP Mechanic Addition
-					dat += "<b>Allow Lewd Ranged Verbs:</b> <a href='?_src_=prefs;preference=ranged_verb_consent'>[(toggles & RANGED_VERBS_CONSENT) ? "Yes":"No"]</a><br>" // BLUEMOON ADD интеракты с расстояния
 					dat += "<b>Lewd Verb Sounds:</b> <a href='?_src_=prefs;preference=lewd_verb_sounds'>[(toggles & LEWD_VERB_SOUNDS) ? "Yes":"No"]</a><br>" // Sandstorm - ERP Mechanic Addition
 					dat += "<b>Arousal:</b><a href='?_src_=prefs;preference=arousable'>[arousable == TRUE ? "Enabled" : "Disabled"]</a><BR>"
 					dat += "<b>Allow Knotting:</b><a href='?_src_=prefs;preference=sexknotting'>[sexknotting == TRUE ? "Enabled" : "Disabled"]</a><BR>"
@@ -2069,7 +1787,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					//END OF SANDSTORM EDIT
 					dat += "<b>Automatic Wagging:</b> <a href='?_src_=prefs;preference=auto_wag'>[(cit_toggles & NO_AUTO_WAG) ? "Disabled" : "Enabled"]</a><br>"
 					dat += "<b>Dance Near Disco Ball:</b> <a href='?_src_=prefs;preference=disco_dance'>[(cit_toggles & NO_DISCO_DANCE) ? "Disabled" : "Enabled"]</a><br>"
-					dat += "<b>Tattoos from others:</b> <a href='?_src_=prefs;preference=tattoo_pref'>[tattoopref]</a><br>" // BLUEMOON ADD - tattoo consent
 					dat += "<span style='border-radius: 2px;border:1px dotted white;cursor:help;' title='If anyone cums a blacklisted fluid into you, it uses the default fluid for that genital.'>?</span> "
 					dat += "<b><a href='?_src_=prefs;preference=gfluid_black;task=input'>Genital Fluid Blacklist</a></b><br>"
 					if(gfluid_blacklist?.len)
@@ -2404,154 +2121,71 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 		to_chat(user, "<span class='danger'>The quirk subsystem is still initializing! Try again in a minute.</span>")
 		return
 
-	// If the subsystem hasn't populated yet, show a minimal message
-	if(!SSquirks.quirks.len)
-		var/list/wait_dat = list()
-		wait_dat += "<div class='quirk-wrapper'>"
-		wait_dat += "<div class='notice'>The quirk subsystem hasn't finished initializing, please hold...</div>"
-		wait_dat += "<div class='quirk-actions'><a href='?_src_=prefs;preference=trait;task=close'>Done</a></div>"
-		wait_dat += "</div>"
-		var/datum/browser/wait_popup = new(user, "mob_occupation", "<div align='center'>Quirk Preferences</div>", 900, 650)
-		wait_popup.set_window_options("can_close=0")
-		wait_popup.set_content(wait_dat.Join())
-		wait_popup.open(FALSE)
-		return
-
-	var/list/theme = get_theme_colors()
 	var/list/dat = list()
-	var/scroll_key = "quirk-scroll-" + character_setup_theme
+	if(!SSquirks.quirks.len)
+		dat += "The quirk subsystem hasn't finished initializing, please hold..."
+		dat += "<center><a href='?_src_=prefs;preference=trait;task=close'>Done</a></center><br>"
 
-	// Extract theme values to avoid quoted keys inside embedded expressions
-	var/bg_primary = theme["bg_primary"]
-	var/text_primary = theme["text_primary"]
-	var/text_secondary = theme["text_secondary"]
-	var/bg_secondary = theme["bg_secondary"]
-	var/bg_pattern = theme["bg_pattern"]
-	var/border_color = theme["border_color"]
-	var/accent_color = theme["accent_color"]
-	var/button_bg = theme["button_bg"]
-	var/button_hover = theme["button_hover"]
-	var/button_active = theme["button_active"]
-	var/button_text = theme["button_text"]
+	else
+		dat += "<center><b>Choose quirk setup</b></center><br>"
+		// BLUEMOON ADD START - настройки для отдельных квирков
+		dat += "Настройки для отдельных квирков. Если нужный квирк не будет выставлен, то они работать не будут.<br>"
+		dat += "<a href='?_src_=prefs;preference=traits_setup;task=change_shriek_option'>([BLUEMOON_TRAIT_NAME_SHRIEK]) Тип Крика: [shriek_type]</a>"
+		dat += "<a href='?_src_=prefs;preference=traits_setup;task=lewd_summon_nickname'>([TRAIT_LEWD_SUMMON]) Прозвище для призываемого[summon_nickname ? ": ": ""][summon_nickname]</a>"
+		dat += "<hr>"
+		// BLUEMOON ADD END
+		dat += "<div align='center'>Left-click to add or remove quirks. You need negative quirks to have positive ones.<br>\
+		Quirks are applied at roundstart and cannot normally be removed.</div>"
+		dat += "<center><a href='?_src_=prefs;preference=trait;task=close'>Done</a></center>"
+		dat += "<hr>"
+		dat += "<center><b>Current quirks:</b> [all_quirks.len ? all_quirks.Join(", ") : "None"]</center>"
+		dat += "<center>[GetPositiveQuirkCount()] / [MAX_QUIRKS] max positive quirks<br>\
+		<b>Quirk balance remaining:</b> [GetQuirkBalance(user)]<br>"
+		dat += " <a href='?_src_=prefs;quirk_category=[QUIRK_POSITIVE]' [quirk_category == QUIRK_POSITIVE ? "class='linkOn'" : ""]>[QUIRK_POSITIVE]</a> "
+		dat += " <a href='?_src_=prefs;quirk_category=[QUIRK_NEUTRAL]' [quirk_category == QUIRK_NEUTRAL ? "class='linkOn'" : ""]>[QUIRK_NEUTRAL]</a> "
+		dat += " <a href='?_src_=prefs;quirk_category=[QUIRK_NEGATIVE]' [quirk_category == QUIRK_NEGATIVE ? "class='linkOn'" : ""]>[QUIRK_NEGATIVE]</a> "
+		dat += "</center><br>"
+		for(var/V in SSquirks.quirks)
+			var/datum/quirk/T = SSquirks.quirks[V]
+			var/value = initial(T.value)
+			if((value > 0 && quirk_category != QUIRK_POSITIVE) || (value < 0 && quirk_category != QUIRK_NEGATIVE) || (value == 0 && quirk_category != QUIRK_NEUTRAL))
+				continue
 
-	var/css = "<style>\n"
-	css += "* { box-sizing: border-box; }\n"
-	css += "body { margin: 0; padding: 12px; font-family: 'Arial', 'Helvetica', sans-serif; background-color: " + bg_primary + "; color: " + text_primary + "; background-image: " + bg_pattern + "; background-size: 24px 24px; }\n"
-	css += "a { color: " + text_primary + "; text-decoration: none; }\n"
-	css += ".quirk-wrapper { background: " + bg_secondary + "; border: 1px solid " + border_color + "; border-radius: 8px; padding: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.25); }\n"
-	css += ".quirk-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }\n"
-	css += ".quirk-title { font-size: 18px; font-weight: bold; color: " + accent_color + "; }\n"
-	css += ".quirk-actions { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }\n"
-	css += ".quirk-actions a { background: " + button_bg + "; border: 1px solid " + border_color + "; padding: 6px 12px; border-radius: 6px; transition: all 0.2s ease; }\n"
-	css += ".quirk-actions a:hover { background: " + button_hover + "; }\n"
-	css += ".quirk-actions a.reset { background: #7d1f1f; border-color: #a33; color: #f8f8f8; }\n"
-	css += ".quirk-tip { margin: 6px 0 10px; color: " + text_secondary + "; }\n"
-	css += ".quirk-summary { margin: 10px 0; padding: 10px; background: " + bg_primary + "; border: 1px solid " + border_color + "; border-radius: 6px; }\n"
-	css += ".quirk-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 6px 0 10px; }\n"
-	css += ".quirk-tabs a { padding: 6px 12px; background: " + button_bg + "; border: 1px solid " + border_color + "; border-radius: 6px; }\n"
-	css += ".quirk-tabs a.linkOn { background: " + button_active + "; color: " + button_text + "; }\n"
-	css += ".quirk-inline-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; font-size: 13px; }\n"
-	css += ".quirk-list { margin-top: 8px; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 8px; max-height: 420px; overflow-y: auto; padding: 6px; background: " + bg_primary + "; border: 1px solid " + border_color + "; border-radius: 6px; }\n"
-	css += ".quirk-item { border: 1px solid " + border_color + "; border-left: 4px solid " + accent_color + "; background: rgba(0,0,0,0.08); padding: 8px; border-radius: 6px; }\n"
-	css += ".quirk-item.positive { border-left-color: #4aa96c; }\n"
-	css += ".quirk-item.negative { border-left-color: #c0392b; }\n"
-	css += ".quirk-item.neutral { border-left-color: " + accent_color + "; }\n"
-	css += ".quirk-item.active { box-shadow: 0 0 0 1px " + accent_color + "; }\n"
-	css += ".quirk-item.locked { opacity: 0.55; }\n"
-	css += ".quirk-name { font-weight: bold; margin-bottom: 4px; color: " + text_primary + "; }\n"
-	css += ".quirk-desc { color: " + text_secondary + "; font-size: 13px; }\n"
-	css += ".quirk-lock { color: #c0392b; font-size: 12px; margin-top: 4px; }\n"
-	css += ".quirk-small { font-size: 12px; color: " + text_secondary + "; }\n"
-	css += "</style>\n"
-
-	var/scroll_script = "<script>\n"
-	scroll_script += "(function() {\n"
-	scroll_script += "  var list = document.getElementById('quirk-list');\n"
-	scroll_script += "  var key = '" + scroll_key + "';\n"
-	scroll_script += "  if(list) {\n"
-	scroll_script += "    var saved = parseInt(localStorage.getItem(key)) || 0;\n"
-	scroll_script += "    if(saved) list.scrollTop = saved;\n"
-	scroll_script += "    list.addEventListener('scroll', function() { localStorage.setItem(key, list.scrollTop); });\n"
-	scroll_script += "  }\n"
-	scroll_script += "})();\n"
-	scroll_script += "</script>\n"
-
-	dat += css
-	var/summon_delim = summon_nickname ? ": " : ""
-	var/current_quirks_str = all_quirks.len ? all_quirks.Join(", ") : "None"
-	dat += "<div class='quirk-wrapper'>"
-	dat += "<div class='quirk-header'>"
-	dat += "<div class='quirk-title'>Choose quirk setup</div>"
-	dat += "<div class='quirk-actions'><a href='?_src_=prefs;preference=trait;task=close'>Done</a></div>"
-	dat += "</div>"
-	dat += "<div class='quirk-tip'>Left-click to add or remove quirks. You need negative quirks to have positive ones. Quirks are applied at roundstart and cannot normally be removed.</div>"
-	// BLUEMOON ADD START - настройки для отдельных квирков
-	dat += "<div class='quirk-inline-actions'>"
-	dat += "<a href='?_src_=prefs;preference=traits_setup;task=change_shriek_option'>([BLUEMOON_TRAIT_NAME_SHRIEK]) Тип Крика: [shriek_type]</a>"
-	dat += "<a href='?_src_=prefs;preference=traits_setup;task=lewd_summon_nickname'>([TRAIT_LEWD_SUMMON]) Прозвище для призываемого[summon_delim][summon_nickname]</a>"
-	dat += "</div>"
-	// BLUEMOON ADD END
-	dat += "<div class='quirk-summary'><b>Current quirks:</b> [current_quirks_str]<br>"
-	dat += "[GetPositiveQuirkCount()] / [MAX_QUIRKS] max positive quirks<br>"
-	dat += "<b>Quirk balance remaining:</b> [GetQuirkBalance(user)]</div>"
-	var/pos_tab_class = (quirk_category == QUIRK_POSITIVE) ? " class='linkOn'" : ""
-	var/neu_tab_class = (quirk_category == QUIRK_NEUTRAL) ? " class='linkOn'" : ""
-	var/neg_tab_class = (quirk_category == QUIRK_NEGATIVE) ? " class='linkOn'" : ""
-	dat += "<div class='quirk-tabs'>"
-	dat += "<a href='?_src_=prefs;quirk_category=[QUIRK_POSITIVE]'[pos_tab_class]>[QUIRK_POSITIVE]</a>"
-	dat += "<a href='?_src_=prefs;quirk_category=[QUIRK_NEUTRAL]'[neu_tab_class]>[QUIRK_NEUTRAL]</a>"
-	dat += "<a href='?_src_=prefs;quirk_category=[QUIRK_NEGATIVE]'[neg_tab_class]>[QUIRK_NEGATIVE]</a>"
-	dat += "</div>"
-	dat += "<div class='quirk-list' id='quirk-list'>"
-	for(var/V in SSquirks.quirks)
-		var/datum/quirk/T = SSquirks.quirks[V]
-		var/value = initial(T.value)
-		if((value > 0 && quirk_category != QUIRK_POSITIVE) || (value < 0 && quirk_category != QUIRK_NEGATIVE) || (value == 0 && quirk_category != QUIRK_NEUTRAL))
-			continue
-
-		var/quirk_name = initial(T.name)
-		var/has_quirk
-		var/quirk_cost = initial(T.value) * -1
-		var/lock_reason = "This trait is unavailable."
-		var/quirk_conflict = FALSE
-		for(var/_V in all_quirks)
-			if(_V == quirk_name)
-				has_quirk = TRUE
-		if(initial(T.mood_quirk) && CONFIG_GET(flag/disable_human_mood))
-			lock_reason = "Mood is disabled."
-			quirk_conflict = TRUE
-		if(has_quirk)
+			var/quirk_name = initial(T.name)
+			var/has_quirk
+			var/quirk_cost = initial(T.value) * -1
+			var/lock_reason = "This trait is unavailable."
+			var/quirk_conflict = FALSE
+			for(var/_V in all_quirks)
+				if(_V == quirk_name)
+					has_quirk = TRUE
+			if(initial(T.mood_quirk) && CONFIG_GET(flag/disable_human_mood))
+				lock_reason = "Mood is disabled."
+				quirk_conflict = TRUE
+			if(has_quirk)
+				if(quirk_conflict)
+					all_quirks -= quirk_name
+					has_quirk = FALSE
+				else
+					quirk_cost *= -1 //invert it back, since we'd be regaining this amount
+			if(quirk_cost > 0)
+				quirk_cost = "+[quirk_cost]"
+			var/font_color = "#AAAAFF"
+			if(initial(T.value) != 0)
+				font_color = value > 0 ? "#AAFFAA" : "#FFAAAA"
 			if(quirk_conflict)
-				all_quirks -= quirk_name
-				has_quirk = FALSE
+				dat += "<font color='[font_color]'>[quirk_name]</font> - [initial(T.desc)] \
+				<font color='red'><b>LOCKED: [lock_reason]</b></font><br>"
 			else
-				quirk_cost *= -1 //invert it back, since we'd be regaining this amount
-		if(quirk_cost > 0)
-			quirk_cost = "+[quirk_cost]"
+				if(has_quirk)
+					dat += "<a href='?_src_=prefs;preference=trait;task=update;trait=[quirk_name]'>[has_quirk ? "Remove" : "Take"] ([quirk_cost] pts.)</a> \
+					<b><font color='[font_color]'>[quirk_name]</font></b> - [initial(T.desc)]<br>"
+				else
+					dat += "<a href='?_src_=prefs;preference=trait;task=update;trait=[quirk_name]'>[has_quirk ? "Remove" : "Take"] ([quirk_cost] pts.)</a> \
+					<font color='[font_color]'>[quirk_name]</font> - [initial(T.desc)]<br>"
+		dat += "<br><center><a href='?_src_=prefs;preference=trait;task=reset'>Reset Quirks</a></center>"
 
-		var/category_class = "neutral"
-		if(value > 0)
-			category_class = "positive"
-		else if(value < 0)
-			category_class = "negative"
-		var/locked_class = quirk_conflict ? " locked" : ""
-		var/active_class = has_quirk ? " active" : ""
-		dat += "<div class='quirk-item [category_class][locked_class][active_class]'>"
-		dat += "<div class='quirk-name'>[quirk_name]</div>"
-		dat += "<div class='quirk-desc'>[initial(T.desc)]</div>"
-		if(quirk_conflict)
-			dat += "<div class='quirk-lock'>LOCKED: [lock_reason]</div>"
-		else
-			var/action = has_quirk ? "Remove" : "Take"
-			var/action_cost = quirk_cost
-			dat += "<div class='quirk-small'><a href='?_src_=prefs;preference=trait;task=update;trait=[quirk_name]'>[action] ([action_cost] pts.)</a></div>"
-		dat += "</div>"
-	dat += "</div>" // close quirk-list
-	dat += "<div class='quirk-actions'><a href='?_src_=prefs;preference=trait;task=reset' class='reset'>Reset Quirks</a></div>"
-	dat += "</div>" // close quirk-wrapper
-	dat += scroll_script
-
-	var/datum/browser/popup = new(user, "mob_occupation", "<div align='center'>Quirk Preferences</div>", 900, 650)
+	var/datum/browser/popup = new(user, "mob_occupation", "<div align='center'>Quirk Preferences</div>", 900, 600) //no reason not to reuse the occupation window, as it's cleaner that way
 	popup.set_window_options("can_close=0")
 	popup.set_content(dat.Join())
 	popup.open(FALSE)
@@ -2610,14 +2244,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 		qdel(query_get_jobban)
 		return
 
-	// Обработка выбора темы для меню настройки
-	if(href_list["preference"] == "setup_theme")
-		if(href_list["theme"])
-			character_setup_theme = href_list["theme"]
-			save_preferences()
-		ShowChoices(user)
-		return TRUE
-
 	if(href_list["preference"] == "job")
 		switch(href_list["task"])
 			if("close")
@@ -2661,9 +2287,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 
 	else if(href_list["preference"] == "trait")
 		switch(href_list["task"])
-			if("menu")
-				character_settings_tab = QUIRKS_CHAR_TAB
-				ShowChoices(user)
 			if("close")
 				user << browse(null, "window=mob_occupation")
 				ShowChoices(user)
@@ -2692,12 +2315,12 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 						to_chat(user, "<span class='warning'>You don't have enough balance to gain this quirk!</span>")
 						return
 					all_quirks += quirk
-				ShowChoices(user)
+				SetQuirks(user)
 			if("reset")
 				all_quirks = list()
-				ShowChoices(user)
+				SetQuirks(user)
 			else
-				ShowChoices(user)
+				SetQuirks(user)
 	// BLUEMOON ADD START - возможность настраивать квирки
 	else if(href_list["preference"] == "traits_setup")
 		switch(href_list["task"])
@@ -2707,7 +2330,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					var/new_shriek_type = tgui_input_list(user, "Choose your character's shriek type.", "Character Preference", GLOB.shriek_types)
 					if(new_shriek_type)
 						shriek_type = new_shriek_type
-						ShowChoices(user)
+						SetQuirks(user)
 			if("lewd_summon_nickname")
 				var/client/C = usr.client
 				if(C)
@@ -2716,7 +2339,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 						new_summon_nickname = reject_bad_name(new_summon_nickname, allow_numbers = TRUE)
 						if(new_summon_nickname)
 							summon_nickname = new_summon_nickname
-							ShowChoices(user)
+							SetQuirks(user)
 						else
 							to_chat(user, "<font color='red'>Invalid name. Your name should be at least 2 and at most [MAX_NAME_LEN] characters long. It may only contain the characters A-Z, a-z, А-Я, а-я, -, ' and .</font>")
 
@@ -2727,8 +2350,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 		var/temp_quirk_category = href_list["quirk_category"]
 		if(temp_quirk_category == QUIRK_POSITIVE || temp_quirk_category == QUIRK_NEUTRAL || temp_quirk_category == QUIRK_NEGATIVE)
 			quirk_category = temp_quirk_category
-			character_settings_tab = QUIRKS_CHAR_TAB
-			ShowChoices(user)
+			SetQuirks(user)
 
 	else if(href_list["preference"] == "language")
 		switch(href_list["task"])
@@ -3746,11 +3368,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					if(new_shape)
 						features["balls_shape"] = new_shape
 
-				if("balls_size")
-					var/new_size = tgui_input_number(user, "Testicles Size:\n([BALLS_SIZE_MIN]-[BALLS_SIZE_MAX])", "Character Preference", features["balls_size"], BALLS_SIZE_MAX, BALLS_SIZE_MIN)
-					if(new_size)
-						features["balls_size"] = clamp(round(new_size), BALLS_SIZE_MIN, BALLS_SIZE_MAX)
-
 				if("balls_visibility")
 					var/n_vis = tgui_input_list(user, "Testicles Visibility", "Character Preference", CONFIG_GET(str_list/safe_visibility_toggles))
 					if(n_vis)
@@ -4480,16 +4097,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 							erppref = "No"
 						if("No")
 							erppref = "Yes"
-				// BLUEMOON EDIT - tattoo consent
-				if("tattoo_pref")
-					switch(tattoopref)
-						if("Yes")
-							tattoopref = "Ask"
-						if("Ask")
-							tattoopref = "No"
-						if("No")
-							tattoopref = "Yes"
-				// BLUEMOON EDIT END
 				if("noncon_pref")
 					var/nonconpref_old = nonconpref
 					switch(nonconpref)
@@ -4732,9 +4339,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 				if("verb_consent") // Skyrat - ERP Mechanic Addition
 					toggles ^= VERB_CONSENT // Skyrat - ERP Mechanic Addition
 
-				if("ranged_verb_consent") // BLUEMOON ADD интеракты с расстояния
-					toggles ^= RANGED_VERBS_CONSENT // BLUEMOON ADD END
-
 				if("lewd_verb_sounds") // Skyrat - ERP Mechanic Addition
 					toggles ^= LEWD_VERB_SOUNDS // Skyrat - ERP Mechanic Addition
 
@@ -4880,8 +4484,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 										2. - не против Хаоса и неожиданных ситуаций, готов рисковать ради интереса. \n\
 										3. - СЛАВА ХАОСУ НЕДЕЛИМОМУ. Готов к любым безумствам и опасностям.",\
 										"Предпочитаемый Уровень Хаоса", 2, 3, 0, round_value = TRUE)
-
-					if(isnum(chaos_level))
+					
+					if(isnum(chaos_level))		
 						preferred_chaos_level = chaos_level
 
 				if("auto_capitalize_enabled")
@@ -4922,74 +4526,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					if(user.client?.prefs) //custom emote panel is attached to the character
 						var/list/payload = user.client.prefs.custom_emote_panel
 						user.client.tgui_panel?.window.send_message("emotes/setList", payload)
-
-				if("deleteslot")
-					var/slot_to_delete = text2num(href_list["num"])
-					if(!slot_to_delete || slot_to_delete < 1 || slot_to_delete > max_save_slots)
-						return FALSE
-
-					// Проверяем, есть ли персонаж в этом слоте
-					if(!path)
-						return FALSE
-					var/savefile/S = new /savefile(path)
-					if(!S)
-						return FALSE
-					S.cd = "/character[slot_to_delete]"
-					var/character_name
-					S["real_name"] >> character_name
-
-					if(!character_name)
-						to_chat(user, span_warning("Этот слот уже пуст!"))
-						return FALSE
-
-					// Подтверждение удаления
-					if(alert(user, "Вы уверены, что хотите удалить персонажа '[character_name]'? Это действие нельзя отменить!", "Подтверждение удаления", "Да", "Нет") != "Да")
-						return FALSE
-
-					// Удаляем персонажа, очищая все данные в слоте
-					S.cd = "/character[slot_to_delete]"
-					S.dir.Cut() // Очищаем все данные в директории слота
-
-					// Компактим слоты: сдвигаем следующие занятые вверх
-					var/target = slot_to_delete
-					for(var/i = slot_to_delete + 1, i <= max_save_slots, i++)
-						var/next_name = null
-						S.cd = "/character[i]"
-						S["real_name"] >> next_name
-						if(!next_name)
-							continue
-						// копируем i -> target через ExportText/ImportText
-						var/exported = S.ExportText("/character[i]")
-						if(exported)
-							S.ImportText("/character[target]", exported)
-						// очищаем исходный слот
-						S.cd = "/character[i]"
-						S.dir.Cut()
-						target++
-
-					// Обновляем default_slot, если он оказался за границей
-					var/new_default = min(default_slot, max(1, target - 1))
-					default_slot = new_default
-					S.cd = "/"
-					S["default_slot"] << default_slot
-
-					to_chat(user, span_notice("Персонаж '[character_name]' был удален."))
-
-					// Reset all character data to prevent conflicts
-					all_quirks = list()
-					be_special = list()
-					features.Cut()
-					if(pref_species)
-						features["mcolor"] = pref_species.default_color
-					else
-						features["mcolor"] = "#FFFFFF"
-
-					// Переключаемся на первый слот
-					if(slot_to_delete == default_slot)
-						if(!load_character(1))
-							random_character()
-							real_name = random_unique_name(gender)
-							save_character()
 
 				if("tab")
 					if(href_list["tab"])
@@ -5251,15 +4787,9 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 			if(href_list["loadout_addheirloom"])
 				// Выбран ли предмет среди категории неприемлемых для реликвии?
 				var/typepath = user_gear[LOADOUT_ITEM]
-				// FIX: Проверяем существование типа перед созданием
-				var/resolved_path = text2path(typepath)
-				if(!ispath(resolved_path, /datum/gear))
-					to_chat(user, "<font color='red'>Предмет лоадаута <b>[typepath]</b> повреждён. Удалите его из лоадаута через вкладку Errors.</font>")
-					ShowChoices(user)
-					return TRUE
 				var/forbidden = FALSE
-				var/datum/gear/temp_gear = new resolved_path()
-				if (ispath_in_list(temp_gear.path, LOADOUT_IS_DISALLOWED_HEIRLOOM))
+				var/datum/gear/temp_gear = new typepath()
+				if (is_typeof_list(temp_gear.path, LOADOUT_IS_DISALLOWED_HEIRLOOM))
 					forbidden = TRUE
 				qdel(temp_gear) // На всякий случай, чтобы не засирало память лишними датумами
 				// Выбран ли какой-либо другой предмет как семейная реликвия, и если да, то какой?
@@ -5377,7 +4907,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	if (features["headshot_link2"])
 		character.dna.headshot_links.Add(features["headshot_link2"])
 	// BLUEMOON ADD START
-	character.dna.headshot_naked_links.Cut()
 	if (features["headshot_naked_link"])
 		character.dna.headshot_naked_links.Add(features["headshot_naked_link"])
 	if (features["headshot_naked_link1"])
@@ -5539,22 +5068,22 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	parent?.ensure_keys_set(src)
 
 /datum/preferences/proc/is_loadout_slot_available(slot)
-	return TRUE // No category limits - loadout points handle balance
-
-// Returns a safe preview color and whether the original value was a color matrix.
-/datum/preferences/proc/get_loadout_color_preview(color_value)
-	var/preview_color = "#FFFFFF"
-	var/is_matrix = FALSE
-	if(istext(color_value) && findtext(color_value, GLOB.is_color))
-		preview_color = color_value
-	else if(islist(color_value))
-		is_matrix = TRUE
-		var/list/color_list = color_value
-		var/r = (color_list && color_list.len >= 1 && isnum(color_list[1])) ? color_list[1] : 1
-		var/g = (color_list && color_list.len >= 5 && isnum(color_list[5])) ? color_list[5] : r
-		var/b = (color_list && color_list.len >= 9 && isnum(color_list[9])) ? color_list[9] : r
-		preview_color = rgb(clamp(round(r * 255), 0, 255), clamp(round(g * 255), 0, 255), clamp(round(b * 255), 0, 255))
-	return list("color" = preview_color, "is_matrix" = is_matrix)
+	var/list/L
+	LAZYINITLIST(L)
+	for(var/i in loadout_data["SAVE_[loadout_slot]"])
+		var/datum/gear/G = i[LOADOUT_ITEM]
+		var/occupied_slots = L[initial(G.category)] ? L[initial(G.category)] + 1 : 1
+		LAZYSET(L, initial(G.category), occupied_slots)
+	switch(slot)
+		if(ITEM_SLOT_BACKPACK)
+			if(L[LOADOUT_CATEGORY_BACKPACK] < BACKPACK_SLOT_AMT)
+				return TRUE
+		if(ITEM_SLOT_HANDS)
+			if(L[LOADOUT_CATEGORY_HANDS] < HANDS_SLOT_AMT)
+				return TRUE
+		else
+			if(L[slot] < DEFAULT_SLOT_AMT)
+				return TRUE
 
 // BLUEMOON ADD START - выбор вещей из лодаута как семейной реликвии
 ///Searching for loadout item which `property` ([LOADOUT_ITEM], [LOADOUT_COLOR], etc) equals to `value`; returns this items, or FALSE if no gear matched conditions
@@ -5602,3 +5131,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 		return FALSE
 
 	return prefs_holder?.prefs.chat_toggles
+
+#undef DEFAULT_SLOT_AMT
+#undef HANDS_SLOT_AMT
+#undef BACKPACK_SLOT_AMT

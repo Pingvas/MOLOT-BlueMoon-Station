@@ -4,7 +4,7 @@
 
 
 /datum/design/chestmob
-	name = "Synth. Hum. Framework Chest"
+	name = "Synthetic Humanoid Framework Chest"
 	id = "chestmob"
 	// Mobs don't make very good roundstart icons
 	research_icon = 'icons/mob/human_parts.dmi'

@@ -49,14 +49,7 @@
 		/obj/item/suit_voucher,
 		/obj/item/reagent_containers/pill,
 		/obj/item/gun/ballistic/derringer,
-		/obj/item/genital_equipment/condom,
-		/obj/item/card_sticker,
-		/obj/item/clothing/accessory/permit,
-		/obj/item/clothing/accessory/ring,
-		/obj/item/clothing/accessory/hateredsoul_dogtag,
-		/obj/item/clothing/accessory/SATTdogtag,
-		/obj/item/clothing/accessory/indiv_number,
-		))
+		/obj/item/genital_equipment/condom))
 
 /obj/item/storage/wallet/get_examine_string(mob/user, thats)
 	. = ..()

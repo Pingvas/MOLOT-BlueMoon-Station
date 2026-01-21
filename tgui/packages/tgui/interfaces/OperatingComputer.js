@@ -21,7 +21,7 @@ const damageTypes = [
     color: 'green',
   },
   {
-    label: 'Гипоксия',
+    label: 'Дыхание',
     type: 'oxyLoss',
     color: 'blue',
   },

@@ -20,7 +20,7 @@
 	name = "Cleanbots"
 	description = "Your neighbor station is in need of cleaning duty and our ERT Janitors are busy. Send them a bot squad to eliminate filth."
 	reward = 7400
-	required_count = 2
+	required_count = 4
 	wanted_types = list(/mob/living/simple_animal/bot/cleanbot)
 
 /datum/bounty/item/bot/medbot
@@ -34,7 +34,7 @@
 	name = "Floorbots"
 	description = "Station 14 is devastated after recent security armory update. We need you to deploy floorbots to cover hull breaches and help their engineers."
 	reward = 6600
-	required_count = 2
+	required_count = 3
 	wanted_types = list(/mob/living/simple_animal/bot/floorbot)
 
 /datum/bounty/item/bot/firebot
@@ -83,19 +83,20 @@
 
 ////////////////////////
 
-/datum/bounty/item/roboticist/endoskeleton/applies_to(obj/O)
-	if(!..())
-		return FALSE
+/datum/bounty/item/roboticist/endoskeleton/ship(obj/O)
+	if(!applies_to(O))
+		return
 	if(istype(O, /obj/item/robot_suit))
 		var/obj/item/robot_suit/endo = O
-		return endo.check_completion()
-	return FALSE
+		if(endo.check_completion() == FALSE)
+			return
+	..()
 
 /datum/bounty/item/roboticist/endoskeleton
 	name = "Cyborg endoskeletons"
 	description = "We got fresh MMIs with ready-to-hard-work brains in them. Send us some fully assembled frames to work with."
-	reward = 7500
-	required_count = 1
+	reward = 9200
+	required_count = 2
 	wanted_types = list(/obj/item/robot_suit)
 
 ////////////////////////

@@ -119,11 +119,11 @@
 	if(mining_points)
 		msg += "У карты в наличии [mining_points] ед. очков шахтёрского оборудования."
 	if(registered_account)
-		msg += "Привязанный к ID-карте аккаунт записан на имя \"[registered_account.account_holder]\" и сообщает о балансе [registered_account.account_balance] кр."
+		msg += "К ID-карте приписан аккаунт, записанный на имя'[registered_account.account_holder]', с балансом в [registered_account.account_balance] кр."
 		if(registered_account.account_job)
 			var/datum/bank_account/D = SSeconomy.get_dep_account(registered_account.account_job.paycheck_department)
 			if(D)
-				msg += "На балансе [budget_to_ru_genitive(D.account_holder)] находится [D.account_balance] кр."
+				msg += "[D.account_holder] сообщает о балансе в [D.account_balance] кр."
 		msg += "<span class='info'>Alt-Click по ID, чтобы достать деньги из аккаунта в форме голочипов.</span>"
 		msg += "<span class='info'>Вы может добавить кредиты на аккаунт, прижимая голочипы, наличные или монеты к ID.</span>"
 		if(registered_account.account_holder == user.real_name)
@@ -183,7 +183,7 @@
 
 /obj/item/card/id
 	name = "Identification Card"
-	desc = "ID-карта для идентификации экипажа и определения доступов по станции."
+	desc = "ID-карта для идентификации и определения доступов по стации."
 	icon_state = "id"
 	item_state = "card-id"
 	lefthand_file = 'icons/mob/inhands/equipment/idcards_lefthand.dmi'
@@ -197,7 +197,7 @@
 	var/list/access = list()
 	var/registered_name = null // The name registered_name on the card
 	var/assignment = null
-	var/custom_job = ""
+	var/rank = null			//actual job
 	var/access_txt // mapping aid
 	var/bank_support = ID_FREE_BANK_ACCOUNT
 	var/withdraw_allowed = TRUE // BLUEMOON ADD
@@ -205,7 +205,8 @@
 	var/obj/machinery/paystand/my_store
 	var/uses_overlays = TRUE
 	var/icon/cached_flat_icon
-	var/obj/item/card_sticker/sticker //BLUEMOON ADD Стикеры на карточку
+	var/card_sticker = FALSE //BLUEMOON ADD часть карт можно навешивать на другие карты
+	var/list/previous_icon_data[3] //BLUEMOON ADD лист для наклеек на карты, порядок icon, icon_state, assignment
 	var/special_assignment = null // BLUEMOOD ADD для особых карт и их HUD, техническое
 
 /obj/item/card/id/Initialize(mapload)
@@ -236,7 +237,7 @@
 	. = ..()
 	if(.)
 		switch(var_name)
-			if(NAMEOF(src, assignment),NAMEOF(src, registered_name),NAMEOF(src, sticker),NAMEOF(src, custom_job)) //,NAMEOF(src, registered_age))
+			if(NAMEOF(src, assignment),NAMEOF(src, registered_name)) //,NAMEOF(src, registered_age))
 				update_label()
 
 /obj/item/card/id/attack_self(mob/user)
@@ -247,11 +248,20 @@
 
 /obj/item/card/id/attackby(obj/item/W, mob/user, params)
 	//BLUEMOON ADD стикеры на карту
-	if(istype(W, /obj/item/card_sticker))
-		var/obj/item/card_sticker/card_sticker = W
-		card_sticker.wrap(src, user)
-		return
-	//BLUEMOON ADD END
+	if(istype(W, /obj/item/card/id) && !src.card_sticker && !contents.len)
+		var/obj/item/card/id/ID = W
+		if(ID.card_sticker)
+			to_chat(user, "<span class='notice'>Вы стали оборачивать карту...</span>")
+			if(!do_after(user, 15, target = user))
+				return
+			ID.forceMove(src)
+			previous_icon_data[1] = icon
+			previous_icon_data[2] = icon_state
+			previous_icon_data[3] = assignment
+			icon = ID.icon
+			icon_state = ID.icon_state
+			return
+		//BLUEMOON ADD END
 
 	if(!bank_support)
 		return ..()
@@ -262,23 +272,23 @@
 		var/list/money_contained = money_bag.contents
 		var/money_added = mass_insert_money(money_contained, user)
 		if (money_added)
-			to_chat(user, "<span class='notice'>Вы приставляете содержимое к карте! Оно исчезает в облаке блюспейса, добавляя [money_added] кр. на связанный счёт.</span>")
+			to_chat(user, "<span class='notice'>You stuff the contents into the card! They disappear in a puff of bluespace smoke, adding [money_added] worth of credits to the linked account.</span>")
 	else
 		return ..()
 
 /obj/item/card/id/proc/insert_money(obj/item/I, mob/user)
 	if(!bank_support || !registered_account) // BLUEMOON EDIT
-		to_chat(user, "<span class='warning'>К [src] нет привязанного аккаунт для зачисления [I]!</span>")
+		to_chat(user, "<span class='warning'>[src] doesn't have a linked account to deposit [I] into!</span>")
 		return
 	var/cash_money = I.get_item_credit_value()
 	if(!cash_money)
-		to_chat(user, "<span class='warning'>[I] не кажется стоящим что-либо!</span>")
+		to_chat(user, "<span class='warning'>[I] doesn't seem to be worth anything!</span>")
 		return
 	registered_account.adjust_money(cash_money)
 	if(istype(I, /obj/item/stack/spacecash) || istype(I, /obj/item/coin))
-		to_chat(user, "<span class='notice'>Вы приставляете [I] в [src]. Они исчезают в облаке блюспейса, добавляя [cash_money] кр. на связанный счёт.</span>")
+		to_chat(user, "<span class='notice'>You stuff [I] into [src]. It disappears in a small puff of bluespace smoke, adding [cash_money] credits to the linked account.</span>")
 	else
-		to_chat(user, "<span class='notice'>Вы вставляете [I] в [src], добавляя [cash_money] кр. на связанный счёт.</span>")
+		to_chat(user, "<span class='notice'>You insert [I] into [src], adding [cash_money] credits to the linked account.</span>")
 	// после успешного зачисления:
 	if(registered_account)
 		registered_account.makeTransactionLog(
@@ -289,12 +299,12 @@
 			FALSE
 		)
 
-	to_chat(user, "<span class='notice'>Привязанный аккаунт докладывает о балансе в [registered_account.account_balance] кр.</span>")
+	to_chat(user, "<span class='notice'>The linked account now reports a balance of [registered_account.account_balance] cr.</span>")
 	qdel(I)
 
 /obj/item/card/id/proc/mass_insert_money(list/money, mob/user)
 	if(!bank_support || !registered_account)
-		to_chat(user, "<span class='warning'>У [src] нет привязанного аккаунта для зачисления!</span>")
+		to_chat(user, "<span class='warning'>[src] doesn't have a linked account to deposit into!</span>")
 		return FALSE
 
 	if (!money || !money.len)
@@ -331,12 +341,12 @@
 // Returns true if new account was set.
 /obj/item/card/id/proc/set_new_account(mob/living/user)
 	if(bank_support != ID_FREE_BANK_ACCOUNT)
-		to_chat(user, "<span class='warning'>Эта ID-карта не имеет модульного банковского счета. Должно быть, устаревшая модель...</span>")
+		to_chat(user, "<span class='warning'>This ID has no modular banking support whatsover, must be an older model...</span>")
 		return
 	. = FALSE
 	var/datum/bank_account/old_account = registered_account
 
-	var/new_bank_id = input(user, "Введите номер вашего банковского счета.", "Восстановление аккаунта", 111111) as num | null
+	var/new_bank_id = input(user, "Enter your account ID number.", "Account Reclamation", 111111) as num | null
 
 	if (isnull(new_bank_id))
 		return
@@ -344,10 +354,10 @@
 	if(!alt_click_can_use_id(user))
 		return
 	if(!new_bank_id || new_bank_id < 111111 || new_bank_id > 999999)
-		to_chat(user, "<span class='warning'>Номер банковского счета должен быть между 111111 и 999999.</span>")
+		to_chat(user, "<span class='warning'>The account ID number needs to be between 111111 and 999999.</span>")
 		return
 	if (registered_account && registered_account.account_id == new_bank_id)
-		to_chat(user, "<span class='warning'>Номер банковского счета уже привязан к этой карте.</span>")
+		to_chat(user, "<span class='warning'>The account ID was already assigned to this card.</span>")
 		return
 
 	for(var/A in SSeconomy.bank_accounts)
@@ -358,23 +368,29 @@
 
 			B.bank_cards += src
 			registered_account = B
-			to_chat(user, "<span class='notice'>Предоставленный аккаунт был привязан к этой ID-карте.</span>")
+			to_chat(user, "<span class='notice'>The provided account has been linked to this ID card.</span>")
 
 			return TRUE
 
-	to_chat(user, "<span class='warning'>Предоставленный номер банковского счета недействителен.</span>")
+	to_chat(user, "<span class='warning'>The account ID number provided is invalid.</span>")
 	return
 
 /obj/item/card/id/AltClick(mob/living/user)
 	. = ..()
 	//BLUEMOON ADD стикеры на карту
-	if(sticker)
-		var/response = tgui_alert(user, "Что вы хотите сделать?", src.name, list("Снять наличные", "Убрать наклейку"), autofocus = TRUE)
-		if(!response)
-			return
-		else if(response == "Убрать наклейку")
-			sticker.unwrap(src, user)
-			return
+	if(src.contents)
+		for(var/obj/item/card/id/ID in contents)
+			if(ID.card_sticker)
+				var/response = alert(user, "What you want to do?","[src.name]", "[prob(1)? "do some tax evasion" : "withdraw money"]", "remove sticker")
+				if(response == "remove sticker")
+					to_chat(user, "<span class='notice'>You start to unwrap the card...</span>")
+					if(!do_after(user, 15, target = user))
+						return
+					user.put_in_hands(ID)
+					icon = previous_icon_data[1]
+					icon_state = previous_icon_data[2]
+					assignment = previous_icon_data[3]
+					return
 	//BLUEMOON ADD END
 
 	if(!bank_support || !alt_click_can_use_id(user))
@@ -402,10 +418,10 @@
 				return
 
 	if (world.time < registered_account.withdrawDelay)
-		registered_account.bank_card_talk("<span class='warning'>ОШИБКА: НЕВОЗМОЖНО ВОЙТИ ВВИДУ ЗАПЛАНИРОВАННОГО ТЕХОБСЛУЖИВАНИЯ. РАБОТЫ ЗАПЛАНИРОВАНЫ К ЗАВЕРШЕНИЮ В ТЕЧЕНИЕ [(registered_account.withdrawDelay - world.time)/10] СЕКУНД.</span>", TRUE)
+		registered_account.bank_card_talk("<span class='warning'>ERROR: UNABLE TO LOGIN DUE TO SCHEDULED MAINTENANCE. MAINTENANCE IS SCHEDULED TO COMPLETE IN [(registered_account.withdrawDelay - world.time)/10] SECONDS.</span>", TRUE)
 		return
 
-	var/amount_to_remove =  input(user, "Как много кредитов вы хотите снять? Текущий баланс: [registered_account.account_balance]", "Снятие средств", 5) as num|null
+	var/amount_to_remove =  input(user, "How much do you want to withdraw? Current Balance: [registered_account.account_balance]", "Withdraw Funds", 5) as num|null
 
 	if(!amount_to_remove || amount_to_remove < 0)
 		return
@@ -415,7 +431,7 @@
 	if(amount_to_remove && registered_account.adjust_money(-amount_to_remove))
 		var/obj/item/holochip/holochip = new (user.drop_location(), amount_to_remove)
 		user.put_in_hands(holochip)
-		to_chat(user, "<span class='notice'>Вы сняли [amount_to_remove] кр. в форме голочипа.</span>")
+		to_chat(user, "<span class='notice'>You withdraw [amount_to_remove] credits into a holochip.</span>")
 
 		// 🧾 Добавляем запись о снятии в историю транзакций
 		registered_account.makeTransactionLog(
@@ -426,31 +442,35 @@
 			FALSE
 		)
 		return
-	registered_account.bank_card_talk("<span class='warning'>ОШИБКА: У привязанного аккаунта недостаточно средств для выполнения этой операции.</span>", TRUE)
+	registered_account.bank_card_talk("<span class='warning'>ERROR: The linked account has no sufficient credits to perform that withdrawal.</span>", TRUE)
 
 /obj/item/card/id/examine(mob/user)
 	. = ..()
 	if(mining_points)
-		. += "У этой карты [mining_points] рудокопных очков карго; всего было заработано [mining_points_total] очков."
+		. += "There's [mining_points] mining equipment redemption point\s loaded onto this card and [mining_points_total] were earned in total."
 	if(!bank_support || (bank_support == ID_LOCKED_BANK_ACCOUNT && !registered_account))
-		. += "<span class='info'>Эта ID-карта не имеет банковского счёта. Должно быть, устаревшая модель...</span>"
+		. += "<span class='info'>This ID has no banking support whatsover, must be an older model...</span>"
 	else if(registered_account)
-		. += "Привязанный к ID-карте аккаунт записан на имя \"[registered_account.account_holder]\" и сообщает о балансе [registered_account.account_balance] кр."
+		. += "The account linked to the ID belongs to '[registered_account.account_holder]' and reports a balance of [registered_account.account_balance] cr."
 		if(registered_account.account_job)
 			var/datum/bank_account/D = SSeconomy.get_dep_account(registered_account.account_job.paycheck_department)
 			if(D)
-				. += "На балансе [budget_to_ru_genitive(D.account_holder)] находится [D.account_balance] кр."
-		. += "<span class='info'>Alt-Click по ID-карте, чтобы снять деньги с аккаунта в форме голочипов.</span>"
-		. += "<span class='info'>Вы можете внести кредиты на аккаунт, приложив голочипы, наличные или монеты к ID-карте.</span>"
+				. += "The [D.account_holder] reports a balance of [D.account_balance] cr."
+		. += "<span class='info'>Alt-Click the ID to pull money from the linked account in the form of holochips.</span>"
+		. += "<span class='info'>You can insert credits into the linked account by pressing holochips, cash, or coins against the ID.</span>"
 		if(registered_account.civilian_bounty)
-			. += "<span class='info'><b>Есть активное гражданское баунти:</b>"
+			. += "<span class='info'><b>There is an active civilian bounty.</b>"
 			. += "<span class='info'><i>[registered_account.bounty_text()]</i></span>"
-			. += "<span class='info'>Количество: [registered_account.bounty_num()]</span>"
-			. += "<span class='info'>Награда: [registered_account.bounty_value()]</span>"
+			. += "<span class='info'>Quantity: [registered_account.bounty_num()]</span>"
+			. += "<span class='info'>Reward: [registered_account.bounty_value()]</span>"
 		if(registered_account.account_holder == user.real_name)
-			. += "<span class='boldnotice'>Если вы потеряете эту ID-карту, вы можете восстановить свой аккаунт, нажав Alt-Click по пустой ID-карту, держа её в руках, и введя номер своего банковского счёта.</span>"
+			. += "<span class='boldnotice'>If you lose this ID card, you can reclaim your account by Alt-Clicking a blank ID card while holding it and entering your account ID number.</span>"
 	else
-		. += "<span class='info'>Нет зарегистрированного аккаунта. Alt-Click, чтобы добавить.</span>"
+		. += "<span class='info'>There is no registered account linked to this card. Alt-Click to add one.</span>"
+	//BLUEMOON ADD
+	if(card_sticker)
+		. += "<span class='info'>Can be used like a card sticker on another card.</span>"
+	//BLUEMOON ADD END
 
 /obj/item/card/id/GetAccess()
 	return access
@@ -488,45 +508,17 @@
 	return ..()
 
 /obj/item/card/id/proc/update_label(newname, newjob)
-	var/effective_name = newname ? newname : registered_name
+	if(newname || newjob)
+		name = "[(!newname)	? "identification card"	: "[newname] - ID Card"][(!newjob) ? "" : " ([newjob])"]"
+		update_icon()
+		return
 
-	var/base = effective_name ? "[effective_name] - ID Card" : "Identification card"
-
-	var/job_name = get_assignment_name(newjob)
-	if(job_name)
-		job_name = " ([job_name])"
-
-	name = "[base][job_name]"
+	name = "[(!registered_name)	? "identification card"	: "[registered_name] - ID Card"][(!assignment) ? "" : " ([assignment])"]"
 	update_icon()
-
-/obj/item/card/id/proc/get_assignment_name(newjob)
-	. = ""
-	var/effective_job = newjob || custom_job || assignment
-	if(!effective_job)
-		return
-
-	. = effective_job
-
-	if(!sticker)
-		return
-
-	// Ищем префикс и запрещенные слова в работе
-	if(sticker.prefix)
-		var/list/temp = sticker.prefix_not_allowed_with.Copy()
-		temp |= sticker.prefix
-		for(var/forbidden in temp)
-			var/regex/R = regex("(^|\[^A-Za-zА-Яа-я0-9\])[forbidden](\[^A-Za-zА-Яа-я0-9\]|$)", "i")
-			if(R.Find(effective_job))
-				return // есть совпадение — возвращаем без префикса
-
-	. = "[sticker.prefix] [effective_job]"
-
-/obj/item/card/id/proc/update_manifest()
-	GLOB.data_core.manifest_modify(registered_name, get_assignment_name(), assignment)
 
 /obj/item/card/id/silver
 	name = "silver identification card"
-	desc = "Серебряная ID-карточка для честных и преданных корпоративных работников."
+	desc = "A silver card which shows honour and dedication."
 	icon_state = "silver"
 	item_state = "silver_id"
 	lefthand_file = 'icons/mob/inhands/equipment/idcards_lefthand.dmi'
@@ -541,7 +533,7 @@
 
 /obj/item/card/id/gold
 	name = "Gold Identification Card"
-	desc = "Золотая ID-карточка, символизирующая власть и могущество."
+	desc = "A golden card which shows power and might."
 	icon_state = "gold"
 	item_state = "gold_id"
 	lefthand_file = 'icons/mob/inhands/equipment/idcards_lefthand.dmi'
@@ -599,7 +591,7 @@
 		if(!user.canUseTopic(src, BE_CLOSE, FALSE))
 			return
 		if(popup_input == "Forge/Reset" && !forged)
-			var/input_name = stripped_input(user, "Какое имя вы хотите присвоить карте? Оставьте пустым для случайной генерации.", "Имя агентской карточки", registered_name ? registered_name : (ishuman(user) ? user.real_name : user.name), MAX_NAME_LEN)
+			var/input_name = stripped_input(user, "What name would you like to put on this card? Leave blank to randomise.", "Agent card name", registered_name ? registered_name : (ishuman(user) ? user.real_name : user.name), MAX_NAME_LEN)
 			input_name = reject_bad_name(input_name)
 			if(!input_name)
 				// Invalid/blank names give a randomly generated one.
@@ -610,14 +602,14 @@
 				else
 					input_name = "[pick(GLOB.first_names)] [pick(GLOB.last_names)]"
 
-			var/target_occupation = stripped_input(user, "Какую должность вы хотите присвоить карте?\nИмейте ввиду: это не даст соответствующих доступов.", "Должность агентской карточки", assignment ? assignment : "Assistant", MAX_MESSAGE_LEN)
+			var/target_occupation = stripped_input(user, "What occupation would you like to put on this card?\nNote: This will not grant any access levels other than Maintenance.", "Agent card job assignment", assignment ? assignment : "Assistant", MAX_MESSAGE_LEN)
 			if(!target_occupation)
 				return
 			registered_name = input_name
 			assignment = target_occupation
 			update_label()
 			forged = TRUE
-			to_chat(user, "<span class='notice'>Вы успешно подделали ID-карту.</span>")
+			to_chat(user, "<span class='notice'>You successfully forge the ID card.</span>")
 			log_game("[key_name(user)] has forged \the [initial(name)] with name \"[registered_name]\" and occupation \"[assignment]\".")
 
 			// First time use automatically sets the account id to the user.
@@ -630,7 +622,7 @@
 						if(account.account_id == accountowner.account_id)
 							account.bank_cards += src
 							registered_account = account
-							to_chat(user, "<span class='notice'>Ваш номер счёта был автоматически присвоен.</span>")
+							to_chat(user, "<span class='notice'>Your account number has been automatically assigned.</span>")
 			return
 		else if (popup_input == "Forge/Reset" && forged)
 			registered_name = initial(registered_name)
@@ -638,7 +630,7 @@
 			log_game("[key_name(user)] has reset \the [initial(name)] named \"[src]\" to default.")
 			update_label()
 			forged = FALSE
-			to_chat(user, "<span class='notice'>Вы успешно сбросили ID-карту.</span>")
+			to_chat(user, "<span class='notice'>You successfully reset the ID card.</span>")
 			return
 		else if (popup_input == "Change Account ID")
 			set_new_account(user)
@@ -665,7 +657,7 @@
 
 /obj/item/card/id/syndicate/syndicate_command
 	name = "syndicate ID card"
-	desc = "ID-карта выпуска Триглава Синдиката."
+	desc = "An ID straight from the Syndicate."
 	registered_name = "Syndicate"
 	assignment = "Syndicate Overlord"
 	access = list(ACCESS_SYNDICATE)
@@ -689,7 +681,7 @@
 
 /obj/item/card/id/captains_spare
 	name = "captain's spare ID"
-	desc = "Запасная ID-карта самого властителя станции."
+	desc = "The spare ID of the High Lord himself."
 	icon_state = "gold"
 	item_state = "gold_id"
 	lefthand_file = 'icons/mob/inhands/equipment/idcards_lefthand.dmi'
@@ -704,7 +696,7 @@
 
 /obj/item/card/id/centcom
 	name = "\improper CentCom ID"
-	desc = "ID-карта выпуска Центрального Командования Nanotrasen."
+	desc = "An ID straight from Central Command."
 	icon_state = "centcom"
 	registered_name = "Central Command"
 	assignment = "General"
@@ -715,7 +707,7 @@
 
 /obj/item/card/id/ert
 	name = "\improper CentCom ID"
-	desc = "ID-карта оперативников ОБР."
+	desc = "An ERT ID card."
 	icon_state = "ert_commander"
 	registered_name = "Emergency Response Team Commander"
 	assignment = "Emergency Response Team Commander"
@@ -763,7 +755,7 @@
 
 /obj/item/card/id/prisoner
 	name = "prisoner ID card"
-	desc = "Теперь вы - номер, вы - не свободный человек."
+	desc = "You are a number, you are not a free man."
 	icon_state = "orange"
 	item_state = "orange-id"
 	lefthand_file = 'icons/mob/inhands/equipment/idcards_lefthand.dmi'
@@ -790,20 +782,20 @@
 	if(world.time >= sentence)
 		playsound(loc, 'sound/machines/ping.ogg', 50, 1)
 		if(isliving(loc))
-			to_chat(loc, "<span class='boldnotice'>[src]</span><span class='notice'> buzzes: Вы отбыли свой срок! Теперь вы можете покинуть пермабриг и забрать свои вещи.</span>")
+			to_chat(loc, "<span class='boldnotice'>[src]</span><span class='notice'> buzzes: You have served your sentence! You may now exit prison through the turnstiles and collect your belongings.</span>")
 		STOP_PROCESSING(SSobj, src)
 	return
 
 /obj/item/card/id/prisoner/examine(mob/user)
 	. = ..()
 	if(sentence && world.time < sentence)
-		. += "<span class='notice'>Вы отбываете срок за [crime]. <b>[DisplayTimeText(sentence - world.time)]</b> осталось.</span>"
+		. += "<span class='notice'>You're currently serving a sentence for [crime]. <b>[DisplayTimeText(sentence - world.time)]</b> left.</span>"
 	else if(goal)
-		. += "<span class='notice'>Вы накопили [points] из [goal] очков, необходимых для освобождения.</span>"
+		. += "<span class='notice'>You have accumulated [points] out of the [goal] points you need for freedom.</span>"
 	else if(!sentence)
-		. += "<span class='warning'>Вы отбываете пожизненное заключение за [crime].</span>"
+		. += "<span class='warning'>You are currently serving a permanent sentence for [crime].</span>"
 	else
-		. += "<span class='notice'>Ваш срок истёк! Вы свободны!</span>"
+		. += "<span class='notice'>Your sentence is up! You're free!</span>"
 
 /obj/item/card/id/prisoner/one
 	icon_state = "prisoner_001"
@@ -847,13 +839,13 @@
 
 /obj/item/card/id/away
 	name = "A Perfectly Generic Identification Card"
-	desc = "Идеально безликая ID-карточка. Этой не помешало бы украшение."
+	desc = "A Perfectly Generic Identification Card. Looks like it could use some flavor."
 	icon_state = "retro"
 	access = list(ACCESS_AWAY_GENERAL)
 
 /obj/item/card/id/away/hotel
 	name = "Staff ID"
-	desc = "ID-карта сотрудника, используемая для доступа в космическом отеле."
+	desc = "A staff ID used to access the hotel's doors."
 	access = list(ACCESS_AWAY_GENERAL, ACCESS_AWAY_MAINT)
 
 /obj/item/card/id/away/hotel/securty
@@ -862,70 +854,70 @@
 
 /obj/item/card/id/away/old
 	name = "A Perfectly Generic Identification Card"
-	desc = "Идеально безликая ID-карточка. Этой не помешало бы украшение."
+	desc = "A Perfectly Generic Identification Card. Looks like it could use some flavor."
 	icon_state = "centcom"
 
 /obj/item/card/id/away/old/sec
 	name = "Charlie Station Security Officer's ID card"
-	desc = "Старая ID-карта Чарли Станции. Вы можете разглядеть должность: \"Офицер безопасности\"."
+	desc = "A faded Charlie Station ID card. You can make out the rank \"Security Officer\"."
 	assignment = "Charlie Station Security Officer"
 	access = list(ACCESS_AWAY_GENERAL, ACCESS_AWAY_SEC)
 
 /obj/item/card/id/away/old/sci
 	name = "Charlie Station Scientist's ID card"
-	desc = "Старая ID-карта Чарли Станции. Вы можете разглядеть должность: \"Ученый\"."
+	desc = "A faded Charlie Station ID card. You can make out the rank \"Scientist\"."
 	assignment = "Charlie Station Scientist"
 	access = list(ACCESS_AWAY_GENERAL)
 
 /obj/item/card/id/away/old/eng
 	name = "Charlie Station Engineer's ID card"
-	desc = "Старая ID-карта Чарли Станции. Вы можете разглядеть должность: \"Инженер станции\"."
+	desc = "A faded Charlie Station ID card. You can make out the rank \"Station Engineer\"."
 	assignment = "Charlie Station Engineer"
 	access = list(ACCESS_AWAY_GENERAL, ACCESS_AWAY_ENGINE)
 
 /obj/item/card/id/away/old/apc
 	name = "APC Access ID"
-	desc = "ID-карта, имеющая доступ к терминалам APC."
+	desc = "A special ID card that allows access to APC terminals."
 	access = list(ACCESS_ENGINE_EQUIP)
 
 /obj/item/card/id/away/old/tarkoff
 	name = "Tarkov Visitor's Pass"
-	desc = "ID-карта посетителя, покрытая пылью. Маленькая бирка сообщает: \"Порт Тарков, первый шаг к гражданскому партнерству в космическом освоении\"."
+	desc = "A dust-collected visitors pass, A small tagline reading \"Port Tarkof, The first step to Civilian Partnership in Space Homesteading\"."
 	access = list(ACCESS_AWAY_GENERAL, ACCESS_TARKOFF)
 
 /obj/item/card/id/away/old/tarkoff/cargo
 	assignment = "P-T Cargo Personell"
-	desc = "ID-карта, предназначенная для \"лучших грузчиков\". Вы также являетесь шахтёром на полставки, когда в Каргонии тихо."
+	desc = "An access card designated for \"cargo's finest\". You're also a part time space miner, when cargonia is quiet."
 	access = list(ACCESS_AWAY_GENERAL, ACCESS_TARKOFF)
 
 /obj/item/card/id/away/old/tarkoff/sec
 	assignment = "P-T Port Guard"
-	desc = "ID-карта, предназначенная для \"членов охраны\". Все хотят ваши пушки, партнёр. Йи-ха."
+	desc = "An access card designated for \"security members\". Everyone wants your guns, partner. Yee-haw."
 	access = list(ACCESS_AWAY_GENERAL, ACCESS_WEAPONS, ACCESS_SEC_DOORS, ACCESS_TARKOFF)
 
 /obj/item/card/id/away/old/tarkoff/med
 	assignment = "P-T Trauma Medic"
-	desc = "ID-карта, предназначенная для \"медицинского персонала\". Вы предоставляете медицинские сумки."
+	desc = "An access card designated for \"medical staff\". You provide the medic bags."
 	access = list(ACCESS_MEDICAL, ACCESS_AWAY_GENERAL, ACCESS_TARKOFF, ACCESS_SURGERY)
 
 /obj/item/card/id/away/old/tarkoff/eng
 	assignment = "P-T Maintenance Crew"
-	desc = "ID-карта, предназначенная для \"инженерного персонала\". Вы будете тем, на кого все указывают, чтобы починить что-то, честно говоря."
+	desc = "An access card designated for \"engineering staff\". You're going to be the one everyone points at to fix stuff, lets be honest."
 	access = list(ACCESS_AWAY_GENERAL, ACCESS_TARKOFF, ACCESS_ENGINE_EQUIP, ACCESS_ATMOSPHERICS)
 
 /obj/item/card/id/away/old/tarkoff/sci
 	assignment = "P-T Field Researcher"
-	desc = "ID-карта, предназначенная для \"научной команды\". Вы будете забыты практически сразу, когда дело дойдет до экспериментов."
+	desc = "An access card designated for \"the science team\". You are forgotten basically immediately when it comes to the lab."
 	access = list(ACCESS_ROBOTICS, ACCESS_AWAY_GENERAL, ACCESS_WEAPONS, ACCESS_TARKOFF)
 
 /obj/item/card/id/away/old/tarkoff/ensign
 	assignment = "Tarkov Ensign"
-	desc = "ID-карта, предназначенная для \"мичманов Таркова\". Никто не обязан вас слушать... Но вы - ближайший к командованию."
+	desc = "An access card designated for \"tarkoff ensign\". No one has to listen to you... But you're the closest there is for command around here."
 	access = list(ACCESS_MEDICAL, ACCESS_ROBOTICS, ACCESS_AWAY_GENERAL, ACCESS_TARKOFF, ACCESS_WEAPONS, ACCESS_ENGINE_EQUIP, ACCESS_ATMOSPHERICS)
 
 /obj/item/card/id/departmental_budget
 	name = "departmental card (FUCK)"
-	desc = "Предоставляет доступ к бюджету отдела."
+	desc = "Provides access to the departmental budget."
 	icon_state = "budgetcard"
 	withdraw_allowed = FALSE // BLUEMOON ADD
 	var/department_ID = ACCOUNT_CIV
@@ -939,7 +931,7 @@
 		if(!B.bank_cards.Find(src))
 			B.bank_cards += src
 		name = "departmental card ([department_name])"
-		desc = "К этой карте привязан [lowertext(budget_to_ru_nominative(department_name))]."
+		desc = "Provides access to the [department_name]."
 		icon_state = "[lowertext(department_ID)]_budget"
 	SSeconomy.dep_cards += src
 

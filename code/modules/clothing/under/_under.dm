@@ -165,7 +165,7 @@
 	..()
 
 
-/obj/item/clothing/under/attach_accessory(obj/item/I, mob/user, notifyAttach = TRUE)
+/obj/item/clothing/under/proc/attach_accessory(obj/item/I, mob/user, notifyAttach = 1)
 	. = FALSE
 	if(istype(I, /obj/item/clothing/accessory) && !istype(I, /obj/item/clothing/accessory/ring))
 		var/obj/item/clothing/accessory/A = I
@@ -390,7 +390,7 @@
 
 /obj/item/clothing/under/AltClick(mob/user)
 	. = ..()
-	if(!istype(user) || !user.canUseTopic(src, BE_CLOSE, ismonkey(user), TRUE, FALSE))
+	if(!istype(user) || !user.canUseTopic(src, BE_CLOSE, ismonkey(user)))
 		return
 	if(length(attached_accessories)) //SKYRAT EDIT
 		remove_accessory(user)
@@ -439,7 +439,7 @@
 	if (!(item_flags & IN_INVENTORY))
 		return
 
-	if(!isliving(user) || !user.canUseTopic(src, BE_CLOSE, ismonkey(user), TRUE, FALSE))
+	if(!isliving(user) || !user.canUseTopic(src, BE_CLOSE, ismonkey(user)))
 		return
 
 	LAZYSET(context[SCREENTIP_CONTEXT_CTRL_LMB], INTENT_ANY, "Set to highest sensor")

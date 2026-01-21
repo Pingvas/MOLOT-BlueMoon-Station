@@ -19,7 +19,7 @@ export const SmokeMachine = (props, context) => {
       width={350}
       height={350}>
       <Window.Content>
-        <Section title="Дисперсионный резервуар"
+        <Section title="Dispersal Tank"
           buttons={(
             <Button
               icon={active ? 'power-off' : 'times'}
@@ -37,7 +37,7 @@ export const SmokeMachine = (props, context) => {
           </ProgressBar>
           <Box mt={1}>
             <LabeledList>
-              <LabeledList.Item label="Радиус">
+              <LabeledList.Item label="Range">
                 {[1, 2, 3, 4, 5].map(amount => (
                   <Button
                     key={amount}
@@ -51,11 +51,11 @@ export const SmokeMachine = (props, context) => {
             </LabeledList>
           </Box>
         </Section>
-        <Section title="Содержимое"
+        <Section title="Contents"
           buttons={(
             <Button
               icon="trash"
-              content="Утилизировать"
+              content="Purge"
               onClick={() => act('purge')} />
           )}>
           {TankContents.map(chemical => (
@@ -66,7 +66,7 @@ export const SmokeMachine = (props, context) => {
                 initial={0}
                 value={chemical.volume} />
               {' '}
-              u {chemical.name}
+              units of {chemical.name}
             </Box>
           ))}
         </Section>

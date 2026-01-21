@@ -57,7 +57,7 @@
 		var/obj/item/card/id/stored_card = cardholder.GetID()
 		if(stored_card)
 			var/stored_name = stored_card.registered_name
-			var/stored_title = stored_card.get_assignment_name()
+			var/stored_title = stored_card.assignment
 			if(!stored_name)
 				stored_name = "Unknown"
 			if(!stored_title)
@@ -214,6 +214,8 @@
 					if(!cardholder)
 						return
 					cardholder.try_eject(user)
+
+
 		else
 			return
 

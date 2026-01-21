@@ -634,22 +634,27 @@
 	path = /obj/item/clothing/under/misc/gear_harness
 
 //Christmas
+/*Commenting out Until next Christmas or made automatic
 /datum/gear/uniform/christmasmaler
-	name = "Red Christmas Suit"
+	name = "Red Masculine Christmas Suit"
+	category = ITEM_SLOT_ICLOTHING
 	path = /obj/item/clothing/under/costume/christmas
 
 /datum/gear/uniform/christmasmaleg
-	name = "Green Christmas Suit"
+	name = "Green Masculine Christmas Suit"
+	category = ITEM_SLOT_ICLOTHING
 	path = /obj/item/clothing/under/costume/christmas/green
 
 /datum/gear/uniform/christmasfemaler
-	name = "Red Croptop Christmas Suit"
+	name = "Red Feminine Christmas Suit"
+	category = ITEM_SLOT_ICLOTHING
 	path = /obj/item/clothing/under/costume/christmas/croptop
 
 /datum/gear/uniform/christmasfemaleg
-	name = "Green Croptop Christmas Suit"
+	name = "Green Feminine Christmas Suit"
+	category = ITEM_SLOT_ICLOTHING
 	path = /obj/item/clothing/under/costume/christmas/croptop/green
-
+*/
 /datum/gear/uniform/pinkstripper
 	name = "Pink stripper outfit"
 	path = /obj/item/clothing/under/misc/stripper

@@ -8,7 +8,6 @@
 	w_class = WEIGHT_CLASS_SMALL
 	icon_state = ""
 	layer = BELOW_MOB_LAYER //so it isn't hidden behind objects when on the floor
-	appearance_flags = KEEP_TOGETHER | LONG_GLIDE | PIXEL_SCALE | TILE_BOUND
 	var/mob/living/carbon/owner = null
 	var/datum/weakref/original_owner = null
 	var/status = BODYPART_ORGANIC
@@ -66,7 +65,6 @@
 
 	var/px_x = 0
 	var/px_y = 0
-	var/dropped_size = 1 // BLUEMOON ADD | severed limb size multiplier
 
 	var/species_flags_list = list()
 	var/dmg_overlay_type //the type of damage overlay (if any) to use when this bodypart is bruised/burned.
@@ -134,11 +132,6 @@
 
 /obj/item/bodypart/blob_act()
 	take_damage(max_damage)
-
-/obj/item/bodypart/dropped(mob/user, silent)
-	. = ..()
-	if(loc && !(istype(loc, /atom/movable)))
-		update_dropped_size()
 
 /obj/item/bodypart/Destroy()
 	if(owner)
@@ -796,19 +789,6 @@
 
 	if(dropping_limb)
 		no_update = TRUE //when attached, the limb won't be affected by the appearance changes of its mob owner.
-		update_dropped_size(C)
-
-/obj/item/bodypart/proc/update_dropped_size(mob/source)
-	if(!source)
-		source = owner
-
-	if(source)
-		dropped_size = initial(dropped_size)
-		dropped_size *= max(0.8, get_size(source))
-
-	var/matrix/m = matrix(transform)
-	m.Scale(dropped_size)
-	transform = m
 
 //to update the bodypart's icon when not attached to a mob
 /obj/item/bodypart/proc/update_icon_dropped()

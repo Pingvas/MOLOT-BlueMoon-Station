@@ -159,7 +159,6 @@
 	desc = "The folded flag of nothing. It has nothing on it. Beautiful. {CTRL+SHIFT+LMB}"
 	icon = 'modular_bluemoon/SmiLeY/aesthetics/flag/icons/flags.dmi'
 	icon_state = "folded_coder"
-	w_class = WEIGHT_CLASS_SMALL
 	sign_path = /obj/structure/sign/flag
 	unique_reskin = list(
 		"NanoTrasen" = list(
@@ -358,8 +357,10 @@
 /obj/item/sign/flag/ravenheart
 	name = "folded flag of the Ravenheart"
 	desc = "Сложенный флаг графства \"Воронье Сердце\"."
+	flag_type = "ravenheart"
 	icon_state = "mini"
 	sign_path = /obj/structure/sign/flag/ravenheart
+
 
 /obj/structure/sign/flag/ravenheart/alt
 	name = "banner of Ravenheart"
@@ -370,6 +371,7 @@
 /obj/item/sign/flag/ravenheart/alt
 	name = "rolled banner of the Ravenheart"
 	desc = "Свёрнутый баннер графства \"Воронье Сердце\"."
+	flag_type = "ravenheart_alt"
 	icon_state = "mini_alt"
 	sign_path = /obj/structure/sign/flag/ravenheart/alt
 
@@ -380,7 +382,7 @@
 	item_flag = /obj/item/sign/flag/saaref
 
 /obj/item/sign/flag/saaref
-	name = "folded flag of the SAARE"
-	desc = "The folded flag of the SAARE."
+	name = "folded flag of the Novaya Rossiyskaya Imperiya"
+	desc = "The folded flag of the Novaya Rossiyskaya Imperiya."
 	icon_state = "folded_saare"
 	sign_path = /obj/structure/sign/flag/saareflag

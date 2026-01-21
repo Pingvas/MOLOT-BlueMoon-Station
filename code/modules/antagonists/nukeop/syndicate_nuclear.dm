@@ -461,7 +461,7 @@
 	r_pocket = /obj/item/tank/internals/emergency_oxygen/engi/syndi
 	internals_slot = ITEM_SLOT_RPOCKET
 	belt = /obj/item/storage/belt/military
-	accessory = list(/obj/item/clothing/accessory/permit/special/disk_keeper)
+	accessory = /obj/item/clothing/accessory/permit/special/disk_keeper
 	backpack_contents = list(/obj/item/storage/box/survival/syndie=1,
 	/obj/item/tank/jetpack/oxygen/harness=1,
 	/obj/item/gun/ballistic/automatic/pistol=1,
@@ -473,12 +473,8 @@
 /datum/outfit/syndicate/lone/post_equip(mob/living/carbon/human/H, visualsOnly, client/preference_source)
 	. = ..()
 	var/obj/item/card/id/syndicate/W = H.wear_id
-	W.registered_name = H.real_name
 	W.assignment = "Syndicate Nuclear Disk Protector"
-	W.special_assignment = "syndicate"
-	W.update_label()
-	W.update_appearance()
-	H.sec_hud_set_ID()
+	W.update_label(newjob = W.assignment)
 
 /datum/outfit/syndicate/syndiesquad
 	name = "Syndicate Special Forces"
@@ -514,7 +510,7 @@
 	W.access = get_all_accesses()+get_centcom_access("Death Commando")+get_all_syndicate_access()//They get full station access.
 	W.assignment = "Syndicate Special Forces"
 	W.registered_name = H.real_name
-	W.update_label()
+	W.update_label(W.registered_name, W.assignment)
 
 	var/obj/item/implant/weapons_auth/Q = new
 	Q.implant(H)

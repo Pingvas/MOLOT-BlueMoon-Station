@@ -62,15 +62,15 @@
 	head = /obj/item/clothing/head/warden
 	glasses = /obj/item/clothing/glasses/hud/security/sunglasses
 	l_pocket = /obj/item/storage/bag/security
-	r_pocket = /obj/item/reagent_containers/peacehypo
+	r_pocket = /obj/item/clothing/accessory/badge
 	suit_store = /obj/item/gun/energy/pumpaction/defender
-	backpack_contents = list(/obj/item/storage/box/sec_kit)
+	backpack_contents = list(/obj/item/reagent_containers/peacehypo, /obj/item/storage/box/sec_kit)
 
 	backpack = /obj/item/storage/backpack/security
 	satchel = /obj/item/storage/backpack/satchel/sec
 	duffelbag = /obj/item/storage/backpack/duffelbag/sec
 	box = /obj/item/storage/box/survival/security
-	accessory = list(/obj/item/clothing/accessory/permit/special/security, /obj/item/clothing/accessory/badge)
+	accessory = /obj/item/clothing/accessory/permit/special/security
 
 	implants = list(/obj/item/implant/mindshield)
 
@@ -93,7 +93,7 @@
 	l_pocket = /obj/item/restraints/handcuffs
 	suit_store = /obj/item/gun/energy/pumpaction/defender
 	backpack_contents = list(/obj/item/syndicate_uplink_high=1)
-	accessory = list(/obj/item/clothing/accessory/permit/special/security)
+	accessory = /obj/item/clothing/accessory/permit/special/security
 
 	backpack = /obj/item/storage/backpack/duffelbag/syndie/ammo
 	satchel = /obj/item/storage/backpack/duffelbag/syndie/ammo

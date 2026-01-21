@@ -355,7 +355,7 @@
 /obj/examine(mob/user)
 	. = ..()
 	if(obj_flags & UNIQUE_RENAME)
-		. += "<span class='notice'>Ручкой можно сменить название или описание.</span>"
+		. += "<span class='notice'>Используйте ручку для смены названия или описания.</span>"
 
 /// Do you want to make overrides, of course you do! Will be called if an object was reskinned successfully
 /obj/proc/reskin_obj(mob/user)

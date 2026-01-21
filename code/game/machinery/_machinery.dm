@@ -152,8 +152,7 @@ Class Procs:
 	var/is_operational = TRUE
 	///Boolean on whether this machines interact with atmos
 	var/atmos_processing = FALSE
-	///Machinery error message cooldown
-	COOLDOWN_DECLARE(error_message_cooldown)
+
 
 /obj/machinery/Initialize(mapload)
 	if(!armor)
@@ -370,13 +369,11 @@ Class Procs:
 
 /obj/machinery/proc/can_transact(obj/item/card/id/thecard, allowdepartment, silent)
 	if(!istype(thecard))
-		if(!silent && COOLDOWN_FINISHED(src, error_message_cooldown))
-			COOLDOWN_START(src, error_message_cooldown, 6 SECONDS)
+		if(!silent)
 			say("Карта не найдена.")
 		return FALSE
 	else if (!thecard.registered_account)
-		if(!silent && COOLDOWN_FINISHED(src, error_message_cooldown))
-			COOLDOWN_START(src, error_message_cooldown, 6 SECONDS)
+		if(!silent)
 			say("Аккаунт не найден.")
 		return FALSE
 //	else if(!allowdepartment && !thecard.registered_account.account_job)

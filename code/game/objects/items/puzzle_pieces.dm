@@ -57,7 +57,7 @@
 /obj/machinery/door/keycard/ex_act(severity, target, origin)
 	return
 
-/obj/machinery/door/keycard/try_to_activate_door(mob/user, access_bypass = FALSE)
+/obj/machinery/door/keycard/try_to_activate_door(mob/user)
 	add_fingerprint(user)
 	if(operating)
 		return

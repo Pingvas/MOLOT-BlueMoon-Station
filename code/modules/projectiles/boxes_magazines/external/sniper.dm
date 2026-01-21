@@ -4,7 +4,6 @@
 	ammo_type = /obj/item/ammo_casing/p50
 	max_ammo = 6
 	caliber = ".50"
-	w_class = WEIGHT_CLASS_SMALL
 
 /obj/item/ammo_box/magazine/sniper_rounds/update_icon()
 	. = ..()
@@ -15,17 +14,14 @@
 
 /obj/item/ammo_box/magazine/sniper_rounds/soporific
 	name = "sniper rounds (Zzzzz)"
-	desc = "Усыпляющие патроны, созданные специально для милой дрёмы и мертвенно-тихих ночей..."
-	icon = 'modular_bluemoon/icons/obj/ammo.dmi'
-	icon_state = ".50soporific"
+	desc = "Soporific sniper rounds, designed for happy days and dead quiet nights..."
+	icon_state = "soporific"
 	ammo_type = /obj/item/ammo_casing/p50/soporific
 	max_ammo = 3
 	caliber = ".50"
 
 /obj/item/ammo_box/magazine/sniper_rounds/penetrator
 	name = "sniper rounds (penetrator)"
-	desc = "Чрезвычайно мощные оболоченные ураном патроны со способностью прошивать стены насквозь и любую цель за ней."
-	icon = 'modular_bluemoon/icons/obj/ammo.dmi'
-	icon_state = ".50penetrator"
+	desc = "An extremely powerful round capable of passing straight through cover and anyone unfortunate enough to be behind it."
 	ammo_type = /obj/item/ammo_casing/p50/penetrator
 	max_ammo = 5

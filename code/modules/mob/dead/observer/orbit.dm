@@ -78,8 +78,6 @@
 
 		var/mob/M = poi
 		if (istype(M))
-			if (istype(M, /mob/dead/new_player))
-				continue
 			if (isobserver(M))
 				ghosts += list(serialized)
 			else if (M.mind == null && M.stat == DEAD && !compact_mode)

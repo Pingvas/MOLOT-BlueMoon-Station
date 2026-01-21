@@ -21,7 +21,6 @@
 #define TRAIT_COMMON_PREGNANCY				"common_pregnancy"
 #define TRAIT_BONDAGED						"bondaged"
 #define TRAIT_IMAGINARYFRIEND				"imaginaryfriend"
-#define TRAIT_TK_POTENTIAL					"TK_potential"
 
 // Отдельные наименования для квирков, чтобы не повторять их в настройках
 #define BLUEMOON_TRAIT_NAME_SHRIEK				"Крикун"

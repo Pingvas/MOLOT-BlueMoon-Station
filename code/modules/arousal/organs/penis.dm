@@ -70,40 +70,37 @@
 
 /obj/item/organ/genital/penis/update_appearance()
 	. = ..()
-
 	var/datum/sprite_accessory/S = GLOB.cock_shapes_list[shape]
-
-	// визуал
 	var/icon_shape = S ? S.icon_state : "human"
 	icon_state = "penis_[icon_shape]_[size]"
-
-	// описание формы — ВАЖНО: БЕРЁМ icon_state
-	var/lowershape = lowertext(S?.icon_state || "human")
+	var/lowershape = lowertext(shape)
 
 	switch(lowershape)
-		if("penis", "human")
+		if("penis")
+			lowershape = "человеческий"
+		if("human")
 			lowershape = "человеческий"
 		if("knotted")
 			lowershape = "узловатый"
 		if("flared")
 			lowershape = "конический"
-		if("barbknot")
+		if("barbed, knotted")
 			lowershape = "узловатый и немного колючий"
 		if("tapered")
 			lowershape = "утончённый"
-		if("tentacle")
+		if("tentacled")
 			lowershape = "тентяклевидный"
 		if("hemi")
 			lowershape = "двойной"
-		if("taperedteshari")
+		if("teshari")
 			lowershape = "тешарьский"
-		if("hemiknot")
+		if("knotted hemi")
 			lowershape = "двойной узловатый"
-		if("bhemiknot")
+		if("barbed, knotted hemi")
 			lowershape = "двойной, узловатый и немного колючий"
-		if("barbtapered")
+		if("tapered barbed")
 			lowershape = "утончённый к концу и покрыт шипами"
-		if("thick", "nondescript")
+		if("thick")
 			lowershape = "обрезанный"
 		else
 			lowershape = "членовидный"

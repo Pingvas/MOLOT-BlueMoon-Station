@@ -14,6 +14,9 @@
 	if(!canconsume(M, user))
 		return
 
+	if(!spillable)
+		return
+
 	if(!reagents || !reagents.total_volume)
 		to_chat(user, "<span class='warning'>Внутри [src] пусто!</span>")
 		return
@@ -25,9 +28,6 @@
 		gulp_amount = H.self_gulp_size
 	if(istype(M))
 		if(user.a_intent == INTENT_HARM)
-			if(!spillable)
-				to_chat(user, span_danger("Закупорено: не вылить!"))
-				return
 			M.visible_message("<span class='danger'>[user] выливает содержимое [src] на [M]!</span>", \
 							"<span class='userdanger'>[user] выливает содержимое [src] на [M]!</span>")
 			if(iscatperson(M))
@@ -37,12 +37,7 @@
 			if(isturf(target) && reagents.reagent_list.len && thrown_by)
 				log_combat(thrown_by, target, "splashed (thrown) [english_list(reagents.reagent_list)]")
 				message_admins("[ADMIN_LOOKUPFLW(thrown_by)] splashed (thrown) [english_list(reagents.reagent_list)] on [target] at [ADMIN_VERBOSEJMP(target)].")
-			if(ishuman(M))
-				var/mob/living/carbon/human/H = M
-				var/obj/item/bodypart/affecting = H.get_bodypart(check_zone(user.zone_selected))
-				reagents.reaction(M, TOUCH, affected_bodypart = affecting)
-			else
-				reagents.reaction(M, TOUCH)
+			reagents.reaction(M, TOUCH)
 			log_combat(user, M, "splashed", R)
 			var/turf/UT = get_turf(user)
 			var/turf/MT = get_turf(M)
@@ -117,7 +112,7 @@
 		var/trans = target.reagents.trans_to(src, amount_per_transfer_from_this, log = "reagentcontainer-glass afterattack fill from")
 		to_chat(user, "<span class='notice'>Вы заполнили [src] на [trans] u содержимого [target].</span>")
 
-	else if(reagents.total_volume && reagent_flags & OPENCONTAINER && spillable)
+	else if(reagents.total_volume)
 		if(user.a_intent == INTENT_HARM)
 			user.visible_message("<span class='danger'>[user] разливает содержимое [src] на [target]!</span>", \
 								"<span class='notice'>Вы вылили содержимое [src] на [target].</span>")

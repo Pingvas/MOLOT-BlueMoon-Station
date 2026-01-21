@@ -95,7 +95,7 @@
 
 	///Hot simple_animal baby making vars.
 	var/list/childtype = null
-	COOLDOWN_DECLARE(childmaker)
+	var/next_scan_time = 0
 	///Sorry, no spider+corgi buttbabies.
 	var/animal_species
 
@@ -441,17 +441,16 @@
 		setMovetype(initial(movement_type))
 
 /mob/living/simple_animal/proc/make_babies() // <3 <3 <3
-	if(!COOLDOWN_FINISHED(src, childmaker))
+	if(gender != FEMALE || stat || next_scan_time > world.time || !childtype || !animal_species || !SSticker.IsRoundInProgress())
 		return
-	if(gender != FEMALE || stat || !childtype || !animal_species || !SSticker.IsRoundInProgress())
-		return
-	COOLDOWN_START(src, childmaker, 40 SECONDS)
+	next_scan_time = world.time + 400
+	var/alone = 1
 	var/mob/living/simple_animal/partner
 	var/children = 0
 	for(var/mob/M in view(7, src))
 		if(M.stat != CONSCIOUS) //Check if it's conscious FIRST.
 			continue
-		else if(M.type in childtype) //Check for children SECOND.
+		else if(istype(M, childtype)) //Check for children SECOND.
 			children++
 		else if(istype(M, animal_species))
 			if(M.ckey)
@@ -462,24 +461,21 @@
 		else if(isliving(M) && !faction_check_mob(M)) //shyness check. we're not shy in front of things that share a faction with us.
 			return //we never mate when not alone, so just abort early
 
-	if(partner && children < 3)
+	if(alone && partner && children < 3)
 		var/childspawn = pickweight(childtype)
 		var/turf/target = get_turf(loc)
 		if(target)
 			return new childspawn(target)
 
-/mob/living/simple_animal/canUseTopic(atom/movable/M, be_close=FALSE, no_dextery=FALSE, no_tk=FALSE, check_resting=FALSE, silent = FALSE)
+/mob/living/simple_animal/canUseTopic(atom/movable/M, be_close=FALSE, no_dextery=FALSE, no_tk=FALSE, check_resting=FALSE)
 	if(incapacitated())
-		if(!silent)
-			to_chat(src, "<span class='warning'>You can't do that right now!</span>")
+		to_chat(src, "<span class='warning'>You can't do that right now!</span>")
 		return FALSE
 	if(be_close && !in_range(M, src))
-		if(!silent)
-			to_chat(src, "<span class='warning'>You are too far away!</span>")
+		to_chat(src, "<span class='warning'>You are too far away!</span>")
 		return FALSE
 	if(!(no_dextery || dextrous))
-		if(!silent)
-			to_chat(src, "<span class='warning'>You don't have the dexterity to do this!</span>")
+		to_chat(src, "<span class='warning'>You don't have the dexterity to do this!</span>")
 		return FALSE
 	return TRUE
 

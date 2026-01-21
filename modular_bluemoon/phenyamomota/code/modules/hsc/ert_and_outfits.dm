@@ -139,26 +139,34 @@
 	var/obj/item/card/id/W = H.wear_id
 	if(W)
 		W.registered_name = H.real_name
-		W.update_label()
+		W.update_label(W.registered_name, W.assignment)
 
 /obj/item/card/id/hsc
-	name = "\improper HSC Security ID"
+	name = "\improper HSC ID"
 	desc = "Health Safety Control ID card."
 	icon = 'modular_bluemoon/phenyamomota/icon/obj/card.dmi'
 	icon_state = "hsc"
 	registered_name = "Health Safety Control Security"
 	assignment = "Health Safety Control Security"
-	special_assignment = "centcom"
-	var/overlay_state = "idsec"
 
 /obj/item/card/id/hsc/Initialize(mapload)
 	access = get_all_accesses()+get_ert_access("commander")-ACCESS_CHANGE_IDS
 	. = ..()
-	update_icon()
 
 /obj/item/card/id/hsc/update_overlays()
 	. = ..()
-	. += mutable_appearance(icon, overlay_state)
+	. += mutable_appearance(icon, "idsec")
+
+/obj/item/card/id/hsc
+	name = "\improper HSC Security ID"
+	desc = "Health Safety Control ID card."
+	icon_state = "hsc"
+	registered_name = "Health Safety Control Security"
+	assignment = "Health Safety Control Security"
+
+/obj/item/card/id/hsc/update_overlays()
+	. = ..()
+	. += mutable_appearance(icon, "idsec")
 
 /obj/item/card/id/hsc/medic
 	name = "\improper HSC Medical ID"
@@ -166,7 +174,10 @@
 	icon_state = "hsc"
 	registered_name = "Health Safety Control Medic"
 	assignment = "Health Safety Control Medic"
-	overlay_state = "idmed"
+
+/obj/item/card/id/hsc/medic/update_overlays()
+	. = ..()
+	. += mutable_appearance(icon, "idmed")
 
 /obj/item/card/id/hsc/assistant
 	name = "\improper HSC Assistant ID"
@@ -174,4 +185,7 @@
 	icon_state = "hsc"
 	registered_name = "Health Safety Control Assistant"
 	assignment = "Health Safety Control Assistant"
-	overlay_state = "idas"
+
+/obj/item/card/id/hsc/assistant/update_overlays()
+	. = ..()
+	. += mutable_appearance(icon, "idas")

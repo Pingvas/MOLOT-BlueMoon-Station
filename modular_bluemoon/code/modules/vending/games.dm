@@ -15,10 +15,6 @@
 				/obj/item/toy/cards/deck/tarot = 3,
 				/obj/item/toy/cards/deck/unum = 3,
 				/obj/item/toy/cards/deck/tarot = 3,
-				/obj/item/toy/cards/deck/love_cards/truths = 4,
-				/obj/item/toy/cards/deck/love_cards/kinks = 4,
-				/obj/item/toy/cards/deck/love_cards/actions = 4,
-				/obj/item/toy/cards/deck/love_cards/blanks = 4,
 			),
 		),
 		list(

@@ -34,8 +34,6 @@
 		var/datum/atom_hud/H = GLOB.huds[hud_type]
 		H.add_hud_to(user)
 
-	user.update_inv_glasses()
-
 /obj/item/clothing/glasses/hud/blueshield/aviators
 	name = "blueshield HUD Aviators"
 	desc = "A HUD with multiple functions. More stylish."
@@ -71,8 +69,6 @@
 	if (hud_type)
 		var/datum/atom_hud/H = GLOB.huds[hud_type]
 		H.add_hud_to(user)
-
-	user.update_inv_glasses()
 
 /obj/item/clothing/glasses/hud/blueshield/aviators/prescription
 	name = "prescription blueshield HUD Aviators"
@@ -118,8 +114,6 @@
 	if (hud_type)
 		var/datum/atom_hud/H = GLOB.huds[hud_type]
 		H.add_hud_to(user)
-
-	user.update_inv_glasses()
 
 /obj/item/clothing/glasses/hud/blueshield/holo/prescription
 	name = "prescription holo blueshield HUD glasses"

@@ -11,6 +11,7 @@
 	. = ..()
 	//Works only for organics #biopank_power
 	var/mob/living/carbon/human/H = quirk_holder //person who'll be healed
+	var/hunger_multiplicator = H.physiology.hunger_mod
 
 	var/total_brute = H.getBruteLoss_nonProsthetic()
 	var/total_burn = H.getFireLoss_nonProsthetic()
@@ -31,4 +32,4 @@
 	H.adjustBruteLoss(bruteheal * heal_multiplier, forced = TRUE)
 	H.adjustFireLoss(burnheal * heal_multiplier, forced = TRUE)
 	H.adjustToxLoss(toxheal * heal_multiplier, forced = TRUE)
-	H.adjust_nutrition(-0.5)
+	H.adjust_nutrition(-0.6 * hunger_multiplicator)

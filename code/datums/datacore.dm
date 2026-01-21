@@ -132,15 +132,10 @@
 			manifest_inject(N.new_character, N.client, N.client.prefs)
 		CHECK_TICK
 
-/datum/datacore/proc/manifest_modify(name, assignment, real_rank)
-	if(!name || !assignment && !real_rank)
-		return
+/datum/datacore/proc/manifest_modify(name, assignment)
 	var/datum/data/record/foundrecord = find_record("name", name, GLOB.data_core.general)
 	if(foundrecord)
-		if(assignment)
-			foundrecord.fields["rank"] = assignment
-		if(real_rank)
-			foundrecord.fields["real_rank"] = real_rank
+		foundrecord.fields["rank"] = assignment
 
 /datum/datacore/proc/get_manifest()
 	var/list/manifest_out = list()
@@ -158,7 +153,7 @@
 	for(var/datum/data/record/t in GLOB.data_core.general)
 		var/name = t.fields["name"]
 		var/rank = t.fields["rank"]
-		var/department_check = GetJobName(t.fields["real_rank"])
+		var/department_check = GetJobName(t.fields["rank"])
 		var/has_department = FALSE
 		for(var/department in departments)
 			var/list/jobs = departments[department]
@@ -210,14 +205,14 @@
 		.manifest tr.alt td {[monochrome?"border-top-width: 2px":"background-color: #DEF"]}
 	</style></head>
 	<table class="manifest" width='350px'>
-	<tr class='head'><th>Имя</th><th>Должность</th></tr>
+	<tr class='head'><th>Name</th><th>Rank</th></tr>
 	"}
 	var/even = 0
 	// sort mobs
 	for(var/datum/data/record/t in GLOB.data_core.general)
 		var/name = t.fields["name"]
 		var/rank = t.fields["rank"]
-		var/department_check = GetJobName(t.fields["real_rank"])
+		var/department_check = GetJobName(t.fields["rank"])
 		var/department = 0
 		if(department_check in GLOB.command_positions)
 			heads[name] = rank
@@ -311,26 +306,14 @@
 	var/static/list/show_directions = list(SOUTH, WEST)
 	if(H.mind && (H.mind.assigned_role != H.mind.special_role)  && (H.mind.assigned_role != "Stowaway"))
 		var/assignment
-		var/real_rank
 		if(H.mind.assigned_role)
-			real_rank = H.mind.assigned_role
+			assignment = H.mind.assigned_role
 		else if(H.job)
-			real_rank = H.job
+			assignment = H.job
 		else
-			real_rank = "Unassigned"
-
-		// Берем название роли из карточки, с учетом наклеек и альт. названия
-		if(H.wear_id)
-			var/obj/item/card/id/id_card = H.wear_id.GetID()
-			if(istype(id_card))
-				assignment = id_card.get_assignment_name()
-		if(!assignment)
-			// Если не удалось, пробуем получить из префов
-			if(C && C.prefs && C.prefs.alt_titles_preferences[assignment])
-				assignment = C.prefs.alt_titles_preferences[assignment]
-			// Иначе берем стандартное название
-			else
-				assignment = real_rank
+			assignment = "Unassigned"
+		if(C && C.prefs && C.prefs.alt_titles_preferences[assignment])
+			assignment = C.prefs.alt_titles_preferences[assignment]
 
 		var/static/record_id_num = 1001
 		var/id = num2hex(record_id_num++,6)
@@ -354,7 +337,7 @@
 		G.fields["id"]			= id
 		G.fields["name"]		= H.real_name
 		G.fields["rank"]		= assignment
-		G.fields["real_rank"]	= GetJobName(real_rank)
+		G.fields["real_rank"]	= GetJobName(assignment)
 		G.fields["age"]			= H.age
 		G.fields["species"]		= H.dna.species.name
 		G.fields["fingerprint"]	= md5(H.dna.uni_identity)
@@ -391,12 +374,7 @@
 		var/datum/data/record/S = new()
 		S.fields["id"]			= id
 		S.fields["name"]		= H.real_name
-		// BLUEMOON CHANGE START - Установление статуса заключенного
-		if(real_rank == "Prisoner")
-			S.fields["criminal"]	= SEC_RECORD_STATUS_INCARCERATED
-		else
-			S.fields["criminal"]	= SEC_RECORD_STATUS_NONE
-		// BLUEMOON CHANGE END
+		S.fields["criminal"]	= SEC_RECORD_STATUS_NONE
 		S.fields["mi_crim"]		= list()
 		S.fields["mi_crim_d"]	= list()
 		S.fields["ma_crim"]		= list()
@@ -409,17 +387,13 @@
 		// BLUEMOON ADD END
 		LAZYINITLIST(S.fields["comments"])
 		security += S
-		// BLUEMOON ADD START - Установление статуса заключенного
-		if(real_rank == "Prisoner")
-			H.sec_hud_set_security_status()
-		// BLUEMOON ADD END
 
 		//Locked Record
 		var/datum/data/record/L = new()
 		L.fields["id"]			= md5("[H.real_name][H.mind.assigned_role]")	//surely this should just be id, like the others?
 		L.fields["name"]		= H.real_name
 		L.fields["rank"] 		= assignment
-		L.fields["real_rank"]	= GetJobName(real_rank)
+		L.fields["real_rank"]	= GetJobName(assignment)
 		L.fields["age"]			= H.age
 		if(H.gender == MALE)
 			G.fields["gender"]  = "Male"

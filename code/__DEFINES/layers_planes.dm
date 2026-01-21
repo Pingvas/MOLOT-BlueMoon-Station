@@ -174,12 +174,8 @@
 /// It's over lighting and every other crap because this is nearly as important as hud content and only visible to the user.
 #define BALLOON_CHAT_PLANE 20
 
-// === Unified FOV / sound-visual plane ===
-// Visuals that must be visible above fullscreen/blind overlays (FOV indicators, sound pings, etc).
-// Placed above ABOVE_HUD_PLANE and below RENDER_PLANE_GAME.
-#define FOV_VISUAL_PLANE 38
-#define FOV_VISUAL_LAYER 38
-#define FOV_VISUAL_RENDER_TARGET "FOV_VISUAL_PLANE"
+///Visuals that represent sounds happening, and can be seen while blind.
+#define SOUND_EFFECT_VISUAL_PLANE 25
 
 //HUD layer defines
 
@@ -246,6 +242,8 @@
 
 #define SINGULARITY_LAYER 1
 #define ABOVE_SINGULARITY_LAYER 2
+
+#define FOV_EFFECTS_LAYER 2 //Blindness effects are not layer 4, they lie to you
 
 //Plane master critical flags
 //Describes how different plane masters behave when they are being culled for performance reasons

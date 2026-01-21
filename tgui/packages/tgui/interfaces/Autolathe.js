@@ -23,13 +23,13 @@ export const Autolathe = (props, context) => {
     material.mineral_amount > 0);
   return (
     <Window
-      width={715}
+      width={600}
       height={600}>
       <Window.Content overflow="auto">
-        <Section title="Хранилище материалов">
+        <Section title="Total Materials">
           <LabeledList>
             <LabeledList.Item
-              label="Всего материалов">
+              label="Total Materials">
               <ProgressBar
                 value={materialtotal}
                 minValue={0}
@@ -39,12 +39,12 @@ export const Autolathe = (props, context) => {
                   "average": [materialsmax * 0.25, materialsmax * 0.85],
                   "bad": [0, materialsmax * 0.25],
                 }}>
-                {materialtotal + ' / ' + materialsmax + ' см³'}
+                {materialtotal + '/' + materialsmax + ' cm³'}
               </ProgressBar>
             </LabeledList.Item>
             <LabeledList.Item>
               {filteredmaterials.length > 0 && (
-                <Collapsible title="Материалы">
+                <Collapsible title="Materials">
                   <LabeledList>
                     {filteredmaterials.map(filteredmaterial => (
                       <LabeledList.Item
@@ -58,7 +58,7 @@ export const Autolathe = (props, context) => {
                           maxValue={materialsmax}
                           color="black"
                           backgroundColor={filteredmaterial.matcolour}>
-                          <div style={{ transform: 'scaleX(-1)' }}>{filteredmaterial.mineral_amount + ' см³'}</div>
+                          <div style={{ transform: 'scaleX(-1)' }}>{filteredmaterial.mineral_amount + ' cm³'}</div>
                         </ProgressBar>
                       </LabeledList.Item>
                     ))}
@@ -68,20 +68,20 @@ export const Autolathe = (props, context) => {
           </LabeledList>
         </Section>
         <Section
-          title="Поиск">
+          title="Search">
           <Input fluid
-            placeholder="Поиск рецептов..."
+            placeholder="Search Recipes..."
             selfClear
             onChange={(e, value) => {
               if (value.length) {
                 act('search', {
                   to_search: value,
                 });
-                setCategory('результатов поиска для "' + value + '"');
+                setCategory('results for "' + value + '"');
               }
             }} />
         </Section>
-        <Section title="Категории">
+        <Section title="Categories">
           <Box>
             {categories.map(category => (
               // eslint-disable-next-line react/jsx-key
@@ -99,11 +99,11 @@ export const Autolathe = (props, context) => {
         </Section>
         {current_category.toString() !== "None" && (
           <Section
-            title={'Отображение ' + current_category.toString()}
+            title={'Displaying ' + current_category.toString()}
             buttons={(
               <Button
                 icon="times"
-                content="Закрыть категорию"
+                content="Close Category"
                 onClick={() => {
                   act('menu');
                   setCategory("None");
@@ -112,7 +112,7 @@ export const Autolathe = (props, context) => {
             {active === 1 && (
               <Dimmer fontSize="32px">
                 <Icon name="cog" spin />
-                {'Производство предмета...'}
+                {'Building items...'}
               </Dimmer>
             )}
             <Flex direction="row" wrap="nowrap">
@@ -175,7 +175,7 @@ export const Autolathe = (props, context) => {
                       )}
                       <Table.Cell>
                         <Button.Input
-                          content={"[Max: " + design.maxmult + ']'}
+                          content={"[Max:" + design.maxmult + ']'}
                           maxValue={design.maxmult}
                           disabled={design.buildable}
                           backgroundColor={design.buildable ? '#999999' : 'default'}
@@ -189,7 +189,7 @@ export const Autolathe = (props, context) => {
                   ))) || (
                   <Table.Row>
                     <Table.Cell>
-                      {"Рецепты не найдены."}
+                      {"No designs found."}
                     </Table.Cell>
                   </Table.Row>
                 )}

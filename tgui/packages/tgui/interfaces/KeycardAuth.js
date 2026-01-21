@@ -7,7 +7,7 @@ export const KeycardAuth = (props, context) => {
   return (
     <Window
       width={375}
-      height={150}>
+      height={125}>
       <Window.Content>
         <Section>
           <Box>
@@ -50,11 +50,6 @@ export const KeycardAuth = (props, context) => {
                       fluid
                       onClick={() => act('bsa_unlock')}
                       content="Протоколы Блюспейс-Артиллерии" />
-                    <Button
-                      icon="key"
-                      fluid
-                      onClick={() => act('give_janitor_access')}
-                      content="Выдать доступ уборщику" />
                   </>
                 )}
               </>

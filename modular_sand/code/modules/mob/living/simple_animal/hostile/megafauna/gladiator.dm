@@ -51,7 +51,6 @@ They deal 35 brute (armor is considered).
 	var/move_to_charge = 1.5
 	loot = list(/obj/structure/closet/crate/necropolis/gladiator)
 	crusher_loot = list(/obj/structure/closet/crate/necropolis/gladiator/crusher)
-	sharpness = SHARP_EDGED
 
 /mob/living/simple_animal/hostile/megafauna/gladiator/ComponentInitialize()
 	. = ..()

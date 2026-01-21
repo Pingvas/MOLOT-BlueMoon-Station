@@ -4,6 +4,8 @@
 	cost = 1
 	ckeywhitelist = list()
 	donator_group_id = DONATOR_GROUP_TIER_1
+	item_icon = 'modular_bluemoon/icons/obj/card.dmi'
+	item_icon_state = "muck_id"
 
 /datum/gear/donator/lewdsleepy
 	name = "Lewd sleepy medipen"
@@ -20,7 +22,7 @@
 
 /datum/gear/donator/syndicate_id_civilian
 	name = "Civilian Syndicate Card"
-	path = /obj/item/card/id/syndicate/one_access_copy/loadout
+	path = /obj/item/card/id/syndicate/one_access_copy
 	cost = 2
 	ckeywhitelist = list()
 	subcategory = LOADOUT_SUBCATEGORIES_DON02

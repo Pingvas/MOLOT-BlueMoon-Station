@@ -124,7 +124,6 @@
 	prev_access = access_card.access
 	stolen_valor = list()
 
-	GLOB.janitor_devices += src
 	prefixes = list(command, security, engineering)
 	suffixes = list(research, medical, legal)
 
@@ -133,7 +132,6 @@
 		var/atom/Tsec = drop_location()
 		weapon.force = weapon_orig_force
 		drop_part(weapon, Tsec)
-	GLOB.janitor_devices -= src
 	return ..()
 
 /mob/living/simple_animal/bot/cleanbot/turn_on()

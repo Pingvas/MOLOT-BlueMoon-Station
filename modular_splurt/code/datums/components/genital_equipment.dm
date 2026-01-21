@@ -18,10 +18,10 @@
 	if(!holder_genital)
 		return
 
-	if(!istype(holder_genital))
-		return
+	if(istype(holder_genital))
+		return holder_genital.owner
 
-	return holder_genital.owner
+	return holder_genital["wearer"]
 
 /datum/component/genital_equipment/proc/insert_genital(obj/item/organ/genital/G, mob/user)
 	if(!genital_slot.Find(G.slot))

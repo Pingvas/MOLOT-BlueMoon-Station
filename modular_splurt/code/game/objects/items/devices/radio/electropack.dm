@@ -1,6 +1,3 @@
-#define MIN_BOUGHT_TIME 20 // минуты
-#define MAX_BOUGHT_TIME 20 // минуты
-
 /obj/item/electropack/shockcollar/security
 	name = "security shock collar"
 	desc = "A reinforced security collar. It has two electrodes that press against the neck, for disobedient pets."
@@ -57,7 +54,6 @@
 	var/nextPriceChange // Last time the price was changed
 	var/nextRansomChange // Last time the ransom was paid / cancelled
 	var/nextRecruitChance = INFINITY // Next time the slave can get the option to join the slavers
-	var/nextboughtChance = 0 // Next time the station can bought slave
 	shockStrength = 400
 	shockCooldown = 20 SECONDS
 	code = -1
@@ -114,19 +110,14 @@
 			playsound(get_turf(M), 'sound/machines/triple_beep.ogg', 50, 1)
 			ADD_TRAIT(src, TRAIT_NODROP, CLOTHING_TRAIT)
 
-			var/max_ransom = SLAVER_RANSOM_STANDARD
-			var/max_ransom_percent = SLAVER_RANSOM_STANDARD_PERCENT
-			var/automatic_ransom = GLOB.slavers_ransom_values[M.job]
-			if(automatic_ransom)
-				max_ransom = automatic_ransom["maxPrice"]
-				max_ransom_percent = automatic_ransom["percent"]
+			var/automatic_ransom_value = GLOB.slavers_ransom_values[M.job]
+			if (automatic_ransom_value)
+				station_rank = M.job
 
-			station_rank = M.job
+				var/datum/bank_account/bank = SSeconomy.get_dep_account(ACCOUNT_CAR)
+				automatic_ransom_value += automatic_ransom_value * (bank.account_balance / SLAVER_RANSOM_SCALE_VALUE) // Slave price scales with station credit balance (+100% per 1,000,000 credits in the cargo budget)
 
-			var/datum/bank_account/bank = SSeconomy.get_dep_account(ACCOUNT_CAR)
-			if(!bank)
-				setPrice(max_ransom)
-			setPrice(max(1, min(max_ransom, bank.account_balance*max_ransom_percent)))
+				setPrice(automatic_ransom_value)
 
 /obj/item/electropack/shockcollar/slave/proc/setPrice(newPrice)
 	var/mob/living/M = loc
@@ -135,23 +126,20 @@
 	if (station_rank)
 		slaveJobText = " ([station_rank])"
 
-	var/is_extended = GLOB.master_mode == ROUNDTYPE_EXTENDED
-	var/announceMessage = "Мы позаимствовали у вас [M.real_name][slaveJobText] на добровольно-принудительный отпуск. \
-	Отправьте нам [newPrice] кредитов и мы вернём вашего сотрудника в течении пятнадцати минут! Вам же... нужны работники?"
-
-	if(price) // If price has already been set once, we are just changing it
-		announceMessage = "Сумма выкупа за [M.real_name] [newPrice > price ? "увеличилась" : "уменьшилась"] до [newPrice] кредитов."
+	var/announceMessage = "Мы позаимствовали у вас [M.real_name][slaveJobText] на добровольно-принудительный отпуск. Отправьте нам [newPrice] и мы вернём вашего сотрудника в течении получаса! Вам же... нужны рабочие?"
+	if (price) // If price has already been set once, we are just changing it
+		if (newPrice > price) // Price has increased
+			announceMessage = "[M.real_name]'s ransom has increased to [newPrice] credits."
+		else // Price has decreased
+			announceMessage = "[M.real_name]'s ransom has decreased to [newPrice] credits."
 	else
-		nextboughtChance = is_extended ? world.time + (rand(MIN_BOUGHT_TIME, MAX_BOUGHT_TIME) MINUTES) : 0 // В эксту во избежание моментальных выкупов, ставим задержку
-		nextRecruitChance = (nextboughtChance ? nextboughtChance : world.time) + 5 MINUTES // Our first time setting the price, now we begin the countdown for when this slave can be recruited
+		nextRecruitChance = world.time + 15 MINUTES // Our first time setting the price, now we begin the countdown for when this slave can be recruited
 
-	price = round(newPrice)
+	price = newPrice
 	nextPriceChange = world.time + 5 MINUTES // Cannot be changed again for 5 minutes
 	priority_announce(announceMessage, sender_override = GLOB.slavers_team_name)
+
 
 /obj/item/electropack/shockcollar/slave/proc/setBought(isBought)
 	bought = isBought
 	nextRansomChange = world.time + 5 MINUTES // Cannot be changed again for 5 minutes
-
-#undef MIN_BOUGHT_TIME
-#undef MAX_BOUGHT_TIME

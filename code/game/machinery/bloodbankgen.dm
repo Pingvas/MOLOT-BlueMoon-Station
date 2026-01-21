@@ -39,8 +39,7 @@
 /obj/machinery/bloodbankgen/examine(mob/user)
 	. = ..()
 	if(in_range(user, src) || isobserver(user))
-		. += span_notice("Статус дисплей показывает: \n\
-		- Эффективность конвертации: <b>[efficiency*100]%</b>.")
+		. += span_notice("Статус дисплей показывает: Эффективность преобразования <b>[efficiency*100]%</b>.")
 
 /obj/machinery/bloodbankgen/handle_atom_del(atom/A)
 	..()
@@ -290,8 +289,6 @@
 
 /obj/machinery/bloodbankgen/AltClick(mob/user)
 	. = ..()
-	if(!user.canUseTopic(src, BE_CLOSE, no_tk = TRUE, silent = TRUE))
-		return
 	if(outbag)
 		detach_bag(user, FALSE)
 	else if(bag)

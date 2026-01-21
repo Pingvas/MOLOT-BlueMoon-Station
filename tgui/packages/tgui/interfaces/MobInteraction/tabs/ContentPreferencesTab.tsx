@@ -3,7 +3,6 @@ import { Button, Stack } from '../../../components';
 
 type ContentPrefsInfo = {
   verb_consent: boolean,
-  ranged_verb_pref : boolean,
   lewd_verb_sounds: boolean,
   arousable: boolean,
   sexknotting: boolean,
@@ -36,7 +35,6 @@ export const ContentPreferencesTab = (props, context) => {
   const { act, data } = useBackend<ContentPrefsInfo>(context);
   const {
     verb_consent,
-    ranged_verb_pref,
     lewd_verb_sounds,
     arousable,
     sexknotting,
@@ -75,18 +73,6 @@ export const ContentPreferencesTab = (props, context) => {
           selected={verb_consent}
           onClick={() => act('pref', {
             pref: 'verb_consent',
-          })}
-        />
-      </Stack.Item>
-      <Stack.Item>
-        <Button
-          fluid
-          mb={-0.7}
-          content="Allow ranged lewd verbs"
-          icon={ranged_verb_pref ? "toggle-on" : "toggle-off"}
-          selected={ranged_verb_pref}
-          onClick={() => act('pref', {
-            pref: 'ranged_verb_pref',
           })}
         />
       </Stack.Item>

@@ -624,23 +624,19 @@ GLOBAL_LIST_EMPTY(species_datums)
 		else
 			return "член"
 
-	var/datum/sprite_accessory/S = GLOB.cock_shapes_list[P.shape]
-	var/lowershape = lowertext(S?.icon_state || P.shape)
-
+	var/lowershape = lowertext(P.shape)
 	switch(lowershape)
 		if("penis", "human") return "член"
 		if("knotted") return "узловатый член"
 		if("flared") return "конический член"
-		if("barbknot") return "узловатый шипованный член"
+		if("barbed, knotted") return "узловатый шипованный член"
 		if("tapered") return "утончённый член"
-		if("tentacle") return "тентяклевидный член"
-		if("taperedteshari") return "тешарьский член"
-		if("taperedbarbed") return "утонченный шипованный член"
-		if("thick", "nondescript") return "обрезанный член"
-		// Если кто-то это будет трогать, придумайте что-то с окончаниями (автор не соизволил)
-		if("hemi") return "двойные члены"
-		if("hemiknot") return "двойные узловатые члены"
-		if("bhemiknot") return "двойные с узлами колючие члены"
-
+		if("tentacled") return "тентяклевидный член"
+		if("teshari") return "тешарьский член"
+		if("hemi") return "двойнымы членами"
+		if("knotted hemi") return "двойные узловатые члены"
+		if("barbed, knotted hemi") return "двойные с узлами колючие члены"
+		if("tapered barbed") return "утонченный шипованный член"
+		if("thick") return "обрезанный член"
 		else return "необычной формы член"
 

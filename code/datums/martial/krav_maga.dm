@@ -2,7 +2,6 @@
 	name = "Krav Maga"
 	id = MARTIALART_KRAVMAGA
 	pugilist = TRUE
-	resist_grab_chance = 50
 	var/datum/action/neck_chop/neckchop = new/datum/action/neck_chop()
 	var/datum/action/leg_sweep/legsweep = new/datum/action/leg_sweep()
 	var/datum/action/lung_punch/lungpunch = new/datum/action/lung_punch()

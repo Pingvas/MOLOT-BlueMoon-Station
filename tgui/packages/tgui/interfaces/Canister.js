@@ -7,9 +7,9 @@ import { Window } from '../layouts';
 
 const formatPressure = value => {
   if (value < 10000) {
-    return toFixed(value) + ' кПа';
+    return toFixed(value) + ' kPa';
   }
-  return formatSiUnit(value * 1000, 1, 'Па');
+  return formatSiUnit(value * 1000, 1, 'Pa');
 };
 
 export const Canister = (props, context) => {
@@ -38,7 +38,7 @@ export const Canister = (props, context) => {
         <Flex direction="column" height="100%">
           <Flex.Item mb={1}>
             <Section
-              title="Канистра"
+              title="Canister"
               buttons={(
                 <>
                   {!!isPrototype && (
@@ -53,14 +53,14 @@ export const Canister = (props, context) => {
                   )}
                   <Button
                     icon="pencil-alt"
-                    content="Перекрасить"
+                    content="Relabel"
                     onClick={() => act('relabel')} />
                 </>
               )}>
               <LabeledControls>
                 <LabeledControls.Item
                   minWidth="66px"
-                  label="Давление">
+                  label="Pressure">
                   <RoundGauge
                     size={1.75}
                     value={tankPressure}
@@ -74,7 +74,7 @@ export const Canister = (props, context) => {
                     }}
                     format={formatPressure} />
                 </LabeledControls.Item>
-                <LabeledControls.Item label="Регулятор">
+                <LabeledControls.Item label="Regulator">
                   <Box
                     position="relative"
                     left="-8px">
@@ -82,7 +82,7 @@ export const Canister = (props, context) => {
                       size={1.25}
                       color={!!valveOpen && 'yellow'}
                       value={releasePressure}
-                      unit="кПа"
+                      unit="kPa"
                       minValue={minReleasePressure}
                       maxValue={maxReleasePressure}
                       step={5}
@@ -112,7 +112,7 @@ export const Canister = (props, context) => {
                       })} />
                   </Box>
                 </LabeledControls.Item>
-                <LabeledControls.Item label="Вентиль">
+                <LabeledControls.Item label="Valve">
                   <Button
                     my={0.5}
                     width="50px"
@@ -121,16 +121,16 @@ export const Canister = (props, context) => {
                     color={valveOpen
                       ? (hasHoldingTank ? 'caution' : 'danger')
                       : null}
-                    content={valveOpen ? 'Открыт' : 'Закрыт'}
+                    content={valveOpen ? 'Open' : 'Closed'}
                     onClick={() => act('valve')} />
                 </LabeledControls.Item>
                 <LabeledControls.Item
                   mr={1}
-                  label="Порт">
+                  label="Port">
                   <Tooltip
                     content={portConnected
-                      ? 'Подключён'
-                      : 'Не подключён'}
+                      ? 'Connected'
+                      : 'Disconnected'}
                     position="top"
                   >
                     <Box position="relative">
@@ -147,20 +147,20 @@ export const Canister = (props, context) => {
           <Flex.Item grow={1}>
             <Section
               height="100%"
-              title="Внешний бак"
+              title="Holding Tank"
               buttons={!!hasHoldingTank && (
                 <Button
                   icon="eject"
                   color={valveOpen && 'danger'}
-                  content="Извлечь"
+                  content="Eject"
                   onClick={() => act('eject')} />
               )}>
               {!!hasHoldingTank && (
                 <LabeledList>
-                  <LabeledList.Item label="Этикетка">
+                  <LabeledList.Item label="Label">
                     {holdingTank.name}
                   </LabeledList.Item>
-                  <LabeledList.Item label="Давление">
+                  <LabeledList.Item label="Pressure">
                     <RoundGauge
                       value={holdingTank.tankPressure}
                       minValue={0}
@@ -178,7 +178,7 @@ export const Canister = (props, context) => {
               )}
               {!hasHoldingTank && (
                 <Box color="average">
-                  Отсутствует
+                  No Holding Tank
                 </Box>
               )}
             </Section>

@@ -134,7 +134,3 @@
     name = "Saints hat"
     subcategory = LOADOUT_SUBCATEGORY_HEAD_GENERAL
     path = /obj/item/clothing/head/saints
-
-/datum/gear/head/christmashatg
-	name = "Christmas Beanie"
-	path = /obj/item/clothing/head/beanie/christmas

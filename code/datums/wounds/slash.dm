@@ -291,8 +291,8 @@
 	scar_keyword = "slashmoderate"
 
 // BLUEMOON ADD START
-/datum/wound/slash/moderate/apply_wound(obj/item/bodypart/L, silent, datum/wound/old_wound, smited)
-	if(istype(L) && L.is_robotic_limb())
+/datum/wound/slash/moderate/apply_typo_modification()
+	if(HAS_TRAIT(victim, TRAIT_ROBOTIC_ORGANISM))
 		ru_name = "Прорезь обшивки"
 		ru_name_r = "прорези обшивки"
 		desc = "В обшивке заметный порез, приводящий к умеренной потери жидкостей."
@@ -302,8 +302,7 @@
 		clot_rate = 0
 		wound_flags = FLESH_WOUND
 		treatable_tool = TOOL_WELDER
-
-	return ..()
+	return
 // BLUEMOON ADD END
 
 /datum/wound/slash/severe
@@ -327,9 +326,8 @@
 	scar_keyword = "slashsevere"
 
 // BLUEMOON ADD START
-
-/datum/wound/slash/severe/apply_wound(obj/item/bodypart/L, silent, datum/wound/old_wound, smited)
-	if(istype(L) && L.is_robotic_limb())
+/datum/wound/slash/severe/apply_typo_modification()
+	if(HAS_TRAIT(victim, TRAIT_ROBOTIC_ORGANISM))
 		ru_name = "Надорванная Обшивка"
 		ru_name_r = "надорванная обшивки"
 		desc = "В обшивке рваное вскрытие, что приводит к обильной потери жидкостей."
@@ -339,8 +337,6 @@
 		clot_rate = 0
 		wound_flags = FLESH_WOUND
 		treatable_tool = TOOL_WELDER
-
-	return ..()
 // BLUEMOON ADD END
 
 /datum/wound/slash/critical
@@ -365,8 +361,8 @@
 	wound_flags = (FLESH_WOUND | ACCEPTS_GAUZE | MANGLES_FLESH)
 
 // BLUEMOON ADD START
-/datum/wound/slash/critical/apply_wound(obj/item/bodypart/L, silent, datum/wound/old_wound, smited)
-	if(istype(L) && L.is_robotic_limb())
+/datum/wound/slash/critical/apply_typo_modification()
+	if(HAS_TRAIT(victim, TRAIT_ROBOTIC_ORGANISM))
 		ru_name = "Разрыв Обшивки"
 		ru_name_r = "разрыва обшивки"
 		desc = "Обшивка разована. Платформа быстро теряет жидкости, требуется немедленный ремонт."
@@ -377,5 +373,4 @@
 		wound_flags = (FLESH_WOUND | MANGLES_FLESH)
 		treatable_tool = TOOL_WELDER
 
-	return ..()
 // BLUEMOON ADD END

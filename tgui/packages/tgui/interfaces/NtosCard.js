@@ -8,8 +8,8 @@ import { AccessList } from './common/AccessList';
 export const NtosCard = (props, context) => {
   return (
     <NtosWindow
-      width={500}
-      height={530}
+      width={450}
+      height={520}
       resizable>
       <NtosWindow.Content overflow="auto">
         <NtosCardContent />
@@ -27,9 +27,7 @@ export const NtosCardContent = (props, context) => {
     access_on_card = [],
     jobs = {},
     id_rank,
-    id_custom_job,
     id_owner,
-    has_main_id,
     has_id,
     have_printer,
     have_id_slot,
@@ -47,14 +45,6 @@ export const NtosCardContent = (props, context) => {
     );
   }
   const departmentJobs = jobs[selectedDepartment] || [];
-
-  // Для id_custom_job
-  const serverCustom = id_custom_job || '';
-  const [customDraft, setCustomDraft] = useLocalState(context, 'customDraft', serverCustom);
-  const [isEditingCustom, setIsEditingCustom] = useLocalState(context, 'isEditingCustom', false);
-
-  // что показываем в кнопке/инпуте
-  const customValue = isEditingCustom ? customDraft : serverCustom;
   return (
     <Fragment>
       <Section
@@ -77,25 +67,18 @@ export const NtosCardContent = (props, context) => {
               onClick={() => act('PRG_print')} />
             <Button
               icon={authenticated ? "sign-out-alt" : "sign-in-alt"}
-              disabled={!has_main_id && !authenticated}
               content={authenticated ? "Log Out" : "Log In"}
               color={authenticated ? "bad" : "good"}
               onClick={() => {
                 act(authenticated ? 'PRG_logout' : 'PRG_authenticate');
               }} />
-            <Button
-              icon="eject"
-              tooltip={has_main_id ? "Eject ID" : "Insert ID"}
-              color={has_main_id && "good"}
-              tooltipPosition="bottom-start"
-              onClick={() => act('PRG_eject', { name: "MainID" })} />
           </Fragment>
         )}>
         <Button
           fluid
           icon="eject"
           content={id_name}
-          onClick={() => act('PRG_eject', { name: "SecondID" })} />
+          onClick={() => act('PRG_eject')} />
       </Section>
       {(!!has_id && !!authenticated) && (
         <Box>
@@ -137,37 +120,15 @@ export const NtosCardContent = (props, context) => {
                   color="bad"
                   onClick={() => act('PRG_terminate')} />
               )}>
-              {/*<Button.Input
-                fluid
-                content="Custom..."
-                placeholder={id_custom_job}
-                onCommit={(e, value) => act('PRG_assign', {
-                  assign_target: 'Custom',
-                  custom_name: value,
-                })} />*/}
               <Button.Input
                 fluid
                 content="Custom..."
-                currentValue={customValue}
-                onInput={(_e, value) => {
-                  if (!isEditingCustom) {
-                    // при старте редактирования подтянуть текущее серверное значение
-                    setIsEditingCustom(true);
-                    setCustomDraft(serverCustom);
-                  }
-                  setCustomDraft(value);
-                }}
-                onCommit={(_e, value) => {
-                  setIsEditingCustom(false);
-                  act('PRG_assign', {
-                    assign_target: 'Custom',
-                    custom_name: value,
-                  });
-                }}
-              />
-
-              <Flex md={2}>
-                <Flex.Item mr={2}>
+                onCommit={(e, value) => act('PRG_assign', {
+                  assign_target: 'Custom',
+                  custom_name: value,
+                })} />
+              <Flex>
+                <Flex.Item>
                   <Tabs vertical>
                     {Object.keys(jobs).map(department => (
                       <Tabs.Tab
@@ -179,7 +140,7 @@ export const NtosCardContent = (props, context) => {
                     ))}
                   </Tabs>
                 </Flex.Item>
-                <Flex.Item grow={1} minWidth={0}>
+                <Flex.Item grow={1}>
                   {departmentJobs.map(job => (
                     <Button
                       fluid

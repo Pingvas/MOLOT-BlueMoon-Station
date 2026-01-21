@@ -121,7 +121,7 @@
 		. += "<span class='notice'>Технический люк [src] открыт!</span>"
 	if(in_range(user, src) || isobserver(user))
 		. += "<span class='notice'>Статус-дисплей сообщает:\n\
-		- Перезаряжается <b>[recharge_amount]</b> ед. заряда в цикл.\n\
+		- Перезаряжается <b>[recharge_amount]</b> единиц заряда в цикл.\n\
 		- Энергоэффективность повышена на <b>[round((powerefficiency*1000)-100, 1)]%</b>.</span>"
 
 /obj/machinery/chem_dispenser/process()
@@ -435,7 +435,7 @@
 		return
 	if(default_deconstruction_crowbar(I))
 		return
-	if(istype(I, /obj/item/reagent_containers) && !(I.item_flags & ABSTRACT) && I.is_open_container() || is_type_in_list(I, CLOSED_CONTAINERS_OPERABLE))
+	if(istype(I, /obj/item/reagent_containers) && !(I.item_flags & ABSTRACT) && I.is_open_container())
 		var/obj/item/reagent_containers/B = I
 		. = TRUE //no afterattack
 		if(!user.transferItemToLoc(B, src))
