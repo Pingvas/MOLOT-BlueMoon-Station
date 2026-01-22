@@ -455,6 +455,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/tmp/modern_theme_picker_collapsed = FALSE
 	/// UI-only state (not persisted): play a one-shot collapse/expand animation on next render
 	var/tmp/modern_theme_picker_animate = FALSE
+	/// UI-only state (not persisted): collapse empty character slots in the top slot list
+	var/tmp/collapse_empty_character_slots = FALSE
 
 /datum/preferences/New(client/C)
 	parent = C
@@ -868,20 +870,30 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 				if(S)
 					dat += "<center>"
 					var/name
+					var/toggle_title = collapse_empty_character_slots ? "Показать пустые слоты" : "Скрыть пустые слоты"
+					var/toggle_symbol = collapse_empty_character_slots ? "▼" : "▲"
+					var/toggle_class = is_modern_theme ? "class='theme-collapse-hint'" : ""
+					if(max_save_slots > 4)
+						dat += "<a href='?_src_=prefs;preference=character_slots;action=toggle_empty' [toggle_class] title='[toggle_title]' aria-label='[toggle_title]'>[toggle_symbol]</a> "
 					var/unspaced_slots = 0
 					for(var/i=1, i<=max_save_slots, i++)
-						unspaced_slots++
-						if(unspaced_slots > 4)
-							dat += "<br>"
-							unspaced_slots = 0
+						name = null
 						S.cd = "/character[i]"
 						S["real_name"] >> name
-						if(!name)
-							name = "Character[i]"
-						var/slot_attr = ""
-						if(i == default_slot)
-							slot_attr = "class='linkOn'"
-						dat += "<a style='white-space:nowrap;' href='?_src_=prefs;preference=changeslot;num=[i];' [slot_attr]>[name]</a> "
+						var/is_empty_slot = !name
+						if(collapse_empty_character_slots && is_empty_slot && i != default_slot)
+							// hidden
+						else
+							unspaced_slots++
+							if(unspaced_slots > 4)
+								dat += "<br>"
+								unspaced_slots = 0
+							if(!name)
+								name = "Character[i]"
+							var/slot_attr = ""
+							if(i == default_slot)
+								slot_attr = "class='linkOn'"
+							dat += "<a style='white-space:nowrap;' href='?_src_=prefs;preference=changeslot;num=[i];' [slot_attr]>[name]</a> "
 					dat += "</center>"
 
 			dat += "<HR>"
@@ -2999,6 +3011,15 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 			if("toggle")
 				modern_theme_picker_collapsed = !modern_theme_picker_collapsed
 				modern_theme_picker_animate = TRUE
+				ShowChoices(user)
+				return TRUE
+		ShowChoices(user)
+		return TRUE
+
+	if(href_list["preference"] == "character_slots")
+		switch(href_list["action"])
+			if("toggle_empty")
+				collapse_empty_character_slots = !collapse_empty_character_slots
 				ShowChoices(user)
 				return TRUE
 		ShowChoices(user)
