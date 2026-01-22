@@ -540,6 +540,18 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	S["gfluid_blacklist"]		>> gfluid_blacklist
 	S["new_character_creator"]	>> new_character_creator
 	S["charcreation_theme"]		>> charcreation_theme
+	S["modern_custom_enabled"]	>> modern_custom_enabled
+	S["modern_custom_bg_primary"]	>> modern_custom_bg_primary
+	S["modern_custom_bg_secondary"]	>> modern_custom_bg_secondary
+	S["modern_custom_text_primary"]	>> modern_custom_text_primary
+	S["modern_custom_text_secondary"]	>> modern_custom_text_secondary
+	S["modern_custom_button_bg"]	>> modern_custom_button_bg
+	S["modern_custom_button_hover"]	>> modern_custom_button_hover
+	S["modern_custom_button_active"]	>> modern_custom_button_active
+	S["modern_custom_button_text"]	>> modern_custom_button_text
+	S["modern_custom_border_color"]	>> modern_custom_border_color
+	S["modern_custom_accent_color"]	>> modern_custom_accent_color
+	S["modern_custom_bg_pattern"]	>> modern_custom_bg_pattern
 	S["view_pixelshift"]		>> view_pixelshift
 
 	//favorite outfits
@@ -618,7 +630,19 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 
 	//SPLURT CHANGES BEGIN
 	gfluid_blacklist = sanitize_islist(gfluid_blacklist, list())
-	charcreation_theme = sanitize_inlist(charcreation_theme, list("classic", "modern", "modern_purple", "modern_green"), "classic")
+	charcreation_theme = sanitize_inlist(charcreation_theme, list("classic", "modern", "modern_classic", "modern_purple", "modern_green", "modern_neutral", "modern_custom"), "classic")
+	modern_custom_enabled = sanitize_integer(modern_custom_enabled, 0, 1, initial(modern_custom_enabled))
+	modern_custom_bg_primary = sanitize_hexcolor(modern_custom_bg_primary, 6, FALSE, initial(modern_custom_bg_primary))
+	modern_custom_bg_secondary = sanitize_hexcolor(modern_custom_bg_secondary, 6, FALSE, initial(modern_custom_bg_secondary))
+	modern_custom_text_primary = sanitize_hexcolor(modern_custom_text_primary, 6, FALSE, initial(modern_custom_text_primary))
+	modern_custom_text_secondary = sanitize_hexcolor(modern_custom_text_secondary, 6, FALSE, initial(modern_custom_text_secondary))
+	modern_custom_button_bg = sanitize_hexcolor(modern_custom_button_bg, 6, FALSE, initial(modern_custom_button_bg))
+	modern_custom_button_hover = sanitize_hexcolor(modern_custom_button_hover, 6, FALSE, initial(modern_custom_button_hover))
+	modern_custom_button_active = sanitize_hexcolor(modern_custom_button_active, 6, FALSE, initial(modern_custom_button_active))
+	modern_custom_button_text = sanitize_hexcolor(modern_custom_button_text, 6, FALSE, initial(modern_custom_button_text))
+	modern_custom_border_color = sanitize_hexcolor(modern_custom_border_color, 6, FALSE, initial(modern_custom_border_color))
+	modern_custom_accent_color = sanitize_hexcolor(modern_custom_accent_color, 6, FALSE, initial(modern_custom_accent_color))
+	modern_custom_bg_pattern = sanitize_integer(modern_custom_bg_pattern, 0, 1, initial(modern_custom_bg_pattern))
 	//SPLURT CHANGES END
 
 	verify_keybindings_valid()		// one of these days this will runtime and you'll be glad that i put it in a different proc so no one gets their saves wiped
@@ -760,6 +784,18 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	WRITE_FILE(S["gfluid_blacklist"], gfluid_blacklist)
 	WRITE_FILE(S["new_character_creator"], new_character_creator)
 	WRITE_FILE(S["charcreation_theme"], charcreation_theme)
+	WRITE_FILE(S["modern_custom_enabled"], modern_custom_enabled)
+	WRITE_FILE(S["modern_custom_bg_primary"], modern_custom_bg_primary)
+	WRITE_FILE(S["modern_custom_bg_secondary"], modern_custom_bg_secondary)
+	WRITE_FILE(S["modern_custom_text_primary"], modern_custom_text_primary)
+	WRITE_FILE(S["modern_custom_text_secondary"], modern_custom_text_secondary)
+	WRITE_FILE(S["modern_custom_button_bg"], modern_custom_button_bg)
+	WRITE_FILE(S["modern_custom_button_hover"], modern_custom_button_hover)
+	WRITE_FILE(S["modern_custom_button_active"], modern_custom_button_active)
+	WRITE_FILE(S["modern_custom_button_text"], modern_custom_button_text)
+	WRITE_FILE(S["modern_custom_border_color"], modern_custom_border_color)
+	WRITE_FILE(S["modern_custom_accent_color"], modern_custom_accent_color)
+	WRITE_FILE(S["modern_custom_bg_pattern"], modern_custom_bg_pattern)
 	WRITE_FILE(S["view_pixelshift"], view_pixelshift)
 	WRITE_FILE(S["eorg_enabled"], eorg_enabled)
 

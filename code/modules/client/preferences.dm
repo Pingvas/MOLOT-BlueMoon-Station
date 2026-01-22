@@ -435,6 +435,27 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	/// Supported values: "classic", "modern", "modern_classic", "modern_purple", "modern_green", "modern_neutral"
 	var/charcreation_theme = "classic"
 
+	/// Modern custom theme (player-configurable palette).
+	var/modern_custom_enabled = FALSE
+	var/modern_custom_bg_primary = "121212"
+	var/modern_custom_bg_secondary = "1c1c1c"
+	var/modern_custom_text_primary = "e6e6e6"
+	var/modern_custom_text_secondary = "a8a8a8"
+	var/modern_custom_button_bg = "1f1f1f"
+	var/modern_custom_button_hover = "2a2a2a"
+	var/modern_custom_button_active = "4da3ff"
+	var/modern_custom_button_text = "0b1c2f"
+	var/modern_custom_border_color = "2f2f2f"
+	var/modern_custom_accent_color = "4da3ff"
+	/// 0 = none, 1 = subtle stripes
+	var/modern_custom_bg_pattern = 0
+	/// UI-only state (not persisted)
+	var/tmp/modern_custom_editor_open = FALSE
+	/// UI-only state (not persisted): collapse the top-right theme picker
+	var/tmp/modern_theme_picker_collapsed = FALSE
+	/// UI-only state (not persisted): play a one-shot collapse/expand animation on next render
+	var/tmp/modern_theme_picker_animate = FALSE
+
 /datum/preferences/New(client/C)
 	parent = C
 
@@ -486,6 +507,36 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/list/theme_colors = list()
 
 	switch(charcreation_theme)
+		if("modern_custom")
+			// Player-configurable palette (saved in preferences).
+			// The enable toggle controls whether saved custom values are applied.
+			var/use_custom = !!modern_custom_enabled
+			var/bg_primary = use_custom ? modern_custom_bg_primary : initial(modern_custom_bg_primary)
+			var/bg_secondary = use_custom ? modern_custom_bg_secondary : initial(modern_custom_bg_secondary)
+			var/text_primary = use_custom ? modern_custom_text_primary : initial(modern_custom_text_primary)
+			var/text_secondary = use_custom ? modern_custom_text_secondary : initial(modern_custom_text_secondary)
+			var/button_bg = use_custom ? modern_custom_button_bg : initial(modern_custom_button_bg)
+			var/button_hover = use_custom ? modern_custom_button_hover : initial(modern_custom_button_hover)
+			var/button_active = use_custom ? modern_custom_button_active : initial(modern_custom_button_active)
+			var/button_text = use_custom ? modern_custom_button_text : initial(modern_custom_button_text)
+			var/border_color = use_custom ? modern_custom_border_color : initial(modern_custom_border_color)
+			var/accent_color = use_custom ? modern_custom_accent_color : initial(modern_custom_accent_color)
+
+			theme_colors["bg_primary"] = "#[bg_primary]"
+			theme_colors["bg_secondary"] = "#[bg_secondary]"
+			if(use_custom && modern_custom_bg_pattern)
+				theme_colors["bg_pattern"] = "repeating-linear-gradient(90deg, rgba(255,255,255,0.06) 0px, rgba(255,255,255,0.06) 10px, rgba(0,0,0,0.06) 10px, rgba(0,0,0,0.06) 20px)"
+			else
+				theme_colors["bg_pattern"] = "none"
+			theme_colors["text_primary"] = "#[text_primary]"
+			theme_colors["text_secondary"] = "#[text_secondary]"
+			theme_colors["button_bg"] = "#[button_bg]"
+			theme_colors["button_hover"] = "#[button_hover]"
+			theme_colors["button_active"] = "#[button_active]"
+			theme_colors["button_text"] = "#[button_text]"
+			theme_colors["border_color"] = "#[border_color]"
+			theme_colors["accent_color"] = "#[accent_color]"
+
 		if("modern_classic")
 			// PR theme: "classic" (BYOND-ish palette)
 			theme_colors["bg_primary"] = "#272727"
@@ -556,6 +607,64 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 
 	return theme_colors
 
+/datum/preferences/proc/reset_modern_custom_theme()
+	modern_custom_bg_primary = initial(modern_custom_bg_primary)
+	modern_custom_bg_secondary = initial(modern_custom_bg_secondary)
+	modern_custom_text_primary = initial(modern_custom_text_primary)
+	modern_custom_text_secondary = initial(modern_custom_text_secondary)
+	modern_custom_button_bg = initial(modern_custom_button_bg)
+	modern_custom_button_hover = initial(modern_custom_button_hover)
+	modern_custom_button_active = initial(modern_custom_button_active)
+	modern_custom_button_text = initial(modern_custom_button_text)
+	modern_custom_border_color = initial(modern_custom_border_color)
+	modern_custom_accent_color = initial(modern_custom_accent_color)
+	modern_custom_bg_pattern = initial(modern_custom_bg_pattern)
+
+/datum/preferences/proc/set_modern_custom_color(color_key, raw_value)
+	if(isnull(raw_value))
+		return FALSE
+	var/value = "[raw_value]"
+	value = replacetext(value, "#", "")
+	// normalize short forms like FFF -> FFFFFF
+	if(length(value) == 3)
+		value = "[copytext(value,1,2)][copytext(value,1,2)][copytext(value,2,3)][copytext(value,2,3)][copytext(value,3,4)][copytext(value,3,4)]"
+	value = sanitize_hexcolor(value, 6, FALSE, null)
+	if(!value)
+		return FALSE
+	color_key = "[color_key]"
+	switch(color_key)
+		if("bg_primary")
+			modern_custom_bg_primary = value
+			return TRUE
+		if("bg_secondary")
+			modern_custom_bg_secondary = value
+			return TRUE
+		if("text_primary")
+			modern_custom_text_primary = value
+			return TRUE
+		if("text_secondary")
+			modern_custom_text_secondary = value
+			return TRUE
+		if("button_bg")
+			modern_custom_button_bg = value
+			return TRUE
+		if("button_hover")
+			modern_custom_button_hover = value
+			return TRUE
+		if("button_active")
+			modern_custom_button_active = value
+			return TRUE
+		if("button_text")
+			modern_custom_button_text = value
+			return TRUE
+		if("border_color")
+			modern_custom_border_color = value
+			return TRUE
+		if("accent_color")
+			modern_custom_accent_color = value
+			return TRUE
+	return FALSE
+
 /datum/preferences/proc/ShowChoices(mob/user)
 	if(!user || !user.client)
 		return
@@ -580,8 +689,27 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	.csetup-root td:not(:last-child), .csetup-root th:not(:last-child){ border-right:1px solid [theme["border_color"]]; }\n\
 	.csetup-root .csetup_character_node{ background-color:[theme["bg_secondary"]]; border:1px solid [theme["border_color"]]; }\n\
 	.csetup-root .csetup_character_label{ color:[theme["text_secondary"]]; }\n\
-	.csetup-root .theme-selector{ background-color:[theme["bg_secondary"]]; border:1px solid [theme["border_color"]]; }\n\
+	.csetup-root .theme-selector{ background-color:[theme["bg_secondary"]]; border:1px solid [theme["border_color"]]; overflow:hidden; max-width:640px; white-space:nowrap; transition:max-width 180ms ease, padding 180ms ease; }\n\
+	.csetup-root .theme-body{ display:inline-flex; align-items:center; gap:6px; transition:opacity 160ms ease, transform 180ms ease; opacity:1; transform:translateX(0); }\n\
+	.csetup-root .theme-selector.collapsed{ max-width:26px; padding:4px 4px; gap:0; }\n\
+	.csetup-root .theme-selector.collapsed .theme-body{ opacity:0; transform:translateX(16px); pointer-events:none; }\n\
+	.csetup-root a.theme-emoji-btn{ padding:0 !important; margin:0 4px 0 0 !important; background:transparent !important; border:none !important; box-shadow:none !important; font-size:14px; line-height:1; }\n\
+	.csetup-root a.theme-collapse-hint{ padding:0 !important; margin:0 2px 0 0 !important; background:transparent !important; border:none !important; box-shadow:none !important; font-size:12px; line-height:1; opacity:0.85; text-decoration:none; }\n\
+	.csetup-root a.theme-collapse-hint:hover{ opacity:1; }\n\
+	.csetup-root .theme-label{ font-size:11px; letter-spacing:0.2px; opacity:0.92; color:[theme["text_secondary"]]; user-select:none; }\n\
+	.csetup-root .theme-label-custom{ opacity:0.95; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:[theme["text_primary"]]; }\n\
+	.csetup-root .theme-sep{ width:2px; height:20px; background:[theme["border_color"]]; opacity:1; margin:0 6px; display:inline-block; border-radius:2px; }\n\
+	.csetup-root .theme-custom-group{ display:inline-flex; align-items:center; gap:6px; padding:3px 6px; border-radius:10px; background-color:[theme["bg_primary"]]; border:1px solid [theme["border_color"]]; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06); }\n\
 	.csetup-root a.theme-swatch.active{ border-color:[theme["accent_color"]]; box-shadow:0 0 8px [theme["accent_color"]]; }\n\
+	.csetup-root a.theme-swatch--custom{ width:18px; height:18px; border-radius:6px; display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,0.75); }\n\
+	.csetup-root a.theme-gear{ padding:0 !important; margin-left:2px; width:18px; height:18px; border-radius:6px; display:inline-flex; align-items:center; justify-content:center; font-size:13px; line-height:1; }\n\
+	.csetup-root .theme-custom-editor{ background-color:[theme["bg_secondary"]]; border:1px solid [theme["border_color"]]; color:[theme["text_primary"]]; }\n\
+	.csetup-root .theme-custom-editor-hint{ font-size:11px; opacity:0.8; color:[theme["text_secondary"]]; }\n\
+	.csetup-root .theme-custom-editor-table a.colorbox{ padding:0 !important; margin:0 6px 0 0 !important; background-color:transparent; border-radius:4px !important; box-shadow:none !important; }\n\
+	.csetup-root .theme-custom-editor-actions a.theme-action{ background-color:#2b2b2b !important; color:#f2f2f2 !important; border:1px solid rgba(255,255,255,0.18) !important; }\n\
+	.csetup-root .theme-custom-editor-actions a.theme-action:hover{ background-color:#3a3a3a !important; }\n\
+	.csetup-root .theme-custom-editor-actions a.theme-action-reset{ background-color:#7a1f1f !important; border-color:rgba(255, 107, 107, 0.85) !important; }\n\
+	.csetup-root .theme-custom-editor-actions a.theme-action-reset:hover{ background-color:#9a2626 !important; }\n\
 </style>"
 		var/theme_class = "csetup-theme-classic"
 		switch(charcreation_theme)
@@ -611,7 +739,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 				"modern" = "Dark (Blue)",
 				"modern_purple" = "Purple",
 				"modern_green" = "Green",
-				"modern_neutral" = "Neutral"
+				"modern_neutral" = "Neutral",
+				"modern_custom" = "Custom"
 			)
 			var/list/theme_swatches = list(
 				"modern_classic" = "#40628a",
@@ -621,15 +750,80 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 				"modern_neutral" = "#bfc2c7"
 			)
 
-			dat += "<div class='theme-selector'>"
-			dat += "<span class='theme-emoji'>🎨</span>"
+			var/theme_selector_class = "theme-selector"
+			if(modern_theme_picker_animate)
+				theme_selector_class += " anim"
+			if(modern_theme_picker_collapsed)
+				theme_selector_class += " collapsed"
+			var/toggle_title = modern_theme_picker_collapsed ? "Развернуть меню тем" : "Свернуть меню тем"
+			dat += "<div class='[theme_selector_class]'>"
+			dat += "<a href='?_src_=prefs;preference=modern_theme_picker;action=toggle' class='theme-emoji-btn' title='[toggle_title]'>🎨</a>"
+			dat += "<span class='theme-body'>"
+			if(!modern_theme_picker_collapsed)
+				dat += "<a href='?_src_=prefs;preference=modern_theme_picker;action=toggle' class='theme-collapse-hint' title='Свернуть' aria-label='Свернуть меню тем'>◀</a>"
+			dat += "<span class='theme-label'>Themes</span>"
 			for(var/theme_id in theme_order)
 				var/is_active = (charcreation_theme == theme_id)
 				var/swatch_class = is_active ? "theme-swatch active" : "theme-swatch"
 				var/swatch_color = theme_swatches[theme_id]
 				var/swatch_title = theme_titles[theme_id]
 				dat += "<a href='?_src_=prefs;preference=charcreation_set;theme=[theme_id]' class='[swatch_class]' style='background-color: [swatch_color];' title='[swatch_title]'></a>"
+			// Separate Custom + gear from the preset themes with a strong divider + label.
+			var/custom_active = (charcreation_theme == "modern_custom")
+			var/custom_class = custom_active ? "theme-swatch theme-swatch--custom active" : "theme-swatch theme-swatch--custom"
+			// Show the custom theme background in the swatch (more representative than accent).
+			var/custom_swatch_color = "#[modern_custom_bg_primary]"
+			var/custom_title = modern_custom_enabled ? "Custom" : "Custom (Off)"
+			dat += "<span class='theme-sep' aria-hidden='true'></span>"
+			dat += "<span class='theme-custom-group'>"
+			dat += "<span class='theme-label theme-label-custom'>Custom</span>"
+			dat += "<a href='?_src_=prefs;preference=charcreation_set;theme=modern_custom' class='[custom_class]' style='background-color: [custom_swatch_color];' title='[custom_title]'></a>"
+			dat += "<a href='?_src_=prefs;preference=modern_theme_editor;action=toggle' class='theme-gear' title='Custom theme settings (opens editor)'>⚙</a>"
+			dat += "</span>"
+			dat += "</span>" // theme-body
 			dat += "</div>"
+			modern_theme_picker_animate = FALSE
+
+			if(modern_custom_editor_open)
+				dat += "<div class='theme-custom-editor'>"
+				dat += "<div class='theme-custom-editor-title'><b>Custom theme</b> <span class='theme-custom-editor-hint'>(applies only to Custom)</span></div>"
+				var/enabled_text = modern_custom_enabled ? "On" : "Off"
+				dat += "<div class='theme-custom-editor-actions'>"
+				dat += "<a href='?_src_=prefs;preference=modern_theme_editor;action=toggle' class='theme-action theme-action-close' title='Close editor'>Close</a> "
+				dat += "<a href='?_src_=prefs;preference=modern_theme_editor;action=toggle_enabled' class='theme-action theme-action-enabled' title='Toggle custom palette'>Enabled: [enabled_text]</a> "
+				dat += "<a href='?_src_=prefs;preference=modern_theme_editor;action=toggle_pattern' class='theme-action theme-action-pattern' title='Toggle subtle background stripes'>Pattern</a> "
+				dat += "<a href='?_src_=prefs;preference=modern_theme_editor;action=reset' class='theme-action theme-action-reset' title='Reset custom palette to defaults'>Reset</a>"
+				dat += "</div>"
+				dat += "<table class='theme-custom-editor-table'>"
+				var/list/rows = list(
+					"bg_primary" = "Background",
+					"bg_secondary" = "Panels",
+					"border_color" = "Dividers",
+					"text_primary" = "Text",
+					"text_secondary" = "Muted text",
+					"button_bg" = "Button",
+					"button_hover" = "Button hover",
+					"button_active" = "Button active",
+					"button_text" = "Active text",
+					"accent_color" = "Accent"
+				)
+				for(var/key in rows)
+					var/label = rows[key]
+					var/value_hex = ""
+					switch(key)
+						if("bg_primary") value_hex = modern_custom_bg_primary
+						if("bg_secondary") value_hex = modern_custom_bg_secondary
+						if("border_color") value_hex = modern_custom_border_color
+						if("text_primary") value_hex = modern_custom_text_primary
+						if("text_secondary") value_hex = modern_custom_text_secondary
+						if("button_bg") value_hex = modern_custom_button_bg
+						if("button_hover") value_hex = modern_custom_button_hover
+						if("button_active") value_hex = modern_custom_button_active
+						if("button_text") value_hex = modern_custom_button_text
+						if("accent_color") value_hex = modern_custom_accent_color
+					dat += "<tr><td class='k'>[label]</td><td class='v'><a class='colorbox' href='?_src_=prefs;preference=modern_custom_color;key=[key]' style='background-color: #[value_hex];' title='Pick color (opens BYOND color picker)'></a> #[value_hex]</td></tr>"
+				dat += "</table>"
+				dat += "</div>"
 
 		dat += "<center>"
 	else
@@ -2699,38 +2893,128 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 				if("old")
 					new_character_creator = FALSE
 					charcreation_theme = "classic"
+					save_preferences(silent = TRUE)
 					ShowChoices(user)
 					return TRUE
 				if("classic")
 					new_character_creator = TRUE
 					charcreation_theme = "classic"
+					save_preferences(silent = TRUE)
 					ShowChoices(user)
 					return TRUE
 				if("modern")
 					new_character_creator = TRUE
 					charcreation_theme = "modern"
+					save_preferences(silent = TRUE)
 					ShowChoices(user)
 					return TRUE
 				if("modern_classic")
 					new_character_creator = TRUE
 					charcreation_theme = "modern_classic"
+					save_preferences(silent = TRUE)
 					ShowChoices(user)
 					return TRUE
 				if("modern_purple")
 					new_character_creator = TRUE
 					charcreation_theme = "modern_purple"
+					save_preferences(silent = TRUE)
 					ShowChoices(user)
 					return TRUE
 				if("modern_green")
 					new_character_creator = TRUE
 					charcreation_theme = "modern_green"
+					save_preferences(silent = TRUE)
 					ShowChoices(user)
 					return TRUE
 				if("modern_neutral")
 					new_character_creator = TRUE
 					charcreation_theme = "modern_neutral"
+					save_preferences(silent = TRUE)
 					ShowChoices(user)
 					return TRUE
+				if("modern_custom")
+					new_character_creator = TRUE
+					charcreation_theme = "modern_custom"
+					modern_custom_enabled = TRUE
+					save_preferences(silent = TRUE)
+					ShowChoices(user)
+					return TRUE
+		ShowChoices(user)
+		return TRUE
+
+	if(href_list["preference"] == "modern_theme_editor")
+		switch(href_list["action"])
+			if("toggle")
+				modern_custom_editor_open = !modern_custom_editor_open
+				if(modern_custom_editor_open)
+					new_character_creator = TRUE
+					charcreation_theme = "modern_custom"
+					modern_custom_enabled = TRUE
+					save_preferences(silent = TRUE)
+				ShowChoices(user)
+				return TRUE
+			if("toggle_enabled")
+				new_character_creator = TRUE
+				charcreation_theme = "modern_custom"
+				modern_custom_enabled = !modern_custom_enabled
+				save_preferences(silent = TRUE)
+				ShowChoices(user)
+				return TRUE
+			if("toggle_pattern")
+				new_character_creator = TRUE
+				charcreation_theme = "modern_custom"
+				modern_custom_bg_pattern = !modern_custom_bg_pattern
+				save_preferences(silent = TRUE)
+				ShowChoices(user)
+				return TRUE
+			if("reset")
+				new_character_creator = TRUE
+				charcreation_theme = "modern_custom"
+				reset_modern_custom_theme()
+				save_preferences(silent = TRUE)
+				ShowChoices(user)
+				return TRUE
+		ShowChoices(user)
+		return TRUE
+
+	if(href_list["preference"] == "modern_theme_picker")
+		switch(href_list["action"])
+			if("toggle")
+				modern_theme_picker_collapsed = !modern_theme_picker_collapsed
+				modern_theme_picker_animate = TRUE
+				ShowChoices(user)
+				return TRUE
+		ShowChoices(user)
+		return TRUE
+
+	if(href_list["preference"] == "modern_custom_color")
+		var/color_key = href_list["key"]
+		if(!color_key)
+			ShowChoices(user)
+			return TRUE
+		new_character_creator = TRUE
+		charcreation_theme = "modern_custom"
+		modern_custom_enabled = TRUE
+		var/current_value = ""
+		switch(color_key)
+			if("bg_primary") current_value = modern_custom_bg_primary
+			if("bg_secondary") current_value = modern_custom_bg_secondary
+			if("text_primary") current_value = modern_custom_text_primary
+			if("text_secondary") current_value = modern_custom_text_secondary
+			if("button_bg") current_value = modern_custom_button_bg
+			if("button_hover") current_value = modern_custom_button_hover
+			if("button_active") current_value = modern_custom_button_active
+			if("button_text") current_value = modern_custom_button_text
+			if("border_color") current_value = modern_custom_border_color
+			if("accent_color") current_value = modern_custom_accent_color
+		var/new_value = input(user, "Выберите цвет:", "Custom theme: [color_key]", "#[current_value]") as color|null
+		if(isnull(new_value))
+			ShowChoices(user)
+			return TRUE
+		if(set_modern_custom_color(color_key, new_value))
+			save_preferences(silent = TRUE)
+		else
+			to_chat(user, span_warning("Неверный цвет."))
 		ShowChoices(user)
 		return TRUE
 
