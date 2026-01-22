@@ -49,13 +49,41 @@
 	update_preview_icon(current_tab)
 	var/list/dat = list("<center>")
 
-	dat += "<a href='?_src_=prefs;preference=tab;tab=[SETTINGS_TAB]' [current_tab == SETTINGS_TAB ? "class='linkOn'" : ""]>Character Settings</a>"
-	dat += "<a href='?_src_=prefs;preference=tab;tab=[APPEARANCE_TAB]' [current_tab == APPEARANCE_TAB ? "class='linkOn'" : ""]>Character Appearance</a>"
-	dat += "<a href='?_src_=prefs;preference=tab;tab=[SPEECH_TAB]' [current_tab == SPEECH_TAB ? "class='linkOn'" : ""]>Character Speech</a>"
-	dat += "<a href='?_src_=prefs;preference=tab;tab=[LOADOUT_TAB]' [current_tab == LOADOUT_TAB ? "class='linkOn'" : ""]>Loadout</a>"
-	dat += "<a href='?_src_=prefs;preference=tab;tab=[GAME_PREFERENCES_TAB]' [current_tab == GAME_PREFERENCES_TAB ? "class='linkOn'" : ""]>Game Preferences</a>"
-	dat += "<a href='?_src_=prefs;preference=tab;tab=[CONTENT_PREFERENCES_TAB]' [current_tab == CONTENT_PREFERENCES_TAB ? "class='linkOn'" : ""]>Content Preferences</a>"
-	dat += "<a href='?_src_=prefs;preference=tab;tab=[KEYBINDINGS_TAB_OLD]' [current_tab == KEYBINDINGS_TAB_OLD ? "class='linkOn'" : ""]>Keybindings</a>"
+	var/settings_class = ""
+	var/appearance_class = ""
+	var/speech_class = ""
+	var/loadout_class = ""
+	var/game_prefs_class = ""
+	var/content_prefs_class = ""
+	var/keybinds_class = ""
+	if(current_tab == SETTINGS_TAB)
+		settings_class = "class='linkOn'"
+	if(current_tab == APPEARANCE_TAB)
+		appearance_class = "class='linkOn'"
+	if(current_tab == SPEECH_TAB)
+		speech_class = "class='linkOn'"
+	if(current_tab == LOADOUT_TAB)
+		loadout_class = "class='linkOn'"
+	if(current_tab == GAME_PREFERENCES_TAB)
+		game_prefs_class = "class='linkOn'"
+	if(current_tab == CONTENT_PREFERENCES_TAB)
+		content_prefs_class = "class='linkOn'"
+	if(current_tab == KEYBINDINGS_TAB_OLD)
+		keybinds_class = "class='linkOn'"
+
+	dat += "<a href='?_src_=prefs;preference=tab;tab=[SETTINGS_TAB]' [settings_class]>Character Settings</a>"
+	dat += "<a href='?_src_=prefs;preference=tab;tab=[APPEARANCE_TAB]' [appearance_class]>Character Appearance</a>"
+	dat += "<a href='?_src_=prefs;preference=tab;tab=[SPEECH_TAB]' [speech_class]>Character Speech</a>"
+	dat += "<a href='?_src_=prefs;preference=tab;tab=[LOADOUT_TAB]' [loadout_class]>Loadout</a>"
+	dat += "<a href='?_src_=prefs;preference=tab;tab=[GAME_PREFERENCES_TAB]' [game_prefs_class]>Game Preferences</a>"
+	dat += "<a href='?_src_=prefs;preference=tab;tab=[CONTENT_PREFERENCES_TAB]' [content_prefs_class]>Content Preferences</a>"
+	dat += "<a href='?_src_=prefs;preference=tab;tab=[KEYBINDINGS_TAB_OLD]' [keybinds_class]>Keybindings</a>"
+	var/char_setup_ui = "Old"
+	if(new_character_creator)
+		char_setup_ui = "New"
+		if(findtext(charcreation_theme, "modern"))
+			char_setup_ui = "Modern"
+	dat += "<b>Character Setup UI ([char_setup_ui]):</b> <a href='?_src_=prefs;preference=charcreation_set;theme=old'>Old</a> <a href='?_src_=prefs;preference=charcreation_set;theme=classic'>New</a> <a href='?_src_=prefs;preference=charcreation_set;theme=modern'>Modern</a><br>"
 
 	if(!path)
 		dat += "<div class='notice'>Please create an account to save your preferences</div>"
@@ -869,7 +897,6 @@
 			dat += "<b>Be Antagonist Victim:</b> <a href='?_src_=prefs;preference=be_victim;task=input'>[be_victim ? be_victim : BEVICTIM_ASK]</a><br>"
 			dat += "<b>Disable combat mode cursor:</b> <a href='?_src_=prefs;preference=disable_combat_cursor'>[disable_combat_cursor?"Yes":"No"]</a><br>"
 			dat += "<b>Splashscreen Player Panel Style:</b> <a href='?_src_=prefs;preference=tg_playerpanel'>[(toggles & TG_PLAYER_PANEL)?"TG":"Old"]</a><br>"
-			dat += "<b>Character Creation Menu Style:</b> <a href='?_src_=prefs;preference=charcreation_style'>[(new_character_creator) ? ((findtext(charcreation_theme, "modern")) ? "Modern" : "New") : "Old"]</a><br>"
 			dat += "<br>"
 
 			dat += "</td>"

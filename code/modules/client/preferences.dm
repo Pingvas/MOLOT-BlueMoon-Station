@@ -432,7 +432,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/auto_capitalize_enabled = FALSE
 
 	/// Character Setup browser UI theme (used by the "new" character creator UI).
-	/// Supported values: "classic", "modern"
+	/// Supported values: "classic", "modern", "modern_classic", "modern_purple", "modern_green", "modern_neutral"
 	var/charcreation_theme = "classic"
 
 /datum/preferences/New(client/C)
@@ -481,25 +481,159 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 #define APPEARANCE_CATEGORY_COLUMN "<td valign='top' width='17%'>"
 #define MAX_MUTANT_ROWS 5
 
+/// Возвращает палитру для Modern Character Setup (конкретные цвета, без CSS variables).
+/datum/preferences/proc/get_character_setup_palette_modern()
+	var/list/theme_colors = list()
+
+	switch(charcreation_theme)
+		if("modern_classic")
+			// PR theme: "classic" (BYOND-ish palette)
+			theme_colors["bg_primary"] = "#272727"
+			theme_colors["bg_secondary"] = "#1a1a1a"
+			theme_colors["bg_pattern"] = "none"
+			theme_colors["text_primary"] = "#ffffff"
+			theme_colors["text_secondary"] = "#c0c0c0"
+			theme_colors["button_bg"] = "#40628a"
+			theme_colors["button_hover"] = "#2f943c"
+			theme_colors["button_active"] = "#2f943c"
+			theme_colors["button_text"] = "#ffffff"
+			theme_colors["border_color"] = "#161616"
+			theme_colors["accent_color"] = "#40628a"
+
+		if("modern_neutral")
+			// PR theme: "neutral"
+			theme_colors["bg_primary"] = "#f2f2f2"
+			theme_colors["bg_secondary"] = "#ffffff"
+			theme_colors["bg_pattern"] = "repeating-linear-gradient(90deg, rgba(255,255,255,0.32) 0px, rgba(255,255,255,0.32) 10px, rgba(0,0,0,0.035) 10px, rgba(0,0,0,0.035) 20px)"
+			theme_colors["text_primary"] = "#222222"
+			theme_colors["text_secondary"] = "#555555"
+			theme_colors["button_bg"] = "#e4e4e4"
+			theme_colors["button_hover"] = "#d9d9d9"
+			theme_colors["button_active"] = "#e0e7ff"
+			theme_colors["button_text"] = "#1f2b4d"
+			theme_colors["border_color"] = "#cccccc"
+			theme_colors["accent_color"] = "#6a8cff"
+
+		if("modern_purple")
+			theme_colors["bg_primary"] = "#251a33"
+			theme_colors["bg_secondary"] = "#2f2141"
+			theme_colors["bg_pattern"] = "none"
+			theme_colors["text_primary"] = "#f7f1ff"
+			theme_colors["text_secondary"] = "#e1d1f5"
+			theme_colors["button_bg"] = "#36244b"
+			theme_colors["button_hover"] = "#422b5e"
+			theme_colors["button_active"] = "#c19bff"
+			theme_colors["button_text"] = "#1a0b2f"
+			theme_colors["border_color"] = "#4a3562"
+			theme_colors["accent_color"] = "#c19bff"
+
+		if("modern_green")
+			theme_colors["bg_primary"] = "#12261a"
+			theme_colors["bg_secondary"] = "#193322"
+			theme_colors["bg_pattern"] = "none"
+			theme_colors["text_primary"] = "#effff6"
+			theme_colors["text_secondary"] = "#cdefdc"
+			theme_colors["button_bg"] = "#1f3e2a"
+			theme_colors["button_hover"] = "#275036"
+			theme_colors["button_active"] = "#8bffb1"
+			theme_colors["button_text"] = "#062014"
+			theme_colors["border_color"] = "#2a4f37"
+			theme_colors["accent_color"] = "#8bffb1"
+
+		else
+			// PR theme: "dark" (default)
+			theme_colors["bg_primary"] = "#121212"
+			theme_colors["bg_secondary"] = "#1c1c1c"
+			theme_colors["bg_pattern"] = "none"
+			theme_colors["text_primary"] = "#e6e6e6"
+			theme_colors["text_secondary"] = "#a8a8a8"
+			theme_colors["button_bg"] = "#1f1f1f"
+			theme_colors["button_hover"] = "#2a2a2a"
+			theme_colors["button_active"] = "#4da3ff"
+			theme_colors["button_text"] = "#0b1c2f"
+			theme_colors["border_color"] = "#2f2f2f"
+			theme_colors["accent_color"] = "#4da3ff"
+
+	return theme_colors
+
 /datum/preferences/proc/ShowChoices(mob/user)
 	if(!user || !user.client)
 		return
 	update_preview_icon(current_tab)
-	var/is_modern_theme = !!findtext(charcreation_theme, "modern")
-	var/theme_class = "csetup-theme-classic"
-	switch(charcreation_theme)
-		if("classic")
-			theme_class = "csetup-theme-classic"
-		if("modern")
-			theme_class = "csetup-theme-modern csetup-accent-blue"
-		if("modern_purple")
-			theme_class = "csetup-theme-modern csetup-accent-purple"
-		if("modern_green")
-			theme_class = "csetup-theme-modern csetup-accent-green"
-		else
-			if(is_modern_theme)
-				theme_class = "csetup-theme-modern csetup-accent-blue"
-	var/list/dat = list("<div class='csetup-root [theme_class]'>", "<center>")
+	var/is_modern_theme = (new_character_creator && !!findtext(charcreation_theme, "modern"))
+	var/list/dat
+	if(new_character_creator)
+		// Для Modern-интерфейса дополнительно инжектим палитру как конкретные CSS значения,
+		// чтобы темы переключались как в PR #2535 (не завися от поддержки CSS variables).
+		var/modern_palette_css = ""
+		if(is_modern_theme)
+			var/list/theme = get_character_setup_palette_modern()
+			modern_palette_css = "<style>\n\
+	.csetup-root{ background-color:[theme["bg_primary"]]; color:[theme["text_primary"]]; font-family: Verdana, Tahoma, Arial, sans-serif; margin:0; padding:6px; min-height:100vh; position:relative; background-image:[theme["bg_pattern"]]; background-size:auto; }\n\
+	.csetup-root a, .csetup-root a:link, .csetup-root a:visited{ color:[theme["text_primary"]]; text-decoration:none; padding:4px 8px; margin:1px; display:inline-block; background-color:[theme["button_bg"]]; border-radius:7px; border:1px solid [theme["border_color"]]; cursor:pointer; font-size:12px; vertical-align:middle; }\n\
+	.csetup-root a:hover{ background-color:[theme["button_hover"]]; }\n\
+	.csetup-root .linkOn{ background-color:[theme["button_active"]]; color:[theme["button_text"]]; }\n\
+	.csetup-root a.linkOff, .csetup-root .linkOff{ color:[theme["text_secondary"]]; cursor:not-allowed; opacity:0.6; }\n\
+	.csetup-root hr{ border:none; height:1px; background: linear-gradient(90deg, transparent, [theme["border_color"]], transparent); margin:10px 0; }\n\
+	.csetup-root table{ background-color:[theme["bg_secondary"]]; border-collapse:collapse; width:100%; border:1px solid [theme["border_color"]]; border-radius:10px; overflow:hidden; }\n\
+	.csetup-root td, .csetup-root th{ padding:6px 8px; color:[theme["text_primary"]]; text-align:left; border-bottom:1px solid [theme["border_color"]]; }\n\
+	.csetup-root td:not(:last-child), .csetup-root th:not(:last-child){ border-right:1px solid [theme["border_color"]]; }\n\
+	.csetup-root .csetup_character_node{ background-color:[theme["bg_secondary"]]; border:1px solid [theme["border_color"]]; }\n\
+	.csetup-root .csetup_character_label{ color:[theme["text_secondary"]]; }\n\
+	.csetup-root .theme-selector{ background-color:[theme["bg_secondary"]]; border:1px solid [theme["border_color"]]; }\n\
+	.csetup-root a.theme-swatch.active{ border-color:[theme["accent_color"]]; box-shadow:0 0 8px [theme["accent_color"]]; }\n\
+</style>"
+		var/theme_class = "csetup-theme-classic"
+		switch(charcreation_theme)
+			if("classic")
+				theme_class = "csetup-theme-classic"
+			if("modern")
+				theme_class = "csetup-theme-modern csetup-scheme-dark csetup-accent-blue"
+			if("modern_classic")
+				theme_class = "csetup-theme-modern csetup-scheme-classic"
+			if("modern_purple")
+				theme_class = "csetup-theme-modern csetup-scheme-purple csetup-accent-purple"
+			if("modern_green")
+				theme_class = "csetup-theme-modern csetup-scheme-green csetup-accent-green"
+			if("modern_neutral")
+				theme_class = "csetup-theme-modern csetup-scheme-neutral csetup-accent-neutral"
+			else
+				if(is_modern_theme)
+					theme_class = "csetup-theme-modern csetup-accent-blue"
+
+		dat = list(modern_palette_css, "<div class='csetup-root [theme_class]'>")
+
+		// Compact theme picker (top-right): only for Modern UI themes.
+		if(is_modern_theme)
+			var/list/theme_order = list("modern_classic", "modern", "modern_purple", "modern_green", "modern_neutral")
+			var/list/theme_titles = list(
+				"modern_classic" = "Classic",
+				"modern" = "Dark (Blue)",
+				"modern_purple" = "Purple",
+				"modern_green" = "Green",
+				"modern_neutral" = "Neutral"
+			)
+			var/list/theme_swatches = list(
+				"modern_classic" = "#40628a",
+				"modern" = "#4da3ff",
+				"modern_purple" = "#c19bff",
+				"modern_green" = "#8bffb1",
+				"modern_neutral" = "#bfc2c7"
+			)
+
+			dat += "<div class='theme-selector'>"
+			dat += "<span class='theme-emoji'>🎨</span>"
+			for(var/theme_id in theme_order)
+				var/is_active = (charcreation_theme == theme_id)
+				var/swatch_class = is_active ? "theme-swatch active" : "theme-swatch"
+				var/swatch_color = theme_swatches[theme_id]
+				var/swatch_title = theme_titles[theme_id]
+				dat += "<a href='?_src_=prefs;preference=charcreation_set;theme=[theme_id]' class='[swatch_class]' style='background-color: [swatch_color];' title='[swatch_title]'></a>"
+			dat += "</div>"
+
+		dat += "<center>"
+	else
+		dat = list("<center>")
 
 	var/tab_class_settings = ""
 	var/tab_class_preferences = ""
@@ -1771,6 +1905,26 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "<b>Widescreen:</b> <a href='?_src_=prefs;preference=widescreenpref'>[widescreenpref ? "Enabled ([CONFIG_GET(string/default_view)])" : "Disabled (15x15)"]</a><br>"
 					dat += "<b>Fullscreen:</b> <a href='?_src_=prefs;preference=fullscreen'>[fullscreen ? "Enabled" : "Disabled"]</a><br>"
 					dat += "<b>Long strip menu:</b> <a href='?_src_=prefs;preference=long_strip_menu'>[long_strip_menu ? "Enabled" : "Disabled"]</a><br>"
+					var/char_setup_ui = "Old"
+					if(new_character_creator)
+						char_setup_ui = "New"
+						if(findtext(charcreation_theme, "modern"))
+							char_setup_ui = "Modern"
+					dat += "<b>Character Setup UI ([char_setup_ui]):</b> <a href='?_src_=prefs;preference=charcreation_set;theme=old'>Old</a> <a href='?_src_=prefs;preference=charcreation_set;theme=classic'>New</a> <a href='?_src_=prefs;preference=charcreation_set;theme=modern'>Modern</a><br>"
+					var/modern_accent_label = "—"
+					if(new_character_creator && findtext(charcreation_theme, "modern"))
+						switch(charcreation_theme)
+							if("modern_neutral")
+								modern_accent_label = "—"
+							if("modern_classic")
+								modern_accent_label = "—"
+							if("modern_purple")
+								modern_accent_label = "Purple"
+							if("modern_green")
+								modern_accent_label = "Green"
+							else
+								modern_accent_label = "Blue"
+					dat += "<b>Modern Accent:</b> <a href='?_src_=prefs;preference=charcreation_accent'>[modern_accent_label]</a><br>"
 					dat += "<b>Auto stand:</b> <a href='?_src_=prefs;preference=autostand'>[autostand ? "Enabled" : "Disabled"]</a><br>"
 					dat += "<b>Auto OOC:</b> <a href='?_src_=prefs;preference=auto_ooc'>[auto_ooc ? "Enabled" : "Disabled"]</a><br>"
 					dat += "<b>Force Slot Storage HUD:</b> <a href='?_src_=prefs;preference=no_tetris_storage'>[no_tetris_storage ? "Enabled" : "Disabled"]</a><br>"
@@ -1784,15 +1938,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "<b>Be Antagonist Victim:</b> <a href='?_src_=prefs;preference=be_victim;task=input'>[be_victim ? be_victim : BEVICTIM_ASK]</a><br>"
 					dat += "<b>Disable combat mode cursor:</b> <a href='?_src_=prefs;preference=disable_combat_cursor'>[disable_combat_cursor?"Yes":"No"]</a><br>"
 					dat += "<b>Splashscreen Player Panel Style:</b> <a href='?_src_=prefs;preference=tg_playerpanel'>[(toggles & TG_PLAYER_PANEL)?"TG":"Old"]</a><br>"
-					dat += "<b>Character Creation Menu Style:</b> <a href='?_src_=prefs;preference=charcreation_style'>[(new_character_creator) ? ((findtext(charcreation_theme, "modern")) ? "Modern" : "New") : "Old"]</a><br>"
-					if(new_character_creator && findtext(charcreation_theme, "modern"))
-						var/accent_label = "Blue"
-						switch(charcreation_theme)
-							if("modern_purple")
-								accent_label = "Purple"
-							if("modern_green")
-								accent_label = "Green"
-						dat += "<b>Modern Accent:</b> <a href='?_src_=prefs;preference=charcreation_accent'>[accent_label]</a><br>"
 					//SPLURT Edit end
 
 					dat += "<br>"
@@ -2002,14 +2147,15 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	dat += "<a href='?_src_=prefs;preference=reset_all'>Reset Setup</a>"
 	dat += "</center>"
 
-	dat += "</div>"
+	if(new_character_creator)
+		dat += "</div>"
 
 	winshow(user, "preferences_window", TRUE)
 	var/datum/browser/popup = new(user, "preferences_browser", "<div align='center'>Character Setup</div>", 640, 770)
-	if(new_character_creator)
+	if(new_character_creator && findtext(charcreation_theme, "modern"))
 		popup.add_stylesheet("preferences_modern", 'html/browser/preferences_modern.css')
-		if(findtext(charcreation_theme, "modern"))
-			popup.add_script("prefs_state", 'html/browser/prefs_state.js')
+	if(new_character_creator && findtext(charcreation_theme, "modern"))
+		popup.add_script("prefs_state", 'html/browser/prefs_state.js')
 	popup.set_content(dat.Join())
 	popup.open(FALSE)
 	onclose(user, "preferences_window", src)
@@ -2369,8 +2515,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 		return dat.Join()
 
 	dat += "<div class='csetup-quirks'>"
-	dat += "<center><h2>Quirk Setup ([GetQuirkBalance(user)] points left)</h2></center>"
-	dat += "<div class='notice csetup-quirks-help'>ЛКМ — добавить/убрать квирк. Позитивные тратят очки, негативные дают. Применяются в начале раунда.</div>"
+	var/quirk_balance = GetQuirkBalance(user)
 
 	// BLUEMOON: per-quirk settings (kept inline)
 	dat += "<h3>Настройки квирков</h3>"
@@ -2384,9 +2529,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/display_current_quirks = english_list(all_quirks, "None")
 	var/positive_quirk_count = GetPositiveQuirkCount()
 	dat += "<div class='notice csetup-quirks-summary'>"
-	dat += "<div class='csetup-quirks-summary-title'><b>Quirk balance remaining:</b> " + "[GetQuirkBalance(user)]" + "</div>"
 	dat += "<div class='csetup-quirks-summary-current'><b>Current:</b> " + display_current_quirks + "</div>"
-	dat += "<div class='csetup-quirks-summary-meta'><b>Positive:</b> [positive_quirk_count] / [MAX_QUIRKS]</div>"
+	dat += "<div class='csetup-quirks-summary-meta'><b>Positive:</b> [positive_quirk_count] / [MAX_QUIRKS]<br><b>Points left:</b> [quirk_balance]</div>"
 	dat += "</div>"
 	dat += "<div class='csetup-quirk-tabs'>"
 	dat += "<a href='?_src_=prefs;quirk_category=[QUIRK_POSITIVE]' " + (quirk_category == QUIRK_POSITIVE ? "class='linkOn'" : "") + ">[QUIRK_POSITIVE]</a>"
@@ -2544,6 +2688,49 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 
 	if(href_list["preference"] == "charcreation_accent")
 		cycle_character_creation_modern_accent()
+		ShowChoices(user)
+		return TRUE
+
+	if(href_list["preference"] == "charcreation_set")
+		var/selected_theme = href_list["theme"]
+		if(selected_theme)
+			// Interface style + CSS themes.
+			switch(selected_theme)
+				if("old")
+					new_character_creator = FALSE
+					charcreation_theme = "classic"
+					ShowChoices(user)
+					return TRUE
+				if("classic")
+					new_character_creator = TRUE
+					charcreation_theme = "classic"
+					ShowChoices(user)
+					return TRUE
+				if("modern")
+					new_character_creator = TRUE
+					charcreation_theme = "modern"
+					ShowChoices(user)
+					return TRUE
+				if("modern_classic")
+					new_character_creator = TRUE
+					charcreation_theme = "modern_classic"
+					ShowChoices(user)
+					return TRUE
+				if("modern_purple")
+					new_character_creator = TRUE
+					charcreation_theme = "modern_purple"
+					ShowChoices(user)
+					return TRUE
+				if("modern_green")
+					new_character_creator = TRUE
+					charcreation_theme = "modern_green"
+					ShowChoices(user)
+					return TRUE
+				if("modern_neutral")
+					new_character_creator = TRUE
+					charcreation_theme = "modern_neutral"
+					ShowChoices(user)
+					return TRUE
 		ShowChoices(user)
 		return TRUE
 

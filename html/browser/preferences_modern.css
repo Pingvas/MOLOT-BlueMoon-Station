@@ -33,27 +33,124 @@
 	white-space: nowrap;
 }
 
+/* Needed for the top-right theme picker positioning */
+.csetup-root {
+	position: relative;
+}
+
 .csetup-root.csetup-theme-modern {
-	--csetup-bg: #0b0f16;
-	--csetup-panel: rgba(255, 255, 255, 0.06);
-	--csetup-panel-2: rgba(255, 255, 255, 0.09);
-	--csetup-border: rgba(255, 255, 255, 0.10);
-	--csetup-text: #e7eefc;
-	--csetup-muted: rgba(231, 238, 252, 0.75);
-	--csetup-accent: #86b7ff;
-	--csetup-accent-rgb: 134, 183, 255;
+	/* PR theme: "dark" */
+	--csetup-bg: #121212;
+	--csetup-panel: #1c1c1c;
+	--csetup-panel-2: #1c1c1c;
+	--csetup-border: #2f2f2f;
+	--csetup-text: #e6e6e6;
+	--csetup-muted: #a8a8a8;
+	--csetup-accent: #4da3ff;
+	--csetup-accent-rgb: 77, 163, 255;
 	--csetup-danger: #ff6b6b;
-	--csetup-btn-bg: rgba(255, 255, 255, 0.08);
-	--csetup-btn-hover: rgba(255, 255, 255, 0.12);
-	--csetup-btn-active: rgba(134, 183, 255, 0.95);
+	--csetup-btn-bg: #1f1f1f;
+	--csetup-btn-hover: #2a2a2a;
+	--csetup-btn-active: #4da3ff;
 	--csetup-btn-active-text: #0b1c2f;
 	--csetup-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
 
 	background-color: var(--csetup-bg);
 	background-image:
-		radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.08) 1px, transparent 0),
-		linear-gradient(rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.02));
-	background-size: 24px 24px, auto;
+		radial-gradient(circle at 92% 0%, rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.16), transparent 48%),
+		radial-gradient(circle at 0% 100%, rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.10), transparent 55%);
+	background-size: auto;
+	padding: 6px;
+	min-height: 100vh;
+
+	color: var(--csetup-text);
+	font-family: Verdana, Tahoma, Arial, sans-serif;
+	font-size: 12px;
+	line-height: 1.2;
+}
+
+/* Explicit "dark" scheme class (mostly for DM-side clarity) */
+.csetup-root.csetup-theme-modern.csetup-scheme-dark {
+	background-color: var(--csetup-bg);
+	background-image:
+		radial-gradient(circle at 92% 0%, rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.16), transparent 48%),
+		radial-gradient(circle at 0% 100%, rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.10), transparent 55%);
+}
+
+/* Full palette schemes for Modern */
+.csetup-root.csetup-theme-modern.csetup-scheme-purple {
+	--csetup-bg: #251a33;
+	--csetup-panel: #2f2141;
+	--csetup-panel-2: #2f2141;
+	--csetup-border: #4a3562;
+	--csetup-text: #f7f1ff;
+	--csetup-muted: #e1d1f5;
+	--csetup-btn-bg: #36244b;
+	--csetup-btn-hover: #422b5e;
+	--csetup-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+
+	background-color: var(--csetup-bg);
+	background-image:
+		radial-gradient(circle at 92% 0%, rgba(var(--csetup-accent-rgb, 193, 155, 255), 0.20), transparent 50%),
+		radial-gradient(circle at 0% 100%, rgba(var(--csetup-accent-rgb, 193, 155, 255), 0.12), transparent 56%);
+}
+
+.csetup-root.csetup-theme-modern.csetup-scheme-green {
+	--csetup-bg: #12261a;
+	--csetup-panel: #193322;
+	--csetup-panel-2: #193322;
+	--csetup-border: #2a4f37;
+	--csetup-text: #effff6;
+	--csetup-muted: #cdefdc;
+	--csetup-btn-bg: #1f3e2a;
+	--csetup-btn-hover: #275036;
+	--csetup-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+
+	background-color: var(--csetup-bg);
+	background-image:
+		radial-gradient(circle at 92% 0%, rgba(var(--csetup-accent-rgb, 139, 255, 177), 0.18), transparent 52%),
+		radial-gradient(circle at 0% 100%, rgba(var(--csetup-accent-rgb, 139, 255, 177), 0.10), transparent 58%);
+}
+
+/* Classic scheme for Modern (PR theme: "classic" palette, but kept in modern layout) */
+.csetup-root.csetup-theme-modern.csetup-scheme-classic {
+	--csetup-bg: #272727;
+	--csetup-panel: #1a1a1a;
+	--csetup-panel-2: #1a1a1a;
+	--csetup-border: #161616;
+	--csetup-text: #ffffff;
+	--csetup-muted: #c0c0c0;
+	--csetup-accent: #40628a;
+	--csetup-accent-rgb: 64, 98, 138;
+	--csetup-btn-bg: #40628a;
+	--csetup-btn-hover: #2f943c;
+	--csetup-btn-active: #2f943c;
+	--csetup-btn-active-text: #ffffff;
+
+	background-color: var(--csetup-bg);
+	background-image: none;
+}
+
+/* PR theme: "classic" (New UI baseline with BYOND-ish palette) */
+.csetup-root.csetup-theme-classic {
+	--csetup-bg: #272727;
+	--csetup-panel: #1a1a1a;
+	--csetup-panel-2: #1a1a1a;
+	--csetup-border: #161616;
+	--csetup-text: #ffffff;
+	--csetup-muted: #c0c0c0;
+	--csetup-accent: #40628a;
+	--csetup-accent-rgb: 64, 98, 138;
+	--csetup-danger: #ff6b6b;
+	--csetup-btn-bg: #40628a;
+	--csetup-btn-hover: #2f943c;
+	--csetup-btn-active: #2f943c;
+	--csetup-btn-active-text: #ffffff;
+	--csetup-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+
+	background-color: var(--csetup-bg);
+	background-image: none;
+	background-size: auto;
 	padding: 6px;
 
 	color: var(--csetup-text);
@@ -62,11 +159,38 @@
 	line-height: 1.2;
 }
 
+/* Neutral (light) scheme for Modern, inspired by PR #2535 "neutral" */
+.csetup-root.csetup-theme-modern.csetup-scheme-neutral {
+	/* PR theme: "neutral" */
+	--csetup-bg: #f2f2f2;
+	--csetup-panel: #ffffff;
+	--csetup-panel-2: #ffffff;
+	--csetup-border: #cccccc;
+	--csetup-text: #222222;
+	--csetup-muted: #555555;
+	--csetup-danger: #d33b3b;
+	--csetup-btn-bg: #e4e4e4;
+	--csetup-btn-hover: #d9d9d9;
+	--csetup-btn-active: #e0e7ff;
+	--csetup-btn-active-text: #1f2b4d;
+	--csetup-shadow: 0 12px 40px rgba(0, 0, 0, 0.20);
+
+	background-color: var(--csetup-bg);
+	background-image: repeating-linear-gradient(
+		90deg,
+		rgba(255, 255, 255, 0.32) 0px,
+		rgba(255, 255, 255, 0.32) 10px,
+		rgba(0, 0, 0, 0.035) 10px,
+		rgba(0, 0, 0, 0.035) 20px
+	);
+	background-size: auto;
+}
+
 /* Accent variants (applied via extra classes on .csetup-root) */
 .csetup-root.csetup-theme-modern.csetup-accent-blue {
-	--csetup-accent: #86b7ff;
-	--csetup-accent-rgb: 134, 183, 255;
-	--csetup-btn-active: rgba(134, 183, 255, 0.95);
+	--csetup-accent: #4da3ff;
+	--csetup-accent-rgb: 77, 163, 255;
+	--csetup-btn-active: #4da3ff;
 	--csetup-btn-active-text: #0b1c2f;
 }
 
@@ -84,11 +208,21 @@
 	--csetup-btn-active-text: #062014;
 }
 
-.csetup-root.csetup-theme-modern * {
+/* Accent used for the neutral/light scheme (slightly more restrained). */
+.csetup-root.csetup-theme-modern.csetup-accent-neutral {
+	--csetup-accent: #6a8cff;
+	--csetup-accent-rgb: 106, 140, 255;
+	--csetup-btn-active: rgba(106, 140, 255, 0.92);
+	--csetup-btn-active-text: #111a33;
+}
+
+.csetup-root.csetup-theme-modern *,
+.csetup-root.csetup-theme-classic * {
 	box-sizing: border-box;
 }
 
-.csetup-root.csetup-theme-modern hr {
+.csetup-root.csetup-theme-modern hr,
+.csetup-root.csetup-theme-classic hr {
 	border: none;
 	height: 1px;
 	background: linear-gradient(90deg, transparent, var(--csetup-border), transparent);
@@ -98,7 +232,10 @@
 /* Button-like links */
 .csetup-root.csetup-theme-modern a,
 .csetup-root.csetup-theme-modern a:link,
-.csetup-root.csetup-theme-modern a:visited {
+.csetup-root.csetup-theme-modern a:visited,
+.csetup-root.csetup-theme-classic a,
+.csetup-root.csetup-theme-classic a:link,
+.csetup-root.csetup-theme-classic a:visited {
 	color: var(--csetup-text);
 	text-decoration: none;
 	padding: 4px 8px;
@@ -113,13 +250,16 @@
 	vertical-align: middle;
 }
 
-.csetup-root.csetup-theme-modern a:hover {
+.csetup-root.csetup-theme-modern a:hover,
+.csetup-root.csetup-theme-classic a:hover {
 	background-color: var(--csetup-btn-hover);
 	transform: translateY(-1px);
 }
 
 .csetup-root.csetup-theme-modern a.linkOff,
-.csetup-root.csetup-theme-modern .linkOff {
+.csetup-root.csetup-theme-modern .linkOff,
+.csetup-root.csetup-theme-classic a.linkOff,
+.csetup-root.csetup-theme-classic .linkOff {
 	color: var(--csetup-muted);
 	cursor: not-allowed;
 	opacity: 0.55;
@@ -129,30 +269,40 @@
 .csetup-root.csetup-theme-modern .linkOn,
 .csetup-root.csetup-theme-modern a.linkOn:link,
 .csetup-root.csetup-theme-modern a.linkOn:visited,
-.csetup-root.csetup-theme-modern a.linkOn:active {
+.csetup-root.csetup-theme-modern a.linkOn:active,
+.csetup-root.csetup-theme-classic .linkOn,
+.csetup-root.csetup-theme-classic a.linkOn:link,
+.csetup-root.csetup-theme-classic a.linkOn:visited,
+.csetup-root.csetup-theme-classic a.linkOn:active {
 	background-color: var(--csetup-btn-active);
-	border: 1px solid rgba(134, 183, 255, 0.35);
-	box-shadow: 0 0 10px rgba(134, 183, 255, 0.25);
+	border: 1px solid rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.35);
+	box-shadow: 0 0 10px rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.25);
 	color: var(--csetup-btn-active-text);
 	font-weight: bold;
 }
 
-.csetup-root.csetup-theme-modern center {
+.csetup-root.csetup-theme-modern center,
+.csetup-root.csetup-theme-classic center {
 	margin: 6px 0;
 }
 
 .csetup-root.csetup-theme-modern h2,
-.csetup-root.csetup-theme-modern h3 {
+.csetup-root.csetup-theme-modern h3,
+.csetup-root.csetup-theme-classic h2,
+.csetup-root.csetup-theme-classic h3 {
 	color: var(--csetup-accent);
 	margin-top: 10px;
 	margin-bottom: 6px;
 }
 
-.csetup-root.csetup-theme-modern h2 { font-size: 14px; }
-.csetup-root.csetup-theme-modern h3 { font-size: 13px; }
+.csetup-root.csetup-theme-modern h2,
+.csetup-root.csetup-theme-classic h2 { font-size: 14px; }
+.csetup-root.csetup-theme-modern h3,
+.csetup-root.csetup-theme-classic h3 { font-size: 13px; }
 
 /* Generic “card” look for the character setup nodes */
-.csetup-root.csetup-theme-modern .csetup_character_node {
+.csetup-root.csetup-theme-modern .csetup_character_node,
+.csetup-root.csetup-theme-classic .csetup_character_node {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -164,23 +314,26 @@
 	border-radius: 10px;
 }
 
-.csetup-root.csetup-theme-modern .csetup_character_label {
+.csetup-root.csetup-theme-modern .csetup_character_label,
+.csetup-root.csetup-theme-classic .csetup_character_label {
 	color: var(--csetup-muted);
 	font-weight: 600;
 }
 
-.csetup-root.csetup-theme-modern .csetup_character_input {
+.csetup-root.csetup-theme-modern .csetup_character_input,
+.csetup-root.csetup-theme-classic .csetup_character_input {
 	text-align: right;
 	white-space: nowrap;
 }
 
 /* Notices */
-.csetup-root.csetup-theme-modern .notice {
+.csetup-root.csetup-theme-modern .notice,
+.csetup-root.csetup-theme-classic .notice {
 	margin: 8px auto;
 	padding: 8px 10px;
 	max-width: 520px;
-	background: rgba(134, 183, 255, 0.12);
-	border: 1px solid rgba(134, 183, 255, 0.25);
+	background: rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.12);
+	border: 1px solid rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.25);
 	border-radius: 10px;
 	box-shadow: var(--csetup-shadow);
 	color: var(--csetup-text);
@@ -250,13 +403,24 @@
 	line-height: 1.25;
 }
 
+/* Slightly brighter summary text (theme-aware) */
+.csetup-root.csetup-theme-modern:not(.csetup-scheme-neutral) .csetup-quirks-summary-current,
+.csetup-root.csetup-theme-modern:not(.csetup-scheme-neutral) .csetup-quirks-summary-meta {
+	color: rgba(255, 255, 255, 0.96);
+}
+
+.csetup-root.csetup-theme-modern.csetup-scheme-neutral .csetup-quirks-summary-current,
+.csetup-root.csetup-theme-modern.csetup-scheme-neutral .csetup-quirks-summary-meta {
+	color: #111111;
+}
+
 .csetup-root.csetup-theme-modern .csetup-quirks-summary-actions a {
 	padding: 6px 10px;
 }
 
 /* Tables */
 .csetup-root.csetup-theme-modern table {
-	background-color: rgba(255, 255, 255, 0.04);
+	background-color: var(--csetup-panel);
 	border-collapse: collapse;
 	width: 100%;
 	border: 1px solid var(--csetup-border);
@@ -277,35 +441,45 @@
 	border-right: 1px solid var(--csetup-border);
 }
 
-/* Optional theme selector styles (ported from PR #2535). */
-.csetup-root.csetup-theme-modern .theme-selector {
-	position: sticky;
+/* Theme picker (top-right), matching the older PR #2535 UX (small menu + squares). */
+.csetup-root .theme-selector {
+	position: absolute;
 	top: 8px;
-	float: right;
+	right: 8px;
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
-	background-color: rgba(255, 255, 255, 0.06);
 	padding: 5px 6px;
 	border-radius: 10px;
-	border: 1px solid var(--csetup-border);
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+	background-color: var(--csetup-panel, rgba(255, 255, 255, 0.06));
+	border: 1px solid var(--csetup-border, rgba(0, 0, 0, 0.25));
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+	z-index: 10;
 }
 
-.csetup-root.csetup-theme-modern .theme-emoji {
+.csetup-root .theme-emoji {
 	margin-right: 4px;
 	font-size: 14px;
 }
 
-.csetup-root.csetup-theme-modern a.theme-swatch {
+.csetup-root a.theme-swatch {
 	padding: 0 !important;
 	margin: 0 2px;
-	width: 18px;
-	height: 18px;
-	border-radius: 6px;
-	border: 2px solid var(--csetup-border);
+	width: 16px;
+	height: 16px;
+	border-radius: 5px;
+	border: 2px solid var(--csetup-border, rgba(0, 0, 0, 0.30));
 	background-color: transparent;
 	box-shadow: none;
+}
+
+.csetup-root a.theme-swatch:hover {
+	transform: translateY(-1px) scale(1.05);
+}
+
+.csetup-root a.theme-swatch.active {
+	border-color: var(--csetup-accent, #4da3ff);
+	box-shadow: 0 0 8px rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.55);
 }
 
 /* --- Quirks (Modern inline UI) --- */
@@ -401,8 +575,8 @@
 	left: 0;
 	width: 6px;
 	border-radius: 6px;
-	background: linear-gradient(180deg, #f7e08b, #d7aa3b);
-	box-shadow: 0 0 10px rgba(215, 170, 59, 0.45);
+	background: linear-gradient(180deg, #8bf7b5, #3bd76b);
+	box-shadow: 0 0 10px rgba(59, 215, 107, 0.45);
 	pointer-events: none;
 }
 
@@ -462,7 +636,7 @@
 	position: relative;
 	z-index: 1;
 	margin-top: 6px;
-	color: rgba(231, 238, 252, 0.88);
+	color: var(--csetup-muted);
 	line-height: 1.25;
 }
 
@@ -471,8 +645,8 @@
 }
 
 .csetup-root.csetup-theme-modern a.theme-swatch.active {
-	border-color: rgba(134, 183, 255, 0.75);
-	box-shadow: 0 0 8px rgba(134, 183, 255, 0.45);
+	border-color: rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.75);
+	box-shadow: 0 0 8px rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.45);
 }
 
 /* Optional utility classes you can use later for custom buttons */
