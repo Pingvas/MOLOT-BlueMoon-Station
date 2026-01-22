@@ -1238,30 +1238,40 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	//gear loadout
 	if(istext(S["loadout"]))
 		loadout_data = safe_json_decode(S["loadout"])
-		var/list/sanitize_current_slot = loadout_data["SAVE_[loadout_slot]"]
-		if(LAZYLEN(sanitize_current_slot))
-			for(var/list/entry in sanitize_current_slot)
-				for(var/setting in entry)
-					switch(setting)
-						if(LOADOUT_ITEM)
-							if(!ispath(entry[setting]))
-								continue
-						if(LOADOUT_COLOR)
-							if(islist(entry[setting]))
-								for(var/polychromic in entry[setting])
-									if(!findtext(polychromic, GLOB.is_color))
-										polychromic = "#FFFFFF"
-							else
-								entry -= setting
+		if(!islist(loadout_data))
+			loadout_data = list()
 
-						if(LOADOUT_CUSTOM_NAME)
-							entry[setting] = trim(html_encode(entry[setting]), MAX_NAME_LEN)
-						if(LOADOUT_CUSTOM_DESCRIPTION)
-							entry[setting] = trim(html_encode(entry[setting]), 500)
+		for(var/loadout_save_index = 1, loadout_save_index <= MAXIMUM_LOADOUT_SAVES, loadout_save_index++)
+			var/save_key = "SAVE_[loadout_save_index]"
+			var/list/sanitize_entries = loadout_data[save_key]
+			if(islist(sanitize_entries) && LAZYLEN(sanitize_entries))
+				for(var/list/entry in sanitize_entries)
+					for(var/setting in entry)
+						switch(setting)
+							if(LOADOUT_ITEM)
+								if(!ispath(entry[setting]))
+									continue
+							if(LOADOUT_COLOR)
+								if(islist(entry[setting]))
+									var/list/colors = entry[setting]
+									if(!LAZYLEN(colors))
+										entry[setting] = list("#FFFFFF")
+									else
+										for(var/i in 1 to colors.len)
+											var/polychromic = colors[i]
+											if(!istext(polychromic) || !findtext(polychromic, GLOB.is_color))
+												colors[i] = "#FFFFFF"
+								else
+									entry -= setting
 
-			loadout_data["SAVE_[loadout_slot]"] = sanitize_current_slot.Copy()
-		else
-			loadout_data["SAVE_[loadout_slot]"] = list()
+							if(LOADOUT_CUSTOM_NAME)
+								entry[setting] = trim(html_encode(entry[setting]), MAX_NAME_LEN)
+							if(LOADOUT_CUSTOM_DESCRIPTION)
+								entry[setting] = trim(html_encode(entry[setting]), 500)
+
+				loadout_data[save_key] = sanitize_entries.Copy()
+			else
+				loadout_data[save_key] = list()
 	else
 		loadout_data = list()
 

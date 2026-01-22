@@ -1058,11 +1058,13 @@
 							if(gear.loadout_flags & LOADOUT_CAN_COLOR_POLYCHROMIC)
 								extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color_polychromic=1;loadout_gear_name=[html_encode(gear.name)];'>Color</a>"
 								for(var/loadout_color in loadout_item[LOADOUT_COLOR])
-									extra_loadout_data += "<span style='border: 1px solid #161616; background-color: [loadout_color];'><font color='[color_hex2num(loadout_color) < 200 ? "FFFFFF" : "000000"]'>[loadout_color]</font></span>"
+									var/safe_loadout_color = sanitize_hexcolor(loadout_color, 6, TRUE, "#FFFFFF")
+									extra_loadout_data += "<span style='border: 1px solid #161616; background-color: [safe_loadout_color];'><font color='[color_hex2num(safe_loadout_color) < 200 ? "FFFFFF" : "000000"]'>[safe_loadout_color]</font></span>"
 							else
 								var/loadout_color_non_poly = "#FFFFFF"
 								if(length(loadout_item[LOADOUT_COLOR]))
 									loadout_color_non_poly = loadout_item[LOADOUT_COLOR][1]
+								loadout_color_non_poly = sanitize_hexcolor(loadout_color_non_poly, 6, TRUE, "#FFFFFF")
 								extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color=1;loadout_gear_name=[html_encode(gear.name)];'>Color</a>"
 								extra_loadout_data += "<span style='border: 1px solid #161616; background-color: [loadout_color_non_poly];'><font color='[color_hex2num(loadout_color_non_poly) < 200 ? "FFFFFF" : "000000"]'>[loadout_color_non_poly]</font></span>"
 							if(gear.loadout_flags & LOADOUT_CAN_NAME)
