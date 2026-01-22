@@ -1275,8 +1275,6 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 				loadout_data[save_key] = sanitize_entries.Copy()
 			else
 				loadout_data[save_key] = list()
-	else
-		loadout_data = list()
 
 	//let's remember their last used slot, i'm sure "oops i brought the wrong stuff" will be an issue now
 	S["loadout_slot"] >> loadout_slot
