@@ -696,6 +696,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	.csetup-root a:hover{ background-color:[button_hover]; }\n\
 	.csetup-root .linkOn{ background-color:[button_active]; color:[button_text]; }\n\
 	.csetup-root a.linkOff, .csetup-root .linkOff{ color:[text_secondary]; cursor:not-allowed; opacity:0.6; }\n\
+	.csetup-root .csetup-ai-core-preview{ margin-top:4px; display:inline-block; }\n\
+	.csetup-root .csetup-ai-core-preview img{ width:64px; height:64px; border:1px solid [border_color]; border-radius:10px; background-color:[bg_primary]; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06); image-rendering: pixelated; -ms-interpolation-mode: nearest-neighbor; }\n\
 	.csetup-root hr{ border:none; height:1px; background: linear-gradient(90deg, transparent, [border_color], transparent); margin:10px 0; }\n\
 	.csetup-root table{ background-color:[bg_secondary]; border-collapse:collapse; width:100%; border:1px solid [border_color]; border-radius:10px; overflow:hidden; }\n\
 	.csetup-root td, .csetup-root th{ padding:6px 8px; color:[text_primary]; text-align:left; border-bottom:1px solid [border_color]; }\n\
@@ -882,21 +884,18 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 						S["real_name"] >> name
 						var/is_empty_slot = !name
 						if(collapse_empty_character_slots && is_empty_slot && i != default_slot)
-							// hidden
-						else
-							unspaced_slots++
-							if(unspaced_slots > 4)
-								dat += "<br>"
-								unspaced_slots = 0
-							if(!name)
-								name = "Character[i]"
-							var/slot_attr = ""
-							if(i == default_slot)
-								slot_attr = "class='linkOn'"
-							dat += "<a style='white-space:nowrap;' href='?_src_=prefs;preference=changeslot;num=[i];' [slot_attr]>[name]</a> "
+							continue
+						unspaced_slots++
+						if(unspaced_slots > 4)
+							dat += "<br>"
+							unspaced_slots = 1
+						if(!name)
+							name = "Character[i]"
+						var/slot_class = ""
+						if(i == default_slot)
+							slot_class = "class='linkOn'"
+						dat += "<a style='white-space:nowrap;' href='?_src_=prefs;preference=changeslot;num=[i];' [slot_class]>[name]</a> "
 					dat += "</center>"
-
-			dat += "<HR>"
 
 			dat += "<center>"
 			var/file = user.client.Import()
@@ -1090,6 +1089,17 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 
 					dat += "<b>Custom job preferences:</b><BR>"
 					dat += "<a href='?_src_=prefs;preference=ai_core_icon;task=input'><b>Preferred AI Core Display:</b> [preferred_ai_core_display]</a><br>"
+					if(is_modern_theme)
+						var/ai_core_icon_state
+						if(preferred_ai_core_display == "Random")
+							ai_core_icon_state = "ai-random"
+						else
+							ai_core_icon_state = resolve_ai_icon(preferred_ai_core_display, TRUE)
+						var/icon/ai_core_preview_icon = icon('icons/mob/ai.dmi', ai_core_icon_state, SOUTH, 1, FALSE)
+						var/ai_core_preview_html = icon2base64html(ai_core_preview_icon)
+						if(!ai_core_preview_html)
+							ai_core_preview_html = ""
+						dat += "<div class='csetup-ai-core-preview'>" + ai_core_preview_html + "</div>"
 					dat += "<a href='?_src_=prefs;preference=sec_dept;task=input'><b>Preferred Security Department:</b> [prefered_security_department]</a><BR></td>"
 					dat += "<br><a href='?_src_=prefs;preference=hide_ckey;task=input'><b>Hide ckey: [hide_ckey ? "Enabled" : "Disabled"]</b></a><br>"
 					dat += "</td>"
