@@ -677,34 +677,45 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 		var/modern_palette_css = ""
 		if(is_modern_theme)
 			var/list/theme = get_character_setup_palette_modern()
+			var/bg_primary = theme["bg_primary"]
+			var/bg_secondary = theme["bg_secondary"]
+			var/text_primary = theme["text_primary"]
+			var/text_secondary = theme["text_secondary"]
+			var/button_bg = theme["button_bg"]
+			var/button_hover = theme["button_hover"]
+			var/button_active = theme["button_active"]
+			var/button_text = theme["button_text"]
+			var/border_color = theme["border_color"]
+			var/accent_color = theme["accent_color"]
+			var/bg_pattern = theme["bg_pattern"]
 			modern_palette_css = "<style>\n\
-	.csetup-root{ background-color:[theme["bg_primary"]]; color:[theme["text_primary"]]; font-family: Verdana, Tahoma, Arial, sans-serif; margin:0; padding:6px; min-height:100vh; position:relative; background-image:[theme["bg_pattern"]]; background-size:auto; }\n\
-	.csetup-root a, .csetup-root a:link, .csetup-root a:visited{ color:[theme["text_primary"]]; text-decoration:none; padding:4px 8px; margin:1px; display:inline-block; background-color:[theme["button_bg"]]; border-radius:7px; border:1px solid [theme["border_color"]]; cursor:pointer; font-size:12px; vertical-align:middle; }\n\
-	.csetup-root a:hover{ background-color:[theme["button_hover"]]; }\n\
-	.csetup-root .linkOn{ background-color:[theme["button_active"]]; color:[theme["button_text"]]; }\n\
-	.csetup-root a.linkOff, .csetup-root .linkOff{ color:[theme["text_secondary"]]; cursor:not-allowed; opacity:0.6; }\n\
-	.csetup-root hr{ border:none; height:1px; background: linear-gradient(90deg, transparent, [theme["border_color"]], transparent); margin:10px 0; }\n\
-	.csetup-root table{ background-color:[theme["bg_secondary"]]; border-collapse:collapse; width:100%; border:1px solid [theme["border_color"]]; border-radius:10px; overflow:hidden; }\n\
-	.csetup-root td, .csetup-root th{ padding:6px 8px; color:[theme["text_primary"]]; text-align:left; border-bottom:1px solid [theme["border_color"]]; }\n\
-	.csetup-root td:not(:last-child), .csetup-root th:not(:last-child){ border-right:1px solid [theme["border_color"]]; }\n\
-	.csetup-root .csetup_character_node{ background-color:[theme["bg_secondary"]]; border:1px solid [theme["border_color"]]; }\n\
-	.csetup-root .csetup_character_label{ color:[theme["text_secondary"]]; }\n\
-	.csetup-root .theme-selector{ background-color:[theme["bg_secondary"]]; border:1px solid [theme["border_color"]]; overflow:hidden; max-width:640px; white-space:nowrap; transition:max-width 180ms ease, padding 180ms ease; }\n\
+	.csetup-root{ background-color:[bg_primary]; color:[text_primary]; font-family: Verdana, Tahoma, Arial, sans-serif; margin:0; padding:6px; min-height:100vh; position:relative; background-image:[bg_pattern]; background-size:auto; }\n\
+	.csetup-root a, .csetup-root a:link, .csetup-root a:visited{ color:[text_primary]; text-decoration:none; padding:4px 8px; margin:1px; display:inline-block; background-color:[button_bg]; border-radius:7px; border:1px solid [border_color]; cursor:pointer; font-size:12px; vertical-align:middle; }\n\
+	.csetup-root a:hover{ background-color:[button_hover]; }\n\
+	.csetup-root .linkOn{ background-color:[button_active]; color:[button_text]; }\n\
+	.csetup-root a.linkOff, .csetup-root .linkOff{ color:[text_secondary]; cursor:not-allowed; opacity:0.6; }\n\
+	.csetup-root hr{ border:none; height:1px; background: linear-gradient(90deg, transparent, [border_color], transparent); margin:10px 0; }\n\
+	.csetup-root table{ background-color:[bg_secondary]; border-collapse:collapse; width:100%; border:1px solid [border_color]; border-radius:10px; overflow:hidden; }\n\
+	.csetup-root td, .csetup-root th{ padding:6px 8px; color:[text_primary]; text-align:left; border-bottom:1px solid [border_color]; }\n\
+	.csetup-root td:not(:last-child), .csetup-root th:not(:last-child){ border-right:1px solid [border_color]; }\n\
+	.csetup-root .csetup_character_node{ background-color:[bg_secondary]; border:1px solid [border_color]; }\n\
+	.csetup-root .csetup_character_label{ color:[text_secondary]; }\n\
+	.csetup-root .theme-selector{ background-color:[bg_secondary]; border:1px solid [border_color]; overflow:hidden; max-width:640px; white-space:nowrap; transition:max-width 180ms ease, padding 180ms ease; }\n\
 	.csetup-root .theme-body{ display:inline-flex; align-items:center; gap:6px; transition:opacity 160ms ease, transform 180ms ease; opacity:1; transform:translateX(0); }\n\
 	.csetup-root .theme-selector.collapsed{ max-width:26px; padding:4px 4px; gap:0; }\n\
 	.csetup-root .theme-selector.collapsed .theme-body{ opacity:0; transform:translateX(16px); pointer-events:none; }\n\
 	.csetup-root a.theme-emoji-btn{ padding:0 !important; margin:0 4px 0 0 !important; background:transparent !important; border:none !important; box-shadow:none !important; font-size:14px; line-height:1; }\n\
 	.csetup-root a.theme-collapse-hint{ padding:0 !important; margin:0 2px 0 0 !important; background:transparent !important; border:none !important; box-shadow:none !important; font-size:12px; line-height:1; opacity:0.85; text-decoration:none; }\n\
 	.csetup-root a.theme-collapse-hint:hover{ opacity:1; }\n\
-	.csetup-root .theme-label{ font-size:11px; letter-spacing:0.2px; opacity:0.92; color:[theme["text_secondary"]]; user-select:none; }\n\
-	.csetup-root .theme-label-custom{ opacity:0.95; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:[theme["text_primary"]]; }\n\
-	.csetup-root .theme-sep{ width:2px; height:20px; background:[theme["border_color"]]; opacity:1; margin:0 6px; display:inline-block; border-radius:2px; }\n\
-	.csetup-root .theme-custom-group{ display:inline-flex; align-items:center; gap:6px; padding:3px 6px; border-radius:10px; background-color:[theme["bg_primary"]]; border:1px solid [theme["border_color"]]; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06); }\n\
-	.csetup-root a.theme-swatch.active{ border-color:[theme["accent_color"]]; box-shadow:0 0 8px [theme["accent_color"]]; }\n\
+	.csetup-root .theme-label{ font-size:11px; letter-spacing:0.2px; opacity:0.92; color:[text_secondary]; user-select:none; }\n\
+	.csetup-root .theme-label-custom{ opacity:0.95; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:[text_primary]; }\n\
+	.csetup-root .theme-sep{ width:2px; height:20px; background:[border_color]; opacity:1; margin:0 6px; display:inline-block; border-radius:2px; }\n\
+	.csetup-root .theme-custom-group{ display:inline-flex; align-items:center; gap:6px; padding:3px 6px; border-radius:10px; background-color:[bg_primary]; border:1px solid [border_color]; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06); }\n\
+	.csetup-root a.theme-swatch.active{ border-color:[accent_color]; box-shadow:0 0 8px [accent_color]; }\n\
 	.csetup-root a.theme-swatch--custom{ width:18px; height:18px; border-radius:6px; display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,0.75); }\n\
 	.csetup-root a.theme-gear{ padding:0 !important; margin-left:2px; width:18px; height:18px; border-radius:6px; display:inline-flex; align-items:center; justify-content:center; font-size:13px; line-height:1; }\n\
-	.csetup-root .theme-custom-editor{ background-color:[theme["bg_secondary"]]; border:1px solid [theme["border_color"]]; color:[theme["text_primary"]]; }\n\
-	.csetup-root .theme-custom-editor-hint{ font-size:11px; opacity:0.8; color:[theme["text_secondary"]]; }\n\
+	.csetup-root .theme-custom-editor{ background-color:[bg_secondary]; border:1px solid [border_color]; color:[text_primary]; }\n\
+	.csetup-root .theme-custom-editor-hint{ font-size:11px; opacity:0.8; color:[text_secondary]; }\n\
 	.csetup-root .theme-custom-editor-table a.colorbox{ padding:0 !important; margin:0 6px 0 0 !important; background-color:transparent; border-radius:4px !important; box-shadow:none !important; }\n\
 	.csetup-root .theme-custom-editor-actions a.theme-action{ background-color:#2b2b2b !important; color:#f2f2f2 !important; border:1px solid rgba(255,255,255,0.18) !important; }\n\
 	.csetup-root .theme-custom-editor-actions a.theme-action:hover{ background-color:#3a3a3a !important; }\n\
@@ -947,7 +958,10 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 			dat += "<center>"
 			dat += "<table width='100%'>"
 			dat += "<tr>"
-			dat += "<td width='35%'>"
+			if(is_modern_theme && character_settings_tab != LOADOUT_CHAR_TAB)
+				dat += "<td width='100%' colspan='2'>"
+			else
+				dat += "<td width='35%'>"
 			dat += "<center><b>Preview:</b></center><br>"
 			var/preview_class_job = ""
 			var/preview_class_loadout = ""
@@ -962,11 +976,17 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 			if(preview_pref == PREVIEW_PREF_NAKED_AROUSED)
 				preview_class_naked_aroused = "class='linkOn'"
 			dat += "<center style=\"line-height:20px\">"
-			dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_JOB]' [preview_class_job]>[PREVIEW_PREF_JOB]</a>"
-			dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_LOADOUT]' [preview_class_loadout]>[PREVIEW_PREF_LOADOUT]</a>"
-			dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_NAKED]' [preview_class_naked]>[PREVIEW_PREF_NAKED]</a>"
-			dat += "<br>"
-			dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_NAKED_AROUSED]' [preview_class_naked_aroused]>[PREVIEW_PREF_NAKED_AROUSED]</a>"
+			if(is_modern_theme)
+				dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_JOB]' [preview_class_job]>[PREVIEW_PREF_JOB]</a> "
+				dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_LOADOUT]' [preview_class_loadout]>[PREVIEW_PREF_LOADOUT]</a> "
+				dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_NAKED]' [preview_class_naked]>[PREVIEW_PREF_NAKED]</a> "
+				dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_NAKED_AROUSED]' [preview_class_naked_aroused]>[PREVIEW_PREF_NAKED_AROUSED]</a>"
+			else
+				dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_JOB]' [preview_class_job]>[PREVIEW_PREF_JOB]</a>"
+				dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_LOADOUT]' [preview_class_loadout]>[PREVIEW_PREF_LOADOUT]</a>"
+				dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_NAKED]' [preview_class_naked]>[PREVIEW_PREF_NAKED]</a>"
+				dat += "<br>"
+				dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_NAKED_AROUSED]' [preview_class_naked_aroused]>[PREVIEW_PREF_NAKED_AROUSED]</a>"
 			dat += "</center>"
 			dat += "</td>"
 			if(character_settings_tab == LOADOUT_CHAR_TAB) //if loadout
@@ -977,28 +997,23 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					loadout_errors = 0
 					for(var/loadout_item in chosen_gear)
 						var/loadout_item_path = loadout_item[LOADOUT_ITEM]
-						if(!loadout_item_path)
+						if(loadout_item_path)
+							var/datum/gear/loadout_gear = text2path(loadout_item_path)
+							if(loadout_gear)
+								gear_points -= initial(loadout_gear.cost)
+							else
+								loadout_errors++
+						else
 							loadout_errors++
-							continue
-						var/datum/gear/loadout_gear = text2path(loadout_item_path)
-						if(!loadout_gear)
-							loadout_errors++
-							continue
-						gear_points -= initial(loadout_gear.cost)
 				else
 					chosen_gear = list()
-
 				dat += "<td width='65%'>"
-				dat += "<center><b><font color='[gear_points == 0 ? "#E62100" : "#CCDDFF"]'>[gear_points]</font> loadout point[gear_points == 1 ? "" : "s"] remaining</center><br>"
-				dat += "<center><a href='?_src_=prefs;preference=gear;clear_loadout=1'>Clear Loadout</a></b></center>"
+				dat += "<center><b><font color='" + (gear_points == 0 ? "#E62100" : "#CCDDFF") + "'>[gear_points]</font> loadout point" + (gear_points == 1 ? "" : "s") + " remaining</b></center><br>"
+				dat += "<center><a href='?_src_=prefs;preference=gear;clear_loadout=1'>Clear Loadout</a></center>"
 				dat += "</td>"
 			else
-				if(is_modern_theme)
-					dat += "<td width='65%' style=\"line-height:10px\">"
-					dat += "<center><b>Mismatched parts:</b></center><br>"
-					dat += "<center><a href='?_src_=prefs;preference=mismatched_markings;task=input'>" + (show_mismatched_markings ? "Enabled" : "Disabled") + "</a></center>"
-					dat += "</td>"
-				else
+				// Modern uses colspan=2 for the Preview cell above, so there is no right column here.
+				if(!is_modern_theme)
 					dat += "<td width='35%' style=\"line-height:10px\">"
 					dat += "<center><b>Mismatched parts:</b></center><br>"
 					dat += "<center><a href='?_src_=prefs;preference=mismatched_markings;task=input'>" + (show_mismatched_markings ? "Enabled" : "Disabled") + "</a></center>"
@@ -1251,6 +1266,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 						dat += "<b>Body Model:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=body_model'>[features["body_model"] == MALE ? "Masculine" : "Feminine"]</a><BR>"
 					if(is_modern_theme)
 						dat += "<b><span title='Включает расширенную раскраску отдельных частей тела (если поддерживается видом).'>Advanced colors:</span></b><a style='display:block;width:100px' href='?_src_=prefs;preference=color_scheme;task=input'>[(features["color_scheme"] == ADVANCED_CHARACTER_COLORING) ? "Enabled" : "Disabled"]</a><BR>"
+						dat += "<b><span title='Показывать части/маркинги, которые не подходят текущему виду.'>Mismatched parts:</span></b><a style='display:block;width:100px' href='?_src_=prefs;preference=mismatched_markings;task=input'>[show_mismatched_markings ? "Enabled" : "Disabled"]</a><BR>"
 					dat += "<b>Limb Modification:</b><BR>"
 					dat += "<a href='?_src_=prefs;preference=modify_limbs;task=input'>Modify Limbs</a><BR>"
 					for(var/modification in modified_limbs)
@@ -1806,7 +1822,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "<tr><td colspan=4><center><b>Loadout slot</b></center></td></tr>"
 					dat += "<tr><td colspan=4><center>"
 					for(var/iteration in 1 to MAXIMUM_LOADOUT_SAVES)
-						dat += "<a [loadout_slot == iteration ? "class='linkOn'" : "href='?_src_=prefs;preference=gear;select_slot=[iteration]'"]>[iteration]</a>"
+						var/loadout_slot_attr = (loadout_slot == iteration) ? "class='linkOn'" : "href='?_src_=prefs;preference=gear;select_slot=[iteration]'"
+						dat += "<a [loadout_slot_attr]>[iteration]</a>"
 					dat += "</center></td></tr>"
 					dat += "<tr><td colspan=4><center><i style=\"color: grey;\">You can only choose one item per category, unless it's an item that spawns in your backpack or hands.</center></td></tr>"
 					dat += "<tr><td colspan=4><center><b>"
@@ -1953,9 +1970,9 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 									if(even)
 										background_cl = "#17191C"
 									even = !even
-									dat += "<tr style='vertical-align:top; background-color: [background_cl];'><td width=15%><a \
-										\"style='white-space:normal;' href='?_src_=prefs;preference=gear;clear_invalid_gear=[html_encode(test_item)];'\" \
-											>[test_item ? test_item : "no path!!?! Report to an admin!"]</a></td>"
+									var/test_item_display = test_item ? test_item : "no path!!?! Report to an admin!"
+									var/encoded_test_item = html_encode(test_item ? test_item : "")
+									dat += "<tr style='vertical-align:top; background-color: [background_cl];'><td width=15%><a style='white-space:normal;' href='?_src_=prefs;preference=gear;clear_invalid_gear=[encoded_test_item];'>[test_item_display]</a></td>"
 									dat += "<td style='vertical-align:top'>"
 									var/list/other_data = entry["loadout_item"] ? entry - "loadout_item" : entry
 									dat += json_encode(other_data)
@@ -1963,17 +1980,21 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "</table>"
 		if(PREFERENCES_TAB) // Game Preferences
 			dat += "<center>"
-			dat += "<a href='?_src_=prefs;preference=preferences_tab;tab=[GAME_PREFS_TAB]' [preferences_tab == GAME_PREFS_TAB ? "class='linkOn'" : ""]>General</a>"
-			dat += "<a href='?_src_=prefs;preference=preferences_tab;tab=[OOC_PREFS_TAB]' [preferences_tab == OOC_PREFS_TAB ? "class='linkOn'" : ""]>OOC</a>"
-			dat += "<a href='?_src_=prefs;preference=preferences_tab;tab=[CONTENT_PREFS_TAB]' [preferences_tab == CONTENT_PREFS_TAB ? "class='linkOn'" : ""]>Content</a>"
+			dat += "<a href='?_src_=prefs;preference=preferences_tab;tab=[GAME_PREFS_TAB]' " + (preferences_tab == GAME_PREFS_TAB ? "class='linkOn'" : "") + ">General</a>"
+			dat += "<a href='?_src_=prefs;preference=preferences_tab;tab=[OOC_PREFS_TAB]' " + (preferences_tab == OOC_PREFS_TAB ? "class='linkOn'" : "") + ">OOC</a>"
+			dat += "<a href='?_src_=prefs;preference=preferences_tab;tab=[CONTENT_PREFS_TAB]' " + (preferences_tab == CONTENT_PREFS_TAB ? "class='linkOn'" : "") + ">Content</a>"
 			dat += "</center>"
-
 			dat += "<HR>"
-
 			switch(preferences_tab)
 				if(GAME_PREFS_TAB)
 					dat += "<table><tr><td width='340px' height='300px' valign='top'>"
 					dat += "<h2>General Settings</h2>"
+					var/char_setup_ui = "Old"
+					if(new_character_creator)
+						char_setup_ui = "New"
+						if(findtext(charcreation_theme, "modern"))
+							char_setup_ui = "Modern"
+					dat += "<b>Character Setup UI ([char_setup_ui]):</b> <a href='?_src_=prefs;preference=charcreation_set;theme=old'>Old</a> <a href='?_src_=prefs;preference=charcreation_set;theme=classic'>New</a> <a href='?_src_=prefs;preference=charcreation_set;theme=modern'>Modern</a><br>"
 					dat += "<b>UI Style:</b> <a href='?_src_=prefs;task=input;preference=ui'>[UI_style]</a><br>"
 					dat += "<b>Outline:</b> <a href='?_src_=prefs;preference=outline_enabled'>[outline_enabled ? "Enabled" : "Disabled"]</a><br>"
 					dat += "<b>Outline Color:</b> [outline_color ? "<span style='border:1px solid #161616; background-color: [outline_color];'>" : "Theme-based (null)"]<font color='[color_hex2num(outline_color) < 200 ? "FFFFFF" : "000000"]'>[outline_color]</font></span> <a href='?_src_=prefs;preference=outline_color'>Change</a><BR>"
@@ -2101,12 +2122,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "<b>Widescreen:</b> <a href='?_src_=prefs;preference=widescreenpref'>[widescreenpref ? "Enabled ([CONFIG_GET(string/default_view)])" : "Disabled (15x15)"]</a><br>"
 					dat += "<b>Fullscreen:</b> <a href='?_src_=prefs;preference=fullscreen'>[fullscreen ? "Enabled" : "Disabled"]</a><br>"
 					dat += "<b>Long strip menu:</b> <a href='?_src_=prefs;preference=long_strip_menu'>[long_strip_menu ? "Enabled" : "Disabled"]</a><br>"
-					var/char_setup_ui = "Old"
-					if(new_character_creator)
-						char_setup_ui = "New"
-						if(findtext(charcreation_theme, "modern"))
-							char_setup_ui = "Modern"
-					dat += "<b>Character Setup UI ([char_setup_ui]):</b> <a href='?_src_=prefs;preference=charcreation_set;theme=old'>Old</a> <a href='?_src_=prefs;preference=charcreation_set;theme=classic'>New</a> <a href='?_src_=prefs;preference=charcreation_set;theme=modern'>Modern</a><br>"
 					var/modern_accent_label = "—"
 					if(new_character_creator && findtext(charcreation_theme, "modern"))
 						switch(charcreation_theme)
