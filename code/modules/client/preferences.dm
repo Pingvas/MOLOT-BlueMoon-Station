@@ -455,8 +455,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/tmp/modern_theme_picker_collapsed = FALSE
 	/// UI-only state (not persisted): play a one-shot collapse/expand animation on next render
 	var/tmp/modern_theme_picker_animate = FALSE
-	/// UI-only state (not persisted): collapse empty character slots in the top slot list
-	var/tmp/collapse_empty_character_slots = FALSE
+	/// UI state: collapse empty character slots in the top slot list (persisted in preferences)
+	var/collapse_empty_character_slots = FALSE
 
 /datum/preferences/New(client/C)
 	parent = C
@@ -3030,6 +3030,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 		switch(href_list["action"])
 			if("toggle_empty")
 				collapse_empty_character_slots = !collapse_empty_character_slots
+				save_preferences(silent = TRUE)
 				ShowChoices(user)
 				return TRUE
 		ShowChoices(user)
