@@ -1262,7 +1262,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 									else
 										for(var/i in 1 to colors.len)
 											var/polychromic = colors[i]
-											if(!istext(polychromic) || !findtext(polychromic, GLOB.is_color))
+											if(istext(polychromic) && !findtext(polychromic, GLOB.is_color))
 												colors[i] = "#FFFFFF"
 								else
 									entry -= setting
