@@ -1864,7 +1864,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 							if(category == gear_category)
 								dat += " <span class='linkOn'>[(category == LOADOUT_CATEGORY_ERROR && loadout_errors) ? "[category] (<font color=\"red\">!</font>)" : category]</span> "
 							else
-								dat += " <a href='?_src_=prefs;preference=gear;select_category=[html_encode(category)]'>[(category == LOADOUT_CATEGORY_ERROR && loadout_errors) ? "[category] (<font color=\"red\">!</font>)" : category]</a> "
+								dat += " <a href='?_src_=prefs;preference=gear;select_category=[url_encode(category)]'>[(category == LOADOUT_CATEGORY_ERROR && loadout_errors) ? "[category] (<font color=\"red\">!</font>)" : category]</a> "
 
 						dat += "</b></center></td></tr>"
 						dat += "<tr><td colspan=4><hr></td></tr>"
@@ -1887,7 +1887,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 								if(gear_subcategory == subcategory)
 									dat += " <span class='linkOn'>[subcategory]</span> "
 								else
-									dat += " <a href='?_src_=prefs;preference=gear;select_subcategory=[html_encode(subcategory)]'>[subcategory]</a> "
+									dat += " <a href='?_src_=prefs;preference=gear;select_subcategory=[url_encode(subcategory)]'>[subcategory]</a> "
 							dat += "</b></center></td></tr>"
 
 							var/even = FALSE
@@ -1924,42 +1924,42 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 									var/list/loadout_item = has_loadout_gear(loadout_slot, "[gear.type]")
 									var/extra_loadout_data = ""
 									if(gear.base64icon)
-										extra_loadout_data += "<center><img src=data:image/jpeg;base64,[gear.base64icon]></center>"
+										extra_loadout_data += "<center><img src='data:image/jpeg;base64,[gear.base64icon]'></center>"
 									if(loadout_item)
-										class_link = "style='white-space:normal;' class='linkOn' href='?_src_=prefs;preference=gear;toggle_gear_path=[html_encode(name)];toggle_gear=0'"
+										class_link = "style='white-space:normal;' class='linkOn' href='?_src_=prefs;preference=gear;toggle_gear_path=[url_encode(name)];toggle_gear=0'"
 										if(gear.loadout_flags & LOADOUT_CAN_COLOR_POLYCHROMIC)
-											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color_polychromic=1;loadout_gear_name=[html_encode(gear.name)];'>Color</a>"
+											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color_polychromic=1;loadout_gear_name=[url_encode(gear.name)];'>Color</a>"
 											for(var/loadout_color in loadout_item[LOADOUT_COLOR])
 												extra_loadout_data += "<span style='border: 1px solid #161616; background-color: [loadout_color];'><font color='[color_hex2num(loadout_color) < 200 ? "FFFFFF" : "000000"]'>[loadout_color]</font></span>"
 										else
 											var/loadout_color_non_poly = "#FFFFFF"
 											if(length(loadout_item[LOADOUT_COLOR]))
 												loadout_color_non_poly = loadout_item[LOADOUT_COLOR][1]
-											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color=1;loadout_gear_name=[html_encode(gear.name)];'>Color</a>"
+											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color=1;loadout_gear_name=[url_encode(gear.name)];'>Color</a>"
 											extra_loadout_data += "<span style='border: 1px solid #161616; background-color: [loadout_color_non_poly];'><font color='[color_hex2num(loadout_color_non_poly) < 200 ? "FFFFFF" : "000000"]'>[loadout_color_non_poly]</font></span>"
-											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color_HSV=1;loadout_gear_name=[html_encode(gear.name)];'>HSV Color</a>" // SPLURT EDIT
+											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color_HSV=1;loadout_gear_name=[url_encode(gear.name)];'>HSV Color</a>" // SPLURT EDIT
 										if(gear.loadout_flags & LOADOUT_CAN_NAME)
-											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_rename=1;loadout_gear_name=[html_encode(gear.name)];'>Name</a> [loadout_item[LOADOUT_CUSTOM_NAME] ? loadout_item[LOADOUT_CUSTOM_NAME] : "N/A"]"
+											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_rename=1;loadout_gear_name=[url_encode(gear.name)];'>Name</a> [loadout_item[LOADOUT_CUSTOM_NAME] ? loadout_item[LOADOUT_CUSTOM_NAME] : "N/A"]"
 										if(gear.loadout_flags & LOADOUT_CAN_DESCRIPTION)
-											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_redescribe=1;loadout_gear_name=[html_encode(gear.name)];'>Description</a>"
+											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_redescribe=1;loadout_gear_name=[url_encode(gear.name)];'>Description</a>"
 										else
-											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_addheirloom=1;loadout_gear_name=[html_encode(gear.name)];'>Select as Heirloom</a><BR>"
+											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_addheirloom=1;loadout_gear_name=[url_encode(gear.name)];'>Select as Heirloom</a><BR>"
 										// BLUEMOON ADD START - выбор вещей из лодаута как family heirloom
 										if(loadout_item[LOADOUT_IS_HEIRLOOM])
-											extra_loadout_data += "<BR><a class='linkOn' href='?_src_=prefs;preference=gear;loadout_removeheirloom=1;loadout_gear_name=[html_encode(gear.name)];'>Select as Heirloom</a><BR>"
+											extra_loadout_data += "<BR><a class='linkOn' href='?_src_=prefs;preference=gear;loadout_removeheirloom=1;loadout_gear_name=[url_encode(gear.name)];'>Select as Heirloom</a><BR>"
 										else
-											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_addheirloom=1;loadout_gear_name=[html_encode(gear.name)];'>Select as Heirloom</a><BR>"
+											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_addheirloom=1;loadout_gear_name=[url_encode(gear.name)];'>Select as Heirloom</a><BR>"
 										if(ispath(gear.path, /obj/item/clothing/neck/petcollar)) //"name tag" sounds better for me, but in petcollar code "tagname" is used so let it be.
-											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_tagname=1;loadout_gear_name=[html_encode(gear.name)];'>Name tag</a> [loadout_item["loadout_custom_tagname"] ? loadout_item["loadout_custom_tagname"] : "Name tag is visible for everyone looking at wearer."]"
+											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_tagname=1;loadout_gear_name=[url_encode(gear.name)];'>Name tag</a> [loadout_item["loadout_custom_tagname"] ? loadout_item["loadout_custom_tagname"] : "Name tag is visible for everyone looking at wearer."]"
 								  // BLUEMOON ADD END
 									else if(!is_loadout_slot_available(gear.category))
 										class_link = "style='white-space:normal;' class='linkOff'"
 									else if((gear_points - gear.cost) < 0)
 										class_link = "style='white-space:normal;' class='linkOff'"
 									else if(donoritem)
-										class_link = "style='white-space:normal;background:#ebc42e;' href='?_src_=prefs;preference=gear;toggle_gear_path=[html_encode(name)];toggle_gear=1'"
+										class_link = "style='white-space:normal;background:#ebc42e;' href='?_src_=prefs;preference=gear;toggle_gear_path=[url_encode(name)];toggle_gear=1'"
 									else if(!istype(gear, /datum/gear/unlockable) || can_use_unlockable(gear))
-										class_link = "style='white-space:normal;' href='?_src_=prefs;preference=gear;toggle_gear_path=[html_encode(name)];toggle_gear=1'"
+										class_link = "style='white-space:normal;' href='?_src_=prefs;preference=gear;toggle_gear_path=[url_encode(name)];toggle_gear=1'"
 									else
 										class_link = "style='white-space:normal;background:#eb2e2e;' class='linkOff'"
 									dat += "<tr style='vertical-align:top; background-color: [background_cl];'><td width=15%><a [class_link]>[name]</a>[extra_loadout_data]</td>"
@@ -2002,7 +2002,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 										background_cl = "#17191C"
 									even = !even
 									var/test_item_display = test_item ? test_item : "no path!!?! Report to an admin!"
-									var/encoded_test_item = html_encode(test_item ? test_item : "")
+									var/encoded_test_item = url_encode(test_item ? test_item : "")
 									dat += "<tr style='vertical-align:top; background-color: [background_cl];'><td width=15%><a style='white-space:normal;' href='?_src_=prefs;preference=gear;clear_invalid_gear=[encoded_test_item];'>[test_item_display]</a></td>"
 									dat += "<td style='vertical-align:top'>"
 									var/list/other_data = entry["loadout_item"] ? entry - "loadout_item" : entry
@@ -5551,7 +5551,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 			loadout_data["SAVE_[loadout_slot]"] = list()
 			save_preferences()
 		if(href_list["select_category"])
-			gear_category = html_decode(href_list["select_category"])
+			gear_category = url_decode(href_list["select_category"])
 			// BLUEMOON FIX - Add null check to prevent runtime when category doesn't exist
 			var/list/subcategories = GLOB.loadout_categories[gear_category]
 			if(length(subcategories))
@@ -5560,9 +5560,9 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 				stack_trace("Loadout topic: Invalid category '[gear_category]' selected (user: [user?.ckey])")
 				gear_subcategory = LOADOUT_SUBCATEGORY_NONE
 		if(href_list["select_subcategory"])
-			gear_subcategory = html_decode(href_list["select_subcategory"])
+			gear_subcategory = url_decode(href_list["select_subcategory"])
 		if(href_list["toggle_gear_path"])
-			var/name = html_decode(href_list["toggle_gear_path"])
+			var/name = url_decode(href_list["toggle_gear_path"])
 			// BLUEMOON FIX - Add null check to prevent runtime when category/subcategory doesn't exist
 			if(!GLOB.loadout_items[gear_category] || !GLOB.loadout_items[gear_category][gear_subcategory])
 				stack_trace("Loadout toggle: Missing category '[gear_category]'/subcategory '[gear_subcategory]' for item '[name]' (user: [user?.ckey])")
@@ -5599,7 +5599,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					else
 						loadout_data["SAVE_[loadout_slot]"] = list(new_loadout_data) //double packed because you somehow had no save slot in your loadout?
 		if(href_list["clear_invalid_gear"])
-			var/thing_to_remove = html_decode(href_list["clear_invalid_gear"])
+			var/thing_to_remove = url_decode(href_list["clear_invalid_gear"])
 			if(!thing_to_remove)
 				return
 			var/list/sanitize_current_slot = loadout_data["SAVE_[loadout_slot]"]
@@ -5611,7 +5611,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 		if(href_list["loadout_color"] || href_list["loadout_color_polychromic"] || href_list["loadout_color_HSV"] || href_list["loadout_rename"] || href_list["loadout_redescribe"] || href_list["loadout_addheirloom"] || href_list["loadout_removeheirloom"] || href_list["loadout_tagname"])
 
 			//if the gear doesn't exist, or they don't have it, ignore the request
-			var/name = html_decode(href_list["loadout_gear_name"])
+			var/name = url_decode(href_list["loadout_gear_name"])
 			// BLUEMOON FIX - Add null check to prevent runtime when category/subcategory doesn't exist
 			if(!GLOB.loadout_items[gear_category] || !GLOB.loadout_items[gear_category][gear_subcategory])
 				stack_trace("Loadout customize: Missing category '[gear_category]'/subcategory '[gear_subcategory]' for item '[name]' (user: [user?.ckey])")

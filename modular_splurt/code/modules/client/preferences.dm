@@ -1015,7 +1015,7 @@
 					if(category == gear_category)
 						dat += " <span class='linkOn'>[category]</span> "
 					else
-						dat += " <a href='?_src_=prefs;preference=gear;select_category=[html_encode(category)]'>[category]</a> "
+						dat += " <a href='?_src_=prefs;preference=gear;select_category=[url_encode(category)]'>[category]</a> "
 
 				dat += "</b></center></td></tr>"
 				dat += "<tr><td colspan=4><hr></td></tr>"
@@ -1038,7 +1038,7 @@
 						if(gear_subcategory == subcategory)
 							dat += " <span class='linkOn'>[subcategory]</span> "
 						else
-							dat += " <a href='?_src_=prefs;preference=gear;select_subcategory=[html_encode(subcategory)]'>[subcategory]</a> "
+							dat += " <a href='?_src_=prefs;preference=gear;select_subcategory=[url_encode(subcategory)]'>[subcategory]</a> "
 					dat += "</b></center></td></tr>"
 
 					dat += "<tr width=10% style='vertical-align:top;'><td width=15%><b>Name</b></td>"
@@ -1065,9 +1065,9 @@
 						var/list/loadout_item = has_loadout_gear(loadout_slot, "[gear.type]")
 						var/extra_loadout_data = ""
 						if(loadout_item)
-							class_link = "style='white-space:normal;' class='linkOn' href='?_src_=prefs;preference=gear;toggle_gear_path=[html_encode(name)];toggle_gear=0'"
+							class_link = "style='white-space:normal;' class='linkOn' href='?_src_=prefs;preference=gear;toggle_gear_path=[url_encode(name)];toggle_gear=0'"
 							if(gear.loadout_flags & LOADOUT_CAN_COLOR_POLYCHROMIC)
-								extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color_polychromic=1;loadout_gear_name=[html_encode(gear.name)];'>Color</a>"
+								extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color_polychromic=1;loadout_gear_name=[url_encode(gear.name)];'>Color</a>"
 								for(var/loadout_color in loadout_item[LOADOUT_COLOR])
 									var/safe_loadout_color = sanitize_hexcolor(loadout_color, 6, TRUE, "#FFFFFF")
 									extra_loadout_data += "<span style='border: 1px solid #161616; background-color: [safe_loadout_color];'><font color='[color_hex2num(safe_loadout_color) < 200 ? "FFFFFF" : "000000"]'>[safe_loadout_color]</font></span>"
@@ -1076,26 +1076,26 @@
 								if(length(loadout_item[LOADOUT_COLOR]))
 									loadout_color_non_poly = loadout_item[LOADOUT_COLOR][1]
 								loadout_color_non_poly = sanitize_hexcolor(loadout_color_non_poly, 6, TRUE, "#FFFFFF")
-								extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color=1;loadout_gear_name=[html_encode(gear.name)];'>Color</a>"
+								extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color=1;loadout_gear_name=[url_encode(gear.name)];'>Color</a>"
 								extra_loadout_data += "<span style='border: 1px solid #161616; background-color: [loadout_color_non_poly];'><font color='[color_hex2num(loadout_color_non_poly) < 200 ? "FFFFFF" : "000000"]'>[loadout_color_non_poly]</font></span>"
 							if(gear.loadout_flags & LOADOUT_CAN_NAME)
-								extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_rename=1;loadout_gear_name=[html_encode(gear.name)];'>Name</a> [loadout_item[LOADOUT_CUSTOM_NAME] ? loadout_item[LOADOUT_CUSTOM_NAME] : "N/A"]"
+								extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_rename=1;loadout_gear_name=[url_encode(gear.name)];'>Name</a> [loadout_item[LOADOUT_CUSTOM_NAME] ? loadout_item[LOADOUT_CUSTOM_NAME] : "N/A"]"
 							if(gear.loadout_flags & LOADOUT_CAN_DESCRIPTION)
-								extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_redescribe=1;loadout_gear_name=[html_encode(gear.name)];'>Description</a>"
+								extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_redescribe=1;loadout_gear_name=[url_encode(gear.name)];'>Description</a>"
 							else
-								extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_addheirloom=1;loadout_gear_name=[html_encode(gear.name)];'>Select as Heirloom</a><BR>"
+								extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_addheirloom=1;loadout_gear_name=[url_encode(gear.name)];'>Select as Heirloom</a><BR>"
 							// BLUEMOON ADD START - выбор вещей из лодаута как family heirloom
 							if(loadout_item[LOADOUT_IS_HEIRLOOM])
-								extra_loadout_data += "<BR><a class='linkOn' href='?_src_=prefs;preference=gear;loadout_removeheirloom=1;loadout_gear_name=[html_encode(gear.name)];'>Select as Heirloom</a><BR>"
+								extra_loadout_data += "<BR><a class='linkOn' href='?_src_=prefs;preference=gear;loadout_removeheirloom=1;loadout_gear_name=[url_encode(gear.name)];'>Select as Heirloom</a><BR>"
 							// BLUEMOON ADD END
 						else if(!is_loadout_slot_available(gear.category))
 							class_link = "style='white-space:normal;' class='linkOff'"
 						else if((gear_points - gear.cost) < 0)
 							class_link = "style='white-space:normal;' class='linkOff'"
 						else if(donoritem)
-							class_link = "style='white-space:normal;background:#ebc42e;' href='?_src_=prefs;preference=gear;toggle_gear_path=[html_encode(name)];toggle_gear=1'"
+							class_link = "style='white-space:normal;background:#ebc42e;' href='?_src_=prefs;preference=gear;toggle_gear_path=[url_encode(name)];toggle_gear=1'"
 						else if(!istype(gear, /datum/gear/unlockable) || can_use_unlockable(gear))
-							class_link = "style='white-space:normal;' href='?_src_=prefs;preference=gear;toggle_gear_path=[html_encode(name)];toggle_gear=1'"
+							class_link = "style='white-space:normal;' href='?_src_=prefs;preference=gear;toggle_gear_path=[url_encode(name)];toggle_gear=1'"
 						else
 							class_link = "style='white-space:normal;background:#eb2e2e;' class='linkOff'"
 						dat += "<tr style='vertical-align:top;'><td width=15%><a [class_link]>[name]</a>[extra_loadout_data]</td>"
