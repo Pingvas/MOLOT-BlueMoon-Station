@@ -704,9 +704,10 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	.csetup-root td:not(:last-child), .csetup-root th:not(:last-child){ border-right:1px solid [border_color]; }\n\
 	.csetup-root .csetup_character_node{ background-color:[bg_secondary]; border:1px solid [border_color]; }\n\
 	.csetup-root .csetup_character_label{ color:[text_secondary]; }\n\
-	.csetup-root .theme-selector{ background-color:[bg_secondary]; border:1px solid [border_color]; overflow:hidden; max-width:640px; white-space:nowrap; transition:max-width 180ms ease, padding 180ms ease; }\n\
+	.csetup-root .theme-selector{ background-color:[bg_secondary]; border:1px solid [border_color]; overflow:hidden; max-width:640px; min-width:23px; white-space:nowrap; transition:max-width 180ms ease, padding 180ms ease; }\n\
 	.csetup-root .theme-body{ display:inline-flex; align-items:center; gap:6px; transition:opacity 160ms ease, transform 180ms ease; opacity:1; transform:translateX(0); }\n\
-	.csetup-root .theme-selector.collapsed{ max-width:26px; padding:4px 4px; gap:0; }\n\
+	.csetup-root .theme-selector.collapsed{ max-width:23px; padding:0; gap:0; }\n\
+	.csetup-root .theme-selector.collapsed a.theme-emoji-btn{ margin:0 !important; width:21px; height:21px; display:flex; align-items:center; justify-content:center; }\n\
 	.csetup-root .theme-selector.collapsed .theme-body{ opacity:0; transform:translateX(16px); pointer-events:none; }\n\
 	.csetup-root a.theme-emoji-btn{ padding:0 !important; margin:0 4px 0 0 !important; background:transparent !important; border:none !important; box-shadow:none !important; font-size:14px; line-height:1; }\n\
 	.csetup-root a.theme-collapse-hint{ padding:0 !important; margin:0 2px 0 0 !important; background:transparent !important; border:none !important; box-shadow:none !important; font-size:12px; line-height:1; opacity:0.85; text-decoration:none; }\n\

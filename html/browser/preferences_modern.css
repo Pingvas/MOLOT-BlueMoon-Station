@@ -713,11 +713,11 @@
 
 @keyframes csetupThemePickerCollapseWidth {
 	from { max-width: 640px; padding: 5px 6px; }
-	to { max-width: 23px; padding: 4px 4px; } /*UI tweak*/
+	to { max-width: 23px; padding: 0; } /*UI tweak*/
 }
 
 @keyframes csetupThemePickerExpandWidth {
-	from { max-width: 23px; padding: 4px 4px; } /*UI tweak*/
+	from { max-width: 23px; padding: 0; } /*UI tweak*/
 	to { max-width: 640px; padding: 5px 6px; }
 }
 
@@ -783,7 +783,7 @@
 }
 
 .csetup-root .theme-selector.collapsed {
-	width: 23px; /*UI tweak*/
+	max-width: 23px; /*UI tweak*/
 	padding: 0;
 	gap: 0;
 }
