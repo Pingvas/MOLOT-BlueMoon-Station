@@ -456,6 +456,7 @@
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 	overflow: hidden;
 	max-width: 640px;
+	min-width: 23px; /*UI tweak*/
 	white-space: nowrap;
 	transition: max-width 180ms ease, padding 180ms ease;
 	z-index: 10;
@@ -463,11 +464,11 @@
 
 @keyframes csetupThemePickerCollapseWidth {
 	from { max-width: 640px; padding: 5px 6px; }
-	to { max-width: 26px; padding: 4px 4px; }
+	to { max-width: 23px; padding: 4px 4px; } /*UI tweak*/
 }
 
 @keyframes csetupThemePickerExpandWidth {
-	from { max-width: 26px; padding: 4px 4px; }
+	from { max-width: 23px; padding: 4px 4px; } /*UI tweak*/
 	to { max-width: 640px; padding: 5px 6px; }
 }
 
@@ -533,10 +534,20 @@
 }
 
 .csetup-root .theme-selector.collapsed {
-	max-width: 26px;
-	padding: 4px 4px;
+	width: 23px; /*UI tweak*/
+	padding: 0;
 	gap: 0;
 }
+/*UI tweak start*/
+.csetup-root .theme-selector.collapsed a.theme-emoji-btn {
+	margin: 0 !important;
+	width: 21px;
+	height: 21px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+/*UI tweak end*/
 
 .csetup-root .theme-selector.collapsed .theme-body {
 	opacity: 0;
@@ -625,9 +636,9 @@
 
 .csetup-root .theme-custom-editor {
 	position: absolute;
-	top: 34px;
+	top: 55px; /* UI tweak */
 	right: 8px;
-	width: 300px;
+	width: 290px; /* UI tweak */
 	padding: 8px 8px 6px;
 	border-radius: 12px;
 	background-color: var(--csetup-panel, rgba(0, 0, 0, 0.35));
