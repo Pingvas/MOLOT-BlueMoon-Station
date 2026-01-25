@@ -452,7 +452,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	/// UI-only state (not persisted)
 	var/tmp/modern_custom_editor_open = FALSE
 	/// UI-only state (not persisted): collapse the top-right theme picker
-	var/tmp/modern_theme_picker_collapsed = FALSE
+	var/tmp/modern_theme_picker_collapsed = TRUE /// UI tweak
 	/// UI-only state (not persisted): play a one-shot collapse/expand animation on next render
 	var/tmp/modern_theme_picker_animate = FALSE
 	/// UI state: collapse empty character slots in the top slot list (persisted in preferences)
@@ -774,8 +774,10 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 			dat += "<div class='[theme_selector_class]'>"
 			dat += "<a href='?_src_=prefs;preference=modern_theme_picker;action=toggle' class='theme-emoji-btn' title='[toggle_title]'>🎨</a>"
 			dat += "<span class='theme-body'>"
-			if(!modern_theme_picker_collapsed)
-				dat += "<a href='?_src_=prefs;preference=modern_theme_picker;action=toggle' class='theme-collapse-hint' title='Свернуть' aria-label='Свернуть меню тем'>◀</a>"
+			// UI tweak start
+			//if(!modern_theme_picker_collapsed)
+			//	dat += "<a href='?_src_=prefs;preference=modern_theme_picker;action=toggle' class='theme-collapse-hint' title='Свернуть' aria-label='Свернуть меню тем'>◀</a>"
+			// UI tweak end
 			dat += "<span class='theme-label'>Themes</span>"
 			for(var/theme_id in theme_order)
 				var/is_active = (charcreation_theme == theme_id)
