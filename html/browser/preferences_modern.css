@@ -265,6 +265,255 @@
 	opacity: 0.55;
 }
 
+/* Markings (Modern only)
+ * Keep selectors strictly scoped to .csetup-theme-modern.
+ */
+.csetup-root.csetup-theme-modern .csetup-markings {
+	margin-top: 6px;
+}
+
+.csetup-root.csetup-theme-modern .csetup-markings-classic {
+	display: none;
+}
+
+.csetup-root.csetup-theme-modern .csetup-markings .csetup-markings-grid {
+	column-count: 2;
+	column-gap: 8px;
+	column-width: 320px;
+	margin: 6px 0 0 0;
+}
+
+.csetup-root.csetup-theme-modern .csetup-markings h3 {
+	margin: 10px 0 6px 0;
+}
+
+.csetup-root.csetup-theme-modern .csetup-markings-toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	align-items: center;
+	justify-content: center;
+	margin: 8px 0 12px 0;
+	padding: 0;
+	background: transparent;
+	border: none;
+}
+
+.csetup-root.csetup-theme-modern .csetup-markings-toolbar .csetup-toolbar-label {
+	font-size: 12px;
+	color: var(--csetup-muted);
+	margin-right: 6px;
+	user-select: none;
+}
+
+/* Cards per limb */
+.csetup-root.csetup-theme-modern .csetup-markings .csetup-marking-card {
+	margin: 0;
+	display: inline-block;
+	width: 100%;
+	break-inside: avoid;
+	margin: 0 0 8px 0;
+	background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(0, 0, 0, 0.0)), var(--csetup-panel);
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	border-radius: 10px;
+	overflow: hidden;
+}
+
+.csetup-root.csetup-theme-modern .csetup-markings .csetup-marking-card-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	padding: 4px 8px;
+	background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(0, 0, 0, 0));
+	border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.csetup-root.csetup-theme-modern .csetup-markings .csetup-marking-card-title {
+	font-weight: 700;
+	font-size: 11px;
+	color: var(--csetup-text);
+}
+
+.csetup-root.csetup-theme-modern .csetup-markings .csetup-marking-card-actions {
+	display: flex;
+	gap: 4px;
+	flex-wrap: wrap;
+}
+
+.csetup-root.csetup-theme-modern .csetup-markings a.csetup-mini-action {
+	padding: 1px 6px;
+	border-radius: 10px;
+	font-size: 10px;
+	line-height: 1.2;
+	transform: none;
+}
+
+.csetup-root.csetup-theme-modern .csetup-markings a.csetup-mini-action.csetup-mini-danger {
+	background-color: rgba(255, 107, 107, 0.12);
+	border-color: rgba(255, 107, 107, 0.45);
+}
+
+.csetup-root.csetup-theme-modern .csetup-markings a.csetup-mini-action.csetup-mini-danger:hover {
+	background-color: rgba(255, 107, 107, 0.20);
+}
+
+/* Table inside card */
+.csetup-root.csetup-theme-modern .csetup-markings table.csetup-marking-table {
+	width: 100%;
+	table-layout: fixed;
+	border-collapse: separate;
+	border-spacing: 0;
+}
+
+.csetup-root.csetup-theme-modern .csetup-markings .csetup-marking-table-head th {
+	padding: 5px 8px;
+	font-size: 11px;
+	font-weight: 700;
+	color: var(--csetup-muted);
+	text-align: left;
+	background-color: rgba(0, 0, 0, 0.10);
+}
+
+.csetup-root.csetup-theme-modern .csetup-markings table.csetup-marking-table td {
+	padding: 4px 8px;
+	border-top: 1px solid rgba(255, 255, 255, 0.07);
+	vertical-align: middle;
+}
+
+.csetup-root.csetup-theme-modern .csetup-markings tr.csetup-marking-row:nth-child(even) td {
+	background-color: rgba(0, 0, 0, 0.12);
+}
+
+.csetup-root.csetup-theme-modern .csetup-markings .csetup-col-index {
+	width: 35px;
+	color: var(--csetup-muted);
+	font-size: 11px;
+}
+
+.csetup-root.csetup-theme-modern .csetup-markings .csetup-col-move {
+	width: 100px;
+}
+
+.csetup-root.csetup-theme-modern .csetup-markings .csetup-col-colors {
+	width: 110px;
+}
+
+.csetup-root.csetup-theme-modern .csetup-markings .csetup-col-del {
+	width: 44px;
+	text-align: right;
+}
+
+.csetup-root.csetup-theme-modern .csetup-markings .csetup-marking-move {
+	white-space: nowrap;
+}
+
+.csetup-root.csetup-theme-modern .csetup-markings .csetup-marking-table td,
+.csetup-root.csetup-theme-modern .csetup-markings .csetup-marking-table th {
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.csetup-root.csetup-theme-modern .csetup-markings .csetup-marking-move a {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 16px;
+	height: 16px;
+	padding: 0;
+	margin: 0 3px 0 0;
+	border-radius: 999px;
+	font-size: 11px;
+	line-height: 1;
+	background-color: rgba(0, 0, 0, 0.22);
+	border: 1px solid rgba(255, 255, 255, 0.22);
+	box-shadow: none;
+	transform: none;
+}
+
+.csetup-root.csetup-theme-modern .csetup-markings .csetup-marking-move a:hover {
+	background-color: rgba(255, 255, 255, 0.06);
+	transform: none;
+}
+
+.csetup-root.csetup-theme-modern .csetup-markings a.csetup-marking-del {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 16px;
+	height: 16px;
+	padding: 0;
+	border-radius: 999px;
+	background-color: rgba(120, 20, 20, 0.25);
+	border: 1px solid rgba(255, 107, 107, 0.60);
+	color: rgba(255, 170, 170, 0.95);
+	font-weight: 700;
+	box-shadow: none;
+	transform: none;
+}
+
+.csetup-root.csetup-theme-modern .csetup-markings a.csetup-marking-del:hover {
+	background-color: rgba(255, 107, 107, 0.18);
+	transform: none;
+}
+
+/* Color chips */
+.csetup-root.csetup-theme-modern .csetup-markings .csetup-col-colors {
+	white-space: nowrap;
+}
+
+.csetup-root.csetup-theme-modern .csetup-markings a.csetup-marking-chip-link {
+	padding: 0;
+	border: none;
+	background: transparent;
+	box-shadow: none;
+}
+
+.csetup-root.csetup-theme-modern .csetup-markings a.csetup-marking-chip-link:hover {
+	background: transparent;
+	transform: none;
+}
+
+.csetup-root.csetup-theme-modern .csetup-markings .csetup-marking-chip {
+	display: inline-block;
+	width: 11px;
+	height: 11px;
+	border-radius: 999px;
+	border: 1px solid rgba(0, 0, 0, 0.45);
+	box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+	vertical-align: middle;
+	margin-right: 4px;
+}
+
+.csetup-root.csetup-theme-modern .csetup-markings .csetup-marking-row-empty .csetup-marking-empty {
+	padding: 10px 8px;
+	color: var(--csetup-muted);
+}
+
+.csetup-root.csetup-theme-modern .csetup-markings .csetup-danger-zone {
+	margin-top: 10px;
+	padding: 12px 12px;
+	border-radius: 12px;
+	border: 1px solid rgba(255, 107, 107, 0.65);
+	background: linear-gradient(90deg, rgba(255, 107, 107, 0.14), rgba(0, 0, 0, 0));
+}
+
+.csetup-root.csetup-theme-modern .csetup-markings .csetup-danger-zone-title {
+	font-weight: 700;
+	color: rgba(255, 180, 180, 0.95);
+	margin: 0 0 6px 0;
+}
+
+.csetup-root.csetup-theme-modern .csetup-markings .csetup-danger-zone a {
+	background-color: rgba(255, 107, 107, 0.18);
+	border-color: rgba(255, 107, 107, 0.55);
+	transform: none;
+}
+
+.csetup-root.csetup-theme-modern .csetup-markings .csetup-danger-zone a:hover {
+	background-color: rgba(255, 107, 107, 0.26);
+}
+
 /* Active tab */
 .csetup-root.csetup-theme-modern .linkOn,
 .csetup-root.csetup-theme-modern a.linkOn:link,

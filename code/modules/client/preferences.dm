@@ -1696,6 +1696,97 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 						marking_type = "mam_body_markings"
 					if(marking_type)
 						dat += APPEARANCE_CATEGORY_COLUMN
+						if(is_modern_theme)
+							dat += "<div class='csetup-markings'>"
+							dat += "<div class='csetup-markings-toolbar'>"
+							dat += "<span class='csetup-toolbar-label'>[GLOB.all_mutant_parts[marking_type]]</span>"
+							dat += "<a href='?_src_=prefs;preference=marking_add;marking_type=[marking_type];task=input'>Add</a>"
+							dat += "</div>"
+							dat += "<div class='csetup-markings-grid'>"
+							var/list/ordered_limbs = list("Head", "Right Leg", "Chest", "Left Arm", "Left Leg", "Right Arm")
+							for(var/limb in ordered_limbs)
+								dat += "<section class='csetup-marking-card'>"
+								dat += "<div class='csetup-marking-card-header'>"
+								dat += "<div class='csetup-marking-card-title'>[limb]</div>"
+								dat += "<div class='csetup-marking-card-actions'>"
+								dat += "<a class='csetup-mini-action' href='?_src_=prefs;preference=marking_add;marking_type=[marking_type];limb=[url_encode(limb)];task=input'>Add</a>"
+								dat += "<a class='csetup-mini-action csetup-mini-danger' href='?_src_=prefs;preference=markings_clear_limb;marking_type=[marking_type];limb=[url_encode(limb)];task=input'>Clear</a>"
+								dat += "</div>"
+								dat += "</div>"
+								dat += "<table class='csetup-marking-table'>"
+								dat += "<thead class='csetup-marking-table-head'><tr><th class='csetup-col-index'>#</th><th class='csetup-col-move'>Move</th><th>Name</th><th class='csetup-col-colors'>Colors</th><th class='csetup-col-del'></th></tr></thead>"
+								dat += "<tbody>"
+								var/has_any = FALSE
+								if(length(features[marking_type]))
+									var/list/markings = features[marking_type]
+									if(!islist(markings))
+										markings = list()
+									for(var/list/marking_list in markings)
+										var/marking_index = markings.Find(marking_list)
+										var/limb_value = marking_list[1]
+										var/actual_name = GLOB.bodypart_names[num2text(limb_value)]
+										if(actual_name != limb)
+											continue
+										has_any = TRUE
+										var/color_marking_dat = ""
+										var/number_colors = 1
+										var/datum/sprite_accessory/mam_body_markings/S = GLOB.mam_body_markings_list[marking_list[2]]
+										var/matrixed_sections = S.covered_limbs[actual_name]
+										if(S && matrixed_sections)
+											if(length(marking_list) == 2)
+												var/first = "#FFFFFF"
+												var/second = "#FFFFFF"
+												var/third = "#FFFFFF"
+												if(features["mcolor"])
+													first = "#[features["mcolor"]]"
+												if(features["mcolor2"])
+													second = "#[features["mcolor2"]]"
+												if(features["mcolor3"])
+													third = "#[features["mcolor3"]]"
+												marking_list += list(list(first, second, third))
+											var/primary_index = 1
+											var/secondary_index = 2
+											var/tertiary_index = 3
+											switch(matrixed_sections)
+												if(MATRIX_GREEN)
+													primary_index = 2
+												if(MATRIX_BLUE)
+													primary_index = 3
+												if(MATRIX_RED_BLUE)
+													secondary_index = 2
+												if(MATRIX_GREEN_BLUE)
+													primary_index = 2
+													secondary_index = 3
+											color_marking_dat += "<a class='csetup-marking-chip-link' href='?_src_=prefs;preference=marking_color_specific;marking_index=[marking_index];marking_type=[marking_type];number_color=[number_colors];task=input'><span class='csetup-marking-chip' style='background-color: [marking_list[3][primary_index]];' title='[marking_list[3][primary_index]]'></span></a>"
+											if(matrixed_sections == MATRIX_RED_BLUE || matrixed_sections == MATRIX_GREEN_BLUE || matrixed_sections == MATRIX_RED_GREEN || matrixed_sections == MATRIX_ALL)
+												number_colors = 2
+												color_marking_dat += "<a class='csetup-marking-chip-link' href='?_src_=prefs;preference=marking_color_specific;marking_index=[marking_index];marking_type=[marking_type];number_color=[number_colors];task=input'><span class='csetup-marking-chip' style='background-color: [marking_list[3][secondary_index]];' title='[marking_list[3][secondary_index]]'></span></a>"
+											if(matrixed_sections == MATRIX_ALL)
+												number_colors = 3
+												color_marking_dat += "<a class='csetup-marking-chip-link' href='?_src_=prefs;preference=marking_color_specific;marking_index=[marking_index];marking_type=[marking_type];number_color=[number_colors];task=input'><span class='csetup-marking-chip' style='background-color: [marking_list[3][tertiary_index]];' title='[marking_list[3][tertiary_index]]'></span></a>"
+										dat += "<tr class='csetup-marking-row'>"
+										dat += "<td class='csetup-col-index'>[marking_index]</td>"
+										dat += "<td class='csetup-col-move'><span class='csetup-marking-move'>"
+										dat += "<a title='Top' href='?_src_=prefs;preference=marking_top;task=input;marking_index=[marking_index];marking_type=[marking_type]'>&#8679;</a>"
+										dat += "<a title='Up' href='?_src_=prefs;preference=marking_up;task=input;marking_index=[marking_index];marking_type=[marking_type]'>&#709;</a>"
+										dat += "<a title='Down' href='?_src_=prefs;preference=marking_down;task=input;marking_index=[marking_index];marking_type=[marking_type];'>&#708;</a>"
+										dat += "<a title='Bottom' href='?_src_=prefs;preference=marking_bottom;task=input;marking_index=[marking_index];marking_type=[marking_type]'>&#8681;</a>"
+										dat += "</span></td>"
+										dat += "<td>[marking_list[2]]</td>"
+										dat += "<td class='csetup-col-colors'>[color_marking_dat]</td>"
+										dat += "<td class='csetup-col-del'><a class='csetup-marking-del' href='?_src_=prefs;preference=marking_remove;task=input;marking_index=[marking_index];marking_type=[marking_type]'>&times;</a></td>"
+										dat += "</tr>"
+								if(!has_any)
+									dat += "<tr class='csetup-marking-row csetup-marking-row-empty'><td class='csetup-marking-empty' colspan='5'>Нет маркингов на этой части тела.</td></tr>"
+								dat += "</tbody></table>"
+								dat += "</section>"
+							dat += "</div>"
+							dat += "<div class='csetup-danger-zone'>"
+							dat += "<div class='csetup-danger-zone-title'>Danger Zone</div>"
+							dat += "<a href='?_src_=prefs;preference=markings_remove;task=input'>Remove All Markings</a>"
+							dat += "</div>"
+							dat += "</div>"
+							dat += "<div class='csetup-markings-classic'>"
 						dat += "<center>"
 						dat += "<h3>[GLOB.all_mutant_parts[marking_type]]</h3>" // give it the appropriate title for the type of marking
 						dat += "<a href='?_src_=prefs;preference=marking_add;marking_type=[marking_type];task=input'>Add marking</a>"
@@ -1808,6 +1899,9 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 						dat += "<a href='?_src_=prefs;preference=markings_remove;task=input'>Remove All Markings</a>"
 						dat += "</center>"
 						// BLUEMOON ADD END
+						if(is_modern_theme)
+							dat += "</div>"
+							dat += "</div>"
 
 				if(SPEECH_CHAR_TAB)
 					dat += "<table><tr><td width='340px' height='300px' valign='top'>"
@@ -4713,6 +4807,26 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 						markings[index] = second_marking
 						markings[index_up] = first_marking
 
+				if("marking_top")
+					// move the specified marking to the top
+					var/index = text2num(href_list["marking_index"])
+					var/marking_type = href_list["marking_type"]
+					if(index && marking_type && features[marking_type] && index != 1)
+						var/list/markings = features[marking_type]
+						var/list/entry = markings[index]
+						markings.Cut(index, index + 1)
+						markings.Insert(1, entry)
+
+				if("marking_bottom")
+					// move the specified marking to the bottom
+					var/index = text2num(href_list["marking_index"])
+					var/marking_type = href_list["marking_type"]
+					if(index && marking_type && features[marking_type] && index != length(features[marking_type]))
+						var/list/markings = features[marking_type]
+						var/list/entry = markings[index]
+						markings.Cut(index, index + 1)
+						markings += list(entry)
+
 				if("marking_remove")
 					// move the specified marking up
 					var/index = text2num(href_list["marking_index"])
@@ -4726,7 +4840,9 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					// add a marking
 					var/marking_type = href_list["marking_type"]
 					if(marking_type && features[marking_type])
-						var/selected_limb = tgui_input_list(user, "Choose the limb to apply to.", "Character Preference", list("Head", "Chest", "Left Arm", "Right Arm", "Left Leg", "Right Leg", "All"))
+						var/selected_limb = href_list["limb"]
+						if(!selected_limb)
+							selected_limb = tgui_input_list(user, "Choose the limb to apply to.", "Character Preference", list("Head", "Chest", "Left Arm", "Right Arm", "Left Leg", "Right Leg", "All"))
 						if(selected_limb)
 							var/list/marking_list = GLOB.mam_body_markings_list
 							var/list/snowflake_markings_list = list()
@@ -4750,6 +4866,23 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 									for(var/limb in S.covered_limbs)
 										var/limb_value = text2num(GLOB.bodypart_values[limb])
 										features[marking_type] += list(list(limb_value, selected_marking))
+
+				if("markings_clear_limb")
+					var/marking_type = href_list["marking_type"]
+					if(marking_type && features[marking_type])
+						var/selected_limb = href_list["limb"]
+						if(!selected_limb)
+							selected_limb = tgui_input_list(user, "Choose the limb to clear.", "Character Preference", list("Head", "Chest", "Left Arm", "Right Arm", "Left Leg", "Right Leg", "All"))
+						if(selected_limb)
+							if(selected_limb == "All")
+								clearlist(features[marking_type])
+							else
+								var/limb_value = text2num(GLOB.bodypart_values[selected_limb])
+								var/list/L = features[marking_type]
+								for(var/i = length(L), i >= 1, i--)
+									var/list/entry = L[i]
+									if(entry[1] == limb_value)
+										L.Cut(i, i + 1)
 
 				// BLUEMOON ADD START - кнопка для удаления всех маркингов на персонаже
 				if("markings_remove")
