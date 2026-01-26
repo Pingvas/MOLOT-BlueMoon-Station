@@ -5,6 +5,53 @@
  * Target: compact layout (closer to PR #2535 feel).
  */
 
+html,
+body {
+	margin: 0;
+	padding: 0;
+	min-height: 100%;
+}
+
+body {
+	overflow-y: auto;
+	/* Firefox */
+	scrollbar-width: thin;
+	scrollbar-color: rgba(255, 255, 255, 0.22) rgba(0, 0, 0, 0.25);
+
+	/* Legacy (old IE-style props; some BYOND configurations still respect these) */
+	scrollbar-base-color: #121212;
+	scrollbar-face-color: #2a2a2a;
+	scrollbar-track-color: #171717;
+	scrollbar-arrow-color: #a8a8a8;
+	scrollbar-highlight-color: #2f2f2f;
+	scrollbar-shadow-color: #2a2a2a;
+	scrollbar-3dlight-color: #2a2a2a;
+}
+
+/* WebKit / Chromium */
+::-webkit-scrollbar {
+	width: 10px;
+	height: 10px;
+}
+
+::-webkit-scrollbar-track {
+	background: rgba(0, 0, 0, 0.25);
+}
+
+::-webkit-scrollbar-thumb {
+	background: rgba(255, 255, 255, 0.18);
+	border: 2px solid rgba(0, 0, 0, 0.25);
+	border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: rgba(77, 163, 255, 0.45);
+}
+
+::-webkit-scrollbar-corner {
+	background: rgba(0, 0, 0, 0.25);
+}
+
 /*
  * Classic theme (New UI baseline)
  *
@@ -36,6 +83,15 @@
 /* Needed for the top-right theme picker positioning */
 .csetup-root {
 	position: relative;
+}
+
+.csetup-root.csetup-theme-classic,
+.csetup-root.csetup-theme-modern:not(.csetup-scheme-neutral) {
+	color-scheme: dark;
+}
+
+.csetup-root.csetup-theme-modern.csetup-scheme-neutral {
+	color-scheme: light;
 }
 
 .csetup-root.csetup-theme-modern {
@@ -253,6 +309,41 @@
 .csetup-root.csetup-theme-modern a:hover,
 .csetup-root.csetup-theme-classic a:hover {
 	background-color: var(--csetup-btn-hover);
+	transform: translateY(-1px);
+}
+
+/* Fix cramped tiny value buttons (legacy inline width=30px in DM).
+ * Example: Hardsuit With Tail / Age value pills.
+ * In Modern we want the button to size to its content.
+ */
+.csetup-root.csetup-theme-modern a[style*="width:30px"],
+.csetup-root.csetup-theme-modern a[style*="width: 30px"] {
+	display: inline-block !important;
+	width: auto !important;
+	min-width: 44px;
+	text-align: center;
+	white-space: nowrap;
+	padding-left: 10px;
+	padding-right: 10px;
+	margin-left: 6px;
+}
+
+/* Inline name row (Modern): name + dice button on one line */
+.csetup-root.csetup-theme-modern .csetup-name-row {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.csetup-root.csetup-theme-modern a.csetup-dice-btn {
+	padding: 2px 6px;
+	border-radius: 8px;
+	font-size: 14px;
+	line-height: 1;
+	transform: none;
+}
+
+.csetup-root.csetup-theme-modern a.csetup-dice-btn:hover {
 	transform: translateY(-1px);
 }
 
@@ -705,7 +796,7 @@
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 	overflow: hidden;
 	max-width: 640px;
-	min-width: 23px; /*UI tweak*/
+	min-width: 28px; /*UI tweak*/
 	white-space: nowrap;
 	transition: max-width 180ms ease, padding 180ms ease;
 	z-index: 10;
@@ -713,11 +804,11 @@
 
 @keyframes csetupThemePickerCollapseWidth {
 	from { max-width: 640px; padding: 5px 6px; }
-	to { max-width: 23px; padding: 0; } /*UI tweak*/
+	to { max-width: 28px; padding: 0; } /*UI tweak*/
 }
 
 @keyframes csetupThemePickerExpandWidth {
-	from { max-width: 23px; padding: 0; } /*UI tweak*/
+	from { max-width: 28px; padding: 0; } /*UI tweak*/
 	to { max-width: 640px; padding: 5px 6px; }
 }
 
@@ -753,6 +844,9 @@
 	background: transparent !important;
 	border: none !important;
 	box-shadow: none !important;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
 	font-size: 14px;
 	line-height: 1;
 }
@@ -783,18 +877,21 @@
 }
 
 .csetup-root .theme-selector.collapsed {
-	max-width: 23px; /*UI tweak*/
+	max-width: 28px; /*UI tweak*/
 	padding: 0;
 	gap: 0;
 }
 /*UI tweak start*/
 .csetup-root .theme-selector.collapsed a.theme-emoji-btn {
 	margin: 0 !important;
-	width: 21px;
-	height: 21px;
+	width: 26px;
+	height: 26px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	text-align: center;
+	font-size: 16px;
+	line-height: 26px;
 }
 /*UI tweak end*/
 

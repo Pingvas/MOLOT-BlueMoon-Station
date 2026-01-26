@@ -704,12 +704,12 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	.csetup-root td:not(:last-child), .csetup-root th:not(:last-child){ border-right:1px solid [border_color]; }\n\
 	.csetup-root .csetup_character_node{ background-color:[bg_secondary]; border:1px solid [border_color]; }\n\
 	.csetup-root .csetup_character_label{ color:[text_secondary]; }\n\
-	.csetup-root .theme-selector{ background-color:[bg_secondary]; border:1px solid [border_color]; overflow:hidden; max-width:640px; min-width:23px; white-space:nowrap; transition:max-width 180ms ease, padding 180ms ease; }\n\
+	.csetup-root .theme-selector{ background-color:[bg_secondary]; border:1px solid [border_color]; overflow:hidden; max-width:640px; min-width:28px; white-space:nowrap; transition:max-width 180ms ease, padding 180ms ease; }\n\
 	.csetup-root .theme-body{ display:inline-flex; align-items:center; gap:6px; transition:opacity 160ms ease, transform 180ms ease; opacity:1; transform:translateX(0); }\n\
-	.csetup-root .theme-selector.collapsed{ max-width:23px; padding:0; gap:0; }\n\
-	.csetup-root .theme-selector.collapsed a.theme-emoji-btn{ margin:0 !important; width:21px; height:21px; display:flex; align-items:center; justify-content:center; }\n\
+	.csetup-root .theme-selector.collapsed{ max-width:28px; padding:0; gap:0; }\n\
+	.csetup-root .theme-selector.collapsed a.theme-emoji-btn{ margin:0 !important; width:26px; height:26px; display:flex; align-items:center; justify-content:center; text-align:center; font-size:16px; line-height:26px; }\n\
 	.csetup-root .theme-selector.collapsed .theme-body{ opacity:0; transform:translateX(16px); pointer-events:none; }\n\
-	.csetup-root a.theme-emoji-btn{ padding:0 !important; margin:0 4px 0 0 !important; background:transparent !important; border:none !important; box-shadow:none !important; font-size:14px; line-height:1; }\n\
+	.csetup-root a.theme-emoji-btn{ padding:0 !important; margin:0 4px 0 0 !important; background:transparent !important; border:none !important; box-shadow:none !important; display:inline-flex; align-items:center; justify-content:center; font-size:14px; line-height:1; }\n\
 	.csetup-root a.theme-collapse-hint{ padding:0 !important; margin:0 2px 0 0 !important; background:transparent !important; border:none !important; box-shadow:none !important; font-size:12px; line-height:1; opacity:0.85; text-decoration:none; }\n\
 	.csetup-root a.theme-collapse-hint:hover{ opacity:1; }\n\
 	.csetup-root .theme-label{ font-size:11px; letter-spacing:0.2px; opacity:0.92; color:[text_secondary]; user-select:none; }\n\
@@ -1068,9 +1068,13 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 						dat += "<b>You are banned from using custom names and appearances. You can continue to adjust your characters, but you will be randomised once you join the game.</b><br>"
 
 					dat += "<b>[nameless ? "Default designation" : "Name"]:</b><br>"
-					dat += "<a href='?_src_=prefs;preference=name;task=input'>[real_name]</a><br>"
+					if(is_modern_theme)
+						dat += "<div class='csetup-name-row'><a href='?_src_=prefs;preference=name;task=input'>[real_name]</a><a class='csetup-dice-btn' href='?_src_=prefs;preference=name;task=random' title='Рандомное имя' aria-label='Рандомное имя'>&#127922;</a></div><BR>"
+					else
+						dat += "<a href='?_src_=prefs;preference=name;task=input'>[real_name]</a><br>"
 					dat += "<a href='?_src_=prefs;preference=hide_ckey;task=input'><b>Hide ckey: [hide_ckey ? "Enabled" : "Disabled"]</b></a><BR>" // UI tweak
-					dat += "<a style='display:block;width:150px' href='?_src_=prefs;preference=name;task=random'>Random Name</a>"
+					if(!is_modern_theme)
+						dat += "<a style='display:block;width:150px' href='?_src_=prefs;preference=name;task=random'>Random Name</a>"
 					dat += "<a style='display:block;width:150px' href='?_src_=prefs;preference=nameless'>Be nameless: [nameless ? "Yes" : "No"]</a><BR>"
 					dat += "<b>Always Random Name:</b><a style='display:block;width:30px' href='?_src_=prefs;preference=name'>[be_random_name ? "Yes" : "No"]</a><BR>"
 					dat += "<b>Hardsuit With Tail:</b><a style='display:block;width:30px' href='?_src_=prefs;preference=hardsuit_with_tail'>[features["hardsuit_with_tail"] == TRUE ? "Yes" : "No"]</a><BR>"
@@ -1338,7 +1342,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 						mutant_colors = TRUE
 						// UI tweak
 						if(is_modern_theme && pref_species.use_skintones)
-							dat += "<b>Genitals use skintone:</b><a href='?_src_=prefs;preference=genital_colour'>[features["genitals_use_skintone"] == TRUE ? "Yes" : "No"]</a>"
+							dat += "<b>Genitals use skintone:</b><a href='?_src_=prefs;preference=genital_colour'>[features["genitals_use_skintone"] == TRUE ? "Yes" : "No"]</a><BR>"
 
 						dat += "<b>Body Size:</b> <a href='?_src_=prefs;preference=body_size;task=input'>[features["body_size"]*100]%</a><br>"
 						dat += "<b>Normalized Size:</b> <a href='?_src_=prefs;preference=normalized_size;task=input'>[features["normalized_size"]*100]%</a><br>"
@@ -2286,7 +2290,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 								modern_accent_label = "Green"
 							else
 								modern_accent_label = "Blue"
-					dat += "<b>Modern Accent:</b> <a href='?_src_=prefs;preference=charcreation_accent'>[modern_accent_label]</a><br>"
+						dat += "<b>Modern Accent:</b> <a href='?_src_=prefs;preference=charcreation_accent'>[modern_accent_label]</a><br>"
 					dat += "<b>Auto stand:</b> <a href='?_src_=prefs;preference=autostand'>[autostand ? "Enabled" : "Disabled"]</a><br>"
 					dat += "<b>Auto OOC:</b> <a href='?_src_=prefs;preference=auto_ooc'>[auto_ooc ? "Enabled" : "Disabled"]</a><br>"
 					dat += "<b>Force Slot Storage HUD:</b> <a href='?_src_=prefs;preference=no_tetris_storage'>[no_tetris_storage ? "Enabled" : "Disabled"]</a><br>"
