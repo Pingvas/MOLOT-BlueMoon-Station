@@ -82,8 +82,6 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 		new_character_creator = TRUE
 		if(!istext(charcreation_theme) || !findtext(charcreation_theme, "modern"))
 			charcreation_theme = "modern"
-		WRITE_FILE(S["new_character_creator"], new_character_creator)
-		WRITE_FILE(S["charcreation_theme"], charcreation_theme)
 
 /datum/preferences/proc/update_character(current_version, savefile/S)
 	if(current_version < 19)
