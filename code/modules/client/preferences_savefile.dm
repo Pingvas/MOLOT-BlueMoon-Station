@@ -5,7 +5,7 @@
 //	You do not need to raise this if you are adding new values that have sane defaults.
 //	Only raise this value when changing the meaning/format/name/layout of an existing value
 //	where you would want the updater procs below to run
-#define SAVEFILE_VERSION_MAX	62
+#define SAVEFILE_VERSION_MAX	63
 
 /*
 SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Carn
@@ -76,6 +76,14 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 					break
 			if(!has_pixel_tilt)
 				LAZYADD(key_bindings["N"], "pixel_tilt")
+
+	// BLUEMOON ADD - перевод Character Setup UI на Modern
+	if(current_version < 63)
+		new_character_creator = TRUE
+		if(!istext(charcreation_theme) || !findtext(charcreation_theme, "modern"))
+			charcreation_theme = "modern"
+		WRITE_FILE(S["new_character_creator"], new_character_creator)
+		WRITE_FILE(S["charcreation_theme"], charcreation_theme)
 
 /datum/preferences/proc/update_character(current_version, savefile/S)
 	if(current_version < 19)
