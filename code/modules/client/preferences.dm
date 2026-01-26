@@ -976,7 +976,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 				dat += "<td width='100%' colspan='2'>"
 			else
 				dat += "<td width='35%'>"
-			dat += "<center><b>Preview:</b></center><br>"
+			dat += "<center><b>Preview:</b></center>"
 			var/preview_class_job = ""
 			var/preview_class_loadout = ""
 			var/preview_class_naked = ""
@@ -1048,7 +1048,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					if(CONFIG_GET(flag/roundstart_traits))
 						var/current_quirks_display = english_list(all_quirks, "None")
 						if(is_modern_theme)
-							dat += "<h2>Quirks</h2>"
+							//dat += "<center><h2>Quirks</h2></center>"
+							// UI tweak
 							dat += "<div class='notice csetup-quirks-summary'>"
 							dat += "<div class='csetup-quirks-summary-title'><b>Quirk balance remaining:</b> " + "[GetQuirkBalance(user)]" + "</div>"
 							dat += "<div class='csetup-quirks-summary-current'><b>Current:</b> " + current_quirks_display + "</div>"
@@ -1058,21 +1059,25 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 							dat += "<center><h2>Quirk Setup ([GetQuirkBalance(user)] points left)</h2>"
 							dat += "<a href='?_src_=prefs;preference=trait;task=menu'>Configure Quirks</a><br></center>"
 							dat += "<center><b>Current Quirks:</b> " + current_quirks_display + "</center>"
-					dat += "<h2>Identity</h2>"
+					if(is_modern_theme) // UI tweak
+						dat += "<br><center><h2>Identity</h2></center>"
+					else
+						dat += "<h2>Identity</h2>"
 					dat += "<table width='100%'><tr><td width='30%' valign='top'>"
 					if(jobban_isbanned(user, "appearance"))
 						dat += "<b>You are banned from using custom names and appearances. You can continue to adjust your characters, but you will be randomised once you join the game.</b><br>"
 
 					dat += "<b>[nameless ? "Default designation" : "Name"]:</b><br>"
-					dat += "<a href='?_src_=prefs;preference=name;task=input'>[real_name]</a><BR>"
-					dat += "<a style='display:block;width:100px' href='?_src_=prefs;preference=name;task=random'>Random Name</a><br>"
-					dat += "<a href='?_src_=prefs;preference=nameless'>Be nameless: [nameless ? "Yes" : "No"]</a><BR>"
+					dat += "<a href='?_src_=prefs;preference=name;task=input'>[real_name]</a><br>"
+					dat += "<a href='?_src_=prefs;preference=hide_ckey;task=input'><b>Hide ckey: [hide_ckey ? "Enabled" : "Disabled"]</b></a><BR>" // UI tweak
+					dat += "<a style='display:block;width:150px' href='?_src_=prefs;preference=name;task=random'>Random Name</a>"
+					dat += "<a style='display:block;width:150px' href='?_src_=prefs;preference=nameless'>Be nameless: [nameless ? "Yes" : "No"]</a><BR>"
 					dat += "<b>Always Random Name:</b><a style='display:block;width:30px' href='?_src_=prefs;preference=name'>[be_random_name ? "Yes" : "No"]</a><BR>"
 					dat += "<b>Hardsuit With Tail:</b><a style='display:block;width:30px' href='?_src_=prefs;preference=hardsuit_with_tail'>[features["hardsuit_with_tail"] == TRUE ? "Yes" : "No"]</a><BR>"
 
 					dat += "<b>Age:</b> <a style='display:block;width:30px' href='?_src_=prefs;preference=age;task=input'>[age]</a><BR>"
 					dat += "<b>Custom Blood Color:</b>"
-					dat += "<a style='display:block;width:100px' href='?_src_=prefs;preference=toggle_custom_blood_color;task=input'>[custom_blood_color ? "Enabled" : "Disabled"]</a><BR>"
+					dat += "<a style='display:block;width:150px' href='?_src_=prefs;preference=toggle_custom_blood_color;task=input'>[custom_blood_color ? "Enabled" : "Disabled"]</a><BR>"
 					if(custom_blood_color)
 						dat += "<b>Blood Color:</b> <span style='border:1px solid #161616; background-color: [blood_color];'><font color='[color_hex2num(blood_color) < 200 ? "FFFFFF" : "000000"]'>[blood_color]</font></span> <a href='?_src_=prefs;preference=blood_color;task=input'>Change</a><BR>"
 					dat += "</td>"
@@ -1091,6 +1096,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "<br><br>"
 
 					dat += "<b>Custom job preferences:</b><BR>"
+					dat += "<a href='?_src_=prefs;preference=sec_dept;task=input'><b>Preferred Security Department:</b> [prefered_security_department]</a><BR>" // UI tweak
 					dat += "<a href='?_src_=prefs;preference=ai_core_icon;task=input'><b>Preferred AI Core Display:</b> [preferred_ai_core_display]</a><br>"
 					if(is_modern_theme)
 						var/ai_core_icon_state
@@ -1103,8 +1109,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 						if(!ai_core_preview_html)
 							ai_core_preview_html = ""
 						dat += "<div class='csetup-ai-core-preview'>" + ai_core_preview_html + "</div>"
-					dat += "<a href='?_src_=prefs;preference=sec_dept;task=input'><b>Preferred Security Department:</b> [prefered_security_department]</a><BR></td>"
-					dat += "<br><a href='?_src_=prefs;preference=hide_ckey;task=input'><b>Hide ckey: [hide_ckey ? "Enabled" : "Disabled"]</b></a><br>"
 					dat += "</td>"
 
 					dat += "<td valign='top'>"
@@ -1332,6 +1336,9 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 						dat += "<b>Tertiary Color:</b><BR>"
 						dat += "<span style='border: 1px solid #161616; background-color: #[features["mcolor3"]];'><font color='[color_hex2num(features["mcolor3"]) < 200 ? "FFFFFF" : "000000"]'>#[features["mcolor3"]]</font></span> <a href='?_src_=prefs;preference=mutant_color3;task=input'>Change</a><BR>"
 						mutant_colors = TRUE
+						// UI tweak
+						if(is_modern_theme && pref_species.use_skintones)
+							dat += "<b>Genitals use skintone:</b><a href='?_src_=prefs;preference=genital_colour'>[features["genitals_use_skintone"] == TRUE ? "Yes" : "No"]</a>"
 
 						dat += "<b>Body Size:</b> <a href='?_src_=prefs;preference=body_size;task=input'>[features["body_size"]*100]%</a><br>"
 						dat += "<b>Normalized Size:</b> <a href='?_src_=prefs;preference=normalized_size;task=input'>[features["normalized_size"]*100]%</a><br>"
@@ -1340,14 +1347,19 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 
 					if(!(NOEYES in pref_species.species_traits))
 						dat += "<h3>Eye Type</h3>"
-						dat += "</b><a style='display:block;width:100px' href='?_src_=prefs;preference=eye_type;task=input'>[eye_type]</a><BR>"
+						dat += "</b><a style='display:block;width:100px' href='?_src_=prefs;preference=eye_type;task=input'>[eye_type]</a>"
 						if((EYECOLOR in pref_species.species_traits))
 							if(!use_skintones && !mutant_colors)
 								dat += APPEARANCE_CATEGORY_COLUMN
 							if(left_eye_color != right_eye_color)
 								split_eye_colors = TRUE
-							dat += "<h3>Heterochromia</h3>"
-							dat += "<i>Eyes with special heterochromia: wide, big, bigcyclops, skrell, third, thirdbig.</i>"
+							// UI tweak start
+							if (!is_modern_theme)
+								dat += "<h3>Heterochromia</h3>"
+								dat += "<i>Eyes with special heterochromia: wide, big, bigcyclops, skrell, third, thirdbig.</i>"
+							else
+								dat += "<h3 title='Eyes with special heterochromia: wide, big, bigcyclops, skrell, third, thirdbig.'>Heterochromia</h3>"
+							// UI tweak end
 							dat += "</b><a style='display:block;width:100px' href='?_src_=prefs;preference=toggle_split_eyes;task=input'>[split_eye_colors ? "Enabled" : "Disabled"]</a>"
 							if(!split_eye_colors)
 								dat += "<h3>Eye Color</h3>"
@@ -1471,14 +1483,23 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "</tr></table>"
 
 					dat += "</td>"
-					dat += "<table><tr><td width='340px' height='300px' valign='top'>"
+					// UI tweak start
+					if (!is_modern_theme)
+						dat += "<table><tr><td width='340px' height='300px' valign='top'>"
+					else
+						dat += "<table><tr><td width='20%' valign='top'>"
+					// UI tweak end
 					dat += "<h2>Clothing & Equipment</h2>"
 
 					dat += "<b>Backpack:</b><a style='display:block;width:100px' href ='?_src_=prefs;preference=bag;task=input'>[backbag]</a>"
 					dat += "<b>Jumpsuit:</b><BR><a href ='?_src_=prefs;preference=suit;task=input'>[jumpsuit_style]</a><BR>"
 					if((HAS_FLESH in pref_species.species_traits) || (HAS_BONE in pref_species.species_traits))
-						dat += "<BR><b>Temporal Scarring:</b><BR><a href='?_src_=prefs;preference=persistent_scars'>[(persistent_scars) ? "Enabled" : "Disabled"]</A>"
+						if(!is_modern_theme) // UI tweak
+							dat += "<BR>"
+						dat += "<b>Temporal Scarring:</b><BR><a href='?_src_=prefs;preference=persistent_scars'>[(persistent_scars) ? "Enabled" : "Disabled"]</A>"
 						dat += "<a href='?_src_=prefs;preference=clear_scars'>Clear scar slots</A>"
+					if (is_modern_theme) // UI tweak
+						dat += "<br>"
 					dat += "<b>Uplink Location:</b><a style='display:block;width:100px' href ='?_src_=prefs;preference=uplink_loc;task=input'>[uplink_spawn_loc]</a>"
 
 					dat += "<h2>Consent preferences</h2>"
@@ -1491,10 +1512,11 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "<h2>Lewd preferences</h2>"
 					dat += "<b>Lust tolerance:</b><a href='?_src_=prefs;preference=lust_tolerance;task=input'>[lust_tolerance]</a><br>"
 					dat += "<b>Sexual potency:</b><a href='?_src_=prefs;preference=sexual_potency;task=input'>[sexual_potency]</a>"
-					dat += "</td>"
 
 					//SPLURT EDIT BEGIN - gregnancy preferences
-					dat += "<td width='220px' height='300px' valign='top'>"
+					if (!is_modern_theme) // UI tweak
+						dat += "</td>"
+						dat += "<td width='220px' height='300px' valign='top'>"
 					dat += "<h3>Pregnancy preferences</h3>"
 					dat += "<b>Chance of impregnation:</b><a style='display:block;width:100px' href ='?_src_=prefs;preference=virility;task=input'>[virility ? virility : "Disabled"]</a>"
 					dat += "<b>Chance of getting pregnant:</b><a style='display:block;width:100px' href ='?_src_=prefs;preference=fertility;task=input'>[fertility ? fertility : "Disabled"]</a>"
@@ -1511,8 +1533,9 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					if(NOGENITALS in pref_species.species_traits)
 						dat += "<b>Your species ([pref_species.name]) does not support genitals!</b><br>"
 					else
-						if(pref_species.use_skintones)
-							dat += "<b>Genitals use skintone:</b><a href='?_src_=prefs;preference=genital_colour'>[features["genitals_use_skintone"] == TRUE ? "Yes" : "No"]</a>"
+						if(!is_modern_theme) // UI tweak
+							if(pref_species.use_skintones)
+								dat += "<b>Genitals use skintone:</b><a href='?_src_=prefs;preference=genital_colour'>[features["genitals_use_skintone"] == TRUE ? "Yes" : "No"]</a>"
 						dat += "<h3>Penis</h3>"
 						dat += "<a style='display:block;width:50px' href='?_src_=prefs;preference=has_cock'>[features["has_cock"] == TRUE ? "Yes" : "No"]</a>"
 						if(features["has_cock"])
