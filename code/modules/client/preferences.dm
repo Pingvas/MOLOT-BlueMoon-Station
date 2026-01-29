@@ -433,7 +433,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 
 	/// Character Setup browser UI theme (used by the "new" character creator UI).
 	/// Supported values: "classic", "modern", "modern_classic", "modern_purple", "modern_green", "modern_neutral"
-	var/charcreation_theme = "classic"
+	var/charcreation_theme = "modern"
 
 	/// Modern character creator: button shape preset (persisted).
 	/// Supported values: "rect", "soft", "round".
