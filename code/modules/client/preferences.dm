@@ -3215,7 +3215,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 			if("set_button_shape")
 				var/shape = href_list["shape"]
 				modern_button_shape = sanitize_inlist(shape, list("rect", "soft", "round"), initial(modern_button_shape))
-				save_preferences(silent = TRUE)
+				save_preferences(bypass_cooldown = TRUE, silent = TRUE)
 				ShowChoices(user)
 				return TRUE
 		ShowChoices(user)
