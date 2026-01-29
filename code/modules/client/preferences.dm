@@ -1986,7 +1986,10 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 							else
 								dat += " |"
 							if(category == gear_category)
-								dat += " <span class='linkOn'>[(category == LOADOUT_CATEGORY_ERROR && loadout_errors) ? "[category] (<font color=\"red\">!</font>)" : category]</span> "
+								if(is_modern_theme)
+									dat += " <a href='?_src_=prefs;preference=gear;select_category=[url_encode(category)]' class='linkOn'>[(category == LOADOUT_CATEGORY_ERROR && loadout_errors) ? "[category] (<font color=\"red\">!</font>)" : category]</a> "
+								else
+									dat += " <span class='linkOn'>[(category == LOADOUT_CATEGORY_ERROR && loadout_errors) ? "[category] (<font color=\"red\">!</font>)" : category]</span> "
 							else
 								dat += " <a href='?_src_=prefs;preference=gear;select_category=[url_encode(category)]'>[(category == LOADOUT_CATEGORY_ERROR && loadout_errors) ? "[category] (<font color=\"red\">!</font>)" : category]</a> "
 
@@ -2009,7 +2012,10 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 								else
 									dat += " |"
 								if(gear_subcategory == subcategory)
-									dat += " <span class='linkOn'>[subcategory]</span> "
+									if(is_modern_theme)
+										dat += " <a href='?_src_=prefs;preference=gear;select_subcategory=[url_encode(subcategory)]' class='linkOn'>[subcategory]</a> "
+									else
+										dat += " <span class='linkOn'>[subcategory]</span> "
 								else
 									dat += " <a href='?_src_=prefs;preference=gear;select_subcategory=[url_encode(subcategory)]'>[subcategory]</a> "
 							dat += "</b></center></td></tr>"

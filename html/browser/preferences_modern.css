@@ -606,10 +606,21 @@ body {
 }
 
 /* Active tab */
+/* Modern: KSS-like selected highlight (always green, high-contrast).
+ * Keep !important to override any DM-injected inline palette styles.
+ */
 .csetup-root.csetup-theme-modern .linkOn,
 .csetup-root.csetup-theme-modern a.linkOn:link,
 .csetup-root.csetup-theme-modern a.linkOn:visited,
-.csetup-root.csetup-theme-modern a.linkOn:active,
+.csetup-root.csetup-theme-modern a.linkOn:active {
+	background-color: #2f943c !important;
+	border: 1px solid rgba(47, 148, 60, 0.60) !important;
+	box-shadow: 0 0 10px rgba(47, 148, 60, 0.35) !important;
+	color: #ffffff !important;
+	font-weight: bold;
+}
+
+/* Classic: preserve theme accent behavior */
 .csetup-root.csetup-theme-classic .linkOn,
 .csetup-root.csetup-theme-classic a.linkOn:link,
 .csetup-root.csetup-theme-classic a.linkOn:visited,

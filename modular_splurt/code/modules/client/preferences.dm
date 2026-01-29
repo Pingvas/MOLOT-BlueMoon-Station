@@ -1013,7 +1013,7 @@
 					else
 						dat += " |"
 					if(category == gear_category)
-						dat += " <span class='linkOn'>[category]</span> "
+						dat += " <a href='?_src_=prefs;preference=gear;select_category=[url_encode(category)]' class='linkOn'>[category]</a> "
 					else
 						dat += " <a href='?_src_=prefs;preference=gear;select_category=[url_encode(category)]'>[category]</a> "
 
@@ -1036,7 +1036,7 @@
 						else
 							dat += " |"
 						if(gear_subcategory == subcategory)
-							dat += " <span class='linkOn'>[subcategory]</span> "
+							dat += " <a href='?_src_=prefs;preference=gear;select_subcategory=[url_encode(subcategory)]' class='linkOn'>[subcategory]</a> "
 						else
 							dat += " <a href='?_src_=prefs;preference=gear;select_subcategory=[url_encode(subcategory)]'>[subcategory]</a> "
 					dat += "</b></center></td></tr>"
