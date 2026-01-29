@@ -109,6 +109,7 @@ body {
 	--csetup-btn-hover: #2a2a2a;
 	--csetup-btn-active: #4da3ff;
 	--csetup-btn-active-text: #0b1c2f;
+	--csetup-btn-radius: 7px;
 	--csetup-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
 
 	background-color: var(--csetup-bg);
@@ -124,6 +125,11 @@ body {
 	font-size: 12px;
 	line-height: 1.2;
 }
+
+/* Modern: per-client button shape presets (set by DM via csetup-btnshape-*) */
+.csetup-root.csetup-theme-modern.csetup-btnshape-rect { --csetup-btn-radius: 0px; }
+.csetup-root.csetup-theme-modern.csetup-btnshape-soft { --csetup-btn-radius: 4px; }
+.csetup-root.csetup-theme-modern.csetup-btnshape-round { --csetup-btn-radius: 7px; }
 
 /* Explicit "dark" scheme class (mostly for DM-side clarity) */
 .csetup-root.csetup-theme-modern.csetup-scheme-dark {
@@ -298,7 +304,7 @@ body {
 	margin: 1px;
 	display: inline-block;
 	background-color: var(--csetup-btn-bg);
-	border-radius: 7px;
+	border-radius: var(--csetup-btn-radius, 7px);
 	border: 1px solid var(--csetup-border);
 	transition: transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
 	cursor: pointer;
@@ -337,7 +343,7 @@ body {
 
 .csetup-root.csetup-theme-modern a.csetup-dice-btn {
 	padding: 2px 6px;
-	border-radius: 8px;
+	border-radius: var(--csetup-btn-radius, 8px);
 	font-size: 14px;
 	line-height: 1;
 	transform: none;
@@ -810,7 +816,7 @@ body {
 	min-width: 28px; /*UI tweak*/
 	white-space: nowrap;
 	transition: max-width 180ms ease, padding 180ms ease;
-	z-index: 10;
+	z-index: 20;
 }
 
 @keyframes csetupThemePickerCollapseWidth {
@@ -849,6 +855,20 @@ body {
 	animation: csetupThemePickerFadeIn 180ms ease both;
 }
 
+.csetup-root .theme-icon-stack {
+	position: relative;
+	z-index: 12;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 2px;
+}
+
+.csetup-root .theme-icon-stack a.theme-emoji-btn {
+	margin: 0 !important;
+}
+
 .csetup-root a.theme-emoji-btn {
 	padding: 0 !important;
 	margin: 0 4px 0 0 !important;
@@ -860,6 +880,15 @@ body {
 	justify-content: center;
 	font-size: 14px;
 	line-height: 1;
+}
+
+.csetup-root a.theme-settings-btn {
+	font-size: 13px;
+	opacity: 0.9;
+}
+
+.csetup-root a.theme-settings-btn:hover {
+	opacity: 1;
 }
 
 .csetup-root .theme-body {
@@ -903,6 +932,10 @@ body {
 	text-align: center;
 	font-size: 16px;
 	line-height: 26px;
+}
+
+.csetup-root .theme-selector.collapsed a.theme-settings-btn {
+	font-size: 14px;
 }
 /*UI tweak end*/
 
@@ -950,7 +983,7 @@ body {
 	margin: 0 2px;
 	width: 16px;
 	height: 16px;
-	border-radius: 5px;
+	border-radius: var(--csetup-btn-radius, 5px);
 	border: 2px solid var(--csetup-border, rgba(0, 0, 0, 0.30));
 	background-color: transparent;
 	box-shadow: none;
@@ -959,7 +992,7 @@ body {
 .csetup-root a.theme-swatch--custom {
 	width: 18px;
 	height: 18px;
-	border-radius: 6px;
+	border-radius: var(--csetup-btn-radius, 6px);
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -983,13 +1016,84 @@ body {
 	margin: 0 2px 0 0;
 	width: 18px;
 	height: 18px;
-	border-radius: 6px;
+	border-radius: var(--csetup-btn-radius, 6px);
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
 	font-size: 13px;
 	line-height: 1;
 }
+
+/* Quick settings popover (WIP): frame shape + language */
+.csetup-root .theme-settings-panel {
+	position: absolute;
+	top: 58px;
+	right: 8px;
+	width: 260px;
+	padding: 8px 8px 10px;
+	border-radius: 12px;
+	background-color: var(--csetup-panel, rgba(0, 0, 0, 0.35));
+	border: 1px solid var(--csetup-border, rgba(0, 0, 0, 0.25));
+	box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+	z-index: 11;
+}
+
+.csetup-root .theme-settings-title {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 6px;
+}
+
+.csetup-root .theme-settings-hint {
+	font-size: 11px;
+	opacity: 0.75;
+}
+
+.csetup-root .theme-settings-group {
+	margin-top: 8px;
+}
+
+.csetup-root .theme-settings-label {
+	font-size: 11px;
+	letter-spacing: 0.2px;
+	opacity: 0.9;
+	margin-bottom: 5px;
+}
+
+.csetup-root .theme-settings-options {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+.csetup-root .theme-settings-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 3px 7px;
+	border-radius: var(--csetup-btn-radius, 999px);
+	background: rgba(0, 0, 0, 0.22);
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	color: var(--csetup-text);
+	font-size: 12px;
+	opacity: 0.9;
+	user-select: none;
+}
+
+.csetup-root .theme-settings-pill::before {
+	content: "";
+	display: inline-block;
+	width: 10px;
+	height: 10px;
+	background: rgba(255, 255, 255, 0.10);
+	border: 1px solid rgba(0, 0, 0, 0.35);
+	box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+.csetup-root .theme-settings-pill.is-rect::before { border-radius: 0px; }
+.csetup-root .theme-settings-pill.is-soft::before { border-radius: 4px; }
+.csetup-root .theme-settings-pill.is-round::before { border-radius: 7px; }
 
 .csetup-root .theme-custom-editor {
 	position: absolute;
@@ -1022,7 +1126,7 @@ body {
 
 .csetup-root .theme-custom-editor-actions a {
 	padding: 3px 7px;
-	border-radius: 8px;
+	border-radius: var(--csetup-btn-radius, 8px);
 }
 
 /* Foolproof: keep the editor action buttons readable even if the user makes the palette very flat. */

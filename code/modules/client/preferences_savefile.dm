@@ -546,6 +546,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	S["gfluid_blacklist"]		>> gfluid_blacklist
 	S["new_character_creator"]	>> new_character_creator
 	S["charcreation_theme"]		>> charcreation_theme
+	S["modern_button_shape"]	>> modern_button_shape
 	S["modern_custom_enabled"]	>> modern_custom_enabled
 	S["modern_custom_bg_primary"]	>> modern_custom_bg_primary
 	S["modern_custom_bg_secondary"]	>> modern_custom_bg_secondary
@@ -638,6 +639,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	//SPLURT CHANGES BEGIN
 	gfluid_blacklist = sanitize_islist(gfluid_blacklist, list())
 	charcreation_theme = sanitize_inlist(charcreation_theme, list("classic", "modern", "modern_classic", "modern_purple", "modern_green", "modern_neutral", "modern_custom"), "classic")
+	modern_button_shape = sanitize_inlist(modern_button_shape, list("rect", "soft", "round"), initial(modern_button_shape))
 	modern_custom_enabled = sanitize_integer(modern_custom_enabled, 0, 1, initial(modern_custom_enabled))
 	modern_custom_bg_primary = sanitize_hexcolor(modern_custom_bg_primary, 6, FALSE, initial(modern_custom_bg_primary))
 	modern_custom_bg_secondary = sanitize_hexcolor(modern_custom_bg_secondary, 6, FALSE, initial(modern_custom_bg_secondary))
@@ -792,6 +794,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	WRITE_FILE(S["gfluid_blacklist"], gfluid_blacklist)
 	WRITE_FILE(S["new_character_creator"], new_character_creator)
 	WRITE_FILE(S["charcreation_theme"], charcreation_theme)
+	WRITE_FILE(S["modern_button_shape"], modern_button_shape)
 	WRITE_FILE(S["modern_custom_enabled"], modern_custom_enabled)
 	WRITE_FILE(S["modern_custom_bg_primary"], modern_custom_bg_primary)
 	WRITE_FILE(S["modern_custom_bg_secondary"], modern_custom_bg_secondary)

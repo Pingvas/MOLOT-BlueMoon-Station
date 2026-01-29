@@ -435,6 +435,10 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	/// Supported values: "classic", "modern", "modern_classic", "modern_purple", "modern_green", "modern_neutral"
 	var/charcreation_theme = "classic"
 
+	/// Modern character creator: button shape preset (persisted).
+	/// Supported values: "rect", "soft", "round".
+	var/modern_button_shape = "round"
+
 	/// Modern custom theme (player-configurable palette).
 	var/modern_custom_enabled = FALSE
 	var/modern_custom_bg_primary = "121212"
@@ -455,6 +459,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/tmp/modern_theme_picker_collapsed = TRUE /// UI tweak
 	/// UI-only state (not persisted): play a one-shot collapse/expand animation on next render
 	var/tmp/modern_theme_picker_animate = FALSE
+	/// UI-only state (not persisted): open/close the quick settings popover (WIP)
+	var/tmp/modern_theme_settings_open = FALSE
 	/// UI state: collapse empty character slots in the top slot list (persisted in preferences)
 	var/collapse_empty_character_slots = FALSE
 
@@ -690,9 +696,17 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 			var/border_color = theme["border_color"]
 			var/accent_color = theme["accent_color"]
 			var/bg_pattern = theme["bg_pattern"]
+			var/button_radius = "7px"
+			switch(modern_button_shape)
+				if("rect")
+					button_radius = "0px"
+				if("soft")
+					button_radius = "4px"
+				if("round")
+					button_radius = "7px"
 			modern_palette_css = "<style>\n\
 	.csetup-root{ background-color:[bg_primary]; color:[text_primary]; font-family: Verdana, Tahoma, Arial, sans-serif; margin:0; padding:6px; min-height:100vh; position:relative; background-image:[bg_pattern]; background-size:auto; }\n\
-	.csetup-root a, .csetup-root a:link, .csetup-root a:visited{ color:[text_primary]; text-decoration:none; padding:4px 8px; margin:1px; display:inline-block; background-color:[button_bg]; border-radius:7px; border:1px solid [border_color]; cursor:pointer; font-size:12px; vertical-align:middle; }\n\
+	.csetup-root a, .csetup-root a:link, .csetup-root a:visited{ color:[text_primary]; text-decoration:none; padding:4px 8px; margin:1px; display:inline-block; background-color:[button_bg]; border-radius:[button_radius]; border:1px solid [border_color]; cursor:pointer; font-size:12px; vertical-align:middle; }\n\
 	.csetup-root a:hover{ background-color:[button_hover]; }\n\
 	.csetup-root .linkOn{ background-color:[button_active]; color:[button_text]; }\n\
 	.csetup-root a.linkOff, .csetup-root .linkOff{ color:[text_secondary]; cursor:not-allowed; opacity:0.6; }\n\
@@ -717,8 +731,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	.csetup-root .theme-sep{ width:2px; height:20px; background:[border_color]; opacity:1; margin:0 6px; display:inline-block; border-radius:2px; }\n\
 	.csetup-root .theme-custom-group{ display:inline-flex; align-items:center; gap:6px; padding:3px 6px; border-radius:10px; background-color:[bg_primary]; border:1px solid [border_color]; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06); }\n\
 	.csetup-root a.theme-swatch.active{ border-color:[accent_color]; box-shadow:0 0 8px [accent_color]; }\n\
-	.csetup-root a.theme-swatch--custom{ width:18px; height:18px; border-radius:6px; display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,0.75); }\n\
-	.csetup-root a.theme-gear{ padding:0 !important; margin-left:2px; width:18px; height:18px; border-radius:6px; display:inline-flex; align-items:center; justify-content:center; font-size:13px; line-height:1; }\n\
+	.csetup-root a.theme-swatch--custom{ width:18px; height:18px; border-radius:[button_radius]; display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,0.75); }\n\
+	.csetup-root a.theme-gear{ padding:0 !important; margin-left:2px; width:18px; height:18px; border-radius:[button_radius]; display:inline-flex; align-items:center; justify-content:center; font-size:13px; line-height:1; }\n\
 	.csetup-root .theme-custom-editor{ background-color:[bg_secondary]; border:1px solid [border_color]; color:[text_primary]; }\n\
 	.csetup-root .theme-custom-editor-hint{ font-size:11px; opacity:0.8; color:[text_secondary]; }\n\
 	.csetup-root .theme-custom-editor-table a.colorbox{ padding:0 !important; margin:0 6px 0 0 !important; background-color:transparent; border-radius:4px !important; box-shadow:none !important; }\n\
@@ -745,7 +759,10 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 				if(is_modern_theme)
 					theme_class = "csetup-theme-modern csetup-accent-blue"
 
-		dat = list(modern_palette_css, "<div class='csetup-root [theme_class]'>")
+		var/button_shape_class = ""
+		if(is_modern_theme)
+			button_shape_class = "csetup-btnshape-[modern_button_shape]"
+		dat = list(modern_palette_css, "<div class='csetup-root [theme_class][button_shape_class ? " [button_shape_class]" : ""]'>")
 
 		// Compact theme picker (top-right): only for Modern UI themes.
 		if(is_modern_theme)
@@ -773,7 +790,10 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 				theme_selector_class += " collapsed"
 			var/toggle_title = modern_theme_picker_collapsed ? "Развернуть меню тем" : "Свернуть меню тем"
 			dat += "<div class='[theme_selector_class]'>"
+			dat += "<span class='theme-icon-stack'>"
 			dat += "<a href='?_src_=prefs;preference=modern_theme_picker;action=toggle' class='theme-emoji-btn' title='[toggle_title]'>🎨</a>"
+			dat += "<a href='?_src_=prefs;preference=modern_theme_settings;action=toggle' class='theme-emoji-btn theme-settings-btn' title='Настройки (WIP)'>⚙</a>"
+			dat += "</span>"
 			dat += "<span class='theme-body'>"
 			// UI tweak start
 			//if(!modern_theme_picker_collapsed)
@@ -801,6 +821,27 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 			dat += "</span>" // theme-body
 			dat += "</div>"
 			modern_theme_picker_animate = FALSE
+
+			if(modern_theme_settings_open)
+				dat += "<div class='theme-settings-panel'>"
+				dat += "<div class='theme-settings-title'><b>Settings</b> <span class='theme-settings-hint'>(WIP)</span></div>"
+				dat += "<div class='theme-settings-group'>"
+				dat += "<div class='theme-settings-label'>Рамка</div>"
+				dat += "<div class='theme-settings-options'>"
+				var/shape_rect_cls = "theme-settings-pill is-rect[modern_button_shape == "rect" ? " linkOn" : ""]"
+				var/shape_round_cls = "theme-settings-pill is-round[modern_button_shape == "round" ? " linkOn" : ""]"
+				var/shape_soft_cls = "theme-settings-pill is-soft[modern_button_shape == "soft" ? " linkOn" : ""]"
+				dat += "<a class='[shape_rect_cls]' href='?_src_=prefs;preference=modern_theme_settings;action=set_button_shape;shape=rect'>Прямоугольная</a>"
+				dat += "<a class='[shape_round_cls]' href='?_src_=prefs;preference=modern_theme_settings;action=set_button_shape;shape=round'>Округлая</a>"
+				dat += "<a class='[shape_soft_cls]' href='?_src_=prefs;preference=modern_theme_settings;action=set_button_shape;shape=soft'>Мягкая</a>"
+				dat += "</div></div>"
+				dat += "<div class='theme-settings-group'>"
+				dat += "<div class='theme-settings-label'>Язык</div>"
+				dat += "<div class='theme-settings-options'>"
+				dat += "<span class='theme-settings-pill'>Русский</span>"
+				dat += "<span class='theme-settings-pill'>English</span>"
+				dat += "</div></div>"
+				dat += "</div>"
 
 			if(modern_custom_editor_open)
 				dat += "<div class='theme-custom-editor'>"
@@ -3160,6 +3201,21 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 			if("toggle")
 				modern_theme_picker_collapsed = !modern_theme_picker_collapsed
 				modern_theme_picker_animate = TRUE
+				ShowChoices(user)
+				return TRUE
+		ShowChoices(user)
+		return TRUE
+
+	if(href_list["preference"] == "modern_theme_settings")
+		switch(href_list["action"])
+			if("toggle")
+				modern_theme_settings_open = !modern_theme_settings_open
+				ShowChoices(user)
+				return TRUE
+			if("set_button_shape")
+				var/shape = href_list["shape"]
+				modern_button_shape = sanitize_inlist(shape, list("rect", "soft", "round"), initial(modern_button_shape))
+				save_preferences(silent = TRUE)
 				ShowChoices(user)
 				return TRUE
 		ShowChoices(user)
