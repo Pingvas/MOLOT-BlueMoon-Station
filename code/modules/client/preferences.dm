@@ -103,6 +103,10 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/pda_ringtone = "beep"
 	var/list/alt_titles_preferences = list()
 
+	// Modern UI translations
+	var/use_modern_translations = TRUE		// Enable modern translation system for UI elements
+	var/modern_ui_language = 0				// 0 = English, 1 = Russian
+
 	var/hardsuit_tail_style = null // Пока не используется. Вскоре нужно будет бахнуть новых спрайтов.
 	var/custom_blood_color = FALSE
 	var/blood_color = BLOOD_COLOR_UNIVERSAL
@@ -838,8 +842,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 				dat += "<div class='theme-settings-group'>"
 				dat += "<div class='theme-settings-label'>Язык</div>"
 				dat += "<div class='theme-settings-options'>"
-				dat += "<span class='theme-settings-pill'>Русский</span>"
-				dat += "<span class='theme-settings-pill'>English</span>"
+				dat += get_modern_language_selector(src)
 				dat += "</div></div>"
 				dat += "</div>"
 
@@ -898,9 +901,13 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	if(current_tab == KEYBINDINGS_TAB)
 		tab_class_keybindings = "class='linkOn'"
 
-	dat += "<a href='?_src_=prefs;preference=tab;tab=[SETTINGS_TAB]' [tab_class_settings]>Character Settings</a>"
-	dat += "<a href='?_src_=prefs;preference=tab;tab=[PREFERENCES_TAB]' [tab_class_preferences]>Preferences</a>"
-	dat += "<a href='?_src_=prefs;preference=tab;tab=[KEYBINDINGS_TAB]' [tab_class_keybindings]>Keybindings</a>"
+	var/main_tab_settings = src.use_modern_translations ? get_modern_text("tab_character_settings", src) : "Character Settings"
+	var/main_tab_preferences = src.use_modern_translations ? get_modern_text("tab_preferences", src) : "Preferences"
+	var/main_tab_keybindings = src.use_modern_translations ? get_modern_text("tab_keybindings", src) : "Keybindings"
+
+	dat += "<a href='?_src_=prefs;preference=tab;tab=[SETTINGS_TAB]' [tab_class_settings]>[main_tab_settings]</a>"
+	dat += "<a href='?_src_=prefs;preference=tab;tab=[PREFERENCES_TAB]' [tab_class_preferences]>[main_tab_preferences]</a>"
+	dat += "<a href='?_src_=prefs;preference=tab;tab=[KEYBINDINGS_TAB]' [tab_class_keybindings]>[main_tab_keybindings]</a>"
 
 	if(!path)
 		dat += "<div class='notice'>Please create an account to save your preferences</div>"
@@ -999,14 +1006,22 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 			if(character_settings_tab == QUIRKS_CHAR_TAB)
 				char_tab_class_quirks = "class='linkOn'"
 
-			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[GENERAL_CHAR_TAB]' [char_tab_class_general]>General</a>"
-			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[BACKGROUND_CHAR_TAB]' [char_tab_class_background]>Background</a>"
-			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[APPEARANCE_CHAR_TAB]' [char_tab_class_appearance]>Appearance</a>"
-			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[MARKINGS_CHAR_TAB]' [char_tab_class_markings]>Markings</a>"
-			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[SPEECH_CHAR_TAB]' [char_tab_class_speech]>Speech</a>"
-			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[LOADOUT_CHAR_TAB]' [char_tab_class_loadout]>Loadout</a>" //If you change the index of this tab, change all the logic regarding tab
+			var/char_tab_general = src.use_modern_translations ? get_modern_text("char_tab_general", src) : "General"
+			var/char_tab_background = src.use_modern_translations ? get_modern_text("char_tab_background", src) : "Background"
+			var/char_tab_appearance = src.use_modern_translations ? get_modern_text("char_tab_appearance", src) : "Appearance"
+			var/char_tab_markings = src.use_modern_translations ? get_modern_text("char_tab_markings", src) : "Markings"
+			var/char_tab_speech = src.use_modern_translations ? get_modern_text("char_tab_speech", src) : "Speech"
+			var/char_tab_loadout = src.use_modern_translations ? get_modern_text("char_tab_loadout", src) : "Loadout"
+			var/char_tab_quirks = src.use_modern_translations ? get_modern_text("char_tab_quirks", src) : "Quirks"
+
+			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[GENERAL_CHAR_TAB]' [char_tab_class_general]>[char_tab_general]</a>"
+			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[BACKGROUND_CHAR_TAB]' [char_tab_class_background]>[char_tab_background]</a>"
+			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[APPEARANCE_CHAR_TAB]' [char_tab_class_appearance]>[char_tab_appearance]</a>"
+			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[MARKINGS_CHAR_TAB]' [char_tab_class_markings]>[char_tab_markings]</a>"
+			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[SPEECH_CHAR_TAB]' [char_tab_class_speech]>[char_tab_speech]</a>"
+			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[LOADOUT_CHAR_TAB]' [char_tab_class_loadout]>[char_tab_loadout]</a>" //If you change the index of this tab, change all the logic regarding tab
 			if(is_modern_theme && CONFIG_GET(flag/roundstart_traits))
-				dat += "<a href='?_src_=prefs;preference=character_tab;tab=[QUIRKS_CHAR_TAB]' [char_tab_class_quirks]>Quirks</a>"
+				dat += "<a href='?_src_=prefs;preference=character_tab;tab=[QUIRKS_CHAR_TAB]' [char_tab_class_quirks]>[char_tab_quirks]</a>"
 			dat += "</center>"
 
 			dat += "<HR>"
@@ -1415,31 +1430,35 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 								dat += "<h3>Right Eye Color</h3>"
 								dat += "<span style='border: 1px solid #161616; background-color: #[right_eye_color];'><font color='[color_hex2num(right_eye_color) < 200 ? "FFFFFF" : "000000"]'>#[right_eye_color]</font></span> <a href='?_src_=prefs;preference=eye_right;task=input'>Change</a><BR>"
 
-					if(HAIR in pref_species.species_traits)
+					var/hair_style_label = src.use_modern_translations ? get_modern_text("hair_style", src) : "Hair Style"
+					var/facial_hair_style_label = src.use_modern_translations ? get_modern_text("facial_hair_style", src) : "Facial Hair Style"
+					var/hair_gradient_label = src.use_modern_translations ? get_modern_text("hair_gradient", src) : "Hair Gradient"
+					var/change_label = src.use_modern_translations ? get_modern_text("change", src) : "Change"
 
+					if(HAIR in pref_species.species_traits)
 						dat += APPEARANCE_CATEGORY_COLUMN
 
-						dat += "<h3>Hair Style</h3>"
+						dat += "<h3>[hair_style_label]</h3>"
 
 						dat += "<a style='display:block;width:180px' href='?_src_=prefs;preference=hair_style;task=input'>[hair_style]</a>" // BLUEMOON EDIT - увеличена ширина со 100 до 180
 						dat += "<a href='?_src_=prefs;preference=previous_hair_style;task=input'>&lt;</a> <a href='?_src_=prefs;preference=next_hair_style;task=input'>&gt;</a><BR>"
-						dat += "<span style='border:1px solid #161616; background-color: #[hair_color];'><font color='[color_hex2num(hair_color) < 200 ? "FFFFFF" : "000000"]'>#[hair_color]</font></span> <a href='?_src_=prefs;preference=hair;task=input'>Change</a><BR>"
+						dat += "<span style='border:1px solid #161616; background-color: #[hair_color];'><font color='[color_hex2num(hair_color) < 200 ? "FFFFFF" : "000000"]'>#[hair_color]</font></span> <a href='?_src_=prefs;preference=hair;task=input'>[change_label]</a><BR>"
 
-						dat += "<h3>Facial Hair Style</h3>"
+						dat += "<h3>[facial_hair_style_label]</h3>"
 
 						dat += "<a style='display:block;width:180px' href='?_src_=prefs;preference=facial_hair_style;task=input'>[facial_hair_style]</a>" // BLUEMOON EDIT - увеличена ширина со 100 до 180
 						dat += "<a href='?_src_=prefs;preference=previous_facehair_style;task=input'>&lt;</a> <a href='?_src_=prefs;preference=next_facehair_style;task=input'>&gt;</a><BR>"
-						dat += "<span style='border:1px solid #161616; background-color: #[facial_hair_color];'><font color='[color_hex2num(facial_hair_color) < 200 ? "FFFFFF" : "000000"]'>#[facial_hair_color]</font></span> <a href='?_src_=prefs;preference=facial;task=input'>Change</a><BR>"
+						dat += "<span style='border:1px solid #161616; background-color: #[facial_hair_color];'><font color='[color_hex2num(facial_hair_color) < 200 ? "FFFFFF" : "000000"]'>#[facial_hair_color]</font></span> <a href='?_src_=prefs;preference=facial;task=input'>[change_label]</a><BR>"
 
-						dat += "<h3>Hair Gradient</h3>"
+						dat += "<h3>[hair_gradient_label]</h3>"
 
 						dat += "<a style='display:block;width:180px' href='?_src_=prefs;preference=grad_style;task=input'>[grad_style]</a>"
 						dat += "<a href='?_src_=prefs;preference=previous_grad_style;task=input'>&lt;</a> <a href='?_src_=prefs;preference=next_grad_style;task=input'>&gt;</a><BR>" // BLUEMOON EDIT - увеличена ширина со 100 до 180
-						dat += "<span style='border:1px solid #161616; background-color: #[grad_color];'><font color='[color_hex2num(grad_color) < 200 ? "FFFFFF" : "000000"]'>#[grad_color]</font></span> <a href='?_src_=prefs;preference=grad_color;task=input'>Change</a><BR>"
+						dat += "<span style='border:1px solid #161616; background-color: #[grad_color];'><font color='[color_hex2num(grad_color) < 200 ? "FFFFFF" : "000000"]'>#[grad_color]</font></span> <a href='?_src_=prefs;preference=grad_color;task=input'>[change_label]</a><BR>"
 
 						dat += "</td>"
 
-					//Mutant stuff
+				//Mutant stuff
 					var/mutant_category = 0
 
 					for(var/mutant_part in GLOB.all_mutant_parts)
@@ -1976,7 +1995,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 
 				if(SPEECH_CHAR_TAB)
 					dat += "<table><tr><td width='340px' height='300px' valign='top'>"
-					dat += "<h2>Speech preferences</h2>"
+					var/speech_preferences_label = src.use_modern_translations ? get_modern_text("speech_preferences", src) : "Speech preferences"
+					dat += "<h2>[speech_preferences_label]</h2>"
 					dat += "<b>Custom Speech Verb:</b><BR>"
 					dat += "<a style='display:block;width:100px' href='?_src_=prefs;preference=speech_verb;task=input'>[custom_speech_verb]</a><BR>"
 					dat += "<b>Custom Tongue:</b><BR>"
@@ -2006,7 +2026,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "</tr></table>"
 				if(LOADOUT_CHAR_TAB)
 					dat += "<table align='center' width='100%'>"
-					dat += "<tr><td colspan=4><center><b>Loadout slot</b></center></td></tr>"
+					var/loadout_slot_label = src.use_modern_translations ? get_modern_text("loadout_slot", src) : "Loadout slot"
+					dat += "<tr><td colspan=4><center><b>[loadout_slot_label]</b></center></td></tr>"
 					dat += "<tr><td colspan=4><center>"
 					for(var/iteration in 1 to MAXIMUM_LOADOUT_SAVES)
 						var/loadout_slot_attr = (loadout_slot == iteration) ? "class='linkOn'" : "href='?_src_=prefs;preference=gear;select_slot=[iteration]'"
@@ -2182,15 +2203,19 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "</table>"
 		if(PREFERENCES_TAB) // Game Preferences
 			dat += "<center>"
-			dat += "<a href='?_src_=prefs;preference=preferences_tab;tab=[GAME_PREFS_TAB]' " + (preferences_tab == GAME_PREFS_TAB ? "class='linkOn'" : "") + ">General</a>"
-			dat += "<a href='?_src_=prefs;preference=preferences_tab;tab=[OOC_PREFS_TAB]' " + (preferences_tab == OOC_PREFS_TAB ? "class='linkOn'" : "") + ">OOC</a>"
-			dat += "<a href='?_src_=prefs;preference=preferences_tab;tab=[CONTENT_PREFS_TAB]' " + (preferences_tab == CONTENT_PREFS_TAB ? "class='linkOn'" : "") + ">Content</a>"
+			var/pref_general = src.use_modern_translations ? get_modern_text("pref_general", src) : "General"
+			var/pref_ooc = src.use_modern_translations ? get_modern_text("pref_ooc", src) : "OOC"
+			var/pref_content = src.use_modern_translations ? get_modern_text("pref_content", src) : "Content"
+			dat += "<a href='?_src_=prefs;preference=preferences_tab;tab=[GAME_PREFS_TAB]' " + (preferences_tab == GAME_PREFS_TAB ? "class='linkOn'" : "") + ">[pref_general]</a>"
+			dat += "<a href='?_src_=prefs;preference=preferences_tab;tab=[OOC_PREFS_TAB]' " + (preferences_tab == OOC_PREFS_TAB ? "class='linkOn'" : "") + ">[pref_ooc]</a>"
+			dat += "<a href='?_src_=prefs;preference=preferences_tab;tab=[CONTENT_PREFS_TAB]' " + (preferences_tab == CONTENT_PREFS_TAB ? "class='linkOn'" : "") + ">[pref_content]</a>"
 			dat += "</center>"
 			dat += "<HR>"
 			switch(preferences_tab)
 				if(GAME_PREFS_TAB)
 					dat += "<table><tr><td width='340px' height='300px' valign='top'>"
-					dat += "<h2>General Settings</h2>"
+					var/general_settings_label = src.use_modern_translations ? get_modern_text("general_settings", src) : "General Settings"
+					dat += "<h2>[general_settings_label]</h2>"
 					var/char_setup_ui = "Old"
 					if(new_character_creator)
 						char_setup_ui = "New"
@@ -3215,6 +3240,15 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 			if("set_button_shape")
 				var/shape = href_list["shape"]
 				modern_button_shape = sanitize_inlist(shape, list("rect", "soft", "round"), initial(modern_button_shape))
+				save_preferences(bypass_cooldown = TRUE, silent = TRUE)
+				ShowChoices(user)
+				return TRUE
+			if("set_language")
+				var/lang = href_list["lang"]
+				if(lang == "ru")
+					modern_ui_language = 1
+				else if(lang == "en")
+					modern_ui_language = 0
 				save_preferences(bypass_cooldown = TRUE, silent = TRUE)
 				ShowChoices(user)
 				return TRUE

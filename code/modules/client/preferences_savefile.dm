@@ -559,6 +559,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	S["modern_custom_border_color"]	>> modern_custom_border_color
 	S["modern_custom_accent_color"]	>> modern_custom_accent_color
 	S["modern_custom_bg_pattern"]	>> modern_custom_bg_pattern
+	S["modern_ui_language"]		>> modern_ui_language
 	S["collapse_empty_character_slots"] >> collapse_empty_character_slots
 	S["view_pixelshift"]		>> view_pixelshift
 
@@ -652,6 +653,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	modern_custom_border_color = sanitize_hexcolor(modern_custom_border_color, 6, FALSE, initial(modern_custom_border_color))
 	modern_custom_accent_color = sanitize_hexcolor(modern_custom_accent_color, 6, FALSE, initial(modern_custom_accent_color))
 	modern_custom_bg_pattern = sanitize_integer(modern_custom_bg_pattern, 0, 1, initial(modern_custom_bg_pattern))
+	modern_ui_language = sanitize_integer(modern_ui_language, 0, 1, initial(modern_ui_language))
 	collapse_empty_character_slots = sanitize_integer(collapse_empty_character_slots, 0, 1, initial(collapse_empty_character_slots))
 	//SPLURT CHANGES END
 
@@ -807,6 +809,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	WRITE_FILE(S["modern_custom_border_color"], modern_custom_border_color)
 	WRITE_FILE(S["modern_custom_accent_color"], modern_custom_accent_color)
 	WRITE_FILE(S["modern_custom_bg_pattern"], modern_custom_bg_pattern)
+	WRITE_FILE(S["modern_ui_language"], modern_ui_language)
 	WRITE_FILE(S["collapse_empty_character_slots"], collapse_empty_character_slots)
 	WRITE_FILE(S["view_pixelshift"], view_pixelshift)
 	WRITE_FILE(S["eorg_enabled"], eorg_enabled)
