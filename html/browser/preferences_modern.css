@@ -14,6 +14,8 @@ body {
 
 body {
 	overflow-y: auto;
+	scroll-behavior: auto;
+	overflow-anchor: none;
 	/* Firefox */
 	scrollbar-width: thin;
 	scrollbar-color: rgba(255, 255, 255, 0.22) rgba(0, 0, 0, 0.25);
@@ -83,6 +85,7 @@ body {
 /* Needed for the top-right theme picker positioning */
 .csetup-root {
 	position: relative;
+	overflow-anchor: none;
 }
 
 .csetup-root.csetup-theme-classic,
@@ -288,19 +291,37 @@ body {
 	text-decoration: none;
 	padding: 4px 8px;
 	margin: 1px;
-	display: inline-block;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
 	background-color: var(--csetup-btn-bg);
 	border-radius: var(--csetup-btn-radius, 7px);
 	border: 1px solid var(--csetup-border);
-	transition: background-color 0.12s ease-out;
+	transition: background-color 0.12s ease-out, border-color 0.12s ease-out, color 0.12s ease-out;
 	cursor: pointer;
 	font-size: 12px;
 	vertical-align: middle;
+	line-height: 1.1;
+	outline: none;
+	transform: none;
+}
+
+.csetup-root.csetup-theme-modern a,
+.csetup-root.csetup-theme-modern a:link,
+.csetup-root.csetup-theme-modern a:visited {
+	font-weight: 600;
 }
 
 .csetup-root.csetup-theme-modern a:hover,
 .csetup-root.csetup-theme-classic a:hover {
 	background-color: var(--csetup-btn-hover);
+	transform: none;
+}
+
+.csetup-root.csetup-theme-modern a:active,
+.csetup-root.csetup-theme-modern a:focus {
+	transform: none;
+	outline: none;
 }
 
 /* Fix cramped tiny value buttons (legacy inline width=30px in DM).
@@ -608,7 +629,7 @@ body {
 	border: 1px solid rgba(47, 148, 60, 0.60) !important;
 	box-shadow: none !important;
 	color: #ffffff !important;
-	font-weight: bold;
+	font-weight: 600;
 }
 
 /* Classic: preserve theme accent behavior */
