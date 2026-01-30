@@ -113,9 +113,7 @@ body {
 	--csetup-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
 
 	background-color: var(--csetup-bg);
-	background-image:
-		radial-gradient(circle at 92% 0%, rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.16), transparent 48%),
-		radial-gradient(circle at 0% 100%, rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.10), transparent 55%);
+	background-image: none;
 	background-size: auto;
 	padding: 6px;
 	min-height: 100vh;
@@ -134,9 +132,7 @@ body {
 /* Explicit "dark" scheme class (mostly for DM-side clarity) */
 .csetup-root.csetup-theme-modern.csetup-scheme-dark {
 	background-color: var(--csetup-bg);
-	background-image:
-		radial-gradient(circle at 92% 0%, rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.16), transparent 48%),
-		radial-gradient(circle at 0% 100%, rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.10), transparent 55%);
+	background-image: none;
 }
 
 /* Full palette schemes for Modern */
@@ -152,9 +148,7 @@ body {
 	--csetup-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
 
 	background-color: var(--csetup-bg);
-	background-image:
-		radial-gradient(circle at 92% 0%, rgba(var(--csetup-accent-rgb, 193, 155, 255), 0.20), transparent 50%),
-		radial-gradient(circle at 0% 100%, rgba(var(--csetup-accent-rgb, 193, 155, 255), 0.12), transparent 56%);
+	background-image: none;
 }
 
 .csetup-root.csetup-theme-modern.csetup-scheme-green {
@@ -169,9 +163,7 @@ body {
 	--csetup-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
 
 	background-color: var(--csetup-bg);
-	background-image:
-		radial-gradient(circle at 92% 0%, rgba(var(--csetup-accent-rgb, 139, 255, 177), 0.18), transparent 52%),
-		radial-gradient(circle at 0% 100%, rgba(var(--csetup-accent-rgb, 139, 255, 177), 0.10), transparent 58%);
+	background-image: none;
 }
 
 /* Classic scheme for Modern (PR theme: "classic" palette, but kept in modern layout) */
@@ -238,13 +230,7 @@ body {
 	--csetup-shadow: 0 12px 40px rgba(0, 0, 0, 0.20);
 
 	background-color: var(--csetup-bg);
-	background-image: repeating-linear-gradient(
-		90deg,
-		rgba(255, 255, 255, 0.32) 0px,
-		rgba(255, 255, 255, 0.32) 10px,
-		rgba(0, 0, 0, 0.035) 10px,
-		rgba(0, 0, 0, 0.035) 20px
-	);
+	background-image: none;
 	background-size: auto;
 }
 
@@ -287,7 +273,7 @@ body {
 .csetup-root.csetup-theme-classic hr {
 	border: none;
 	height: 1px;
-	background: linear-gradient(90deg, transparent, var(--csetup-border), transparent);
+	background: var(--csetup-border);
 	margin: 10px 0;
 }
 
@@ -306,7 +292,7 @@ body {
 	background-color: var(--csetup-btn-bg);
 	border-radius: var(--csetup-btn-radius, 7px);
 	border: 1px solid var(--csetup-border);
-	transition: transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+	transition: background-color 0.12s ease-out;
 	cursor: pointer;
 	font-size: 12px;
 	vertical-align: middle;
@@ -315,7 +301,6 @@ body {
 .csetup-root.csetup-theme-modern a:hover,
 .csetup-root.csetup-theme-classic a:hover {
 	background-color: var(--csetup-btn-hover);
-	transform: translateY(-1px);
 }
 
 /* Fix cramped tiny value buttons (legacy inline width=30px in DM).
@@ -350,7 +335,7 @@ body {
 }
 
 .csetup-root.csetup-theme-modern a.csetup-dice-btn:hover {
-	transform: translateY(-1px);
+	transform: none;
 }
 
 .csetup-root.csetup-theme-modern a.linkOff,
@@ -410,7 +395,7 @@ body {
 	width: 100%;
 	break-inside: avoid;
 	margin: 0 0 8px 0;
-	background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(0, 0, 0, 0.0)), var(--csetup-panel);
+	background: var(--csetup-panel);
 	border: 1px solid rgba(255, 255, 255, 0.08);
 	border-radius: 10px;
 	overflow: hidden;
@@ -422,7 +407,7 @@ body {
 	justify-content: space-between;
 	gap: 8px;
 	padding: 4px 8px;
-	background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(0, 0, 0, 0));
+	background: transparent;
 	border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
@@ -577,7 +562,7 @@ body {
 	height: 11px;
 	border-radius: 999px;
 	border: 1px solid rgba(0, 0, 0, 0.45);
-	box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+	box-shadow: none;
 	vertical-align: middle;
 	margin-right: 4px;
 }
@@ -592,7 +577,7 @@ body {
 	padding: 12px 12px;
 	border-radius: 12px;
 	border: 1px solid rgba(255, 107, 107, 0.65);
-	background: linear-gradient(90deg, rgba(255, 107, 107, 0.14), rgba(0, 0, 0, 0));
+	background: rgba(255, 107, 107, 0.12);
 }
 
 .csetup-root.csetup-theme-modern .csetup-markings .csetup-danger-zone-title {
@@ -621,7 +606,7 @@ body {
 .csetup-root.csetup-theme-modern a.linkOn:active {
 	background-color: #2f943c !important;
 	border: 1px solid rgba(47, 148, 60, 0.60) !important;
-	box-shadow: 0 0 10px rgba(47, 148, 60, 0.35) !important;
+	box-shadow: none !important;
 	color: #ffffff !important;
 	font-weight: bold;
 }
@@ -633,7 +618,7 @@ body {
 .csetup-root.csetup-theme-classic a.linkOn:active {
 	background-color: var(--csetup-btn-active);
 	border: 1px solid rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.35);
-	box-shadow: 0 0 10px rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.25);
+	box-shadow: none;
 	color: var(--csetup-btn-active-text);
 	font-weight: bold;
 }
@@ -692,7 +677,7 @@ body {
 	background: rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.12);
 	border: 1px solid rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.25);
 	border-radius: 10px;
-	box-shadow: var(--csetup-shadow);
+	box-shadow: none;
 	color: var(--csetup-text);
 }
 
@@ -704,7 +689,7 @@ body {
 	padding: 12px 14px;
 	background: rgba(0, 0, 0, 0.55);
 	border: 1px solid rgba(0, 0, 0, 0.85);
-	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+	box-shadow: none;
 	color: var(--csetup-text);
 }
 
@@ -716,7 +701,7 @@ body {
 	padding: 12px 14px;
 	background: rgba(0, 0, 0, 0.55);
 	border: 1px solid rgba(0, 0, 0, 0.85);
-	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+	box-shadow: none;
 	color: var(--csetup-text);
 }
 
@@ -735,7 +720,7 @@ body {
 	border-radius: 10px;
 	border: 1px solid rgba(0, 0, 0, 0.85);
 	background: rgba(0, 0, 0, 0.45);
-	box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06), 0 8px 20px rgba(0, 0, 0, 0.35);
+	box-shadow: none;
 	white-space: nowrap;
 	color: var(--csetup-text);
 }
@@ -791,11 +776,12 @@ body {
 	color: var(--csetup-text);
 	text-align: left;
 	border-bottom: 1px solid var(--csetup-border);
+	border-right: 1px solid var(--csetup-border);
 }
 
-.csetup-root.csetup-theme-modern td:not(:last-child),
-.csetup-root.csetup-theme-modern th:not(:last-child) {
-	border-right: 1px solid var(--csetup-border);
+.csetup-root.csetup-theme-modern td:last-child,
+.csetup-root.csetup-theme-modern th:last-child {
+	border-right: none;
 }
 
 /* Theme picker (top-right), matching the older PR #2535 UX (small menu + squares). */
@@ -810,12 +796,12 @@ body {
 	border-radius: 10px;
 	background-color: var(--csetup-panel, rgba(255, 255, 255, 0.06));
 	border: 1px solid var(--csetup-border, rgba(0, 0, 0, 0.25));
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+	box-shadow: none;
 	overflow: hidden;
 	max-width: 640px;
 	min-width: 28px; /*UI tweak*/
 	white-space: nowrap;
-	transition: max-width 180ms ease, padding 180ms ease;
+	transition: max-width 150ms ease-out;
 	z-index: 20;
 }
 
@@ -840,19 +826,19 @@ body {
 }
 
 .csetup-root .theme-selector.anim.collapsed {
-	animation: csetupThemePickerCollapseWidth 180ms ease both;
+	animation: none;
 }
 
 .csetup-root .theme-selector.anim:not(.collapsed) {
-	animation: csetupThemePickerExpandWidth 180ms ease both;
+	animation: none;
 }
 
 .csetup-root .theme-selector.anim.collapsed .theme-body {
-	animation: csetupThemePickerFadeOut 180ms ease both;
+	animation: none;
 }
 
 .csetup-root .theme-selector.anim:not(.collapsed) .theme-body {
-	animation: csetupThemePickerFadeIn 180ms ease both;
+	animation: none;
 }
 
 .csetup-root .theme-icon-stack {
@@ -897,7 +883,7 @@ body {
 	gap: 6px;
 	opacity: 1;
 	transform: translateX(0);
-	transition: opacity 160ms ease, transform 180ms ease;
+	transition: none;
 }
 
 .csetup-root a.theme-collapse-hint {
@@ -1003,12 +989,12 @@ body {
 }
 
 .csetup-root a.theme-swatch:hover {
-	transform: translateY(-1px) scale(1.05);
+	transform: none;
 }
 
 .csetup-root a.theme-swatch.active {
 	border-color: var(--csetup-accent, #4da3ff);
-	box-shadow: 0 0 8px rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.55);
+	box-shadow: none;
 }
 
 .csetup-root a.theme-gear {
@@ -1034,7 +1020,7 @@ body {
 	border-radius: 12px;
 	background-color: var(--csetup-panel, rgba(0, 0, 0, 0.35));
 	border: 1px solid var(--csetup-border, rgba(0, 0, 0, 0.25));
-	box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+	box-shadow: none;
 	z-index: 11;
 }
 
@@ -1088,7 +1074,7 @@ body {
 	height: 10px;
 	background: rgba(255, 255, 255, 0.10);
 	border: 1px solid rgba(0, 0, 0, 0.35);
-	box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+	box-shadow: none;
 }
 
 .csetup-root .theme-settings-pill.is-rect::before { border-radius: 0px; }
@@ -1104,7 +1090,7 @@ body {
 	border-radius: 12px;
 	background-color: var(--csetup-panel, rgba(0, 0, 0, 0.35));
 	border: 1px solid var(--csetup-border, rgba(0, 0, 0, 0.25));
-	box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+	box-shadow: none;
 	z-index: 11;
 }
 
@@ -1199,9 +1185,9 @@ body {
 }
 
 .csetup-root .theme-custom-editor-table a.colorbox:hover {
-	transform: translateY(-1px);
+	transform: none;
 	border-color: rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.65);
-	box-shadow: 0 0 6px rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.35);
+	box-shadow: none;
 }
 
 /* --- Quirks (Modern inline UI) --- */
@@ -1232,10 +1218,8 @@ body {
 	border: 1px solid rgba(0, 0, 0, 0.85);
 	border-radius: 12px;
 	padding: 8px 10px;
-	box-shadow:
-		inset 0 0 0 1px rgba(255, 255, 255, 0.06),
-		0 2px 10px rgba(0, 0, 0, 0.25);
-	transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+	box-shadow: none;
+	transition: none;
 	color: var(--csetup-text);
 }
 
@@ -1258,17 +1242,14 @@ body {
 }
 
 .csetup-root.csetup-theme-modern .csetup-quirk-row:hover {
-	transform: translateY(-1px);
+	transform: none;
 	border-color: rgba(var(--csetup-accent-rgb), 0.28);
-	box-shadow: 0 0 0 1px rgba(var(--csetup-accent-rgb), 0.10), 0 10px 22px rgba(0, 0, 0, 0.35);
+	box-shadow: none;
 }
 
 .csetup-root.csetup-theme-modern .csetup-quirk-row.is-selected {
 	border-color: rgba(0, 0, 0, 0.85);
-	box-shadow:
-		inset 0 0 0 1px rgba(255, 255, 255, 0.08),
-		0 0 0 2px rgba(var(--csetup-accent-rgb), 0.12),
-		0 6px 18px rgba(0, 0, 0, 0.35);
+	box-shadow: none;
 }
 
 .csetup-root.csetup-theme-modern .csetup-quirk-row.is-locked {
@@ -1284,8 +1265,8 @@ body {
 	left: 0;
 	width: 6px;
 	border-radius: 6px;
-	background: linear-gradient(180deg, #ff8d8d, #ff3b3b);
-	box-shadow: 0 0 10px rgba(255, 59, 59, 0.35);
+	background: #ff5c5c;
+	box-shadow: none;
 	pointer-events: none;
 }
 
@@ -1297,8 +1278,8 @@ body {
 	left: 0;
 	width: 6px;
 	border-radius: 6px;
-	background: linear-gradient(180deg, #8bf7b5, #3bd76b);
-	box-shadow: 0 0 10px rgba(59, 215, 107, 0.45);
+	background: #3bd76b;
+	box-shadow: none;
 	pointer-events: none;
 }
 
@@ -1363,12 +1344,12 @@ body {
 }
 
 .csetup-root.csetup-theme-modern a.theme-swatch:hover {
-	transform: translateY(-1px) scale(1.05);
+	transform: none;
 }
 
 .csetup-root.csetup-theme-modern a.theme-swatch.active {
 	border-color: rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.75);
-	box-shadow: 0 0 8px rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.45);
+	box-shadow: none;
 }
 
 /* Optional utility classes you can use later for custom buttons */

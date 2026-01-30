@@ -709,21 +709,22 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 				if("round")
 					button_radius = "7px"
 			modern_palette_css = "<style>\n\
-	.csetup-root{ background-color:[bg_primary]; color:[text_primary]; font-family: Verdana, Tahoma, Arial, sans-serif; margin:0; padding:6px; min-height:100vh; position:relative; background-image:[bg_pattern]; background-size:auto; }\n\
-	.csetup-root a, .csetup-root a:link, .csetup-root a:visited{ color:[text_primary]; text-decoration:none; padding:4px 8px; margin:1px; display:inline-block; background-color:[button_bg]; border-radius:[button_radius]; border:1px solid [border_color]; cursor:pointer; font-size:12px; vertical-align:middle; }\n\
+	.csetup-root{ background-color:[bg_primary]; color:[text_primary]; font-family: Verdana, Tahoma, Arial, sans-serif; margin:0; padding:6px; min-height:100vh; position:relative; background-image:[bg_pattern]; background-size:auto; will-change:auto; }\n\
+	.csetup-root a, .csetup-root a:link, .csetup-root a:visited{ color:[text_primary]; text-decoration:none; padding:4px 8px; margin:1px; display:inline-block; background-color:[button_bg]; border-radius:[button_radius]; border:1px solid [border_color]; cursor:pointer; font-size:12px; vertical-align:middle; transition:background-color 120ms ease-out; }\n\
 	.csetup-root a:hover{ background-color:[button_hover]; }\n\
 	.csetup-root .linkOn{ background-color:[button_active]; color:[button_text]; }\n\
 	.csetup-root a.linkOff, .csetup-root .linkOff{ color:[text_secondary]; cursor:not-allowed; opacity:0.6; }\n\
 	.csetup-root .csetup-ai-core-preview{ margin-top:4px; display:inline-block; }\n\
 	.csetup-root .csetup-ai-core-preview img{ width:64px; height:64px; border:1px solid [border_color]; border-radius:10px; background-color:[bg_primary]; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06); image-rendering: pixelated; -ms-interpolation-mode: nearest-neighbor; }\n\
-	.csetup-root hr{ border:none; height:1px; background: linear-gradient(90deg, transparent, [border_color], transparent); margin:10px 0; }\n\
+	.csetup-root hr{ border:none; height:1px; background-color:[border_color]; margin:10px 0; }\n\
 	.csetup-root table{ background-color:[bg_secondary]; border-collapse:collapse; width:100%; border:1px solid [border_color]; border-radius:10px; overflow:hidden; }\n\
 	.csetup-root td, .csetup-root th{ padding:6px 8px; color:[text_primary]; text-align:left; border-bottom:1px solid [border_color]; }\n\
-	.csetup-root td:not(:last-child), .csetup-root th:not(:last-child){ border-right:1px solid [border_color]; }\n\
+	.csetup-root td:last-child, .csetup-root th:last-child{ border-right:none; }\n\
+	.csetup-root td, .csetup-root th{ border-right:1px solid [border_color]; }\n\
 	.csetup-root .csetup_character_node{ background-color:[bg_secondary]; border:1px solid [border_color]; }\n\
 	.csetup-root .csetup_character_label{ color:[text_secondary]; }\n\
-	.csetup-root .theme-selector{ background-color:[bg_secondary]; border:1px solid [border_color]; overflow:hidden; max-width:640px; min-width:28px; white-space:nowrap; transition:max-width 180ms ease, padding 180ms ease; }\n\
-	.csetup-root .theme-body{ display:inline-flex; align-items:center; gap:6px; transition:opacity 160ms ease, transform 180ms ease; opacity:1; transform:translateX(0); }\n\
+	.csetup-root .theme-selector{ background-color:[bg_secondary]; border:1px solid [border_color]; overflow:hidden; max-width:640px; min-width:28px; white-space:nowrap; transition:max-width 150ms ease-out; }\n\
+	.csetup-root .theme-body{ display:inline-flex; align-items:center; gap:6px; transition:none; opacity:1; transform:none; }\n\
 	.csetup-root .theme-selector.collapsed{ max-width:28px; padding:0; gap:0; }\n\
 	.csetup-root .theme-selector.collapsed a.theme-emoji-btn{ margin:0 !important; width:26px; height:26px; display:flex; align-items:center; justify-content:center; text-align:center; font-size:16px; line-height:26px; }\n\
 	.csetup-root .theme-selector.collapsed .theme-body{ opacity:0; transform:translateX(16px); pointer-events:none; }\n\
@@ -734,7 +735,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	.csetup-root .theme-label-custom{ opacity:0.95; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:[text_primary]; }\n\
 	.csetup-root .theme-sep{ width:2px; height:20px; background:[border_color]; opacity:1; margin:0 6px; display:inline-block; border-radius:2px; }\n\
 	.csetup-root .theme-custom-group{ display:inline-flex; align-items:center; gap:6px; padding:3px 6px; border-radius:10px; background-color:[bg_primary]; border:1px solid [border_color]; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06); }\n\
-	.csetup-root a.theme-swatch.active{ border-color:[accent_color]; box-shadow:0 0 8px [accent_color]; }\n\
+	.csetup-root a.theme-swatch.active{ border-color:[accent_color]; box-shadow:none; outline:2px solid [accent_color]; outline-offset:1px; }\n\
 	.csetup-root a.theme-swatch--custom{ width:18px; height:18px; border-radius:[button_radius]; display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,0.75); }\n\
 	.csetup-root a.theme-gear{ padding:0 !important; margin-left:2px; width:18px; height:18px; border-radius:[button_radius]; display:inline-flex; align-items:center; justify-content:center; font-size:13px; line-height:1; }\n\
 	.csetup-root .theme-custom-editor{ background-color:[bg_secondary]; border:1px solid [border_color]; color:[text_primary]; }\n\
@@ -744,6 +745,13 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	.csetup-root .theme-custom-editor-actions a.theme-action:hover{ background-color:#3a3a3a !important; }\n\
 	.csetup-root .theme-custom-editor-actions a.theme-action-reset{ background-color:#7a1f1f !important; border-color:rgba(255, 107, 107, 0.85) !important; }\n\
 	.csetup-root .theme-custom-editor-actions a.theme-action-reset:hover{ background-color:#9a2626 !important; }\n\
+	.csetup-root .theme-settings-panel{ margin-top:8px; padding:8px; border:1px solid [border_color]; border-radius:6px; background-color:[bg_secondary]; }\n\
+	.csetup-root .theme-settings-title{ margin-bottom:6px; font-size:12px; font-weight:700; }\n\
+	.csetup-root .theme-settings-hint{ opacity:0.7; font-size:10px; }\n\
+	.csetup-root .theme-settings-group{ margin-bottom:8px; }\n\
+	.csetup-root .theme-settings-label{ font-size:11px; color:[text_secondary]; margin-bottom:4px; }\n\
+	.csetup-root .theme-settings-options{ display:flex; gap:4px; flex-wrap:wrap; }\n\
+	.csetup-root .theme-settings-pill{ padding:3px 8px; border-radius:4px; font-size:11px; border:1px solid [border_color]; cursor:pointer; transition:background-color 100ms ease-out; }\n\
 </style>"
 		var/theme_class = "csetup-theme-classic"
 		switch(charcreation_theme)
@@ -3225,7 +3233,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 		switch(href_list["action"])
 			if("toggle")
 				modern_theme_picker_collapsed = !modern_theme_picker_collapsed
-				modern_theme_picker_animate = TRUE
+				modern_theme_picker_animate = FALSE
+				save_preferences(bypass_cooldown = TRUE, silent = TRUE)
 				ShowChoices(user)
 				return TRUE
 		ShowChoices(user)
