@@ -1183,7 +1183,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 							//dat += "<center><h2>Quirks</h2></center>"
 							// UI tweak
 							dat += "<div class='notice csetup-quirks-summary'>"
-							dat += "<div class='csetup-quirks-summary-title'><b>[quirk_balance_remaining_label]</b> " + "[GetQuirkBalance(user)]" + "</div>"
+							dat += "<div class='csetup-quirks-summary-title' style='color: white;'><b>[quirk_balance_remaining_label]</b> " + "[GetQuirkBalance(user)]" + "</div>"
 							dat += "<div class='csetup-quirks-summary-current'><b>[current_label]</b> " + current_quirks_display + "</div>"
 							dat += "<div class='csetup-quirks-summary-actions'><a href='?_src_=prefs;preference=character_tab;tab=[QUIRKS_CHAR_TAB]'>[open_quirks_tab_label]</a></div>"
 							dat += "</div>"
@@ -1353,25 +1353,26 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 							dat += "[features["silicon_flavor_text"]]"
 					else
 						dat += "[TextPreview(features["silicon_flavor_text"])]...<BR>"
-					dat += "<h2>[custom_species_lore_label]</h2>"
-					dat += "<a href='?_src_=prefs;preference=custom_species_lore;task=input'><b>[set_custom_species_lore_label]</b></a><br>"
-					if(length(features["custom_species_lore"]) <= MAX_FLAVOR_PREVIEW_LEN)
-						if(!length(features["custom_species_lore"]))
-							dat += "\[...\]<BR>"
+					if(!is_modern_theme)
+						dat += "<h2>[custom_species_lore_label]</h2>"
+						dat += "<a href='?_src_=prefs;preference=custom_species_lore;task=input'><b>[set_custom_species_lore_label]</b></a><br>"
+						if(length(features["custom_species_lore"]) <= MAX_FLAVOR_PREVIEW_LEN)
+							if(!length(features["custom_species_lore"]))
+								dat += "\[...\]<BR>"
+							else
+								dat += "[features["custom_species_lore"]]<BR>"
 						else
-							dat += "[features["custom_species_lore"]]<BR>"
-					else
-						dat += "[TextPreview(features["custom_species_lore"])]...<BR>"
-					dat += "<h2>[ooc_notes_label]</h2>"
-					dat += "<a href='?_src_=prefs;preference=ooc_notes;task=input'><b>[set_ooc_notes_label]</b></a><br>"
-					var/ooc_notes_len = length(features["ooc_notes"])
-					if(ooc_notes_len <= MAX_FLAVOR_PREVIEW_LEN)
-						if(!ooc_notes_len)
-							dat += "\[...\]"
+							dat += "[TextPreview(features["custom_species_lore"])]...<BR>"
+						dat += "<h2>[ooc_notes_label]</h2>"
+						dat += "<a href='?_src_=prefs;preference=ooc_notes;task=input'><b>[set_ooc_notes_label]</b></a><br>"
+						var/ooc_notes_len = length(features["ooc_notes"])
+						if(ooc_notes_len <= MAX_FLAVOR_PREVIEW_LEN)
+							if(!ooc_notes_len)
+								dat += "\[...\]"
+							else
+								dat += "[features["ooc_notes"]]"
 						else
-							dat += "[features["ooc_notes"]]"
-					else
-						dat += "[TextPreview(features["ooc_notes"])]..."
+							dat += "[TextPreview(features["ooc_notes"])]..."
 					//SPLURT EDIT
 					// BLUEMOON REMOVE
 					/*
@@ -1407,6 +1408,27 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 							dat += "[medical_records]"
 					else
 						dat += "[TextPreview(medical_records)]..."
+
+					if(is_modern_theme)
+						dat += "<br><h2>[custom_species_lore_label]</h2>"
+						dat += "<a href='?_src_=prefs;preference=custom_species_lore;task=input'><b>[set_custom_species_lore_label]</b></a><br>"
+						if(length(features["custom_species_lore"]) <= MAX_FLAVOR_PREVIEW_LEN)
+							if(!length(features["custom_species_lore"]))
+								dat += "\[...\]<BR>"
+							else
+								dat += "[features["custom_species_lore"]]<BR>"
+						else
+							dat += "[TextPreview(features["custom_species_lore"])]...<BR>"
+						dat += "<h2>[ooc_notes_label]</h2>"
+						dat += "<a href='?_src_=prefs;preference=ooc_notes;task=input'><b>[set_ooc_notes_label]</b></a><br>"
+						var/ooc_notes_len = length(features["ooc_notes"])
+						if(ooc_notes_len <= MAX_FLAVOR_PREVIEW_LEN)
+							if(!ooc_notes_len)
+								dat += "\[...\]"
+							else
+								dat += "[features["ooc_notes"]]"
+						else
+							dat += "[TextPreview(features["ooc_notes"])]..."
 
 					if(is_modern_theme)
 						dat += "</td>"
