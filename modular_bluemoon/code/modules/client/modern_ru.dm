@@ -21,6 +21,13 @@ var/list/ru_strings = list(
 	"collapse_hint" = "Развернуть меню тем",
 	"settings_gear" = "Настройки (WIP)",
 
+	// UI Decoration Level
+	"ui_decoration_title" = "Оформление интерфейса",
+	"ui_decoration_hint" = "Влияет на производительность",
+	"ui_decoration_minimal" = "Минимальное",
+	"ui_decoration_standard" = "Стандартное",
+	"ui_decoration_enhanced" = "Улучшенное",
+
 	// Theme names
 	"theme_classic" = "Классик",
 	"theme_dark_blue" = "Темный (Синий)",
@@ -924,6 +931,13 @@ var/list/en_strings = list(
 	"lang_en" = "English",
 	"collapse_hint" = "Collapse theme menu",
 	"settings_gear" = "Settings (WIP)",
+
+	// UI Decoration Level
+	"ui_decoration_title" = "UI Decoration",
+	"ui_decoration_hint" = "Affects performance",
+	"ui_decoration_minimal" = "Minimal",
+	"ui_decoration_standard" = "Standard",
+	"ui_decoration_enhanced" = "Enhanced",
 
 	// Theme names
 	"theme_classic" = "Classic",

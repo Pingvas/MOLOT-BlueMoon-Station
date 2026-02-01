@@ -467,6 +467,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/tmp/modern_theme_settings_open = FALSE
 	/// UI state: collapse empty character slots in the top slot list (persisted in preferences)
 	var/collapse_empty_character_slots = FALSE
+	/// UI decoration level for modern theme: "minimal" (performance), "standard" (current), "enhanced" (gradients)
+	var/ui_decoration_level = "enhanced"
 
 /datum/preferences/New(client/C)
 	parent = C
@@ -745,14 +747,50 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	.csetup-root .theme-custom-editor-actions a.theme-action:hover{ background-color:#3a3a3a !important; }\n\
 	.csetup-root .theme-custom-editor-actions a.theme-action-reset{ background-color:#7a1f1f !important; border-color:rgba(255, 107, 107, 0.85) !important; }\n\
 	.csetup-root .theme-custom-editor-actions a.theme-action-reset:hover{ background-color:#9a2626 !important; }\n\
-	.csetup-root .theme-settings-panel{ margin-top:8px; padding:8px; border:1px solid [border_color]; border-radius:6px; background-color:[bg_secondary]; }\n\
-	.csetup-root .theme-settings-title{ margin-bottom:6px; font-size:12px; font-weight:700; }\n\
-	.csetup-root .theme-settings-hint{ opacity:0.7; font-size:10px; }\n\
-	.csetup-root .theme-settings-group{ margin-bottom:8px; }\n\
-	.csetup-root .theme-settings-label{ font-size:11px; color:[text_secondary]; margin-bottom:4px; }\n\
-	.csetup-root .theme-settings-options{ display:flex; gap:4px; flex-wrap:wrap; }\n\
-	.csetup-root .theme-settings-pill{ padding:3px 8px; border-radius:4px; font-size:11px; border:1px solid [border_color]; cursor:pointer; transition:background-color 100ms ease-out; }\n\
 </style>"
+
+			// Enhanced decoration level CSS (gradients, shadows, animations)
+			var/enhanced_decoration_css = ""
+			if(ui_decoration_level == "enhanced")
+				enhanced_decoration_css = "<style>\n\
+	/* Enhanced UI Decoration: Gradients, Shadows, Animations */\n\
+	.csetup-root{ background-image: radial-gradient(circle at 92% 0%, rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.16), transparent 48%), radial-gradient(circle at 0% 100%, rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.10), transparent 55%) !important; }\n\
+	.csetup-root.csetup-scheme-purple{ background-image: radial-gradient(circle at 92% 0%, rgba(var(--csetup-accent-rgb, 193, 155, 255), 0.20), transparent 50%), radial-gradient(circle at 0% 100%, rgba(var(--csetup-accent-rgb, 193, 155, 255), 0.12), transparent 56%) !important; }\n\
+	.csetup-root.csetup-scheme-green{ background-image: radial-gradient(circle at 92% 0%, rgba(var(--csetup-accent-rgb, 139, 255, 177), 0.18), transparent 52%), radial-gradient(circle at 0% 100%, rgba(var(--csetup-accent-rgb, 139, 255, 177), 0.10), transparent 58%) !important; }\n\
+	.csetup-root.csetup-scheme-neutral{ background-image: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.32) 0px, rgba(255, 255, 255, 0.32) 10px, rgba(0, 0, 0, 0.035) 10px, rgba(0, 0, 0, 0.035) 20px) !important; }\n\
+	.csetup-root hr{ background: linear-gradient(90deg, transparent, var(--csetup-border), transparent) !important; }\n\
+	.csetup-root a, .csetup-root a:link, .csetup-root a:visited{ transition: transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease !important; }\n\
+	.csetup-root a:hover{ transform: translateY(-1px); }\n\
+	.csetup-root a.csetup-dice-btn:hover{ transform: translateY(-1px); }\n\
+	.csetup-root .csetup-character-card{ background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(0, 0, 0, 0.0)), var(--csetup-panel) !important; }\n\
+	.csetup-root .csetup-character-card-header{ background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(0, 0, 0, 0)) !important; }\n\
+	.csetup-root .csetup-quirk-indicator-positive{ box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18) !important; }\n\
+	.csetup-root .csetup-danger-zone{ background: linear-gradient(90deg, rgba(255, 107, 107, 0.14), rgba(0, 0, 0, 0)) !important; }\n\
+	.csetup-root a.linkOn:active{ box-shadow: 0 0 10px rgba(47, 148, 60, 0.35) !important; }\n\
+	.csetup-root.csetup-theme-classic a.linkOn:active{ box-shadow: 0 0 10px rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.25) !important; }\n\
+	.csetup-root .csetup-notice{ box-shadow: var(--csetup-shadow) !important; }\n\
+	.csetup-root .csetup-tooltip{ box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45) !important; }\n\
+	.csetup-root .csetup-hovertip{ box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45) !important; }\n\
+	.csetup-root .csetup-mini-tooltip{ box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06), 0 8px 20px rgba(0, 0, 0, 0.35) !important; }\n\
+	.csetup-root .theme-selector{ box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important; transition: max-width 180ms ease, padding 180ms ease !important; }\n\
+	.csetup-root .theme-body{ transition: opacity 160ms ease, transform 180ms ease !important; }\n\
+	.csetup-root .theme-selector.anim.collapsed{ animation: csetupThemePickerCollapseWidth 180ms ease both !important; }\n\
+	.csetup-root .theme-selector.anim:not(.collapsed){ animation: csetupThemePickerExpandWidth 180ms ease both !important; }\n\
+	.csetup-root .theme-selector.anim.collapsed .theme-body{ animation: csetupThemePickerFadeOut 180ms ease both !important; }\n\
+	.csetup-root .theme-selector.anim:not(.collapsed) .theme-body{ animation: csetupThemePickerFadeIn 180ms ease both !important; }\n\
+	.csetup-root a.theme-swatch:hover{ transform: translateY(-1px) scale(1.05); }\n\
+	.csetup-root a.theme-swatch.active{ box-shadow: 0 0 8px rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.55) !important; }\n\
+	.csetup-root .theme-custom-editor{ box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35) !important; }\n\
+	.csetup-root .theme-custom-editor-table a.colorbox:hover{ transform: translateY(-1px); box-shadow: 0 0 6px rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.35) !important; }\n\
+	.csetup-root .theme-settings-panel{ box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35) !important; }\n\
+	.csetup-root .theme-settings-pill::before{ box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12) !important; }\n\
+	.csetup-root .csetup-quirk-row{ box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06), 0 2px 10px rgba(0, 0, 0, 0.25) !important; transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease !important; }\n\
+	.csetup-root .csetup-quirk-row:hover{ transform: translateY(-1px); box-shadow: 0 0 0 1px rgba(var(--csetup-accent-rgb), 0.10), 0 10px 22px rgba(0, 0, 0, 0.35) !important; }\n\
+	.csetup-root .csetup-quirk-row.is-selected{ box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 0 0 2px rgba(var(--csetup-accent-rgb), 0.12), 0 6px 18px rgba(0, 0, 0, 0.35) !important; }\n\
+	.csetup-root .csetup-quirk-row.is-negative::before{ background: linear-gradient(180deg, #ff8d8d, #ff3b3b) !important; box-shadow: 0 0 10px rgba(255, 59, 59, 0.35) !important; }\n\
+	.csetup-root .csetup-quirk-row.is-positive::before{ background: linear-gradient(180deg, #8bf7b5, #3bd76b) !important; box-shadow: 0 0 10px rgba(59, 215, 107, 0.45) !important; }\n\
+</style>"
+			modern_palette_css += enhanced_decoration_css
 		var/theme_class = "csetup-theme-classic"
 		switch(charcreation_theme)
 			if("classic")
@@ -851,6 +889,22 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 				dat += "<div class='theme-settings-label'>Язык</div>"
 				dat += "<div class='theme-settings-options'>"
 				dat += get_modern_language_selector(src)
+				dat += "</div></div>"
+				// UI Decoration Level
+				dat += "<div class='theme-settings-group'>"
+				var/decoration_title = get_modern_text("ui_decoration_title", src, "UI Decoration")
+				var/decoration_hint = get_modern_text("ui_decoration_hint", src, "Effects performance")
+				dat += "<div class='theme-settings-label'>[decoration_title] <span class='theme-settings-hint'>([decoration_hint])</span></div>"
+				dat += "<div class='theme-settings-options'>"
+				var/minimal_label = get_modern_text("ui_decoration_minimal", src, "Minimal")
+				var/standard_label = get_modern_text("ui_decoration_standard", src, "Standard")
+				var/enhanced_label = get_modern_text("ui_decoration_enhanced", src, "Enhanced")
+				var/minimal_cls = "theme-settings-pill[ui_decoration_level == "minimal" ? " linkOn" : ""]"
+				var/standard_cls = "theme-settings-pill[ui_decoration_level == "standard" ? " linkOn" : ""]"
+				var/enhanced_cls = "theme-settings-pill[ui_decoration_level == "enhanced" ? " linkOn" : ""]"
+				dat += "<a class='[minimal_cls]' href='?_src_=prefs;preference=modern_theme_settings;action=set_decoration_level;level=minimal'>[minimal_label]</a>"
+				dat += "<a class='[standard_cls]' href='?_src_=prefs;preference=modern_theme_settings;action=set_decoration_level;level=standard'>[standard_label]</a>"
+				dat += "<a class='[enhanced_cls]' href='?_src_=prefs;preference=modern_theme_settings;action=set_decoration_level;level=enhanced'>[enhanced_label]</a>"
 				dat += "</div></div>"
 				dat += "</div>"
 
@@ -3646,6 +3700,12 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					modern_ui_language = 1
 				else if(lang == "en")
 					modern_ui_language = 0
+				save_preferences(bypass_cooldown = TRUE, silent = TRUE)
+				ShowChoices(user)
+				return TRUE
+			if("set_decoration_level")
+				var/level = href_list["level"]
+				ui_decoration_level = sanitize_inlist(level, list("minimal", "standard", "enhanced"), initial(ui_decoration_level))
 				save_preferences(bypass_cooldown = TRUE, silent = TRUE)
 				ShowChoices(user)
 				return TRUE
