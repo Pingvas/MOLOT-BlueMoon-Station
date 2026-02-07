@@ -1087,6 +1087,11 @@
 
 			dat += "<table align='center' width='100%'>"
 			dat += "<tr><td colspan=4><center><b><font color='[gear_points == 0 ? "#E62100" : "#CCDDFF"]'>[gear_points]</font> loadout points remaining.</b> \[<a href='?_src_=prefs;preference=gear;clear_loadout=1'>Clear Loadout</a>\]</center></td></tr>"
+			// BLUEMOON ADD - переключатель спавна с лодаутом
+			var/loadout_toggle_color = loadout_enabled ? "#6ABF6A" : "#E62100"
+			var/loadout_toggle_text = loadout_enabled ? "ON" : "OFF"
+			dat += "<tr><td colspan=4><center>Replace clothing with loadout: <a href='?_src_=prefs;preference=gear;toggle_loadout_enabled=1'><font color='[loadout_toggle_color]'><b>[loadout_toggle_text]</b></font></a></center></td></tr>"
+			// BLUEMOON ADD END
 			dat += "<tr><td colspan=4><center>You can only choose one item per category, unless it's an item that spawns in your backpack or hands.</center></td></tr>"
 			dat += "<tr><td colspan=4><center><b>"
 

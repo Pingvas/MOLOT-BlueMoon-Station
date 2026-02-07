@@ -61,6 +61,7 @@ var/list/ru_strings = list(
 	"export_slot" = "Экспортирт слота",
 	"import_slot" = "Импорт слота",
 	"delete_local" = "Удалить локально сохраненного персонажа",
+	"delete_slot_label" = "Удалить текущего персонажа",
 	"offer_slot" = "Предложить слот",
 	"cancel_offer" = "Отменить предложение",
 	"retrieve_offered" = "Получить предложенного персонажа",
@@ -251,6 +252,7 @@ var/list/ru_strings = list(
 	"loadout_points" = "очков снаряжения",
 	"loadout_points_remaining" = "осталось",
 	"clear_loadout" = "Очистить снаряжение",
+	"loadout_enabled_label" = "Заменять одежду лодаутом",
 
 	// Quirks
 	"quirk_balance_remaining" = "Очков особенностей осталось:",
@@ -972,6 +974,7 @@ var/list/en_strings = list(
 	"export_slot" = "Export current slot",
 	"import_slot" = "Import into current slot",
 	"delete_local" = "Delete locally saved character",
+	"delete_slot_label" = "Delete current character",
 	"offer_slot" = "Offer slot",
 	"cancel_offer" = "Cancel offer",
 	"retrieve_offered" = "Retrieve offered character",
@@ -1094,6 +1097,7 @@ var/list/en_strings = list(
 	"loadout_points" = "loadout point",
 	"loadout_points_remaining" = "remaining",
 	"clear_loadout" = "Clear Loadout",
+	"loadout_enabled_label" = "Replace clothing with loadout",
 
 	// Quirks
 	"quirk_balance_remaining" = "Quirk balance remaining:",

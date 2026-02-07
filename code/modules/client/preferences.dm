@@ -378,6 +378,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/list/loadout_data = list()
 	var/list/unlockable_loadout_data = list()
 	var/loadout_slot = 1 //goes from 1 to MAXIMUM_LOADOUT_SAVES
+	var/loadout_enabled = TRUE // BLUEMOON ADD - переключатель: спавниться с лодаутом или нет
 	var/gear_category
 	var/gear_subcategory
 
@@ -1010,6 +1011,9 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 							slot_class = "class='linkOn'"
 						dat += "<a style='white-space:nowrap;' href='?_src_=prefs;preference=changeslot;num=[i];' [slot_class]>[name]</a> "
 					dat += "</center>"
+					// Кнопка удаления текущего слота
+					var/delete_slot_label = src.use_modern_translations ? get_modern_text("delete_slot_label", src) : "Delete current slot"
+					dat += "<center><a href='?_src_=prefs;preference=character_slots;action=delete_slot;slot=[default_slot]' style='white-space:nowrap;background:#eb2e2e;font-size:0.85em;'>[delete_slot_label]</a></center>"
 
 				dat += "<center>"
 				var/local_storage_label = src.use_modern_translations ? get_modern_text("local_storage", src) : "Local storage"
@@ -1173,6 +1177,12 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					chosen_gear = list()
 				dat += "<td width='65%'>"
 				dat += "<center><b><font color='" + (gear_points == 0 ? "#E62100" : "#CCDDFF") + "'>[gear_points]</font> [loadout_points_word] [loadout_points_remaining_label]</b></center><br>"
+				// BLUEMOON ADD - переключатель "спавниться с лодаутом"
+				var/loadout_enabled_label = src.use_modern_translations ? get_modern_text("loadout_enabled_label", src) : "Replace clothing with loadout"
+				var/loadout_toggle_color = loadout_enabled ? "#6ABF6A" : "#E62100"
+				var/loadout_toggle_text = loadout_enabled ? (src.use_modern_translations ? get_modern_text("enabled", src) : "ON") : (src.use_modern_translations ? get_modern_text("disabled", src) : "OFF")
+				dat += "<center>[loadout_enabled_label]: <a href='?_src_=prefs;preference=gear;toggle_loadout_enabled=1'><font color='[loadout_toggle_color]'><b>[loadout_toggle_text]</b></font></a></center><br>"
+				// BLUEMOON ADD END
 				dat += "<center><a href='?_src_=prefs;preference=gear;clear_loadout=1'>[clear_loadout_label]</a></center>"
 				dat += "</td>"
 			else
@@ -3717,6 +3727,37 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 			if("toggle_empty")
 				collapse_empty_character_slots = !collapse_empty_character_slots
 				save_preferences(silent = TRUE)
+				ShowChoices(user)
+				return TRUE
+			if("delete_slot")
+				var/slot = text2num(href_list["slot"])
+				if(!slot)
+					ShowChoices(user)
+					return TRUE
+				// Подсчитываем количество непустых слотов
+				var/occupied_count = 0
+				if(path)
+					var/savefile/S = new /savefile(path)
+					if(S)
+						for(var/i in 1 to max_save_slots)
+							S.cd = "/character[i]"
+							var/check_name
+							S["real_name"] >> check_name
+							if(check_name)
+								occupied_count++
+				if(occupied_count <= 1)
+					tgui_alert_async(user, "Нельзя удалить единственного персонажа! / Cannot delete the only character!")
+					ShowChoices(user)
+					return TRUE
+				// Запрашиваем подтверждение
+				var/confirm = tgui_alert(user, "Вы уверены, что хотите удалить этого персонажа? Это действие необратимо! / Are you sure you want to delete this character? This cannot be undone!", "Delete Character", list("Yes", "No"))
+				if(confirm != "Yes")
+					ShowChoices(user)
+					return TRUE
+				if(delete_character(slot))
+					tgui_alert_async(user, "Персонаж удалён. / Character deleted.")
+				else
+					tgui_alert_async(user, "Не удалось удалить персонажа. / Failed to delete character.")
 				ShowChoices(user)
 				return TRUE
 		ShowChoices(user)
@@ -6266,6 +6307,11 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 		if(href_list["clear_loadout"])
 			loadout_data["SAVE_[loadout_slot]"] = list()
 			save_preferences()
+		// BLUEMOON ADD - переключатель лодаута
+		if(href_list["toggle_loadout_enabled"])
+			loadout_enabled = !loadout_enabled
+			save_preferences()
+		// BLUEMOON ADD END
 		if(href_list["select_category"])
 			gear_category = url_decode(href_list["select_category"])
 			// BLUEMOON FIX - Add null check to prevent runtime when category doesn't exist

@@ -1290,6 +1290,9 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 
 	//let's remember their last used slot, i'm sure "oops i brought the wrong stuff" will be an issue now
 	S["loadout_slot"] >> loadout_slot
+	// BLUEMOON ADD - загрузка переключателя лодаута
+	S["loadout_enabled"] >> loadout_enabled
+	// BLUEMOON ADD END
 
 	//try to fix any outdated data if necessary
 	//preference updating will handle saving the updated data for us.
@@ -1533,6 +1536,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	//SPLURT EDIT END
 
 	loadout_slot = sanitize_num_clamp(loadout_slot, 1, MAXIMUM_LOADOUT_SAVES, 1, TRUE)
+	loadout_enabled = sanitize_integer(loadout_enabled, FALSE, TRUE, TRUE) // BLUEMOON ADD
 
 	alt_titles_preferences = SANITIZE_LIST(alt_titles_preferences)
 	if(SSjob)
@@ -1550,6 +1554,49 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	load_tattoo_prefs(S) // BLUEMOON ADD - загрузка татуировок
 
 	return S
+
+/// Удаляет слот персонажа из сейвфайла. Очищает директорию /character[slot].
+/// Если удаляется текущий слот — переключается на ближайший непустой, или на слот 1.
+/datum/preferences/proc/delete_character(slot)
+	if(!path)
+		return FALSE
+	slot = sanitize_integer(slot, 1, max_save_slots, 1)
+	var/savefile/S = new /savefile(path)
+	if(!S)
+		return FALSE
+
+	// Проверяем, что в слоте действительно есть персонаж
+	S.cd = "/character[slot]"
+	var/check_name
+	S["real_name"] >> check_name
+	if(!check_name)
+		return FALSE // слот уже пуст
+
+	// Удаляем директорию персонажа из сейвфайла
+	S.cd = "/"
+	S.dir.Remove("character[slot]")
+
+	// Если удалили текущий слот — нужно переключиться на другой
+	if(slot == default_slot)
+		var/new_slot = 0
+		// Ищем ближайший непустой слот
+		for(var/i in 1 to max_save_slots)
+			if(i == slot)
+				continue
+			S.cd = "/character[i]"
+			var/name
+			S["real_name"] >> name
+			if(name)
+				new_slot = i
+				break
+		// Если не нашли непустой — просто переключаемся на слот 1
+		if(!new_slot)
+			new_slot = 1
+		default_slot = new_slot
+		load_character(new_slot)
+
+	save_preferences(bypass_cooldown = TRUE, silent = TRUE)
+	return TRUE
 
 /datum/preferences/proc/save_character(bypass_cooldown = FALSE, silent = FALSE, export = FALSE)
 	if(!path)
@@ -1818,6 +1865,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	else
 		S["loadout"] << safe_json_encode(list())
 	WRITE_FILE(S["loadout_slot"], loadout_slot)
+	WRITE_FILE(S["loadout_enabled"], loadout_enabled) // BLUEMOON ADD
 
 	if(length(tcg_cards))
 		S["tcg_cards"] << safe_json_encode(tcg_cards)
