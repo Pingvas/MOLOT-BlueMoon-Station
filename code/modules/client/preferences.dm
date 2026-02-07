@@ -687,8 +687,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/is_modern_theme = (new_character_creator && !!findtext(charcreation_theme, "modern"))
 	var/list/dat
 	if(new_character_creator)
-		// Для Modern-интерфейса дополнительно инжектим палитру как конкретные CSS значения,
-		// чтобы темы переключались как в PR #2535 (не завися от поддержки CSS variables).
+		// Compact inline CSS: конкретные значения цветов для IE/Trident-совместимости BYOND-браузера.
+		// Enhanced decoration — CSS-класс .csetup-decoration-enhanced (переключается без inline CSS).
 		var/modern_palette_css = ""
 		if(is_modern_theme)
 			var/list/theme = get_character_setup_palette_modern()
@@ -711,82 +711,39 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					button_radius = "4px"
 				if("round")
 					button_radius = "7px"
+			// Custom-палитра: также выставляем CSS-переменные для современных браузеров (rgba(var(...)) и пр.)
+			var/custom_vars = ""
+			if(charcreation_theme == "modern_custom")
+				var/accent_hex = replacetext(accent_color, "#", "")
+				var/accent_r = text2num("0x[copytext(accent_hex, 1, 3)]")
+				var/accent_g = text2num("0x[copytext(accent_hex, 3, 5)]")
+				var/accent_b = text2num("0x[copytext(accent_hex, 5, 7)]")
+				custom_vars = "--csetup-bg:[bg_primary];--csetup-panel:[bg_secondary];--csetup-panel-2:[bg_secondary];--csetup-border:[border_color];--csetup-text:[text_primary];--csetup-muted:[text_secondary];--csetup-accent:[accent_color];--csetup-accent-rgb:[accent_r],[accent_g],[accent_b];--csetup-btn-bg:[button_bg];--csetup-btn-hover:[button_hover];--csetup-btn-active:[button_active];--csetup-btn-active-text:[button_text];"
 			modern_palette_css = "<style>\n\
-	.csetup-root{ background-color:[bg_primary]; color:[text_primary]; font-family: Verdana, Tahoma, Arial, sans-serif; margin:0; padding:6px; min-height:100vh; position:relative; background-image:[bg_pattern]; background-size:auto; will-change:auto; }\n\
-	.csetup-root a, .csetup-root a:link, .csetup-root a:visited{ color:[text_primary]; text-decoration:none; padding:4px 8px; margin:1px; display:inline-block; background-color:[button_bg]; border-radius:[button_radius]; border:1px solid [border_color]; cursor:pointer; font-size:12px; vertical-align:middle; transition:background-color 120ms ease-out; }\n\
-	.csetup-root a:hover{ background-color:[button_hover]; }\n\
-	.csetup-root .linkOn{ background-color:[button_active]; color:[button_text]; }\n\
-	.csetup-root a.linkOff, .csetup-root .linkOff{ color:[text_secondary]; cursor:not-allowed; opacity:0.6; }\n\
-	.csetup-root .csetup-ai-core-preview{ margin-top:4px; display:inline-block; }\n\
-	.csetup-root .csetup-ai-core-preview img{ width:64px; height:64px; border:1px solid [border_color]; border-radius:10px; background-color:[bg_primary]; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06); image-rendering: pixelated; -ms-interpolation-mode: nearest-neighbor; }\n\
-	.csetup-root hr{ border:none; height:1px; background-color:[border_color]; margin:10px 0; }\n\
-	.csetup-root table{ background-color:[bg_secondary]; border-collapse:collapse; width:100%; border:1px solid [border_color]; border-radius:10px; overflow:hidden; }\n\
-	.csetup-root td, .csetup-root th{ padding:6px 8px; color:[text_primary]; text-align:left; border-bottom:1px solid [border_color]; }\n\
-	.csetup-root td:last-child, .csetup-root th:last-child{ border-right:none; }\n\
-	.csetup-root td, .csetup-root th{ border-right:1px solid [border_color]; }\n\
-	.csetup-root .csetup_character_node{ background-color:[bg_secondary]; border:1px solid [border_color]; }\n\
-	.csetup-root .csetup_character_label{ color:[text_secondary]; }\n\
-	.csetup-root .theme-container{ position:absolute; top:8px; right:8px; z-index:20; display:flex; flex-direction:column; align-items:flex-end; gap:4px; }\n\
-	.csetup-root .theme-hub{ display:inline-flex; align-items:center; gap:2px; padding:3px 4px; border-radius:10px; background-color:[bg_secondary]; border:1px solid [border_color]; }\n\
-	.csetup-root a.theme-hub-btn{ padding:0 !important; margin:0 !important; background:transparent !important; border:none !important; box-shadow:none !important; display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; font-size:15px; line-height:1; cursor:pointer; border-radius:6px; text-decoration:none; }\n\
-	.csetup-root a.theme-hub-btn:hover{ background:rgba(255,255,255,0.08) !important; }\n\
-	.csetup-root a.theme-hub-btn.active{ background:rgba(77,163,255,0.18) !important; }\n\
-	.csetup-root .theme-picker-panel{ display:inline-flex; align-items:center; gap:6px; padding:5px 8px; border-radius:10px; background-color:[bg_secondary]; border:1px solid [border_color]; white-space:nowrap; }\n\
-	.csetup-root .theme-label{ font-size:11px; letter-spacing:0.2px; opacity:0.92; color:[text_secondary]; user-select:none; }\n\
-	.csetup-root .theme-label-custom{ opacity:0.95; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:[text_primary]; }\n\
-	.csetup-root .theme-sep{ width:2px; height:20px; background:[border_color]; opacity:1; margin:0 6px; display:inline-block; border-radius:2px; }\n\
-	.csetup-root .theme-custom-group{ display:inline-flex; align-items:center; gap:6px; padding:3px 6px; border-radius:10px; background-color:[bg_primary]; border:1px solid [border_color]; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06); }\n\
-	.csetup-root a.theme-swatch.active{ border-color:[accent_color]; box-shadow:none; outline:2px solid [accent_color]; outline-offset:1px; }\n\
-	.csetup-root a.theme-swatch--custom{ width:18px; height:18px; border-radius:[button_radius]; display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,0.75); }\n\
-	.csetup-root a.theme-gear{ padding:0 !important; margin-left:2px; width:18px; height:18px; border-radius:[button_radius]; display:inline-flex; align-items:center; justify-content:center; font-size:13px; line-height:1; }\n\
-	.csetup-root .theme-settings-panel{ background-color:[bg_secondary]; border:1px solid [border_color]; color:[text_primary]; }\n\
-	.csetup-root .theme-custom-editor{ background-color:[bg_secondary]; border:1px solid [border_color]; color:[text_primary]; }\n\
-	.csetup-root .theme-custom-editor-hint{ font-size:11px; opacity:0.8; color:[text_secondary]; }\n\
-	.csetup-root .theme-custom-editor-table a.colorbox{ padding:0 !important; margin:0 6px 0 0 !important; background-color:transparent; border-radius:4px !important; box-shadow:none !important; }\n\
-	.csetup-root .theme-custom-editor-actions a.theme-action{ background-color:#2b2b2b !important; color:#f2f2f2 !important; border:1px solid rgba(255,255,255,0.18) !important; }\n\
-	.csetup-root .theme-custom-editor-actions a.theme-action:hover{ background-color:#3a3a3a !important; }\n\
-	.csetup-root .theme-custom-editor-actions a.theme-action-reset{ background-color:#7a1f1f !important; border-color:rgba(255, 107, 107, 0.85) !important; }\n\
-	.csetup-root .theme-custom-editor-actions a.theme-action-reset:hover{ background-color:#9a2626 !important; }\n\
+	.csetup-root{[custom_vars]background-color:[bg_primary];color:[text_primary];background-image:[bg_pattern]}\n\
+	.csetup-root a,.csetup-root a:link,.csetup-root a:visited{color:[text_primary];background-color:[button_bg];border-color:[border_color];border-radius:[button_radius]}\n\
+	.csetup-root a:hover{background-color:[button_hover]}\n\
+	.csetup-root .linkOn{background-color:[button_active];color:[button_text]}\n\
+	.csetup-root a.linkOff,.csetup-root .linkOff{color:[text_secondary]}\n\
+	.csetup-root hr{background-color:[border_color]}\n\
+	.csetup-root table{background-color:[bg_secondary];border-color:[border_color]}\n\
+	.csetup-root td,.csetup-root th{color:[text_primary];border-color:[border_color]}\n\
+	.csetup-root .csetup_character_node{background-color:[bg_secondary];border-color:[border_color]}\n\
+	.csetup-root .csetup_character_label{color:[text_secondary]}\n\
+	.csetup-root .csetup-ai-core-preview img{border-color:[border_color];background-color:[bg_primary]}\n\
+	.csetup-root .theme-hub{background-color:[bg_secondary];border-color:[border_color]}\n\
+	.csetup-root .theme-picker-panel{background-color:[bg_secondary];border-color:[border_color]}\n\
+	.csetup-root .theme-label{color:[text_secondary]}\n\
+	.csetup-root .theme-label-custom{color:[text_primary]}\n\
+	.csetup-root .theme-sep{background:[border_color]}\n\
+	.csetup-root .theme-custom-group{background-color:[bg_primary];border-color:[border_color]}\n\
+	.csetup-root a.theme-swatch.active{border-color:[accent_color];outline:2px solid [accent_color];outline-offset:1px}\n\
+	.csetup-root a.theme-swatch--custom{border-radius:[button_radius]}\n\
+	.csetup-root a.theme-gear{border-radius:[button_radius]}\n\
+	.csetup-root .theme-settings-panel{background-color:[bg_secondary];border-color:[border_color];color:[text_primary]}\n\
+	.csetup-root .theme-custom-editor{background-color:[bg_secondary];border-color:[border_color];color:[text_primary]}\n\
+	.csetup-root .theme-custom-editor-hint{color:[text_secondary]}\n\
 </style>"
-
-			// Enhanced decoration level CSS (gradients, shadows, animations)
-			var/enhanced_decoration_css = ""
-			if(ui_decoration_level == "enhanced")
-				enhanced_decoration_css = "<style>\n\
-	/* Enhanced UI Decoration: Gradients, Shadows, Animations */\n\
-	.csetup-root{ background-image: radial-gradient(circle at 92% 0%, rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.16), transparent 48%), radial-gradient(circle at 0% 100%, rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.10), transparent 55%) !important; }\n\
-	.csetup-root.csetup-scheme-purple{ background-image: radial-gradient(circle at 92% 0%, rgba(var(--csetup-accent-rgb, 193, 155, 255), 0.20), transparent 50%), radial-gradient(circle at 0% 100%, rgba(var(--csetup-accent-rgb, 193, 155, 255), 0.12), transparent 56%) !important; }\n\
-	.csetup-root.csetup-scheme-green{ background-image: radial-gradient(circle at 92% 0%, rgba(var(--csetup-accent-rgb, 139, 255, 177), 0.18), transparent 52%), radial-gradient(circle at 0% 100%, rgba(var(--csetup-accent-rgb, 139, 255, 177), 0.10), transparent 58%) !important; }\n\
-	.csetup-root.csetup-scheme-neutral{ background-image: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.32) 0px, rgba(255, 255, 255, 0.32) 10px, rgba(0, 0, 0, 0.035) 10px, rgba(0, 0, 0, 0.035) 20px) !important; }\n\
-	.csetup-root hr{ background: linear-gradient(90deg, transparent, var(--csetup-border), transparent) !important; }\n\
-	.csetup-root a, .csetup-root a:link, .csetup-root a:visited{ transition: transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease !important; }\n\
-	.csetup-root a:hover{ transform: translateY(-1px); }\n\
-	.csetup-root a.csetup-dice-btn:hover{ transform: translateY(-1px); }\n\
-	.csetup-root .csetup-character-card{ background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(0, 0, 0, 0.0)), var(--csetup-panel) !important; }\n\
-	.csetup-root .csetup-character-card-header{ background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(0, 0, 0, 0)) !important; }\n\
-	.csetup-root .csetup-quirk-indicator-positive{ box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18) !important; }\n\
-	.csetup-root .csetup-danger-zone{ background: linear-gradient(90deg, rgba(255, 107, 107, 0.14), rgba(0, 0, 0, 0)) !important; }\n\
-	.csetup-root a.linkOn:active{ box-shadow: 0 0 10px rgba(47, 148, 60, 0.35) !important; }\n\
-	.csetup-root.csetup-theme-classic a.linkOn:active{ box-shadow: 0 0 10px rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.25) !important; }\n\
-	.csetup-root .csetup-notice{ box-shadow: var(--csetup-shadow) !important; }\n\
-	.csetup-root .csetup-tooltip{ box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45) !important; }\n\
-	.csetup-root .csetup-hovertip{ box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45) !important; }\n\
-	.csetup-root .csetup-mini-tooltip{ box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06), 0 8px 20px rgba(0, 0, 0, 0.35) !important; }\n\
-	.csetup-root .theme-hub{ box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important; }\n\
-	.csetup-root .theme-picker-panel{ box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important; }\n\
-	.csetup-root a.theme-swatch:hover{ transform: translateY(-1px) scale(1.05); }\n\
-	.csetup-root a.theme-swatch.active{ box-shadow: 0 0 8px rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.55) !important; }\n\
-	.csetup-root .theme-custom-editor{ box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35) !important; }\n\
-	.csetup-root .theme-custom-editor-table a.colorbox:hover{ transform: translateY(-1px); box-shadow: 0 0 6px rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.35) !important; }\n\
-	.csetup-root .theme-settings-panel{ box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35) !important; }\n\
-	.csetup-root .theme-settings-pill::before{ box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12) !important; }\n\
-	.csetup-root .csetup-quirk-row{ box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06), 0 2px 10px rgba(0, 0, 0, 0.25) !important; transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease !important; }\n\
-	.csetup-root .csetup-quirk-row:hover{ transform: translateY(-1px); box-shadow: 0 0 0 1px rgba(var(--csetup-accent-rgb), 0.10), 0 10px 22px rgba(0, 0, 0, 0.35) !important; }\n\
-	.csetup-root .csetup-quirk-row.is-selected{ box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 0 0 2px rgba(var(--csetup-accent-rgb), 0.12), 0 6px 18px rgba(0, 0, 0, 0.35) !important; }\n\
-	.csetup-root .csetup-quirk-row.is-negative::before{ background: linear-gradient(180deg, #ff8d8d, #ff3b3b) !important; box-shadow: 0 0 10px rgba(255, 59, 59, 0.35) !important; }\n\
-	.csetup-root .csetup-quirk-row.is-positive::before{ background: linear-gradient(180deg, #8bf7b5, #3bd76b) !important; box-shadow: 0 0 10px rgba(59, 215, 107, 0.45) !important; }\n\
-</style>"
-			modern_palette_css += enhanced_decoration_css
 		var/theme_class = "csetup-theme-classic"
 		switch(charcreation_theme)
 			if("classic")
@@ -808,7 +765,10 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 		var/button_shape_class = ""
 		if(is_modern_theme)
 			button_shape_class = "csetup-btnshape-[modern_button_shape]"
-		dat = list(modern_palette_css, "<div class='csetup-root [theme_class][button_shape_class ? " [button_shape_class]" : ""]'>")
+		var/decoration_class = ""
+		if(is_modern_theme && ui_decoration_level == "enhanced")
+			decoration_class = "csetup-decoration-enhanced"
+		dat = list(modern_palette_css, "<div class='csetup-root [theme_class][button_shape_class ? " [button_shape_class]" : ""][decoration_class ? " [decoration_class]" : ""]'>")
 
 		// Compact theme picker (top-right): only for Modern UI themes.
 		if(is_modern_theme)
@@ -3489,6 +3449,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 			var/row_html = "<div class='[row_classes]' title='[safe_lock_reason]'>"
 			row_html += "<div class='csetup-quirk-head'>[title_html][cost_html]</div>"
 			row_html += "<div class='csetup-quirk-desc'>[initial(T.desc)]</div>"
+			row_html += "<div class='csetup-quirk-lock-reason'>&#128274; [safe_lock_reason]</div>"
 			row_html += "</div>"
 			other_rows += row_html
 			continue

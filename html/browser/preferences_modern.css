@@ -374,6 +374,25 @@ body {
 	transform: none;
 }
 
+/* AI Core Preview (Modern + Classic) */
+.csetup-root.csetup-theme-modern .csetup-ai-core-preview,
+.csetup-root.csetup-theme-classic .csetup-ai-core-preview {
+	margin-top: 4px;
+	display: inline-block;
+}
+
+.csetup-root.csetup-theme-modern .csetup-ai-core-preview img,
+.csetup-root.csetup-theme-classic .csetup-ai-core-preview img {
+	width: 64px;
+	height: 64px;
+	border: 1px solid var(--csetup-border);
+	border-radius: 10px;
+	background-color: var(--csetup-bg);
+	box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+	image-rendering: pixelated;
+	-ms-interpolation-mode: nearest-neighbor;
+}
+
 .csetup-root.csetup-theme-modern a.linkOff,
 .csetup-root.csetup-theme-modern .linkOff,
 .csetup-root.csetup-theme-classic a.linkOff,
@@ -1274,8 +1293,15 @@ body {
 }
 
 .csetup-root.csetup-theme-modern .csetup-quirk-row.is-locked {
-	opacity: 0.90;
+	opacity: 0.92;
 	cursor: not-allowed;
+	background: rgba(255, 70, 70, 0.10);
+	border-color: rgba(255, 107, 107, 0.45);
+}
+
+.csetup-root.csetup-theme-modern .csetup-quirk-row.is-locked:hover {
+	background: rgba(255, 70, 70, 0.16);
+	border-color: rgba(255, 107, 107, 0.65);
 }
 
 .csetup-root.csetup-theme-modern .csetup-quirk-row.is-locked::before {
@@ -1368,6 +1394,26 @@ body {
 	line-height: 1.25;
 }
 
+/* Lock reason tooltip: hidden by default, revealed on hover */
+.csetup-root.csetup-theme-modern .csetup-quirk-lock-reason {
+	display: none;
+	position: relative;
+	z-index: 2;
+	margin-top: 6px;
+	padding: 5px 10px;
+	border-radius: 8px;
+	background: rgba(180, 40, 40, 0.85);
+	border: 1px solid rgba(255, 107, 107, 0.55);
+	color: #ffd6d6;
+	font-size: 11px;
+	font-weight: 600;
+	line-height: 1.3;
+}
+
+.csetup-root.csetup-theme-modern .csetup-quirk-row.is-locked:hover .csetup-quirk-lock-reason {
+	display: block;
+}
+
 .csetup-root.csetup-theme-modern a.theme-swatch:hover {
 	transform: none;
 }
@@ -1391,4 +1437,151 @@ body {
 	background: rgba(255, 107, 107, 0.12);
 	border-color: rgba(255, 107, 107, 0.28);
 	color: var(--csetup-text);
+}
+
+/*
+ * Enhanced UI Decoration (activated via .csetup-decoration-enhanced class on root).
+ * Adds gradients, shadows, transforms, and animations.
+ * Only applied when the user selects "Enhanced" decoration level.
+ */
+.csetup-root.csetup-decoration-enhanced {
+	background-image: radial-gradient(circle at 92% 0%, rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.16), transparent 48%),
+		radial-gradient(circle at 0% 100%, rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.10), transparent 55%);
+}
+
+.csetup-root.csetup-decoration-enhanced.csetup-scheme-purple {
+	background-image: radial-gradient(circle at 92% 0%, rgba(var(--csetup-accent-rgb, 193, 155, 255), 0.20), transparent 50%),
+		radial-gradient(circle at 0% 100%, rgba(var(--csetup-accent-rgb, 193, 155, 255), 0.12), transparent 56%);
+}
+
+.csetup-root.csetup-decoration-enhanced.csetup-scheme-green {
+	background-image: radial-gradient(circle at 92% 0%, rgba(var(--csetup-accent-rgb, 139, 255, 177), 0.18), transparent 52%),
+		radial-gradient(circle at 0% 100%, rgba(var(--csetup-accent-rgb, 139, 255, 177), 0.10), transparent 58%);
+}
+
+.csetup-root.csetup-decoration-enhanced.csetup-scheme-neutral {
+	background-image: repeating-linear-gradient(90deg,
+		rgba(255, 255, 255, 0.32) 0px, rgba(255, 255, 255, 0.32) 10px,
+		rgba(0, 0, 0, 0.035) 10px, rgba(0, 0, 0, 0.035) 20px);
+}
+
+.csetup-root.csetup-decoration-enhanced hr {
+	background: linear-gradient(90deg, transparent, var(--csetup-border), transparent) !important;
+}
+
+.csetup-root.csetup-decoration-enhanced a,
+.csetup-root.csetup-decoration-enhanced a:link,
+.csetup-root.csetup-decoration-enhanced a:visited {
+	transition: transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.csetup-root.csetup-decoration-enhanced a:hover {
+	transform: translateY(-1px);
+}
+
+.csetup-root.csetup-decoration-enhanced a.csetup-dice-btn:hover {
+	transform: translateY(-1px);
+}
+
+.csetup-root.csetup-decoration-enhanced .csetup-character-card {
+	background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(0, 0, 0, 0.0)), var(--csetup-panel);
+}
+
+.csetup-root.csetup-decoration-enhanced .csetup-character-card-header {
+	background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(0, 0, 0, 0));
+}
+
+.csetup-root.csetup-decoration-enhanced .csetup-quirk-indicator-positive {
+	box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+}
+
+.csetup-root.csetup-decoration-enhanced .csetup-danger-zone {
+	background: linear-gradient(90deg, rgba(255, 107, 107, 0.14), rgba(0, 0, 0, 0));
+}
+
+.csetup-root.csetup-decoration-enhanced a.linkOn:active {
+	box-shadow: 0 0 10px rgba(47, 148, 60, 0.35);
+}
+
+.csetup-root.csetup-decoration-enhanced.csetup-theme-classic a.linkOn:active {
+	box-shadow: 0 0 10px rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.25);
+}
+
+.csetup-root.csetup-decoration-enhanced .csetup-notice {
+	box-shadow: var(--csetup-shadow);
+}
+
+.csetup-root.csetup-decoration-enhanced .csetup-tooltip {
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+
+.csetup-root.csetup-decoration-enhanced .csetup-hovertip {
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+
+.csetup-root.csetup-decoration-enhanced .csetup-mini-tooltip {
+	box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06), 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
+.csetup-root.csetup-decoration-enhanced .theme-hub {
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.csetup-root.csetup-decoration-enhanced .theme-picker-panel {
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.csetup-root.csetup-decoration-enhanced a.theme-swatch:hover {
+	transform: translateY(-1px) scale(1.05);
+}
+
+.csetup-root.csetup-decoration-enhanced a.theme-swatch.active {
+	box-shadow: 0 0 8px rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.55);
+}
+
+.csetup-root.csetup-decoration-enhanced .theme-custom-editor {
+	box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+.csetup-root.csetup-decoration-enhanced .theme-custom-editor-table a.colorbox:hover {
+	transform: translateY(-1px);
+	box-shadow: 0 0 6px rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.35);
+}
+
+.csetup-root.csetup-decoration-enhanced .theme-settings-panel {
+	box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+.csetup-root.csetup-decoration-enhanced .theme-settings-pill::before {
+	box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+.csetup-root.csetup-decoration-enhanced .csetup-quirk-row {
+	box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06), 0 2px 10px rgba(0, 0, 0, 0.25);
+	transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.csetup-root.csetup-decoration-enhanced .csetup-quirk-row:hover {
+	transform: translateY(-1px);
+	box-shadow: 0 0 0 1px rgba(var(--csetup-accent-rgb), 0.10), 0 10px 22px rgba(0, 0, 0, 0.35);
+}
+
+.csetup-root.csetup-decoration-enhanced .csetup-quirk-row.is-selected {
+	box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 0 0 2px rgba(var(--csetup-accent-rgb), 0.12), 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+.csetup-root.csetup-decoration-enhanced .csetup-quirk-row.is-negative::before {
+	background: linear-gradient(180deg, #ff8d8d, #ff3b3b);
+	box-shadow: 0 0 10px rgba(255, 59, 59, 0.35);
+}
+
+.csetup-root.csetup-decoration-enhanced .csetup-quirk-row.is-positive::before {
+	background: linear-gradient(180deg, #8bf7b5, #3bd76b);
+	box-shadow: 0 0 10px rgba(59, 215, 107, 0.45);
+}
+
+/* Locked quirks ALWAYS get the red bar, overriding positive/negative value gradients */
+.csetup-root.csetup-decoration-enhanced .csetup-quirk-row.is-locked::before {
+	background: linear-gradient(180deg, #ff8d8d, #ff3b3b) !important;
+	box-shadow: 0 0 10px rgba(255, 59, 59, 0.35) !important;
 }
