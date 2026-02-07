@@ -378,6 +378,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/list/loadout_data = list()
 	var/list/unlockable_loadout_data = list()
 	var/loadout_slot = 1 //goes from 1 to MAXIMUM_LOADOUT_SAVES
+	var/loadout_enabled = TRUE // BLUEMOON ADD - переключатель: спавниться с лодаутом или нет
 	var/gear_category
 	var/gear_subcategory
 
@@ -786,44 +787,35 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 				"modern_neutral" = "#bfc2c7"
 			)
 
-			var/theme_selector_class = "theme-selector"
-			if(modern_theme_picker_animate)
-				theme_selector_class += " anim"
-			if(modern_theme_picker_collapsed)
-				theme_selector_class += " collapsed"
-			var/toggle_title = modern_theme_picker_collapsed ? "Развернуть меню тем" : "Свернуть меню тем"
-			dat += "<div class='[theme_selector_class]'>"
-			dat += "<span class='theme-icon-stack'>"
-			dat += "<a href='?_src_=prefs;preference=modern_theme_picker;action=toggle' class='theme-emoji-btn' title='[toggle_title]'>🎨</a>"
-			dat += "<a href='?_src_=prefs;preference=modern_theme_settings;action=toggle' class='theme-emoji-btn theme-settings-btn' title='Настройки (WIP)'>⚙</a>"
-			dat += "</span>"
-			dat += "<span class='theme-body'>"
-			// UI tweak start
-			//if(!modern_theme_picker_collapsed)
-			//	dat += "<a href='?_src_=prefs;preference=modern_theme_picker;action=toggle' class='theme-collapse-hint' title='Свернуть' aria-label='Свернуть меню тем'>◀</a>"
-			// UI tweak end
-			dat += "<span class='theme-label'>Themes</span>"
-			for(var/theme_id in theme_order)
-				var/is_active = (charcreation_theme == theme_id)
-				var/swatch_class = is_active ? "theme-swatch active" : "theme-swatch"
-				var/swatch_color = theme_swatches[theme_id]
-				var/swatch_title = theme_titles[theme_id]
-				dat += "<a href='?_src_=prefs;preference=charcreation_set;theme=[theme_id]' class='[swatch_class]' style='background-color: [swatch_color];' title='[swatch_title]'></a>"
-			// Separate Custom + gear from the preset themes with a strong divider + label.
-			var/custom_active = (charcreation_theme == "modern_custom")
-			var/custom_class = custom_active ? "theme-swatch theme-swatch--custom active" : "theme-swatch theme-swatch--custom"
-			// Show the custom theme background in the swatch (more representative than accent).
-			var/custom_swatch_color = "#[modern_custom_bg_primary]"
-			var/custom_title = modern_custom_enabled ? "Custom" : "Custom (Off)"
-			dat += "<span class='theme-sep' aria-hidden='true'></span>"
-			dat += "<span class='theme-custom-group'>"
-			dat += "<span class='theme-label theme-label-custom'>Custom</span>"
-			dat += "<a href='?_src_=prefs;preference=charcreation_set;theme=modern_custom' class='[custom_class]' style='background-color: [custom_swatch_color];' title='[custom_title]'></a>"
-			dat += "<a href='?_src_=prefs;preference=modern_theme_editor;action=toggle' class='theme-gear' title='Custom theme settings (opens editor)'>⚙</a>"
-			dat += "</span>"
-			dat += "</span>" // theme-body
+			// Theme hub — icon buttons that never move
+			dat += "<div class='theme-container'>"
+			dat += "<div class='theme-hub'>"
+			var/picker_active_cls = !modern_theme_picker_collapsed ? " active" : ""
+			var/settings_active_cls = modern_theme_settings_open ? " active" : ""
+			dat += "<a href='?_src_=prefs;preference=modern_theme_picker;action=toggle' class='theme-hub-btn[picker_active_cls]' title='Темы'>🎨</a>"
+			dat += "<a href='?_src_=prefs;preference=modern_theme_settings;action=toggle' class='theme-hub-btn[settings_active_cls]' title='Настройки'>⚙</a>"
 			dat += "</div>"
-			modern_theme_picker_animate = FALSE
+			// Theme picker panel
+			if(!modern_theme_picker_collapsed)
+				dat += "<div class='theme-picker-panel'>"
+				dat += "<span class='theme-label'>Themes</span>"
+				for(var/theme_id in theme_order)
+					var/is_active = (charcreation_theme == theme_id)
+					var/swatch_class = is_active ? "theme-swatch active" : "theme-swatch"
+					var/swatch_color = theme_swatches[theme_id]
+					var/swatch_title = theme_titles[theme_id]
+					dat += "<a href='?_src_=prefs;preference=charcreation_set;theme=[theme_id]' class='[swatch_class]' style='background-color: [swatch_color];' title='[swatch_title]'></a>"
+				var/custom_active = (charcreation_theme == "modern_custom")
+				var/custom_class = custom_active ? "theme-swatch theme-swatch--custom active" : "theme-swatch theme-swatch--custom"
+				var/custom_swatch_color = "#[modern_custom_bg_primary]"
+				var/custom_title = modern_custom_enabled ? "Custom" : "Custom (Off)"
+				dat += "<span class='theme-sep' aria-hidden='true'></span>"
+				dat += "<span class='theme-custom-group'>"
+				dat += "<span class='theme-label theme-label-custom'>Custom</span>"
+				dat += "<a href='?_src_=prefs;preference=charcreation_set;theme=modern_custom' class='[custom_class]' style='background-color: [custom_swatch_color];' title='[custom_title]'></a>"
+				dat += "<a href='?_src_=prefs;preference=modern_theme_editor;action=toggle' class='theme-gear' title='Custom theme settings (opens editor)'>⚙</a>"
+				dat += "</span>"
+				dat += "</div>"
 
 			if(modern_theme_settings_open)
 				dat += "<div class='theme-settings-panel'>"
@@ -901,6 +893,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "<tr><td class='k'>[label]</td><td class='v'><a class='colorbox' href='?_src_=prefs;preference=modern_custom_color;key=[key]' style='background-color: #[value_hex];' title='Pick color (opens BYOND color picker)'></a> #[value_hex]</td></tr>"
 				dat += "</table>"
 				dat += "</div>"
+			dat += "</div>" // theme-container
 
 		dat += "<center>"
 	else
@@ -963,6 +956,9 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 							slot_class = "class='linkOn'"
 						dat += "<a style='white-space:nowrap;' href='?_src_=prefs;preference=changeslot;num=[i];' [slot_class]>[name]</a> "
 					dat += "</center>"
+					// Кнопка удаления текущего слота
+					var/delete_slot_label = src.use_modern_translations ? get_modern_text("delete_slot_label", src) : "Delete current slot"
+					dat += "<center><a href='?_src_=prefs;preference=character_slots;action=delete_slot;slot=[default_slot]' style='white-space:nowrap;background:#eb2e2e;font-size:0.85em;'>[delete_slot_label]</a></center>"
 
 				dat += "<center>"
 				var/local_storage_label = src.use_modern_translations ? get_modern_text("local_storage", src) : "Local storage"
@@ -1126,6 +1122,12 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					chosen_gear = list()
 				dat += "<td width='65%'>"
 				dat += "<center><b><font color='" + (gear_points == 0 ? "#E62100" : "#CCDDFF") + "'>[gear_points]</font> [loadout_points_word] [loadout_points_remaining_label]</b></center><br>"
+				// BLUEMOON ADD - переключатель "спавниться с лодаутом"
+				var/loadout_enabled_label = src.use_modern_translations ? get_modern_text("loadout_enabled_label", src) : "Replace clothing with loadout"
+				var/loadout_toggle_color = loadout_enabled ? "#6ABF6A" : "#E62100"
+				var/loadout_toggle_text = loadout_enabled ? (src.use_modern_translations ? get_modern_text("enabled", src) : "ON") : (src.use_modern_translations ? get_modern_text("disabled", src) : "OFF")
+				dat += "<center>[loadout_enabled_label]: <a href='?_src_=prefs;preference=gear;toggle_loadout_enabled=1'><font color='[loadout_toggle_color]'><b>[loadout_toggle_text]</b></font></a></center><br>"
+				// BLUEMOON ADD END
 				dat += "<center><a href='?_src_=prefs;preference=gear;clear_loadout=1'>[clear_loadout_label]</a></center>"
 				dat += "</td>"
 			else
@@ -3671,6 +3673,37 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 			if("toggle_empty")
 				collapse_empty_character_slots = !collapse_empty_character_slots
 				save_preferences(silent = TRUE)
+				ShowChoices(user)
+				return TRUE
+			if("delete_slot")
+				var/slot = text2num(href_list["slot"])
+				if(!slot)
+					ShowChoices(user)
+					return TRUE
+				// Подсчитываем количество непустых слотов
+				var/occupied_count = 0
+				if(path)
+					var/savefile/S = new /savefile(path)
+					if(S)
+						for(var/i in 1 to max_save_slots)
+							S.cd = "/character[i]"
+							var/check_name
+							S["real_name"] >> check_name
+							if(check_name)
+								occupied_count++
+				if(occupied_count <= 1)
+					tgui_alert_async(user, "Нельзя удалить единственного персонажа! / Cannot delete the only character!")
+					ShowChoices(user)
+					return TRUE
+				// Запрашиваем подтверждение
+				var/confirm = tgui_alert(user, "Вы уверены, что хотите удалить этого персонажа? Это действие необратимо! / Are you sure you want to delete this character? This cannot be undone!", "Delete Character", list("Yes", "No"))
+				if(confirm != "Yes")
+					ShowChoices(user)
+					return TRUE
+				if(delete_character(slot))
+					tgui_alert_async(user, "Персонаж удалён. / Character deleted.")
+				else
+					tgui_alert_async(user, "Не удалось удалить персонажа. / Failed to delete character.")
 				ShowChoices(user)
 				return TRUE
 		ShowChoices(user)
@@ -6220,6 +6253,11 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 		if(href_list["clear_loadout"])
 			loadout_data["SAVE_[loadout_slot]"] = list()
 			save_preferences()
+		// BLUEMOON ADD - переключатель лодаута
+		if(href_list["toggle_loadout_enabled"])
+			loadout_enabled = !loadout_enabled
+			save_preferences()
+		// BLUEMOON ADD END
 		if(href_list["select_category"])
 			gear_category = url_decode(href_list["select_category"])
 			// BLUEMOON FIX - Add null check to prevent runtime when category doesn't exist
