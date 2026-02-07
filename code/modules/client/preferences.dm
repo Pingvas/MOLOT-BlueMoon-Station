@@ -726,14 +726,12 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	.csetup-root td, .csetup-root th{ border-right:1px solid [border_color]; }\n\
 	.csetup-root .csetup_character_node{ background-color:[bg_secondary]; border:1px solid [border_color]; }\n\
 	.csetup-root .csetup_character_label{ color:[text_secondary]; }\n\
-	.csetup-root .theme-selector{ background-color:[bg_secondary]; border:1px solid [border_color]; overflow:hidden; max-width:640px; min-width:28px; white-space:nowrap; transition:max-width 150ms ease-out; }\n\
-	.csetup-root .theme-body{ display:inline-flex; align-items:center; gap:6px; transition:none; opacity:1; transform:none; }\n\
-	.csetup-root .theme-selector.collapsed{ max-width:28px; padding:0; gap:0; }\n\
-	.csetup-root .theme-selector.collapsed a.theme-emoji-btn{ margin:0 !important; width:26px; height:26px; display:flex; align-items:center; justify-content:center; text-align:center; font-size:16px; line-height:26px; }\n\
-	.csetup-root .theme-selector.collapsed .theme-body{ opacity:0; transform:translateX(16px); pointer-events:none; }\n\
-	.csetup-root a.theme-emoji-btn{ padding:0 !important; margin:0 4px 0 0 !important; background:transparent !important; border:none !important; box-shadow:none !important; display:inline-flex; align-items:center; justify-content:center; font-size:14px; line-height:1; }\n\
-	.csetup-root a.theme-collapse-hint{ padding:0 !important; margin:0 2px 0 0 !important; background:transparent !important; border:none !important; box-shadow:none !important; font-size:12px; line-height:1; opacity:0.85; text-decoration:none; }\n\
-	.csetup-root a.theme-collapse-hint:hover{ opacity:1; }\n\
+	.csetup-root .theme-container{ position:absolute; top:8px; right:8px; z-index:20; display:flex; flex-direction:column; align-items:flex-end; gap:4px; }\n\
+	.csetup-root .theme-hub{ display:inline-flex; align-items:center; gap:2px; padding:3px 4px; border-radius:10px; background-color:[bg_secondary]; border:1px solid [border_color]; }\n\
+	.csetup-root a.theme-hub-btn{ padding:0 !important; margin:0 !important; background:transparent !important; border:none !important; box-shadow:none !important; display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; font-size:15px; line-height:1; cursor:pointer; border-radius:6px; text-decoration:none; }\n\
+	.csetup-root a.theme-hub-btn:hover{ background:rgba(255,255,255,0.08) !important; }\n\
+	.csetup-root a.theme-hub-btn.active{ background:rgba(77,163,255,0.18) !important; }\n\
+	.csetup-root .theme-picker-panel{ display:inline-flex; align-items:center; gap:6px; padding:5px 8px; border-radius:10px; background-color:[bg_secondary]; border:1px solid [border_color]; white-space:nowrap; }\n\
 	.csetup-root .theme-label{ font-size:11px; letter-spacing:0.2px; opacity:0.92; color:[text_secondary]; user-select:none; }\n\
 	.csetup-root .theme-label-custom{ opacity:0.95; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:[text_primary]; }\n\
 	.csetup-root .theme-sep{ width:2px; height:20px; background:[border_color]; opacity:1; margin:0 6px; display:inline-block; border-radius:2px; }\n\
@@ -741,6 +739,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	.csetup-root a.theme-swatch.active{ border-color:[accent_color]; box-shadow:none; outline:2px solid [accent_color]; outline-offset:1px; }\n\
 	.csetup-root a.theme-swatch--custom{ width:18px; height:18px; border-radius:[button_radius]; display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,0.75); }\n\
 	.csetup-root a.theme-gear{ padding:0 !important; margin-left:2px; width:18px; height:18px; border-radius:[button_radius]; display:inline-flex; align-items:center; justify-content:center; font-size:13px; line-height:1; }\n\
+	.csetup-root .theme-settings-panel{ background-color:[bg_secondary]; border:1px solid [border_color]; color:[text_primary]; }\n\
 	.csetup-root .theme-custom-editor{ background-color:[bg_secondary]; border:1px solid [border_color]; color:[text_primary]; }\n\
 	.csetup-root .theme-custom-editor-hint{ font-size:11px; opacity:0.8; color:[text_secondary]; }\n\
 	.csetup-root .theme-custom-editor-table a.colorbox{ padding:0 !important; margin:0 6px 0 0 !important; background-color:transparent; border-radius:4px !important; box-shadow:none !important; }\n\
@@ -773,12 +772,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	.csetup-root .csetup-tooltip{ box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45) !important; }\n\
 	.csetup-root .csetup-hovertip{ box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45) !important; }\n\
 	.csetup-root .csetup-mini-tooltip{ box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06), 0 8px 20px rgba(0, 0, 0, 0.35) !important; }\n\
-	.csetup-root .theme-selector{ box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important; transition: max-width 180ms ease, padding 180ms ease !important; }\n\
-	.csetup-root .theme-body{ transition: opacity 160ms ease, transform 180ms ease !important; }\n\
-	.csetup-root .theme-selector.anim.collapsed{ animation: csetupThemePickerCollapseWidth 180ms ease both !important; }\n\
-	.csetup-root .theme-selector.anim:not(.collapsed){ animation: csetupThemePickerExpandWidth 180ms ease both !important; }\n\
-	.csetup-root .theme-selector.anim.collapsed .theme-body{ animation: csetupThemePickerFadeOut 180ms ease both !important; }\n\
-	.csetup-root .theme-selector.anim:not(.collapsed) .theme-body{ animation: csetupThemePickerFadeIn 180ms ease both !important; }\n\
+	.csetup-root .theme-hub{ box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important; }\n\
+	.csetup-root .theme-picker-panel{ box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important; }\n\
 	.csetup-root a.theme-swatch:hover{ transform: translateY(-1px) scale(1.05); }\n\
 	.csetup-root a.theme-swatch.active{ box-shadow: 0 0 8px rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.55) !important; }\n\
 	.csetup-root .theme-custom-editor{ box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35) !important; }\n\
@@ -834,44 +829,35 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 				"modern_neutral" = "#bfc2c7"
 			)
 
-			var/theme_selector_class = "theme-selector"
-			if(modern_theme_picker_animate)
-				theme_selector_class += " anim"
-			if(modern_theme_picker_collapsed)
-				theme_selector_class += " collapsed"
-			var/toggle_title = modern_theme_picker_collapsed ? "Развернуть меню тем" : "Свернуть меню тем"
-			dat += "<div class='[theme_selector_class]'>"
-			dat += "<span class='theme-icon-stack'>"
-			dat += "<a href='?_src_=prefs;preference=modern_theme_picker;action=toggle' class='theme-emoji-btn' title='[toggle_title]'>🎨</a>"
-			dat += "<a href='?_src_=prefs;preference=modern_theme_settings;action=toggle' class='theme-emoji-btn theme-settings-btn' title='Настройки (WIP)'>⚙</a>"
-			dat += "</span>"
-			dat += "<span class='theme-body'>"
-			// UI tweak start
-			//if(!modern_theme_picker_collapsed)
-			//	dat += "<a href='?_src_=prefs;preference=modern_theme_picker;action=toggle' class='theme-collapse-hint' title='Свернуть' aria-label='Свернуть меню тем'>◀</a>"
-			// UI tweak end
-			dat += "<span class='theme-label'>Themes</span>"
-			for(var/theme_id in theme_order)
-				var/is_active = (charcreation_theme == theme_id)
-				var/swatch_class = is_active ? "theme-swatch active" : "theme-swatch"
-				var/swatch_color = theme_swatches[theme_id]
-				var/swatch_title = theme_titles[theme_id]
-				dat += "<a href='?_src_=prefs;preference=charcreation_set;theme=[theme_id]' class='[swatch_class]' style='background-color: [swatch_color];' title='[swatch_title]'></a>"
-			// Separate Custom + gear from the preset themes with a strong divider + label.
-			var/custom_active = (charcreation_theme == "modern_custom")
-			var/custom_class = custom_active ? "theme-swatch theme-swatch--custom active" : "theme-swatch theme-swatch--custom"
-			// Show the custom theme background in the swatch (more representative than accent).
-			var/custom_swatch_color = "#[modern_custom_bg_primary]"
-			var/custom_title = modern_custom_enabled ? "Custom" : "Custom (Off)"
-			dat += "<span class='theme-sep' aria-hidden='true'></span>"
-			dat += "<span class='theme-custom-group'>"
-			dat += "<span class='theme-label theme-label-custom'>Custom</span>"
-			dat += "<a href='?_src_=prefs;preference=charcreation_set;theme=modern_custom' class='[custom_class]' style='background-color: [custom_swatch_color];' title='[custom_title]'></a>"
-			dat += "<a href='?_src_=prefs;preference=modern_theme_editor;action=toggle' class='theme-gear' title='Custom theme settings (opens editor)'>⚙</a>"
-			dat += "</span>"
-			dat += "</span>" // theme-body
+			// Theme hub — icon buttons that never move
+			dat += "<div class='theme-container'>"
+			dat += "<div class='theme-hub'>"
+			var/picker_active_cls = !modern_theme_picker_collapsed ? " active" : ""
+			var/settings_active_cls = modern_theme_settings_open ? " active" : ""
+			dat += "<a href='?_src_=prefs;preference=modern_theme_picker;action=toggle' class='theme-hub-btn[picker_active_cls]' title='Темы'>🎨</a>"
+			dat += "<a href='?_src_=prefs;preference=modern_theme_settings;action=toggle' class='theme-hub-btn[settings_active_cls]' title='Настройки'>⚙</a>"
 			dat += "</div>"
-			modern_theme_picker_animate = FALSE
+			// Theme picker panel
+			if(!modern_theme_picker_collapsed)
+				dat += "<div class='theme-picker-panel'>"
+				dat += "<span class='theme-label'>Themes</span>"
+				for(var/theme_id in theme_order)
+					var/is_active = (charcreation_theme == theme_id)
+					var/swatch_class = is_active ? "theme-swatch active" : "theme-swatch"
+					var/swatch_color = theme_swatches[theme_id]
+					var/swatch_title = theme_titles[theme_id]
+					dat += "<a href='?_src_=prefs;preference=charcreation_set;theme=[theme_id]' class='[swatch_class]' style='background-color: [swatch_color];' title='[swatch_title]'></a>"
+				var/custom_active = (charcreation_theme == "modern_custom")
+				var/custom_class = custom_active ? "theme-swatch theme-swatch--custom active" : "theme-swatch theme-swatch--custom"
+				var/custom_swatch_color = "#[modern_custom_bg_primary]"
+				var/custom_title = modern_custom_enabled ? "Custom" : "Custom (Off)"
+				dat += "<span class='theme-sep' aria-hidden='true'></span>"
+				dat += "<span class='theme-custom-group'>"
+				dat += "<span class='theme-label theme-label-custom'>Custom</span>"
+				dat += "<a href='?_src_=prefs;preference=charcreation_set;theme=modern_custom' class='[custom_class]' style='background-color: [custom_swatch_color];' title='[custom_title]'></a>"
+				dat += "<a href='?_src_=prefs;preference=modern_theme_editor;action=toggle' class='theme-gear' title='Custom theme settings (opens editor)'>⚙</a>"
+				dat += "</span>"
+				dat += "</div>"
 
 			if(modern_theme_settings_open)
 				dat += "<div class='theme-settings-panel'>"
@@ -949,6 +935,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "<tr><td class='k'>[label]</td><td class='v'><a class='colorbox' href='?_src_=prefs;preference=modern_custom_color;key=[key]' style='background-color: #[value_hex];' title='Pick color (opens BYOND color picker)'></a> #[value_hex]</td></tr>"
 				dat += "</table>"
 				dat += "</div>"
+			dat += "</div>" // theme-container
 
 		dat += "<center>"
 	else

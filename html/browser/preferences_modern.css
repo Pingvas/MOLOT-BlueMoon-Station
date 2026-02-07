@@ -856,106 +856,69 @@ body {
 	border-right: none;
 }
 
-/* Theme picker (top-right), matching the older PR #2535 UX (small menu + squares). */
-.csetup-root .theme-selector {
+/* Theme hub (top-right corner) — container for icon buttons and dropdown panels */
+.csetup-root .theme-container {
 	position: absolute;
 	top: 8px;
 	right: 8px;
+	z-index: 20;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 4px;
+}
+
+/* Icon toolbar — always visible, never moves */
+.csetup-root .theme-hub {
 	display: inline-flex;
 	align-items: center;
-	gap: 6px;
-	padding: 5px 6px;
+	gap: 2px;
+	padding: 3px 4px;
 	border-radius: 10px;
 	background-color: var(--csetup-panel, rgba(255, 255, 255, 0.06));
 	border: 1px solid var(--csetup-border, rgba(0, 0, 0, 0.25));
 	box-shadow: none;
-	overflow: hidden;
-	max-width: 640px;
-	min-width: 28px; /*UI tweak*/
-	white-space: nowrap;
-	transition: max-width 150ms ease-out;
-	z-index: 20;
 }
 
-@keyframes csetupThemePickerCollapseWidth {
-	from { max-width: 640px; padding: 5px 6px; }
-	to { max-width: 28px; padding: 0; } /*UI tweak*/
-}
-
-@keyframes csetupThemePickerExpandWidth {
-	from { max-width: 28px; padding: 0; } /*UI tweak*/
-	to { max-width: 640px; padding: 5px 6px; }
-}
-
-@keyframes csetupThemePickerFadeOut {
-	from { opacity: 1; transform: translateX(0); }
-	to { opacity: 0; transform: translateX(16px); }
-}
-
-@keyframes csetupThemePickerFadeIn {
-	from { opacity: 0; transform: translateX(16px); }
-	to { opacity: 1; transform: translateX(0); }
-}
-
-.csetup-root .theme-selector.anim.collapsed {
-	animation: none;
-}
-
-.csetup-root .theme-selector.anim:not(.collapsed) {
-	animation: none;
-}
-
-.csetup-root .theme-selector.anim.collapsed .theme-body {
-	animation: none;
-}
-
-.csetup-root .theme-selector.anim:not(.collapsed) .theme-body {
-	animation: none;
-}
-
-.csetup-root .theme-icon-stack {
-	position: relative;
-	z-index: 12;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	gap: 2px;
-}
-
-.csetup-root .theme-icon-stack a.theme-emoji-btn {
-	margin: 0 !important;
-}
-
-.csetup-root a.theme-emoji-btn {
+.csetup-root a.theme-hub-btn {
 	padding: 0 !important;
-	margin: 0 4px 0 0 !important;
+	margin: 0 !important;
 	background: transparent !important;
 	border: none !important;
 	box-shadow: none !important;
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	font-size: 14px;
+	width: 26px;
+	height: 26px;
+	font-size: 15px;
 	line-height: 1;
+	cursor: pointer;
+	border-radius: 6px;
+	opacity: 0.85;
 }
 
-.csetup-root a.theme-settings-btn {
-	font-size: 13px;
-	opacity: 0.9;
-}
-
-.csetup-root a.theme-settings-btn:hover {
+.csetup-root a.theme-hub-btn:hover {
 	opacity: 1;
+	background: rgba(255, 255, 255, 0.08) !important;
 }
 
-.csetup-root .theme-body {
+.csetup-root a.theme-hub-btn.is-active {
+	opacity: 1;
+	background: rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.18) !important;
+}
+
+/* Theme picker dropdown panel — shows theme swatches */
+.csetup-root .theme-picker-panel {
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
-	opacity: 1;
-	transform: translateX(0);
-	transition: none;
+	padding: 5px 8px;
+	border-radius: 10px;
+	background-color: var(--csetup-panel, rgba(255, 255, 255, 0.06));
+	border: 1px solid var(--csetup-border, rgba(0, 0, 0, 0.25));
+	box-shadow: none;
+	white-space: nowrap;
 }
 
 .csetup-root a.theme-collapse-hint {
@@ -972,35 +935,6 @@ body {
 
 .csetup-root a.theme-collapse-hint:hover {
 	opacity: 1;
-}
-
-.csetup-root .theme-selector.collapsed {
-	max-width: 28px; /*UI tweak*/
-	padding: 0;
-	gap: 0;
-}
-/*UI tweak start*/
-.csetup-root .theme-selector.collapsed a.theme-emoji-btn {
-	margin: 0 !important;
-	width: 26px;
-	height: 26px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	text-align: center;
-	font-size: 16px;
-	line-height: 26px;
-}
-
-.csetup-root .theme-selector.collapsed a.theme-settings-btn {
-	font-size: 14px;
-}
-/*UI tweak end*/
-
-.csetup-root .theme-selector.collapsed .theme-body {
-	opacity: 0;
-	transform: translateX(16px);
-	pointer-events: none;
 }
 
 .csetup-root .theme-label {
@@ -1082,18 +1016,14 @@ body {
 	line-height: 1;
 }
 
-/* Quick settings popover (WIP): frame shape + language */
+/* Quick settings popover: frame shape + language + decoration */
 .csetup-root .theme-settings-panel {
-	position: absolute;
-	top: 58px;
-	right: 8px;
 	width: 260px;
 	padding: 8px 8px 10px;
 	border-radius: 12px;
 	background-color: var(--csetup-panel, rgba(0, 0, 0, 0.35));
 	border: 1px solid var(--csetup-border, rgba(0, 0, 0, 0.25));
 	box-shadow: none;
-	z-index: 11;
 }
 
 .csetup-root .theme-settings-title {
@@ -1164,16 +1094,12 @@ body {
 .csetup-root .theme-settings-pill.is-round::before { border-radius: 7px; }
 
 .csetup-root .theme-custom-editor {
-	position: absolute;
-	top: 55px; /* UI tweak */
-	right: 8px;
-	width: 290px; /* UI tweak */
+	width: 290px;
 	padding: 8px 8px 6px;
 	border-radius: 12px;
 	background-color: var(--csetup-panel, rgba(0, 0, 0, 0.35));
 	border: 1px solid var(--csetup-border, rgba(0, 0, 0, 0.25));
 	box-shadow: none;
-	z-index: 11;
 }
 
 .csetup-root .theme-custom-editor-title {
