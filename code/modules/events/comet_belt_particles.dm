@@ -53,8 +53,6 @@
 // ═══════════════════ ЭКРАННЫЕ ОВЕРЛЕИ ═══════════════════
 
 /atom/movable/screen/comet_overlay
-	icon = 'modular_bluemoon/icons/misc/ion.dmi'
-	icon_state = "star"
 	alpha = 0
 	screen_loc = "CENTER,CENTER"
 	plane = PLANE_SPACE_PARALLAX
@@ -80,8 +78,6 @@
 	animate(src, alpha = 0, time = time)
 
 /atom/movable/screen/comet_dust_overlay
-	icon = 'modular_bluemoon/icons/misc/ion.dmi'
-	icon_state = "ion"
 	alpha = 0
 	screen_loc = "CENTER,CENTER"
 	plane = PLANE_SPACE_PARALLAX
@@ -109,8 +105,6 @@
 // ═══════ ПЫЛЕВОЙ ПОЯС (за планетой, задний план) ═══════
 
 /atom/movable/screen/comet_belt_stream_overlay
-	icon = 'modular_bluemoon/icons/misc/ion.dmi'
-	icon_state = "dust"
 	alpha = 0
 	screen_loc = "CENTER,CENTER"
 	plane = PLANE_SPACE_PARALLAX
