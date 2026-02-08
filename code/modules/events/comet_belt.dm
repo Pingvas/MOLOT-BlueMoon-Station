@@ -15,39 +15,42 @@
 
 /datum/round_event/comet_belt
 	announce_when = 1
-	start_when = 6
-	end_when = 127
+	start_when = 5
+	end_when = 126
 	var/current_phase = 0
 	var/list/comet_overlays = list()
 	var/list/dust_overlays = list()
+	var/list/belt_stream_overlays = list()
 	var/list/flash_overlays = list()
+	var/list/glow_overlays = list()
+	var/list/saved_parallax = list()
 	var/finale_announced = FALSE
 
 	var/static/list/choreography = list(\
 		/* первые кометы*/\
-		list(39,  8,  "#78C8E8", 0.6, 1.2,  -6,  -3),\
-		list(41, 10,  "#60B8E0", 0.7, 1.5,  -7,  -3.5),\
-		list(43,  8,  "#90D0F0", 0.8, 1.4,  -6.5,-3.2),\
-		list(45, 12,  "#A0DBFF", 0.9, 1.8,  -7.5,-4),\
+		list(38,  8,  "#50C8FF", 0.6, 1.2,  -5,  -2.5),\
+		list(40, 10,  "#40B0FF", 0.7, 1.5,  -5.5,-2.8),\
+		list(42,  8,  "#60E0FF", 0.8, 1.4,  -5,  -2.5),\
+		list(44, 12,  "#80F0FF", 0.9, 1.8,  -6,  -3),\
 		/* спам*/\
-		list(67, 15,  "#FFFFFF", 1.5, 3.0,  -10, -5),\
-		list(68, 12,  "#FFE8C0", 1.3, 2.8,  -9,  -4.5),\
-		list(69, 18,  "#FFD080", 1.8, 3.5,  -11, -5.5),\
-		list(70, 25,  "#FFFFFF", 2.0, 4.0,  -12, -6),\
-		list(72, 15,  "#FFC060", 1.5, 3.2,  -10, -5),\
-		list(74, 20,  "#FFE0A0", 1.8, 3.8,  -11, -5.5),\
-		list(76, 12,  "#C8E8FF", 1.2, 2.5,  -8,  -4),\
-		list(78, 15,  "#FFB040", 1.4, 3.0,  -9,  -4.5),\
-		list(80, 10,  "#E8D8B0", 1.0, 2.2,  -7,  -3.5),\
-		list(82,  8,  "#A8D0F0", 0.9, 2.0,  -6.5,-3.2),\
-		list(84,  6,  "#88BBE0", 0.8, 1.8,  -6,  -3),\
-		list(86,  5,  "#70A0D0", 0.7, 1.5,  -5.5,-2.8),\
+		list(66, 15,  "#FFD040", 1.5, 3.0,  -8,  -4),\
+		list(67, 12,  "#FFA830", 1.3, 2.8,  -7,  -3.5),\
+		list(68, 18,  "#FF8020", 1.8, 3.5,  -8.5,-4.5),\
+		list(69, 25,  "#FFE060", 2.0, 4.0,  -9,  -5),\
+		list(71, 15,  "#FF6830", 1.5, 3.2,  -8,  -4),\
+		list(73, 20,  "#FFCC40", 1.8, 3.8,  -8.5,-4.5),\
+		list(75, 12,  "#60D8FF", 1.2, 2.5,  -6.5,-3),\
+		list(77, 15,  "#FF9020", 1.4, 3.0,  -7,  -3.5),\
+		list(79, 10,  "#E0C060", 1.0, 2.2,  -5.5,-2.8),\
+		list(81,  8,  "#80C8FF", 0.9, 2.0,  -5,  -2.5),\
+		list(83,  6,  "#60B0E8", 0.8, 1.8,  -5,  -2.5),\
+		list(85,  5,  "#5098D8", 0.7, 1.5,  -4.5,-2.2),\
 		/* конечная*/\
-		list(87, 10,  "#6898C8", 0.8, 1.8,  -7,  -3.5),\
-		list(89,  8,  "#78A8D8", 0.7, 1.5,  -6,  -3),\
-		list(91, 12,  "#5090C0", 0.9, 2.0,  -7.5,-3.8),\
-		list(93,  6,  "#4080B0", 0.6, 1.3,  -5.5,-2.8),\
-		list(95,  4,  "#3070A0", 0.5, 1.0,  -5,  -2.5)\
+		list(86, 10,  "#5888D0", 0.8, 1.8,  -5.5,-2.8),\
+		list(88,  8,  "#6898E0", 0.7, 1.5,  -5,  -2.5),\
+		list(90, 12,  "#4878D0", 0.9, 2.0,  -6,  -3),\
+		list(92,  6,  "#3868C0", 0.6, 1.3,  -4.5,-2.2),\
+		list(94,  4,  "#3060B8", 0.5, 1.0,  -4,  -2)\
 	)
 
 	var/static/list/dust_color_gradient = list(\
@@ -86,24 +89,35 @@
 	for(var/V in GLOB.player_list)
 		var/mob/M = V
 		ADD_TRAIT(M, TRAIT_PACIFISM, "comet_belt")
+	// Эмбиент
 	for(var/client/C in GLOB.clients)
 		if(!C.mob || !is_station_level(C.mob.z))
 			continue
+		C.mob.stop_sound_channel(CHANNEL_AMBIENCE)
+		C.mob.stop_sound_channel(CHANNEL_BUZZ)
+		SSambience.ambience_listening_clients -= C
+		// Замена параллакса сука я в ахуе
+		if(C.prefs)
+			saved_parallax[C] = C.prefs.parallax
+			C.prefs.parallax = PARALLAX_INSANE
+			if(C.parallax_holder)
+				C.parallax_holder.Remove()
+				C.parallax_holder.Apply()
 		add_comet_overlays(C)
 	transition_to_phase(1)
 
 /datum/round_event/comet_belt/tick()
 	var/new_phase
 	switch(activeFor)
-		if(6 to 38)
+		if(5 to 37)
 			new_phase = 1
-		if(39 to 46)
+		if(38 to 45)
 			new_phase = 2
-		if(47 to 66)
+		if(46 to 65)
 			new_phase = 3
-		if(67 to 86)
+		if(66 to 85)
 			new_phase = 4
-		if(87 to 96)
+		if(86 to 95)
 			new_phase = 5
 		else
 			new_phase = 6
@@ -111,9 +125,10 @@
 	if(new_phase != current_phase)
 		transition_to_phase(new_phase)
 
-	var/progress = clamp((activeFor - 6) / 120.0, 0, 1)
+	var/progress = clamp((activeFor - 5) / 120.0, 0, 1)
 	var/dust_col = get_gradient_color(progress, dust_color_gradient)
 	update_all_dust_color(dust_col)
+	update_belt_stream(dust_col, new_phase, activeFor)
 
 	update_dust_dynamics(activeFor, new_phase)
 
@@ -133,8 +148,19 @@
 	for(var/V in GLOB.player_list)
 		var/mob/M = V
 		REMOVE_TRAIT(M, TRAIT_PACIFISM, "comet_belt")
+	for(var/client/C in GLOB.clients)
+		if(!C.mob || !is_station_level(C.mob.z))
+			continue
+		SSambience.ambience_listening_clients[C] = world.time
+	for(var/client/C in saved_parallax)
+		if(C?.prefs)
+			C.prefs.parallax = saved_parallax[C]
+			if(C.parallax_holder)
+				C.parallax_holder.Remove()
+				C.parallax_holder.Apply()
+	saved_parallax.Cut()
+	fade_space_glow()
 	comet_final_cleanup()
-	fade_space_light()
 
 // ═══════════════════ ФАЗЫ ═══════════════════
 
@@ -143,21 +169,21 @@
 
 	switch(phase)
 		if(1)
-			update_space_light("#282050", 0.12)
+			update_space_glow("#282050", 15)
 
 		if(2)
-			update_space_light("#4888B8", 0.3)
+			update_space_glow("#4888B8", 25)
 
 		if(3)
-			update_space_light("#486080", 0.18)
+			update_space_glow("#486080", 20)
 
 		if(4)
-			update_space_light("#FFE898", 0.85)
+			update_space_glow("#FFE898", 50)
 			trigger_flash()
 			addtimer(CALLBACK(src, PROC_REF(trigger_flash)), 60)
 
 		if(5)
-			update_space_light("#6090B8", 0.4)
+			update_space_glow("#6090B8", 35)
 
 		if(6)
 			if(!finale_announced)
@@ -166,7 +192,7 @@
 				sound = 'sound/misc/notice2.ogg',\
 				sender_override = "Отдел Астрономии NanoTrasen")
 			addtimer(CALLBACK(src, PROC_REF(start_fade_out)), 60)
-			fade_space_light()
+			fade_space_glow()
 
 
 // Запустить пачку комет с уникальными параметрами
@@ -175,8 +201,8 @@
 	var/burst_color = burst[3]
 	var/sc_min = burst[4]
 	var/sc_max = burst[5]
-	var/vx_min = burst[6]
-	var/vx_max = burst[7]
+	var/speed_min = abs(burst[7])
+	var/speed_max = abs(burst[6])
 
 	for(var/client/C in comet_overlays)
 		var/atom/movable/screen/comet_overlay/comet = comet_overlays[C]
@@ -185,7 +211,21 @@
 		comet.particles.spawning = burst_spawning
 		comet.particles.color = burst_color
 		comet.particles.scale = generator("num", sc_min, sc_max)
-		comet.particles.velocity = generator("vector", list(vx_min, vx_min * 0.3, 0), list(vx_max, vx_max * 0.15, 0))
+		comet.particles.icon_state = pick("star", "star1", "star2")
+		// Случайное направление для разнообразия
+		switch(rand(1, 10))
+			if(1 to 4) // справа
+				comet.particles.position = generator("box", list(380, -300, 0), list(520, 300, 0))
+				comet.particles.velocity = generator("vector", list(-speed_max, -1.5, 0), list(-speed_min, 1.5, 0))
+			if(5 to 6) // слева
+				comet.particles.position = generator("box", list(-520, -300, 0), list(-380, 300, 0))
+				comet.particles.velocity = generator("vector", list(speed_min, -1.5, 0), list(speed_max, 1.5, 0))
+			if(7 to 8) // сверху
+				comet.particles.position = generator("box", list(-350, 300, 0), list(350, 420, 0))
+				comet.particles.velocity = generator("vector", list(-1.5, -speed_max, 0), list(1.5, -speed_min, 0))
+			if(9 to 10) // снизу-справа по диагонали
+				comet.particles.position = generator("box", list(200, -420, 0), list(520, -300, 0))
+				comet.particles.velocity = generator("vector", list(-speed_max, speed_min * 0.5, 0), list(-speed_min * 0.5, speed_max * 0.5, 0))
 
 // Выключить спавн комет
 /datum/round_event/comet_belt/proc/set_comet_spawning(val)
@@ -201,9 +241,19 @@
 		if(!comet?.particles)
 			continue
 		comet.particles.spawning = 2
-		comet.particles.color = "#8AB8D8"
+		comet.particles.color = "#5898C8"
 		comet.particles.scale = generator("num", 0.3, 0.7)
-		comet.particles.velocity = generator("vector", list(-4, -1.2, 0), list(-2, -0.4, 0))
+		comet.particles.icon_state = pick("star", "star1", "star2")
+		// Разнообразие направлений для фоновых комет
+		if(prob(60))
+			comet.particles.position = generator("box", list(380, -300, 0), list(520, 300, 0))
+			comet.particles.velocity = generator("vector", list(-3.5, -1, 0), list(-1.5, 0.5, 0))
+		else if(prob(50))
+			comet.particles.position = generator("box", list(-350, 300, 0), list(350, 420, 0))
+			comet.particles.velocity = generator("vector", list(-1, -3.5, 0), list(0.5, -1.5, 0))
+		else
+			comet.particles.position = generator("box", list(-520, -300, 0), list(-380, 300, 0))
+			comet.particles.velocity = generator("vector", list(1.5, -1, 0), list(3.5, 0.5, 0))
 
 /datum/round_event/comet_belt/proc/update_dust_dynamics(aF, phase)
 	var/target_spawning
@@ -212,7 +262,7 @@
 
 	switch(phase)
 		if(1)
-			var/p = clamp((aF - 6) / 32.0, 0, 1)
+			var/p = clamp((aF - 5) / 33.0, 0, 1)
 			target_spawning = round(2 + p * 5)
 			target_count = round(15 + p * 45)
 			target_alpha = round(60 + p * 180)
@@ -223,7 +273,7 @@
 			target_alpha = 240
 
 		if(3)
-			var/breath = sin((aF - 47) / 19.0 * 720)
+			var/breath = sin((aF - 46) / 20.0 * 720)
 			target_spawning = round(4 + breath * 3)
 			target_count = 60
 			target_alpha = round(180 + breath * 60)
@@ -239,7 +289,7 @@
 			target_alpha = 220
 
 		if(6)
-			var/p = clamp((aF - 97) / 29.0, 0, 1)
+			var/p = clamp((aF - 96) / 29.0, 0, 1)
 			target_spawning = max(0, round(5 * (1 - p)))
 			target_count = max(5, round(60 * (1 - p)))
 			target_alpha = max(0, round(240 * (1 - p)))
@@ -260,6 +310,41 @@
 		if(dust?.particles)
 			dust.particles.color = col
 
+/datum/round_event/comet_belt/proc/update_belt_stream(col, phase, aF)
+	var/target_spawning
+	var/target_alpha
+
+	switch(phase)
+		if(1) // нарастание
+			var/p = clamp((aF - 5) / 33.0, 0, 1)
+			target_spawning = round(2 + p * 4)
+			target_alpha = round(60 + p * 140)
+		if(2) // первые кометы
+			target_spawning = 6
+			target_alpha = 200
+		if(3) // затишье
+			target_spawning = 4
+			target_alpha = 160
+		if(4) // кульминация
+			target_spawning = 8
+			target_alpha = 230
+		if(5) // угасание
+			target_spawning = 5
+			target_alpha = 180
+		if(6) // финал
+			var/p = clamp((aF - 96) / 29.0, 0, 1)
+			target_spawning = max(0, round(5 * (1 - p)))
+			target_alpha = max(0, round(200 * (1 - p)))
+
+	for(var/client/C in belt_stream_overlays)
+		var/atom/movable/screen/comet_belt_stream_overlay/belt = belt_stream_overlays[C]
+		if(!belt)
+			continue
+		if(belt.particles)
+			belt.particles.spawning = target_spawning
+			belt.particles.color = col
+		animate(belt, alpha = target_alpha, time = 15)
+
 /datum/round_event/comet_belt/proc/trigger_flash()
 	for(var/client/C in comet_overlays)
 		if(!C)
@@ -268,7 +353,7 @@
 		flash_overlays[C] = flash
 		C.screen += flash
 		flash.do_flash()
-		addtimer(CALLBACK(src, PROC_REF(remove_flash), C), 40)
+		addtimer(CALLBACK(src, PROC_REF(remove_flash), C), 60)
 
 /datum/round_event/comet_belt/proc/remove_flash(client/C)
 	if(!C)
@@ -318,29 +403,18 @@
 	return hex_vals[copytext(hex_pair, 1, 2)] * 16 + hex_vals[copytext(hex_pair, 2, 3)]
 
 
-/datum/round_event/comet_belt/proc/update_space_light(light_color, light_pow)
-	for(var/area in GLOB.sortedAreas)
-		var/area/A = area
-		if(initial(A.dynamic_lighting) == DYNAMIC_LIGHTING_IFSTARLIGHT)
-			for(var/turf/open/space/S in A)
-				S.set_light(2 + light_pow * 3, light_pow, light_color)
+/datum/round_event/comet_belt/proc/update_space_glow(glow_color, glow_alpha)
+	for(var/client/C in glow_overlays)
+		var/atom/movable/screen/comet_space_glow/glow = glow_overlays[C]
+		if(glow)
+			glow.color = glow_color
+			animate(glow, alpha = glow_alpha, time = 20)
 
-/datum/round_event/comet_belt/proc/fade_space_light()
-	for(var/area in GLOB.sortedAreas)
-		var/area/A = area
-		if(initial(A.dynamic_lighting) == DYNAMIC_LIGHTING_IFSTARLIGHT)
-			for(var/turf/open/space/S in A)
-				fade_single_light(S)
-
-/datum/round_event/comet_belt/proc/fade_single_light(turf/open/space/S)
-	var/target = initial(S.light_range)
-	var/steps = round((S.light_range - target) / 0.3)
-	if(steps <= 0)
-		S.set_light(target, initial(S.light_power), initial(S.light_color))
-		return
-	for(var/i in 1 to steps)
-		addtimer(CALLBACK(S, TYPE_PROC_REF(/atom, set_light), S.light_range - 0.3 * i), i * 20)
-	addtimer(CALLBACK(S, TYPE_PROC_REF(/atom, set_light), target, initial(S.light_power), initial(S.light_color)), (steps + 1) * 20)
+/datum/round_event/comet_belt/proc/fade_space_glow()
+	for(var/client/C in glow_overlays)
+		var/atom/movable/screen/comet_space_glow/glow = glow_overlays[C]
+		if(glow)
+			animate(glow, alpha = 0, time = 60)
 
 /datum/round_event/comet_belt/proc/add_comet_overlays(client/C)
 	if(!C)
@@ -354,6 +428,15 @@
 		var/atom/movable/screen/comet_dust_overlay/dust = new
 		dust_overlays[C] = dust
 		C.screen += dust
+	if(!belt_stream_overlays[C])
+		var/atom/movable/screen/comet_belt_stream_overlay/belt = new
+		belt_stream_overlays[C] = belt
+		C.screen += belt
+		belt.fade_in(40)
+	if(!glow_overlays[C])
+		var/atom/movable/screen/comet_space_glow/glow = new
+		glow_overlays[C] = glow
+		C.screen += glow
 
 /datum/round_event/comet_belt/proc/start_fade_out()
 	for(var/client/C in comet_overlays)
@@ -364,6 +447,10 @@
 		var/atom/movable/screen/comet_dust_overlay/dust = dust_overlays[C]
 		if(dust)
 			dust.fade_out(80)
+	for(var/client/C in belt_stream_overlays)
+		var/atom/movable/screen/comet_belt_stream_overlay/belt = belt_stream_overlays[C]
+		if(belt)
+			belt.fade_out(80)
 
 /datum/round_event/comet_belt/proc/comet_final_cleanup()
 	for(var/client/C in comet_overlays)
@@ -378,6 +465,18 @@
 			C?.screen -= dust
 			qdel(dust)
 	dust_overlays.Cut()
+	for(var/client/C in belt_stream_overlays)
+		var/atom/movable/screen/comet_belt_stream_overlay/belt = belt_stream_overlays[C]
+		if(belt)
+			C?.screen -= belt
+			qdel(belt)
+	belt_stream_overlays.Cut()
+	for(var/client/C in glow_overlays)
+		var/atom/movable/screen/comet_space_glow/glow = glow_overlays[C]
+		if(glow)
+			C?.screen -= glow
+			qdel(glow)
+	glow_overlays.Cut()
 	for(var/client/C in flash_overlays)
 		var/atom/movable/screen/comet_flash/flash = flash_overlays[C]
 		if(flash)
