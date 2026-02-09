@@ -4,32 +4,52 @@
 	icon_state = "star"
 	width = 800
 	height = 650
-	count = 150
+	count = 250
 	spawning = 0
-	lifespan = 130
-	fade = 50
+	lifespan = 160
+	fade = 80
 	fadein = 5
 	scale = generator("num", 0.6, 1.5)
+	transform = matrix(2, 0, 0, 0, 0.6, 0) // вытянуть в кометный штрих
+	spin = generator("num", -6, 6)
 	position = generator("box", list(380, -300, 0), list(520, 300, 0))
-	velocity = generator("vector", list(-6, -2, 0), list(-3, -0.5, 0))
-	drift = generator("vector", list(-0.05, -0.03, 0), list(0.05, 0.03, 0))
+	velocity = generator("vector", list(-10, -3, 0), list(-5, -1, 0))
+	drift = generator("vector", list(-0.08, -0.05, 0), list(0.08, 0.05, 0))
 	color = "#70B8E8"
+
+// Микрочастицы-шлейф за кометами
+/particles/comet_trails
+	icon = 'modular_bluemoon/icons/misc/ion.dmi'
+	icon_state = "ion"
+	width = 800
+	height = 650
+	count = 400
+	spawning = 0
+	lifespan = 25
+	fade = 20
+	fadein = 2
+	grow = -0.02
+	scale = generator("num", 0.1, 0.35)
+	position = generator("box", list(380, -300, 0), list(520, 300, 0))
+	velocity = generator("vector", list(-8, -2, 0), list(-3, 1, 0))
+	drift = generator("vector", list(-0.1, -0.06, 0), list(0.1, 0.06, 0))
+	color = "#5090CC"
 
 /particles/comet_dust
 	icon = 'modular_bluemoon/icons/misc/ion.dmi'
 	icon_state = "ion"
 	width = 640
 	height = 480
-	count = 50
+	count = 80
 	spawning = 5
-	lifespan = 40
-	fade = 20
+	lifespan = 55
+	fade = 35
 	fadein = 10
 	grow = -0.01
 	scale = generator("num", 0.4, 1.2)
 	position = generator("box", list(-300, -230, 0), list(300, 230, 0))
-	velocity = generator("vector", list(-0.8, -0.3, 0), list(0.3, 0.5, 0))
-	drift = generator("vector", list(-0.1, -0.05, 0), list(0.1, 0.05, 0))
+	velocity = generator("vector", list(-1.4, -0.6, 0), list(0.5, 0.8, 0))
+	drift = generator("vector", list(-0.15, -0.08, 0), list(0.15, 0.08, 0))
 	color = "#BBCCEE"
 
 /particles/comet_belt_stream
@@ -37,17 +57,19 @@
 	icon_state = "dust"
 	width = 700
 	height = 550
-	count = 100
+	count = 160
 	spawning = 5
-	lifespan = 70
-	fade = 20
+	lifespan = 90
+	fade = 35
 	fadein = 10
 	grow = -0.005
 	scale = generator("num", 0.3, 0.9)
+	transform = matrix(1.5, 0, 0, 0, 0.7, 0) // слегка вытянуть
+	spin = generator("num", -3, 3)
 	// Пояс
 	position = generator("box", list(380, -80, 0), list(500, 80, 0))
-	velocity = generator("vector", list(-3.5, -1.2, 0), list(-1.8, -0.3, 0))
-	drift = generator("vector", list(-0.03, -0.02, 0), list(0.03, 0.02, 0))
+	velocity = generator("vector", list(-6, -2, 0), list(-3, -0.5, 0))
+	drift = generator("vector", list(-0.05, -0.03, 0), list(0.05, 0.03, 0))
 	color = "#99AACC"
 
 // ═══════════════════ ЭКРАННЫЕ ОВЕРЛЕИ ═══════════════════
@@ -56,7 +78,7 @@
 	alpha = 0
 	screen_loc = "CENTER,CENTER"
 	plane = PLANE_SPACE_PARALLAX
-	layer = 10
+	layer = 40
 	blend_mode = BLEND_ADD
 	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
 	appearance_flags = PIXEL_SCALE | RESET_TRANSFORM
@@ -64,6 +86,32 @@
 /atom/movable/screen/comet_overlay/Initialize(mapload)
 	. = ..()
 	particles = new /particles/comet_stars
+
+// Шлейф за кометами — отдельный оверлей
+/atom/movable/screen/comet_trails_overlay
+	alpha = 0
+	screen_loc = "CENTER,CENTER"
+	plane = PLANE_SPACE_PARALLAX
+	layer = 39 // чуть ниже комет
+	blend_mode = BLEND_ADD
+	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
+	appearance_flags = PIXEL_SCALE | RESET_TRANSFORM
+
+/atom/movable/screen/comet_trails_overlay/Initialize(mapload)
+	. = ..()
+	particles = new /particles/comet_trails
+
+/atom/movable/screen/comet_trails_overlay/Destroy()
+	QDEL_NULL(particles)
+	return ..()
+
+/atom/movable/screen/comet_trails_overlay/proc/fade_in(time = 20)
+	animate(src, alpha = 200, time = time)
+
+/atom/movable/screen/comet_trails_overlay/proc/fade_out(time = 60)
+	if(particles)
+		particles.spawning = 0
+	animate(src, alpha = 0, time = time)
 
 /atom/movable/screen/comet_overlay/Destroy()
 	QDEL_NULL(particles)
