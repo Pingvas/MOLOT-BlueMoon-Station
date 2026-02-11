@@ -1,7 +1,8 @@
+import { Component, createRef } from 'inferno';
+
 import { useBackend } from '../backend';
 import { Box, Button, Section, Stack } from '../components';
 import { Window } from '../layouts';
-import { Component, createRef } from 'inferno';
 
 // ---- Constants ----
 const COLS = 10;
@@ -11,19 +12,19 @@ const PREVIEW_CELL = 16;
 
 // Tetromino shapes (each rotation is a list of [row, col] offsets)
 const SHAPES = {
-  I: { color: '#00f0f0', cells: [[0,0],[0,1],[0,2],[0,3]] },
-  O: { color: '#f0f000', cells: [[0,0],[0,1],[1,0],[1,1]] },
-  T: { color: '#a000f0', cells: [[0,0],[0,1],[0,2],[1,1]] },
-  S: { color: '#00f000', cells: [[0,1],[0,2],[1,0],[1,1]] },
-  Z: { color: '#f00000', cells: [[0,0],[0,1],[1,1],[1,2]] },
-  J: { color: '#0000f0', cells: [[0,0],[1,0],[1,1],[1,2]] },
-  L: { color: '#f0a000', cells: [[0,2],[1,0],[1,1],[1,2]] },
+  I: { color: '#00f0f0', cells: [[0, 0], [0, 1], [0, 2], [0, 3]] },
+  O: { color: '#f0f000', cells: [[0, 0], [0, 1], [1, 0], [1, 1]] },
+  T: { color: '#a000f0', cells: [[0, 0], [0, 1], [0, 2], [1, 1]] },
+  S: { color: '#00f000', cells: [[0, 1], [0, 2], [1, 0], [1, 1]] },
+  Z: { color: '#f00000', cells: [[0, 0], [0, 1], [1, 1], [1, 2]] },
+  J: { color: '#0000f0', cells: [[0, 0], [1, 0], [1, 1], [1, 2]] },
+  L: { color: '#f0a000', cells: [[0, 2], [1, 0], [1, 1], [1, 2]] },
 };
 
 const PIECE_NAMES = Object.keys(SHAPES);
 
 // Delays per level (ms)
-const DELAYS = [828,620,464,348,260,196,148,112,84,64,48,36,27];
+const DELAYS = [828, 620, 464, 348, 260, 196, 148, 112, 84, 64, 48, 36, 27];
 
 // Rotate cells 90 degrees clockwise around center
 const rotateCells = (cells) => {
@@ -217,23 +218,24 @@ class TetrisGame extends Component {
     }
     if (cleared > 0) {
       const points = [0, 100, 300, 500, 800];
-      const score = this.state.score + 20 + (points[cleared] || 800) * this.state.level;
-      const lines = this.state.lines + cleared;
-      const oldLevel = this.state.level;
-      const level = Math.min(12, Math.max(oldLevel, Math.floor(lines / 10) + 1));
-      this.setState({ score, lines, level });
+      this.setState((prevState) => {
+        const score = prevState.score + 20 + (points[cleared] || 800) * prevState.level;
+        const lines = prevState.lines + cleared;
+        const level = Math.min(12, Math.max(prevState.level, Math.floor(lines / 10) + 1));
+        // Звук повышения уровня
+        if (level > prevState.level) {
+          this.sfx('level_up');
+        }
+        return { score, lines, level };
+      });
       // Звук очистки линий (тетрис = 4 линии)
       if (cleared >= 4) {
         this.sfx('tetris');
       } else {
         this.sfx('line_clear');
       }
-      // Звук повышения уровня
-      if (level > oldLevel) {
-        this.sfx('level_up');
-      }
     } else {
-      this.setState({ score: this.state.score + 20 });
+      this.setState((prevState) => ({ score: prevState.score + 20 }));
     }
   }
 
@@ -254,15 +256,12 @@ class TetrisGame extends Component {
 
   togglePause() {
     if (this.state.gameOver) return;
-    const paused = !this.state.paused;
-    this.setState({ paused }, () => {
-      if (!paused) {
+    this.setState((prevState) => ({ paused: !prevState.paused }), () => {
+      if (!this.state.paused) {
         this.tick();
-        // Возобновляем музыку
         const { act } = this.props;
         act('music_start');
       } else {
-        // Ставим музыку на паузу
         const { act } = this.props;
         act('music_stop');
       }

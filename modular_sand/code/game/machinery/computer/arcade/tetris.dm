@@ -37,7 +37,12 @@
 		return
 	current_player = user
 	var/track = pick(
+		'modular_bluemoon/sound/machines/tetris/03.ogg',
+		'modular_bluemoon/sound/machines/tetris/04.ogg',
+		'modular_bluemoon/sound/machines/tetris/06.ogg',
+		'modular_bluemoon/sound/machines/tetris/16.ogg',
 		'modular_bluemoon/sound/machines/tetris/19.ogg',
+		'modular_bluemoon/sound/machines/tetris/21.mp3',
 		'modular_bluemoon/sound/machines/tetris/33.ogg',
 		'modular_bluemoon/sound/machines/tetris/34.ogg')
 	var/sound/S = sound(track, repeat = TRUE, wait = FALSE, volume = 40, channel = CHANNEL_TETRIS_MUSIC)
