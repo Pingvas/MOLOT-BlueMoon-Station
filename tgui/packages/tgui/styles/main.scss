@@ -54,6 +54,8 @@
 @include meta.load-css('./interfaces/ArcadeBattle.scss');
 @include meta.load-css('./interfaces/ArcadeOrionTrail.scss');
 @include meta.load-css('./interfaces/ArcadeTetris.scss');
+@include meta.load-css('./interfaces/NtosSnake.scss');
+@include meta.load-css('./interfaces/NtosMinesweeper.scss');
 @include meta.load-css('./interfaces/CrewManifest.scss');
 @include meta.load-css('./interfaces/ExperimentConfigure.scss');
 @include meta.load-css('./interfaces/NuclearBomb.scss');
