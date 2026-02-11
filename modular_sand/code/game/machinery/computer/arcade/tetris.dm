@@ -15,6 +15,8 @@
 	desc = "The pinnacle of human technology."
 	circuit = /obj/item/circuitboard/computer/arcade/tetris
 	COOLDOWN_DECLARE(TETRIS_COOLDOWN_MAIN)
+	/// Кто сейчас играет (для остановки музыки при закрытии UI)
+	var/mob/current_player = null
 
 /obj/machinery/computer/arcade/tetris/ui_interact(mob/user, datum/tgui/ui)
 	if(!isliving(user))
@@ -23,6 +25,52 @@
 	if(!ui)
 		ui = new(user, src, "ArcadeTetris", name)
 		ui.open()
+
+/// Останавливаем музыку при закрытии окна
+/obj/machinery/computer/arcade/tetris/ui_close(mob/user)
+	. = ..()
+	stop_tetris_music(user)
+
+/// Запускаем случайный саундтрек в цикле
+/obj/machinery/computer/arcade/tetris/proc/start_tetris_music(mob/user)
+	if(!user?.client)
+		return
+	current_player = user
+	var/track = pick(
+		'modular_bluemoon/sound/machines/tetris/19.ogg',
+		'modular_bluemoon/sound/machines/tetris/33.ogg',
+		'modular_bluemoon/sound/machines/tetris/34.ogg')
+	var/sound/S = sound(track, repeat = TRUE, wait = FALSE, volume = 40, channel = CHANNEL_TETRIS_MUSIC)
+	SEND_SOUND(user, S)
+
+/// Останавливаем музыку
+/obj/machinery/computer/arcade/tetris/proc/stop_tetris_music(mob/user)
+	if(!user)
+		user = current_player
+	if(user?.client)
+		user.stop_sound_channel(CHANNEL_TETRIS_MUSIC)
+	if(current_player == user)
+		current_player = null
+
+/// Проигрываем звуковой эффект на автомате
+/obj/machinery/computer/arcade/tetris/proc/play_tetris_sfx(sfx_type)
+	switch(sfx_type)
+		if("move")
+			playsound(src, 'modular_bluemoon/sound/machines/tetris/move_piece.ogg', 20, TRUE, extrarange = -5)
+		if("rotate")
+			playsound(src, 'modular_bluemoon/sound/machines/tetris/rotate_piece.ogg', 25, TRUE, extrarange = -5)
+		if("drop")
+			playsound(src, 'modular_bluemoon/sound/machines/tetris/piece_falling_after_line_clear.ogg', 30, TRUE, extrarange = -4)
+		if("line_clear")
+			playsound(src, 'modular_bluemoon/sound/machines/tetris/line_clear.ogg', 40, TRUE, extrarange = -3)
+		if("tetris")
+			playsound(src, 'modular_bluemoon/sound/machines/tetris/player_sending_blocks.ogg', 50, TRUE, extrarange = -3)
+		if("level_up")
+			playsound(src, 'modular_bluemoon/sound/machines/tetris/level_up_jingle.ogg', 45, TRUE, extrarange = -3)
+		if("game_over")
+			playsound(src, 'modular_bluemoon/sound/machines/tetris/game_over.ogg', 50, TRUE, extrarange = -2)
+		if("high_score")
+			playsound(src, 'modular_bluemoon/sound/machines/tetris/high_score.ogg', 55, TRUE, extrarange = -2)
 
 /obj/machinery/computer/arcade/tetris/ui_data(mob/user)
 	var/list/data = list()
@@ -35,6 +83,15 @@
 		return
 
 	switch(action)
+		if("sfx")
+			play_tetris_sfx(params["type"])
+			return TRUE
+		if("music_start")
+			start_tetris_music(usr)
+			return TRUE
+		if("music_stop")
+			stop_tetris_music(usr)
+			return TRUE
 		if("submitScore")
 			// Sanitize score as an integer
 			// Restricts maximum score to (default) 100,000
@@ -42,6 +99,7 @@
 
 			// Check for high score
 			if(temp_score > TETRIS_SCORE_HIGH)
+				play_tetris_sfx("high_score")
 				// Alert admins
 				message_admins("[ADMIN_LOOKUPFLW(usr)] [ADMIN_KICK(usr)] has achieved a score of [temp_score] on [src] in [get_area(src.loc)]! Score exceeds configured suspicion threshold.")
 

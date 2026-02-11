@@ -70,15 +70,21 @@ class TetrisGame extends Component {
     if (this.timer) clearTimeout(this.timer);
   }
 
+  // Отправляет звуковой эффект на сервер
+  sfx(type) {
+    const { act } = this.props;
+    act('sfx', { type });
+  }
+
   _keyHandler(e) {
     if (!this.state.started || this.state.gameOver || this.state.paused) return;
     switch (e.keyCode) {
       case 37: // left
-        this.move(0, -1);
+        if (this.move(0, -1)) this.sfx('move');
         e.preventDefault();
         break;
       case 39: // right
-        this.move(0, 1);
+        if (this.move(0, 1)) this.sfx('move');
         e.preventDefault();
         break;
       case 40: // down (soft drop)
@@ -109,6 +115,9 @@ class TetrisGame extends Component {
       this.spawnPiece();
       this.drawPreview();
       this.tick();
+      // Запускаем фоновую музыку
+      const { act } = this.props;
+      act('music_start');
     });
   }
 
@@ -124,8 +133,10 @@ class TetrisGame extends Component {
       this.lockPiece();
       this.draw();
       this.drawPreview();
-      // Submit score
+      // Game over — останавливаем музыку, играем звук, отправляем счёт
       const { act } = this.props;
+      act('music_stop');
+      this.sfx('game_over');
       act('submitScore', { score: this.state.score });
     }
   }
@@ -155,6 +166,7 @@ class TetrisGame extends Component {
     if (this.isValid(rotated, this.pos)) {
       this.currentCells = rotated;
       this.draw();
+      this.sfx('rotate');
       return;
     }
     // Wall kick: try shifting left/right
@@ -164,6 +176,7 @@ class TetrisGame extends Component {
         this.currentCells = rotated;
         this.pos = kickPos;
         this.draw();
+        this.sfx('rotate');
         return;
       }
     }
@@ -174,6 +187,7 @@ class TetrisGame extends Component {
     this.lockPiece();
     this.clearLines();
     this.draw();
+    this.sfx('drop');
     this.spawnPiece();
     this.drawPreview();
   }
@@ -205,8 +219,19 @@ class TetrisGame extends Component {
       const points = [0, 100, 300, 500, 800];
       const score = this.state.score + 20 + (points[cleared] || 800) * this.state.level;
       const lines = this.state.lines + cleared;
-      const level = Math.min(12, Math.max(this.state.level, Math.floor(lines / 10) + 1));
+      const oldLevel = this.state.level;
+      const level = Math.min(12, Math.max(oldLevel, Math.floor(lines / 10) + 1));
       this.setState({ score, lines, level });
+      // Звук очистки линий (тетрис = 4 линии)
+      if (cleared >= 4) {
+        this.sfx('tetris');
+      } else {
+        this.sfx('line_clear');
+      }
+      // Звук повышения уровня
+      if (level > oldLevel) {
+        this.sfx('level_up');
+      }
     } else {
       this.setState({ score: this.state.score + 20 });
     }
@@ -231,7 +256,16 @@ class TetrisGame extends Component {
     if (this.state.gameOver) return;
     const paused = !this.state.paused;
     this.setState({ paused }, () => {
-      if (!paused) this.tick();
+      if (!paused) {
+        this.tick();
+        // Возобновляем музыку
+        const { act } = this.props;
+        act('music_start');
+      } else {
+        // Ставим музыку на паузу
+        const { act } = this.props;
+        act('music_stop');
+      }
     });
   }
 
@@ -357,17 +391,17 @@ class TetrisGame extends Component {
             {gameOver && (
               <Box className="ArcadeTetris__overlay">
                 <Box fontSize="20px" bold color="bad">
-                  GAME OVER
+                  {'ИГРА ОКОНЧЕНА'}
                 </Box>
                 <Box mt={1} color="label">
-                  Score: {score}
+                  {'Счёт: ' + score}
                 </Box>
               </Box>
             )}
             {paused && (
               <Box className="ArcadeTetris__overlay">
                 <Box fontSize="18px" bold color="average">
-                  ⏸ PAUSED
+                  {'⏸ ПАУЗА'}
                 </Box>
               </Box>
             )}
@@ -379,7 +413,7 @@ class TetrisGame extends Component {
           <Stack vertical fill className="ArcadeTetris__side">
             {/* Preview */}
             <Stack.Item>
-              <Section title="Next">
+              <Section title="Следующая">
                 <Box textAlign="center">
                   <canvas
                     ref={this.previewRef}
@@ -391,27 +425,27 @@ class TetrisGame extends Component {
               </Section>
             </Stack.Item>
 
-            {/* Stats */}
+            {/* Статистика */}
             <Stack.Item>
-              <Section title="Stats">
+              <Section title="Статистика">
                 <Box className="ArcadeTetris__stat">
-                  <Box color="label">Score</Box>
+                  <Box color="label">{'Счёт'}</Box>
                   <Box bold fontSize="16px">{score}</Box>
                 </Box>
                 <Box className="ArcadeTetris__stat">
-                  <Box color="label">Level</Box>
+                  <Box color="label">{'Уровень'}</Box>
                   <Box bold fontSize="16px">{level}</Box>
                 </Box>
                 <Box className="ArcadeTetris__stat">
-                  <Box color="label">Lines</Box>
+                  <Box color="label">{'Линии'}</Box>
                   <Box bold fontSize="16px">{lines}</Box>
                 </Box>
               </Section>
             </Stack.Item>
 
-            {/* Controls */}
+            {/* Управление */}
             <Stack.Item>
-              <Section title="Controls">
+              <Section title="Управление">
                 <Stack vertical>
                   <Stack.Item>
                     <Button
@@ -419,7 +453,7 @@ class TetrisGame extends Component {
                       icon="play"
                       color="good"
                       onClick={() => this.newGame()}>
-                      {started ? 'New Game' : 'Start'}
+                      {started ? 'Новая игра' : 'Старт'}
                     </Button>
                   </Stack.Item>
                   {started && !gameOver && (
@@ -429,7 +463,7 @@ class TetrisGame extends Component {
                         icon={paused ? 'play' : 'pause'}
                         color="caution"
                         onClick={() => this.togglePause()}>
-                        {paused ? 'Resume' : 'Pause'}
+                        {paused ? 'Продолжить' : 'Пауза'}
                       </Button>
                     </Stack.Item>
                   )}
@@ -437,13 +471,13 @@ class TetrisGame extends Component {
               </Section>
             </Stack.Item>
 
-            {/* Key hints */}
+            {/* Подсказки */}
             <Stack.Item mt={1}>
               <Box color="label" fontSize="11px">
-                <Box>← → Move</Box>
-                <Box>↑ Rotate</Box>
-                <Box>↓ Soft Drop</Box>
-                <Box>Space Hard Drop</Box>
+                <Box>{'← → Движение'}</Box>
+                <Box>{'↑ Поворот'}</Box>
+                <Box>{'↓ Мягкий сброс'}</Box>
+                <Box>{'Пробел Жёсткий сброс'}</Box>
               </Box>
             </Stack.Item>
           </Stack>
