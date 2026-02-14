@@ -1,7 +1,7 @@
 /obj/item/clothing/head/blastwave
 	name = "blastwave helmet"
 	desc = "A plastic helmet with paint applied. Protects as much as cardboard box named 'Bomb Shelter'."
-	icon = 'modular_bluemoon/icons/obj/clothing/hats.dmi'
+	icon = 'modular_bluemoon/icons/obj/clothing/blastwave_hats.dmi'
 	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing/head.dmi'
 	icon_state = "blastwave_helmet"
 	item_state = "blastwave_helmet"

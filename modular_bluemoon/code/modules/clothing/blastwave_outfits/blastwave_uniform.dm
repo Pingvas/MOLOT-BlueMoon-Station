@@ -1,7 +1,7 @@
 /obj/item/clothing/under/blastwave
 	name = "blastwave uniform"
 	desc = "An utilitarian uniform of rugged warfare."
-	icon = 'modular_bluemoon/icons/obj/clothing/uniforms.dmi'
+	icon = 'modular_bluemoon/icons/obj/clothing/blastwave_uniforms.dmi'
 	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing/uniform.dmi'
 	anthro_mob_worn_overlay = 'modular_bluemoon/icons/mob/clothing/uniform_digi.dmi'
 	icon_state = "blastwave_uniform"

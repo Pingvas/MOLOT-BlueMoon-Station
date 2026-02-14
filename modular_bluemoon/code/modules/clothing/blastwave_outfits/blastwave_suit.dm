@@ -2,7 +2,7 @@
 	name = "blastwave trenchcoat"
 	desc = "A generic trenchcoat of the boring wars."
 	icon = 'modular_bluemoon/icons/obj/clothing/suits.dmi'
-	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing/suit.dmi'
+	mob_overlay_icon = 'modular_bluemoon/icons/mob/clothing/blastwave_suit.dmi'
 	anthro_mob_worn_overlay = 'modular_bluemoon/icons/mob/clothing/suit_digi.dmi'
 	icon_state = "blastwave_suit"
 	body_parts_covered = CHEST|GROIN|ARMS|LEGS
