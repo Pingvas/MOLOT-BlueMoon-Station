@@ -9,7 +9,7 @@ import { useDispatch } from 'common/redux';
 import { decodeHtmlEntities, toTitleCase } from 'common/string';
 import { Component } from 'inferno';
 
-import { backendSuspendStart, useBackend } from '../backend';
+import { backendSuspendStart, sendMessage, useBackend } from '../backend';
 import { Icon } from '../components';
 import { UI_DISABLED, UI_INTERACTIVE, UI_UPDATE } from '../constants';
 import { useDebug } from '../debug';
@@ -29,11 +29,22 @@ export class Window extends Component {
     if (suspended) {
       return;
     }
+    // Прячем окно пока не отрисуется геометрия.
+    Byond.winset(window.__windowId__, {
+      'is-visible': false,
+    });
     Byond.winset(window.__windowId__, {
       'can-close': Boolean(canClose),
     });
     logger.log('mounting');
-    this.updateGeometry();
+    this.updateGeometry()
+      .then(() => {
+        Byond.winset(window.__windowId__, {
+          'is-visible': true,
+        });
+        sendMessage({ type: 'visible' });
+        logger.log('set to visible');
+      });
   }
 
   componentDidUpdate(prevProps) {
@@ -46,7 +57,7 @@ export class Window extends Component {
     }
   }
 
-  updateGeometry() {
+  async updateGeometry() {
     const { config } = useBackend(this.context);
     const options = {
       size: DEFAULT_SIZE,
@@ -58,7 +69,7 @@ export class Window extends Component {
     if (config.window?.key) {
       setWindowKey(config.window.key);
     }
-    recallWindowGeometry(options);
+    await recallWindowGeometry(options);
   }
 
   render() {
