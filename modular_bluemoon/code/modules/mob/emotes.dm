@@ -589,6 +589,15 @@
 	sound = 'modular_bluemoon/sound/emotes/dexter-song.ogg'
 	emote_cooldown = 5 SECONDS
 
+/datum/emote/sound/human/animewow
+	key = "animewow"
+	key_third_person = "animewows"
+	message = "восхищается!"
+	message_mime = "изображает восхищение!"
+	sound = 'modular_bluemoon/sound/emotes/animewow.ogg'
+	emote_volume = 100
+	emote_cooldown = 5 SECONDS
+	emote_pitch_variance = FALSE
 
 /*
  * XENO EMOTES START

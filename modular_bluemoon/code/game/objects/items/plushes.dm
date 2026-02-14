@@ -700,4 +700,4 @@
 	name = "Mini Leia"
 	desc = "Плюшевая игрушка изготовленная из дешевых но приятных на ощюпь материалов. Сшита на темных мануфактурах ручками бедных кеткринских детей."
 	icon_state = "leia"
-	squeak_override = list('modular_bluemoon/sound/plush/leia_giggle.ogg' = 1, 'modular_bluemoon/sound/plush/leia_nyah.ogg' = 1, 'modular_bluemoon/sound/plush/leia_plan.ogg' = 1)
+	squeak_override = list('modular_bluemoon/sound/plush/leia_giggle.ogg' = 8, 'modular_bluemoon/sound/plush/leia_nyah.ogg' = 9, 'modular_bluemoon/sound/plush/leia_plan.ogg' = 1)
