@@ -20,6 +20,19 @@ import { focusMap } from './focus';
 import { createLogger } from './logging';
 import { resumeRenderer, suspendRenderer } from './renderer';
 
+// коллбек для отложенного выполнения после рендера и отрисовки
+const deferAfterPaint = (callback: () => void) => {
+  if (typeof requestAnimationFrame === 'function') {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        callback();
+      });
+    });
+  } else {
+    setTimeout(callback, 50);
+  }
+};
+
 const logger = createLogger('backend');
 
 export const backendUpdate = createAction('backend/update');
@@ -188,15 +201,15 @@ export const backendMiddleware = store => {
       resumeRenderer();
       // Setup drag
       setupDrag();
-      // We schedule this for the next tick here because resizing and unhiding
-      // during the same tick will flash with a white background.
-      defer(() => {
+      deferAfterPaint(() => {
         perf.mark('resume/start');
         // Doublecheck if we are not re-suspended.
         const { suspended } = selectBackend(store.getState());
         if (suspended) {
           return;
         }
+        // подключаем стиль плавного отображения
+        document.body.style.opacity = '1';
         Byond.winset(window.__windowId__, {
           'is-visible': true,
         });

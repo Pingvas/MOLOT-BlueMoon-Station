@@ -133,6 +133,14 @@ declare global {
     Byond: ByondType;
   }
 
+  // специальный формат для переменных.
+  const process: {
+    env: {
+      NODE_ENV: string;
+      [key: string]: string | undefined;
+    };
+  };
+
 }
 
 export {};

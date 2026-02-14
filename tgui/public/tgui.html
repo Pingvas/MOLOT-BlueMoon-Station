@@ -2,6 +2,10 @@
 <html>
 <head>
 <meta charset="utf-8">
+<!--
+  Вебювер анти флеш, скрываем весь контент дл полной загрузки.
+-->
+<style>body{opacity:0}</style>
 
 <!-- Inlined data -->
 <meta id="tgui:windowId" content="[tgui:windowId]">
@@ -116,9 +120,9 @@ if (window.__windowId__ === '[' + 'tgui:windowId' + ']') {
   // from the local DreamSeeker-served page.
   var isByond = (hasKnownBridge || hostLooksLocal)
     && location.search !== '?external';
-  // 516 migration: keep WebView2 JS bridge opt-in only for diagnostics.
-  // Default transport is location.href / xhr, which is stable in this fork.
-  var useWebViewBridge = location.search.indexOf('byond_bridge=1') !== -1;
+  // миграция на мост бьонд 516 вебю.
+  var useWebViewBridge = location.search.indexOf('byond_bridge=0') === -1
+    && !!window.BYOND;
 
   // Version constants
   Byond.IS_BYOND = isByond;
@@ -260,14 +264,14 @@ if (window.__windowId__ === '[' + 'tgui:windowId' + ']') {
       }
     }
 
-    // BYOND 516+ WebView2 bridge fallback (opt-in).
+    // нативная поддерка вызовов вебю2.
     if (useWebViewBridge) {
       if (callViaWebViewBridge(protocolUrl, url)) {
         return;
       }
     }
 
-    // Perform a standard call via location.href
+    // стандартный метод вызова через изменения location.href
     if (url.length < 2048) {
       try {
         location.href = protocolUrl;

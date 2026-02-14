@@ -253,11 +253,9 @@ export class ChatRenderer {
       return;
     }
     this.page = page;
-    // Fast clear of the root node
-    this.rootNode.textContent = '';
-    this.visibleMessages = [];
-    // Re-add message nodes
+    // Строим контекст для рендера, какие сообщения должны отображаться на этой странице.
     const fragment = document.createDocumentFragment();
+    this.visibleMessages = [];
     let node;
     for (let message of this.messages) {
       if (canPageAcceptType(page, message.type)) {
@@ -266,8 +264,9 @@ export class ChatRenderer {
         this.visibleMessages.push(message);
       }
     }
+    // свап нод для предотвращения мерцания при смене страницы.
+    this.rootNode.replaceChildren(fragment);
     if (node) {
-      this.rootNode.appendChild(fragment);
       node.scrollIntoView();
     }
     this.updateScrollTracking();
@@ -471,8 +470,8 @@ export class ChatRenderer {
     for (let message of messages) {
       message.node = undefined;
     }
-    // Fast clear of the root node
-    this.rootNode.textContent = '';
+    // вебью фикс удаляем все ноды и заново их создаем, чтобы избавиться от артефактов после перезагрузки страницы.
+    this.rootNode.replaceChildren();
     this.messages = [];
     this.visibleMessages = [];
     // Repopulate the chat log

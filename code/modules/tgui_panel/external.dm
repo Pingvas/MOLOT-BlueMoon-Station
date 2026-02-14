@@ -24,16 +24,14 @@
 		log_tgui(src, "Failed to fix.", context = "verb/fix_tgui_panel")
 
 /client/proc/nuke_chat()
-	// Catch all solution (kick the whole thing in the pants)
-	winset(src, "output", "on-show=&is-disabled=0&is-visible=1")
-	winset(src, "browseroutput", "is-disabled=1;is-visible=0")
+	// BYOND 516 фикс вебвью2: отключаем и скрываем оба окна вывода, чтобы удалить все старые панели и предотвратить появление "мерцания" от их пересоздания.
+	winset(src, "output", "on-show=&is-disabled=1&is-visible=0")
 	if(!tgui_panel || !istype(tgui_panel))
 		log_tgui(src, "tgui_panel datum is missing",
 			context = "verb/fix_tgui_panel")
 		tgui_panel = new(src)
 	tgui_panel.initialize(force = TRUE)
-	// Force show the panel to see if there are any errors
-	winset(src, "output", "is-disabled=1&is-visible=0")
+	// браузерный вывод
 	winset(src, "browseroutput", "is-disabled=0;is-visible=1")
 
 /mob/verb/fix_overlays()

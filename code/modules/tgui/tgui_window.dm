@@ -23,6 +23,8 @@
 	var/initial_inline_html
 	var/initial_inline_js
 	var/initial_inline_css
+	var/last_cache_reload = 0 // для отсрочки обработки кэшрелоадов
+	var/cache_reload_cooldown = 30 // ~3 секунды
 
 /**
  * public
@@ -126,7 +128,7 @@
 	client << browse(html, "window=[id];[options]")
 	// Detect whether the control is a browser
 	var/win_type = winexists(client, id)
-	is_browser = win_type == "BROWSER"
+	is_browser = (win_type == "BROWSER" || win_type == "browser") // определяем тип окна
 	if(CONFIG_GET(flag/emergency_tgui_logging))
 		var/primary_target = get_primary_output_target()
 		var/secondary_target = get_secondary_output_target()
@@ -146,9 +148,7 @@
 
 /datum/tgui_window/proc/get_output_targets()
 	var/list/targets = list(get_primary_output_target())
-	// Opt-in diagnostics only: mirror updates to the alternate output channel.
-	if(CONFIG_GET(flag/emergency_tgui_mirror_output))
-		targets += get_secondary_output_target()
+	targets += get_secondary_output_target() // отправляем в оба, чтобы не было проблем с тем, что кто-то из них может не работать по какой-то причине.
 	return targets
 
 /datum/tgui_window/proc/send_output_message(message)
@@ -244,6 +244,8 @@
 		#ifdef TGUI_DEBUGGING
 			log_tgui(client, "[id]/close: suspending")
 		#endif
+		if(!logout && client)
+			winset(client, id, "is-visible=false") // Скрываем окно пока оно прогружается чтобы не было видно "мерцания" от пересоздания
 		status = TGUI_WINDOW_READY
 		send_message("suspend")
 		// You would think that BYOND would null out client or make it stop passing istypes or, y'know, ANYTHING during
@@ -387,17 +389,21 @@
 			close(can_be_suspended = FALSE)
 		if("openLink")
 			client << link(href_list["url"])
-		if("cacheReloaded")
-			// Reinitialize
-			initialize(
-				fancy = initial_fancy,
-				assets = initial_assets,
-				inline_html = initial_inline_html,
-				inline_js = initial_inline_js,
-				inline_css = initial_inline_css)
-			// Resend the assets
-			for(var/asset in sent_assets)
-				send_asset(asset)
+		if("cacheReloaded")g.
+			if(world.time - last_cache_reload < cache_reload_cooldown)
+				log_tgui(client, "[id]/on_message cacheReloaded THROTTLED (last=[last_cache_reload], now=[world.time])")
+			else
+				last_cache_reload = world.time
+				// Reinitialize
+				initialize(
+					fancy = initial_fancy,
+					assets = initial_assets,
+					inline_html = initial_inline_html,
+					inline_js = initial_inline_js,
+					inline_css = initial_inline_css)
+				// Resend the assets
+				for(var/asset in sent_assets)
+					send_asset(asset)
 	if(log_handshake)
 		log_tgui(client,
 			"[id]/on_message done type=[type], status_after=[status], queue_len=[length(message_queue)], fatally_errored=[fatally_errored]",

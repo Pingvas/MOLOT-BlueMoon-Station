@@ -58,3 +58,13 @@
 
 // Goonchat styles
 @include meta.load-css('./goon/chat-dark.scss');
+
+// Пробуем подключить скрипт для плавного отображения
+html:not(.tgui-panel--ready) body {
+  opacity: 0;
+}
+
+html.tgui-panel--ready body {
+  opacity: 1;
+  transition: opacity 0.05s ease-in;
+}

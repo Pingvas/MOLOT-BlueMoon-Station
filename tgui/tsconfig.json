@@ -14,7 +14,14 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": false,
-    "target": "ES2020"
+    "target": "ES2020",
+    "baseUrl": ".",
+    "paths": {
+      "common/*": ["packages/common/*"],
+      "tgui/*": ["packages/tgui/*"],
+      "tgui-panel/*": ["packages/tgui-panel/*"],
+      "tgui-dev-server/*": ["packages/tgui-dev-server/*"]
+    }
   },
   "include": [
     "./*.d.ts",

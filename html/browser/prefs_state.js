@@ -19,31 +19,48 @@
 		}
 	}
 
-	function save() {
-		var y = getScrollTop();
+	function saveToCookie(y) {
 		try {
-			if (window.sessionStorage) {
-				window.sessionStorage.setItem(KEY, String(y));
-				return;
-			}
+			document.cookie = KEY + '=' + String(y) + '; path=/; SameSite=Lax';
 		} catch (e) {
-			// fallback
-		}
-		try {
-			window.name = KEY + '=' + String(y);
-		} catch (e2) {
 			// ignore
 		}
 	}
 
-	function load() {
-		var stored = null;
+	function loadFromCookie() {
 		try {
-			if (window.sessionStorage) stored = window.sessionStorage.getItem(KEY);
+			var m = document.cookie.match(new RegExp('(?:^|;\\s*)' + KEY + '=(\\d+)'));
+			if (m) return m[1];
 		} catch (e) {
-			stored = null;
+			// ignore
 		}
+		return null;
+	}
 
+	function save() {
+		var y = getScrollTop();
+		// Фикс для 516. используем куки.
+		saveToCookie(y);
+		try {
+			if (window.sessionStorage) {
+				window.sessionStorage.setItem(KEY, String(y));
+			}
+		} catch (e) {
+			// ignore
+		}
+	}
+
+	function load() { // выдираем из куки.
+		var stored = null;
+		stored = loadFromCookie();
+		if (stored == null) {
+			try {
+				if (window.sessionStorage) stored = window.sessionStorage.getItem(KEY);
+			} catch (e) {
+				stored = null;
+			}
+		}
+		// Last resort: window.name
 		if (stored == null) {
 			try {
 				var m = (window.name || '').match(new RegExp(KEY + '=(\\d+)'));
@@ -55,8 +72,7 @@
 
 		var y = parseInt(stored, 10);
 		if (!isNaN(y) && y > 0) {
-			// Delay until layout has settled.
-			setTimeout(function () { setScrollTop(y); }, 0);
+			setTimeout(function () { setScrollTop(y); }, 60);
 		}
 	}
 
