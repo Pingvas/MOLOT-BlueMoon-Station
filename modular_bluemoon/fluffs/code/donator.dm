@@ -2065,7 +2065,7 @@
 	name = "LIZARED Open Panties"
 	slot = ITEM_SLOT_UNDERWEAR
 	path = /obj/item/clothing/underwear/briefs/panties/lizared/exposed
-	ckeywhitelist = list("pingvas")
+	ckeywhitelist = list("pingvas", "ty4kahahebe")
 
 /datum/gear/donator/bm/custom_vape
 	name = "Custom E-Cigarette"
