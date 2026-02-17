@@ -854,6 +854,11 @@
 			"icon_state" = "p320b",
 			"item_state" = "p320b",
 			"name" = "Black P320"
+		),
+		"Millie" = list(
+			"icon_state" = "mil",
+			"item_state" = "mil",
+			"name" = "Millie P320"
 		)
 	)
 
