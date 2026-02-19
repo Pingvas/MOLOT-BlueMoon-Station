@@ -30,6 +30,13 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/list/cached_holoform_icons
 	var/last_custom_holoform = 0
 
+	// Character Directory
+	var/show_in_directory = 1	//Show in Character Directory
+	var/directory_tag = "Unset" //Sorting tag to use in character directory
+	var/directory_erptag = "Unset"	//ditto, but for non-vore scenes
+	var/directory_gendertag = "Unset"	//Gender tag for character directory
+	var/directory_ad = ""		//Advertisement stuff to show in character directory.
+
 	//Cooldowns for saving/loading. These are four are all separate due to loading code calling these one after another
 	COOLDOWN_DECLARE(saveprefcooldown)
 	COOLDOWN_DECLARE(loadprefcooldown)

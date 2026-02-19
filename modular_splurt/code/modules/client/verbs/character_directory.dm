@@ -2,6 +2,7 @@ GLOBAL_DATUM(character_directory, /datum/character_directory)
 
 /client
 	COOLDOWN_DECLARE(char_directory_cooldown)
+	var/list/directory_notes
 
 /client/verb/show_character_directory()
 	set name = "Character Directory"
@@ -57,6 +58,12 @@ GLOBAL_DATUM(character_directory, /datum/character_directory)
 		data["personalHornyAntagsTag"] = user.client.prefs.hornyantagspref || "No"
 
 	data["canOrbit"] = isobserver(user)
+
+	// Personal notes
+	if(user?.client)
+		if(!user.client.directory_notes)
+			user.client.directory_notes = load_player_notes(user.client.ckey)
+		data["directory_notes"] = user.client.directory_notes
 
 	return data
 
@@ -139,6 +146,7 @@ GLOBAL_DATUM(character_directory, /datum/character_directory)
 
 		directory_mobs.Add(list(list(
 			"name" = name,
+			"ckey" = C.ckey,
 			"species" = species,
 			"ooc_notes" = ooc_notes,
 			"tag" = tag,
@@ -228,6 +236,24 @@ GLOBAL_DATUM(character_directory, /datum/character_directory)
 			usr.client.prefs.hornyantagspref = new_val
 			usr.client.prefs.save_character()
 			return TRUE
+		if("editNote")
+			if(!usr?.client)
+				return
+			var/target_ckey = params["target_ckey"]
+			if(!target_ckey)
+				return
+			if(!usr.client.directory_notes)
+				usr.client.directory_notes = load_player_notes(usr.client.ckey)
+			var/current_note = usr.client.directory_notes?[target_ckey]
+			var/new_note = strip_html_simple(tgui_input_text(usr, "Заметка об этом игроке", "Личная заметка", current_note, MAX_FLAVOR_LEN, multiline = TRUE, prevent_enter = TRUE), MAX_FLAVOR_LEN)
+			if(isnull(new_note))
+				return
+			if(length(new_note) > 0)
+				usr.client.directory_notes[target_ckey] = new_note
+			else
+				usr.client.directory_notes -= target_ckey
+			save_player_notes(usr.client.ckey, usr.client.directory_notes)
+			return TRUE
 		else
 			return check_for_mind_or_prefs(usr, action, params["overwrite_prefs"])
 
@@ -315,3 +341,20 @@ GLOBAL_DATUM(character_directory, /datum/character_directory)
 			if (can_set_mind)
 				user.mind.directory_ad = new_value
 			return TRUE
+
+/datum/character_directory/proc/load_player_notes(ckey)
+	var/json_file = file("data/player_saves/[ckey[1]]/[ckey]/directory_notes.json")
+	if(!fexists(json_file))
+		return list()
+	var/raw = file2text(json_file)
+	if(!raw)
+		return list()
+	var/list/data = json_decode(raw)
+	if(!islist(data))
+		return list()
+	return data
+
+/datum/character_directory/proc/save_player_notes(ckey, list/notes)
+	var/json_file = file("data/player_saves/[ckey[1]]/[ckey]/directory_notes.json")
+	fdel(json_file)
+	WRITE_FILE(json_file, json_encode(notes))

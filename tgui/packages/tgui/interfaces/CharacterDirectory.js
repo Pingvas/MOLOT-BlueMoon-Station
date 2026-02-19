@@ -1,7 +1,7 @@
 import { Fragment } from 'inferno';
 
 import { useBackend, useLocalState } from '../backend';
-import { Box, Button, Collapsible, Icon, LabeledList, Section, Table } from '../components';
+import { Box, Button, Collapsible, Icon, Input, LabeledList, Section, Table } from '../components';
 import { Window } from '../layouts';
 
 // Muted/pastel colors for ERP tag row backgrounds
@@ -95,21 +95,17 @@ export const CharacterDirectory = (props, context) => {
               </LabeledList>
             </Section>
             <Collapsible title="Теги персонажа" open={false}>
-              <Section
-                buttons={
-                  <Fragment>
-                    <Box color="label" inline>
-                      Сохранить в текущий слот:&nbsp;
-                    </Box>
+              <Section>
+                <LabeledList>
+                  <LabeledList.Item label="Сохранить в текущий слот">
                     <Button
                       icon={overwritePrefs ? 'toggle-on' : 'toggle-off'}
                       selected={overwritePrefs}
                       content={overwritePrefs ? 'Вкл' : 'Выкл'}
                       onClick={() => prefsOnly ? act('noMind', { overwrite_prefs: overwritePrefs }) : setOverwritePrefs(!overwritePrefs)}
                     />
-                  </Fragment>
-                }>
-                <LabeledList>
+                  </LabeledList.Item>
+                  <LabeledList.Divider />
                   <LabeledList.Item label="Пол">
                     <Button
                       fluid
@@ -187,6 +183,8 @@ const PrefTagButton = (props) => {
 };
 
 const ViewCharacter = (props, context) => {
+  const { act, data } = useBackend(context);
+  const { directory_notes } = data;
   const [overlay, setOverlay] = useLocalState(context, 'overlay', null);
 
   const prefTags = [
@@ -275,6 +273,20 @@ const ViewCharacter = (props, context) => {
           {overlay.flavor_text || 'Не задано.'}
         </Box>
       </Section>
+      <Section
+        level={2}
+        title="Личная заметка"
+        buttons={
+          <Button
+            icon="pen"
+            content="Редактировать"
+            onClick={() => act('editNote', { target_ckey: overlay.ckey })}
+          />
+        }>
+        <Box style={{ 'word-break': 'break-all' }} preserveWhitespace>
+          {(directory_notes && directory_notes[overlay.ckey]) || 'Нет заметки.'}
+        </Box>
+      </Section>
     </Section>
   );
 };
@@ -287,9 +299,26 @@ const CharacterDirectoryList = (props, context) => {
   const [sortId, _setSortId] = useLocalState(context, 'sortId', 'name');
   const [sortOrder, _setSortOrder] = useLocalState(context, 'sortOrder', 'name');
   const [overlay, setOverlay] = useLocalState(context, 'overlay', null);
+  const [searchText, setSearchText] = useLocalState(context, 'searchText', '');
+
+  const filteredDirectory = (directory || []).filter(
+    (character) =>
+      !searchText ||
+      character.name.toLowerCase().includes(searchText.toLowerCase())
+  );
 
   return (
-    <Section title="Каталог" buttons={<Button icon="sync" content="Обновить" onClick={() => act('refresh')} />}>
+    <Section title="Каталог" buttons={
+      <Fragment>
+        <Input
+          width="180px"
+          placeholder="Поиск по имени..."
+          value={searchText}
+          onChange={(e, value) => setSearchText(value)}
+        />
+        <Button icon="sync" content="Обновить" ml={1} onClick={() => act('refresh')} />
+      </Fragment>
+    }>
       <Table>
         <Table.Row bold>
           <SortButton id="name">Name</SortButton>
@@ -306,7 +335,7 @@ const CharacterDirectoryList = (props, context) => {
             Ad
           </Table.Cell>
         </Table.Row>
-        {directory
+        {filteredDirectory
           .sort((a, b) => {
             const i = sortOrder ? 1 : -1;
             return a[sortId].localeCompare(b[sortId]) * i;
