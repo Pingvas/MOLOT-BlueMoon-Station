@@ -1,7 +1,7 @@
 import { Fragment } from 'inferno';
 
 import { useBackend, useLocalState } from '../backend';
-import { Box, Button, Collapsible, Icon, Input, LabeledList, Section, Table } from '../components';
+import { Box, Button, Collapsible, Icon, Input, LabeledList, Section, Table, Tooltip } from '../components';
 import { Window } from '../layouts';
 
 // Muted/pastel colors for ERP tag row backgrounds
@@ -358,19 +358,11 @@ const CharacterDirectoryList = (props, context) => {
                     content={character.name}
                     onClick={() => act("orbit", { ref: character.ref })}
                   />
-                ) : (
-                  <Box
-                    inline
-                    tooltip={directory_notes && directory_notes[character.ckey]
-                      ? directory_notes[character.ckey]
-                      : null}
-                    tooltipPosition="right">
-                    {character.name}
-                  </Box>
-                )}
-                {directory_notes && directory_notes[character.ckey] && (
-                  <Icon name="sticky-note" ml={1} color="label" />
-                )}
+                ) : directory_notes && directory_notes[character.ckey] ? (
+                  <Tooltip content={directory_notes[character.ckey]} position="right">
+                    <span>{character.name}</span>
+                  </Tooltip>
+                ) : character.name}
               </Table.Cell>
               <Table.Cell>{character.species}</Table.Cell>
               <Table.Cell>
