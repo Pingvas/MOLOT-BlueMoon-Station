@@ -294,7 +294,7 @@ const ViewCharacter = (props, context) => {
 const CharacterDirectoryList = (props, context) => {
   const { act, data } = useBackend(context);
 
-  const { directory, canOrbit } = data;
+  const { directory, canOrbit, directory_notes } = data;
 
   const [sortId, _setSortId] = useLocalState(context, 'sortId', 'name');
   const [sortOrder, _setSortOrder] = useLocalState(context, 'sortOrder', 'name');
@@ -314,7 +314,7 @@ const CharacterDirectoryList = (props, context) => {
           width="180px"
           placeholder="Поиск по имени..."
           value={searchText}
-          onChange={(e, value) => setSearchText(value)}
+          onInput={(e, value) => setSearchText(value)}
         />
         <Button icon="sync" content="Обновить" ml={1} onClick={() => act('refresh')} />
       </Fragment>
@@ -351,11 +351,26 @@ const CharacterDirectoryList = (props, context) => {
                   <Button
                     color="transparent"
                     icon="ghost"
-                    tooltip="Орбита"
+                    tooltip={directory_notes && directory_notes[character.ckey]
+                      ? directory_notes[character.ckey]
+                      : "Следовать"}
+                    tooltipPosition="right"
                     content={character.name}
                     onClick={() => act("orbit", { ref: character.ref })}
                   />
-                ) : character.name}
+                ) : (
+                  <Box
+                    inline
+                    tooltip={directory_notes && directory_notes[character.ckey]
+                      ? directory_notes[character.ckey]
+                      : null}
+                    tooltipPosition="right">
+                    {character.name}
+                  </Box>
+                )}
+                {directory_notes && directory_notes[character.ckey] && (
+                  <Icon name="sticky-note" ml={1} color="label" />
+                )}
               </Table.Cell>
               <Table.Cell>{character.species}</Table.Cell>
               <Table.Cell>
