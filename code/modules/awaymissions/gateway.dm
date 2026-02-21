@@ -440,9 +440,9 @@ GLOBAL_LIST_EMPTY(gateway_destinations)
 	QDEL_NULL(cam_background)
 	return ..()
 
-/atom/movable/screen/map_view/gateway_port/display_to(mob/show_to, datum/tgui_window/window)
-	. = ..(show_to, window)
-	show_to.client?.register_map_obj(cam_background)
+/atom/movable/screen/map_view/gateway_port/display_to_client(client/show_to)
+	. = ..()
+	show_to?.register_map_obj(cam_background)
 
 /atom/movable/screen/map_view/gateway_port/proc/setup_visuals(datum/gateway_destination/D)
 	our_destination = D
