@@ -38,7 +38,7 @@ GLOBAL_LIST_EMPTY(cached_previews)
 
 /datum/description_profile/proc/on_host_icon_updated(datum/source, updates, result)
 	SIGNAL_HANDLER
-	preview_dirty = TRUE
+	update_preview()
 
 /datum/description_profile/ui_status(mob/user, datum/ui_state/state)
 	. = ..()
