@@ -283,6 +283,11 @@ export const backendMiddleware = store => {
       }
     }
 
+    if (type === 'payloadDropped') {
+      // Server timed out or rejected this payload — discard queue, stop sending
+      store.dispatch(backendRemovePayloadQueue(payload));
+    }
+
     if (type === 'acknowlegePayloadChunk') {
       store.dispatch(backendDequeuePayloadQueue(payload));
       store.dispatch(nextPayloadChunk(payload));
@@ -290,8 +295,10 @@ export const backendMiddleware = store => {
 
     if (type === 'nextPayloadChunk') {
       const { id } = payload;
-      if (outgoingPayloadQueues[id]?.length) {
-        const chunk = outgoingPayloadQueues[id][0];
+      // Always read fresh state after any prior dispatches to get the updated queue
+      const { outgoingPayloadQueues: freshQueues } = selectBackend(store.getState());
+      if (freshQueues[id]?.length) {
+        const chunk = freshQueues[id][0];
         sendMessage({
           type: 'payloadChunk',
           payload: { id, chunk },
