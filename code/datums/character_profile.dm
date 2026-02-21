@@ -30,8 +30,15 @@ GLOBAL_LIST_EMPTY(cached_previews)
 
 /datum/description_profile/Destroy(force, ...)
 	. = ..()
+	var/mob/M = host?.resolve()
+	if(M)
+		UnregisterSignal(M, COMSIG_ATOM_UPDATED_ICON)
 	host = null
 	QDEL_LIST_ASSOC_VAL(viewer_screens)
+
+/datum/description_profile/proc/on_host_icon_updated(datum/source, updates, result)
+	SIGNAL_HANDLER
+	preview_dirty = TRUE
 
 /datum/description_profile/ui_status(mob/user, datum/ui_state/state)
 	. = ..()
