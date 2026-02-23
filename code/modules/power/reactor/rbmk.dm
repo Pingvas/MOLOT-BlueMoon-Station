@@ -937,9 +937,11 @@ BLUEMOON REMOVAL END */
 
 /obj/effect/decal/nuclear_waste/Initialize()
 	. = ..()
+	if(. == INITIALIZE_HINT_QDEL || . == INITIALIZE_HINT_QDEL_FORCE)
+		return .
 	for(var/obj/A in get_turf(src))
 		if(istype(A, /obj/structure))
-			qdel(src) //It is more processing efficient to do this here rather than when searching for available turfs.
+			return INITIALIZE_HINT_QDEL //It is more processing efficient to do this here rather than when searching for available turfs.
 	set_light(3)
 	AddComponent(/datum/component/radioactive, 1000, src, 0)
 
