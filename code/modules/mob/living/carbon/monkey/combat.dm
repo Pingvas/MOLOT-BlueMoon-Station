@@ -100,12 +100,12 @@
 	if(I.force >= best_force)
 		best_force = I.force
 	else
-		addtimer(CALLBACK(src, PROC_REF(pickup_and_wear), I), 5)
+		addtimer(CALLBACK(src, PROC_REF(pickup_and_wear), I), 5, TIMER_DELETE_ME)
 
 	return TRUE
 
 /mob/living/carbon/monkey/proc/pickup_and_wear(obj/item/I)
-	if(QDELETED(I) || I.loc != src)
+	if(QDELETED(src) || QDELETED(I) || I.loc != src)
 		return
 	equip_to_appropriate_slot(I, TRUE)
 
@@ -299,7 +299,7 @@
 
 				if(Adjacent(bodyDisposal))
 					disposing_body = TRUE
-					addtimer(CALLBACK(src, PROC_REF(stuff_mob_in)), 5)
+					addtimer(CALLBACK(src, PROC_REF(stuff_mob_in)), 5, TIMER_DELETE_ME)
 
 				else
 					var/turf/olddist = get_dist(src, bodyDisposal)
@@ -326,6 +326,8 @@
 	set_pickup_target(null)
 
 /mob/living/carbon/monkey/proc/stuff_mob_in()
+	if(QDELETED(src))
+		return
 	if(bodyDisposal && target && Adjacent(bodyDisposal))
 		bodyDisposal.stuff_mob_in(target, src)
 	disposing_body = FALSE

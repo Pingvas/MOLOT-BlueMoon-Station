@@ -140,7 +140,7 @@ GLOBAL_LIST_EMPTY(family_heirlooms)
 	SIGNAL_HANDLER
 	GLOB.family_heirlooms -= heirloom
 
-/datum/quirk/item_quirk/family_heirloom/remove()
+/datum/quirk/family_heirloom/remove()
 	SEND_SIGNAL(quirk_holder, COMSIG_CLEAR_MOOD_EVENT, "family_heirloom")
 	SEND_SIGNAL(quirk_holder, COMSIG_CLEAR_MOOD_EVENT, "family_heirloom_missing")
 	GLOB.family_heirlooms -= heirloom
