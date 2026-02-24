@@ -146,7 +146,7 @@
 			skipcatch = TRUE
 			blocked = TRUE
 	else
-		if(mob_run_block(AM, thrown_item.throwforce, "\the [thrown_item.name]", ATTACK_TYPE_THROWN, 0, throwingdatum.thrower, zone, list()))
+		if(mob_run_block(AM, thrown_item.throwforce, "\the [thrown_item.name]", ATTACK_TYPE_THROWN, 0, null, zone, list()))
 			hitpush = FALSE
 			skipcatch = TRUE
 			blocked = TRUE
