@@ -166,6 +166,9 @@
 	if(!browser_client)
 		return
 	for (var/i in 1 to 10)
+		browser_client = resolve_client()
+		if(!browser_client)
+			return
 		if (winexists(browser_client, window_id))
 			var/atom/send_ref
 			if(ref)
@@ -304,7 +307,7 @@
 		//waits for the window to show up client side before attempting to un-focus it
 		//winexists sleeps until it gets a reply from the client, so we don't need to bother sleeping
 		for (var/i in 1 to 10)
-			if (user && winexists(user, window_id))
+			if (resolve_client() && winexists(user, window_id))
 				if (focusedwindow)
 					winset(user, focusedwindow, "focus=true")
 				else

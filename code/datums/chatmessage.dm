@@ -77,6 +77,7 @@
 
 /datum/chatmessage/Destroy()
 	if (owned_by)
+		UnregisterSignal(owned_by, COMSIG_PARENT_QDELETING)
 		if (in_seen_messages && owned_by.seen_messages)
 			LAZYREMOVEASSOC(owned_by.seen_messages, message_loc, src)
 			in_seen_messages = FALSE
