@@ -78,6 +78,8 @@
 /obj/machinery/atmospherics/Destroy()
 	for(var/i in 1 to device_type)
 		nullifyNode(i)
+	// Break any residual reference cycles between connected atmos machines.
+	nodes = null
 
 
 	SSair.stop_processing_machine(src)
@@ -197,10 +199,14 @@
 	return
 
 /obj/machinery/atmospherics/proc/disconnect(obj/machinery/atmospherics/reference)
+	if(!nodes)
+		return
 	if(istype(reference, /obj/machinery/atmospherics/pipe))
 		var/obj/machinery/atmospherics/pipe/P = reference
 		P.destroy_network()
-	nodes[nodes.Find(reference)] = null
+	var/node_index = nodes.Find(reference)
+	if(node_index)
+		nodes[node_index] = null
 	update_icon()
 
 /obj/machinery/atmospherics/attackby(obj/item/W, mob/user, params)
