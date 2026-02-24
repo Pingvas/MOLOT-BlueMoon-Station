@@ -39,7 +39,7 @@
 
 	AIproc = 1
 
-	while(AIproc && stat != DEAD && (attacked || hungry || rabid || buckled))
+	while(AIproc && !QDELETED(src) && stat != DEAD && (attacked || hungry || rabid || buckled))
 		if(!CHECK_MOBILITY(src, MOBILITY_MOVE)) //also covers buckling. Not sure why buckled is in the while condition if we're going to immediately break, honestly
 			break
 
@@ -63,8 +63,7 @@
 				if(!CanFeedon(Target)) //If they're not able to be fed upon, ignore them.
 					if(!Atkcool)
 						Atkcool = 1
-						spawn(45)
-							Atkcool = 0
+						addtimer(CALLBACK(src, PROC_REF(reset_atkcool)), 45)
 
 						if(Target.Adjacent(src))
 							Target.attack_slime(src)
@@ -74,8 +73,7 @@
 					if(Target.client && Target.health >= 20)
 						if(!Atkcool)
 							Atkcool = 1
-							spawn(45)
-								Atkcool = 0
+							addtimer(CALLBACK(src, PROC_REF(reset_atkcool)), 45)
 
 							if(Target.Adjacent(src))
 								Target.attack_slime(src)
@@ -184,10 +182,11 @@
 		if(!client)
 			if(!rabid && !attacked)
 				var/mob/living/carbon/their_attacker = M.getLAssailant()
-				if(their_attacker != M)
+				if(their_attacker && their_attacker != M)
 					if(prob(50))
 						if(!(their_attacker in Friends))
 							Friends[their_attacker] = 1
+							RegisterSignal(their_attacker, COMSIG_PARENT_QDELETING, PROC_REF(clear_friend))
 						else
 							++Friends[their_attacker]
 		else
