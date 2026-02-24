@@ -91,6 +91,7 @@
 			temperature = affected.return_temperature()
 			volume = affected.reaction_results["fire"]*FIRE_GROWTH_RATE
 			location.assume_air(affected)
+			qdel(affected)
 
 	for(var/A in location)
 		var/atom/AT = A

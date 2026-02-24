@@ -138,6 +138,7 @@
 
 	if(breath)
 		loc.assume_air(breath)
+		qdel(breath)
 		air_update_turf()
 
 /mob/living/carbon/proc/has_smoke_protection()
@@ -376,6 +377,7 @@
 	stank.set_temperature(BODYTEMP_NORMAL)
 
 	miasma_turf.assume_air(stank)
+	qdel(stank)
 
 	miasma_turf.air_update_turf()
 
