@@ -358,6 +358,9 @@
 	if(signal_owner)
 		UnregisterSignal(signal_owner, COMSIG_MOVABLE_MOVED)
 		signal_owner = null
+	if(defib?.paddles == src)
+		defib.paddles = null
+		defib.on = FALSE
 	defib = null
 	return ..()
 
@@ -767,6 +770,9 @@
 	icon_state = "syndiepaddles0"
 	item_state = "syndiepaddles0"
 	base_icon_state = "syndiepaddles"
+
+/obj/item/shockpaddles/syndicate/cyborg
+	req_defib = FALSE
 
 ///////////////////////////////////////////
 /////////Defibrillator Disks//////////////
