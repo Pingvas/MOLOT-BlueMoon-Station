@@ -413,12 +413,17 @@
 /mob/living/simple_animal/hostile/proc/summon_backup(distance, exact_faction_match)
 	do_alert_animation(src)
 	playsound(loc, 'sound/machines/chime.ogg', 50, 1, -1)
+	// Avoid passing a mob as a walk_to target; allied AI can otherwise keep a hard ref
+	// to a soon-to-be-qdel'd caller inside movement/pathing state.
+	var/turf/rally_point = get_turf(targets_from || src)
+	if(!rally_point)
+		return
 	for(var/mob/living/simple_animal/hostile/M in oview(distance, targets_from))
 		if(faction_check_mob(M, TRUE))
 			if(M.AIStatus == AI_OFF)
 				return
 			else
-				M.Goto(src,M.move_to_delay,M.minimum_distance)
+				M.Goto(rally_point, M.move_to_delay, M.minimum_distance)
 
 /mob/living/simple_animal/hostile/proc/CheckFriendlyFire(atom/A)
 	if(check_friendly_fire)
