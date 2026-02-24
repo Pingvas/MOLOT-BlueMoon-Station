@@ -25,7 +25,8 @@
 	//heart attack stuff
 	handle_heart(delta_time, times_fired)
 
-	dna.species.spec_life(src) // for mutantraces
+	if(dna?.species)
+		dna.species.spec_life(src) // for mutantraces
 	return (stat != DEAD) && !QDELETED(src)
 
 /mob/living/carbon/human/PhysicalLife(seconds, times_fired)
@@ -81,7 +82,7 @@
 		..()
 
 /mob/living/carbon/human/breathe()
-	if(!dna.species.breathe(src))
+	if(!dna || !dna.species.breathe(src))
 		..()
 
 /mob/living/carbon/human/check_breath(datum/gas_mixture/breath)
@@ -130,7 +131,8 @@
 			lun.check_breath(breath,src)
 
 /mob/living/carbon/human/handle_environment(datum/gas_mixture/environment)
-	dna.species.handle_environment(environment, src)
+	if(dna?.species)
+		dna.species.handle_environment(environment, src)
 
 ///FIRE CODE
 /mob/living/carbon/human/handle_fire()
