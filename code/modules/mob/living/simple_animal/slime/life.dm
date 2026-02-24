@@ -63,8 +63,7 @@
 				if(!CanFeedon(Target)) //If they're not able to be fed upon, ignore them.
 					if(!Atkcool)
 						Atkcool = 1
-						spawn(45)
-							Atkcool = 0
+						addtimer(CALLBACK(src, PROC_REF(reset_atkcool)), 45, TIMER_DELETE_ME)
 
 						if(Target.Adjacent(src))
 							Target.attack_slime(src)
@@ -74,8 +73,7 @@
 					if(Target.client && Target.health >= 20)
 						if(!Atkcool)
 							Atkcool = 1
-							spawn(45)
-								Atkcool = 0
+							addtimer(CALLBACK(src, PROC_REF(reset_atkcool)), 45, TIMER_DELETE_ME)
 
 							if(Target.Adjacent(src))
 								Target.attack_slime(src)
@@ -104,6 +102,9 @@
 		sleep(sleeptime + 2) // this is about as fast as a player slime can go
 
 	AIproc = 0
+
+/mob/living/simple_animal/slime/proc/reset_atkcool()
+	Atkcool = 0
 
 /mob/living/simple_animal/slime/handle_environment(datum/gas_mixture/environment)
 	if(!environment)

@@ -124,8 +124,7 @@
 					path_to_vent = 0
 					stop_automated_movement = 1
 					spider_steps_taken = 0
-					spawn(50)
-						stop_automated_movement = 0
+					addtimer(CALLBACK(src, PROC_REF(resume_automated_movement)), 50, TIMER_DELETE_ME)
 					TSVentCrawlRandom(entry_vent)
 				else
 					spider_steps_taken++
@@ -166,6 +165,9 @@
 			// If none of the general actions apply, check for class-specific actions.
 			spider_special_action()
 		..()
+
+/mob/living/simple_animal/hostile/retaliate/poison/terror_spider/proc/resume_automated_movement()
+	stop_automated_movement = 0
 
 /mob/living/simple_animal/hostile/retaliate/poison/terror_spider/adjustBruteLoss(amount, updating_health = TRUE, forced, only_organic)
 	. = ..()

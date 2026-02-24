@@ -265,11 +265,11 @@
 
 
 	do_lewd_action(M)
-	addtimer(CALLBACK(src, PROC_REF(do_lewd_action), M), rand(8, 12))
+	addtimer(CALLBACK(src, PROC_REF(do_lewd_action), M), rand(8, 12), TIMER_DELETE_ME)
 
 	// Regular sex has an extra action per tick to seem less slow and robotic
 	if(deathclaw_mode != "abomination" || M.client?.prefs.unholypref != "Yes")
-		addtimer(CALLBACK(src, PROC_REF(do_lewd_action), M), rand(12, 16))
+		addtimer(CALLBACK(src, PROC_REF(do_lewd_action), M), rand(12, 16), TIMER_DELETE_ME)
 
 /mob/living/simple_animal/hostile/deathclaw/LoseTarget()
 	. = ..()
