@@ -971,7 +971,8 @@ GLOBAL_VAR_INIT(embedpocalypse, FALSE) // if true, all items will be able to emb
 	SEND_SIGNAL(src, COMSIG_ITEM_MOUSE_ENTER, location, control, params)
 	if(get(src, /mob) == usr && !QDELETED(src))
 		var/mob/living/L = usr
-		if(usr.client.prefs.enable_tips)
+		var/in_open_storage = usr.active_storage?.parent == src.loc // tooltip browser panel overlaps storage items and intercepts mouse events, causing a flicker loop
+		if(usr.client.prefs.enable_tips && !in_open_storage)
 			var/timedelay = usr.client.prefs.tip_delay/100
 			usr.client.tip_timer = addtimer(CALLBACK(src, PROC_REF(openTip), location, control, params, usr), timedelay, TIMER_STOPPABLE)//timer takes delay in deciseconds, but the pref is in milliseconds. dividing by 100 converts it.
 		if(usr.client.prefs.outline_enabled)

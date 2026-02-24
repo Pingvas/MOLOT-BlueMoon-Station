@@ -302,6 +302,11 @@
 
 	orbiters = null // The component is attached to us normaly and will be deleted elsewhere
 
+	managed_vis_overlays = null
+	managed_overlays = null
+	remove_overlays = null
+	add_overlays = null
+
 	LAZYCLEARLIST(overlays)
 
 	for(var/i in targeted_by)
@@ -1399,8 +1404,12 @@
 	update_action_buttons()
 
 /atom/proc/get_filter(name)
-	if(filter_data && filter_data[name])
-		return filters[filter_data.Find(name)]
+	if(!length(filter_data) || !filter_data[name])
+		return
+	var/filter_index = filter_data.Find(name)
+	if(!filter_index || filter_index > length(filters))
+		return
+	return filters[filter_index]
 
 /// Returns the indice in filters of the given filter name.
 /// If it is not found, returns null.

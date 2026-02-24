@@ -144,14 +144,14 @@ export const settingsMiddleware = store => {
         });
       }
       // Save settings to the web storage
-      // Only persist on user actions or valid loads (not on failed/empty loads)
-      if (type === updateSettings.type || payload?.version) {
+      // Only persist on explicit user actions (updateSettings).
+      // Do NOT save on loadSettings — that includes server theme pushes
+      // and hydration, which may run before stored settings are loaded,
+      // overwriting user data with initialState defaults.
+      if (type === updateSettings.type) {
         storage.set('panel-settings', settings).catch(err => {
           console.error('Failed to save panel settings:', err);
         });
-      }
-      // Persist all panel state server-side on user changes (debounced)
-      if (type === updateSettings.type) {
         scheduleSaveToServer(store);
       }
       return;

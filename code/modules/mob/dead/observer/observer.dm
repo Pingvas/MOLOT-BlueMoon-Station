@@ -182,6 +182,16 @@ GLOBAL_VAR_INIT(observer_default_invisibility, INVISIBILITY_OBSERVER)
 	if(data_huds_on)
 		remove_data_huds()
 
+	// Ghost accessories are mutable appearances kept in both dedicated vars and managed_overlays.
+	// Clear them explicitly before parent Destroy() to avoid lingering soft GC failures.
+	if(hair_overlay || facial_hair_overlay || managed_overlays)
+		cut_overlays()
+	hair_overlay = null
+	facial_hair_overlay = null
+	managed_overlays = null
+	realized_overlays = null
+	realized_underlays = null
+
 	var/image/departing_default = ghostimage_default
 	var/image/departing_simple = ghostimage_simple
 	// updateghostimages() removes using the current global ghost image lists, so once

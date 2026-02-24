@@ -166,6 +166,7 @@ SUBSYSTEM_DEF(garbage)
 			break // Everything else is newer, skip them
 		count++
 		var/refID = L[2]
+		var/queued_qdel_hint = (length(L) >= 3) ? L[3] : null
 		var/datum/D
 		D = locate(refID)
 
@@ -213,7 +214,7 @@ SUBSYSTEM_DEF(garbage)
 					to_chat(admin, "## TESTING: GC: -- [ADMIN_VV(D)] | [type][extra_name] was unable to be GC'd --")
 				#endif
 				I.failures++
-				GLOB.gc_failure_cache.log_gc_failure(D, type, refID, GCd_at_time)
+				GLOB.gc_failure_cache.log_gc_failure(D, type, refID, GCd_at_time, queued_qdel_hint)
 
 				if (I.qdel_flags & QDEL_ITEM_SUSPENDED_FOR_LAG)
 					#ifdef REFERENCE_TRACKING
@@ -240,7 +241,7 @@ SUBSYSTEM_DEF(garbage)
 		queue.Cut(1,count+1)
 		count = 0
 
-/datum/controller/subsystem/garbage/proc/Queue(datum/D, level = GC_QUEUE_CHECK)
+/datum/controller/subsystem/garbage/proc/Queue(datum/D, level = GC_QUEUE_CHECK, qdel_hint = null)
 	if (isnull(D))
 		return
 	if (level > GC_QUEUE_COUNT)
@@ -252,7 +253,7 @@ SUBSYSTEM_DEF(garbage)
 	D.gc_destroyed = gctime
 	var/list/queue = queues[level]
 
-	queue[++queue.len] = list(gctime, refid) // not += for byond reasons
+	queue[++queue.len] = list(gctime, refid, qdel_hint) // not += for byond reasons
 
 //this is mainly to separate things profile wise.
 /datum/controller/subsystem/garbage/proc/HardDelete(datum/D)
@@ -343,7 +344,7 @@ SUBSYSTEM_DEF(garbage)
 			return
 		switch(hint)
 			if (QDEL_HINT_QUEUE) //qdel should queue the object for deletion.
-				SSgarbage.Queue(D)
+				SSgarbage.Queue(D, qdel_hint = hint)
 			if (QDEL_HINT_IWILLGC)
 				D.gc_destroyed = world.time
 				return
@@ -363,17 +364,17 @@ SUBSYSTEM_DEF(garbage)
 				#endif
 				I.no_respect_force++
 
-				SSgarbage.Queue(D)
+				SSgarbage.Queue(D, qdel_hint = hint)
 			if (QDEL_HINT_HARDDEL) //qdel should assume this object won't gc, and queue a hard delete
-				SSgarbage.Queue(D, GC_QUEUE_HARDDELETE)
+				SSgarbage.Queue(D, GC_QUEUE_HARDDELETE, qdel_hint = hint)
 			if (QDEL_HINT_HARDDEL_NOW) //qdel should assume this object won't gc, and hard del it post haste.
 				SSgarbage.HardDelete(D)
 			#ifdef REFERENCE_TRACKING
 			if (QDEL_HINT_FINDREFERENCE) //qdel will, if REFERENCE_TRACKING is enabled, display all references to this object, then queue the object for deletion.
-				SSgarbage.Queue(D)
+				SSgarbage.Queue(D, qdel_hint = hint)
 				D.find_references()
 			if (QDEL_HINT_IFFAIL_FINDREFERENCE) //qdel will, if REFERENCE_TRACKING is enabled and the object fails to collect, display all references to this object.
-				SSgarbage.Queue(D)
+				SSgarbage.Queue(D, qdel_hint = hint)
 				SSgarbage.reference_find_on_fail["\ref[D]"] = TRUE
 			#endif
 			else
@@ -382,6 +383,6 @@ SUBSYSTEM_DEF(garbage)
 					testing("WARNING: [D.type] is not returning a qdel hint. It is being placed in the queue. Further instances of this type will also be queued.")
 				#endif
 				I.no_hint++
-				SSgarbage.Queue(D)
+				SSgarbage.Queue(D, qdel_hint = hint)
 	else if(D.gc_destroyed == GC_CURRENTLY_BEING_QDELETED)
 		CRASH("[D.type] destroy proc was called multiple times, likely due to a qdel loop in the Destroy logic")

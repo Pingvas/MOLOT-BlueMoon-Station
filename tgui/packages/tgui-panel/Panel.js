@@ -4,13 +4,17 @@
  * @license MIT
  */
 
+import { useSelector } from 'common/redux';
+import { useLocalState } from 'tgui/backend';
 import { Button, Section, Stack } from 'tgui/components';
 import { KitchenSink, useDebug } from 'tgui/debug';
 import { IS_DEVELOPMENT } from 'tgui/env';
 import { Pane } from 'tgui/layouts';
 
 import { NowPlayingWidget, useAudio } from './audio';
-import { ChatPanel, ChatTabs } from './chat';
+import { ChatPanel, ChatSearchBar, ChatTabs } from './chat';
+import { chatRenderer } from './chat/renderer';
+import { selectChat } from './chat/selectors';
 import { EmotePanel, useEmotes } from './emotes';
 import { useGame } from './game';
 import { Notifications } from './Notifications';
@@ -22,6 +26,9 @@ export const Panel = (props, context) => {
   const audio = useAudio(context);
   const settings = useSettings(context);
   const game = useGame(context);
+  const chat = useSelector(context, selectChat);
+  const [searchOpen, setSearchOpen] = useLocalState(
+    context, 'chatSearchOpen', false);
   if (IS_DEVELOPMENT) {
     const debug = useDebug(context);
     if (debug.kitchenSink) {
@@ -48,9 +55,18 @@ export const Panel = (props, context) => {
               <Stack.Item shrink={0}>
                 <Button
                   color="grey"
+                  selected={searchOpen}
+                  icon="search"
+                  tooltip="Поиск"
+                  tooltipPosition="bottom-start"
+                  onClick={() => setSearchOpen(!searchOpen)} />
+              </Stack.Item>
+              <Stack.Item>
+                <Button
+                  color="grey"
                   selected={emotes.visible}
                   icon="asterisk"
-                  tooltip="Emote Panel"
+                  tooltip="Панель эмоций"
                   tooltipPosition="bottom-start"
                   onClick={() => emotes.toggle()} />
               </Stack.Item>
@@ -59,7 +75,7 @@ export const Panel = (props, context) => {
                   color="grey"
                   selected={audio.visible}
                   icon="music"
-                  tooltip="Music player"
+                  tooltip="Музыкальный плеер"
                   tooltipPosition="bottom-start"
                   onClick={() => audio.toggle()} />
               </Stack.Item>
@@ -68,8 +84,8 @@ export const Panel = (props, context) => {
                   icon={settings.visible ? 'times' : 'cog'}
                   selected={settings.visible}
                   tooltip={settings.visible
-                    ? 'Close settings'
-                    : 'Open settings'}
+                    ? 'Закрыть настройки'
+                    : 'Открыть настройки'}
                   tooltipPosition="bottom-start"
                   onClick={() => settings.toggle()} />
               </Stack.Item>
@@ -97,9 +113,21 @@ export const Panel = (props, context) => {
         )}
         <Stack.Item grow>
           <Section fill fitted position="relative">
+            {searchOpen && (
+              <ChatSearchBar
+                onClose={() => setSearchOpen(false)} />
+            )}
             <Pane.Content scrollable>
               <ChatPanel lineHeight={settings.lineHeight} />
             </Pane.Content>
+            {!chat.scrollTracking && (
+              <Button
+                className="Chat__scrollButton"
+                icon="arrow-down"
+                onClick={() => chatRenderer.scrollToBottom()}>
+                Прокрутить вниз
+              </Button>
+            )}
             <Notifications>
               {game.connectionLostAt && (
                 <Notifications.Item
@@ -107,17 +135,17 @@ export const Panel = (props, context) => {
                     <Button
                       color="white"
                       onClick={() => Byond.command('.reconnect')}>
-                      Reconnect
+                      Переподключиться
                     </Button>
                   )}>
-                  You are either AFK, experiencing lag or the connection
-                  has closed.
+                  Вы либо AFK, испытываете лаги, либо соединение
+                  было разорвано.
                 </Notifications.Item>
               )}
               {game.roundRestartedAt && (
                 <Notifications.Item>
-                  The connection has been closed because the server is
-                  restarting. Please wait while you automatically reconnect.
+                  Соединение было закрыто, так как сервер
+                  перезапускается. Пожалуйста, подождите автоматического переподключения.
                 </Notifications.Item>
               )}
             </Notifications>

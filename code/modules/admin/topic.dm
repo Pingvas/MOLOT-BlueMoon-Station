@@ -2745,6 +2745,13 @@
 		else
 			error_viewer.show_to(owner, null, href_list["viewruntime_linear"])
 
+	else if(href_list["viewgcfailure_worldscan"])
+		var/datum/gc_failure_viewer/gc_failure_entry/entry = locate(href_list["viewgcfailure_worldscan"])
+		if(!istype(entry))
+			to_chat(usr, span_warning("GC failure entry больше не существует."))
+			return
+		INVOKE_ASYNC(entry, TYPE_PROC_REF(/datum/gc_failure_viewer/gc_failure_entry, trigger_world_scan), owner, null)
+
 	else if(href_list["viewgcfailure"])
 		var/datum/gc_failure_viewer/viewer = locate(href_list["viewgcfailure"])
 		if(!istype(viewer))

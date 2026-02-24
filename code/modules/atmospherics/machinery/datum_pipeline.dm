@@ -15,6 +15,7 @@
 
 /datum/pipeline/Destroy()
 	SSair.networks -= src
+	SSair.currentrun -= src
 	if(air?.return_volume())  //	BLUEMOON EDIT: TODO:runtime
 		temporarily_store_air()
 	for(var/obj/machinery/atmospherics/pipe/P as anything in members)
