@@ -1400,7 +1400,10 @@
 
 /atom/proc/get_filter(name)
 	if(filter_data && filter_data[name])
-		return filters[filter_data.Find(name)]
+		var/filter_index = filter_data.Find(name)
+		if(!filter_index || !islist(filters) || filter_index > filters.len)
+			return
+		return filters[filter_index]
 
 /// Returns the indice in filters of the given filter name.
 /// If it is not found, returns null.
