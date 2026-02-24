@@ -1126,8 +1126,8 @@ GLOBAL_LIST_INIT(blacklisted_builds, list(
 	view = new_size
 	var/list/actualview = getviewsize(view)
 	update_clickcatcher()
-	parallax_holder.Reset()
-	mob.hud_used.screentip_text.update_view()
+	parallax_holder?.Reset()
+	mob?.hud_used?.screentip_text?.update_view()
 	mob.reload_fullscreen()
 	if (isliving(mob))
 		var/mob/living/M = mob
