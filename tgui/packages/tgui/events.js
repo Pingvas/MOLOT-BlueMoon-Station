@@ -223,10 +223,18 @@ document.addEventListener('keydown', e => {
 });
 
 document.addEventListener('keyup', e => {
+  const physical = e.code;
   if (canStealFocus(e.target)) {
+    // Key was pressed before focus moved to input — forward the keyup
+    // so BYOND receives KeyUp and the key doesn't stay stuck.
+    if (keyHeldByCode[physical]) {
+      const key = new KeyEvent(e, 'keyup');
+      globalEvents.emit('keyup', key);
+      globalEvents.emit('key', key);
+      keyHeldByCode[physical] = false;
+    }
     return;
   }
-  const physical = e.code;
   const key = new KeyEvent(e, 'keyup');
   globalEvents.emit('keyup', key);
   globalEvents.emit('key', key);

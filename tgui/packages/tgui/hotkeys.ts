@@ -216,4 +216,34 @@ export const setupHotKeys = () => {
   globalEvents.on('key', (key: KeyEvent) => {
     handlePassthrough(key);
   });
+  // Fix for stuck keys pressed on the map and released in TGUI.
+  // Raw DOM listeners bypass the canStealFocus filter in events.js.
+  // If keyup has no preceding keydown in this context, the key was
+  // pressed on the map side — forward KeyUp to BYOND.
+  const pressedInBrowser: Record<string, boolean> = {};
+
+  document.addEventListener('keydown', (e: KeyboardEvent) => {
+    const byondKey = keyToByond(new KeyEvent(e, 'keydown', false));
+    if (byondKey) {
+      pressedInBrowser[byondKey] = true;
+    }
+  });
+
+  document.addEventListener('keyup', (e: KeyboardEvent) => {
+    const byondKey = keyToByond(new KeyEvent(e, 'keyup'));
+    if (!byondKey) {
+      return;
+    }
+    if (!pressedInBrowser[byondKey]) {
+      logger.debug(`forwarding orphaned KeyUp "${byondKey}"`);
+      Byond.command(`KeyUp "${byondKey}"`);
+    }
+    pressedInBrowser[byondKey] = false;
+  });
+
+  window.addEventListener('blur', () => {
+    for (const key of Object.keys(pressedInBrowser)) {
+      pressedInBrowser[key] = false;
+    }
+  });
 };
