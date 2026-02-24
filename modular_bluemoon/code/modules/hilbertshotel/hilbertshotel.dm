@@ -300,12 +300,15 @@
 				qdel(A)
 
 	// Place the STORED atoms back into the room
+	var/list/stored_data = storedRooms["[roomNumber]"]
+	var/stored_size = length(stored_data)
 	var/turfNumber = 1
 	for(var/i in 0 to mapTemplate.width - 1)
 		for(var/j in 0 to mapTemplate.height - 1)
-			for(var/atom/movable/A in storedRooms["[roomNumber]"][turfNumber])
-				if(istype(A.loc, /obj/item/abstracthotelstorage)) // Don't want to recall something that's been moved
-					A.forceMove(locate(roomReservation.bottom_left_coords[1] + i, roomReservation.bottom_left_coords[2] + j, roomReservation.bottom_left_coords[3]))
+			if(turfNumber <= stored_size)
+				for(var/atom/movable/A in stored_data[turfNumber])
+					if(istype(A.loc, /obj/item/abstracthotelstorage)) // Don't want to recall something that's been moved
+						A.forceMove(locate(roomReservation.bottom_left_coords[1] + i, roomReservation.bottom_left_coords[2] + j, roomReservation.bottom_left_coords[3]))
 			turfNumber++
 	for(var/obj/item/abstracthotelstorage/S in SShilbertshotel.storageTurf)
 		if((S.roomNumber == roomNumber) && (S.parentSphere == src))
