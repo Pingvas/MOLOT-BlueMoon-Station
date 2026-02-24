@@ -50,6 +50,8 @@
 	QDEL_NULL(physiology)
 	QDEL_NULL_LIST(vore_organs) // CITADEL EDIT belly stuff
 	GLOB.human_list -= src
+	GLOB.suit_sensors_list -= src
+	GLOB.latejoiners -= src
 	return ..()
 
 /mob/living/carbon/human/prepare_data_huds()
