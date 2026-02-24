@@ -293,7 +293,7 @@
 /obj/vehicle/sealed/mecha/proc/restore_equipment()
 	equipment_disabled = FALSE
 	for(var/occupant in occupants)
-		var/mob/mob_occupant
+		var/mob/mob_occupant = occupant
 		SEND_SOUND(mob_occupant, sound('sound/items/timer.ogg', volume=50))
 		to_chat(mob_occupant, "<span=notice>Equipment control unit has been rebooted successfully.</span>")
 		mob_occupant.update_mouse_pointer()
@@ -751,7 +751,9 @@
 		return
 	if(bumpsmash) //Need a pilot to push the PUNCH button.
 		if(COOLDOWN_FINISHED(src, mecha_bump_smash))
-			obstacle.mech_melee_attack(src)
+			var/list/controllers = return_controllers_with_flag(VEHICLE_CONTROL_MELEE)
+			var/mob/driver = length(controllers) ? controllers[1] : null
+			obstacle.mech_melee_attack(src, driver)
 			COOLDOWN_START(src, mecha_bump_smash, smashcooldown)
 			if(!obstacle || obstacle.CanPass(src,get_step(src,dir)))
 				step(src,dir)

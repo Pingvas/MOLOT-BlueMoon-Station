@@ -504,8 +504,8 @@
 
 // Actually puts the circuit inside, doesn't perform any checks.
 /obj/item/electronic_assembly/proc/add_component(obj/item/integrated_circuit/component)
-	component.forceMove(get_object())
 	component.assembly = src
+	component.forceMove(get_object())
 	assembly_components |= component
 
 	//increment numbers for diagnostic hud
