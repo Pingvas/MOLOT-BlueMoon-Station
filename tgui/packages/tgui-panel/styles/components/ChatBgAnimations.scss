@@ -324,7 +324,7 @@ $bg: '.Chat[class*="Chat--bgAnim-"]';
   background-size:
     250px 300px, 300px 250px, 200px 350px,
     350px 280px, 280px 320px, 320px 260px;
-  animation: bgAnimSakura 18s linear infinite;
+  animation: bgAnimSakura 36s linear infinite;
 }
 
 @keyframes bgAnimSakura {
@@ -335,8 +335,8 @@ $bg: '.Chat[class*="Chat--bgAnim-"]';
   }
   to {
     background-position:
-      125px 300px, 150px 250px, 100px 350px,
-      175px 280px, 140px 320px, 160px 260px;
+      250px 600px, 300px 500px, 200px 700px,
+      350px 560px, 280px 640px, 320px 520px;
   }
 }
 
@@ -435,7 +435,7 @@ $bg: '.Chat[class*="Chat--bgAnim-"]';
   }
   to {
     background-position:
-      20px -300px, -15px -350px, 25px -250px,
-      -20px -320px, 18px -280px, -12px -340px;
+      0 -300px, 0 -350px, 0 -250px,
+      0 -320px, 0 -280px, 0 -340px;
   }
 }
