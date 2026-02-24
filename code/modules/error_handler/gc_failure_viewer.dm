@@ -237,6 +237,7 @@ GLOBAL_DATUM_INIT(gc_failure_cache, /datum/gc_failure_viewer/gc_failure_cache, n
 		extra_info = build_extra_info(D)
 		build_extended_info(D)
 		#ifdef TESTING
+		build_reference_info(D)
 		build_testing_info(D)
 		#endif
 	name = "<b>\[[TIME_STAMP("hh:mm:ss", FALSE)]]</b> GC failure: <b>[type_path]</b>[obj_name ? " \"[html_encode(obj_name)]\"" : ""] ([ref_id])"
@@ -378,8 +379,8 @@ GLOBAL_DATUM_INIT(gc_failure_cache, /datum/gc_failure_viewer/gc_failure_cache, n
 			stats += "SUSPENDED"
 		qdel_stats_info = stats.Join(", ")
 
-	// Targeted reference search — scans GLOB vars and GC queues
-	build_reference_info(D)
+	// Reference scanning is too expensive for production hot path (scans all GLOB vars,
+	// all subsystems, neighbor back-refs). Moved to TESTING auto-collect and on-demand button.
 
 #ifdef TESTING
 /// TESTING-only deep data collection. Full var dump, signal details, component details, timer details.
@@ -726,15 +727,18 @@ GLOBAL_DATUM_INIT(gc_failure_cache, /datum/gc_failure_viewer/gc_failure_cache, n
 		html += "<div class='gc_failure'>[html_encode(qdel_stats_info)]</div>"
 		html += "</details>"
 
-	// Found references (available in both prod and dev)
+	// Found references — on-demand in production, auto-collected in TESTING
 	if (length(found_references))
 		html += "<details open><summary><b style='color:#FF6666'>Найденные ссылки ([length(found_references)])</b></summary>"
 		html += "<div class='gc_failure'>"
 		for (var/line in found_references)
 			html += "[html_encode(line)]<br>"
 		html += "</div></details>"
-	else if (found_references)
+	else if (islist(found_references))
 		html += "<span class='gc_failure_line'><b>Найденные ссылки:</b> не найдено быстрым сканированием (GLOB, подсистемы, соседи)</span><br>"
+	else
+		html += "<br><a href='?_src_=holder;[HrefToken()];viewgcfailure_refscan=[REF(src)]' style='background:#333;color:#88AAFF;padding:4px 12px;border:1px solid #555;border-radius:4px;text-decoration:none;font-family:Courier New'>"
+		html += "Сканировать ссылки (GLOB, подсистемы, соседи) — может вызвать лаг!</a><br>"
 
 	// World scan button / status
 	if (world_scan_done)

@@ -2752,6 +2752,24 @@
 			return
 		INVOKE_ASYNC(entry, TYPE_PROC_REF(/datum/gc_failure_viewer/gc_failure_entry, trigger_world_scan), owner, null)
 
+	else if(href_list["viewgcfailure_refscan"])
+		var/datum/gc_failure_viewer/gc_failure_entry/entry = locate(href_list["viewgcfailure_refscan"])
+		if(!istype(entry))
+			to_chat(usr, span_warning("GC failure entry больше не существует."))
+			return
+		if(!entry.datum_ref)
+			to_chat(usr, span_warning("Нет ссылки на объект для сканирования."))
+			return
+		var/response = tgui_alert(usr, "Сканирование ссылок пройдёт по всем GLOB-переменным, подсистемам и соседним объектам. Это может вызвать лаг на несколько секунд. Продолжить?", "Сканирование ссылок", list("Да", "Нет"))
+		if(response != "Да")
+			return
+		var/datum/D = locate(entry.datum_ref)
+		if(!D || D.type != text2path(entry.type_path))
+			to_chat(usr, span_warning("Объект больше не существует, сканирование невозможно."))
+			return
+		entry.build_reference_info(D)
+		entry.show_to(owner)
+
 	else if(href_list["viewgcfailure"])
 		var/datum/gc_failure_viewer/viewer = locate(href_list["viewgcfailure"])
 		if(!istype(viewer))
