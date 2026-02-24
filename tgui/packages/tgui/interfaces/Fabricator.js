@@ -324,7 +324,7 @@ export const FabricatorContent = (props, context) => {
 
         <Flex.Item>
           <Section
-            title={hacked ? 'Designs (Safety protocols: DISABLED)' : 'Designs'}
+            title={hacked ? 'Дизайны (Взлом!)' : 'Дизайны'}
             buttons={(
               <>
                 Search:
@@ -333,6 +333,12 @@ export const FabricatorContent = (props, context) => {
                   value={searchText}
                   onInput={(e, value) => setSearchText(value)}
                   mx={1}
+                />
+                <Button
+                  icon="times"
+                  disabled={!searchText}
+                  onClick={() => setSearchText('')}
+                  mr={1}
                 />
                 <Button
                   icon="rotate"
@@ -462,6 +468,7 @@ const ItemList = (props, context) => {
               padding: 0,
               height: ROW_BTN_HEIGHT,
               display: 'flex',
+              'align-items': 'center',
             }}
             onClick={() => act('build', { id: item.id, amount: 1 })}
           >
