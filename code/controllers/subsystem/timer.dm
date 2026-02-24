@@ -115,6 +115,8 @@ SUBSYSTEM_DEF(timer)
 
 		var/datum/callback/callBack = ctime_timer.callBack
 		if (!callBack)
+			if (ctime_timer.spent || QDELETED(ctime_timer))
+				continue
 			CRASH("Invalid timer: [get_timer_debug_string(ctime_timer)] world.time: [world.time], \
 				head_offset: [head_offset], practical_offset: [practical_offset], REALTIMEOFDAY: [REALTIMEOFDAY]")
 
@@ -423,8 +425,8 @@ SUBSYSTEM_DEF(timer)
 	if (flags & TIMER_CLIENT_TIME)
 		if (!spent)
 			spent = world.time
-			if (in_timer_clienttime_queue)
-				SStimer.clienttime_timers -= src
+		if (in_timer_clienttime_queue)
+			SStimer.clienttime_timers -= src
 		in_timer_clienttime_queue = FALSE
 		in_timer_bucket_queue = FALSE
 		in_timer_second_queue = FALSE
