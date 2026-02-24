@@ -8,8 +8,8 @@ import { shallowDiffers } from 'common/react';
 import { debounce } from 'common/timer';
 import { Component, createRef } from 'inferno';
 
-import { createLogger } from '../logging';
 import { sendMessage } from '../backend';
+import { createLogger } from '../logging';
 import { computeBoxProps } from './Box';
 
 const logger = createLogger('ByondUi');
