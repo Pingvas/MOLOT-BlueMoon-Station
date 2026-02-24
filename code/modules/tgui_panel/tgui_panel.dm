@@ -69,6 +69,10 @@
 /datum/tgui_panel/proc/on_message(type, payload, href_list)
 	if(type == "ready")
 		broken = FALSE
+		// Switch to new UI now that the panel is actually loaded.
+		// Respects the user's explicit choice to use legacy chat.
+		if(!client.use_legacy_chat)
+			winset(client, "legacy_output_selector", "left=output_browser")
 		window.send_message("update", list(
 			"config" = list(
 				"client" = list(

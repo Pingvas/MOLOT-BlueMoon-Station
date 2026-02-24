@@ -103,10 +103,8 @@ const setupApp = () => {
     queuedAfterDrain: window.__updateQueue__?.length || 0,
   });
 
-  // Unhide the panel
-  Byond.winset('legacy_output_selector', {
-    left: 'output_browser',
-  });
+  // The DM on_message("ready") handler switches to output_browser
+  // when the panel reports ready, respecting the use_legacy_chat flag.
 
 };
 
