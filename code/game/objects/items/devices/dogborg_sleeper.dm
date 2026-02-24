@@ -440,7 +440,7 @@
 /obj/item/dogborg/sleeper/proc/CheckAccepted(obj/item/I)
 	return is_type_in_typecache(I, important_items)
 
-/obj/item/dogborg/sleeper/proc/inject_chem(chem, mob/living/silicon/robot/hound)
+/obj/item/dogborg/sleeper/proc/inject_chem(datum/reagent/chem, mob/living/silicon/robot/hound)
 	if(!hound || !patient || !patient.reagents)
 		return
 	if(hound.cell.charge <= inject_cost + 50) //This is so borgs don't kill themselves with it. Remember, 750 charge used every injection.
