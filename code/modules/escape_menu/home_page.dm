@@ -101,6 +101,7 @@
 	filters = null
 	if(home_button_text)
 		vis_contents -= home_button_text
+		home_button_text.moveToNullspace()
 	escape_menu = null
 	QDEL_NULL(on_click_callback)
 	QDEL_NULL(home_button_text)

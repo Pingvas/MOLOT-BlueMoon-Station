@@ -150,6 +150,7 @@ GLOBAL_LIST_INIT(available_ui_styles, list(
 		C.screen -= extra_inventory
 		C.screen -= hotkeybuttons
 		C.screen -= infodisplay
+		C.screen -= screenoverlays
 		for(var/key in plane_masters)
 			C.screen -= plane_masters[key]
 
