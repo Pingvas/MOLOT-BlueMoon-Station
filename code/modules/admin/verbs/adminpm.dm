@@ -174,7 +174,8 @@
 		if(holder && recipient.holder && !current_ticket) //Both are admins, and this is not a reply to our own ticket.
 			badmin = TRUE
 		if(recipient.holder && !badmin)
-			SEND_SIGNAL(current_ticket, COMSIG_ADMIN_HELP_REPLIED)
+			if(current_ticket)
+				SEND_SIGNAL(current_ticket, COMSIG_ADMIN_HELP_REPLIED)
 			if(holder)
 				to_chat(recipient, "<span class='danger'>Админ PM от<b> [key_name(src, recipient, 1)] [ADMIN_FLW(src.mob)]</b>: <span class='linkify'>[keywordparsedmsg]</span></span>", confidential = TRUE)
 				to_chat(src, "<span class='notice'>Админ PM к <b>[key_name(recipient, src, 1)] [ADMIN_FLW(recipient.mob)]</b>: <span class='linkify'>[keywordparsedmsg]</span></span>", confidential = TRUE)
@@ -184,13 +185,15 @@
 				admin_ticket_log(src, interaction_message)
 				if(recipient != src)	//reeee
 					admin_ticket_log(recipient, interaction_message)
-				SSblackbox.LogAhelp(current_ticket.id, "Reply", msg, recipient.ckey, src.ckey)
+				if(current_ticket)
+					SSblackbox.LogAhelp(current_ticket.id, "Reply", msg, recipient.ckey, src.ckey)
 			else		//recipient is an admin but sender is not
 				var/replymsg = "PM-ответ от <b>[key_name(src, recipient, 1)]</b>: <span class='linkify'>[keywordparsedmsg]</span>"
 				admin_ticket_log(src, "<font color='#f87171'>[replymsg]</font>")
 				to_chat(recipient, "<span class='danger'>[replymsg]</span>", confidential = TRUE)
 				to_chat(src, "<span class='notice'>PM к <b>Админам</b>: <span class='linkify'>[msg]</span></span>", confidential = TRUE)
-				SSblackbox.LogAhelp(current_ticket.id, "Reply", msg, recipient.ckey, src.ckey)
+				if(current_ticket)
+					SSblackbox.LogAhelp(current_ticket.id, "Reply", msg, recipient.ckey, src.ckey)
 
 			//play the receiving admin the adminhelp sound (if they have them enabled)
 			if(recipient.prefs.toggles & SOUND_ADMINHELP)
