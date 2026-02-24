@@ -102,9 +102,10 @@ SUBSYSTEM_DEF(timer)
 	// Process client-time timers
 	var/static/next_clienttime_timer_index = 0
 	if (next_clienttime_timer_index)
-		clienttime_timers.Cut(1, next_clienttime_timer_index+1)
+		clienttime_timers.Cut(1, min(next_clienttime_timer_index + 1, length(clienttime_timers) + 1))
 		next_clienttime_timer_index = 0
-	for (next_clienttime_timer_index in 1 to length(clienttime_timers))
+	next_clienttime_timer_index = 1
+	while (next_clienttime_timer_index <= length(clienttime_timers))
 		if (MC_TICK_CHECK)
 			next_clienttime_timer_index--
 			break
@@ -116,6 +117,7 @@ SUBSYSTEM_DEF(timer)
 		var/datum/callback/callBack = ctime_timer.callBack
 		if (!callBack)
 			if (ctime_timer.spent || QDELETED(ctime_timer))
+				next_clienttime_timer_index++
 				continue
 			CRASH("Invalid timer: [get_timer_debug_string(ctime_timer)] world.time: [world.time], \
 				head_offset: [head_offset], practical_offset: [practical_offset], REALTIMEOFDAY: [REALTIMEOFDAY]")
@@ -123,16 +125,20 @@ SUBSYSTEM_DEF(timer)
 		ctime_timer.spent = REALTIMEOFDAY
 		callBack.InvokeAsync()
 
+		var/pre_len = length(clienttime_timers)
 		if(ctime_timer.flags & TIMER_LOOP)
 			ctime_timer.spent = 0
 			ctime_timer.timeToRun = REALTIMEOFDAY + ctime_timer.wait
 			BINARY_INSERT(ctime_timer, clienttime_timers, /datum/timedevent, ctime_timer, timeToRun, COMPARE_KEY)
 		else
 			qdel(ctime_timer)
+		// If list shrank (qdel removed element), stay at same index; otherwise advance
+		if(length(clienttime_timers) >= pre_len)
+			next_clienttime_timer_index++
 
 	// Remove invoked client-time timers
 	if (next_clienttime_timer_index)
-		clienttime_timers.Cut(1, next_clienttime_timer_index+1)
+		clienttime_timers.Cut(1, min(next_clienttime_timer_index + 1, length(clienttime_timers) + 1))
 		next_clienttime_timer_index = 0
 
 	if (MC_TICK_CHECK)
