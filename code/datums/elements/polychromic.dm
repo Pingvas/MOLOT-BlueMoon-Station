@@ -112,6 +112,8 @@
 
 /datum/element/polychromic/proc/apply_overlays(atom/source, list/overlays)
 	var/list/L = colors_by_atom[source]
+	if(!L)
+		return
 	var/f_icon = icon_file || source.icon
 	if(isnum(overlays_states))
 		for(var/i in 1 to overlays_states)
@@ -124,6 +126,8 @@
 		return
 	var/f_icon = worn_file || icon
 	var/list/L = colors_by_atom[source]
+	if(!L)
+		return
 
 	if(isnum(overlays_states))
 		for(var/i in 1 to overlays_states)
