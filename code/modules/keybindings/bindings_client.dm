@@ -73,8 +73,8 @@
 			break
 
 	holder?.key_down(_key, src, full_key)
-	mob.focus?.key_down(_key, src, full_key)
-	mob.update_mouse_pointer()
+	mob?.focus?.key_down(_key, src, full_key)
+	mob?.update_mouse_pointer()
 
 /// Keyup's all keys held down, including modifier keys.
 /client/proc/ForceAllKeysUp()
@@ -104,10 +104,10 @@
 		if(kb.can_use(src) && kb.up(src))
 			break
 	holder?.key_up(_key, src)
-	mob.focus?.key_up(_key, src)
-	mob.update_mouse_pointer()
+	mob?.focus?.key_up(_key, src)
+	mob?.update_mouse_pointer()
 
 // Called every game tick
 /client/keyLoop()
 	holder?.keyLoop(src)
-	mob.focus?.keyLoop(src)
+	mob?.focus?.keyLoop(src)

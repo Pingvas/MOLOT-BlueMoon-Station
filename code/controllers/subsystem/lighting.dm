@@ -54,7 +54,7 @@ SUBSYSTEM_DEF(lighting)
 		else if (MC_TICK_CHECK)
 			break
 	if (i)
-		GLOB.lighting_update_lights.Cut(1, i+1)
+		GLOB.lighting_update_lights.Cut(1, min(i + 1, length(GLOB.lighting_update_lights) + 1))
 		i = 0
 
 	if(!init_tick_checks)
@@ -70,7 +70,7 @@ SUBSYSTEM_DEF(lighting)
 		else if (MC_TICK_CHECK)
 			break
 	if (i)
-		GLOB.lighting_update_corners.Cut(1, i+1)
+		GLOB.lighting_update_corners.Cut(1, min(i + 1, length(GLOB.lighting_update_corners) + 1))
 		i = 0
 
 
@@ -90,7 +90,7 @@ SUBSYSTEM_DEF(lighting)
 		else if (MC_TICK_CHECK)
 			break
 	if (i)
-		GLOB.lighting_update_objects.Cut(1, i+1)
+		GLOB.lighting_update_objects.Cut(1, min(i + 1, length(GLOB.lighting_update_objects) + 1))
 
 
 /datum/controller/subsystem/lighting/Recover()

@@ -119,7 +119,8 @@
 			if(I.parent == src)
 				continue
 			var/datum/pipeline/E = I.parent
-			merge(E)
+			if(E)
+				merge(E)
 		if(!members.Find(P))
 			members += P
 			air.set_volume(air.return_volume() + P.volume)
@@ -151,6 +152,8 @@
 	return
 
 /obj/machinery/atmospherics/pipe/addMember(obj/machinery/atmospherics/A)
+	if(!parent)
+		return
 	parent.addMember(A, src)
 
 /obj/machinery/atmospherics/components/addMember(obj/machinery/atmospherics/A)
