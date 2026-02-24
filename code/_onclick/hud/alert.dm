@@ -82,6 +82,7 @@
 	alerts -= category
 	if(client && hud_used)
 		hud_used.reorganize_alerts()
+		alert.screen_loc = null
 		client.screen -= alert
 	qdel(alert)
 

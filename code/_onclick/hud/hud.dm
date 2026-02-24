@@ -172,7 +172,9 @@ GLOBAL_LIST_INIT(available_ui_styles, list(
 
 	if(mymob?.client)
 		for(var/key in plane_masters)
-			mymob.client.screen -= plane_masters[key]
+			var/atom/movable/screen/P = plane_masters[key]
+			P.screen_loc = null
+			mymob.client.screen -= P
 	QDEL_LIST_ASSOC_VAL(plane_masters)
 	QDEL_LIST_ASSOC_VAL(plane_master_controllers)
 	QDEL_LIST(screenoverlays)

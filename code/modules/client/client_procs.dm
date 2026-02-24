@@ -1182,16 +1182,15 @@ GLOBAL_LIST_INIT(blacklisted_builds, list(
 
 	for(var/index in char_render_holders_copy)
 		var/atom/movable/screen/S = char_render_holders_copy[index]
-		screen -= S
-		// 516 migration: clear appearance data before removal to release BYOND's
-		// internal appearance cache references, preventing GC failure timeouts.
 		S.vis_contents.Cut()
 		S.overlays.Cut()
 		S.underlays.Cut()
 		S.filters = null
 		S.maptext = null
 		S.icon = null
+		S.screen_loc = null
 		S.appearance = null
+		screen -= S
 		qdel(S)
 
 /client/proc/can_have_part(part_name)
