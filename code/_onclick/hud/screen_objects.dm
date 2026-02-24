@@ -49,8 +49,8 @@
 	set_new_hud(hud_owner)
 
 /atom/movable/screen/Destroy()
+	src.screen_loc = null // Always release BYOND appearance cache ref, even without a client
 	if(hud?.mymob?.client)
-		src.screen_loc = null
 		hud.mymob.client.screen -= src
 	set_new_hud(null)
 	master = null
