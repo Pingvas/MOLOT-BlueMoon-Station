@@ -124,6 +124,11 @@
 
 	invisibility = INVISIBILITY_ABSTRACT
 
+	if(inertia_dir)
+		inertia_dir = 0
+		inertia_last_loc = null
+		SSspacedrift.processing -= src
+
 	if(pulledby)
 		pulledby.stop_pulling()
 
