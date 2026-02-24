@@ -9,6 +9,7 @@ import DOMPurify from 'dompurify';
 
 import { flushSaveToServer, getLastSavedAt, scheduleSaveToServer } from '../serverState';
 import { loadSettings, updateSettings } from '../settings/actions';
+import { CHAT_ANIM_SPEEDS } from '../settings/constants';
 import { selectSettings } from '../settings/selectors';
 import { addChatPage, changeChatPage, changeScrollTracking, loadChat, rebuildChat, removeChatPage, saveChatToDisk, toggleAcceptedType, updateChatPage, updateMessageCount } from './actions';
 import { MAX_PERSISTED_MESSAGES, MESSAGE_SAVE_INTERVAL } from './constants';
@@ -77,6 +78,66 @@ const loadChatFromStorage = async store => {
     return;
   }
   store.dispatch(loadChat(state));
+};
+
+/**
+ * Applies all appearance and feature settings from the Redux state
+ * to the chat renderer, respecting classic mode.
+ */
+const applySettings = (settings) => {
+  // Core appearance
+  chatRenderer.setHighlight(
+    settings.highlightText,
+    settings.highlightColor,
+    settings.matchWord,
+    settings.matchCase);
+
+  chatRenderer.setChatClasses(
+    settings.chatStyle,
+    settings.chatAnimation,
+    settings.hoverEffect,
+    settings.smoothScroll);
+  chatRenderer.setBgAnimation(
+    settings.chatBgAnimation,
+    settings.chatBgAnimOpacity);
+  chatRenderer.setCustomColors(
+    settings.chatBgColor,
+    settings.chatTextColor,
+    settings.chatAccentColor);
+
+  // Animation speed
+  const speedDef = CHAT_ANIM_SPEEDS.find(
+    s => s.id === settings.chatAnimSpeed);
+  const animSpeed = speedDef?.value || '200ms';
+
+  // Text glow
+  let glowValue = null;
+  const glowColor = settings.textGlowColor
+    || settings.chatAccentColor || '#ffdd44';
+  if (settings.textGlow === 'subtle') {
+    glowValue = '0 0 4px ' + glowColor;
+  }
+  else if (settings.textGlow === 'strong') {
+    glowValue = '0 0 10px ' + glowColor
+      + ', 0 0 20px ' + glowColor;
+  }
+
+  chatRenderer.setCustomProperties({
+    '--chat-anim-speed': animSpeed,
+    '--chat-glow': glowValue,
+    '--chat-msg-spacing': settings.messageSpacing + 'px',
+    '--chat-font-weight': String(settings.fontWeight),
+    '--chat-letter-spacing': settings.letterSpacing + 'px',
+    '--chat-border-radius': settings.borderRadius + 'px',
+  });
+
+  // Timestamps & time dividers
+  chatRenderer.setTimestamps(
+    settings.enableTimestamps,
+    settings.timestampFormat);
+  chatRenderer.setTimeDividers(
+    settings.enableTimeDividers,
+    settings.timeDividerInterval);
 };
 
 export const chatMiddleware = store => {
@@ -185,11 +246,7 @@ export const chatMiddleware = store => {
     if (type === updateSettings.type || type === loadSettings.type) {
       next(action);
       const settings = selectSettings(store.getState());
-      chatRenderer.setHighlight(
-        settings.highlightText,
-        settings.highlightColor,
-        settings.matchWord,
-        settings.matchCase);
+      applySettings(settings);
       return;
     }
     if (type === 'roundrestart') {
