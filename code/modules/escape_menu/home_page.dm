@@ -81,7 +81,7 @@
 	offset,
 	on_click_callback,
 )
-	. = ..()
+	. = ..(mapload, null)
 
 	src.escape_menu = escape_menu
 	src.on_click_callback = on_click_callback
@@ -139,7 +139,7 @@
 		hovered = FALSE
 
 /atom/movable/screen/escape_menu/home_button_text/Initialize(mapload, button_text)
-	. = ..()
+	. = ..(mapload, null)
 
 	src.button_text = button_text
 	update_text()

@@ -50,6 +50,7 @@
 
 /atom/movable/screen/Destroy()
 	if(hud?.mymob?.client)
+		src.screen_loc = null
 		hud.mymob.client.screen -= src
 	set_new_hud(null)
 	master = null
@@ -712,6 +713,7 @@ INITIALIZE_IMMEDIATE(/atom/movable/screen/splash)
 
 /atom/movable/screen/splash/Destroy()
 	if(holder)
+		src.screen_loc = null
 		holder.screen -= src
 		holder = null
 	return ..()

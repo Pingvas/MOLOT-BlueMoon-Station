@@ -151,13 +151,13 @@ GLOBAL_VAR_INIT(observer_default_invisibility, INVISIBILITY_OBSERVER)
 	var/old_color = color
 	color = "#960000"
 	animate(src, color = old_color, time = 10, flags = ANIMATION_PARALLEL)
-	addtimer(CALLBACK(src, TYPE_PROC_REF(/atom, update_atom_colour)), 10)
+	addtimer(CALLBACK(src, TYPE_PROC_REF(/atom, update_atom_colour)), 10, TIMER_DELETE_ME)
 
 /mob/dead/observer/ratvar_act()
 	var/old_color = color
 	color = "#FAE48C"
 	animate(src, color = old_color, time = 10, flags = ANIMATION_PARALLEL)
-	addtimer(CALLBACK(src, TYPE_PROC_REF(/atom, update_atom_colour)), 10)
+	addtimer(CALLBACK(src, TYPE_PROC_REF(/atom, update_atom_colour)), 10, TIMER_DELETE_ME)
 
 /mob/dead/observer/Destroy()
 	//BLUEMOON ADD проверяем клиента на все болячки и ссылаем его в лобби при наличии его в госте или удаляем сикей, чтобы при заходе его отправило в лобби (fix undeleting ghosts)
