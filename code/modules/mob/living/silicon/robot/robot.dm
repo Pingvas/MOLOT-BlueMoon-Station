@@ -113,6 +113,9 @@
 		GLOB.available_ai_shells -= src
 	QDEL_NULL(modularInterface)
 	QDEL_NULL(wires)
+	module_active = null
+	for(var/i in 1 to held_items.len)
+		held_items[i] = null
 	QDEL_NULL(module)
 	QDEL_NULL(eye_lights)
 	QDEL_NULL(inv1)

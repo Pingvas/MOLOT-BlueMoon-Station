@@ -64,12 +64,12 @@
 		ratvar_modules -= i
 
 /obj/item/robot_module/Destroy()
-	basic_modules.Cut()
-	emag_modules.Cut()
-	ratvar_modules.Cut()
 	modules.Cut()
-	added_modules.Cut()
-	storages.Cut()
+	QDEL_LIST(basic_modules)
+	QDEL_LIST(emag_modules)
+	QDEL_LIST(ratvar_modules)
+	QDEL_LIST(added_modules)
+	QDEL_LIST(storages)
 	return ..()
 
 /obj/item/robot_module/emp_act(severity)
