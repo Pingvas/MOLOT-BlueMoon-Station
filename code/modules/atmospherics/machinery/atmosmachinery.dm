@@ -232,7 +232,9 @@
 	add_fingerprint(user)
 
 	var/unsafe_wrenching = FALSE
-	var/internal_pressure = int_air.return_pressure()-env_air.return_pressure()
+	var/internal_pressure = 0
+	if(int_air && env_air)
+		internal_pressure = int_air.return_pressure() - env_air.return_pressure()
 
 	to_chat(user, "<span class='notice'>You begin to unfasten \the [src]...</span>")
 
@@ -263,7 +265,10 @@
 	if(!pressures)
 		var/datum/gas_mixture/int_air = return_air()
 		var/datum/gas_mixture/env_air = loc.return_air()
-		pressures = int_air.return_pressure() - env_air.return_pressure()
+		if(int_air && env_air)
+			pressures = int_air.return_pressure() - env_air.return_pressure()
+		else
+			pressures = 0
 
 	user.visible_message("<span class='danger'>[user] is sent flying by pressure!</span>","<span class='userdanger'>The pressure sends you flying!</span>")
 
