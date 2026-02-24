@@ -126,7 +126,7 @@
 	var/mob/living/carbon/human/quirk_mob = quirk_holder
 
 	// BLUEMOON EDIT START - sanity check
-	if(!quirk_mob)
+	if(!quirk_mob || QDELING(quirk_mob))
 		return
 	// BLUEMOON EDIT END
 
