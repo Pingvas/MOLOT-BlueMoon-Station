@@ -150,6 +150,9 @@ GLOBAL_LIST_EMPTY(escape_menus)
 	layer = ESCAPE_MENU_DEFAULT_LAYER
 	clear_with_screen = FALSE
 
+/atom/movable/screen/escape_menu/Initialize(mapload, ...)
+	. = ..(mapload)
+
 // The escape menu can be opened before SSatoms
 INITIALIZE_IMMEDIATE(/atom/movable/screen/escape_menu)
 
