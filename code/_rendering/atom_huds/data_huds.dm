@@ -171,6 +171,8 @@
 
 //called when a living mob changes health
 /mob/living/proc/med_hud_set_health()
+	if(!hud_list)
+		return
 	var/image/holder = hud_list[HEALTH_HUD]
 	if(!holder)
 		med_hud_set_radstatus()
@@ -186,6 +188,8 @@
 
 //called when a carbon changes stat, virus or XENO_HOST
 /mob/living/proc/med_hud_set_status()
+	if(!hud_list)
+		return
 	var/image/holder = hud_list[STATUS_HUD]
 	if(!holder)
 		return
@@ -197,6 +201,8 @@
 		holder.icon_state = "hudhealthy"
 
 /mob/living/carbon/med_hud_set_status()
+	if(!hud_list)
+		return
 	var/image/holder = hud_list[STATUS_HUD]
 	if(!holder)
 		return
@@ -469,7 +475,11 @@
 	Bots!
 ~~~~~~~~~~*/
 /mob/living/simple_animal/bot/proc/diag_hud_set_bothealth()
+	if(!hud_list)
+		return
 	var/image/holder = hud_list[DIAG_HUD]
+	if(!holder)
+		return
 	var/icon/I = icon(icon, icon_state, dir)
 	holder.pixel_y = I.Height() - world.icon_size
 	holder.icon_state = "huddiag[RoundDiagBar(health/maxHealth)]"
