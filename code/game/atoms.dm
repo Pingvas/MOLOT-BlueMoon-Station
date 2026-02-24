@@ -302,6 +302,11 @@
 
 	orbiters = null // The component is attached to us normaly and will be deleted elsewhere
 
+	managed_vis_overlays = null
+	managed_overlays = null
+	remove_overlays = null
+	add_overlays = null
+
 	LAZYCLEARLIST(overlays)
 
 	for(var/i in targeted_by)
