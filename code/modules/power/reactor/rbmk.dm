@@ -205,6 +205,10 @@ The reactor CHEWS through moderator. It does not do this slowly. Be very careful
 	for(var/obj/item/fuel_rod/FR in fuel_rods)
 		FR.depletion = 100
 
+/obj/machinery/atmospherics/components/trinary/nuclear_reactor/Destroy()
+	disconnect_from_network()
+	return ..()
+
 /obj/machinery/atmospherics/components/trinary/nuclear_reactor/Initialize()
 	. = ..()
 	connect_to_network()
