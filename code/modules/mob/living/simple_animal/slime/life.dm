@@ -39,7 +39,7 @@
 
 	AIproc = 1
 
-	while(AIproc && stat != DEAD && (attacked || hungry || rabid || buckled))
+	while(AIproc && !QDELETED(src) && stat != DEAD && (attacked || hungry || rabid || buckled))
 		if(!CHECK_MOBILITY(src, MOBILITY_MOVE)) //also covers buckling. Not sure why buckled is in the while condition if we're going to immediately break, honestly
 			break
 
@@ -185,10 +185,11 @@
 		if(!client)
 			if(!rabid && !attacked)
 				var/mob/living/carbon/their_attacker = M.getLAssailant()
-				if(their_attacker != M)
+				if(their_attacker && their_attacker != M)
 					if(prob(50))
 						if(!(their_attacker in Friends))
 							Friends[their_attacker] = 1
+							RegisterSignal(their_attacker, COMSIG_PARENT_QDELETING, PROC_REF(clear_friend))
 						else
 							++Friends[their_attacker]
 		else

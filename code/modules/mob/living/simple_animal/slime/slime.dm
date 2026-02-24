@@ -118,6 +118,9 @@
 		AC.Remove(src)
 	Target = null
 	Leader = null
+	AIproc = 0
+	for(var/friend in Friends)
+		UnregisterSignal(friend, COMSIG_PARENT_QDELETING)
 	Friends.Cut()
 	speech_buffer.Cut()
 	return ..()
@@ -212,6 +215,8 @@
 						O.attack_slime(src)
 						Atkcool = 1
 					addtimer(CALLBACK(src, PROC_REF(reset_atkcool)), 45, TIMER_DELETE_ME)
+
+/mob/living/simple_animal/slime/Process_Spacemove(movement_dir = 0)
 	return 2
 
 /mob/living/simple_animal/slime/get_status_tab_items()
@@ -483,12 +488,12 @@
 	if(QDELETED(src))
 		return
 	mobility_flags &= ~(MOBILITY_MOVE)
-	if(user)
+	if(user && !QDELETED(user))
 		step_away(src, user, 15)
 	sleep(3)
 	if(QDELETED(src))
 		return
-	if(user)
+	if(user && !QDELETED(user))
 		step_away(src, user, 15)
 	update_mobility()
 

@@ -29,7 +29,7 @@
 	members.Cut()
 	other_atmosmch.Cut()
 	other_airs.Cut()
-	air = null
+	QDEL_NULL(air)
 	return ..()
 
 /datum/pipeline/process()
@@ -82,7 +82,7 @@
 
 							if(item.air_temporary)
 								air.merge(item.air_temporary)
-								item.air_temporary = null
+								QDEL_NULL(item.air_temporary)
 					else
 						P.setPipenet(src, borderline)
 						addMachineryMember(P)

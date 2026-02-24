@@ -76,6 +76,10 @@ GLOBAL_LIST_INIT(strippable_monkey_items, create_strippable_list(list(
 	enemies = null
 	set_pickup_target(null)
 	bodyDisposal = null
+	qdel(martial_art)
+	martial_art = null
+	blacklistItems = null
+	myPath = null
 	SSmobs.cubemonkeys -= src
 	return ..()
 

@@ -140,6 +140,20 @@ GLOBAL_LIST_INIT(available_ui_styles, list(
 	QDEL_LIST(floating_actions)
 
 	QDEL_NULL(module_store_icon)
+
+	// Remove screen objects from client.screen before qdeling them
+	// to prevent stale references in BYOND's internal screen list causing GC failures
+	if(mymob?.client)
+		var/client/C = mymob.client
+		C.screen -= static_inventory
+		C.screen -= toggleable_inventory
+		C.screen -= extra_inventory
+		C.screen -= hotkeybuttons
+		C.screen -= infodisplay
+		C.screen -= screenoverlays
+		for(var/key in plane_masters)
+			C.screen -= plane_masters[key]
+
 	QDEL_LIST(static_inventory)
 
 	inv_slots.Cut()

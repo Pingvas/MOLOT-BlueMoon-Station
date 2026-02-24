@@ -80,7 +80,7 @@
 
 /datum/tgui_alert/Destroy(force, ...)
 	SStgui.close_uis(src)
-	QDEL_NULL(buttons)
+	buttons = null
 	. = ..()
 
 /**

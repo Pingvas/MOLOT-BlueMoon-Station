@@ -132,6 +132,9 @@
 	if(pulledby)
 		pulledby.stop_pulling()
 
+	if(pulling)
+		stop_pulling()
+
 	if(orbiting)
 		orbiting.end_orbit(src)
 		orbiting = null

@@ -72,26 +72,33 @@
 
 /datum/element/polychromic/Detach(atom/A)
 	. = ..()
-	var/skip_visual_refresh = QDELING(A)
-	var/skip_holder_refresh = skip_visual_refresh
-	if(!skip_holder_refresh && ismob(A.loc))
-		var/mob/M = A.loc
-		skip_holder_refresh = QDELING(M)
+	var/being_destroyed = QDELING(A)
+	// Always clean up element-side data structures (they live on the singleton, not the target)
 	colors_by_atom -= A
 	var/datum/action/item_action/polychromic/P = actions_by_atom[A]
 	if(P)
 		actions_by_atom -= A
-		qdel(P)
-	UnregisterSignal(A, list(COMSIG_PARENT_EXAMINE, COMSIG_CLICK_ALT, COMSIG_ATOM_UPDATE_OVERLAYS, COMSIG_ITEM_EQUIPPED, COMSIG_ITEM_DROPPED, COMSIG_ITEM_WORN_OVERLAYS, COMSIG_SUIT_MADE_HELMET))
+		if(!being_destroyed)
+			qdel(P)
 	if(isitem(A))
 		var/obj/item/clothing/head/H = helmet_by_suit[A]
 		if(H)
-			UnregisterSignal(H, list(COMSIG_ATOM_UPDATE_OVERLAYS, COMSIG_ITEM_WORN_OVERLAYS, COMSIG_PARENT_QDELETING))
 			helmet_by_suit -= A
 			suit_by_helmet -= H
 			colors_by_atom -= H
-			if(!skip_visual_refresh && !QDELETED(H))
-				H.update_icon() //removing the overlays
+			if(!being_destroyed && !QDELETED(H))
+				UnregisterSignal(H, list(COMSIG_ATOM_UPDATE_OVERLAYS, COMSIG_ITEM_WORN_OVERLAYS, COMSIG_PARENT_QDELETING))
+				H.update_icon()
+	// When the atom is being destroyed, skip signal cleanup (handled by /datum/Destroy),
+	// element removal and visual updates — none of it matters for a dying object.
+	if(being_destroyed)
+		return
+	var/skip_holder_refresh = FALSE
+	if(ismob(A.loc))
+		var/mob/M = A.loc
+		skip_holder_refresh = QDELING(M)
+	UnregisterSignal(A, list(COMSIG_PARENT_EXAMINE, COMSIG_CLICK_ALT, COMSIG_ATOM_UPDATE_OVERLAYS, COMSIG_ITEM_EQUIPPED, COMSIG_ITEM_DROPPED, COMSIG_ITEM_WORN_OVERLAYS, COMSIG_SUIT_MADE_HELMET))
+	if(isitem(A))
 		if(!(poly_flags & POLYCHROMIC_NO_WORN) || !(poly_flags & POLYCHROMIC_NO_HELD))
 			A.RemoveElement(/datum/element/update_icon_updates_onmob)
 			if(!skip_holder_refresh && !QDELETED(A) && ismob(A.loc))
@@ -100,8 +107,8 @@
 					M.update_inv_hands()
 				else if(!(poly_flags & POLYCHROMIC_NO_WORN))
 					M.regenerate_icons()
-	if(!skip_visual_refresh && !QDELETED(A))
-		A.update_icon() //removing the overlays
+	if(!QDELETED(A))
+		A.update_icon()
 
 /datum/element/polychromic/proc/apply_overlays(atom/source, list/overlays)
 	var/list/L = colors_by_atom[source]

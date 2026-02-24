@@ -49,6 +49,8 @@
 	set_new_hud(hud_owner)
 
 /atom/movable/screen/Destroy()
+	if(hud?.mymob?.client)
+		hud.mymob.client.screen -= src
 	set_new_hud(null)
 	master = null
 	vis_contents.Cut()
