@@ -44,6 +44,11 @@
 	client?.screen -= screen_object
 
 /datum/screen_object_holder/proc/clear()
+	for(var/atom/movable/screen/S in screen_objects)
+		S.screen_loc = null
+	for(var/atom/movable/screen/S in protected_screen_objects)
+		S.screen_loc = null
+
 	client?.screen -= screen_objects
 	client?.screen -= protected_screen_objects
 

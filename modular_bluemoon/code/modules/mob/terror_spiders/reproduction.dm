@@ -186,8 +186,7 @@
 	if(spider_growinstantly)
 		C.amount_grown = 250
 		C.spider_growinstantly = TRUE
-	spawn(10)
-		stop_automated_movement = 0
+	addtimer(CALLBACK(src, PROC_REF(resume_automated_movement)), 10, TIMER_DELETE_ME)
 
 /obj/structure/spider/eggcluster/terror_eggcluster
 	name = "terror egg cluster"

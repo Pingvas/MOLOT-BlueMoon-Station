@@ -795,7 +795,11 @@
 	QDEL_NULL(temp_pod) //Delete the temp_pod
 	QDEL_NULL(selector) //Delete the selector effect
 	QDEL_NULL(indicator)
-	QDEL_NULL(cam_screen)
+	if(cam_screen)
+		cam_screen.screen_loc = null
+		QDEL_NULL(cam_screen)
+	for(var/atom/movable/screen/P in cam_plane_masters)
+		P.screen_loc = null
 	QDEL_LIST(cam_plane_masters)
 	QDEL_NULL(cam_background)
 	. = ..()
