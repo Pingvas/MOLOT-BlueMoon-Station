@@ -90,6 +90,8 @@
 /datum/tgui/proc/open()
 	if(!user.client)
 		return FALSE
+	if(!src_object)
+		return FALSE
 	if(window)
 		return FALSE
 	process_status()
