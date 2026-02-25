@@ -1649,7 +1649,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					for(var/mutant_part in GLOB.all_mutant_parts)
 						if(mutant_part == "mam_body_markings")
 							continue
-						if(parent.can_have_part(mutant_part))
+						if(parent?.can_have_part(mutant_part))
 							if(!mutant_category)
 								dat += APPEARANCE_CATEGORY_COLUMN
 							var/mutant_part_label = src.use_modern_translations ? get_modern_text(mutant_part, src) : GLOB.all_mutant_parts[mutant_part]
@@ -1859,7 +1859,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 							var/tauric_shape = FALSE
 							if(features["cock_taur"])
 								var/datum/sprite_accessory/penis/P = GLOB.cock_shapes_list[features["cock_shape"]]
-								if(P?.taur_icon && parent.can_have_part("taur"))
+								if(P?.taur_icon && parent?.can_have_part("taur"))
 									var/datum/sprite_accessory/taur/T = GLOB.taur_list[features["taur"]]
 									if(T.taur_mode & P.accepted_taurs)
 										tauric_shape = TRUE
@@ -2043,7 +2043,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					// rp marking selection
 					// assume you can only have mam markings or regular markings or none, never both
 					var/marking_type
-					if(parent.can_have_part("mam_body_markings"))
+					if(parent?.can_have_part("mam_body_markings"))
 						marking_type = "mam_body_markings"
 					if(marking_type)
 						dat += APPEARANCE_CATEGORY_COLUMN
@@ -4418,12 +4418,12 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 						pref_species = new newtype()
 						//let's ensure that no weird shit happens on species swapping.
 						custom_species = null
-						if(!parent.can_have_part("mam_body_markings"))
+						if(!parent?.can_have_part("mam_body_markings"))
 							features["mam_body_markings"] = list()
-						if(parent.can_have_part("mam_body_markings"))
+						if(parent?.can_have_part("mam_body_markings"))
 							if(features["mam_body_markings"] == "None")
 								features["mam_body_markings"] = list()
-						if(parent.can_have_part("tail_lizard"))
+						if(parent?.can_have_part("tail_lizard"))
 							features["tail_lizard"] = "Smooth"
 						if(pref_species.id == "felinid")
 							features["mam_tail"] = "Cat"
@@ -4867,7 +4867,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 				if("cock_shape")
 					var/new_shape
 					var/list/hockeys = list()
-					if(parent.can_have_part("taur"))
+					if(parent?.can_have_part("taur"))
 						var/datum/sprite_accessory/taur/T = GLOB.taur_list[features["taur"]]
 						for(var/A in GLOB.cock_shapes_list)
 							var/datum/sprite_accessory/penis/P = GLOB.cock_shapes_list[A]
@@ -6577,10 +6577,10 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	if(isdwarf(character))
 		character.dna.features["body_size"] = RESIZE_DEFAULT_SIZE
 
-	if((parent && parent.can_have_part("meat_type")) || pref_species.mutant_bodyparts["meat_type"])
+	if(parent?.can_have_part("meat_type") || pref_species.mutant_bodyparts["meat_type"])
 		character.type_of_meat = GLOB.meat_types[features["meat_type"]]
 
-	if(((parent && parent.can_have_part("legs")) || pref_species.mutant_bodyparts["legs"])  && (character.dna.features["legs"] == "Digitigrade" || character.dna.features["legs"] == "Avian"))
+	if((parent?.can_have_part("legs") || pref_species.mutant_bodyparts["legs"])  && (character.dna.features["legs"] == "Digitigrade" || character.dna.features["legs"] == "Avian"))
 		pref_species.species_traits |= DIGITIGRADE
 	else
 		pref_species.species_traits -= DIGITIGRADE

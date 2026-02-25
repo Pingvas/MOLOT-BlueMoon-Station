@@ -143,7 +143,7 @@
 		act_revive.Remove(quirk_mob)
 
 	// Remove quirk language
-	quirk_mob.remove_language(/datum/language/vampiric, TRUE, TRUE, LANGUAGE_BLOODSUCKER)
+	quirk_mob.remove_language(/datum/language/vampiric, source = LANGUAGE_BLOODSUCKER)
 
 	// Unregister examine text
 	UnregisterSignal(quirk_holder, COMSIG_PARENT_EXAMINE)
