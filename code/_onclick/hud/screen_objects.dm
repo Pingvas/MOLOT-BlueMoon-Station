@@ -50,7 +50,7 @@
 
 /atom/movable/screen/Destroy()
 	src.screen_loc = null // Always release BYOND appearance cache ref, even without a client
-	if(hud?.mymob?.client)
+	if(istype(hud) && hud.mymob?.client)
 		hud.mymob.client.screen -= src
 	set_new_hud(null)
 	master = null
@@ -681,7 +681,7 @@
 INITIALIZE_IMMEDIATE(/atom/movable/screen/splash)
 
 /atom/movable/screen/splash/Initialize(mapload, datum/hud/hud_owner, client/C, visible, use_previous_title)
-	. = ..()
+	. = ..(mapload)
 	if(!istype(C))
 		return
 
