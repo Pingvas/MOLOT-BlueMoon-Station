@@ -318,10 +318,10 @@
 
 
 /mob/living/carbon/human/has_smoke_protection()
-	if(wear_mask)
+	if(wear_mask && isclothing(wear_mask))
 		if(wear_mask.clothing_flags & BLOCK_GAS_SMOKE_EFFECT)
 			return TRUE
-	if(glasses)
+	if(glasses && isclothing(glasses))
 		if(glasses.clothing_flags & BLOCK_GAS_SMOKE_EFFECT)
 			return TRUE
 	if(head && istype(head, /obj/item/clothing))
