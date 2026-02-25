@@ -117,8 +117,12 @@
 	stage5	= list("<span class='warning'>You feel like monkeying around.</span>")
 
 /datum/disease/transformation/jungle_fever/do_disease_transformation(mob/living/carbon/affected_mob)
+	if(QDELETED(affected_mob))
+		return
 	if(affected_mob.mind && !is_monkey(affected_mob.mind))
-		add_monkey(affected_mob.mind)
+		var/datum/antagonist/monkey/monkey_antag = new
+		monkey_antag.monkey_only = FALSE
+		affected_mob.mind.add_antag_datum(monkey_antag)
 	if(ishuman(affected_mob))
 		affected_mob.monkeyize(TR_KEEPITEMS | TR_KEEPIMPLANTS | TR_KEEPORGANS | TR_KEEPDAMAGE | TR_KEEPVIRUS | TR_KEEPSE)
 	else if(ismonkey(affected_mob))
