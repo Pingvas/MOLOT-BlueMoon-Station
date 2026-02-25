@@ -566,9 +566,11 @@ SUBSYSTEM_DEF(timer)
  */
 /datum/timedevent/proc/getcallingtype()
 	. = "ERROR"
+	if (!callBack)
+		return
 	if (callBack.object == GLOBAL_PROC)
 		. = "GLOBAL_PROC"
-	else
+	else if (callBack.object)
 		. = "[callBack.object.type]"
 
 /**

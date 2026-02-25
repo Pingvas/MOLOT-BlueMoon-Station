@@ -128,10 +128,12 @@ GLOBAL_DATUM_INIT(ahelp_tickets, /datum/admin_help_tickets, new)
 /datum/admin_help_tickets/proc/ClientLogout(client/C)
 	if(!C || !C.current_ticket)
 		return
-	C.current_ticket.AddInteraction("Клиент отключился.")
-	SSblackbox.LogAhelp(C.current_ticket.id, "Disconnected", "Client disconnected", C.ckey) //BLUEMOON EDIT, enable ticket logging
-	C.current_ticket.initiator = null
-	C.current_ticket = null
+	var/datum/admin_help/ticket = C.current_ticket
+	ticket.AddInteraction("Клиент отключился.")
+	SSblackbox.LogAhelp(ticket.id, "Disconnected", "Client disconnected", ticket.initiator_ckey) //BLUEMOON EDIT, enable ticket logging
+	ticket.initiator = null
+	if(C)
+		C.current_ticket = null
 
 //Get a ticket given a ckey
 /datum/admin_help_tickets/proc/CKey2ActiveTicket(ckey)
