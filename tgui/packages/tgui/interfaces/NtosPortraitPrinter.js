@@ -159,10 +159,11 @@ export const NtosPortraitPrinter = (props, context) => {
                 <Stack.Item>
                   <img
                     src={resolveAsset(current_portrait_asset_name)}
-                    height="128px"
                     style={{
-                      'vertical-align': 'middle',
+                      height: '128px',
+                      verticalAlign: 'middle',
                       imageRendering: 'pixelated',
+                      '-ms-interpolation-mode': 'nearest-neighbor',
                     }} />
                 </Stack.Item>
                 <Stack.Item className="Section__titleText">
