@@ -229,7 +229,7 @@
 	var/list/blocks
 	try
 		blocks = json_decode(program)
-	catch(var/exception/_e)
+	catch
 		return "Invalid program format."
 	if(!blocks)
 		return "Invalid program format."
