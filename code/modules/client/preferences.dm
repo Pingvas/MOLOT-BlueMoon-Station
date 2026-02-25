@@ -3015,6 +3015,9 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	if(new_character_creator)
 		dat += "</div>"
 
+	if(!user?.client)
+		return
+
 	winshow(user, "preferences_window", TRUE)
 	var/datum/browser/popup = new(user, "preferences_browser", "<div align='center'>Character Setup</div>", 640, 770)
 	if(new_character_creator && findtext(charcreation_theme, "modern"))
