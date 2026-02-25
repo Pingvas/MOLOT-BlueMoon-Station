@@ -140,7 +140,9 @@
 		return
 	if(A in range(vision_range, src))
 		if(A in enemies)
-			enemies -= A
+			enemies -= A // just reordering, signal stays registered
+		else
+			RegisterSignal(A, COMSIG_PARENT_QDELETING, PROC_REF(on_enemy_qdeleting))
 		enemies.Insert(1, A) // Условно первый в агролисте личных врагов
 
 /mob/living/simple_animal/hostile/deathclaw/funclaw/moan()

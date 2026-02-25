@@ -169,7 +169,7 @@ GLOBAL_LIST_EMPTY(ts_spiderling_list)
 /mob/living/simple_animal/hostile/retaliate/poison/terror_spider/AttackingTarget()
 	if(isterrorspider(target))
 		if(target in enemies)
-			enemies -= target
+			remove_enemy(target)
 		var/mob/living/simple_animal/hostile/retaliate/poison/terror_spider/T = target
 		if(T.spider_tier > spider_tier)
 			visible_message("<span class='notice'>[src] cowers before [target].</span>")

@@ -92,7 +92,8 @@
 		var/mob/living/simple_animal/hostile/retaliate/poison/terror_spider/S = new grow_as(T)
 		S.spider_myqueen = spider_myqueen
 		S.spider_mymother = spider_mymother
-		S.enemies = enemies
+		for(var/atom/movable/the_enemy in enemies)
+			S.add_enemy(the_enemy)
 		qdel(src)
 	if(movement_disabled)
 		return

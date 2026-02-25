@@ -81,8 +81,24 @@
 	target = null
 	friends = null
 	foes = null
+	for(var/atom/movable/the_enemy in enemies)
+		UnregisterSignal(the_enemy, COMSIG_PARENT_QDELETING)
 	enemies = null
 	return ..()
+
+/mob/living/simple_animal/hostile/proc/add_enemy(atom/movable/the_enemy)
+	if(the_enemy in enemies)
+		return
+	enemies += the_enemy
+	RegisterSignal(the_enemy, COMSIG_PARENT_QDELETING, PROC_REF(on_enemy_qdeleting))
+
+/mob/living/simple_animal/hostile/proc/remove_enemy(atom/movable/the_enemy)
+	enemies -= the_enemy
+	UnregisterSignal(the_enemy, COMSIG_PARENT_QDELETING)
+
+/mob/living/simple_animal/hostile/proc/on_enemy_qdeleting(datum/source)
+	SIGNAL_HANDLER
+	enemies -= source
 
 /mob/living/simple_animal/hostile/BiologicalLife(delta_time, times_fired)
 	if(!(. = ..()))
