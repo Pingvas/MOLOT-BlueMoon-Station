@@ -101,6 +101,7 @@
 #include "merge_type.dm"
 // #include "metabolizing.dm"
 #include "modular_map_loader.dm" //SPLURT EDIT
+#include "mutant_update_batching.dm"
 // #include "ntnetwork_tests.dm"
 // #include "outfit_sanity.dm"
 // #include "pills.dm"
