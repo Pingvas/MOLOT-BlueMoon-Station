@@ -117,7 +117,7 @@
 	for(var/i in 1 to held_items.len)
 		held_items[i] = null
 	QDEL_NULL(module)
-	QDEL_NULL(eye_lights)
+	eye_lights = null
 	QDEL_NULL(inv1)
 	QDEL_NULL(inv2)
 	QDEL_NULL(inv3)

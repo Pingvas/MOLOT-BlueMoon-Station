@@ -151,7 +151,9 @@
 				INVOKE_ASYNC(src, PROC_REF(walk2derpless), pickupTarget.loc)
 				if(Adjacent(pickupTarget) || Adjacent(pickupTarget.loc)) // next to target
 					drop_all_held_items() // who cares about these items, i want that one!
-					if(isturf(pickupTarget.loc)) // on floor
+					if(QDELETED(pickupTarget))
+						set_pickup_target(null)
+					else if(isturf(pickupTarget.loc)) // on floor
 						equip_item(pickupTarget)
 						set_pickup_target(null)
 					else if(ismob(pickupTarget.loc)) // in someones hand
