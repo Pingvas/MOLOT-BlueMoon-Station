@@ -108,6 +108,8 @@ DEFINE_BITFIELD(turret_flags, list(
 	var/mob/remote_controller
 	/// MISSING:
 	var/shot_stagger = 0
+	/// Idle scan throttle — counts ticks since last target found, used to reduce view() frequency when idle
+	var/idle_scan_ticks = 0
 
 /obj/machinery/porta_turret/Initialize(mapload)
 	. = ..()
@@ -436,6 +438,11 @@ DEFINE_BITFIELD(turret_flags, list(
 	if(!on || (machine_stat & (NOPOWER|BROKEN)) || manual_control)
 		return PROCESS_KILL
 
+	// Throttle target scanning when idle — skip expensive view() calls if no targets found recently
+	if(idle_scan_ticks > 0)
+		idle_scan_ticks--
+		return
+
 	var/list/targets = list()
 	for(var/mob/A in view(scan_range, base))
 		if(A.invisibility > SEE_INVISIBLE_LIVING)
@@ -500,9 +507,12 @@ DEFINE_BITFIELD(turret_flags, list(
 			targets += B
 
 	if(targets.len)
+		idle_scan_ticks = 0 // targets present — scan every tick
 		tryToShootAt(targets)
-	else if(!always_up)
-		popDown() // no valid targets, close the cover
+	else
+		idle_scan_ticks = 4 // no targets — skip 4 ticks before next scan (8s idle interval)
+		if(!always_up)
+			popDown() // no valid targets, close the cover
 
 /obj/machinery/porta_turret/proc/randomize_shot_stagger()
 	shot_stagger = rand(0, min(2 SECONDS, round(shot_delay/3, world.tick_lag)))
