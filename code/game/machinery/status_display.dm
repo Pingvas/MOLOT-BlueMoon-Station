@@ -235,7 +235,14 @@
 
 		if(length_char(line2) > CHARS_PER_LINE)
 			line2 = "error"
-		set_messages(line1, line2)
+
+		line1 = uppertext(line1)
+		line2 = uppertext(line2)
+		if(line1 == message1 && line2 == message2)
+			return
+		message1 = line1
+		message2 = line2
+		update_appearance()
 	else
 		// don't kill processing, the timer might turn back on
 		set_messages("", "")
