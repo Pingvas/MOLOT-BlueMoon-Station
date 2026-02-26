@@ -16,10 +16,27 @@
 #define CHAT_MESSAGE_MAX_LENGTH		110
 /// The dimensions of the chat message icons
 #define CHAT_MESSAGE_ICON_SIZE 9
+/// Average pixel width of a character in 'Small Fonts' at 7px (the maptext font)
+#define CHAT_MESSAGE_AVG_CHAR_WIDTH	5
+/// Approximate number of characters fitting per line at CHAT_MESSAGE_WIDTH
+#define CHAT_MESSAGE_CHARS_PER_LINE	(CHAT_MESSAGE_WIDTH / CHAT_MESSAGE_AVG_CHAR_WIDTH)
 /// Maximum precision of float before rounding errors occur (in this context)
 #define CHAT_LAYER_Z_STEP			0.0001
 /// The number of z-layer 'slices' usable by the chat message layering
 #define CHAT_LAYER_MAX_Z			(CHAT_LAYER_MAX - CHAT_LAYER) / CHAT_LAYER_Z_STEP
+
+/proc/calculate_runechat_line_count(message_char_len, prefix_count = 0)
+	message_char_len = max(0, round(message_char_len))
+	prefix_count = max(0, round(prefix_count))
+
+	var/prefix_px = prefix_count * (CHAT_MESSAGE_ICON_SIZE + 1)
+	var/first_line_chars = max(1, CHAT_MESSAGE_CHARS_PER_LINE - CEILING(prefix_px / CHAT_MESSAGE_AVG_CHAR_WIDTH, 1))
+
+	if(message_char_len <= first_line_chars)
+		return 1
+
+	var/remaining_chars = message_char_len - first_line_chars
+	return 1 + CEILING(remaining_chars / CHAT_MESSAGE_CHARS_PER_LINE, 1)
 
 /**
   * # Chat Message Overlay
@@ -179,6 +196,8 @@
 			LAZYSET(language_icons, language, language_icon)
 		LAZYADD(prefixes, "\icon[language_icon]")
 
+	var/msg_char_len = length_char(text) // save message length before prefix join for height estimation
+
 	text = "[prefixes?.Join("&nbsp;")][text]"
 
 	// We dim italicized text to make it more distinguishable from regular text
@@ -187,9 +206,10 @@
 	// Approximate text height
 	var/complete_text = "<span class='center maptext [extra_classes.Join(" ")]' style='color: [tgt_color]'>[owner.say_emphasis(text)]</span>"
 
-	var/mheight
-	WXH_TO_HEIGHT(owned_by.MeasureText(complete_text, null, CHAT_MESSAGE_WIDTH), mheight)
-	approx_lines = max(1, mheight / CHAT_MESSAGE_APPROX_LHEIGHT)
+	// Server-side height estimation — eliminates MeasureText() network round-trip (~164ms per call)
+	var/line_count = calculate_runechat_line_count(msg_char_len, LAZYLEN(prefixes))
+	var/mheight = max(CHAT_MESSAGE_APPROX_LHEIGHT, line_count * CHAT_MESSAGE_APPROX_LHEIGHT)
+	approx_lines = line_count
 
 	// Translate any existing messages upwards, apply exponential decay factors to timers
 	if(isnull(target) || QDELETED(target))

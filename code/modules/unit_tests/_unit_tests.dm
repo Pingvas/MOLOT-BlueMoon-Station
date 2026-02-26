@@ -113,6 +113,7 @@
 // #include "reagent_mod_procs.dm"
 #include "reagent_recipe_collisions.dm"
 #include "resist.dm"
+#include "runechat_estimation.dm"
 // #include "say.dm"
 // #include "security_officer_distribution.dm"
 // #include "serving_tray.dm"
