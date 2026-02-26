@@ -11,21 +11,21 @@
 	name = "Makarov Pistol"
 	desc = "Элегантная коробка с маленьким, легко скрываемым пистолетом на патронах 10мм авто в магазинах на 8 патронов. Совместим с глушителями."
 	item = /obj/item/storage/box/syndie_kit/pistol
-	cost = 4
+	cost = 3
 	purchasable_from = ~UPLINK_CLOWN_OPS
 
 /datum/uplink_item/dangerous/aps_pistol
 	name = "Stechkin Pistol"
 	desc = "Оригинальная русская версия широко распространённого пистолета Syndicate. Калибр 9мм. Нарезной ствол под глушитель."
 	item = /obj/item/storage/box/syndie_kit/aps_pistol
-	cost = 7
+	cost = 5
 	purchasable_from = ~UPLINK_CLOWN_OPS
 
 /datum/uplink_item/dangerous/revolver
 	name = "Revolver Kit"
 	desc = "Элегантная коробка с брутально простым револьвером Syndicate под .357 Magnum, 7 камор и скорозарядник в комплекте."
 	item = /obj/item/storage/box/syndie_kit/revolver
-	cost = 13
+	cost = 10
 	player_minimum = 15
 	surplus = 50
 	purchasable_from = UPLINK_SYNDICATE
@@ -34,7 +34,7 @@
 	name = "InteQ Revolver Kit"
 	desc = "Простой и брутальный револьвер под патрон .357 Magnum. 7 выстрелов для 7 трупов, скорозарядник с дополнительным боезопасом в комплекте."
 	item = /obj/item/storage/box/inteq_kit/revolver
-	cost = 13
+	cost = 10
 	player_minimum = 15
 	surplus = 50
 	purchasable_from = (UPLINK_TRAITORS | UPLINK_NUKE_OPS)
@@ -182,13 +182,14 @@
 	purchasable_from = UPLINK_SYNDICATE
 
 /datum/uplink_item/dangerous/shield
-	name = "Ballistic Shield"
-	desc = "Невероятно полезный персональный щитовой проектор, способный отражать баллистические снаряды и защищать \
-			от прочих атак. В связке с плазменным мечом — убойная комбинация."
+	name = "Energy Shield"
+	desc = "Устаревшая на несколько поколений модель энергетического щита; компенсируется своей надёжностью и универсальностью. \
+	Использует механические ограничители силового поля и эргономика немного страдает, но всё ещё является желанным элементом экипировки. \
+	В сочетании с плазменным мечом - убийственная комбинация."
 	item = /obj/item/shield/inteq_energy
 	cost = 16
 	surplus = 20
-	purchasable_from = UPLINK_NUKE_OPS
+	purchasable_from = (UPLINK_TRAITORS | UPLINK_NUKE_OPS)
 
 /datum/uplink_item/dangerous/rapier
 	name = "Rapier"
@@ -286,7 +287,7 @@
 	и можете вбивать людей в столы с нечеловеческой силой. \
 	К сожалению, из-за размера перчаток вы не сможете пользоваться огнестрельным оружием."
 	item = /obj/item/clothing/gloves/fingerless/pugilist/mauler
-	cost = 10
+	cost = 8
 
 /datum/uplink_item/dangerous/powerfist
 	name = "Power Fist"
@@ -295,7 +296,7 @@
 		Гаечным ключом можно регулировать расход газа для дополнительного урона и отбрасывания целей. \
 		Отвёрткой можно извлечь присоединённый баллон."
 	item = /obj/item/melee/powerfist
-	cost = 8
+	cost = 5
 
 /datum/uplink_item/dangerous/death_lipstick
 	name = "Kiss of Death"
