@@ -143,7 +143,12 @@
 	// Clip message
 	var/maxlen = owned_by.prefs.max_chat_length
 	if (length_char(text) > maxlen)
-		text = copytext_char(text, 1, maxlen + 1) + "..." // BYOND index moment
+		var/truncated = copytext_char(text, 1, maxlen + 1)
+		var/last_space = findlasttext_char(truncated, " ")
+		if(last_space > maxlen * 0.5)
+			text = copytext_char(text, 1, last_space) + "..."
+		else
+			text = truncated + "..."
 
 	//SKYRAT CHANGES BEGIND
 	// Calculate target color if not already present
