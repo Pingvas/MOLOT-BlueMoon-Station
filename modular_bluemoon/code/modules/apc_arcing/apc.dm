@@ -24,7 +24,7 @@
 	. = ..()
 	if(!cell || shorted)
 		return
-	var/excess = surplus()
+	var/excess = last_surplus
 	if(((excess < APC_ARC_LOWERLIMIT) && !force_arcing) || arc_shielded)
 		return
 	var/shock_chance = 5
