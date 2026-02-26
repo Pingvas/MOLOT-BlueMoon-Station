@@ -15,7 +15,9 @@
 	var/attacksound = FALSE							/// Play sound on attack when wielded
 	var/require_twohands = FALSE					/// Does it have to be held in both hands
 	var/icon_wielded = FALSE						/// The icon that will be used when wielded
-	var/obj/item/offhand/offhand_item = null		/// Reference to the offhand created for the item	var/mob/living/carbon/wield_user = null		/// Reference to the mob currently wielding this item (for signal cleanup)	var/sharpened_increase = 0						/// The amount of increase recived from sharpening the item
+	var/obj/item/offhand/offhand_item = null		/// Reference to the offhand created for the item
+	var/mob/living/carbon/wield_user = null		/// Reference to the mob currently wielding this item (for signal cleanup)
+	var/sharpened_increase = 0					/// The amount of increase recived from sharpening the item
 
 /**
  * Two Handed component
@@ -101,7 +103,7 @@
 		if(!QDELETED(offhand_item))
 			qdel(offhand_item)
 		offhand_item = null
-	return ...
+	return ..()
 
 /// Triggered on attack self of the item containing the component
 /datum/component/two_handed/proc/on_attack_self(datum/source, mob/user)
@@ -271,6 +273,24 @@
  */
 /datum/component/two_handed/proc/on_moved(datum/source, mob/user, dir)
 	unwield(user)
+
+/**
+ * on_equip Triggers when the parent item gets equipped to any slot
+ * Unwields if the item was wielded (e.g. put into backpack while wielded)
+ */
+/datum/component/two_handed/proc/on_equip(datum/source, mob/living/carbon/user, slot)
+	SIGNAL_HANDLER
+	if(wielded)
+		unwield(user)
+
+/**
+ * on_drop Triggers when the parent item or offhand item is dropped
+ * Unwields if the item was wielded
+ */
+/datum/component/two_handed/proc/on_drop(datum/source, mob/living/carbon/user)
+	SIGNAL_HANDLER
+	if(wielded)
+		unwield(user)
 
 /**
  * on_swap_hands Triggers on swapping hands, blocks swap if the other hand is busy
