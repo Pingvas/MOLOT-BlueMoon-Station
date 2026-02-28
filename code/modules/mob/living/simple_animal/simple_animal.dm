@@ -536,7 +536,7 @@
 	toggle_ai(AI_OFF) // To prevent any weirdness.
 	can_have_ai = FALSE
 
-/mob/living/simple_animal/update_sight()
+/mob/living/simple_animal/update_sight(forced = TRUE)
 	if(!client)
 		return
 	if(stat == DEAD)
@@ -545,9 +545,10 @@
 		see_invisible = SEE_INVISIBLE_OBSERVER
 		return
 
-	see_invisible = initial(see_invisible)
-	see_in_dark = initial(see_in_dark)
-	sight = initial(sight)
+	if(forced)
+		see_invisible = initial(see_invisible)
+		see_in_dark = initial(see_in_dark)
+		sight = initial(sight)
 
 	if(client.eye != src)
 		var/atom/A = client.eye
