@@ -164,11 +164,22 @@
 	for(var/turf/visible_turf in visible_things)
 		visible_turfs += visible_turf
 
+	// Guard: if no turfs are visible (camera in nullspace, just deleted, etc.) – show static
+	if(!length(visible_turfs))
+		show_camera_static()
+		return
+
 	var/list/bbox = get_bbox_of_atoms(visible_turfs)
+	// Guard: bbox can be null if the list is empty or contains no atoms with valid coords
+	if(!bbox)
+		show_camera_static()
+		return
 	var/size_x = bbox[3] - bbox[1] + 1
 	var/size_y = bbox[4] - bbox[2] + 1
 
-	cam_screen.vis_contents = visible_turfs
+	// Use Cut() + += instead of direct assignment to avoid vis_contents reference leaks
+	cam_screen.vis_contents.Cut()
+	cam_screen.vis_contents += visible_turfs
 	cam_background.icon_state = "clear"
 	cam_background.fill_rect(1, 1, size_x, size_y)
 
