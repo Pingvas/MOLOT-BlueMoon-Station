@@ -387,6 +387,7 @@ const splitIntoChunks = (str: string): string[] => {
  */
 let lastActTime = 0;
 let lastActKey = '';
+let actSequence = 0;
 
 /**
  * Sends an action to `ui_act` on `src_object` that this tgui window
@@ -410,6 +411,7 @@ export const sendAct = (action: string, payload: object = {}) => {
   }
   lastActTime = now;
   lastActKey = actKey;
+  const seq = ++actSequence;
   const urlSize = Object.entries({
     type: 'act/' + action,
     payload: stringifiedPayload,
@@ -440,6 +442,7 @@ export const sendAct = (action: string, payload: object = {}) => {
   sendMessage({
     type: 'act/' + action,
     payload,
+    seq,
   });
 };
 
