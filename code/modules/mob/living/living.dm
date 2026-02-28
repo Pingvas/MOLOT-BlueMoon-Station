@@ -41,6 +41,7 @@
 	cleanse_trait_datums()
 	GLOB.mob_living_list -= src
 	GLOB.ssd_mob_list -= src
+	SSmobs.currentrun -= src
 	QDEL_LIST(diseases)
 	return ..()
 
