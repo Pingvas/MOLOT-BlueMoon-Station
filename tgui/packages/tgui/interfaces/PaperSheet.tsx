@@ -194,10 +194,15 @@ class PaperSheetStamper extends Component<PaperSheetStamperProps> {
     const stampHeight = stamp.clientHeight;
     const stampWidth = stamp.clientWidth;
 
-    // Convert to container-relative coordinates
+    // CSS zoom on body (for DPI compensation) makes getBoundingClientRect()
+    // return viewport pixels, but CSS left/top use layout pixels.
+    // Divide by zoom to convert viewport → layout coordinates.
+    const zoom = parseFloat(document.body.style.zoom) / 100 || 1;
+
+    // Convert to container-relative coordinates (in layout pixels)
     const rect = scrollable.getBoundingClientRect();
-    const relativeX = e.clientX - rect.left;
-    const relativeY = e.clientY - rect.top;
+    const relativeX = (e.clientX - rect.left) / zoom;
+    const relativeY = (e.clientY - rect.top) / zoom;
 
     const currentHeight = rotating
       ? this.state.y
@@ -384,37 +389,18 @@ export class PrimaryView extends Component {
                       content="Save"
                       color="good"
                       onClick={() => {
+                        const payload: Record<string, any> = {};
                         if (textAreaText.length) {
-                          // Chunk large text to avoid exceeding BYOND
-                          // Topic message size limit
-                          const CHUNK_SIZE = 2000;
-                          if (textAreaText.length > CHUNK_SIZE) {
-                            for (
-                              let i = 0;
-                              i < textAreaText.length;
-                              i += CHUNK_SIZE
-                            ) {
-                              const chunk = textAreaText.substring(
-                                i,
-                                i + CHUNK_SIZE,
-                              );
-                              const isLast
-                                = i + CHUNK_SIZE >= textAreaText.length;
-                              act(isLast ? 'add_text' : 'add_text_chunk', {
-                                text: chunk,
-                              });
-                            }
-                          } else {
-                            act('add_text', { text: textAreaText });
-                          }
-                          setTextAreaText('');
+                          payload.text = textAreaText;
                         }
                         if (Object.keys(inputFieldData).length) {
-                          act('fill_input_field', {
-                            field_data: inputFieldData,
-                          });
-                          setInputFieldData({});
+                          payload.field_data = inputFieldData;
                         }
+                        if (Object.keys(payload).length) {
+                          act('save', payload);
+                        }
+                        setTextAreaText('');
+                        setInputFieldData({});
                       }}
                     />
                   </>
@@ -954,7 +940,7 @@ export class PreviewView extends Component<PreviewViewProps> {
     let input = document.createElement('input');
     input.setAttribute('type', 'text');
 
-    input.style.fontSize = field.is_signature ? '30px' : `${fontSize}px`;
+    input.style.fontSize = field.is_signature ? '18px' : `${fontSize}px`;
     input.style.fontFamily = fieldData.font || font;
     input.style.fontStyle = field.is_signature ? 'italic' : 'normal';
     input.style.fontWeight = 'bold';
