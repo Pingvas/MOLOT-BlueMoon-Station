@@ -1381,7 +1381,14 @@ function st_make_grid_item(label, value, wide, cls, href) {
 	val.className = "st-item-value";
 	if (href) {
 		var a = document.createElement("a");
-		a.href = href;
+		a.href = "#";
+		a.onclick = (function(h) {
+			return function(e) {
+				e.preventDefault();
+				byond_topic(h);
+				return false;
+			};
+		})(href);
 		a.textContent = value;
 		if (cls) a.className = cls;
 		val.appendChild(a);
@@ -1682,7 +1689,14 @@ function mc_make_server_row(label, value, ref, cls) {
 	var td2 = document.createElement("td");
 	if (ref) {
 		var a = document.createElement("a");
-		a.href = mc_make_vv_link(ref);
+		a.href = "#";
+		a.onclick = (function(r) {
+			return function(e) {
+				e.preventDefault();
+				byond_topic(mc_make_vv_link(r));
+				return false;
+			};
+		})(ref);
 		a.textContent = value;
 		if (cls) a.className = cls;
 		td2.appendChild(a);
@@ -1842,7 +1856,14 @@ function mc_update_ss_rows() {
 		}
 		var dname = row[SS_IS_BG] ? name + " [BG]" : name;
 		if (link.textContent !== dname) link.textContent = dname;
-		link.href = mc_make_vv_link(row[SS_REF]);
+		link.href = "#";
+		link.onclick = (function(r) {
+			return function(e) {
+				e.preventDefault();
+				byond_topic(mc_make_vv_link(r));
+				return false;
+			};
+		})(row[SS_REF]);
 		cells[1].className = !can_fire ? "mc-name mc-offline" : (row[SS_IS_BG] ? "mc-name mc-bg" : "mc-name");
 
 		// Numeric cells
@@ -1893,7 +1914,14 @@ function mc_update_key_section() {
 		var nameEl = document.createElement("span");
 		nameEl.className = "mc-key-name";
 		var nameLink = document.createElement("a");
-		nameLink.href = mc_make_vv_link(row[SS_REF]);
+		nameLink.href = "#";
+		nameLink.onclick = (function(r) {
+			return function(e) {
+				e.preventDefault();
+				byond_topic(mc_make_vv_link(r));
+				return false;
+			};
+		})(row[SS_REF]);
 		nameLink.textContent = name;
 		nameEl.appendChild(nameLink);
 		header.appendChild(nameEl);
