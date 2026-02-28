@@ -64,8 +64,7 @@
 				if(!CanFeedon(Target)) //If they're not able to be fed upon, ignore them.
 					if(!Atkcool)
 						Atkcool = 1
-					atkcool_timer_id = addtimer(CALLBACK(src, PROC_REF(reset_atkcool)), 45, TIMER_STOPPABLE | TIMER_DELETE_ME)
-
+						atkcool_timer_id = addtimer(CALLBACK(src, PROC_REF(reset_atkcool)), 45, TIMER_STOPPABLE | TIMER_DELETE_ME)
 						if(Target.Adjacent(src))
 							Target.attack_slime(src)
 					break
@@ -74,7 +73,9 @@
 					if(Target.client && Target.health >= 20)
 						if(!Atkcool)
 							Atkcool = 1
-						atkcool_timer_id = addtimer(CALLBACK(src, PROC_REF(reset_atkcool)), 45, TIMER_STOPPABLE | TIMER_DELETE_ME)
+							atkcool_timer_id = addtimer(CALLBACK(src, PROC_REF(reset_atkcool)), 45, TIMER_STOPPABLE | TIMER_DELETE_ME)
+							if(Target.Adjacent(src))
+								Target.attack_slime(src)
 
 					else
 						if(!Atkcool && Target.Adjacent(src))
