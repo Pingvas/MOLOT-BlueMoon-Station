@@ -570,6 +570,14 @@ GLOBAL_LIST_INIT(blacklisted_builds, list(
 		return 1
 	return window_scaling
 
+/// Returns a <style> tag with body zoom compensation for high-DPI displays.
+/// Use this in raw browse() HTML that doesn't go through /datum/browser.
+/client/proc/dpi_style_tag()
+	var/scaling = get_window_scaling()
+	if(scaling != 1)
+		return {"<style>body{zoom:[100 / scaling]%;}</style>"}
+	return ""
+
 /client/proc/acquire_dpi(max_retries = 3, retry_delay = 2 SECONDS, retrying = FALSE)
 	if(!retrying)
 		window_scaling_retry_count = 0

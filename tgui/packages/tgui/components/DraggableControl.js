@@ -17,7 +17,10 @@ const DEFAULT_UPDATE_RATE = 400;
  * Reduces screen offset to a single number based on the matrix provided.
  */
 const getScalarScreenOffset = (e, matrix) => {
-  return e.screenX * matrix[0] + e.screenY * matrix[1];
+  // DPI fix: screenX/screenY are in physical pixels; divide by DPR to normalize
+  // drag sensitivity so stepPixelSize behaves consistently at any DPI.
+  const dpr = window.devicePixelRatio ?? 1;
+  return (e.screenX * matrix[0] + e.screenY * matrix[1]) / dpr;
 };
 
 export class DraggableControl extends Component {

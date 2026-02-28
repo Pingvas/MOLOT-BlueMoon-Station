@@ -339,8 +339,11 @@
 
 				$wrap.width($wrap.width() + 2); //Dumb hack to fix a bizarre sizing bug
 
-				var docWidth	= $wrap.outerWidth(),
-					docHeight	= $wrap.outerHeight();
+				// DPI fix: jQuery returns CSS pixels but byond_winset expects physical (BYOND) pixels.
+				// At high DPI (e.g. 150%), CSS pixels are smaller than physical pixels by devicePixelRatio.
+				var dpr = window.devicePixelRatio || 1;
+				var docWidth	= Math.ceil($wrap.outerWidth() * dpr),
+					docHeight	= Math.ceil($wrap.outerHeight() * dpr);
 
 				if (posY + docHeight > map.size.y) { //Is the bottom edge below the window? Snap it up if so
 					posY = (posY - docHeight) - realIconSizeY - tooltip.padding;

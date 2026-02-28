@@ -66,14 +66,17 @@ window.addEventListener('beforeunload', () => {
  */
 const getBoundingBox = element => {
   const rect = element.getBoundingClientRect();
+  // DPI fix: getBoundingClientRect() returns CSS pixels (scaled down by body zoom),
+  // but Byond.winset() expects physical pixels. Multiply by devicePixelRatio.
+  const pr = window.devicePixelRatio ?? 1;
   return {
     pos: [
-      rect.left,
-      rect.top,
+      Math.round(rect.left * pr),
+      Math.round(rect.top * pr),
     ],
     size: [
-      rect.right - rect.left,
-      rect.bottom - rect.top,
+      Math.round((rect.right - rect.left) * pr),
+      Math.round((rect.bottom - rect.top) * pr),
     ],
   };
 };

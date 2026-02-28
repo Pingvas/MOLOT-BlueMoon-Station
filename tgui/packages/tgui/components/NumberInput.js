@@ -77,7 +77,10 @@ export class NumberInput extends Component {
       const { minValue, maxValue, step, stepPixelSize } = this.props;
       this.setState(prevState => {
         const state = { ...prevState };
-        const offset = state.origin - e.screenY;
+        // DPI fix: screenY is in physical pixels; divide by DPR to normalize
+        // drag sensitivity so stepPixelSize behaves consistently at any DPI.
+        const dpr = window.devicePixelRatio ?? 1;
+        const offset = (state.origin - e.screenY) / dpr;
         if (prevState.dragging) {
           const stepOffset = Number.isFinite(minValue)
             ? minValue % step

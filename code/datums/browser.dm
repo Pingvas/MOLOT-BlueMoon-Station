@@ -95,7 +95,7 @@
 		built_head_content += "<link rel='stylesheet' type='text/css' href='[SSassets.transport.get_asset_url(file)]'>"
 
 	var/scaling = browser_client?.get_window_scaling()
-	if(scaling && scaling != 1 && width && height)
+	if(scaling && scaling != 1)
 		built_head_content += {"
 			<style>
 				body {
