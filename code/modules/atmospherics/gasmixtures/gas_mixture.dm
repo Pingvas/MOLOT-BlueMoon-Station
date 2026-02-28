@@ -101,15 +101,6 @@ GLOBAL_LIST_INIT(auxtools_atmos_initialized,FALSE)
 		message_admins("[key_name(usr)] modified gas mixture [REF(src)]: Changed volume to [volume].")
 		set_volume(volume)
 
-/datum/gas_mixture/Destroy()
-	// Unregister on qdel, not only on final Del()/hard-del, so auxmos doesn't keep an external ref
-	// that causes BYOND GC failures for otherwise-unreachable temporary gas mixtures.
-	if(!isnull(_extools_pointer_gasmixture))
-		__gasmixture_unregister()
-		_extools_pointer_gasmixture = null
-	reaction_results = null
-	analyzer_results = null
-	return ..()
 
 /*
 we use a hook instead
