@@ -46,8 +46,8 @@
 /datum/screen_object_holder/proc/clear()
 	for(var/atom/movable/screen/S in screen_objects)
 		S.screen_loc = null
-	for(var/atom/movable/screen/S in protected_screen_objects)
-		S.screen_loc = null
+	// Protected objects are singletons managed externally - don't null their screen_loc
+	// or they'll be invisible next time they're shown (screen_loc won't auto-restore)
 
 	client?.screen -= screen_objects
 	client?.screen -= protected_screen_objects
