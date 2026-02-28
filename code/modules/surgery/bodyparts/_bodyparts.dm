@@ -897,10 +897,14 @@
 
 		// Body markings - added as sub-overlays of limb to reduce top-level overlay count
 		if(length(body_markings_list))
-			if(species_id == "husk")
-				limb.overlays += image('modular_citadel/icons/mob/markings_notmammals.dmi', "husk_[body_zone]", -MARKING_LAYER, image_dir)
-			else if(species_id == "husk" && use_digitigrade)
-				limb.overlays += image('modular_citadel/icons/mob/markings_notmammals.dmi', "husk_[digitigrade_type]_[use_digitigrade]_[body_zone]", -MARKING_LAYER, image_dir)
+			if(species_id == "husk" && use_digitigrade)
+				var/image/husk_mark = image('modular_citadel/icons/mob/markings_notmammals.dmi', "husk_[digitigrade_type]_[use_digitigrade]_[body_zone]", -MARKING_LAYER, image_dir)
+				husk_mark.appearance_flags = RESET_COLOR
+				limb.overlays += husk_mark
+			else if(species_id == "husk")
+				var/image/husk_mark = image('modular_citadel/icons/mob/markings_notmammals.dmi', "husk_[body_zone]", -MARKING_LAYER, image_dir)
+				husk_mark.appearance_flags = RESET_COLOR
+				limb.overlays += husk_mark
 			else
 				for(var/list/marking_list in body_markings_list)
 					var/image/mark
@@ -923,7 +927,9 @@
 				var/aux_layer = aux_icons[I]
 				var/image/aux_img = image(limb.icon, "[species_id]_[I]", -aux_layer, image_dir)
 				if(species_id == "husk")
-					aux_img.overlays += image('modular_citadel/icons/mob/markings_notmammals.dmi', "husk_[I]", -aux_layer, image_dir)
+					var/image/husk_aux_mark = image('modular_citadel/icons/mob/markings_notmammals.dmi', "husk_[I]", -aux_layer, image_dir)
+					husk_aux_mark.appearance_flags = RESET_COLOR
+					aux_img.overlays += husk_aux_mark
 				else
 					for(var/marking_list in body_markings_list)
 						var/image/aux_marking_image = image(marking_list[1], "[marking_list[2]]_[I]", -aux_layer, image_dir)
@@ -946,7 +952,9 @@
 				var/aux_layer = aux_icons[I]
 				var/image/aux_img = image(limb.icon, "[I]", -aux_layer, image_dir)
 				if(species_id == "husk")
-					aux_img.overlays += image('modular_citadel/icons/mob/markings_notmammals.dmi', "husk_[I]", -aux_layer, image_dir)
+					var/image/husk_aux_mark = image('modular_citadel/icons/mob/markings_notmammals.dmi', "husk_[I]", -aux_layer, image_dir)
+					husk_aux_mark.appearance_flags = RESET_COLOR
+					aux_img.overlays += husk_aux_mark
 				else
 					for(var/marking_list in body_markings_list)
 						var/image/aux_marking_image = image(marking_list[1], "[marking_list[2]]_[I]", -aux_layer, image_dir)
@@ -958,10 +966,14 @@
 			. += aux
 
 		if(length(body_markings))
-			if(species_id == "husk")
-				limb.overlays += image('modular_citadel/icons/mob/markings_notmammals.dmi', "husk_[body_zone]", -MARKING_LAYER, image_dir)
-			else if(species_id == "husk" && use_digitigrade)
-				limb.overlays += image('modular_citadel/icons/mob/markings_notmammals.dmi', "husk_digitigrade_[use_digitigrade]_[body_zone]", -MARKING_LAYER, image_dir)
+			if(species_id == "husk" && use_digitigrade)
+				var/image/husk_mark = image('modular_citadel/icons/mob/markings_notmammals.dmi', "husk_digitigrade_[use_digitigrade]_[body_zone]", -MARKING_LAYER, image_dir)
+				husk_mark.appearance_flags = RESET_COLOR
+				limb.overlays += husk_mark
+			else if(species_id == "husk")
+				var/image/husk_mark = image('modular_citadel/icons/mob/markings_notmammals.dmi', "husk_[body_zone]", -MARKING_LAYER, image_dir)
+				husk_mark.appearance_flags = RESET_COLOR
+				limb.overlays += husk_mark
 			else
 				for(var/list/marking_list in body_markings_list)
 					var/image/mark
