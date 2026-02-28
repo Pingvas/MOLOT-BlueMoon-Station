@@ -131,12 +131,16 @@ export class NumberInput extends Component {
       }
       else if (this.inputRef) {
         const input = this.inputRef.current;
-        input.value = internalValue;
-        try {
-          input.focus();
-          input.select();
+        if (input) {
+          setTimeout(() => {
+            input.value = internalValue;
+            try {
+              input.focus();
+              input.select();
+            }
+            catch { }
+          }, 1);
         }
-        catch { }
       }
     };
   }
