@@ -11,8 +11,15 @@ INITIALIZE_IMMEDIATE(/atom/movable/screen/map_view)
 
 	/// Plane masters popup map
 	var/list/atom/movable/screen/plane_master/popup_plane_masters
+	/// Client this map_view was displayed to, for cleanup on Destroy
+	var/client/registered_client
 
 /atom/movable/screen/map_view/Destroy()
+	if(registered_client)
+		registered_client.clear_map(assigned_map)
+		registered_client = null
+	for(var/atom/movable/screen/plane_master/pm as anything in popup_plane_masters)
+		pm.screen_loc = null
 	QDEL_LIST(popup_plane_masters)
 	return ..()
 
@@ -35,6 +42,7 @@ INITIALIZE_IMMEDIATE(/atom/movable/screen/map_view)
 /atom/movable/screen/map_view/proc/display_to_client(client/show_to)
 	if(!show_to)
 		return
+	registered_client = show_to
 	show_to.register_map_obj(src)
 	if(!LAZYLEN(popup_plane_masters))
 		popup_plane_masters = list()
@@ -48,9 +56,12 @@ INITIALIZE_IMMEDIATE(/atom/movable/screen/map_view)
 		show_to.register_map_obj(pm)
 
 /atom/movable/screen/map_view/proc/hide_from(mob/hide_from)
-	if(!hide_from?.client)
+	var/client/target_client = hide_from?.client || registered_client
+	if(!target_client)
+		registered_client = null
 		return
-	hide_from.client.clear_map(assigned_map)
+	target_client.clear_map(assigned_map)
+	registered_client = null
 
 /**
  * A generic background object.

@@ -151,9 +151,6 @@ GLOBAL_LIST_INIT(available_ui_styles, list(
 		C.screen -= hotkeybuttons
 		C.screen -= infodisplay
 		C.screen -= screenoverlays
-		for(var/key in plane_masters)
-			C.screen -= plane_masters[key]
-
 	QDEL_LIST(static_inventory)
 
 	inv_slots.Cut()
@@ -184,11 +181,12 @@ GLOBAL_LIST_INIT(available_ui_styles, list(
 	alien_queen_finder = null
 	combo_display = null
 
+	for(var/key in plane_masters)
+		var/atom/movable/screen/P = plane_masters[key]
+		P.screen_loc = null
 	if(mymob?.client)
 		for(var/key in plane_masters)
-			var/atom/movable/screen/P = plane_masters[key]
-			P.screen_loc = null
-			mymob.client.screen -= P
+			mymob.client.screen -= plane_masters[key]
 	QDEL_LIST_ASSOC_VAL(plane_masters)
 	QDEL_LIST_ASSOC_VAL(plane_master_controllers)
 	QDEL_LIST(screenoverlays)
