@@ -307,6 +307,8 @@ GLOBAL_LIST_EMPTY(radial_menus)
 		stoplag(1)
 
 /datum/radial_menu/Destroy()
+	if(menu_holder)
+		menu_holder.vis_contents.Cut()
 	QDEL_LIST(elements)
 	Reset()
 	hide()
@@ -315,6 +317,7 @@ GLOBAL_LIST_EMPTY(radial_menus)
 	QDEL_NULL(close_button)
 	current_user = null
 	anchor = null
+	menu_holder = null
 	QDEL_NULL(custom_check_callback)
 	. = ..()
 

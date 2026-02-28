@@ -110,6 +110,7 @@
 	AddElement(/datum/element/ventcrawling, given_tier = VENTCRAWLER_ALWAYS)
 
 /mob/living/simple_animal/slime/Destroy()
+	deltimer(atkcool_timer_id)
 	AIproc = 0
 	for(var/friend in Friends)
 		UnregisterSignal(friend, COMSIG_PARENT_QDELETING)

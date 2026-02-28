@@ -36,6 +36,7 @@
 /turf/open/Destroy()
 	if(active_hotspot)
 		QDEL_NULL(active_hotspot)
+	QDEL_NULL(air)
 	return ..()
 
 /////////////////GAS MIXTURE PROCS///////////////////

@@ -2,6 +2,7 @@
 /mob/living/simple_animal/slime
 	var/AIproc = 0 // determines if the AI loop is activated
 	var/Atkcool = 0 // attack cooldown
+	var/atkcool_timer_id
 	var/Tempstun = 0 // temporary temperature stuns
 	var/Discipline = 0 // if a slime has been hit with a freeze gun, or wrestled/attacked off a human, they become disciplined and don't attack anymore for a while
 	var/SStun = 0 // stun variable
@@ -63,7 +64,7 @@
 				if(!CanFeedon(Target)) //If they're not able to be fed upon, ignore them.
 					if(!Atkcool)
 						Atkcool = 1
-						addtimer(CALLBACK(src, PROC_REF(reset_atkcool)), 45, TIMER_DELETE_ME)
+					atkcool_timer_id = addtimer(CALLBACK(src, PROC_REF(reset_atkcool)), 45, TIMER_STOPPABLE | TIMER_DELETE_ME)
 
 						if(Target.Adjacent(src))
 							Target.attack_slime(src)
@@ -73,10 +74,7 @@
 					if(Target.client && Target.health >= 20)
 						if(!Atkcool)
 							Atkcool = 1
-							addtimer(CALLBACK(src, PROC_REF(reset_atkcool)), 45, TIMER_DELETE_ME)
-
-							if(Target.Adjacent(src))
-								Target.attack_slime(src)
+						atkcool_timer_id = addtimer(CALLBACK(src, PROC_REF(reset_atkcool)), 45, TIMER_STOPPABLE | TIMER_DELETE_ME)
 
 					else
 						if(!Atkcool && Target.Adjacent(src))

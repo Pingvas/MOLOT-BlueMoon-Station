@@ -127,13 +127,14 @@
 /obj/item/gun/magic/contractor_hook/equip_to_best_slot(mob/M)
 	qdel(src)
 
-/obj/item/gun/magic/contractor_hook/Destroy() //BLUEMOON ADD START Правильно отвязывает крюк от костюма при сбросе или выпадении самого крюка
-	.=..()
-	suit.scorpion = null
-	suit = null
-	hook_action.action_ready = FALSE
-	hook_action.toggle_button_on_off()
-	hook_action = null //BLUEMOON ADD END
+/obj/item/gun/magic/contractor_hook/Destroy()
+	if(suit)
+		suit.scorpion = null
+		suit = null
+	if(hook_action)
+		hook_action.action_ready = FALSE
+		hook_action = null
+	return ..()
 
 /obj/item/ammo_casing/magic/contractor_hook
 	name = "Hardlight hook"
