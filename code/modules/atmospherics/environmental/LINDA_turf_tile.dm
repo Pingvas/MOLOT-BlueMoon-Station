@@ -36,7 +36,11 @@
 /turf/open/Destroy()
 	if(active_hotspot)
 		QDEL_NULL(active_hotspot)
-	QDEL_NULL(air)
+	update_air_ref(-1) // deregister from auxmos before nulling air, prevents null-access race with SSair
+	if(istype(air, /datum/gas_mixture/immutable))
+		air = null // space_gas and other static shared mixtures must not be qdel'd
+	else
+		QDEL_NULL(air)
 	return ..()
 
 /////////////////GAS MIXTURE PROCS///////////////////
