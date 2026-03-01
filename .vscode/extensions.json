@@ -3,6 +3,8 @@
 		"goonstation.goonstation-extpack",
 		"arcanis.vscode-zipfs",
 		"alefragnani.bookmarks",
-		"oderwat.indent-rainbow"
+		"oderwat.indent-rainbow",
+		"dbaeumer.vscode-eslint",
+		"editorconfig.editorconfig"
 	]
 }
