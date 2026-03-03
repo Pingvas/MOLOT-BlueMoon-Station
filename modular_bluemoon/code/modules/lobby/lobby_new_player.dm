@@ -261,7 +261,7 @@ window.onload=__bm_pr;
 				client << output(1, "bm_lobby_browser:bm_set_admin")
 			SStitle_bm?.push_player_count_to(src)
 			if(bm_lobby_music_path != "" || SSticker?.login_music)
-				addtimer(CALLBACK(client, /client/proc/bm_push_lobby_music), 0.3 SECONDS)
+				addtimer(CALLBACK(client, TYPE_PROC_REF(/client, bm_push_lobby_music)), 0.3 SECONDS)
 			return
 
 		if("toggle_ready")

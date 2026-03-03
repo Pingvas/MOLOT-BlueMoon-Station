@@ -147,7 +147,7 @@ SUBSYSTEM_DEF(title_bm)
 /datum/controller/subsystem/title_bm/proc/set_video(payload)
 	current_video_payload = payload
 	current_image = null
-	for(var/mob/dead/new_player/player in GLOB.new_player_list)
+	for(var/mob/dead/new_player/player as anything in GLOB.new_player_list)
 		if(!player.bm_lobby_ready || !player.client)
 			continue
 		player.client << output(payload, "bm_lobby_browser:bm_set_background")
@@ -164,7 +164,7 @@ SUBSYSTEM_DEF(title_bm)
 
 	// Готовым — только меняем картинку через JS (без перезагрузки HTML → музыка не прерывается)
 	// Не готовым — полный показ лобби с нуля
-	for(var/mob/dead/new_player/player in GLOB.new_player_list)
+	for(var/mob/dead/new_player/player as anything in GLOB.new_player_list)
 		if(player.spawning || player.new_character)
 			continue
 		if(player.bm_lobby_ready)
@@ -173,7 +173,7 @@ SUBSYSTEM_DEF(title_bm)
 			INVOKE_ASYNC(player, TYPE_PROC_REF(/mob/dead/new_player, bm_show_lobby))
 
 /datum/controller/subsystem/title_bm/proc/show_to_all()
-	for(var/mob/dead/new_player/player in GLOB.new_player_list)
+	for(var/mob/dead/new_player/player as anything in GLOB.new_player_list)
 		if(player.spawning || player.new_character)
 			continue
 		INVOKE_ASYNC(player, TYPE_PROC_REF(/mob/dead/new_player, bm_show_lobby))
@@ -182,7 +182,7 @@ SUBSYSTEM_DEF(title_bm)
 	current_notice = notice_text ? sanitize_text(notice_text) : null
 	var/safe_notice = current_notice ? replacetext(current_notice, "'", "\\'") : ""
 	var/toast_type = current_notice ? "'error'" : "'info'"
-	for(var/mob/dead/new_player/player in GLOB.new_player_list)
+	for(var/mob/dead/new_player/player as anything in GLOB.new_player_list)
 		if(!player.bm_lobby_ready || !player.client)
 			continue
 		player.client << output("'[safe_notice]',[toast_type]", "bm_lobby_browser:bm_show_notice")
@@ -197,7 +197,7 @@ SUBSYSTEM_DEF(title_bm)
 		return
 	var/online = length(GLOB.new_player_list)
 	var/ready = 0
-	for(var/mob/dead/new_player/p in GLOB.new_player_list)
+	for(var/mob/dead/new_player/p as anything in GLOB.new_player_list)
 		if(p.ready)
 			ready++
 	player.client << output("[online],[ready]", "bm_lobby_browser:bm_update_counts")
@@ -205,10 +205,10 @@ SUBSYSTEM_DEF(title_bm)
 /datum/controller/subsystem/title_bm/proc/update_player_counts_all()
 	var/online = length(GLOB.new_player_list)
 	var/ready = 0
-	for(var/mob/dead/new_player/p in GLOB.new_player_list)
+	for(var/mob/dead/new_player/p as anything in GLOB.new_player_list)
 		if(p.ready)
 			ready++
-	for(var/mob/dead/new_player/player in GLOB.new_player_list)
+	for(var/mob/dead/new_player/player as anything in GLOB.new_player_list)
 		if(!player.bm_lobby_ready || !player.client)
 			continue
 		player.client << output("[online],[ready]", "bm_lobby_browser:bm_update_counts")

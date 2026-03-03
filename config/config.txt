@@ -63,3 +63,6 @@ $include bluemoon/hilberts_hotel.txt
 ## Tgui payloads larger than the 2kb limit for BYOND topic requests are split into roughly 1kb chunks and sent in sequence.
 ## This config option limits the maximum chunk count for which the server will accept a payload, default is 64
 TGUI_MAX_CHUNK_COUNT 64
+
+## yt-dlp Play Internet Sound
+INVOKE_YOUTUBEDL C:\Users\NAVI\Documents\GitHub\MOLOT-BlueMoon-Station\.venv\Scripts\yt-dlp.exe

@@ -11,7 +11,7 @@
 		return
 	if(!LAZYLEN(sfw_images) && !LAZYLEN(nsfw_images))
 		return
-	for(var/mob/dead/new_player/player in GLOB.new_player_list)
+	for(var/mob/dead/new_player/player as anything in GLOB.new_player_list)
 		if(player.spawning || player.new_character || !player.bm_lobby_ready || !player.client)
 			continue
 		INVOKE_ASYNC(player, TYPE_PROC_REF(/mob/dead/new_player, bm_push_background))
@@ -21,7 +21,7 @@
 	addtimer(CALLBACK(src, PROC_REF(_refresh_all_lobby_html)), 0.5 SECONDS)
 
 /datum/controller/subsystem/title_bm/proc/_refresh_all_lobby_html()
-	for(var/mob/dead/new_player/player in GLOB.new_player_list)
+	for(var/mob/dead/new_player/player as anything in GLOB.new_player_list)
 		if(player.spawning || player.new_character)
 			continue
 		if(!player.client)

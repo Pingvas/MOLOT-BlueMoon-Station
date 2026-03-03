@@ -63,7 +63,7 @@
 
 	if(new_notice)
 		message_admins("[key_name_admin(user)] установил объявление: [new_notice]")
-		for(var/mob/dead/new_player/player in GLOB.new_player_list)
+		for(var/mob/dead/new_player/player as anything in GLOB.new_player_list)
 			to_chat(player, span_boldannounce("ОБЪЯВЛЕНИЕ ЛОББИ: [new_notice]"))
 	else
 		message_admins("[key_name_admin(user)] убрал объявление с лобби.")
