@@ -119,6 +119,16 @@ window "mapwindow"
 		background-color = #222222
 		text-color = #ffffff
 		border = line
+	elem "bm_lobby_browser"
+		type = BROWSER
+		pos = 0,0
+		size = 1024x1024
+		anchor1 = 0,0
+		anchor2 = 100,100
+		background-color = #000000
+		is-visible = false
+		is-disabled = true
+		saved-params = ""
 
 window "infowindow"
 	elem "infowindow"
