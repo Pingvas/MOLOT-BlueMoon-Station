@@ -32,8 +32,9 @@
 	if(!(prefs?.toggles & SOUND_LOBBY))
 		return
 
-	UNTIL(SSticker?.login_music)
-	var/music_path = SSticker.login_music
+	var/music_deadline = world.time + 30 SECONDS
+	UNTIL(SSticker?.login_music || world.time >= music_deadline)
+	var/music_path = SSticker?.login_music
 	if(!music_path || !fexists(music_path))
 		return
 
@@ -52,7 +53,8 @@
 	player.bm_lobby_track_name = track_name
 
 	// Ждём пока HTML-лобби готово
-	UNTIL(player.bm_lobby_ready || !player.client)
+	var/lobby_deadline = world.time + 60 SECONDS
+	UNTIL(player.bm_lobby_ready || !player.client || world.time >= lobby_deadline)
 	if(!player.client)
 		return
 

@@ -463,7 +463,7 @@ function bm_show_toast(text, type, duration) {
   }
   var toast = document.createElement('div');
   toast.className = 'bm-toast ' + (type || 'info');
-  toast.innerHTML = text;
+  toast.textContent = text;
   toast.addEventListener('click', function() { _bm_dismiss(toast); });
   container.appendChild(toast);
   while (container.children.length > 4) _bm_dismiss(container.firstChild);
@@ -919,7 +919,7 @@ function bm_show_toast(text, type, duration) {
   }
   var toast = document.createElement('div');
   toast.className = 'bm-toast ' + (type || 'info');
-  toast.innerHTML = text;
+  toast.textContent = text;
   toast.addEventListener('click', function() { _bm_dismiss(toast); });
   container.appendChild(toast);
   while (container.children.length > 4) _bm_dismiss(container.firstChild);

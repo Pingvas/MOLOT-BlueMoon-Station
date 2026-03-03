@@ -45,6 +45,17 @@ SUBSYSTEM_DEF(title_bm)
 
 	return SS_INIT_SUCCESS
 
+/datum/controller/subsystem/title_bm/Destroy()
+	UnregisterSignal(SSticker, list(COMSIG_TICKER_ENTER_PREGAME, COMSIG_TICKER_ENTER_SETTING_UP))
+	deltimer(rotate_bg_timer)
+	deltimer(player_count_timer)
+	rotate_bg_timer = null
+	player_count_timer = null
+	sfw_images = null
+	nsfw_images = null
+	progress_json = null
+	return ..();
+
 /datum/controller/subsystem/title_bm/Recover()
 	current_image         = SStitle_bm.current_image
 	loading_image         = SStitle_bm.loading_image
