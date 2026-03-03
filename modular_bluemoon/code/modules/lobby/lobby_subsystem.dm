@@ -12,6 +12,9 @@ SUBSYSTEM_DEF(title_bm)
 	var/average_completion_time = BM_LOBBY_DEFAULT_MAP_LOADTIME
 	var/progress_reference_time = 0
 	var/list/progress_json = list()
+	var/rotate_bg_timer
+	var/player_count_timer
+	var/current_video_payload
 
 /datum/controller/subsystem/title_bm/Initialize()
 	if(fexists(BM_LOBBY_HTML_FILE))
@@ -43,15 +46,16 @@ SUBSYSTEM_DEF(title_bm)
 	return SS_INIT_SUCCESS
 
 /datum/controller/subsystem/title_bm/Recover()
-	current_image   = SStitle_bm.current_image
-	loading_image   = SStitle_bm.loading_image
-	sfw_images      = SStitle_bm.sfw_images
-	nsfw_images     = SStitle_bm.nsfw_images
-	lobby_html      = SStitle_bm.lobby_html
-	current_notice  = SStitle_bm.current_notice
+	current_image         = SStitle_bm.current_image
+	loading_image         = SStitle_bm.loading_image
+	sfw_images            = SStitle_bm.sfw_images
+	nsfw_images           = SStitle_bm.nsfw_images
+	lobby_html            = SStitle_bm.lobby_html
+	current_notice        = SStitle_bm.current_notice
 	average_completion_time = SStitle_bm.average_completion_time
 	progress_reference_time = SStitle_bm.progress_reference_time
 	progress_json           = SStitle_bm.progress_json
+	current_video_payload = SStitle_bm.current_video_payload
 
 /datum/controller/subsystem/title_bm/proc/_check_progress_reference_time()
 	if(!progress_reference_time)
@@ -129,7 +133,16 @@ SUBSYSTEM_DEF(title_bm)
 		return BM_LOBBY_DEFAULT_IMAGE
 	return pick(pool)
 
+/datum/controller/subsystem/title_bm/proc/set_video(payload)
+	current_video_payload = payload
+	current_image = null
+	for(var/mob/dead/new_player/player in GLOB.new_player_list)
+		if(!player.bm_lobby_ready || !player.client)
+			continue
+		player.client << output(payload, "bm_lobby_browser:bm_set_background")
+
 /datum/controller/subsystem/title_bm/proc/change_image(file_or_icon)
+	current_video_payload = null
 	if(file_or_icon)
 		current_image = file_or_icon
 	else
@@ -159,17 +172,17 @@ SUBSYSTEM_DEF(title_bm)
 	var/safe_notice = current_notice ? replacetext(current_notice, "'", "\\'") : ""
 	var/toast_type = current_notice ? "'error'" : "'info'"
 	for(var/mob/dead/new_player/player in GLOB.new_player_list)
-		if(!player.bm_lobby_ready)
+		if(!player.bm_lobby_ready || !player.client)
 			continue
 		player.client << output("'[safe_notice]',[toast_type]", "bm_lobby_browser:bm_show_notice")
 
 /datum/controller/subsystem/title_bm/proc/update_character_name(mob/dead/new_player/user, name)
-	if(!(istype(user) && user.bm_lobby_ready))
+	if(!(istype(user) && user.bm_lobby_ready && user.client))
 		return
 	user.client << output(name, "bm_lobby_browser:bm_update_character")
 
 /datum/controller/subsystem/title_bm/proc/push_player_count_to(mob/dead/new_player/player)
-	if(!(istype(player) && player.bm_lobby_ready))
+	if(!(istype(player) && player.bm_lobby_ready && player.client))
 		return
 	var/online = length(GLOB.new_player_list)
 	var/ready = 0
@@ -185,6 +198,6 @@ SUBSYSTEM_DEF(title_bm)
 		if(p.ready)
 			ready++
 	for(var/mob/dead/new_player/player in GLOB.new_player_list)
-		if(!player.bm_lobby_ready)
+		if(!player.bm_lobby_ready || !player.client)
 			continue
 		player.client << output("[online],[ready]", "bm_lobby_browser:bm_update_counts")

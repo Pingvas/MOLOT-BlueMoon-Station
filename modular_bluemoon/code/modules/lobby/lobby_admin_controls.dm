@@ -57,6 +57,8 @@
 	message_admins("[key_name_admin(user)] устанавливает объявление на лобби.")
 
 	var/new_notice = input(user, "Введите текст объявления (пусто = убрать):", "Объявление на лобби", SStitle_bm.current_notice) as text|null
+	if(isnull(new_notice))
+		return
 	SStitle_bm.set_notice(new_notice)
 
 	if(new_notice)
@@ -108,16 +110,23 @@
 		// Формат youtu.be/VIDEO_ID
 		var/short_pos = findtext(media_url, "youtu.be/")
 		if(short_pos)
-			var/id_start = short_pos + 9  // "youtu.be/"
+			var/id_start = short_pos + 9
 			var/q_pos = findtext(media_url, "?", id_start)
 			video_id = q_pos ? copytext(media_url, id_start, q_pos) : copytext(media_url, id_start)
-		else
-			// Формат youtube.com/watch?v=VIDEO_ID
+		// Формат youtube.com/embed/VIDEO_ID
+		if(!video_id)
+			var/embed_pos = findtext(media_url, "youtube.com/embed/")
+			if(embed_pos)
+				var/id_start = embed_pos + 18
+				var/q_pos = findtext(media_url, "?", id_start)
+				video_id = q_pos ? copytext(media_url, id_start, q_pos) : copytext(media_url, id_start)
+		// Формат youtube.com/watch?v=VIDEO_ID
+		if(!video_id)
 			var/v_pos = findtext(media_url, "?v=")
 			if(!v_pos)
 				v_pos = findtext(media_url, "&v=")
 			if(v_pos)
-				var/id_start = v_pos + 3  // длина "?v=" или "&v="
+				var/id_start = v_pos + 3
 				var/amp_pos = findtext(media_url, "&", id_start)
 				video_id = amp_pos ? copytext(media_url, id_start, amp_pos) : copytext(media_url, id_start)
 		if(video_id)
@@ -128,11 +137,9 @@
 	else if(type_choice == "Видео (MP4/WebM)")
 		media_type = "video"
 
-	var/payload = "{\"url\":\"[media_url]\",\"type\":\"[media_type]\"}"
-	for(var/mob/dead/new_player/player in GLOB.new_player_list)
-		if(!player.bm_lobby_ready || !player.client)
-			continue
-		player.client << output(payload, "bm_lobby_browser:bm_set_background")
+	var/list/payload_data = list("url" = media_url, "type" = media_type)
+	var/payload = json_encode(payload_data)
+	SStitle_bm.set_video(payload)
 
 	message_admins("[key_name_admin(user)] установил [media_type] как фон лобби: [media_url]")
 	to_chat(user, span_notice("Фон лобби обновлён для всех игроков."))

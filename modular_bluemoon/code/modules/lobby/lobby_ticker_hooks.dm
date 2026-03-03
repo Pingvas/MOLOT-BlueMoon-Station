@@ -1,11 +1,13 @@
 /datum/controller/subsystem/title_bm/proc/_on_enter_pregame()
 	SIGNAL_HANDLER
 	addtimer(CALLBACK(src, PROC_REF(change_image)), 1 SECONDS)
-	addtimer(CALLBACK(src, PROC_REF(_auto_rotate_backgrounds)), 45 SECONDS, TIMER_LOOP)
-	addtimer(CALLBACK(src, PROC_REF(update_player_counts_all)), 5 SECONDS, TIMER_LOOP)
+	deltimer(rotate_bg_timer)
+	deltimer(player_count_timer)
+	rotate_bg_timer = addtimer(CALLBACK(src, PROC_REF(_auto_rotate_backgrounds)), 45 SECONDS, TIMER_LOOP | TIMER_STOPPABLE)
+	player_count_timer = addtimer(CALLBACK(src, PROC_REF(update_player_counts_all)), 5 SECONDS, TIMER_LOOP | TIMER_STOPPABLE)
 
 /datum/controller/subsystem/title_bm/proc/_auto_rotate_backgrounds()
-	if(current_image)
+	if(current_image || current_video_payload)
 		return
 	if(!LAZYLEN(sfw_images) && !LAZYLEN(nsfw_images))
 		return

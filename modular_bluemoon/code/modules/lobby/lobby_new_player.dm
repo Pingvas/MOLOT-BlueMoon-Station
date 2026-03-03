@@ -62,6 +62,9 @@
 /mob/dead/new_player/proc/bm_push_background()
 	if(!client || !bm_lobby_ready)
 		return
+	if(SStitle_bm?.current_video_payload)
+		client << output(SStitle_bm.current_video_payload, "bm_lobby_browser:bm_set_background")
+		return
 	var/show_nsfw = client.prefs?.bm_lobby_show_nsfw || FALSE
 	var/img_to_send = SStitle_bm?.get_image_for_player(show_nsfw)
 	if(!img_to_send)
@@ -143,7 +146,7 @@ requestAnimationFrame(function(){document.getElementById('bar').style.width='95%
 	dat += _bm_build_menu()
 	dat += "</div>"
 
-	var/char_name = uppertext(client?.prefs?.real_name || "")
+	var/char_name = html_encode(uppertext(client?.prefs?.real_name || ""))
 	dat += {"<div id=\"bm-footer\">
   <div id=\"bm-char-name\">[char_name ? char_name : "\u2014 \u2014 \u2014"]</div>
   <div id=\"bm-count-row\">

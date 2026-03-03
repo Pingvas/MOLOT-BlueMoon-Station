@@ -17,5 +17,6 @@
 	.["bm_lobby_button_style"] >> bm_lobby_button_style
 	if(isnull(bm_lobby_show_nsfw))
 		bm_lobby_show_nsfw = FALSE
+	bm_lobby_show_nsfw = !!bm_lobby_show_nsfw
 	if(!bm_lobby_button_style || !(bm_lobby_button_style in list(BM_BUTTON_STYLE_TG, BM_BUTTON_STYLE_BM)))
 		bm_lobby_button_style = BM_BUTTON_STYLE_BM
