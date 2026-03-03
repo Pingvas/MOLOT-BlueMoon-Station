@@ -733,8 +733,6 @@ function _bmStopAllMedia() {
     else if (bg.tagName === 'IFRAME') { try { bg.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*'); } catch(e){} }
   }
 }
-window.addEventListener('pagehide', _bmStopAllMedia);
-window.addEventListener('beforeunload', _bmStopAllMedia);
 </script>
 </head>
 <body class="style-tg">
@@ -1182,8 +1180,6 @@ function _bmStopAllMedia() {
     else if (bg.tagName === 'IFRAME') { try { bg.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*'); } catch(e){} }
   }
 }
-window.addEventListener('pagehide', _bmStopAllMedia);
-window.addEventListener('beforeunload', _bmStopAllMedia);
 </script>
 </body>
 </html>

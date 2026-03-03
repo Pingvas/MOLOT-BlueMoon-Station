@@ -114,6 +114,7 @@ requestAnimationFrame(function(){document.getElementById('bar').style.width='95%
 </body></html>"}
 
 /mob/dead/new_player/proc/_bm_build_html()
+	var/R = REF(src)
 	var/dat = SStitle_bm?.lobby_html || BM_DEFAULT_LOBBY_HTML_PREAMBLE
 
 	dat += {"<img id="bm-bg" class="bg" src="loading_screen.gif" alt=\"\">"}
@@ -127,11 +128,11 @@ requestAnimationFrame(function(){document.getElementById('bar').style.width='95%
   <button id=\"bm-settings-btn\" onclick=\"bmToggleSettings()\">&#9881; НАСТРОЙКИ</button>
   <div id=\"bm-settings-panel\">
     <div class=\"bm-settings-title\">НАСТРОЙКИ ЛОББИ</div>
-    <a class=\"bm-settings-row\" onclick=\"bmAction('toggle_nsfw')\" style=\"cursor:pointer\">
-      <span class=\"bm-s-label\">NSFW КОНТЕНТ</span>
-      <span class=\"bm-s-value\" id=\"bm-s-nsfw\">ВЫКЛ</span>
+    <a class="bm-settings-row" href='?src=[R];bm_lobby_action=toggle_nsfw' style="cursor:pointer">
+      <span class="bm-s-label">NSFW КОНТЕНТ</span>
+      <span class="bm-s-value" id="bm-s-nsfw">ВЫКЛ</span>
     </a>
-    <a class=\"bm-settings-row\" onclick=\"bmAction('toggle_style')\" style=\"cursor:pointer\">
+    <a class="bm-settings-row" href='?src=[R];bm_lobby_action=toggle_style' style="cursor:pointer">
       <span class=\"bm-s-label\">СТИЛЬ КНОПОК</span>
       <span class=\"bm-s-value\" id=\"bm-s-style\">TG</span>
     </a>
@@ -165,7 +166,7 @@ requestAnimationFrame(function(){document.getElementById('bar').style.width='95%
 </div>
 <audio id=\"bm-audio\" loop></audio></div>"}
 
-	var/R = REF(src)
+
 	var/show_nsfw = client?.prefs?.bm_lobby_show_nsfw || FALSE
 	var/button_style = client?.prefs?.bm_lobby_button_style || BM_BUTTON_STYLE_BM
 	var/notice_js = SStitle_bm?.current_notice ? \
@@ -289,7 +290,7 @@ window.onload=__bm_pr;
 				client.prefs.bm_lobby_show_nsfw = !client.prefs.bm_lobby_show_nsfw
 				client.prefs.save_preferences()
 				client << output(client.prefs.bm_lobby_show_nsfw, "bm_lobby_browser:bm_update_nsfw_indicator")
-				bm_push_background()
+				addtimer(CALLBACK(src, PROC_REF(bm_push_background)), 0.3 SECONDS)
 			return
 
 		if("toggle_style")
