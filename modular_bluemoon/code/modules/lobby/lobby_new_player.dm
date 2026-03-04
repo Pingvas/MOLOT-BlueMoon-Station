@@ -63,15 +63,10 @@
 	if(!client)
 		return
 	bm_lobby_ready = FALSE
-	var/client/C = client
-	C << output(1, "bm_lobby_browser:bm_begin_fadeout")
-	addtimer(CALLBACK(C, TYPE_PROC_REF(/client, _bm_do_hide)), 1 SECONDS)
-
-/client/proc/_bm_do_hide()
-	winset(src, "bm_lobby_browser", "is-disabled=true;is-visible=false")
-	winset(src, "map", "is-visible=true")
-	src << browse(null, "window=bm_lobby_browser")
-	winset(src, "status_bar", "is-visible=true")
+	winset(client, "bm_lobby_browser", "is-disabled=true;is-visible=false")
+	winset(client, "map", "is-visible=true")
+	client << browse(null, "window=bm_lobby_browser")
+	winset(client, "status_bar", "is-visible=true")
 
 /mob/dead/new_player/proc/bm_push_background()
 	if(!client || !bm_lobby_ready)
