@@ -17,6 +17,9 @@ SUBSYSTEM_DEF(title_bm)
 	var/current_video_payload
 	var/last_online_count = -1
 	var/last_ready_count = -1
+	var/cached_static_html = ""
+	var/current_sfw_image
+	var/current_nsfw_image
 
 /datum/controller/subsystem/title_bm/proc/_parse_lobby_html(full_html)
 	var/head_end = findtext(full_html, "</head>")
@@ -49,6 +52,7 @@ SUBSYSTEM_DEF(title_bm)
 	RegisterSignal(SSticker, COMSIG_TICKER_ENTER_PREGAME, PROC_REF(_on_enter_pregame))
 	RegisterSignal(SSticker, COMSIG_TICKER_ENTER_SETTING_UP, PROC_REF(_on_enter_setting_up))
 
+	_build_static_html()
 	INVOKE_ASYNC(src, PROC_REF(_refresh_all_lobby_html))
 
 	return SS_INIT_SUCCESS
@@ -76,6 +80,9 @@ SUBSYSTEM_DEF(title_bm)
 		lobby_html = _parse_lobby_html(file2text(BM_LOBBY_HTML_FILE))
 	else
 		lobby_html = SStitle_bm.lobby_html
+	cached_static_html = SStitle_bm.cached_static_html
+	current_sfw_image   = SStitle_bm.current_sfw_image
+	current_nsfw_image  = SStitle_bm.current_nsfw_image
 
 /datum/controller/subsystem/title_bm/proc/_check_progress_reference_time()
 	if(!progress_reference_time)
@@ -112,49 +119,59 @@ SUBSYSTEM_DEF(title_bm)
 	WRITE_FILE(F, json_encode(progress_json))
 	progress_json = null
 
-/datum/controller/subsystem/title_bm/proc/_load_title_images()
-	var/list/sfw_files = flist(BM_LOBBY_IMAGES_SFW)
-	if(islist(sfw_files))
-		for(var/filename in sfw_files)
-			if(filename == "exclude" || filename == "blank.png")
-				continue
-			if(copytext(filename, length(filename)) == "/")
-				continue
-			var/lower = lowertext(filename)
-			if(!findtext(lower, ".png") && !findtext(lower, ".jpg") && !findtext(lower, ".jpeg") && !findtext(lower, ".gif") && !findtext(lower, ".dmi"))
-				continue
-			var/full_path = "[BM_LOBBY_IMAGES_SFW][filename]"
-			if(!fexists(full_path))
-				continue
-			sfw_images += fcopy_rsc(full_path)
+/datum/controller/subsystem/title_bm/proc/_build_static_html()
+	var/list/parts = list()
+	parts += {"<img id="bm-bg" class="bg" src="loading_screen.gif" alt="">"}
+	parts += {"<div id=\"bm-overlay\"></div>"}
+	parts += {"<div id=\"bm-toasts\"></div>"}
+	parts += {"<div id=\"bm-toggle-btn\" onclick=\"bmToggleSidebar()\" title=\"Свернуть/развернуть меню\">&#9664;</div>"}
+	cached_static_html = parts.Join("")
 
-	if(fexists(BM_LOBBY_IMAGES_NSFW))
-		var/list/nsfw_files = flist(BM_LOBBY_IMAGES_NSFW)
-		if(islist(nsfw_files))
-			for(var/filename in nsfw_files)
-				if(filename == "exclude" || filename == "blank.png")
-					continue
-				if(copytext(filename, length(filename)) == "/")
-					continue
-				var/lower = lowertext(filename)
-				if(!findtext(lower, ".png") && !findtext(lower, ".jpg") && !findtext(lower, ".jpeg") && !findtext(lower, ".gif") && !findtext(lower, ".dmi"))
-					continue
-				var/full_path = "[BM_LOBBY_IMAGES_NSFW][filename]"
-				if(!fexists(full_path))
-					continue
-				nsfw_images += fcopy_rsc(full_path)
+/datum/controller/subsystem/title_bm/proc/_load_images_from_dir(dir_path, list/target_list)
+	if(!fexists(dir_path))
+		return
+	var/list/files = flist(dir_path)
+	if(!islist(files))
+		return
+	for(var/filename in files)
+		if(filename == "exclude" || filename == "blank.png")
+			continue
+		if(copytext(filename, length(filename)) == "/")
+			continue
+		var/lower = lowertext(filename)
+		if(!findtext(lower, ".png") && !findtext(lower, ".jpg") && !findtext(lower, ".jpeg") && !findtext(lower, ".gif") && !findtext(lower, ".dmi"))
+			continue
+		var/full_path = "[dir_path][filename]"
+		if(!fexists(full_path))
+			continue
+		target_list += fcopy_rsc(full_path)
+
+/datum/controller/subsystem/title_bm/proc/_load_title_images()
+	_load_images_from_dir(BM_LOBBY_IMAGES_SFW, sfw_images)
+	_load_images_from_dir(BM_LOBBY_IMAGES_NSFW, nsfw_images)
 
 /datum/controller/subsystem/title_bm/proc/get_image_for_player(show_nsfw = FALSE)
 	if(loading_image && current_image == loading_image)
 		return loading_image
 	if(current_image)
 		return current_image
-	var/list/pool = sfw_images
-	if(show_nsfw && LAZYLEN(nsfw_images))
-		pool = nsfw_images
+	if(show_nsfw && current_nsfw_image)
+		return current_nsfw_image
+	if(current_sfw_image)
+		return current_sfw_image
+	// fallback: если кеш ещё не заполнен — выбрать случайно
+	var/list/pool = show_nsfw && LAZYLEN(nsfw_images) ? nsfw_images : sfw_images
 	if(!LAZYLEN(pool))
 		return BM_LOBBY_DEFAULT_IMAGE
 	return pick(pool)
+
+/datum/controller/subsystem/title_bm/proc/_rotate_current_images()
+	if(LAZYLEN(sfw_images))
+		current_sfw_image = pick(sfw_images)
+	if(LAZYLEN(nsfw_images))
+		current_nsfw_image = pick(nsfw_images)
+	else
+		current_nsfw_image = current_sfw_image
 
 /datum/controller/subsystem/title_bm/proc/set_video(payload)
 	current_video_payload = payload
@@ -204,22 +221,24 @@ SUBSYSTEM_DEF(title_bm)
 		return
 	user.client << output(name, "bm_lobby_browser:bm_update_character")
 
+/datum/controller/subsystem/title_bm/proc/_get_player_counts()
+	var/online = length(GLOB.new_player_list)
+	var/ready = 0
+	for(var/mob/dead/new_player/p as anything in GLOB.new_player_list)
+		if(p.ready)
+			ready++
+	return list(online, ready)
+
 /datum/controller/subsystem/title_bm/proc/push_player_count_to(mob/dead/new_player/player)
 	if(!(istype(player) && player.bm_lobby_ready && player.client))
 		return
-	var/online = length(GLOB.new_player_list)
-	var/ready = 0
-	for(var/mob/dead/new_player/p as anything in GLOB.new_player_list)
-		if(p.ready)
-			ready++
-	player.client << output("[online],[ready]", "bm_lobby_browser:bm_update_counts")
+	var/list/counts = _get_player_counts()
+	player.client << output("[counts[1]],[counts[2]]", "bm_lobby_browser:bm_update_counts")
 
 /datum/controller/subsystem/title_bm/proc/update_player_counts_all()
-	var/online = length(GLOB.new_player_list)
-	var/ready = 0
-	for(var/mob/dead/new_player/p as anything in GLOB.new_player_list)
-		if(p.ready)
-			ready++
+	var/list/counts = _get_player_counts()
+	var/online = counts[1]
+	var/ready = counts[2]
 	if(online == last_online_count && ready == last_ready_count)
 		return
 	last_online_count = online

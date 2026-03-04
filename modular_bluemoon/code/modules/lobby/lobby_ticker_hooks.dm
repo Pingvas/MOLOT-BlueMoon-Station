@@ -5,15 +5,17 @@
 	lobby_tick_count = 0
 	last_online_count = -1
 	last_ready_count = -1
-	lobby_tick_timer = addtimer(CALLBACK(src, PROC_REF(_lobby_tick)), 5 SECONDS, TIMER_LOOP | TIMER_STOPPABLE)
+	lobby_tick_timer = addtimer(CALLBACK(src, PROC_REF(_lobby_tick)), 15 SECONDS, TIMER_LOOP | TIMER_STOPPABLE)
 
 /datum/controller/subsystem/title_bm/proc/_lobby_tick()
 	if(!length(GLOB.new_player_list))
 		return
 	lobby_tick_count++
 	update_player_counts_all()
-	if(lobby_tick_count % 9 == 0)
+	// тик = 15с
+	if(lobby_tick_count % 3 == 0)
 		if(!current_image && !current_video_payload && (LAZYLEN(sfw_images) || LAZYLEN(nsfw_images)))
+			_rotate_current_images()
 			for(var/mob/dead/new_player/player as anything in GLOB.new_player_list)
 				if(player.spawning || player.new_character || !player.bm_lobby_ready || !player.client)
 					continue

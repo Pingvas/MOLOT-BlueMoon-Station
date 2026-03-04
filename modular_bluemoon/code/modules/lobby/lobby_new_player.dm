@@ -127,14 +127,22 @@ requestAnimationFrame(function(){document.getElementById('bar').style.width='95%
 
 /mob/dead/new_player/proc/_bm_build_html()
 	var/R = REF(src)
-	var/dat = SStitle_bm?.lobby_html || BM_DEFAULT_LOBBY_HTML_PREAMBLE
+	var/list/parts = list()
 
-	dat += {"<img id="bm-bg" class="bg" src="loading_screen.gif" alt=\"\">"}
-	dat += {"<div id=\"bm-overlay\"></div>"}
-	dat += {"<div id=\"bm-toasts\"></div>"}
-	dat += {"<div id=\"bm-toggle-btn\" onclick=\"bmToggleSidebar()\" title=\"Свернуть/развернуть меню\">&#9664;</div>"}
-	dat += {"<div id=\"bm-sidebar\">"}
-	dat += {"<div id=\"bm-logo\">
+	parts += SStitle_bm?.lobby_html || BM_DEFAULT_LOBBY_HTML_PREAMBLE
+
+	// статические части (bg, overlay, toasts, toggle-btn) из кеша подсистемы
+	if(SStitle_bm?.cached_static_html != "")
+		parts += SStitle_bm.cached_static_html
+	else
+		parts += {"<img id="bm-bg" class="bg" src="loading_screen.gif" alt=\"\">"}
+		parts += {"<div id=\"bm-overlay\"></div>"}
+		parts += {"<div id=\"bm-toasts\"></div>"}
+		parts += {"<div id=\"bm-toggle-btn\" onclick=\"bmToggleSidebar()\" title=\"Свернуть/развернуть меню\">&#9664;</div>"}
+
+	// динамическая часть
+	parts += {"<div id=\"bm-sidebar\">"}
+	parts += {"<div id=\"bm-logo\">
   <div class=\"bm-title-text\">BLUEMOON<br>STATION</div>
   <div class=\"bm-subtitle-text\">SPACE STATION 13</div>
   <button id=\"bm-settings-btn\" onclick=\"bmToggleSettings()\">&#9881; НАСТРОЙКИ</button>
@@ -147,19 +155,19 @@ requestAnimationFrame(function(){document.getElementById('bar').style.width='95%
   </div>
   <div id=\"bm-player-count\">&#183; &#183; &#183;</div>
 </div>"}
-	dat += {"<div id=\"bm-menu\">"}
-	dat += _bm_build_menu()
-	dat += "</div>"
+	parts += {"<div id=\"bm-menu\">"}
+	parts += _bm_build_menu()
+	parts += "</div>"
 
 	var/char_name = html_encode(uppertext(client?.prefs?.real_name || ""))
-	dat += {"<div id=\"bm-footer\">
+	parts += {"<div id=\"bm-footer\">
   <div id=\"bm-char-name\">[char_name ? char_name : "\u2014 \u2014 \u2014"]</div>
   <div id=\"bm-count-row\">
     <span class=\"bm-count-lbl\">ОНЛАЙН&nbsp;<span class=\"bm-count-val\" id=\"bm-count-online\">&#8212;</span></span>
     <span id=\"bm-count-ready-wrap\" class=\"bm-count-lbl\">ГОТОВЫ&nbsp;<span class=\"bm-count-val\" id=\"bm-count-ready\">&#8212;</span></span>
   </div>
 </div>"}
-	dat += {"<div id=\"bm-audio-bar\">
+	parts += {"<div id=\"bm-audio-bar\">
   <div id=\"bm-audio-row\">
     <button class=\"bm-audio-btn\" id=\"bm-btn-play\" onclick=\"bmAudioPlay()\">&#9654;</button>
     <div id=\"bm-audio-track\">нет трека</div>
@@ -174,13 +182,12 @@ requestAnimationFrame(function(){document.getElementById('bar').style.width='95%
 </div>
 <audio id=\"bm-audio\" loop></audio></div>"}
 
-
 	var/show_nsfw = client?.prefs?.bm_lobby_show_nsfw || FALSE
 	var/notice_js = SStitle_bm?.current_notice ? \
 		{"bm_show_notice('[replacetext(SStitle_bm.current_notice, "'", "\\'")] ');"} : ""
 	var/admin_js = client?.holder ? "bm_set_admin(1);" : ""
 
-	dat += {"<script>
+	parts += {"<script>
 	window._BM_SRC='[R]';
 	bm_update_nsfw_indicator([show_nsfw ? 1 : 0]);
 	[admin_js]
@@ -188,14 +195,14 @@ requestAnimationFrame(function(){document.getElementById('bar').style.width='95%
 	</script>"}
 
 	var/R_ready = REF(src)
-	dat += {"<script>
+	parts += {"<script>
 var __bm_pr=function(){if(window.__bm_page_ready_sent)return;window.__bm_page_ready_sent=true;location.href='?src=[R_ready];bm_lobby_action=page_ready';};
 setTimeout(__bm_pr,0);
 window.onload=__bm_pr;
 </script>"}
 
-	dat += "</body></html>"
-	return dat
+	parts += "</body></html>"
+	return parts.Join("")
 
 /mob/dead/new_player/proc/_bm_build_menu()
 	var/list/parts = list()
