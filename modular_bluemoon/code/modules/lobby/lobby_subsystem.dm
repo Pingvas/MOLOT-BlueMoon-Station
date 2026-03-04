@@ -64,6 +64,9 @@ SUBSYSTEM_DEF(title_bm)
 	sfw_images = null
 	nsfw_images = null
 	progress_json = null
+	current_sfw_image = null
+	current_nsfw_image = null
+	cached_static_html = ""
 	return ..();
 
 /datum/controller/subsystem/title_bm/Recover()
