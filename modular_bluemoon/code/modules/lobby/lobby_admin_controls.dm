@@ -156,3 +156,20 @@
 	else
 		winset(src, "bm_lobby_browser", "is-disabled=true;is-visible=false")
 		winset(src, "status_bar", "is-visible=true")
+
+// 5. ПЕРЕЗАГРУЗКА HTML/CSS ЛОББИ (администратор)
+/client/verb/bm_admin_reload_lobby_html()
+	set name = "Лобби: Перезагрузить HTML/CSS"
+	set desc = "НЕ ИСПОЛЬЗОВАТЬ БЕЗ НУЖДЫ. Перечитать lobby_html.txt с диска и обновить стили для всех игроков в лобби."
+	set category = "Admin.Fun"
+	if(!check_rights(R_ADMIN))
+		return
+	var/mob/user = mob
+	log_admin("[key_name(user)] перезагружает HTML/CSS лобби BlueMoon.")
+	message_admins("[key_name_admin(user)] перезагружает HTML/CSS лобби.")
+	if(!SStitle_bm)
+		to_chat(user, span_warning("SStitle_bm не инициализирован!"))
+		return
+	var/refreshed = SStitle_bm.reload_lobby_html()
+	to_chat(user, span_notice("HTML/CSS лобби перезагружен. Обновлено клиентов: [refreshed]."))
+	message_admins("[key_name_admin(user)] перезагрузил HTML/CSS лобби. Обновлено клиентов: [refreshed].")

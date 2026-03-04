@@ -351,7 +351,13 @@ window.onload=__bm_pr;
 
 		if("polls_menu")
 			_bm_play_click_sound()
-			handle_player_polling()
+			if(SSvote?.mode)
+				var/datum/browser/popup = new(src, "vote", "Voting Panel", nwidth=600, nheight=700)
+				popup.set_window_options("can_close=0")
+				popup.set_content(SSvote.interface(client))
+				popup.open(0)
+			else
+				client << output("Активных голосований нет.", "bm_lobby_browser:bm_show_notice")
 			return
 
 		if("start_game")

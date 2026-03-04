@@ -20,6 +20,21 @@ SUBSYSTEM_DEF(title_bm)
 	var/current_sfw_image
 	var/current_nsfw_image
 
+/// Перечитывает lobby_html.txt с диска и пересылает свежий HTML всем игрокам в лобби.
+/// Возвращает количество обновлённых клиентов.
+/datum/controller/subsystem/title_bm/proc/reload_lobby_html()
+	if(fexists(BM_LOBBY_HTML_FILE))
+		lobby_html = _parse_lobby_html(file2text(BM_LOBBY_HTML_FILE))
+	else
+		lobby_html = _parse_lobby_html(file2text('config/bluemoon/lobby_html.txt'))
+	var/refreshed = 0
+	for(var/mob/dead/new_player/player as anything in GLOB.new_player_list)
+		if(!player.client)
+			continue
+		player.bm_update_lobby_html()
+		refreshed++
+	return refreshed
+
 /datum/controller/subsystem/title_bm/proc/_parse_lobby_html(full_html)
 	var/head_end = findtext(full_html, "</head>")
 	var/search_from = head_end ? head_end : 1
