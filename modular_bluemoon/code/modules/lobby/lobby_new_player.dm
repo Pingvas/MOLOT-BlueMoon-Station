@@ -19,9 +19,6 @@
 	winset(client, "status_bar", "is-visible=false")
 	winset(client, "bm_lobby_browser", "is-disabled=false;is-visible=false")
 
-	var/datum/asset/asset_send = get_asset_datum(/datum/asset/simple/bm_lobby)
-	asset_send.send(src)
-
 	if(!SStitle_bm?.initialized && (!SSticker || SSticker.current_state <= GAME_STATE_STARTUP))
 		if(fexists(BM_LOBBY_LOADING_GIF))
 			src << browse(fcopy_rsc(BM_LOBBY_LOADING_GIF), "file=loading_screen.gif;display=0")
@@ -194,9 +191,8 @@ requestAnimationFrame(function(){document.getElementById('bar').style.width='95%
 	[notice_js]
 	</script>"}
 
-	var/R_ready = REF(src)
 	parts += {"<script>
-var __bm_pr=function(){if(window.__bm_page_ready_sent)return;window.__bm_page_ready_sent=true;location.href='?src=[R_ready];bm_lobby_action=page_ready';};
+var __bm_pr=function(){if(window.__bm_page_ready_sent)return;window.__bm_page_ready_sent=true;location.href='?src=[R];bm_lobby_action=page_ready';};
 setTimeout(__bm_pr,0);
 window.onload=__bm_pr;
 </script>"}
@@ -364,12 +360,6 @@ window.onload=__bm_pr;
 
 /mob/dead/new_player/proc/_bm_play_click_sound()
 	SEND_SOUND(src, sound('sound/misc/menu/ui_select1.ogg'))
-
-/mob/dead/new_player/make_me_an_observer()
-	return ..()
-
-/datum/asset/simple/bm_lobby
-	assets = list()
 
 /mob/dead/new_player/proc/show_job_traits()
 	if(!client)

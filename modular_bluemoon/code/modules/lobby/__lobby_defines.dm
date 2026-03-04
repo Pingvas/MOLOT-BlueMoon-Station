@@ -27,27 +27,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Co
 </head><body>
 "}
 
-#define BM_DEFAULT_LOBBY_HTML {"<!DOCTYPE html>
-<html>
-<head>
-<meta charset='UTF-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1.0'>
-<title>BlueMoon Station</title>
-<style>
-body,html{margin:0;overflow:hidden;background:#000;font-family:'Courier New',monospace}
-.bg{position:fixed;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:0}
-</style>
-</head>
-<body>
-<img src='config/title_screens/cyberpunk_cityscape.gif' class='bg' alt=''>
-</body>
-</html>
-"}
-
 #define BM_LOBBY_PROGRESS_VERSION "bm1"
 
 #define BM_LOBBY_DEFAULT_MAP_LOADTIME (60 SECONDS)
 
 #define BM_LOBBY_PROGRESS_CACHE "data/bm_lobby_progress.json"
-
-GLOBAL_LIST_EMPTY(startup_messages)

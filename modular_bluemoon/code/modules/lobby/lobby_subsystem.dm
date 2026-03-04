@@ -13,7 +13,6 @@ SUBSYSTEM_DEF(title_bm)
 	var/progress_reference_time = 0
 	var/list/progress_json = list()
 	var/lobby_tick_timer
-	var/lobby_tick_count = 0
 	var/current_video_payload
 	var/last_online_count = -1
 	var/last_ready_count = -1
@@ -53,7 +52,6 @@ SUBSYSTEM_DEF(title_bm)
 	RegisterSignal(SSticker, COMSIG_TICKER_ENTER_SETTING_UP, PROC_REF(_on_enter_setting_up))
 
 	_build_static_html()
-	INVOKE_ASYNC(src, PROC_REF(_refresh_all_lobby_html))
 
 	return SS_INIT_SUCCESS
 
