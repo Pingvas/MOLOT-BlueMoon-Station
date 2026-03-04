@@ -221,30 +221,30 @@ var _i=0;setInterval(function(){var s=_i%4;document.getElementById('d').textCont
 	var/R = REF(src)
 
 	if(!SSticker || SSticker.current_state <= GAME_STATE_PREGAME)
-		parts += {"<a id="bm-btn-ready" class="bm-btn" href='?src=[R];bm_lobby_action=toggle_ready'>"}
+		parts += {"<a id='bm-btn-ready' class='bm-btn' href='?src=[R];bm_lobby_action=toggle_ready'>"}
 		parts += ready ? {"<span class='bm-checked'>☑</span> ГОТОВНОСТЬ"} : {"<span class='bm-unchecked'>☒</span> ГОТОВНОСТЬ"}
 		parts += "</a>"
 		if(client?.holder)
-			parts += {"<a class="bm-btn bm-btn-admin" href='?src=[R];bm_lobby_action=start_game'>⚡ СТАРТ ИГРЫ</a>"}
+			parts += {"<a class='bm-btn bm-btn-admin' href='?src=[R];bm_lobby_action=start_game'>⚡ СТАРТ ИГРЫ</a>"}
 	else
-		parts += {"<a class="bm-btn" href='?src=[R];bm_lobby_action=late_join'>ВОЙТИ В ИГРУ</a>"}
-		parts += {"<a class="bm-btn" href='?src=[R];bm_lobby_action=view_manifest'>СПИСОК ЭКИПАЖА</a>"}
-		parts += {"<a class="bm-btn" href='?src=[R];bm_lobby_action=character_directory'>БИБЛИОТЕКА ПЕРСОНАЖЕЙ</a>"}
+		parts += {"<a class='bm-btn' href='?src=[R];bm_lobby_action=late_join'>ВОЙТИ В ИГРУ</a>"}
+		parts += {"<a class='bm-btn' href='?src=[R];bm_lobby_action=view_manifest'>СПИСОК ЭКИПАЖА</a>"}
+		parts += {"<a class='bm-btn' href='?src=[R];bm_lobby_action=character_directory'>БИБЛИОТЕКА ПЕРСОНАЖЕЙ</a>"}
 
-	parts += {"<a class="bm-btn" href='?src=[R];bm_lobby_action=observe'>БЫТЬ НАБЛЮДАТЕЛЕМ</a>"}
+	parts += {"<a class='bm-btn' href='?src=[R];bm_lobby_action=observe'>БЫТЬ НАБЛЮДАТЕЛЕМ</a>"}
 
 	parts += "<div class='bm-divider'></div>"
 
-	parts += {"<a class="bm-btn" href='?src=[R];bm_lobby_action=character_setup'>НАСТРОЙКА ПЕРСОНАЖА</a>"}
-	parts += {"<a class="bm-btn" href='?src=[R];bm_lobby_action=game_options'>ПАРАМЕТРЫ ИГРЫ</a>"}
+	parts += {"<a class='bm-btn' href='?src=[R];bm_lobby_action=character_setup'>НАСТРОЙКА ПЕРСОНАЖА</a>"}
+	parts += {"<a class='bm-btn' href='?src=[R];bm_lobby_action=game_options'>ПАРАМЕТРЫ ИГРЫ</a>"}
 
 	var/is_antag_opted = !(client?.prefs?.toggles & NO_ANTAG)
-	parts += {"<a id="bm-btn-antag" class="bm-btn" href='?src=[R];bm_lobby_action=toggle_antag'>"}
+	parts += {"<a id='bm-btn-antag' class='bm-btn' href='?src=[R];bm_lobby_action=toggle_antag'>"}
 	parts += is_antag_opted ? {"<span class='bm-checked'>☑</span> РОЛЬ АНТАГОНИСТА"} : {"<span class='bm-unchecked'>☒</span> РОЛЬ АНТАГОНИСТА"}
 	parts += "</a>"
 
 	if(length(GLOB.lobby_station_traits))
-		parts += {"<a class="bm-btn" href='?src=[R];bm_lobby_action=job_traits'>ОСОБЕННОСТИ РАБОТЫ</a>"}
+		parts += {"<a class='bm-btn' href='?src=[R];bm_lobby_action=job_traits'>ОСОБЕННОСТИ РАБОТЫ</a>"}
 
 	if(!is_guest_key(src.key))
 		var/poll_html = _bm_build_polls_button()
@@ -257,7 +257,7 @@ var _i=0;setInterval(function(){var s=_i%4;document.getElementById('d').textCont
 	if(!client?.prefs)
 		return null
 	var/R = REF(src)
-	return {"<a class="bm-btn" href='?src=[R];bm_lobby_action=polls_menu'>ОПРОСЫ СЕРВЕРА</a>"}
+	return {"<a class='bm-btn' href='?src=[R];bm_lobby_action=polls_menu'>ОПРОСЫ СЕРВЕРА</a>"}
 
 // ===========================
 // ОБРАБОТКА HREF-ЗАПРОСОВ
