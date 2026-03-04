@@ -18,6 +18,8 @@
 	winset(client, "map", "is-visible=false")
 	winset(client, "status_bar", "is-visible=false")
 	winset(client, "bm_lobby_browser", "is-disabled=false;is-visible=false")
+	var/datum/asset/simple/bm_lobby/lobby_asset = get_asset_datum(/datum/asset/simple/bm_lobby)
+	lobby_asset.send(src)
 
 	if(!SStitle_bm?.initialized && (!SSticker || SSticker.current_state <= GAME_STATE_STARTUP))
 		if(fexists(BM_LOBBY_LOADING_GIF))
@@ -184,6 +186,9 @@ requestAnimationFrame(function(){document.getElementById('bar').style.width='95%
 		{"bm_show_notice('[replacetext(SStitle_bm.current_notice, "'", "\\'")] ');"} : ""
 	var/admin_js = client?.holder ? "bm_set_admin(1);" : ""
 
+	var/datum/asset/simple/bm_lobby/lobby_asset = get_asset_datum(/datum/asset/simple/bm_lobby)
+	var/js_url = lobby_asset.get_url_mappings()["bm_lobby.js"]
+	parts += {"<script src=\"[js_url]\"></script>"}
 	parts += {"<script>
 	window._BM_SRC='[R]';
 	bm_update_nsfw_indicator([show_nsfw ? 1 : 0]);
@@ -360,6 +365,11 @@ window.onload=__bm_pr;
 
 /mob/dead/new_player/proc/_bm_play_click_sound()
 	SEND_SOUND(src, sound('sound/misc/menu/ui_select1.ogg'))
+
+/datum/asset/simple/bm_lobby
+	assets = list(
+		"bm_lobby.js" = 'modular_bluemoon/assets/js/bm_lobby.js'
+	)
 
 /mob/dead/new_player/proc/show_job_traits()
 	if(!client)
