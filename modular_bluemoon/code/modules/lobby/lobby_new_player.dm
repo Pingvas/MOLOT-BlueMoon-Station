@@ -188,7 +188,7 @@ var _i=0;setInterval(function(){var s=_i%4;document.getElementById('d').textCont
 		notice_text = replacetext(notice_text, "'", "\\'")
 		notice_text = replacetext(notice_text, "\n", "\\n")
 		notice_js = "bm_show_notice('[notice_text]');"
-	var/admin_js = client?.holder ? "bm_set_admin(1);" : ""
+	var/admin_js = "bm_set_admin([client?.holder ? 1 : 0]);"
 
 	var/datum/asset/simple/bm_lobby/lobby_asset = get_asset_datum(/datum/asset/simple/bm_lobby)
 	var/js_url = lobby_asset.get_url_mappings()["bm_lobby.js"]
