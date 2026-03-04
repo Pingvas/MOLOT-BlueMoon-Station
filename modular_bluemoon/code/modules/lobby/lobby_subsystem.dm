@@ -126,6 +126,8 @@ SUBSYSTEM_DEF(title_bm)
 	parts += {"<div id=\"bm-overlay\"></div>"}
 	parts += {"<div id=\"bm-toasts\"></div>"}
 	parts += {"<div id=\"bm-toggle-btn\" onclick=\"bmToggleSidebar()\" title=\"Свернуть/развернуть меню\">&#9664;</div>"}
+	parts += {"<div id=\"bm-terminal\"></div>"}
+	parts += {"<div id=\"bm-progress-wrap\"><div id=\"bm-progress-bar\"></div></div>"}
 	cached_static_html = parts.Join("")
 
 /datum/controller/subsystem/title_bm/proc/_load_images_from_dir(dir_path, list/target_list)

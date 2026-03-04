@@ -64,25 +64,32 @@ html, body {
 #bm-progress-wrap {
   position: fixed;
   bottom: 2.5vmin; left: 2.5vmin; right: 2.5vmin;
-  height: 4px;
-  background: rgba(255,255,255,0.12);
+  height: 3px;
+  background: rgba(40,100,255,0.12);
   border-radius: 2px; z-index: 10; overflow: hidden;
   display: none;
+  transition: opacity 0.6s ease;
 }
+#bm-progress-wrap.finishing { opacity: 0; }
 #bm-progress-bar {
-  height: 100%; width: 0%;
-  background: linear-gradient(90deg, #4488ff 0%, #88aaff 100%);
-  border-radius: 2px; transition: width 0.15s linear;
-  position: relative;
+  position: relative; width: 100%; height: 100%;
+}
+#bm-progress-bar::before {
+  content: ''; position: absolute; top: 0; bottom: 0;
+  width: 40%; left: 0;
+  background: linear-gradient(90deg, transparent, #4af, transparent);
+  animation: bm-ray 1.6s ease-in-out infinite;
 }
 #bm-progress-bar::after {
-  content: '';
-  position: absolute;
-  right: 0; top: 0; bottom: 0; width: 60px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4));
-  animation: shimmer 1.2s linear infinite;
+  content: ''; position: absolute; top: 0; bottom: 0;
+  width: 20%; left: 0;
+  background: linear-gradient(90deg, transparent, #adf, transparent);
+  animation: bm-ray 1.6s ease-in-out 0.5s infinite;
 }
-@keyframes shimmer { 0%,100%{opacity:0} 50%{opacity:1} }
+@keyframes bm-ray {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(350%); }
+}
 
 /* ===== ТЕРМИНАЛ ЗАГРУЗКИ ===== */
 #bm-terminal {
@@ -137,7 +144,7 @@ html, body {
     rgba(5,10,40,0.88) 50%,
     rgba(10,20,60,0.78) 100%
   );
-  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
   border-left: 1px solid rgba(100,160,255,0.22);
   box-shadow: -4px 0 28px rgba(0,20,100,0.5);
   transform: translateX(0);
@@ -365,7 +372,7 @@ body.style-bluemoon .bm-btn.bm-btn-admin:hover {
   border-radius: 4px;
   padding: 1.2vmin 1.5vmin;
   min-width: clamp(160px,22vmin,260px);
-  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
   box-shadow: 0 4px 24px rgba(0,8,45,0.7);
   transform: translateY(-8px); opacity: 0; pointer-events: none;
   transition: transform 0.22s ease, opacity 0.22s ease;

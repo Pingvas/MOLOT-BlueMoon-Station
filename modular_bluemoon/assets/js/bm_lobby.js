@@ -9,10 +9,7 @@ var _bm_is_admin      = false;
 var _bm_audio_playing = false;
 var _bm_audio_muted   = false;
 var _bm_audio_vol     = 35;
-var _bm_progress_current = 0;
-var _bm_progress_target  = 0;
-var _bm_progress_total   = 180;
-var _bm_prev_tick = Date.now();
+
 
 //  отправить action на сервер
 var _bm_action_last = 0;
@@ -147,33 +144,16 @@ function bm_append_terminal(html_text) {
 }
 
 function bm_update_progress(cur, total) {
-  _bm_progress_target = parseFloat(cur)   || 0;
-  _bm_progress_total  = parseFloat(total) || 180;
+  var w = document.getElementById('bm-progress-wrap');
+  if (w) w.style.display = 'block';
 }
 
 function bm_finish_loading() {
-  _bm_progress_target = _bm_progress_total;
-  setTimeout(function() {
-    var w = document.getElementById('bm-progress-wrap');
-    var t = document.getElementById('bm-terminal');
-    if (w) w.style.display = 'none';
-    if (t) t.style.display = 'none';
-  }, 700);
+  var w = document.getElementById('bm-progress-wrap');
+  var t = document.getElementById('bm-terminal');
+  if (w) { w.classList.add('finishing'); setTimeout(function() { w.style.display='none'; w.classList.remove('finishing'); }, 650); }
+  if (t) { t.style.opacity='0'; setTimeout(function(){ t.style.display='none'; t.style.opacity=''; }, 400); }
 }
-
-(function _tick() {
-  var bar  = document.getElementById('bm-progress-bar');
-  var wrap = document.getElementById('bm-progress-wrap');
-  if (bar && wrap && wrap.style.display !== 'none') {
-    var now = Date.now();
-    var dt  = (now - _bm_prev_tick) / 100;
-    _bm_prev_tick = now;
-    _bm_progress_target += dt;
-    _bm_progress_current = Math.min((_bm_progress_target / _bm_progress_total) * 100, 100);
-    bar.style.width = _bm_progress_current + '%';
-  }
-  requestAnimationFrame(_tick);
-})();
 
 function bm_set_background(data) {
   var bg = document.getElementById('bm-bg');

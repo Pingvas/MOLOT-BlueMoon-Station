@@ -138,6 +138,8 @@ requestAnimationFrame(function(){document.getElementById('bar').style.width='95%
 		parts += {"<div id=\"bm-overlay\"></div>"}
 		parts += {"<div id=\"bm-toasts\"></div>"}
 		parts += {"<div id=\"bm-toggle-btn\" onclick=\"bmToggleSidebar()\" title=\"Свернуть/развернуть меню\">&#9664;</div>"}
+		parts += {"<div id=\"bm-terminal\"></div>"}
+		parts += {"<div id=\"bm-progress-wrap\"><div id=\"bm-progress-bar\"></div></div>"}
 
 	// динамическая часть
 	parts += {"<div id=\"bm-sidebar\">"}
