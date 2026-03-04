@@ -11,10 +11,18 @@
 	if(!length(GLOB.new_player_list))
 		return
 	update_player_counts_all()
+	if(!SSticker?.login_music)
+		return
+	for(var/mob/dead/new_player/player as anything in GLOB.new_player_list)
+		if(!player.bm_lobby_ready || !player.client || player.bm_lobby_music_path)
+			continue
+		player.client.bm_push_lobby_music()
 
 /datum/controller/subsystem/title_bm/proc/_on_enter_setting_up()
 	SIGNAL_HANDLER
-	addtimer(CALLBACK(src, PROC_REF(_refresh_all_lobby_html)), 0.5 SECONDS)
+	deltimer(lobby_tick_timer) // pregame-таймер больше не нужен — Players spawn out
+	deltimer(refresh_timer)
+	refresh_timer = addtimer(CALLBACK(src, PROC_REF(_refresh_all_lobby_html)), 0.5 SECONDS, TIMER_STOPPABLE)
 
 /datum/controller/subsystem/title_bm/proc/_refresh_all_lobby_html()
 	for(var/mob/dead/new_player/player as anything in GLOB.new_player_list)

@@ -9,9 +9,8 @@
 	return ..(transfer_after)
 
 /mob/dead/new_player/transfer_character(late_transfer)
-	. = ..(late_transfer)
-	if(.)
-		bm_hide_lobby()
+	// bm_hide_lobby() уже вызвана в create_character/close_spawn_windows до передачи клиента
+	return ..(late_transfer)
 
 /mob/dead/new_player/close_spawn_windows()
 	bm_hide_lobby()
@@ -25,40 +24,12 @@
 	set hidden = 1
 
 /client/playtitlemusic(vol = 85)
-	set waitfor = FALSE
 	if(!istype(mob, /mob/dead/new_player))
 		return ..()
-
-	if(!(prefs?.toggles & SOUND_LOBBY))
-		return
-
-	var/music_deadline = world.time + 30 SECONDS
-	UNTIL(SSticker?.login_music || world.time >= music_deadline)
-	var/music_path = SSticker?.login_music
-	if(!music_path || !fexists(music_path))
-		return
-
-	// Название трека
-	var/track_name = music_path
-	var/last_slash = findlasttext(track_name, "/")
-	if(last_slash)
-		track_name = copytext(track_name, last_slash + 1)
-	var/dot_pos = findlasttext(track_name, ".")
-	if(dot_pos > 1)
-		track_name = copytext(track_name, 1, dot_pos)
-	track_name = replacetext(replacetext(track_name, "_", " "), "-", " ")
-
-	var/mob/dead/new_player/player = mob
-	player.bm_lobby_music_path = music_path
-	player.bm_lobby_track_name = track_name
-
-	// Ждём пока HTML-лобби готово
-	var/lobby_deadline = world.time + 60 SECONDS
-	UNTIL(player.bm_lobby_ready || !player.client || world.time >= lobby_deadline)
-	if(!player.client)
-		return
-
-	bm_push_lobby_music()
+	// Музыка HTML-лобби доставляется без polling:
+	// 1) page_ready → bm_push_lobby_music() — если login_music уже выставлен к моменту загрузки JS
+	// 2) _lobby_tick (каждые 15с) — если игрок подключился в самом начале до инициализации SSticker
+	// Подавляем стандартное BYOND-звуковое воспроизведение
 
 //  Отправляет текущую музыку в HTML5-плеер лобби.
 
@@ -66,10 +37,15 @@
 	var/mob/dead/new_player/player = mob
 	if(!istype(player))
 		return
+	if(!(prefs?.toggles & SOUND_LOBBY))
+		return
 	var/music_path = player.bm_lobby_music_path
 	var/track_name = player.bm_lobby_track_name
 	if(!music_path)
 		music_path = SSticker?.login_music
+		if(music_path)
+			// Сохраняем чтобы _lobby_tick не повторял доставку
+			player.bm_lobby_music_path = music_path
 	if(!music_path || !fexists(music_path))
 		return
 	if(!track_name && music_path)

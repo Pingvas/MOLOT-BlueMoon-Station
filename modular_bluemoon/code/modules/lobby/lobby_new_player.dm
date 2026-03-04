@@ -15,6 +15,9 @@
 	if(spawning || new_character)
 		return
 
+	// Чистим legacy screen-атомы (splash и т.п.), которые мог добавить Initialize()
+	client.screen.Cut()
+
 	winset(client, "map", "is-visible=false")
 	winset(client, "status_bar", "is-visible=false")
 	winset(client, "bm_lobby_browser", "is-disabled=false;is-visible=false")
@@ -192,18 +195,22 @@ var _i=0;setInterval(function(){var s=_i%4;document.getElementById('d').textCont
 
 	var/datum/asset/simple/bm_lobby/lobby_asset = get_asset_datum(/datum/asset/simple/bm_lobby)
 	var/js_url = lobby_asset.get_url_mappings()["bm_lobby.js"]
-	parts += {"<script src=\"[js_url]\"></script>"}
+	// async — не блокирует парсинг HTML; page_ready отправляется только после загрузки скрипта
+	// при кеш-хите (typeof bm_set_admin==='function') init срабатывает сразу синхронно
+	parts += {"<script src=\"[js_url]\" async id=\"bm-js\"></script>"}
 	parts += {"<script>
-	window._BM_SRC='[R]';
-	bm_update_nsfw_indicator([show_nsfw ? 1 : 0]);
-	[admin_js]
-	[notice_js]
-	</script>"}
-
-	parts += {"<script>
-var __bm_pr=function(){if(window.__bm_page_ready_sent)return;window.__bm_page_ready_sent=true;location.href='?src=[R];bm_lobby_action=page_ready';};
-setTimeout(__bm_pr,0);
-window.onload=__bm_pr;
+(function(){
+  var _src='[R]';
+  function __bm_init(){
+    window._BM_SRC=_src;
+    bm_update_nsfw_indicator([show_nsfw ? 1 : 0]);
+    [admin_js]
+    [notice_js]
+    if(!window.__bm_page_ready_sent){window.__bm_page_ready_sent=true;location.href='?src='+_src+';bm_lobby_action=page_ready';}
+  }
+  if(typeof bm_set_admin==='function'){__bm_init();}
+  else{document.getElementById('bm-js').addEventListener('load',__bm_init);}
+})();
 </script>"}
 
 	parts += "</body></html>"
@@ -272,8 +279,6 @@ window.onload=__bm_pr;
 			bm_lobby_ready = TRUE
 			SStitle_bm?.update_character_name(src, client?.prefs?.real_name)
 			bm_push_background()
-			if(client?.holder)
-				client << output(1, "bm_lobby_browser:bm_set_admin")
 			SStitle_bm?.push_player_count_to(src)
 			if(bm_lobby_music_path != "" || SSticker?.login_music)
 				client.bm_push_lobby_music()

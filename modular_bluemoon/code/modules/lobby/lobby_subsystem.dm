@@ -13,6 +13,7 @@ SUBSYSTEM_DEF(title_bm)
 	var/progress_reference_time = 0
 	var/list/progress_json = list()
 	var/lobby_tick_timer
+	var/refresh_timer
 	var/current_video_payload
 	var/last_online_count = -1
 	var/last_ready_count = -1
@@ -73,6 +74,8 @@ SUBSYSTEM_DEF(title_bm)
 	UnregisterSignal(SSticker, list(COMSIG_TICKER_ENTER_PREGAME, COMSIG_TICKER_ENTER_SETTING_UP))
 	deltimer(lobby_tick_timer)
 	lobby_tick_timer = null
+	deltimer(refresh_timer)
+	refresh_timer = null
 	sfw_images = null
 	nsfw_images = null
 	progress_json = null
