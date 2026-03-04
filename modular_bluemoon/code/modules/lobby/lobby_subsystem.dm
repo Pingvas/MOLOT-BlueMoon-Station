@@ -15,6 +15,8 @@ SUBSYSTEM_DEF(title_bm)
 	var/lobby_tick_timer
 	var/lobby_tick_count = 0
 	var/current_video_payload
+	var/last_online_count = -1
+	var/last_ready_count = -1
 
 /datum/controller/subsystem/title_bm/proc/_parse_lobby_html(full_html)
 	var/head_end = findtext(full_html, "</head>")
@@ -218,6 +220,10 @@ SUBSYSTEM_DEF(title_bm)
 	for(var/mob/dead/new_player/p as anything in GLOB.new_player_list)
 		if(p.ready)
 			ready++
+	if(online == last_online_count && ready == last_ready_count)
+		return
+	last_online_count = online
+	last_ready_count = ready
 	for(var/mob/dead/new_player/player as anything in GLOB.new_player_list)
 		if(!player.bm_lobby_ready || !player.client)
 			continue

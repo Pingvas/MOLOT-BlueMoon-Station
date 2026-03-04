@@ -503,12 +503,6 @@ function bm_update_nsfw_indicator(val) {
   if (el) el.textContent = Number(val) ? '\u0412\u041a\u041b' : '\u0412\u042b\u041a\u041b';
 }
 
-function bm_update_style(style_name) {
-  var el = document.getElementById('bm-s-style');
-  if (el) el.textContent = style_name === 'bluemoon' ? 'BLUEMOON' : 'TG';
-  document.body.className = style_name === 'bluemoon' ? 'style-bluemoon' : 'style-tg';
-}
-
 function bm_update_counts(online, ready) {
   if (ready === undefined && typeof online === 'string' && online.indexOf(',') >= 0) {
     var _parts = online.split(','); online = _parts[0]; ready = _parts[1];
@@ -729,7 +723,7 @@ function _bmStopAllMedia() {
 }
 </script>
 </head>
-<body class="style-tg">
+<body class="style-bluemoon">
 
 <!-- Фоновое изображение (Skyrat-style, vmin масштабирование) -->
 <img id="bm-bg" class="bg" src="loading_screen.gif" alt="">
@@ -963,13 +957,6 @@ function bm_toggle_antag(val) {
 function bm_update_nsfw_indicator(val) {
   var el = document.getElementById('bm-s-nsfw');
   if (el) el.textContent = Number(val) ? '\u0412\u041a\u041b' : '\u0412\u042b\u041a\u041b';
-}
-
-/** Обновить стиль кнопок */
-function bm_update_style(style_name) {
-  var el = document.getElementById('bm-s-style');
-  if (el) el.textContent = style_name === 'bluemoon' ? 'BLUEMOON' : 'TG';
-  document.body.className = style_name === 'bluemoon' ? 'style-bluemoon' : 'style-tg';
 }
 
 /** Счётчик игроков (online = все, ready = только готовые — только для админов) */

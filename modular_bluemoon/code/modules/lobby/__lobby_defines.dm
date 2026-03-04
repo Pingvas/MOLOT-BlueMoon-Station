@@ -50,8 +50,4 @@ body,html{margin:0;overflow:hidden;background:#000;font-family:'Courier New',mon
 
 #define BM_LOBBY_PROGRESS_CACHE "data/bm_lobby_progress.json"
 
-#define BM_BUTTON_STYLE_TG "tg"
-
-#define BM_BUTTON_STYLE_BM "bluemoon"
-
 GLOBAL_LIST_EMPTY(startup_messages)

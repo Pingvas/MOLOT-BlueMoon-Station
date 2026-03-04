@@ -3,9 +3,13 @@
 	change_image(null)
 	deltimer(lobby_tick_timer)
 	lobby_tick_count = 0
+	last_online_count = -1
+	last_ready_count = -1
 	lobby_tick_timer = addtimer(CALLBACK(src, PROC_REF(_lobby_tick)), 5 SECONDS, TIMER_LOOP | TIMER_STOPPABLE)
 
 /datum/controller/subsystem/title_bm/proc/_lobby_tick()
+	if(!length(GLOB.new_player_list))
+		return
 	lobby_tick_count++
 	update_player_counts_all()
 	if(lobby_tick_count % 9 == 0)

@@ -144,10 +144,6 @@ requestAnimationFrame(function(){document.getElementById('bar').style.width='95%
       <span class="bm-s-label">NSFW КОНТЕНТ</span>
       <span class="bm-s-value" id="bm-s-nsfw">ВЫКЛ</span>
     </a>
-    <a class="bm-settings-row" href='?src=[R];bm_lobby_action=toggle_style' style="cursor:pointer">
-      <span class=\"bm-s-label\">СТИЛЬ КНОПОК</span>
-      <span class=\"bm-s-value\" id=\"bm-s-style\">TG</span>
-    </a>
   </div>
   <div id=\"bm-player-count\">&#183; &#183; &#183;</div>
 </div>"}
@@ -180,7 +176,6 @@ requestAnimationFrame(function(){document.getElementById('bar').style.width='95%
 
 
 	var/show_nsfw = client?.prefs?.bm_lobby_show_nsfw || FALSE
-	var/button_style = client?.prefs?.bm_lobby_button_style || BM_BUTTON_STYLE_BM
 	var/notice_js = SStitle_bm?.current_notice ? \
 		{"bm_show_notice('[replacetext(SStitle_bm.current_notice, "'", "\\'")] ');"} : ""
 	var/admin_js = client?.holder ? "bm_set_admin(1);" : ""
@@ -188,7 +183,6 @@ requestAnimationFrame(function(){document.getElementById('bar').style.width='95%
 	dat += {"<script>
 	window._BM_SRC='[R]';
 	bm_update_nsfw_indicator([show_nsfw ? 1 : 0]);
-	bm_update_style('[button_style]');
 	[admin_js]
 	[notice_js]
 	</script>"}
@@ -209,7 +203,7 @@ window.onload=__bm_pr;
 
 	if(!SSticker || SSticker.current_state <= GAME_STATE_PREGAME)
 		parts += {"<a id="bm-btn-ready" class="bm-btn" href='?src=[R];bm_lobby_action=toggle_ready'>"}
-		parts += ready ? {"<span class='bm-checked'>☑</span> ГОТОВ"} : {"<span class='bm-unchecked'>☒</span> ГОТОВ"}
+		parts += ready ? {"<span class='bm-checked'>☑</span> ГОТОВНОСТЬ"} : {"<span class='bm-unchecked'>☒</span> ГОТОВНОСТЬ"}
 		parts += "</a>"
 		if(client?.holder)
 			parts += {"<a class="bm-btn bm-btn-admin" href='?src=[R];bm_lobby_action=start_game'>⚡ СТАРТ ИГРЫ</a>"}
@@ -218,7 +212,7 @@ window.onload=__bm_pr;
 		parts += {"<a class="bm-btn" href='?src=[R];bm_lobby_action=view_manifest'>СПИСОК ЭКИПАЖА</a>"}
 		parts += {"<a class="bm-btn" href='?src=[R];bm_lobby_action=character_directory'>БИБЛИОТЕКА ПЕРСОНАЖЕЙ</a>"}
 
-	parts += {"<a class="bm-btn" href='?src=[R];bm_lobby_action=observe'>НАБЛЮДАТЬ</a>"}
+	parts += {"<a class="bm-btn" href='?src=[R];bm_lobby_action=observe'>БЫТЬ НАБЛЮДАТЕЛЕМ</a>"}
 
 	parts += "<div class='bm-divider'></div>"
 
@@ -227,7 +221,7 @@ window.onload=__bm_pr;
 
 	var/is_antag_opted = !(client?.prefs?.toggles & NO_ANTAG)
 	parts += {"<a id="bm-btn-antag" class="bm-btn" href='?src=[R];bm_lobby_action=toggle_antag'>"}
-	parts += is_antag_opted ? {"<span class='bm-checked'>☑</span> БЫТЬ АНТАГОМ"} : {"<span class='bm-unchecked'>☒</span> БЫТЬ АНТАГОМ"}
+	parts += is_antag_opted ? {"<span class='bm-checked'>☑</span> РОЛЬ АНТАГОНИСТА"} : {"<span class='bm-unchecked'>☒</span> РОЛЬ АНТАГОНИСТА"}
 	parts += "</a>"
 
 	if(length(GLOB.lobby_station_traits))
@@ -305,14 +299,6 @@ window.onload=__bm_pr;
 				bm_push_background()
 			return
 
-		if("toggle_style")
-			if(client?.prefs)
-				var/cur_style = client.prefs.bm_lobby_button_style || BM_BUTTON_STYLE_BM
-				var/new_style = (cur_style == BM_BUTTON_STYLE_TG) ? BM_BUTTON_STYLE_BM : BM_BUTTON_STYLE_TG
-				client.prefs.bm_lobby_button_style = new_style
-				client.prefs.save_preferences()
-				client << output(new_style, "bm_lobby_browser:bm_update_style")
-			return
 
 		if("observe")
 			_bm_play_click_sound()
