@@ -49,7 +49,7 @@ SUBSYSTEM_DEF(title_bm)
 	RegisterSignal(SSticker, COMSIG_TICKER_ENTER_PREGAME, PROC_REF(_on_enter_pregame))
 	RegisterSignal(SSticker, COMSIG_TICKER_ENTER_SETTING_UP, PROC_REF(_on_enter_setting_up))
 
-	addtimer(CALLBACK(src, PROC_REF(_refresh_all_lobby_html)), 0.5 SECONDS)
+	INVOKE_ASYNC(src, PROC_REF(_refresh_all_lobby_html))
 
 	return SS_INIT_SUCCESS
 
