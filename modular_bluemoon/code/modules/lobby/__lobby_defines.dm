@@ -7,7 +7,7 @@
 
 #define BM_LOBBY_DEFAULT_IMAGE 'icons/runtime/default_title.dmi'
 
-#define BM_LOBBY_LOADING_GIF "config/title_screens/Cyberpunk Cityscape-s.gif"
+#define BM_LOBBY_LOADING_GIF "config/title_screens/cyberpunk_cityscape.gif"
 
 #define BM_DEFAULT_LOBBY_HTML_PREAMBLE {"<!DOCTYPE html>
 <html lang='ru'>
@@ -39,7 +39,7 @@ body,html{margin:0;overflow:hidden;background:#000;font-family:'Courier New',mon
 </style>
 </head>
 <body>
-<img src='config/title_screens/Cyberpunk Cityscape-s.gif' class='bg' alt=''>
+<img src='config/title_screens/cyberpunk_cityscape.gif' class='bg' alt=''>
 </body>
 </html>
 "}
