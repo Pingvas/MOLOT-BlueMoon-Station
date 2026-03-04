@@ -187,7 +187,6 @@ var _i=0;setInterval(function(){var s=_i%4;document.getElementById('d').textCont
 		notice_text = replacetext(notice_text, "\\", "\\\\")
 		notice_text = replacetext(notice_text, "'", "\\'")
 		notice_text = replacetext(notice_text, "\n", "\\n")
-		notice_text = replacetext(notice_text, "\r", "")
 		notice_js = "bm_show_notice('[notice_text]');"
 	var/admin_js = client?.holder ? "bm_set_admin(1);" : ""
 

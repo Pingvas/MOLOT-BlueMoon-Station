@@ -33,8 +33,7 @@ SUBSYSTEM_DEF(title_bm)
 	if(fexists(BM_LOBBY_HTML_FILE))
 		lobby_html = _parse_lobby_html(file2text(BM_LOBBY_HTML_FILE))
 	else
-		log_game("[name]: Файл [BM_LOBBY_HTML_FILE] не найден! Используется встроенный фолбэк.")
-		lobby_html = BM_DEFAULT_LOBBY_HTML_PREAMBLE
+		lobby_html = _parse_lobby_html(file2text('config/bluemoon/lobby_html.txt'))
 
 	_load_title_images()
 

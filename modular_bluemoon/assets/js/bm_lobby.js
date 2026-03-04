@@ -259,7 +259,12 @@ function bm_load_audio(url) {
     if (btn) btn.innerHTML = '&#9646;&#9646;';
   }).catch(function() {
     document.addEventListener('click', function _ap() {
-      audio.play(); document.removeEventListener('click', _ap);
+      var p2 = audio.play();
+      if (p2) p2.then(function() {
+        _bm_audio_playing = true;
+        var btn = document.getElementById('bm-btn-play');
+        if (btn) btn.innerHTML = '&#9646;&#9646;';
+      });
     }, { once: true });
   });
 }

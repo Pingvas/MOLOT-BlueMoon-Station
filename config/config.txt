@@ -68,4 +68,6 @@ TGUI_MAX_CHUNK_COUNT 64
 # Set this per-environment, examples:
 # INVOKE_YOUTUBEDL /usr/bin/yt-dlp
 # INVOKE_YOUTUBEDL C:\Python\Scripts\yt-dlp.exe
-#INVOKE_YOUTUBEDL yt-dlp
+# On Linux the server's PreCompile.sh installs yt-dlp automatically via pip3.
+# Default uses the bundled Windows binary for local development:
+INVOKE_YOUTUBEDL tools\bin\yt-dlp.exe
