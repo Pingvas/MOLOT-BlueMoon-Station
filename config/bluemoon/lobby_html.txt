@@ -936,8 +936,8 @@ function bm_toggle_ready(val) {
   if (val !== undefined) _bm_ready_state = Number(val);
   else _bm_ready_state = _bm_ready_state ? 0 : 1;
   _bm_ready_el.innerHTML = _bm_ready_state
-    ? "<span class='bm-checked'>☑</span> ГОТОВ"
-    : "<span class='bm-unchecked'>☒</span> ГОТОВ";
+    ? "<span class='bm-checked'>☑</span> ГОТОВНОСТЬ"
+    : "<span class='bm-unchecked'>☒</span> ГОТОВНОСТЬ";
 }
 
 /** Переключить состояние ANTAG кнопки */
@@ -949,8 +949,8 @@ function bm_toggle_antag(val) {
   if (val !== undefined) _bm_antag_state = Number(val);
   else _bm_antag_state = _bm_antag_state ? 0 : 1;
   _bm_antag_el.innerHTML = _bm_antag_state
-    ? "<span class='bm-checked'>☑</span> БЫТЬ АНТАГОМ"
-    : "<span class='bm-unchecked'>☒</span> БЫТЬ АНТАГОМ";
+    ? "<span class='bm-checked'>☑</span> РОЛЬ АНТАГОНИСТА"
+    : "<span class='bm-unchecked'>☒</span> РОЛЬ АНТАГОНИСТА";
 }
 
 /** Обновить NSFW индикатор */
