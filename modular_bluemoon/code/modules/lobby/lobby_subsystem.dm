@@ -68,6 +68,7 @@ SUBSYSTEM_DEF(title_bm)
 
 	_build_static_html()
 
+	initialized = TRUE
 	return SS_INIT_SUCCESS
 
 /datum/controller/subsystem/title_bm/Destroy()
