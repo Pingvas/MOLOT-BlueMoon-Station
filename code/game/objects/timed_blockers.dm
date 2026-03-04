@@ -8,6 +8,7 @@
 	opacity = FALSE//from TRUE
 	resistance_flags = INDESTRUCTIBLE | LAVA_PROOF | FIRE_PROOF | UNACIDABLE | ACID_PROOF
 	var/expire_time // world.time when this shield should dissipate
+	var/dissipate_timer_id
 
 #define FOG_DISSIPATE_TIME_MAX 60 MINUTES
 GLOBAL_LIST_EMPTY(trespass_warns) // to avoid spamming the bandit's chat
@@ -15,15 +16,13 @@ GLOBAL_LIST_EMPTY(trespass_warns) // to avoid spamming the bandit's chat
 /obj/structure/shield/Initialize()
 	. = ..()
 	expire_time = world.time + FOG_DISSIPATE_TIME_MAX
-	START_PROCESSING(SSobj, src)
+	dissipate_timer_id = addtimer(CALLBACK(src, PROC_REF(dissipate_fog)), FOG_DISSIPATE_TIME_MAX, TIMER_STOPPABLE)
 
 /obj/structure/shield/Destroy()
-	STOP_PROCESSING(SSobj, src)
+	if(dissipate_timer_id)
+		deltimer(dissipate_timer_id)
+		dissipate_timer_id = null
 	return ..()
-
-/obj/structure/shield/process()
-	if(world.time >= expire_time)
-		qdel(src)
 
 /obj/structure/shield/proc/dissipate_fog()
 	qdel(src)
