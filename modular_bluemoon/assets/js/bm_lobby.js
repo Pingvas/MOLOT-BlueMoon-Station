@@ -127,7 +127,7 @@ function bm_set_admin(val) {
 
 function bm_show_notice(text, type) {
   if (type === undefined && typeof text === 'string' && text.charAt(0) === "'") {
-    var _m = text.match(/^'([^']*)'(?:,\s*'?([^',]*)'?)?$/);
+    var _m = text.match(/^'((?:[^'\\]|\\.)*)'(?:,\s*'?([^',]*)'?)?$/);
     if (_m) { text = _m[1]; type = _m[2] || ''; }
   }
   if (text) bm_show_toast(text, type || 'error', 8000);

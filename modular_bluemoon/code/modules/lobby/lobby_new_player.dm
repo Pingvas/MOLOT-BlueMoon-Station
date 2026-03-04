@@ -24,10 +24,7 @@
 	if(!SStitle_bm?.initialized && (!SSticker || SSticker.current_state <= GAME_STATE_STARTUP))
 		if(fexists(BM_LOBBY_LOADING_GIF))
 			src << browse(fcopy_rsc(BM_LOBBY_LOADING_GIF), "file=loading_screen.gif;display=0")
-		var/ref_time = SStitle_bm?.progress_reference_time || world.time
-		var/elapsed_ds = max(0, world.time - ref_time)
-		var/total_ds = SStitle_bm?.average_completion_time || BM_LOBBY_DEFAULT_MAP_LOADTIME
-		src << browse(_bm_build_loading_stub(elapsed_ds, total_ds), "window=bm_lobby_browser")
+		src << browse(_bm_build_loading_stub(), "window=bm_lobby_browser")
 		winset(client, "bm_lobby_browser", "is-visible=true")
 		return
 
@@ -87,9 +84,7 @@
 		return
 	SStitle_bm?.push_player_count_to(src)
 
-/mob/dead/new_player/proc/_bm_build_loading_stub(elapsed_ds = 0, total_ds = 600)
-	var/start_pct = min(90, total_ds > 0 ? round(elapsed_ds / total_ds * 100) : 0)
-	var/remain_ms = max(500, (total_ds - elapsed_ds) * 100)
+/mob/dead/new_player/proc/_bm_build_loading_stub()
 	return {"<!DOCTYPE html><html><head><meta charset='UTF-8'>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -102,8 +97,11 @@ body,html{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Co
 .sub{font-size:clamp(9px,1.6vmin,15px);letter-spacing:3px;color:rgba(80,140,220,0.7);}
 .bottom{width:100%;padding:0 8vmin 4vmin;}
 .bar-label{font-size:clamp(8px,1.2vmin,12px);letter-spacing:2px;color:rgba(80,140,220,0.55);margin-bottom:1.2vmin;}
-.bar-track{width:100%;height:3px;background:rgba(80,150,255,0.12);border-radius:2px;overflow:hidden;}
-.bar-fill{height:100%;background:linear-gradient(90deg,#2a6ae0,#6ab0ff);border-radius:2px;transition:width [remain_ms]ms linear;width:[start_pct]%;}
+.bar-track{width:100%;height:3px;background:rgba(40,100,255,0.12);border-radius:2px;overflow:hidden;}
+.bar-fill{height:100%;position:relative;}
+.bar-fill::before{content:'';position:absolute;top:0;bottom:0;width:40%;left:0;background:linear-gradient(90deg,transparent,#4af,transparent);animation:bm-ray 1.6s ease-in-out infinite;}
+.bar-fill::after{content:'';position:absolute;top:0;bottom:0;width:20%;left:0;background:linear-gradient(90deg,transparent,#adf,transparent);animation:bm-ray 1.6s ease-in-out 0.5s infinite;}
+@keyframes bm-ray{from{transform:translateX(-100%)}to{transform:translateX(350%)}}
 </style></head>
 <body>
 <img class='bg' src='loading_screen.gif' alt=''>
@@ -120,7 +118,6 @@ body,html{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Co
 </div>
 <script>
 var _i=0;setInterval(function(){var s=_i%4;document.getElementById('d').textContent=s===1?' .':s===2?'..':s===3?'...':'';_i++;},400);
-requestAnimationFrame(function(){document.getElementById('bar').style.width='95%';});
 </script>
 </body></html>"}
 
@@ -184,8 +181,14 @@ requestAnimationFrame(function(){document.getElementById('bar').style.width='95%
 <audio id=\"bm-audio\" loop></audio></div>"}
 
 	var/show_nsfw = client?.prefs?.bm_lobby_show_nsfw || FALSE
-	var/notice_js = SStitle_bm?.current_notice ? \
-		{"bm_show_notice('[replacetext(SStitle_bm.current_notice, "'", "\\'")] ');"} : ""
+	var/notice_js = ""
+	if(SStitle_bm?.current_notice)
+		var/notice_text = SStitle_bm.current_notice
+		notice_text = replacetext(notice_text, "\\", "\\\\")
+		notice_text = replacetext(notice_text, "'", "\\'")
+		notice_text = replacetext(notice_text, "\n", "\\n")
+		notice_text = replacetext(notice_text, "\r", "")
+		notice_js = "bm_show_notice('[notice_text]');"
 	var/admin_js = client?.holder ? "bm_set_admin(1);" : ""
 
 	var/datum/asset/simple/bm_lobby/lobby_asset = get_asset_datum(/datum/asset/simple/bm_lobby)

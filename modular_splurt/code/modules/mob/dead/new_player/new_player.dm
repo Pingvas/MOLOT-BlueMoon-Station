@@ -1,4 +1,6 @@
 /mob/dead/new_player/proc/new_player_panel()
+	if(!isnull(SStitle_bm)) // BLUEMOON: HTML лобби активно — legacy панель не нужна
+		return
 	if(client?.prefs.toggles & TG_PLAYER_PANEL)
 		return
 	var/output = "<center><p>Welcome, <b>[client ? client.prefs.real_name : "Unknown User"]</b></p>"
