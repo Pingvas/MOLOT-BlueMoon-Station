@@ -25,8 +25,8 @@
 	if(!SStitle_bm?.initialized && (!SSticker || SSticker.current_state <= GAME_STATE_STARTUP))
 		if(fexists(BM_LOBBY_LOADING_GIF))
 			src << browse(fcopy_rsc(BM_LOBBY_LOADING_GIF), "file=loading_screen.gif;display=0")
-		var/ref_time = SStitle_bm?.progress_reference_time || world.timeofday
-		var/elapsed_ds = max(0, world.timeofday - ref_time)
+		var/ref_time = SStitle_bm?.progress_reference_time || world.time
+		var/elapsed_ds = max(0, world.time - ref_time)
 		var/total_ds = SStitle_bm?.average_completion_time || BM_LOBBY_DEFAULT_MAP_LOADTIME
 		src << browse(_bm_build_loading_stub(elapsed_ds, total_ds), "window=bm_lobby_browser")
 		winset(client, "bm_lobby_browser", "is-visible=true")

@@ -77,7 +77,7 @@ SUBSYSTEM_DEF(title_bm)
 
 /datum/controller/subsystem/title_bm/proc/_check_progress_reference_time()
 	if(!progress_reference_time)
-		progress_reference_time = world.timeofday
+		progress_reference_time = world.time
 
 /datum/controller/subsystem/title_bm/proc/_load_progress_json()
 	if(!fexists(BM_LOBBY_PROGRESS_CACHE))
@@ -91,16 +91,19 @@ SUBSYSTEM_DEF(title_bm)
 	var/list/map_info = progress_json[map_key]
 	if(!islist(map_info))
 		return
-	average_completion_time = map_info["total"] || BM_LOBBY_DEFAULT_MAP_LOADTIME
+	var/cached_total = map_info["total"]
+	if(!isnum(cached_total) || cached_total <= 0)
+		return
+	average_completion_time = cached_total
 
 /datum/controller/subsystem/title_bm/proc/_save_progress_json()
 	progress_json["_version"] = BM_LOBBY_PROGRESS_VERSION
 	var/map_key = SSmapping.config?.map_name || "default"
 	var/list/map_info = list()
 	if(progress_json[map_key])
-		map_info["total"] = 0.75 * average_completion_time + 0.25 * (world.timeofday - progress_reference_time)
+		map_info["total"] = 0.75 * average_completion_time + 0.25 * (world.time - progress_reference_time)
 	else
-		map_info["total"] = world.timeofday - progress_reference_time
+		map_info["total"] = world.time - progress_reference_time
 	progress_json[map_key] = map_info
 	var/F = file(BM_LOBBY_PROGRESS_CACHE)
 	fdel(F)

@@ -65,4 +65,7 @@ $include bluemoon/hilberts_hotel.txt
 TGUI_MAX_CHUNK_COUNT 64
 
 ## yt-dlp Play Internet Sound
-INVOKE_YOUTUBEDL C:\Users\NAVI\Documents\GitHub\MOLOT-BlueMoon-Station\.venv\Scripts\yt-dlp.exe
+# Set this per-environment, examples:
+# INVOKE_YOUTUBEDL /usr/bin/yt-dlp
+# INVOKE_YOUTUBEDL C:\Python\Scripts\yt-dlp.exe
+#INVOKE_YOUTUBEDL yt-dlp
