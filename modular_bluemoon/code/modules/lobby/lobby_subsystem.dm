@@ -12,19 +12,22 @@ SUBSYSTEM_DEF(title_bm)
 	var/average_completion_time = BM_LOBBY_DEFAULT_MAP_LOADTIME
 	var/progress_reference_time = 0
 	var/list/progress_json = list()
-	var/rotate_bg_timer
-	var/player_count_timer
+	var/lobby_tick_timer
+	var/lobby_tick_count = 0
 	var/current_video_payload
+
+/datum/controller/subsystem/title_bm/proc/_parse_lobby_html(full_html)
+	var/head_end = findtext(full_html, "</head>")
+	var/search_from = head_end ? head_end : 1
+	var/body_pos = findtext(full_html, "<body", search_from)
+	if(body_pos)
+		var/tag_end = findtext(full_html, ">", body_pos)
+		return tag_end ? copytext(full_html, 1, tag_end + 1) : full_html
+	return full_html
 
 /datum/controller/subsystem/title_bm/Initialize()
 	if(fexists(BM_LOBBY_HTML_FILE))
-		var/full_html = file2text(BM_LOBBY_HTML_FILE)
-		var/body_pos = findtext(full_html, "<body")
-		if(body_pos)
-			var/tag_end = findtext(full_html, ">", body_pos)
-			lobby_html = tag_end ? copytext(full_html, 1, tag_end + 1) : full_html
-		else
-			lobby_html = full_html
+		lobby_html = _parse_lobby_html(file2text(BM_LOBBY_HTML_FILE))
 	else
 		log_game("[name]: Файл [BM_LOBBY_HTML_FILE] не найден! Используется встроенный фолбэк.")
 		lobby_html = BM_DEFAULT_LOBBY_HTML_PREAMBLE
@@ -33,7 +36,10 @@ SUBSYSTEM_DEF(title_bm)
 
 	if(fexists(loading_image))
 		loading_image = fcopy_rsc(loading_image)
-	current_image = loading_image
+	else
+		log_game("[name]: Файл загрузочного GIF '[loading_image]' не найден. Фон лобби будет пустым до подбора картинки.")
+		loading_image = null
+	current_image = loading_image || BM_LOBBY_DEFAULT_IMAGE
 
 	_check_progress_reference_time()
 	_load_progress_json()
@@ -47,10 +53,8 @@ SUBSYSTEM_DEF(title_bm)
 
 /datum/controller/subsystem/title_bm/Destroy()
 	UnregisterSignal(SSticker, list(COMSIG_TICKER_ENTER_PREGAME, COMSIG_TICKER_ENTER_SETTING_UP))
-	deltimer(rotate_bg_timer)
-	deltimer(player_count_timer)
-	rotate_bg_timer = null
-	player_count_timer = null
+	deltimer(lobby_tick_timer)
+	lobby_tick_timer = null
 	sfw_images = null
 	nsfw_images = null
 	progress_json = null
@@ -61,12 +65,15 @@ SUBSYSTEM_DEF(title_bm)
 	loading_image         = SStitle_bm.loading_image
 	sfw_images            = SStitle_bm.sfw_images
 	nsfw_images           = SStitle_bm.nsfw_images
-	lobby_html            = SStitle_bm.lobby_html
 	current_notice        = SStitle_bm.current_notice
 	average_completion_time = SStitle_bm.average_completion_time
 	progress_reference_time = SStitle_bm.progress_reference_time
 	progress_json           = SStitle_bm.progress_json
 	current_video_payload = SStitle_bm.current_video_payload
+	if(fexists(BM_LOBBY_HTML_FILE))
+		lobby_html = _parse_lobby_html(file2text(BM_LOBBY_HTML_FILE))
+	else
+		lobby_html = SStitle_bm.lobby_html
 
 /datum/controller/subsystem/title_bm/proc/_check_progress_reference_time()
 	if(!progress_reference_time)
@@ -133,7 +140,7 @@ SUBSYSTEM_DEF(title_bm)
 				nsfw_images += fcopy_rsc(full_path)
 
 /datum/controller/subsystem/title_bm/proc/get_image_for_player(show_nsfw = FALSE)
-	if(current_image == loading_image)
+	if(loading_image && current_image == loading_image)
 		return loading_image
 	if(current_image)
 		return current_image

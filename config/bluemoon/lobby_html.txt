@@ -9,12 +9,6 @@
 /* ===== СБРОС + БАЗА ===== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-@font-face {
-  font-family: "Fixedsys";
-  src: url("FixedsysExcelsior3.01Regular.ttf");
-  font-display: swap;
-}
-
 html, body {
   width: 100%; height: 100%;
   overflow: hidden;
@@ -1164,11 +1158,6 @@ function bmAudioMute() {
   if (sl)    sl.value = _bm_audio_muted ? 0 : _bm_audio_vol;
   if (btn)   btn.innerHTML = _bm_audio_muted ? '&#128263;' : (_bm_audio_vol > 50 ? '&#128266;' : '&#128265;');
 }
-
-/** При загрузке страницы — сигналим серверу */
-window.addEventListener('load', function() {
-  if (window._BM_SRC) location.href = '?src=' + window._BM_SRC + ';bm_lobby_action=page_ready';
-});
 
 /** Остановить всё при закрытии окна (Alt+F4, закрытие вкладки) */
 function _bmStopAllMedia() {

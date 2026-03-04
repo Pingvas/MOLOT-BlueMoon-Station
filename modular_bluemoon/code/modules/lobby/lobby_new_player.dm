@@ -16,22 +16,33 @@
 		return
 
 	winset(client, "map", "is-visible=false")
-	winset(client, "bm_lobby_browser", "is-disabled=false;is-visible=true")
 	winset(client, "status_bar", "is-visible=false")
+	winset(client, "bm_lobby_browser", "is-disabled=false;is-visible=false")
 
 	var/datum/asset/asset_send = get_asset_datum(/datum/asset/simple/bm_lobby)
 	asset_send.send(src)
 
-	if(!SStitle_bm?.initialized && (!SSticker || SSticker.current_state == GAME_STATE_STARTUP))
+	if(!SStitle_bm?.initialized && (!SSticker || SSticker.current_state <= GAME_STATE_STARTUP))
 		if(fexists(BM_LOBBY_LOADING_GIF))
 			src << browse(fcopy_rsc(BM_LOBBY_LOADING_GIF), "file=loading_screen.gif;display=0")
 		var/ref_time = SStitle_bm?.progress_reference_time || world.timeofday
 		var/elapsed_ds = max(0, world.timeofday - ref_time)
 		var/total_ds = SStitle_bm?.average_completion_time || BM_LOBBY_DEFAULT_MAP_LOADTIME
 		src << browse(_bm_build_loading_stub(elapsed_ds, total_ds), "window=bm_lobby_browser")
+		winset(client, "bm_lobby_browser", "is-visible=true")
 		return
 
-	bm_update_lobby_html()
+	var/img_to_send
+	if(SStitle_bm?.initialized)
+		var/show_nsfw = client?.prefs?.bm_lobby_show_nsfw || FALSE
+		img_to_send = SStitle_bm.get_image_for_player(show_nsfw)
+	else
+		if(fexists(BM_LOBBY_LOADING_GIF))
+			img_to_send = fcopy_rsc(BM_LOBBY_LOADING_GIF)
+	if(img_to_send)
+		src << browse(img_to_send, "file=loading_screen.gif;display=0")
+	src << browse(_bm_build_html(), "window=bm_lobby_browser")
+	winset(client, "bm_lobby_browser", "is-visible=true")
 
 /mob/dead/new_player/proc/bm_update_lobby_html()
 	if(!client)
@@ -46,9 +57,7 @@
 			img_to_send = fcopy_rsc(BM_LOBBY_LOADING_GIF)
 	if(img_to_send)
 		src << browse(img_to_send, "file=loading_screen.gif;display=0")
-
-	var/dat = _bm_build_html()
-	src << browse(dat, "window=bm_lobby_browser")
+	src << browse(_bm_build_html(), "window=bm_lobby_browser")
 
 /mob/dead/new_player/proc/bm_hide_lobby()
 	if(!client)
@@ -261,7 +270,7 @@ window.onload=__bm_pr;
 				client << output(1, "bm_lobby_browser:bm_set_admin")
 			SStitle_bm?.push_player_count_to(src)
 			if(bm_lobby_music_path != "" || SSticker?.login_music)
-				addtimer(CALLBACK(client, TYPE_PROC_REF(/client, bm_push_lobby_music)), 0.3 SECONDS)
+				client.bm_push_lobby_music()
 			return
 
 		if("toggle_ready")
@@ -293,7 +302,7 @@ window.onload=__bm_pr;
 				client.prefs.bm_lobby_show_nsfw = !client.prefs.bm_lobby_show_nsfw
 				client.prefs.save_preferences()
 				client << output(client.prefs.bm_lobby_show_nsfw, "bm_lobby_browser:bm_update_nsfw_indicator")
-				addtimer(CALLBACK(src, PROC_REF(bm_push_background)), 0.3 SECONDS)
+				bm_push_background()
 			return
 
 		if("toggle_style")
