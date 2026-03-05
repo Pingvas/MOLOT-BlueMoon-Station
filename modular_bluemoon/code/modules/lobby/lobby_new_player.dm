@@ -30,8 +30,9 @@
 		bm_assets_sent = TRUE
 
 	if(!SSticker || SSticker.current_state <= GAME_STATE_STARTUP)
-		if(fexists(BM_LOBBY_LOADING_GIF))
-			src << browse(fcopy_rsc(BM_LOBBY_LOADING_GIF), "file=bm_stub_bg.gif;display=0")
+		var/loading_rsc = SStitle_bm?.loading_image
+		if(loading_rsc)
+			src << browse(loading_rsc, "file=bm_stub_bg.gif;display=0")
 		src << browse(_bm_build_loading_stub(), "window=bm_lobby_browser")
 		winset(client, "bm_lobby_browser", "is-visible=true")
 		return

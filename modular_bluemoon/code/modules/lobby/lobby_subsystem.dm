@@ -109,6 +109,8 @@ SUBSYSTEM_DEF(title_bm)
 	parts += {"<div id=\"bm-toasts\"></div>"}
 	parts += {"<div id=\"bm-toggle-btn\" onclick=\"bmToggleSidebar()\" title=\"Свернуть/развернуть меню\">&#9654;</div>"}
 	cached_static_html = parts.Join("")
+	var/datum/asset/simple/bm_lobby/lobby_asset = get_asset_datum(/datum/asset/simple/bm_lobby)
+	cached_js_url = lobby_asset.get_url_mappings()["bm_lobby.js"]
 
 /datum/controller/subsystem/title_bm/proc/_load_images_from_dir(dir_path, list/target_list)
 	if(!fexists(dir_path))
@@ -131,8 +133,6 @@ SUBSYSTEM_DEF(title_bm)
 		if(!is_image)
 			continue
 		var/full_path = "[dir_path][filename]"
-		if(!fexists(full_path))
-			continue
 		target_list += fcopy_rsc(full_path)
 
 /datum/controller/subsystem/title_bm/proc/_load_title_images()
