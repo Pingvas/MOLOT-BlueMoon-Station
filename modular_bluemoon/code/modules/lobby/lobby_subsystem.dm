@@ -152,7 +152,7 @@ SUBSYSTEM_DEF(title_bm)
 	var/datum/asset/simple/bm_lobby/lobby_asset = get_asset_datum(/datum/asset/simple/bm_lobby)
 	cached_js_url = lobby_asset.get_url_mappings()["bm_lobby.js"]
 	var/list/parts = list()
-	parts += {"<img id="bm-bg" class="bg" src="loading_screen.gif" alt="">"}
+	parts += {"<img id=\"bm-bg\" class=\"bg\" src=\"loading_screen.gif\" alt=\"\">"}
 	parts += {"<div id=\"bm-overlay\"></div>"}
 	parts += {"<div id=\"bm-toasts\"></div>"}
 	parts += {"<div id=\"bm-toggle-btn\" onclick=\"bmToggleSidebar()\" title=\"Свернуть/развернуть меню\">&#9664;</div>"}
@@ -172,7 +172,13 @@ SUBSYSTEM_DEF(title_bm)
 		if(copytext(filename, length(filename)) == "/")
 			continue
 		var/lower = lowertext(filename)
-		if(!findtext(lower, ".png") && !findtext(lower, ".jpg") && !findtext(lower, ".jpeg") && !findtext(lower, ".gif") && !findtext(lower, ".dmi"))
+		var/len = length(lower)
+		var/is_image = (copytext(lower, len - 3) == ".png") \
+			|| (copytext(lower, len - 3) == ".jpg") \
+			|| (copytext(lower, len - 3) == ".gif") \
+			|| (copytext(lower, len - 3) == ".dmi") \
+			|| (copytext(lower, len - 4) == ".jpeg")
+		if(!is_image)
 			continue
 		var/full_path = "[dir_path][filename]"
 		if(!fexists(full_path))
