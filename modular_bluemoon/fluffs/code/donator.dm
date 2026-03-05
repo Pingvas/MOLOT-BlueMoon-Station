@@ -2102,7 +2102,7 @@
 	name = "Twilight Spike"
 	slot = ITEM_SLOT_BACKPACK
 	path = /obj/item/storage/box/donator/bm/twilight_spike
-	ckeywhitelist = list("dragon9090", "hellsinggc")
+	ckeywhitelist = list("dragon9090", "hellsinggc", "pingvas")
 	cost = 4
 
 /datum/gear/donator/bm/sf_coat
