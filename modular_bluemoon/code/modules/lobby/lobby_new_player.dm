@@ -22,9 +22,7 @@
 	if(spawning || new_character)
 		return
 
-	winset(client, "map", "is-visible=false")
-	winset(client, "status_bar", "is-visible=false")
-	winset(client, "bm_lobby_browser", "is-disabled=false;is-visible=false")
+	winset(client, null, "map.is-visible=false;status_bar.is-visible=false;bm_lobby_browser.is-disabled=false;bm_lobby_browser.is-visible=false")
 	// asset cache: отправляем только один раз за сессию клиента
 	if(!bm_assets_sent)
 		var/datum/asset/simple/bm_lobby/lobby_asset = get_asset_datum(/datum/asset/simple/bm_lobby)
@@ -47,10 +45,6 @@
 /mob/dead/new_player/proc/bm_update_lobby_html()
 	if(!client)
 		return
-
-	var/img_to_send = _bm_get_current_image()
-	if(img_to_send)
-		src << browse(img_to_send, "file=loading_screen.gif;display=0")
 	src << browse(_bm_build_html(), "window=bm_lobby_browser")
 
 /// Возвращает текущий rsc фона для этого игрока. Вызывается только после STARTUP (SStitle_bm гарантированно initialized).
@@ -62,10 +56,8 @@
 	if(!client)
 		return
 	bm_lobby_ready = FALSE
-	winset(client, "bm_lobby_browser", "is-disabled=true;is-visible=false")
-	winset(client, "map", "is-visible=true")
+	winset(client, null, "bm_lobby_browser.is-disabled=true;bm_lobby_browser.is-visible=false;map.is-visible=true;status_bar.is-visible=true")
 	client << browse(null, "window=bm_lobby_browser")
-	winset(client, "status_bar", "is-visible=true")
 
 /mob/dead/new_player/proc/bm_push_background()
 	if(!client || !bm_lobby_ready)
@@ -221,7 +213,7 @@ var _i=0;setInterval(function(){var s=_i%4;document.getElementById('d').textCont
 		parts += {"<a id='bm-btn-ready' class='bm-btn' href='?src=[R];bm_lobby_action=toggle_ready'>"}
 		parts += ready ? {"<span class='bm-checked'>☑</span> ГОТОВНОСТЬ"} : {"<span class='bm-unchecked'>☒</span> ГОТОВНОСТЬ"}
 		parts += "</a>"
-		if(client?.holder)
+		if(check_rights(R_SERVER))
 			parts += {"<a class='bm-btn bm-btn-admin' href='?src=[R];bm_lobby_action=start_game'>⚡ СТАРТ ИГРЫ</a>"}
 	else
 		parts += {"<a class='bm-btn' href='?src=[R];bm_lobby_action=late_join'>ВОЙТИ В ИГРУ</a>"}
@@ -274,7 +266,6 @@ var _i=0;setInterval(function(){var s=_i%4;document.getElementById('d').textCont
 	switch(action)
 		if("page_ready")
 			bm_lobby_ready = TRUE
-			SStitle_bm?.update_character_name(src, client?.prefs?.real_name)
 			bm_push_background()
 			SStitle_bm?.push_player_count_to(src)
 			if(bm_lobby_music_path != "" || SSticker?.login_music)
@@ -364,7 +355,7 @@ var _i=0;setInterval(function(){var s=_i%4;document.getElementById('d').textCont
 			return
 
 		if("start_game")
-			if(!client?.holder)
+			if(!check_rights(R_SERVER))
 				return
 			if(!SSticker || SSticker.current_state != GAME_STATE_PREGAME)
 				return

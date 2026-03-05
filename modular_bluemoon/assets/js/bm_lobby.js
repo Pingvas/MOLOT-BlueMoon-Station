@@ -257,7 +257,13 @@ function bmAudioPlay() {
   if (_bm_audio_playing) {
     audio.pause(); _bm_audio_playing = false; if (btn) btn.innerHTML = '&#9654;';
   } else {
-    audio.play(); _bm_audio_playing = true; if (btn) btn.innerHTML = '&#9646;&#9646;';
+    var p = audio.play();
+    if (p) p.then(function() {
+      _bm_audio_playing = true; if (btn) btn.innerHTML = '&#9646;&#9646;';
+    }).catch(function() {
+      _bm_audio_playing = false; if (btn) btn.innerHTML = '&#9654;';
+    });
+    else { _bm_audio_playing = true; if (btn) btn.innerHTML = '&#9646;&#9646;'; }
   }
 }
 function bmAudioVolume(val) {
