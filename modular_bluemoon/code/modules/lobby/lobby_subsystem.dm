@@ -18,6 +18,9 @@ SUBSYSTEM_DEF(title_bm)
 	var/last_online_count = -1
 	var/last_ready_count = -1
 	var/cached_static_html = ""
+	var/cached_js_url = ""        // URL JS-библиотеки — вычисляется один раз в _build_static_html
+	var/cached_notice_js = ""     // JS-вызов для текущего объявления — кешируется в set_notice
+	var/ready_count = 0           // реактивный счётчик, обновляется через on_player_ready_change
 	var/current_sfw_image
 	var/current_nsfw_image
 
@@ -83,6 +86,9 @@ SUBSYSTEM_DEF(title_bm)
 	current_sfw_image = null
 	current_nsfw_image = null
 	cached_static_html = ""
+	cached_js_url = ""
+	cached_notice_js = ""
+	ready_count = 0
 	return ..();
 
 /datum/controller/subsystem/title_bm/Recover()
@@ -100,6 +106,9 @@ SUBSYSTEM_DEF(title_bm)
 	else
 		lobby_html = SStitle_bm.lobby_html
 	cached_static_html = SStitle_bm.cached_static_html
+	cached_js_url      = SStitle_bm.cached_js_url
+	cached_notice_js   = SStitle_bm.cached_notice_js
+	ready_count        = SStitle_bm.ready_count
 	current_sfw_image   = SStitle_bm.current_sfw_image
 	current_nsfw_image  = SStitle_bm.current_nsfw_image
 
@@ -139,6 +148,9 @@ SUBSYSTEM_DEF(title_bm)
 	progress_json = null
 
 /datum/controller/subsystem/title_bm/proc/_build_static_html()
+	// Кешируем URL JS-библиотеки один раз при инициализации
+	var/datum/asset/simple/bm_lobby/lobby_asset = get_asset_datum(/datum/asset/simple/bm_lobby)
+	cached_js_url = lobby_asset.get_url_mappings()["bm_lobby.js"]
 	var/list/parts = list()
 	parts += {"<img id="bm-bg" class="bg" src="loading_screen.gif" alt="">"}
 	parts += {"<div id=\"bm-overlay\"></div>"}
@@ -230,6 +242,14 @@ SUBSYSTEM_DEF(title_bm)
 
 /datum/controller/subsystem/title_bm/proc/set_notice(notice_text)
 	current_notice = notice_text ? sanitize_text(notice_text) : null
+	// Кешируем escaped-версию для подстановки в _bm_build_html новых игроков
+	if(current_notice)
+		var/escaped = replacetext(current_notice, "\\", "\\\\")
+		escaped = replacetext(escaped, "'", "\\'")
+		escaped = replacetext(escaped, "\n", "\\n")
+		cached_notice_js = "bm_show_notice('[escaped]');"
+	else
+		cached_notice_js = ""
 	var/safe_notice = current_notice ? replacetext(current_notice, "'", "\\'") : ""
 	var/toast_type = current_notice ? "'error'" : "'info'"
 	for(var/mob/dead/new_player/player as anything in GLOB.new_player_list)
@@ -243,12 +263,13 @@ SUBSYSTEM_DEF(title_bm)
 	user.client << output(name, "bm_lobby_browser:bm_update_character")
 
 /datum/controller/subsystem/title_bm/proc/_get_player_counts()
-	var/online = length(GLOB.new_player_list)
-	var/ready = 0
-	for(var/mob/dead/new_player/p as anything in GLOB.new_player_list)
-		if(p.ready)
-			ready++
-	return list(online, ready)
+	// ready_count обновляется реактивно через on_player_ready_change — O(1) вместо O(N)
+	return list(length(GLOB.new_player_list), ready_count)
+
+/// Вызывается при изменении ready-статуса игрока. delta = +1 (готов) или -1 (не готов).
+/datum/controller/subsystem/title_bm/proc/on_player_ready_change(delta)
+	ready_count = max(0, ready_count + delta)
+	update_player_counts_all()
 
 /datum/controller/subsystem/title_bm/proc/push_player_count_to(mob/dead/new_player/player)
 	if(!(istype(player) && player.bm_lobby_ready && player.client))

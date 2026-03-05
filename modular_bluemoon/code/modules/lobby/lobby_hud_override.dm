@@ -17,6 +17,7 @@
 	return ..()
 
 /mob/dead/new_player/Logout()
+	bm_assets_sent = FALSE  // при переподключении будет новая браузер-сессия
 	bm_hide_lobby()
 	return ..()
 

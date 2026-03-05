@@ -1,6 +1,7 @@
 /mob/dead/new_player
 	var/bm_lobby_ready = FALSE
 	var/bm_bg_slot = 0
+	var/bm_assets_sent = FALSE  // asset cache уже отправлен этому клиенту
 	COOLDOWN_DECLARE(bm_ready_cd)
 	var/bm_lobby_music_path = ""
 	var/bm_lobby_track_name = ""
@@ -8,6 +9,12 @@
 /mob/dead/new_player/Login()
 	. = ..()
 	bm_show_lobby()
+
+/mob/dead/new_player/Destroy()
+	// Реактивно уменьшаем счётчик готовых, если игрок был готов в лобби
+	if(ready && SStitle_bm)
+		SStitle_bm.ready_count = max(0, SStitle_bm.ready_count - 1)
+	return ..()
 
 /mob/dead/new_player/proc/bm_show_lobby()
 	if(!client)
@@ -21,23 +28,21 @@
 	winset(client, "map", "is-visible=false")
 	winset(client, "status_bar", "is-visible=false")
 	winset(client, "bm_lobby_browser", "is-disabled=false;is-visible=false")
-	var/datum/asset/simple/bm_lobby/lobby_asset = get_asset_datum(/datum/asset/simple/bm_lobby)
-	lobby_asset.send(src)
+	// asset cache: отправляем только один раз за сессию клиента
+	if(!bm_assets_sent)
+		var/datum/asset/simple/bm_lobby/lobby_asset = get_asset_datum(/datum/asset/simple/bm_lobby)
+		lobby_asset.send(src)
+		bm_assets_sent = TRUE
 
 	if(!SStitle_bm?.initialized && (!SSticker || SSticker.current_state <= GAME_STATE_STARTUP))
-		if(fexists(BM_LOBBY_LOADING_GIF))
-			src << browse(fcopy_rsc(BM_LOBBY_LOADING_GIF), "file=loading_screen.gif;display=0")
+		var/loading_rsc = SStitle_bm?.loading_image || (fexists(BM_LOBBY_LOADING_GIF) ? fcopy_rsc(BM_LOBBY_LOADING_GIF) : null)
+		if(loading_rsc)
+			src << browse(loading_rsc, "file=loading_screen.gif;display=0")
 		src << browse(_bm_build_loading_stub(), "window=bm_lobby_browser")
 		winset(client, "bm_lobby_browser", "is-visible=true")
 		return
 
-	var/img_to_send
-	if(SStitle_bm?.initialized)
-		var/show_nsfw = client?.prefs?.bm_lobby_show_nsfw || FALSE
-		img_to_send = SStitle_bm.get_image_for_player(show_nsfw)
-	else
-		if(fexists(BM_LOBBY_LOADING_GIF))
-			img_to_send = fcopy_rsc(BM_LOBBY_LOADING_GIF)
+	var/img_to_send = _bm_get_current_image()
 	if(img_to_send)
 		src << browse(img_to_send, "file=loading_screen.gif;display=0")
 	src << browse(_bm_build_html(), "window=bm_lobby_browser")
@@ -47,16 +52,18 @@
 	if(!client)
 		return
 
-	var/img_to_send
-	if(SStitle_bm?.initialized)
-		var/show_nsfw = client?.prefs?.bm_lobby_show_nsfw || FALSE
-		img_to_send = SStitle_bm.get_image_for_player(show_nsfw)
-	else
-		if(fexists(BM_LOBBY_LOADING_GIF))
-			img_to_send = fcopy_rsc(BM_LOBBY_LOADING_GIF)
+	var/img_to_send = _bm_get_current_image()
 	if(img_to_send)
 		src << browse(img_to_send, "file=loading_screen.gif;display=0")
 	src << browse(_bm_build_html(), "window=bm_lobby_browser")
+
+/// Возвращает текущий rsc фона для этого игрока. Использует кеш subsystem, без лишних fcopy_rsc.
+/mob/dead/new_player/proc/_bm_get_current_image()
+	if(SStitle_bm?.initialized)
+		var/show_nsfw = client?.prefs?.bm_lobby_show_nsfw || FALSE
+		return SStitle_bm.get_image_for_player(show_nsfw)
+	// subsystem ещё не готова — используем cached loading_image если есть
+	return SStitle_bm?.loading_image || (fexists(BM_LOBBY_LOADING_GIF) ? fcopy_rsc(BM_LOBBY_LOADING_GIF) : null)
 
 /mob/dead/new_player/proc/bm_hide_lobby()
 	if(!client)
@@ -184,17 +191,13 @@ var _i=0;setInterval(function(){var s=_i%4;document.getElementById('d').textCont
 <audio id=\"bm-audio\" loop></audio></div>"}
 
 	var/show_nsfw = client?.prefs?.bm_lobby_show_nsfw || FALSE
-	var/notice_js = ""
-	if(SStitle_bm?.current_notice)
-		var/notice_text = SStitle_bm.current_notice
-		notice_text = replacetext(notice_text, "\\", "\\\\")
-		notice_text = replacetext(notice_text, "'", "\\'")
-		notice_text = replacetext(notice_text, "\n", "\\n")
-		notice_js = "bm_show_notice('[notice_text]');"
+	var/notice_js = SStitle_bm?.cached_notice_js || ""
 	var/admin_js = "bm_set_admin([client?.holder ? 1 : 0]);"
 
-	var/datum/asset/simple/bm_lobby/lobby_asset = get_asset_datum(/datum/asset/simple/bm_lobby)
-	var/js_url = lobby_asset.get_url_mappings()["bm_lobby.js"]
+	var/js_url = SStitle_bm?.cached_js_url
+	if(!js_url)
+		var/datum/asset/simple/bm_lobby/lobby_asset = get_asset_datum(/datum/asset/simple/bm_lobby)
+		js_url = lobby_asset.get_url_mappings()["bm_lobby.js"]
 	// async — не блокирует парсинг HTML; page_ready отправляется только после загрузки скрипта
 	// при кеш-хите (typeof bm_set_admin==='function') init срабатывает сразу синхронно
 	parts += {"<script src=\"[js_url]\" async id=\"bm-js\"></script>"}
@@ -295,6 +298,7 @@ var _i=0;setInterval(function(){var s=_i%4;document.getElementById('d').textCont
 				client << output(FALSE, "bm_lobby_browser:bm_toggle_ready")
 				return FALSE
 			ready = !ready
+			SStitle_bm?.on_player_ready_change(ready ? 1 : -1)
 			client << output(ready, "bm_lobby_browser:bm_toggle_ready")
 			return
 
