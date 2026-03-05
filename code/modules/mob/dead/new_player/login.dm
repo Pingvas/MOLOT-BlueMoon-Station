@@ -30,10 +30,13 @@
 
 	client.playtitlemusic()
 
-	var/datum/asset/asset_datum = get_asset_datum(/datum/asset/simple/lobby)
-	asset_datum.send(client)
+	// BLUEMOON ADD: HTML-лобби отправляет свои ассеты самостоятельно через bm_lobby asset.
+	if(!SStitle_bm)
+		var/datum/asset/asset_datum = get_asset_datum(/datum/asset/simple/lobby)
+		asset_datum.send(client)
 
-	if(SSticker.current_state < GAME_STATE_SETTING_UP)
+	// BLUEMOON ADD: HTML-лобби отображает статус готовности графически — текстовое сообщение не нужно.
+	if(!SStitle_bm && SSticker.current_state < GAME_STATE_SETTING_UP)
 		var/tl = SSticker.GetTimeLeft()
 		var/postfix
 		if(tl > 0)

@@ -9,18 +9,15 @@ SUBSYSTEM_DEF(title_bm)
 	var/lobby_html = ""
 	var/current_notice
 	var/loading_image = BM_LOBBY_LOADING_GIF
-	var/average_completion_time = BM_LOBBY_DEFAULT_MAP_LOADTIME
-	var/progress_reference_time = 0
-	var/list/progress_json = list()
 	var/lobby_tick_timer
 	var/refresh_timer
 	var/current_video_payload
 	var/last_online_count = -1
 	var/last_ready_count = -1
 	var/cached_static_html = ""
-	var/cached_js_url = ""        // URL JS-библиотеки — вычисляется один раз в _build_static_html
-	var/cached_notice_js = ""     // JS-вызов для текущего объявления — кешируется в set_notice
-	var/ready_count = 0           // реактивный счётчик, обновляется через on_player_ready_change
+	var/cached_js_url = ""           // URL JS-библиотеки — вычисляется один раз в _build_static_html
+	var/cached_notice_js = ""        // JS-вызов для текущего объявления — кешируется в set_notice
+	var/ready_count = 0           	 // реактивный счётчик, обновляется через on_player_ready_change
 	var/current_sfw_image
 	var/current_nsfw_image
 
@@ -63,9 +60,6 @@ SUBSYSTEM_DEF(title_bm)
 		loading_image = null
 	current_image = loading_image || BM_LOBBY_DEFAULT_IMAGE
 
-	_check_progress_reference_time()
-	_load_progress_json()
-
 	RegisterSignal(SSticker, COMSIG_TICKER_ENTER_PREGAME, PROC_REF(_on_enter_pregame))
 	RegisterSignal(SSticker, COMSIG_TICKER_ENTER_SETTING_UP, PROC_REF(_on_enter_setting_up))
 
@@ -82,7 +76,6 @@ SUBSYSTEM_DEF(title_bm)
 	refresh_timer = null
 	sfw_images = null
 	nsfw_images = null
-	progress_json = null
 	current_sfw_image = null
 	current_nsfw_image = null
 	cached_static_html = ""
@@ -97,67 +90,24 @@ SUBSYSTEM_DEF(title_bm)
 	sfw_images            = SStitle_bm.sfw_images
 	nsfw_images           = SStitle_bm.nsfw_images
 	current_notice        = SStitle_bm.current_notice
-	average_completion_time = SStitle_bm.average_completion_time
-	progress_reference_time = SStitle_bm.progress_reference_time
-	progress_json           = SStitle_bm.progress_json
 	current_video_payload = SStitle_bm.current_video_payload
 	if(fexists(BM_LOBBY_HTML_FILE))
 		lobby_html = _parse_lobby_html(file2text(BM_LOBBY_HTML_FILE))
 	else
 		lobby_html = SStitle_bm.lobby_html
-	cached_static_html = SStitle_bm.cached_static_html
-	cached_js_url      = SStitle_bm.cached_js_url
-	cached_notice_js   = SStitle_bm.cached_notice_js
+	cached_static_html      = SStitle_bm.cached_static_html
+	cached_js_url           = SStitle_bm.cached_js_url
+	cached_notice_js        = SStitle_bm.cached_notice_js
 	ready_count        = SStitle_bm.ready_count
 	current_sfw_image   = SStitle_bm.current_sfw_image
 	current_nsfw_image  = SStitle_bm.current_nsfw_image
 
-/datum/controller/subsystem/title_bm/proc/_check_progress_reference_time()
-	if(!progress_reference_time)
-		progress_reference_time = world.time
-
-/datum/controller/subsystem/title_bm/proc/_load_progress_json()
-	if(!fexists(BM_LOBBY_PROGRESS_CACHE))
-		return
-	var/json_text = file2text(BM_LOBBY_PROGRESS_CACHE)
-	progress_json = json_decode(json_text)
-	if(!islist(progress_json) || progress_json["_version"] != BM_LOBBY_PROGRESS_VERSION)
-		progress_json = list()
-		return
-	var/map_key = SSmapping.config?.map_name || "default"
-	var/list/map_info = progress_json[map_key]
-	if(!islist(map_info))
-		return
-	var/cached_total = map_info["total"]
-	if(!isnum(cached_total) || cached_total <= 0)
-		return
-	average_completion_time = cached_total
-
-/datum/controller/subsystem/title_bm/proc/_save_progress_json()
-	progress_json["_version"] = BM_LOBBY_PROGRESS_VERSION
-	var/map_key = SSmapping.config?.map_name || "default"
-	var/list/map_info = list()
-	if(progress_json[map_key])
-		map_info["total"] = 0.75 * average_completion_time + 0.25 * (world.time - progress_reference_time)
-	else
-		map_info["total"] = world.time - progress_reference_time
-	progress_json[map_key] = map_info
-	var/F = file(BM_LOBBY_PROGRESS_CACHE)
-	fdel(F)
-	WRITE_FILE(F, json_encode(progress_json))
-	progress_json = null
-
 /datum/controller/subsystem/title_bm/proc/_build_static_html()
-	// Кешируем URL JS-библиотеки один раз при инициализации
-	var/datum/asset/simple/bm_lobby/lobby_asset = get_asset_datum(/datum/asset/simple/bm_lobby)
-	cached_js_url = lobby_asset.get_url_mappings()["bm_lobby.js"]
 	var/list/parts = list()
 	parts += {"<img id=\"bm-bg\" class=\"bg\" src=\"loading_screen.gif\" alt=\"\">"}
 	parts += {"<div id=\"bm-overlay\"></div>"}
 	parts += {"<div id=\"bm-toasts\"></div>"}
 	parts += {"<div id=\"bm-toggle-btn\" onclick=\"bmToggleSidebar()\" title=\"Свернуть/развернуть меню\">&#9664;</div>"}
-	parts += {"<div id=\"bm-terminal\"></div>"}
-	parts += {"<div id=\"bm-progress-wrap\"><div id=\"bm-progress-bar\"></div></div>"}
 	cached_static_html = parts.Join("")
 
 /datum/controller/subsystem/title_bm/proc/_load_images_from_dir(dir_path, list/target_list)
@@ -227,9 +177,6 @@ SUBSYSTEM_DEF(title_bm)
 	else
 		current_image = null
 
-	if(progress_json && SSticker?.current_state == GAME_STATE_PREGAME)
-		_save_progress_json()
-
 	// Готовым — только меняем картинку через JS (без перезагрузки HTML → музыка не прерывается)
 	// Не готовым — полный показ лобби с нуля
 	for(var/mob/dead/new_player/player as anything in GLOB.new_player_list)
@@ -249,19 +196,19 @@ SUBSYSTEM_DEF(title_bm)
 /datum/controller/subsystem/title_bm/proc/set_notice(notice_text)
 	current_notice = notice_text ? sanitize_text(notice_text) : null
 	// Кешируем escaped-версию для подстановки в _bm_build_html новых игроков
+	var/escaped = ""
 	if(current_notice)
-		var/escaped = replacetext(current_notice, "\\", "\\\\")
+		escaped = replacetext(current_notice, "\\", "\\\\")
 		escaped = replacetext(escaped, "'", "\\'")
 		escaped = replacetext(escaped, "\n", "\\n")
 		cached_notice_js = "bm_show_notice('[escaped]');"
 	else
 		cached_notice_js = ""
-	var/safe_notice = current_notice ? replacetext(current_notice, "'", "\\'") : ""
 	var/toast_type = current_notice ? "'error'" : "'info'"
 	for(var/mob/dead/new_player/player as anything in GLOB.new_player_list)
 		if(!player.bm_lobby_ready || !player.client)
 			continue
-		player.client << output("'[safe_notice]',[toast_type]", "bm_lobby_browser:bm_show_notice")
+		player.client << output("'[escaped]',[toast_type]", "bm_lobby_browser:bm_show_notice")
 
 /datum/controller/subsystem/title_bm/proc/update_character_name(mob/dead/new_player/user, name)
 	if(!(istype(user) && user.bm_lobby_ready && user.client))

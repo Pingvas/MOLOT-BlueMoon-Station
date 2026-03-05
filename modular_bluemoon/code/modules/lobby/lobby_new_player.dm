@@ -11,19 +11,16 @@
 	bm_show_lobby()
 
 /mob/dead/new_player/Destroy()
-	// Реактивно уменьшаем счётчик готовых, если игрок был готов в лобби
-	if(ready && SStitle_bm)
-		SStitle_bm.ready_count = max(0, SStitle_bm.ready_count - 1)
-	return ..()
+	var/was_ready = ready
+	. = ..()
+	if(was_ready && SStitle_bm)
+		SStitle_bm.on_player_ready_change(-1)
 
 /mob/dead/new_player/proc/bm_show_lobby()
 	if(!client)
 		return
 	if(spawning || new_character)
 		return
-
-	// Чистим legacy screen-атомы (splash и т.п.), которые мог добавить Initialize()
-	client.screen.Cut()
 
 	winset(client, "map", "is-visible=false")
 	winset(client, "status_bar", "is-visible=false")
@@ -34,10 +31,9 @@
 		lobby_asset.send(src)
 		bm_assets_sent = TRUE
 
-	if(!SStitle_bm?.initialized && (!SSticker || SSticker.current_state <= GAME_STATE_STARTUP))
-		var/loading_rsc = SStitle_bm?.loading_image || (fexists(BM_LOBBY_LOADING_GIF) ? fcopy_rsc(BM_LOBBY_LOADING_GIF) : null)
-		if(loading_rsc)
-			src << browse(loading_rsc, "file=loading_screen.gif;display=0")
+	if(!SSticker || SSticker.current_state <= GAME_STATE_STARTUP)
+		if(fexists(BM_LOBBY_LOADING_GIF))
+			src << browse(fcopy_rsc(BM_LOBBY_LOADING_GIF), "file=bm_stub_bg.gif;display=0")
 		src << browse(_bm_build_loading_stub(), "window=bm_lobby_browser")
 		winset(client, "bm_lobby_browser", "is-visible=true")
 		return
@@ -57,13 +53,10 @@
 		src << browse(img_to_send, "file=loading_screen.gif;display=0")
 	src << browse(_bm_build_html(), "window=bm_lobby_browser")
 
-/// Возвращает текущий rsc фона для этого игрока. Использует кеш subsystem, без лишних fcopy_rsc.
+/// Возвращает текущий rsc фона для этого игрока. Вызывается только после STARTUP (SStitle_bm гарантированно initialized).
 /mob/dead/new_player/proc/_bm_get_current_image()
-	if(SStitle_bm?.initialized)
-		var/show_nsfw = client?.prefs?.bm_lobby_show_nsfw || FALSE
-		return SStitle_bm.get_image_for_player(show_nsfw)
-	// subsystem ещё не готова — используем cached loading_image если есть
-	return SStitle_bm?.loading_image || (fexists(BM_LOBBY_LOADING_GIF) ? fcopy_rsc(BM_LOBBY_LOADING_GIF) : null)
+	var/show_nsfw = client?.prefs?.bm_lobby_show_nsfw || FALSE
+	return SStitle_bm?.get_image_for_player(show_nsfw)
 
 /mob/dead/new_player/proc/bm_hide_lobby()
 	if(!client)
@@ -95,12 +88,13 @@
 	SStitle_bm?.push_player_count_to(src)
 
 /mob/dead/new_player/proc/_bm_build_loading_stub()
+	// Фон — bm_stub_bg.gif, отправленный через browse() до этого вызова.
 	return {"<!DOCTYPE html><html><head><meta charset='UTF-8'>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body,html{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Courier New',monospace;color:#4af;}
 .bg{position:fixed;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:0;}
-.overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,10,0.6);z-index:1;}
+.overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,10,0.25);z-index:1;}
 .wrap{position:fixed;top:0;left:0;width:100%;height:100%;z-index:2;display:flex;flex-direction:column;align-items:center;}
 .top{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding-bottom:6vmin;}
 .title{font-size:clamp(18px,4.5vmin,42px);letter-spacing:6px;text-shadow:0 0 18px rgba(80,180,255,0.9);margin-bottom:1.2vmin;}
@@ -114,7 +108,7 @@ body,html{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Co
 @keyframes bm-ray{from{transform:translateX(-100%)}to{transform:translateX(350%)}}
 </style></head>
 <body>
-<img class='bg' src='loading_screen.gif' alt=''>
+<img class='bg' src='bm_stub_bg.gif' alt=''>
 <div class='overlay'></div>
 <div class='wrap'>
   <div class='top'>
@@ -145,8 +139,6 @@ var _i=0;setInterval(function(){var s=_i%4;document.getElementById('d').textCont
 		parts += {"<div id=\"bm-overlay\"></div>"}
 		parts += {"<div id=\"bm-toasts\"></div>"}
 		parts += {"<div id=\"bm-toggle-btn\" onclick=\"bmToggleSidebar()\" title=\"Свернуть/развернуть меню\">&#9664;</div>"}
-		parts += {"<div id=\"bm-terminal\"></div>"}
-		parts += {"<div id=\"bm-progress-wrap\"><div id=\"bm-progress-bar\"></div></div>"}
 
 	// динамическая часть
 	parts += {"<div id=\"bm-sidebar\">"}
@@ -198,6 +190,8 @@ var _i=0;setInterval(function(){var s=_i%4;document.getElementById('d').textCont
 	if(!js_url)
 		var/datum/asset/simple/bm_lobby/lobby_asset = get_asset_datum(/datum/asset/simple/bm_lobby)
 		js_url = lobby_asset.get_url_mappings()["bm_lobby.js"]
+		if(SStitle_bm)
+			SStitle_bm.cached_js_url = js_url // кешируем, чтобы не пересчитывать каждый раз
 	// async — не блокирует парсинг HTML; page_ready отправляется только после загрузки скрипта
 	// при кеш-хите (typeof bm_set_admin==='function') init срабатывает сразу синхронно
 	parts += {"<script src=\"[js_url]\" async id=\"bm-js\"></script>"}

@@ -27,8 +27,4 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Co
 </head><body>
 "}
 
-#define BM_LOBBY_PROGRESS_VERSION "bm1"
 
-#define BM_LOBBY_DEFAULT_MAP_LOADTIME (60 SECONDS)
-
-#define BM_LOBBY_PROGRESS_CACHE "data/bm_lobby_progress.json"

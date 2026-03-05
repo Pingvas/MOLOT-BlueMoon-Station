@@ -133,28 +133,6 @@ function bm_show_notice(text, type) {
   if (text) bm_show_toast(text, type || 'error', 8000);
 }
 
-function bm_append_terminal(html_text) {
-  var el = document.getElementById('bm-terminal');
-  if (!el) return;
-  el.style.display = 'block';
-  var line = document.createElement('div');
-  line.className = 'bm-terminal-line'; line.innerHTML = html_text || '';
-  el.appendChild(line);
-  while (el.children.length > 3) el.removeChild(el.firstChild);
-}
-
-function bm_update_progress(cur, total) {
-  var w = document.getElementById('bm-progress-wrap');
-  if (w) w.style.display = 'block';
-}
-
-function bm_finish_loading() {
-  var w = document.getElementById('bm-progress-wrap');
-  var t = document.getElementById('bm-terminal');
-  if (w) { w.classList.add('finishing'); setTimeout(function() { w.style.display='none'; w.classList.remove('finishing'); }, 650); }
-  if (t) { t.style.opacity='0'; setTimeout(function(){ t.style.display='none'; t.style.opacity=''; }, 400); }
-}
-
 function bm_set_background(data) {
   var bg = document.getElementById('bm-bg');
   if (!bg) return;
