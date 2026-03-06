@@ -149,7 +149,7 @@ var _i=0;setInterval(function(){var s=_i%4;document.getElementById('d').textCont
       <span class="bm-s-value" id="bm-s-nsfw">ВЫКЛ</span>
     </a>
     <a class="bm-settings-row" href='?src=[R];bm_lobby_action=toggle_admin_bg' style="cursor:pointer">
-      <span class="bm-s-label">ЛОББИ ОТ АДМИНОВ</span>
+      <span class="bm-s-label">МЕДИА ОТ АДМИНОВ</span>
       <span class="bm-s-value" id="bm-s-adminbg">ВКЛ</span>
     </a>
   </div>
