@@ -2153,3 +2153,9 @@
 	slot = ITEM_SLOT_MASK
 	path = /obj/item/clothing/mask/gas/syndicate/cool_version/winter_mask
 	ckeywhitelist = list("lindaastereih")
+
+/datum/gear/donator/bm/nebular_kit
+	name = "Nebular-9 Kit"
+	slot = ITEM_SLOT_BACKPACK
+	path = /obj/item/modkit/nebular_kit
+	ckeywhitelist = list("lapkee")
