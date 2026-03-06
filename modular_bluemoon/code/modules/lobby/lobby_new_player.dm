@@ -25,9 +25,9 @@
 	winset(client, null, "map.is-visible=false;status_bar.is-visible=false;bm_lobby_browser.is-disabled=false;bm_lobby_browser.is-visible=false")
 	// asset cache: отправляем только один раз за сессию клиента
 	if(!bm_assets_sent)
+		bm_assets_sent = TRUE
 		var/datum/asset/simple/bm_lobby/lobby_asset = get_asset_datum(/datum/asset/simple/bm_lobby)
 		lobby_asset.send(src)
-		bm_assets_sent = TRUE
 
 	if(!SSticker || SSticker.current_state <= GAME_STATE_STARTUP)
 		var/loading_rsc = SStitle_bm?.loading_image
@@ -46,6 +46,7 @@
 /mob/dead/new_player/proc/bm_update_lobby_html()
 	if(!client)
 		return
+	bm_lobby_ready = FALSE
 	src << browse(_bm_build_html(), "window=bm_lobby_browser")
 
 /// Возвращает текущий rsc фона для этого игрока. Вызывается только после STARTUP (SStitle_bm гарантированно initialized).
@@ -177,7 +178,7 @@ var _i=0;setInterval(function(){var s=_i%4;document.getElementById('d').textCont
 
 	var/show_nsfw = client?.prefs?.bm_lobby_show_nsfw || FALSE
 	var/notice_js = SStitle_bm?.cached_notice_js || ""
-	var/admin_js = "bm_set_admin([client?.holder ? 1 : 0]);"
+	var/admin_js = "bm_set_admin([check_rights_for(client, R_SERVER) ? 1 : 0]);"
 
 	var/js_url = SStitle_bm?.cached_js_url
 	if(!js_url)
@@ -214,7 +215,7 @@ var _i=0;setInterval(function(){var s=_i%4;document.getElementById('d').textCont
 		parts += {"<a id='bm-btn-ready' class='bm-btn' href='?src=[R];bm_lobby_action=toggle_ready'>"}
 		parts += ready ? {"<span class='bm-checked'>☑</span> ГОТОВНОСТЬ"} : {"<span class='bm-unchecked'>☒</span> ГОТОВНОСТЬ"}
 		parts += "</a>"
-		if(check_rights(R_SERVER))
+		if(check_rights_for(client, R_SERVER))
 			parts += {"<a class='bm-btn bm-btn-admin' href='?src=[R];bm_lobby_action=start_game'>⚡ СТАРТ ИГРЫ</a>"}
 	else
 		parts += {"<a class='bm-btn' href='?src=[R];bm_lobby_action=late_join'>ВОЙТИ В ИГРУ</a>"}
@@ -283,6 +284,15 @@ var _i=0;setInterval(function(){var s=_i%4;document.getElementById('d').textCont
 				client << output("Выберите хотя бы одну профессию в настройках персонажа, иначе вы не сможете войти в раунд.", "bm_lobby_browser:bm_show_notice")
 				client << output(FALSE, "bm_lobby_browser:bm_toggle_ready")
 				return FALSE
+			if(!ready && client.prefs && !(client.prefs.toggles & NO_ANTAG))
+				if(alert(src, "У вас включена возможность стать антагонистом. Вы уверены, что не хотите выключить её?", "...Клянусь, что не сдам роль...", "Я готов", "Прошу временно отключить") == "Прошу временно отключить")
+					if(QDELETED(src) || !client)
+						return
+					client.prefs.toggles ^= NO_ANTAG
+					to_chat(src, "<span class='redtext'>На этот раунд, у вас отключена возможность стать антагонистом (её можно включить через кнопку роли антагониста).</span>")
+					client << output(!(client.prefs.toggles & NO_ANTAG), "bm_lobby_browser:bm_toggle_antag")
+			if(QDELETED(src) || !client)
+				return
 			ready = !ready
 			SStitle_bm?.on_player_ready_change(ready ? 1 : -1)
 			client << output(ready, "bm_lobby_browser:bm_toggle_ready")
@@ -309,7 +319,12 @@ var _i=0;setInterval(function(){var s=_i%4;document.getElementById('d').textCont
 
 		if("observe")
 			_bm_play_click_sound()
-			make_me_an_observer()  // bm_hide/show_lobby обрабатывается в override ниже
+			var/prev_ready = ready
+			make_me_an_observer()
+			if(!QDELETED(src) && client && !spawning && ready != prev_ready)
+				if(prev_ready && !ready)
+					SStitle_bm?.on_player_ready_change(-1)
+				client << output(ready, "bm_lobby_browser:bm_toggle_ready")
 			return
 
 		if("late_join")
@@ -356,7 +371,7 @@ var _i=0;setInterval(function(){var s=_i%4;document.getElementById('d').textCont
 			return
 
 		if("start_game")
-			if(!check_rights(R_SERVER))
+			if(!check_rights_for(client, R_SERVER))
 				return
 			if(!SSticker || SSticker.current_state != GAME_STATE_PREGAME)
 				return
@@ -392,5 +407,7 @@ var _i=0;setInterval(function(){var s=_i%4;document.getElementById('d').textCont
 		return
 	var/datum/station_trait/clicked_trait = tgui_input_list(src, "Выберите особенность работы для регистрации:", "Особенности работы", available)
 	if(!clicked_trait)
+		return
+	if(QDELETED(src) || !client)
 		return
 	clicked_trait.on_lobby_button_click(src)

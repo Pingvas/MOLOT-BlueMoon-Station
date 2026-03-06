@@ -26,11 +26,6 @@
 	COOLDOWN_DECLARE(reset_hud_cooldown)
 
 /mob/dead/new_player/Initialize(mapload)
-	// BLUEMOON ADD: HTML-лобби управляет своим загрузочным экраном — splash-атом не нужен.
-	if(client && SSticker.state == GAME_STATE_STARTUP && !SStitle_bm)
-		var/atom/movable/screen/splash/S = new(null, null, client, TRUE)
-		S.Fade(TRUE)
-
 	if(length(GLOB.newplayer_start))
 		forceMove(pick(GLOB.newplayer_start))
 	else

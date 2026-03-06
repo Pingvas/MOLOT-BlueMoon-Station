@@ -1,38 +1,25 @@
 /mob/dead/new_player/create_mob_hud()
 	return
 
-/mob/dead/new_player/new_player_panel()
+/datum/hud/new_player/populate_buttons(mob/dead/new_player/owner)
 	return
 
-/mob/dead/new_player/create_character(transfer_after)
-	bm_hide_lobby()
-	return ..(transfer_after)
-
-/mob/dead/new_player/transfer_character(late_transfer)
-	// bm_hide_lobby() уже вызвана в create_character/close_spawn_windows до передачи клиента
-	return ..(late_transfer)
+/mob/dead/new_player/proc/new_player_panel()
+	return
 
 /mob/dead/new_player/close_spawn_windows()
 	bm_hide_lobby()
 	return ..()
 
 /mob/dead/new_player/Logout()
-	bm_assets_sent = FALSE  // при переподключении будет новая браузер-сессия
-	bm_hide_lobby()
+	bm_assets_sent = FALSE
+	bm_lobby_ready = FALSE
+	bm_lobby_music_path = ""
+	bm_lobby_track_name = ""
 	return ..()
 
 /mob/dead/new_player/reset_menu_hud()
 	set hidden = 1
-
-/client/playtitlemusic(vol = 85)
-	if(!istype(mob, /mob/dead/new_player))
-		return ..()
-	// Музыка HTML-лобби доставляется без polling:
-	// 1) page_ready → bm_push_lobby_music() — если login_music уже выставлен к моменту загрузки JS
-	// 2) _lobby_tick (каждые 15с) — если игрок подключился в самом начале до инициализации SSticker
-	// Подавляем стандартное BYOND-звуковое воспроизведение
-
-//  Отправляет текущую музыку в HTML5-плеер лобби.
 
 /client/proc/bm_push_lobby_music()
 	var/mob/dead/new_player/player = mob
@@ -49,7 +36,7 @@
 			player.bm_lobby_music_path = music_path
 	if(!music_path || !fexists(music_path))
 		return
-	if(!track_name && music_path)
+	if(!track_name)
 		track_name = music_path
 		var/last_slash = findlasttext(track_name, "/")
 		if(last_slash)
@@ -58,7 +45,13 @@
 		if(dot_pos > 1)
 			track_name = copytext(track_name, 1, dot_pos)
 		track_name = replacetext(replacetext(track_name, "_", " "), "-", " ")
+		// Сохраняем имя трека для повторных вызовов
+		player.bm_lobby_track_name = track_name
 	src << browse(fcopy_rsc(music_path), "file=bm_lobby_music.ogg;display=0")
 	src << output("bm_lobby_music.ogg", "bm_lobby_browser:bm_load_audio")
 	if(track_name)
 		src << output(track_name, "bm_lobby_browser:bm_set_audio_track")
+
+/client/playtitlemusic(vol = 85)
+	if(!istype(mob, /mob/dead/new_player))
+		return ..()

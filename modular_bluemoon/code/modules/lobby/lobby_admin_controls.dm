@@ -4,6 +4,9 @@
 	set category = "Admin.Fun"
 	if(!check_rights(R_FUN))
 		return
+	if(!SStitle_bm)
+		to_chat(mob, span_warning("SStitle_bm не инициализирован!"))
+		return
 	var/mob/user = mob
 	log_admin("[key_name(user)] меняет картинку лобби BlueMoon.")
 	message_admins("[key_name_admin(user)] меняет картинку лобби BlueMoon.")
@@ -15,6 +18,8 @@
 		list("Загрузить файл", "Случайный SFW", "Случайный NSFW", "Сбросить (дефолт)")
 	)
 	if(!choice)
+		return
+	if(!SStitle_bm)
 		return
 
 	switch(choice)
@@ -36,8 +41,7 @@
 			if(!LAZYLEN(SStitle_bm.nsfw_images))
 				to_chat(user, span_warning("NSFW-пул пустой! Добавьте файлы в config/title_screens/NSFW/"))
 				return
-			var/nsfw_pick = pick(SStitle_bm.nsfw_images)
-			SStitle_bm.change_image(file(nsfw_pick))
+			SStitle_bm.change_image(pick(SStitle_bm.nsfw_images))
 			message_admins("[key_name_admin(user)] выбрал случайную NSFW-картинку лобби.")
 
 		if("Сбросить (дефолт)")
@@ -52,12 +56,17 @@
 	set category = "Admin.Fun"
 	if(!check_rights(R_FUN))
 		return
+	if(!SStitle_bm)
+		to_chat(mob, span_warning("SStitle_bm не инициализирован!"))
+		return
 	var/mob/user = mob
 	log_admin("[key_name(user)] устанавливает объявление на лобби BlueMoon.")
 	message_admins("[key_name_admin(user)] устанавливает объявление на лобби.")
 
 	var/new_notice = input(user, "Введите текст объявления (пусто = убрать):", "Объявление на лобби", SStitle_bm.current_notice) as text|null
 	if(isnull(new_notice))
+		return
+	if(!SStitle_bm)
 		return
 	SStitle_bm.set_notice(new_notice)
 
@@ -74,6 +83,9 @@
 	set desc = "Вставить видео или GIF как фон лобби по HTTP-ссылке."
 	set category = "Admin.Fun"
 	if(!check_rights(R_FUN))
+		return
+	if(!SStitle_bm)
+		to_chat(mob, span_warning("SStitle_bm не инициализирован!"))
 		return
 	var/mob/user = mob
 	log_admin("[key_name(user)] меняет фон лобби на видео/GIF.")
@@ -139,6 +151,8 @@
 
 	var/list/payload_data = list("url" = media_url, "type" = media_type)
 	var/payload = json_encode(payload_data)
+	if(!SStitle_bm)
+		return
 	SStitle_bm.set_video(payload)
 
 	message_admins("[key_name_admin(user)] установил [media_type] как фон лобби: [media_url]")
@@ -158,7 +172,7 @@
 		winset(src, "status_bar", "is-visible=true")
 
 // 5. ПЕРЕЗАГРУЗКА HTML/CSS ЛОББИ (администратор)
-/client/verb/bm_admin_reload_lobby_html()
+/client/proc/bm_admin_reload_lobby_html()
 	set name = "Лобби: Перезагрузить HTML/CSS"
 	set desc = "НЕ ИСПОЛЬЗОВАТЬ БЕЗ НУЖДЫ. Перечитать lobby_html.txt с диска и обновить стили для всех игроков в лобби."
 	set category = "Admin.Fun"
