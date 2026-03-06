@@ -137,10 +137,10 @@ SUBSYSTEM_DEF(title_bm)
 	_load_images_from_dir(BM_LOBBY_IMAGES_SFW, sfw_images)
 	_load_images_from_dir(BM_LOBBY_IMAGES_NSFW, nsfw_images)
 
-/datum/controller/subsystem/title_bm/proc/get_image_for_player(show_nsfw = FALSE)
+/datum/controller/subsystem/title_bm/proc/get_image_for_player(show_nsfw = FALSE, show_admin_bg = TRUE)
 	if(loading_image && current_image == loading_image)
 		return loading_image
-	if(current_image)
+	if(show_admin_bg && current_image)
 		return current_image
 	if(show_nsfw && current_nsfw_image)
 		return current_nsfw_image
@@ -166,7 +166,8 @@ SUBSYSTEM_DEF(title_bm)
 	for(var/mob/dead/new_player/player as anything in GLOB.new_player_list)
 		if(!player.bm_lobby_ready || !player.client)
 			continue
-		player.client << output(payload, "bm_lobby_browser:bm_set_background")
+		if(!player.client.prefs || player.client.prefs.bm_lobby_show_admin_bg)
+			player.client << output(payload, "bm_lobby_browser:bm_set_background")
 
 /datum/controller/subsystem/title_bm/proc/change_image(file_or_icon)
 	current_video_payload = null

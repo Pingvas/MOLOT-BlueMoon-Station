@@ -52,7 +52,8 @@
 /// Возвращает текущий rsc фона для этого игрока. Вызывается только после STARTUP (SStitle_bm гарантированно initialized).
 /mob/dead/new_player/proc/_bm_get_current_image()
 	var/show_nsfw = client?.prefs?.bm_lobby_show_nsfw || FALSE
-	return SStitle_bm?.get_image_for_player(show_nsfw)
+	var/show_admin_bg = !client?.prefs || client.prefs.bm_lobby_show_admin_bg
+	return SStitle_bm?.get_image_for_player(show_nsfw, show_admin_bg)
 
 /mob/dead/new_player/proc/bm_hide_lobby()
 	if(!client)
@@ -64,11 +65,12 @@
 /mob/dead/new_player/proc/bm_push_background()
 	if(!client || !bm_lobby_ready)
 		return
-	if(SStitle_bm?.current_video_payload)
+	var/show_admin_bg = !client.prefs || client.prefs.bm_lobby_show_admin_bg
+	if(SStitle_bm?.current_video_payload && show_admin_bg)
 		client << output(SStitle_bm.current_video_payload, "bm_lobby_browser:bm_set_background")
 		return
 	var/show_nsfw = client.prefs?.bm_lobby_show_nsfw || FALSE
-	var/img_to_send = SStitle_bm?.get_image_for_player(show_nsfw)
+	var/img_to_send = SStitle_bm?.get_image_for_player(show_nsfw, show_admin_bg)
 	if(!img_to_send)
 		return
 	bm_bg_slot = bm_bg_slot ? 0 : 1
@@ -146,6 +148,10 @@ var _i=0;setInterval(function(){var s=_i%4;document.getElementById('d').textCont
       <span class="bm-s-label">NSFW КОНТЕНТ</span>
       <span class="bm-s-value" id="bm-s-nsfw">ВЫКЛ</span>
     </a>
+    <a class="bm-settings-row" href='?src=[R];bm_lobby_action=toggle_admin_bg' style="cursor:pointer">
+      <span class="bm-s-label">ЛОББИ ОТ АДМИНОВ</span>
+      <span class="bm-s-value" id="bm-s-adminbg">ВКЛ</span>
+    </a>
   </div>
   <div id=\"bm-player-count\">&#183; &#183; &#183;</div>
 </div>"}
@@ -177,6 +183,7 @@ var _i=0;setInterval(function(){var s=_i%4;document.getElementById('d').textCont
 <audio id=\"bm-audio\" loop></audio></div>"}
 
 	var/show_nsfw = client?.prefs?.bm_lobby_show_nsfw || FALSE
+	var/show_admin_bg = !client?.prefs || client.prefs.bm_lobby_show_admin_bg
 	var/notice_js = SStitle_bm?.cached_notice_js || ""
 	var/admin_js = "bm_set_admin([check_rights_for(client, R_SERVER) ? 1 : 0]);"
 
@@ -195,6 +202,7 @@ var _i=0;setInterval(function(){var s=_i%4;document.getElementById('d').textCont
   function __bm_init(){
     window._BM_SRC=_src;
     bm_update_nsfw_indicator([show_nsfw ? 1 : 0]);
+    bm_update_admin_bg_indicator([show_admin_bg ? 1 : 0]);
     [admin_js]
     [notice_js]
     if(!window.__bm_page_ready_sent){window.__bm_page_ready_sent=true;location.href='?src='+_src+';bm_lobby_action=page_ready';}
@@ -316,6 +324,13 @@ var _i=0;setInterval(function(){var s=_i%4;document.getElementById('d').textCont
 				bm_push_background()
 			return
 
+		if("toggle_admin_bg")
+			if(client?.prefs)
+				client.prefs.bm_lobby_show_admin_bg = !client.prefs.bm_lobby_show_admin_bg
+				client.prefs.save_preferences()
+				client << output(client.prefs.bm_lobby_show_admin_bg, "bm_lobby_browser:bm_update_admin_bg_indicator")
+				bm_push_background()
+			return
 
 		if("observe")
 			_bm_play_click_sound()

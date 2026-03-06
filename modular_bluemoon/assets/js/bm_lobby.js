@@ -104,6 +104,11 @@ function bm_update_nsfw_indicator(val) {
   if (el) el.textContent = Number(val) ? '\u0412\u041a\u041b' : '\u0412\u042b\u041a\u041b';
 }
 
+function bm_update_admin_bg_indicator(val) {
+  var el = document.getElementById('bm-s-adminbg');
+  if (el) el.textContent = Number(val) ? '\u0412\u041a\u041b' : '\u0412\u042b\u041a\u041b';
+}
+
 function bm_update_counts(online, ready) {
   if (ready === undefined && typeof online === 'string' && online.indexOf(',') >= 0) {
     var _parts = online.split(','); online = _parts[0]; ready = _parts[1];
@@ -158,19 +163,23 @@ function bm_set_background(data) {
     } else { bg.src = url; }
     bm_show_volume_panel(null);
   } else if (type === 'video') {
+    if (bg.tagName === 'VIDEO' && bg.getAttribute('data-bm-src') === url) return;
     var vid = document.createElement('video');
     vid.id = 'bm-bg'; vid.className = 'bg-video';
     vid.src = url; vid.autoplay = true; vid.loop = true; vid.muted = true;
     vid.setAttribute('playsinline', '');
+    vid.setAttribute('data-bm-src', url);
     bg.parentNode.replaceChild(vid, bg);
     bm_show_volume_panel('video');
   } else if (type === 'iframe') {
+    if (bg.tagName === 'IFRAME' && bg.getAttribute('data-bm-src') === url) return;
     var fr = document.createElement('iframe');
     fr.id = 'bm-bg';
     fr.className = 'bg-video';
     fr.src = url;
     fr.allow = 'autoplay; encrypted-media';
     fr.setAttribute('allowfullscreen', '');
+    fr.setAttribute('data-bm-src', url);
     fr.style.pointerEvents = 'none';
     bg.parentNode.replaceChild(fr, bg);
     bm_show_volume_panel('iframe');
