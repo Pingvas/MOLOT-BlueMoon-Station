@@ -240,6 +240,7 @@
 			if(U)
 				var/crystals = text2num(params["tc_amount"])
 				if(!isnull(crystals) && crystals >= 0)
+					crystals = round(clamp(crystals, 0, 999))
 					U.telecrystals = crystals
 					message_admins("[key_name_admin(usr)] changed [target_mind.current]'s telecrystal count to [crystals].")
 					log_admin("[key_name(usr)] changed [target_mind.current]'s telecrystal count to [crystals].")

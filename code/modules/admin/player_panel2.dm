@@ -195,6 +195,9 @@ GLOBAL_LIST_INIT(pp_implants, init_pp_implants())
 			current_implants += list(list("name" = I.name, "ref" = REF(I), "type_path" = "[I.type]"))
 	.["current_implants"] = current_implants
 
+	// Current weight
+	.["mob_weight"] = targetMob.mob_weight
+
 /datum/player_panel/ui_static_data()
 	. = list()
 
@@ -254,6 +257,14 @@ GLOBAL_LIST_INIT(pp_implants, init_pp_implants())
 	for(var/imp_name in GLOB.pp_implants)
 		implants_data += list(list("name" = imp_name))
 	.["implants_list"] = implants_data
+
+	// Weight options
+	.["weight_options"] = list(\
+		list("name" = NAME_WEIGHT_LIGHT, "value" = MOB_WEIGHT_LIGHT),\
+		list("name" = NAME_WEIGHT_NORMAL, "value" = MOB_WEIGHT_NORMAL),\
+		list("name" = NAME_WEIGHT_HEAVY, "value" = MOB_WEIGHT_HEAVY),\
+		list("name" = NAME_WEIGHT_HEAVY_SUPER, "value" = MOB_WEIGHT_HEAVY_SUPER)\
+	)
 
 /datum/player_panel/ui_act(action, params, datum/tgui/ui)
 	if(..())
@@ -528,6 +539,15 @@ GLOBAL_LIST_INIT(pp_implants, init_pp_implants())
 				L.vv_edit_var("resize", params["new_scale"])
 				mobSize = params["new_scale"]
 
+		if ("set_weight")
+			var/new_weight = text2num(params["weight"])
+			if(!isnull(new_weight) && isliving(targetMob))
+				var/mob/living/L = targetMob
+				L.mob_weight = new_weight
+				L.update_weight(new_weight)
+				log_admin("[key_name(usr)] set [key_name(targetMob)]'s weight to [new_weight].")
+				message_admins("[ADMIN_LOOKUPFLW(usr)] set [ADMIN_LOOKUPFLW(targetMob)]'s weight to [new_weight].")
+
 		if ("explode")
 			var/power = text2num(params["power"])
 			var/empMode = text2num(params["emp_mode"])
@@ -672,7 +692,7 @@ GLOBAL_LIST_INIT(pp_implants, init_pp_implants())
 			if(!ishuman(targetMob))
 				return
 			var/mob/living/carbon/human/H = targetMob
-			for(var/datum/quirk/Q in H.roundstart_quirks)
+			for(var/datum/quirk/Q in H.roundstart_quirks.Copy())
 				H.remove_quirk(Q.type)
 			log_admin("[key_name(admin)] cleared all quirks from [key_name(targetMob)].")
 			message_admins("<span class='notice'>[key_name_admin(admin)] cleared all quirks from [key_name_admin(targetMob)].</span>")

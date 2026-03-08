@@ -183,7 +183,8 @@ const PhysicalActions = (props, context) => {
   const { act, data } = useBackend(context);
   const { glob_limbs, godmode, mob_type, initial_scale, active_martial_art,
     martial_arts_list, active_quirks, quirks_list, has_loadout,
-    current_organs, organ_slots, current_implants, implants_list } = data;
+    current_organs, organ_slots, current_implants, implants_list,
+    mob_weight, weight_options } = data;
   const [mobScale, setMobScale] = useLocalState(context, 'mobScale', initial_scale);
   const limbs = Object.keys(glob_limbs);
   const limb_flags = limbs.map((_, i) => (1<<i));
@@ -458,6 +459,20 @@ const PhysicalActions = (props, context) => {
             }}
             unit="x"
           />
+        </Flex>
+      </Section>
+      <Section title="Weight">
+        <Flex wrap="wrap" justify="space-between">
+          {(weight_options || []).map((opt) => (
+            <Flex.Item key={opt.value} width="49%" mb=".25rem">
+              <Button
+                width="100%"
+                selected={mob_weight === opt.value}
+                content={opt.name}
+                onClick={() => act("set_weight", { weight: opt.value })}
+              />
+            </Flex.Item>
+          ))}
         </Flex>
       </Section>
       <Section title="Speak">

@@ -243,6 +243,7 @@ const AddAntagPanel = (props, context) => {
   return (
     <Section>
       <Input
+        value={antagSearch}
         placeholder="Search antagonists..."
         width="100%"
         mb={1}

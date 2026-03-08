@@ -124,6 +124,7 @@
 
 /datum/mind/Destroy()
 	SSticker.minds -= src
+	QDEL_NULL(tgui_panel)
 	QDEL_LIST(antag_datums)
 	QDEL_NULL(skill_holder)
 	set_current(null)
@@ -718,9 +719,11 @@ GLOBAL_LIST(objective_choices)
 			if(TIMER_COOLDOWN_CHECK(src, COOLDOWN_AMBITION))
 				to_chat(usr, "<span class='warning'>You must wait [AMBITION_COOLDOWN_TIME * 0.1] seconds between changes.</span>")
 				return
+			if(!antag_datums)
+				to_chat(usr, "<span class='warning'>You are not an antagonist.</span>")
+				return
 		if(!isliving(current))
-			return
-		if(!antag_datums)
+			to_chat(usr, "<span class='warning'>The mind holder is not a living creature.</span>")
 			return
 		var/max_ambitions = CONFIG_GET(number/max_ambitions)
 		if(LAZYLEN(ambitions) >= max_ambitions)
@@ -736,11 +739,11 @@ GLOBAL_LIST(objective_choices)
 			if(TIMER_COOLDOWN_CHECK(src, COOLDOWN_AMBITION))
 				to_chat(usr, "<span class='warning'>You must wait [AMBITION_COOLDOWN_TIME * 0.1] seconds between changes.</span>")
 				return
+			if(!antag_datums)
+				to_chat(usr, "<span class='warning'>The mind holder is no longer an antagonist.</span>")
+				return
 		if(!isliving(current))
 			to_chat(usr, "<span class='warning'>The mind holder is no longer a living creature.</span>")
-			return
-		if(!antag_datums)
-			to_chat(usr, "<span class='warning'>The mind holder is no longer an antagonist.</span>")
 			return
 		if(LAZYLEN(ambitions) >= max_ambitions)
 			to_chat(usr, "<span class='warning'>There's a limit of [max_ambitions] ambitions. Edit or remove some to accomodate for your new additions.</span>")
