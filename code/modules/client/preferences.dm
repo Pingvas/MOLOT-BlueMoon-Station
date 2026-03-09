@@ -105,7 +105,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/allow_midround_antag = 1
 	var/preferred_map = null
 	var/be_victim = null
-	var/use_new_playerpanel = TRUE // BLUEMOON - ENABELING-MODERN-PLAYER-PANEL-AS-DEFAULT
 	var/disable_combat_cursor = FALSE
 	var/disable_combat_mouse_lock = FALSE
 	var/tg_playerpanel = "TG"
@@ -2653,7 +2652,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					var/combo_hud_lighting_label = src.use_modern_translations ? get_modern_text("combo_hud_lighting", src) : "Combo HUD Lighting"
 					var/full_bright_label = src.use_modern_translations ? get_modern_text("full_bright", src) : "Full-bright"
 					var/no_change_label = src.use_modern_translations ? get_modern_text("no_change", src) : "No Change"
-					var/use_modern_player_panel_label = src.use_modern_translations ? get_modern_text("use_modern_player_panel", src) : "Use Modern Player Panel"
 					var/deadmin_while_playing_label = src.use_modern_translations ? get_modern_text("deadmin_while_playing", src) : "Deadmin While Playing"
 					var/onlogin_deadmin_label = src.use_modern_translations ? get_modern_text("onlogin_deadmin", src) : "Deadmin On Login"
 					var/onspawn_deadmin_label = src.use_modern_translations ? get_modern_text("onspawn_deadmin", src) : "Deadmin On Spawn"
@@ -2689,7 +2687,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 						dat += "<b>[announce_login_label]:</b> <a href='?_src_=prefs;preference=announce_login'>[(toggles & ANNOUNCE_LOGIN)? enabled_label : disabled_label]</a><br>"
 						dat += "<br>"
 						dat += "<b>[combo_hud_lighting_label]:</b> <a href = '?_src_=prefs;preference=combohud_lighting'>[(toggles & COMBOHUD_LIGHTING)? full_bright_label : no_change_label]</a><br>"
-						dat += "<b>[use_modern_player_panel_label]:</b> <a href='?_src_=prefs;preference=use_new_playerpanel'>[use_new_playerpanel ? yes_label : no_label]</a><br>" //SPLURT Edit
 
 						//deadmin
 						dat += "<h2>[deadmin_while_playing_label]</h2>"
@@ -5914,8 +5911,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					toggles ^= ANNOUNCE_LOGIN
 				if("combohud_lighting")
 					toggles ^= COMBOHUD_LIGHTING
-				if("use_new_playerpanel")
-					use_new_playerpanel = !use_new_playerpanel
 
 				// Colors pref
 				if("custom_color_ooc")
