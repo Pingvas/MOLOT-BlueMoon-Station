@@ -241,15 +241,22 @@ const SortButton = (properties, context) => {
 // ============= MAINTENANCE PAGE =============
 
 const PageMaintenance = (_properties, context) => {
-  const { act } = useBackend(context);
+  const { act, data } = useBackend(context);
+  const { canDeleteAll } = data;
   return (
     <Box>
-      <Button.Confirm
-        icon="trash"
-        color="bad"
-        content="Удалить все записи безопасности"
-        onClick={() => act('delete_security_all')}
-      />
+      {canDeleteAll ? (
+        <Button.Confirm
+          icon="trash"
+          color="bad"
+          content="Удалить все записи безопасности"
+          onClick={() => act('delete_security_all')}
+        />
+      ) : (
+        <Box color="label" italic>
+          Недостаточно полномочий для операций обслуживания.
+        </Box>
+      )}
     </Box>
   );
 };
@@ -420,10 +427,10 @@ const PhotoBox = (properties, context) => {
       {photoData ? (
         <img
           src={'data:image/png;base64,' + photoData}
+          className="SecurityRecords__photo"
           style={{
             width: '96px',
             height: '96px',
-            imageRendering: 'pixelated',
             border: '2px solid rgba(255,255,255,0.2)',
             cursor: 'pointer',
           }}

@@ -54,3 +54,9 @@
 .SecurityRecords__listRow--discharged {
   background-color: colors.bg(#2d6b3a);
 }
+
+.SecurityRecords__photo {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  -ms-interpolation-mode: nearest-neighbor;
+}

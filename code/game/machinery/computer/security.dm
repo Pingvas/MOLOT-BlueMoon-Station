@@ -70,6 +70,7 @@
 	if(data["loginState"]["logged_in"])
 		var/datum/ui_login/state = ui_login_get()
 		data["canDeleteLogs"] = (ACCESS_HOS in state.access)
+		data["canDeleteAll"] = ((ACCESS_HOS in state.access) || (ACCESS_CAPTAIN in state.access))
 		data["canEditRank"] = ((ACCESS_CAPTAIN in state.access) || (ACCESS_HOP in state.access) || (ACCESS_CENT_GENERAL in state.access))
 		data["hasCentcomAuth"] = (ACCESS_CENT_CAPTAIN in state.access)
 
@@ -313,7 +314,8 @@
 			update_all_mob_security_hud()
 			set_temp("Запись безопасности удалена.")
 		if("delete_security_all")
-			if(!logged_in)
+			if(!logged_in || !((ACCESS_HOS in login_state.access) || (ACCESS_CAPTAIN in login_state.access)))
+				set_temp("Недостаточно полномочий: необходим доступ ГСБ или Капитана.", "danger")
 				return
 			investigate_log("[key_name(usr)] has purged all the security records.", INVESTIGATE_RECORDS)
 			for(var/datum/data/record/R in GLOB.data_core.security)
