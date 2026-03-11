@@ -216,7 +216,7 @@
 	if(!.)
 		return
 	hud.mymob.client.prefs.current_tab = SETTINGS_TAB
-	hud.mymob.client.prefs.ShowChoices(hud.mymob)
+	hud.mymob.client.open_character_setup_tgui()
 
 ///Button that appears before the game has started
 /atom/movable/screen/lobby/button/ready
@@ -378,7 +378,7 @@
 		return
 
 	hud.mymob.client.prefs.current_tab = PREFERENCES_TAB
-	hud.mymob.client.prefs.ShowChoices(hud.mymob)
+	hud.mymob.client.open_character_setup_tgui()
 
 /atom/movable/screen/lobby/button/bottom/changelog_button
 	name = "View Changelog"
