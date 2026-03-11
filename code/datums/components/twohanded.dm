@@ -223,6 +223,7 @@
 
 	// if the item requires two handed drop the item on unwield
 	/* // Bluemoon Removed - Start // Нахуя оно надо? Автор, ты еблан? Это буквально руин на ровном месте, который иначе никак не используется.
+	Короче крашли нихуя не пояснил зачем это нужно, а на самом деле нужно чтобы положить предмет который требует две руки в слот пояса или т.п.
 	// if(require_twohands)
 	// 	user.dropItemToGround(parent, force=TRUE)
 	*/ // Bluemoon Removed - End
