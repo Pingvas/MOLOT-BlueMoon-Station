@@ -45,7 +45,7 @@ export const KeybindingsTab = (_props, context) => {
           <Stack.Item>
             <Button
               icon="undo"
-              content="Reset All Bindings"
+              content="Сбросить все"
               color="bad"
               onClick={() => act('reset_keybinds')}
             />
@@ -54,7 +54,7 @@ export const KeybindingsTab = (_props, context) => {
           <Stack.Item>
             <Button.Checkbox
               checked={hotkeys}
-              content={hotkeys ? 'Hotkey Mode' : 'Classic Mode'}
+              content={hotkeys ? 'Горячие клавиши' : 'Классический'}
               onClick={() => act('toggle_hotkeys')}
             />
           </Stack.Item>
@@ -77,10 +77,10 @@ export const KeybindingsTab = (_props, context) => {
         <Section fill scrollable>
           <Table>
             <Table.Row header>
-              <Table.Cell>Action</Table.Cell>
-              <Table.Cell>Bindings</Table.Cell>
-              <Table.Cell>Independent</Table.Cell>
-              <Table.Cell>Default</Table.Cell>
+              <Table.Cell>Действие</Table.Cell>
+              <Table.Cell>Назначено</Table.Cell>
+              <Table.Cell>Независимая</Table.Cell>
+              <Table.Cell>По умолч.</Table.Cell>
             </Table.Row>
             {currentBindings.map((kb) => {
               const bindings = user_bindings[kb.name] || [];
@@ -111,7 +111,7 @@ export const KeybindingsTab = (_props, context) => {
                     ) : (
                       <Button
                         color="bad"
-                        content="Unbound"
+                        content="Не назн."
                         onClick={() =>
                           act('capture_keybinding', {
                             keybinding: kb.name,
@@ -130,7 +130,7 @@ export const KeybindingsTab = (_props, context) => {
                   </Table.Cell>
                   <Table.Cell>
                     <Button
-                      content={independentKey || 'Unbound'}
+                      content={independentKey || 'Не назн.'}
                       color={independentKey ? 'default' : 'bad'}
                       onClick={() =>
                         act('capture_keybinding', {

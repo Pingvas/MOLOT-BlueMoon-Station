@@ -202,8 +202,8 @@ export type CharacterSetupData = {
   lust_tolerance: number;
   sexual_potency: number;
 
-  // Character preview
-  preview_icon: string;
+  // Character preview (ByondUi map view ID)
+  character_preview_view: string;
 
   // Static data
   hair_styles: string[];

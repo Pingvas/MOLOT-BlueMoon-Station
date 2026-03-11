@@ -15,45 +15,45 @@ export const AppearanceTab = (_props, context) => {
 
   return (
     <Stack vertical>
-      {/* Species & Body Model */}
+      {/* Раса и тело */}
       <Stack.Item>
-        <Section title="Body">
+        <Section title="Тело">
           <Stack>
             <Stack.Item grow basis={0}>
               <LabeledList>
-                <LabeledList.Item label="Species">
+                <LabeledList.Item label="Раса">
                   <Button
-                    content={data.species_name || 'Human'}
+                    content={data.species_name || 'Человек'}
                     icon="paw"
                     onClick={() => act('set_species')}
                   />
                 </LabeledList.Item>
                 {!!data.custom_species && (
-                  <LabeledList.Item label="Custom Species">
+                  <LabeledList.Item label="Своя раса">
                     {data.custom_species}
                   </LabeledList.Item>
                 )}
-                <LabeledList.Item label="Body Model">
+                <LabeledList.Item label="Модель тела">
                   <Button
                     selected={data.body_model === 'male'}
-                    content="Masculine"
+                    content="Муж."
                     onClick={() => act('set_body_model', { model: 'male' })}
                   />
                   <Button
                     selected={data.body_model === 'female'}
-                    content="Feminine"
+                    content="Жен."
                     onClick={() => act('set_body_model', { model: 'female' })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Body Size">
+                <LabeledList.Item label="Размер тела">
                   <Button
                     content={String(data.body_size ?? 1)}
                     onClick={() => act('set_body_size')}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Body Weight">
+                <LabeledList.Item label="Телосложение">
                   <Button
-                    content={data.body_weight || 'Normal'}
+                    content={data.body_weight || 'Обычное'}
                     onClick={() => act('set_body_weight')}
                   />
                 </LabeledList.Item>
@@ -61,13 +61,13 @@ export const AppearanceTab = (_props, context) => {
             </Stack.Item>
             <Stack.Item grow basis={0}>
               <LabeledList>
-                <LabeledList.Item label="Color Scheme">
+                <LabeledList.Item label="Цвет. схема">
                   <Button
-                    content={data.color_scheme || 'Simple'}
+                    content={data.color_scheme || 'Простая'}
                     onClick={() => act('toggle_color_scheme')}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Background">
+                <LabeledList.Item label="Фон">
                   <Dropdown
                     selected={data.bgstate}
                     options={data.bg_list || []}
@@ -76,17 +76,18 @@ export const AppearanceTab = (_props, context) => {
                     })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Fuzzy">
+                <LabeledList.Item label="Нечёткое">
                   <Button.Checkbox
                     checked={data.fuzzy}
-                    content={data.fuzzy ? 'Yes' : 'No'}
+                    content={data.fuzzy ? 'Да' : 'Нет'}
                     onClick={() => act('toggle_fuzzy')}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Mismatched Markings">
+                <LabeledList.Item label="Несовп. маркеры">
                   <Button.Checkbox
                     checked={data.show_mismatched_markings}
-                    content={data.show_mismatched_markings ? 'Show' : 'Hide'}
+                    content={data.show_mismatched_markings
+                      ? 'Показать' : 'Скрыть'}
                     onClick={() => act('toggle_mismatched_markings')}
                   />
                 </LabeledList.Item>
@@ -96,16 +97,16 @@ export const AppearanceTab = (_props, context) => {
         </Section>
       </Stack.Item>
 
-      {/* Skin Tone & Body Colors */}
+      {/* Цвета кожи и тела */}
       <Stack.Item>
-        <Section title="Colors">
+        <Section title="Цвета">
           <Stack>
             <Stack.Item grow basis={0}>
               {!!data.use_skintones && (
                 <LabeledList>
-                  <LabeledList.Item label="Skin Tone">
+                  <LabeledList.Item label="Оттенок кожи">
                     <Button
-                      content={data.skin_tone || 'Light'}
+                      content={data.skin_tone || 'Светлый'}
                       onClick={() => act('set_skin_tone')}
                     />
                   </LabeledList.Item>
@@ -113,31 +114,28 @@ export const AppearanceTab = (_props, context) => {
               )}
               {!!data.has_mutcolors && (
                 <LabeledList>
-                  <LabeledList.Item label="Primary Color">
+                  <LabeledList.Item label="Основной">
                     <Button onClick={() => act('set_mutant_color', {
                       which: 'primary',
                       color: data.mcolor,
                     })}>
                       <ColorBox color={data.mcolor} mr={1} />
-                      Change
                     </Button>
                   </LabeledList.Item>
-                  <LabeledList.Item label="Secondary Color">
+                  <LabeledList.Item label="Вторичный">
                     <Button onClick={() => act('set_mutant_color', {
                       which: 'secondary',
                       color: data.mcolor2,
                     })}>
                       <ColorBox color={data.mcolor2} mr={1} />
-                      Change
                     </Button>
                   </LabeledList.Item>
-                  <LabeledList.Item label="Tertiary Color">
+                  <LabeledList.Item label="Третичный">
                     <Button onClick={() => act('set_mutant_color', {
                       which: 'tertiary',
                       color: data.mcolor3,
                     })}>
                       <ColorBox color={data.mcolor3} mr={1} />
-                      Change
                     </Button>
                   </LabeledList.Item>
                 </LabeledList>
@@ -150,14 +148,14 @@ export const AppearanceTab = (_props, context) => {
         </Section>
       </Stack.Item>
 
-      {/* Hair */}
+      {/* Волосы */}
       {!!data.has_hair && (
         <Stack.Item>
-          <Section title="Hair">
+          <Section title="Волосы">
             <Stack>
               <Stack.Item grow basis={0}>
                 <LabeledList>
-                  <LabeledList.Item label="Hair Style">
+                  <LabeledList.Item label="Причёска">
                     <Dropdown
                       selected={data.hair_style}
                       options={data.hair_styles || []}
@@ -166,15 +164,14 @@ export const AppearanceTab = (_props, context) => {
                       })}
                     />
                   </LabeledList.Item>
-                  <LabeledList.Item label="Hair Color">
+                  <LabeledList.Item label="Цвет волос">
                     <Button onClick={() => act('set_hair_color', {
                       color: data.hair_color,
                     })}>
                       <ColorBox color={data.hair_color} mr={1} />
-                      Change
                     </Button>
                   </LabeledList.Item>
-                  <LabeledList.Item label="Gradient Style">
+                  <LabeledList.Item label="Градиент">
                     <Dropdown
                       selected={data.grad_style}
                       options={data.grad_styles || []}
@@ -183,19 +180,18 @@ export const AppearanceTab = (_props, context) => {
                       })}
                     />
                   </LabeledList.Item>
-                  <LabeledList.Item label="Gradient Color">
+                  <LabeledList.Item label="Цвет градиента">
                     <Button onClick={() => act('set_grad_color', {
                       color: data.grad_color,
                     })}>
                       <ColorBox color={data.grad_color} mr={1} />
-                      Change
                     </Button>
                   </LabeledList.Item>
                 </LabeledList>
               </Stack.Item>
               <Stack.Item grow basis={0}>
                 <LabeledList>
-                  <LabeledList.Item label="Facial Hair">
+                  <LabeledList.Item label="Борода / усы">
                     <Dropdown
                       selected={data.facial_hair_style}
                       options={data.facial_hair_styles || []}
@@ -204,12 +200,11 @@ export const AppearanceTab = (_props, context) => {
                       })}
                     />
                   </LabeledList.Item>
-                  <LabeledList.Item label="Facial Hair Color">
+                  <LabeledList.Item label="Цвет бороды">
                     <Button onClick={() => act('set_facial_hair_color', {
                       color: data.facial_hair_color,
                     })}>
                       <ColorBox color={data.facial_hair_color} mr={1} />
-                      Change
                     </Button>
                   </LabeledList.Item>
                 </LabeledList>
@@ -219,13 +214,13 @@ export const AppearanceTab = (_props, context) => {
         </Stack.Item>
       )}
 
-      {/* Underwear */}
+      {/* Одежда и снаряжение */}
       <Stack.Item>
-        <Section title="Underwear & Equipment">
+        <Section title="Одежда и снаряжение">
           <Stack>
             <Stack.Item grow basis={0}>
               <LabeledList>
-                <LabeledList.Item label="Underwear">
+                <LabeledList.Item label="Бельё">
                   <Dropdown
                     selected={data.underwear}
                     options={data.underwear_list || []}
@@ -234,7 +229,7 @@ export const AppearanceTab = (_props, context) => {
                     })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Undershirt">
+                <LabeledList.Item label="Майка">
                   <Dropdown
                     selected={data.undershirt}
                     options={data.undershirt_list || []}
@@ -243,7 +238,7 @@ export const AppearanceTab = (_props, context) => {
                     })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Socks">
+                <LabeledList.Item label="Носки">
                   <Dropdown
                     selected={data.socks}
                     options={data.socks_list || []}
@@ -256,25 +251,25 @@ export const AppearanceTab = (_props, context) => {
             </Stack.Item>
             <Stack.Item grow basis={0}>
               <LabeledList>
-                <LabeledList.Item label="Backpack">
+                <LabeledList.Item label="Рюкзак">
                   <Button
-                    content={(data as any).backbag || 'Backpack'}
+                    content={(data as any).backbag || 'Рюкзак'}
                     onClick={() => act('set_backbag')}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Jumpsuit">
+                <LabeledList.Item label="Комбинезон">
                   <Button
-                    content={(data as any).jumpsuit_style || 'Suit'}
+                    content={(data as any).jumpsuit_style || 'Костюм'}
                     onClick={() => act('toggle_jumpsuit_style')}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Uplink Location">
+                <LabeledList.Item label="Аплинк">
                   <Button
                     content={(data as any).uplink_spawn_loc || 'PDA'}
                     onClick={() => act('set_uplink_loc')}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Persistent Scars">
+                <LabeledList.Item label="Сохр. шрамы">
                   <Button.Checkbox
                     checked={(data as any).persistent_scars}
                     onClick={() => act('toggle_persistent_scars')}
@@ -286,16 +281,16 @@ export const AppearanceTab = (_props, context) => {
         </Section>
       </Stack.Item>
 
-      {/* Mutant Parts */}
+      {/* Мутантные части */}
       <MutantPartsSection />
 
-      {/* Limb Modifications */}
+      {/* Модификации конечностей */}
       <Stack.Item>
-        <Section title="Limb Modifications">
+        <Section title="Модификации конечностей">
           <Button
             fluid
             icon="wrench"
-            content="Modify Limbs"
+            content="Настроить конечности"
             onClick={() => act('modify_limbs')}
           />
           {data.modified_limbs && data.modified_limbs.length > 0 && (
@@ -327,36 +322,34 @@ const EyeSettings = (_props, context) => {
     <LabeledList>
       {!!data.has_eyecolor && (
         <>
-          <LabeledList.Item label="Left Eye">
+          <LabeledList.Item label="Лев. глаз">
             <Button onClick={() => act('set_eye_color', {
               color: data.left_eye_color,
               side: 'left',
             })}>
               <ColorBox color={data.left_eye_color} mr={1} />
-              Change
             </Button>
           </LabeledList.Item>
           {!!data.split_eye_colors && (
-            <LabeledList.Item label="Right Eye">
+            <LabeledList.Item label="Прав. глаз">
               <Button onClick={() => act('set_eye_color', {
                 color: data.right_eye_color,
                 side: 'right',
               })}>
                 <ColorBox color={data.right_eye_color} mr={1} />
-                Change
               </Button>
             </LabeledList.Item>
           )}
-          <LabeledList.Item label="Split Eye Colors">
+          <LabeledList.Item label="Разный цвет">
             <Button.Checkbox
               checked={data.split_eye_colors}
-              content={data.split_eye_colors ? 'Yes' : 'No'}
+              content={data.split_eye_colors ? 'Да' : 'Нет'}
               onClick={() => act('toggle_split_eyes')}
             />
           </LabeledList.Item>
         </>
       )}
-      <LabeledList.Item label="Eye Type">
+      <LabeledList.Item label="Тип глаз">
         <Dropdown
           selected={data.eye_type}
           options={data.eye_types || []}
@@ -390,14 +383,14 @@ const MutantPartsSection = (_props, context) => {
 
   return (
     <Stack.Item>
-      <Section title="Mutant Parts">
+      <Section title="Мутантные части">
         <LabeledList>
           {visibleParts.map((part: MutantPartInfo) => (
             <LabeledList.Item label={part.label}>
               <Stack inline>
                 <Stack.Item grow>
                   <Dropdown
-                    selected={mutant_values[part.id] || 'None'}
+                    selected={mutant_values[part.id] || 'Нет'}
                     options={part.styles || []}
                     onSelected={(value) => act('set_mutant_part', {
                       part: part.id,

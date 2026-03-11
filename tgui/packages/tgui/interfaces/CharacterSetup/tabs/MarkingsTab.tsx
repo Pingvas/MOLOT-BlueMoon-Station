@@ -33,14 +33,14 @@ export const MarkingsTab = (_props, context) => {
 
   return (
     <Stack vertical>
-      {/* Actions */}
+      {/* Действия */}
       <Stack.Item>
         <Stack>
           <Stack.Item grow>
             <Button
               fluid
               icon="plus"
-              content="Add Marking"
+              content="Добавить метку"
               color="green"
               onClick={() => act('marking_add')}
             />
@@ -49,7 +49,7 @@ export const MarkingsTab = (_props, context) => {
             <Button
               fluid
               icon="trash"
-              content="Remove All"
+              content="Удалить все"
               color="red"
               onClick={() => act('markings_remove_all')}
             />
@@ -58,7 +58,7 @@ export const MarkingsTab = (_props, context) => {
             <Button
               fluid
               icon="paint-brush"
-              content="Character Tattoos"
+              content="Татуировки"
               onClick={() => act('open_tattoo_manager')}
             />
           </Stack.Item>
@@ -79,7 +79,7 @@ export const MarkingsTab = (_props, context) => {
                   <Button
                     icon="trash"
                     color="red"
-                    tooltip={`Clear ${limb}`}
+                    tooltip={`Очистить ${limb}`}
                     onClick={() => act('markings_clear_limb', {
                       limb: limb,
                     })}
@@ -88,10 +88,10 @@ export const MarkingsTab = (_props, context) => {
               }>
               <Table>
                 <Table.Row header>
-                  <Table.Cell>Marking</Table.Cell>
-                  <Table.Cell>Colors</Table.Cell>
-                  <Table.Cell>Order</Table.Cell>
-                  <Table.Cell>Actions</Table.Cell>
+                  <Table.Cell>Метка</Table.Cell>
+                  <Table.Cell>Цвета</Table.Cell>
+                  <Table.Cell>Порядок</Table.Cell>
+                  <Table.Cell>Действия</Table.Cell>
                 </Table.Row>
                 {limbMarkings.map((marking: MarkingEntry) => (
                   <Table.Row key={marking.index}>
@@ -144,7 +144,7 @@ export const MarkingsTab = (_props, context) => {
         <Stack.Item>
           <Section>
             <Box color="label" italic textAlign="center">
-              No markings added. Use &quot;Add Marking&quot; to begin.
+              Меток нет. Нажмите &quot;Добавить метку&quot; для начала.
             </Box>
           </Section>
         </Stack.Item>

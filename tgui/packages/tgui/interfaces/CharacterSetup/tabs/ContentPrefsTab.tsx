@@ -120,7 +120,7 @@ export const ContentPrefsTab = (_props, context) => {
     <Stack vertical>
       {/* Consent preferences */}
       <Stack.Item>
-        <Section title="Consent Preferences">
+        <Section title="Настройки согласия">
           <Stack>
             <Stack.Item grow basis={0}>
               <LabeledList>
@@ -148,7 +148,7 @@ export const ContentPrefsTab = (_props, context) => {
                     })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Extreme">
+                <LabeledList.Item label="Экстрим">
                   <PrefButton
                     value={extremepref}
                     onChange={(v) => act('set_content_pref', {
@@ -157,7 +157,7 @@ export const ContentPrefsTab = (_props, context) => {
                   />
                 </LabeledList.Item>
                 {extremepref !== 'No' && (
-                  <LabeledList.Item label="Harmful ERP">
+                  <LabeledList.Item label="Жёсткий ERP">
                     <PrefButton
                       value={extremeharm}
                       onChange={(v) => act('set_content_pref', {
@@ -170,7 +170,7 @@ export const ContentPrefsTab = (_props, context) => {
             </Stack.Item>
             <Stack.Item grow basis={0}>
               <LabeledList>
-                <LabeledList.Item label="Unholy">
+                <LabeledList.Item label="Священное">
                   <PrefButton
                     value={unholypref}
                     onChange={(v) => act('set_content_pref', {
@@ -178,7 +178,7 @@ export const ContentPrefsTab = (_props, context) => {
                     })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Mob Non-Con">
+                <LabeledList.Item label="Мобы Non-Con">
                   <PrefToggle
                     value={mobsexpref}
                     onChange={(v) => act('toggle_flag', {
@@ -186,7 +186,7 @@ export const ContentPrefsTab = (_props, context) => {
                     })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Horny Antags">
+                <LabeledList.Item label="Хорни-антаги">
                   <PrefToggle
                     value={hornyantagspref}
                     onChange={(v) => act('toggle_flag', {
@@ -194,7 +194,7 @@ export const ContentPrefsTab = (_props, context) => {
                     })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Tattoos">
+                <LabeledList.Item label="Тату">
                   <PrefButton
                     value={tattoopref}
                     onChange={(v) => act('set_content_pref', {
@@ -210,24 +210,24 @@ export const ContentPrefsTab = (_props, context) => {
 
       {/* Lewd Settings */}
       <Stack.Item>
-        <Section title="Lewd Settings">
+        <Section title="18+ настройки">
           <Stack>
             <Stack.Item grow basis={0}>
               <LabeledList>
-                <LabeledList.Item label="Arousal System">
+                <LabeledList.Item label="Сист. возбуждения">
                   <Button.Checkbox
                     checked={arousable}
-                    content={arousable ? 'Enabled' : 'Disabled'}
+                    content={arousable ? 'Вкл.' : 'Выкл.'}
                     onClick={() => act('toggle_arousable')}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Knotting">
+                <LabeledList.Item label="Узлы">
                   <Button.Checkbox
                     checked={sexknotting}
                     onClick={() => act('toggle_knotting')}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Lewd Verbs">
+                <LabeledList.Item label="18+ вербы">
                   <Button.Checkbox
                     checked={!!(toggles & VERB_CONSENT)}
                     onClick={() => act('toggle_flag', {
@@ -235,7 +235,7 @@ export const ContentPrefsTab = (_props, context) => {
                     })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Lewd Verb Sounds">
+                <LabeledList.Item label="Звуки 18+ вербов">
                   <Button.Checkbox
                     checked={!!(toggles & LEWD_VERB_SOUNDS)}
                     onClick={() => act('toggle_flag', {
@@ -243,7 +243,7 @@ export const ContentPrefsTab = (_props, context) => {
                     })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Ranged Lewd Verbs">
+                <LabeledList.Item label="Дальние 18+ вербы">
                   <Button.Checkbox
                     checked={!!(toggles & RANGED_VERBS_CONSENT)}
                     onClick={() => act('toggle_flag', {
@@ -255,7 +255,7 @@ export const ContentPrefsTab = (_props, context) => {
             </Stack.Item>
             <Stack.Item grow basis={0}>
               <LabeledList>
-                <LabeledList.Item label="Lust Tolerance">
+                <LabeledList.Item label="Порог похоти">
                   <NumberInput
                     value={lust_tolerance}
                     minValue={0}
@@ -266,7 +266,7 @@ export const ContentPrefsTab = (_props, context) => {
                     })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Sexual Potency">
+                <LabeledList.Item label="Потенция">
                   <NumberInput
                     value={sexual_potency}
                     minValue={0}
@@ -285,11 +285,11 @@ export const ContentPrefsTab = (_props, context) => {
 
       {/* Content Toggles */}
       <Stack.Item>
-        <Section title="Content Toggles">
+        <Section title="Переключатели контента">
           <Stack>
             <Stack.Item grow basis={0}>
               <LabeledList>
-                <LabeledList.Item label="Genital Examine">
+                <LabeledList.Item label="Осм. гениталий">
                   <Button.Checkbox
                     checked={!!(cit_toggles & GENITAL_EXAMINE)}
                     onClick={() => act('toggle_cit', {
@@ -297,7 +297,7 @@ export const ContentPrefsTab = (_props, context) => {
                     })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Vore Examine">
+                <LabeledList.Item label="Осм. вора">
                   <Button.Checkbox
                     checked={!!(cit_toggles & VORE_EXAMINE)}
                     onClick={() => act('toggle_cit', {
@@ -305,7 +305,7 @@ export const ContentPrefsTab = (_props, context) => {
                     })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Voracious MediHound">
+                <LabeledList.Item label="Медихаунд спячка">
                   <Button.Checkbox
                     checked={!!(cit_toggles & MEDIHOUND_SLEEPER)}
                     onClick={() => act('toggle_cit', {
@@ -313,7 +313,7 @@ export const ContentPrefsTab = (_props, context) => {
                     })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Vore Sounds">
+                <LabeledList.Item label="Звуки еды">
                   <Button.Checkbox
                     checked={!!(cit_toggles & EATING_NOISES)}
                     onClick={() => act('toggle_cit', {
@@ -321,7 +321,7 @@ export const ContentPrefsTab = (_props, context) => {
                     })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Digestion Sounds">
+                <LabeledList.Item label="Звуки пищеварения">
                   <Button.Checkbox
                     checked={!!(cit_toggles & DIGESTION_NOISES)}
                     onClick={() => act('toggle_cit', {
@@ -329,7 +329,7 @@ export const ContentPrefsTab = (_props, context) => {
                     })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Forced Feminization">
+                <LabeledList.Item label="Принуд. феминизация">
                   <Button.Checkbox
                     checked={!!(cit_toggles & FORCED_FEM)}
                     onClick={() => act('toggle_cit', {
@@ -337,7 +337,7 @@ export const ContentPrefsTab = (_props, context) => {
                     })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Forced Masculinization">
+                <LabeledList.Item label="Принуд. маскулинизация">
                   <Button.Checkbox
                     checked={!!(cit_toggles & FORCED_MASC)}
                     onClick={() => act('toggle_cit', {
@@ -345,7 +345,7 @@ export const ContentPrefsTab = (_props, context) => {
                     })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Lewd Hypno">
+                <LabeledList.Item label="18+ гипноз">
                   <Button.Checkbox
                     checked={!!(cit_toggles & HYPNO)}
                     onClick={() => act('toggle_cit', {
@@ -353,16 +353,16 @@ export const ContentPrefsTab = (_props, context) => {
                     })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Hypno (All)">
+                <LabeledList.Item label="Гипноз (все)">
                   <Button.Checkbox
                     checked={!(cit_toggles & NEVER_HYPNO)}
-                    content={cit_toggles & NEVER_HYPNO ? 'Disallowed' : 'Allowed'}
+                    content={cit_toggles & NEVER_HYPNO ? 'Запрещ.' : 'Разреш.'}
                     onClick={() => act('toggle_cit', {
                       flag: 'never_hypno',
                     })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Bimbofication">
+                <LabeledList.Item label="Бимбофикация">
                   <Button.Checkbox
                     checked={!!(cit_toggles & BIMBOFICATION)}
                     onClick={() => act('toggle_cit', {
@@ -370,19 +370,19 @@ export const ContentPrefsTab = (_props, context) => {
                     })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Aphrodisiacs">
+                <LabeledList.Item label="Афродизиаки">
                   <Button.Checkbox
                     checked={!(cit_toggles & NO_APHRO)}
-                    content={cit_toggles & NO_APHRO ? 'Disallowed' : 'Allowed'}
+                    content={cit_toggles & NO_APHRO ? 'Запрещ.' : 'Разрещ.'}
                     onClick={() => act('toggle_cit', {
                       flag: 'aphro',
                     })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Ass Slapping">
+                <LabeledList.Item label="Шлепки">
                   <Button.Checkbox
                     checked={!(cit_toggles & NO_ASS_SLAP)}
-                    content={cit_toggles & NO_ASS_SLAP ? 'Disallowed' : 'Allowed'}
+                    content={cit_toggles & NO_ASS_SLAP ? 'Запрещ.' : 'Разрещ.'}
                     onClick={() => act('toggle_cit', {
                       flag: 'ass_slap',
                     })}
@@ -392,7 +392,7 @@ export const ContentPrefsTab = (_props, context) => {
             </Stack.Item>
             <Stack.Item grow basis={0}>
               <LabeledList>
-                <LabeledList.Item label="Breast Enlargement">
+                <LabeledList.Item label="Увел. груди">
                   <Button.Checkbox
                     checked={!!(cit_toggles & BREAST_ENLARGEMENT)}
                     onClick={() => act('toggle_cit', {
@@ -400,7 +400,7 @@ export const ContentPrefsTab = (_props, context) => {
                     })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Penis Enlargement">
+                <LabeledList.Item label="Увел. пениса">
                   <Button.Checkbox
                     checked={!!(cit_toggles & PENIS_ENLARGEMENT)}
                     onClick={() => act('toggle_cit', {
@@ -408,7 +408,7 @@ export const ContentPrefsTab = (_props, context) => {
                     })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Butt Enlargement">
+                <LabeledList.Item label="Увел. ягодиц">
                   <Button.Checkbox
                     checked={!!(cit_toggles & BUTT_ENLARGEMENT)}
                     onClick={() => act('toggle_cit', {
@@ -416,7 +416,7 @@ export const ContentPrefsTab = (_props, context) => {
                     })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Belly Inflation">
+                <LabeledList.Item label="Надув. живота">
                   <Button.Checkbox
                     checked={!!(cit_toggles & BELLY_INFLATION)}
                     onClick={() => act('toggle_cit', {
@@ -424,7 +424,7 @@ export const ContentPrefsTab = (_props, context) => {
                     })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Chastity">
+                <LabeledList.Item label="Chastity пояс">
                   <Button.Checkbox
                     checked={!!(cit_toggles & CHASTITY)}
                     onClick={() => act('toggle_cit', {
@@ -432,7 +432,7 @@ export const ContentPrefsTab = (_props, context) => {
                     })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Stimulation">
+                <LabeledList.Item label="Стимуляция">
                   <Button.Checkbox
                     checked={!!(cit_toggles & STIMULATION)}
                     onClick={() => act('toggle_cit', {
@@ -440,7 +440,7 @@ export const ContentPrefsTab = (_props, context) => {
                     })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Edging">
+                <LabeledList.Item label="Эджинг">
                   <Button.Checkbox
                     checked={!!(cit_toggles & EDGING)}
                     onClick={() => act('toggle_cit', {
@@ -448,7 +448,7 @@ export const ContentPrefsTab = (_props, context) => {
                     })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Cum Covering">
+                <LabeledList.Item label="Обливание">
                   <Button.Checkbox
                     checked={!!(cit_toggles & CUM_ONTO)}
                     onClick={() => act('toggle_cit', {
@@ -456,7 +456,7 @@ export const ContentPrefsTab = (_props, context) => {
                     })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Sex Jitter">
+                <LabeledList.Item label="Тряска (18+)">
                   <Button.Checkbox
                     checked={!!(cit_toggles & SEX_JITTER)}
                     onClick={() => act('toggle_cit', {
@@ -464,7 +464,7 @@ export const ContentPrefsTab = (_props, context) => {
                     })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Trash Forcefeeding">
+                <LabeledList.Item label="Принуд. кормление">
                   <Button.Checkbox
                     checked={!!(cit_toggles & TRASH_FORCEFEED)}
                     onClick={() => act('toggle_cit', {
@@ -472,19 +472,19 @@ export const ContentPrefsTab = (_props, context) => {
                     })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Auto Wagging">
+                <LabeledList.Item label="Авто-виляние">
                   <Button.Checkbox
                     checked={!(cit_toggles & NO_AUTO_WAG)}
-                    content={cit_toggles & NO_AUTO_WAG ? 'Disabled' : 'Enabled'}
+                    content={cit_toggles & NO_AUTO_WAG ? 'Выкл.' : 'Вкл.'}
                     onClick={() => act('toggle_cit', {
                       flag: 'auto_wag',
                     })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Disco Dance">
+                <LabeledList.Item label="Диско-танец">
                   <Button.Checkbox
                     checked={!(cit_toggles & NO_DISCO_DANCE)}
-                    content={cit_toggles & NO_DISCO_DANCE ? 'Disabled' : 'Enabled'}
+                    content={cit_toggles & NO_DISCO_DANCE ? 'Выкл.' : 'Вкл.'}
                     onClick={() => act('toggle_cit', {
                       flag: 'disco_dance',
                     })}
@@ -498,13 +498,13 @@ export const ContentPrefsTab = (_props, context) => {
 
       {/* Genital configuration + Fluid blacklist */}
       <Stack.Item>
-        <Section title="Genitals">
+        <Section title="Гениталии">
           <Stack>
             <Stack.Item grow>
               <Button
                 fluid
                 icon="cog"
-                content="Configure Genitals"
+                content="Настроить гениталии"
                 onClick={() => act('open_genital_config')}
               />
             </Stack.Item>
@@ -512,7 +512,7 @@ export const ContentPrefsTab = (_props, context) => {
               <Button
                 fluid
                 icon="list"
-                content="Genital Fluid Blacklist"
+                content="Чёрный список жидкостей"
                 onClick={() => act('set_gfluid_blacklist')}
               />
             </Stack.Item>

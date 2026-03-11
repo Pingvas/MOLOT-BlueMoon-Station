@@ -63,20 +63,20 @@ export const GamePrefsTab = (_props, context) => {
     <Stack vertical>
       {/* UI Settings */}
       <Stack.Item>
-        <Section title="UI Settings">
+        <Section title="Настройки UI">
           <Stack>
             <Stack.Item grow basis={0}>
               <LabeledList>
-                <LabeledList.Item label="UI Style">
+                <LabeledList.Item label="Стиль UI">
                   <Button
                     content={UI_style || 'Default'}
                     onClick={() => act('set_ui_style')}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Outline">
+                <LabeledList.Item label="Контур">
                   <Button.Checkbox
                     checked={outline_enabled}
-                    content={outline_enabled ? 'Enabled' : 'Disabled'}
+                    content={outline_enabled ? 'Вкл.' : 'Выкл.'}
                     onClick={() => act('toggle_outline')}
                   />
                   {!!outline_enabled && (
@@ -85,7 +85,7 @@ export const GamePrefsTab = (_props, context) => {
                     </Button>
                   )}
                 </LabeledList.Item>
-                <LabeledList.Item label="Screentips">
+                <LabeledList.Item label="Подсказки">
                   <Button
                     content={screentip_pref || 'Default'}
                     onClick={() => act('set_screentip_pref')}
@@ -94,34 +94,34 @@ export const GamePrefsTab = (_props, context) => {
                     <ColorBox color={screentip_color} mr={1} />
                   </Button>
                 </LabeledList.Item>
-                <LabeledList.Item label="Screentip Images">
+                <LabeledList.Item label="Изобр. подсказок">
                   <Button.Checkbox
                     checked={screentip_images}
-                    content={screentip_images ? 'Allowed' : 'Disallowed'}
+                    content={screentip_images ? 'Вкл.' : 'Выкл.'}
                     onClick={() => act('toggle_screentip_images')}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="tgui Style">
+                <LabeledList.Item label="Стиль tgui">
                   <Button.Checkbox
                     checked={tgui_fancy}
-                    content={tgui_fancy ? 'Fancy' : 'No Frills'}
+                    content={tgui_fancy ? 'Красивый' : 'Простой'}
                     onClick={() => act('toggle_tgui_fancy')}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="tgui Monitors">
+                <LabeledList.Item label="Мониторы tgui">
                   <Button.Checkbox
                     checked={tgui_lock}
-                    content={tgui_lock ? 'Primary Only' : 'All'}
+                    content={tgui_lock ? 'Основной' : 'Все'}
                     onClick={() => act('toggle_tgui_lock')}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Widescreen">
+                <LabeledList.Item label="Широкий экран">
                   <Button.Checkbox
                     checked={widescreenpref}
                     onClick={() => act('toggle_widescreenpref')}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Fullscreen">
+                <LabeledList.Item label="Полный экран">
                   <Button.Checkbox
                     checked={fullscreen}
                     onClick={() => act('toggle_fullscreen')}
@@ -131,20 +131,20 @@ export const GamePrefsTab = (_props, context) => {
             </Stack.Item>
             <Stack.Item grow basis={0}>
               <LabeledList>
-                <LabeledList.Item label="Hotkeys">
+                <LabeledList.Item label="Горячие клавиши">
                   <Button.Checkbox
                     checked={hotkeys}
-                    content={hotkeys ? 'Enabled' : 'Disabled'}
+                    content={hotkeys ? 'Вкл.' : 'Выкл.'}
                     onClick={() => act('toggle_hotkeys')}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Long Strip Menu">
+                <LabeledList.Item label="Длинное меню">
                   <Button.Checkbox
                     checked={long_strip_menu}
                     onClick={() => act('toggle_long_strip_menu')}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Auto-Stand">
+                <LabeledList.Item label="Авто-вставание">
                   <Button.Checkbox
                     checked={autostand}
                     onClick={() => act('toggle_autostand')}
@@ -156,26 +156,26 @@ export const GamePrefsTab = (_props, context) => {
                     onClick={() => act('toggle_auto_ooc')}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Auto-Capitalize">
+                <LabeledList.Item label="Авто-заглавные">
                   <Button.Checkbox
                     checked={auto_capitalize_enabled}
                     onClick={() => act('toggle_auto_capitalize')}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Tetris Storage">
+                <LabeledList.Item label="Тетрис-хранилище">
                   <Button.Checkbox
                     checked={!no_tetris_storage}
-                    content={no_tetris_storage ? 'Disabled' : 'Enabled'}
+                    content={no_tetris_storage ? 'Выкл.' : 'Вкл.'}
                     onClick={() => act('toggle_no_tetris')}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Parallax">
+                <LabeledList.Item label="Параллакс">
                   <Button
                     content={parallax || 'Default'}
                     onClick={() => act('set_parallax')}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Ambient Occlusion">
+                <LabeledList.Item label="Окклюзия">
                   <Button.Checkbox
                     checked={ambientocclusion}
                     onClick={() => act('toggle_ambientocclusion')}
@@ -189,18 +189,18 @@ export const GamePrefsTab = (_props, context) => {
 
       {/* Runechat & Display */}
       <Stack.Item>
-        <Section title="Runechat & Display">
+        <Section title="Runechat и отображение">
           <Stack>
             <Stack.Item grow basis={0}>
               <LabeledList>
                 <LabeledList.Item label="Runechat">
                   <Button.Checkbox
                     checked={chat_on_map}
-                    content={chat_on_map ? 'Enabled' : 'Disabled'}
+                    content={chat_on_map ? 'Вкл.' : 'Выкл.'}
                     onClick={() => act('toggle_chat_on_map')}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Runechat Limit">
+                <LabeledList.Item label="Лимит Runechat">
                   <NumberInput
                     value={max_chat_length || 110}
                     minValue={1}
@@ -211,13 +211,13 @@ export const GamePrefsTab = (_props, context) => {
                     })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Runechat Non-mobs">
+                <LabeledList.Item label="Runechat не-мобы">
                   <Button.Checkbox
                     checked={see_chat_non_mob}
                     onClick={() => act('toggle_see_chat_non_mob')}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Runechat Emotes">
+                <LabeledList.Item label="Runechat эмоции">
                   <Button.Checkbox
                     checked={see_rc_emotes}
                     onClick={() => act('toggle_see_rc_emotes')}
@@ -238,33 +238,33 @@ export const GamePrefsTab = (_props, context) => {
                     })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Auto-Fit Viewport">
+                <LabeledList.Item label="Авто-вьюпорт">
                   <Button.Checkbox
                     checked={auto_fit_viewport}
                     onClick={() => act('toggle_auto_fit_viewport')}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="HUD Flash">
+                <LabeledList.Item label="Вспышка HUD">
                   <Button.Checkbox
                     checked={hud_toggle_flash}
                     onClick={() => act('toggle_hud_flash')}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="HUD Color">
+                <LabeledList.Item label="Цвет HUD">
                   <Button onClick={() => act('set_hud_color')}>
                     <ColorBox color={hud_toggle_color || '#ffffff'} mr={1} />
                   </Button>
                 </LabeledList.Item>
-                <LabeledList.Item label="Pixelshift View">
+                <LabeledList.Item label="Пиксельный сдвиг">
                   <Button.Checkbox
                     checked={view_pixelshift}
                     onClick={() => act('toggle_view_pixelshift')}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Combat Cursor">
+                <LabeledList.Item label="Боевой курсор">
                   <Button.Checkbox
                     checked={!disable_combat_cursor}
-                    content={disable_combat_cursor ? 'Disabled' : 'Enabled'}
+                    content={disable_combat_cursor ? 'Выкл.' : 'Вкл.'}
                     onClick={() => act('toggle_combat_cursor')}
                   />
                 </LabeledList.Item>
@@ -276,9 +276,9 @@ export const GamePrefsTab = (_props, context) => {
 
       {/* Screenshake */}
       <Stack.Item>
-        <Section title="Screenshake">
+        <Section title="Тряска экрана">
           <LabeledList>
-            <LabeledList.Item label="Screenshake">
+            <LabeledList.Item label="Тряска">
               <Slider
                 value={screenshake || 0}
                 minValue={0}
@@ -288,7 +288,7 @@ export const GamePrefsTab = (_props, context) => {
                 onChange={(e, value) => act('set_screenshake', { value })}
               />
             </LabeledList.Item>
-            <LabeledList.Item label="Damage Screenshake">
+            <LabeledList.Item label="Тряска от урона">
               <Slider
                 value={damagescreenshake || 0}
                 minValue={0}
@@ -299,7 +299,7 @@ export const GamePrefsTab = (_props, context) => {
                 })}
               />
             </LabeledList.Item>
-            <LabeledList.Item label="Recoil Screenshake">
+            <LabeledList.Item label="Отдача">
               <Slider
                 value={recoil_screenshake || 0}
                 minValue={0}
@@ -317,20 +317,20 @@ export const GamePrefsTab = (_props, context) => {
 
       {/* Antag */}
       <Stack.Item>
-        <Section title="Antagonist Preferences">
+        <Section title="Антагонист">
           <Stack>
             <Stack.Item grow>
               <Button
                 fluid
                 icon="user-secret"
-                content="Configure Antag Preferences"
+                content="Настроить антагонистов"
                 onClick={() => act('open_antag_prefs')}
               />
             </Stack.Item>
             <Stack.Item>
               <Button.Checkbox
                 checked={!!(toggles & MIDROUND_ANTAG)}
-                content="Allow Midround Antag"
+                content="Антаг в середине"
                 onClick={() => act('toggle_flag', {
                   flag: 'midround_antag',
                 })}
@@ -338,9 +338,9 @@ export const GamePrefsTab = (_props, context) => {
             </Stack.Item>
             <Stack.Item>
               <Button
-                content={be_victim || 'Default'}
+                content={be_victim || 'По умолч.'}
                 icon="crosshairs"
-                tooltip="Prefer to be an antagonist victim"
+                tooltip="Предпочитать быть жертвой антагониста"
                 onClick={() => act('set_be_victim')}
               />
             </Stack.Item>

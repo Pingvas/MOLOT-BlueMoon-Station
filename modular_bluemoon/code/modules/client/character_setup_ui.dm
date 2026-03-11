@@ -8,6 +8,12 @@
 	var/client/owner
 	/// Reference to the preferences datum
 	var/datum/preferences/prefs
+	/// Native BYOND map view for character preview
+	var/atom/movable/screen/map_view/char_preview/character_preview_view
+	/// Cached character slot data (tainted_character_profiles pattern from SPLURT)
+	var/list/cached_slots
+	/// Whether slot cache needs rebuilding
+	var/tainted_slots = TRUE
 
 /datum/character_setup_ui/New(client/C)
 	if(!C)
@@ -17,6 +23,7 @@
 	prefs = C.prefs
 
 /datum/character_setup_ui/Destroy()
+	QDEL_NULL(character_preview_view)
 	if(owner)
 		owner.character_setup = null
 	owner = null
@@ -26,12 +33,20 @@
 /datum/character_setup_ui/ui_state(mob/user)
 	return GLOB.always_state
 
+/datum/character_setup_ui/ui_close(mob/user)
+	prefs?.save_character()
+	prefs?.save_preferences()
+	QDEL_NULL(character_preview_view)
+
 /datum/character_setup_ui/ui_interact(mob/user, datum/tgui/ui)
 	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
+		if(!character_preview_view)
+			create_character_preview_view(user)
 		ui = new(user, src, "CharacterSetup")
 		ui.set_autoupdate(FALSE)
 		ui.open()
+		character_preview_view.display_to(user, ui.window)
 
 /datum/character_setup_ui/ui_static_data(mob/user)
 	var/list/data = list()
@@ -139,6 +154,62 @@
 	data["roundstart_traits"] = CONFIG_GET(flag/roundstart_traits)
 	data["allow_silicon_choosing_laws"] = CONFIG_GET(flag/allow_silicon_choosing_laws)
 
+	// === QUIRKS INFO (static) ===
+	var/list/quirks_info = list()
+	for(var/qname in SSquirks.quirks)
+		var/datum/quirk/Q = SSquirks.quirks[qname]
+		var/qpath = Q
+		if(ispath(qpath))
+			Q = new qpath()
+		var/qpoints = SSquirks.quirk_points[qname]
+		var/qcategory = "Neutral"
+		if(qpoints > 0)
+			qcategory = "Positive"
+		else if(qpoints < 0)
+			qcategory = "Negative"
+		var/list/conflicts = list()
+		for(var/list/conflict_pair in SSquirks.quirk_blacklist)
+			if(qname in conflict_pair)
+				for(var/cname in conflict_pair)
+					if(cname != qname)
+						conflicts += cname
+		quirks_info += list(list(
+			"name" = qname,
+			"description" = Q.desc,
+			"value" = qpoints,
+			"category" = qcategory,
+			"conflicts" = conflicts,
+		))
+		if(ispath(qpath))
+			qdel(Q)
+	data["quirks_info"] = quirks_info
+
+	// === LOADOUT CATEGORIES (static) ===
+	var/list/loadout_categories = list()
+	for(var/cat in GLOB.loadout_items)
+		var/list/subcats = list()
+		for(var/subcat in GLOB.loadout_items[cat])
+			subcats += subcat
+		loadout_categories += list(list(
+			"name" = cat,
+			"subcategories" = subcats,
+		))
+	data["loadout_categories"] = loadout_categories
+
+	// === KEYBINDING CATEGORIES (static) ===
+	var/list/kb_categories = list()
+	for(var/name in GLOB.keybindings_by_name)
+		var/datum/keybinding/kb = GLOB.keybindings_by_name[name]
+		if(!kb_categories[kb.category])
+			kb_categories[kb.category] = list()
+		kb_categories[kb.category] += list(list(
+			"name" = kb.name,
+			"full_name" = kb.full_name,
+			"description" = kb.description,
+			"default_keys" = prefs.hotkeys ? kb.hotkey_keys : kb.classic_keys,
+		))
+	data["keybinding_categories"] = kb_categories
+
 	return data
 
 /datum/character_setup_ui/ui_data(mob/user)
@@ -152,21 +223,28 @@
 	data["preferences_tab"] = prefs.preferences_tab
 	data["preview_pref"] = prefs.preview_pref
 
-	// Character slots
-	var/list/slots = list()
-	if(prefs.path)
-		var/savefile/S = new /savefile(prefs.path)
-		if(S)
-			for(var/i = 1, i <= prefs.max_save_slots, i++)
-				var/slot_name = null
-				S.cd = "/character[i]"
-				S["real_name"] >> slot_name
-				slots += list(list(
-					"index" = i,
-					"name" = slot_name || "Character[i]",
-					"is_empty" = !slot_name,
-				))
-	data["slots"] = slots
+	// Character preview map view ID
+	if(character_preview_view)
+		data["character_preview_view"] = character_preview_view.assigned_map
+
+	// Character slots (cached — only rebuilt when tainted)
+	if(tainted_slots || !cached_slots)
+		var/list/slots = list()
+		if(prefs.path)
+			var/savefile/S = new /savefile(prefs.path)
+			if(S)
+				for(var/i = 1, i <= prefs.max_save_slots, i++)
+					var/slot_name = null
+					S.cd = "/character[i]"
+					S["real_name"] >> slot_name
+					slots += list(list(
+						"index" = i,
+						"name" = slot_name || "Character[i]",
+						"is_empty" = !slot_name,
+					))
+		cached_slots = slots
+		tainted_slots = FALSE
+	data["slots"] = cached_slots
 	data["active_slot"] = prefs.default_slot
 	data["collapse_empty_slots"] = prefs.collapse_empty_character_slots
 
@@ -326,7 +404,7 @@
 	data["bark_speed"] = prefs.bark_speed
 	data["bark_variance"] = prefs.bark_variance
 
-	// === QUIRKS ===
+	// === QUIRKS (dynamic only — static info is in ui_static_data) ===
 	data["all_quirks"] = prefs.all_quirks
 	data["quirk_balance"] = prefs.GetQuirkBalance(user)
 
@@ -438,18 +516,6 @@
 			))
 	data["loadout_items"] = loadout_items
 
-	// Available loadout categories
-	var/list/loadout_categories = list()
-	for(var/cat in GLOB.loadout_items)
-		var/list/subcats = list()
-		for(var/subcat in GLOB.loadout_items[cat])
-			subcats += subcat
-		loadout_categories += list(list(
-			"name" = cat,
-			"subcategories" = subcats,
-		))
-	data["loadout_categories"] = loadout_categories
-
 	// Items in current category
 	var/list/category_items = list()
 	if(prefs.gear_category && GLOB.loadout_items[prefs.gear_category])
@@ -475,40 +541,7 @@
 				))
 	data["category_items"] = category_items
 
-	// === QUIRKS DATA ===
-	var/list/quirks_data = list()
-	for(var/qname in SSquirks.quirks)
-		var/datum/quirk/Q = SSquirks.quirks[qname]
-		var/qpath = Q
-		if(ispath(qpath))
-			Q = new qpath()
-		var/qpoints = SSquirks.quirk_points[qname]
-		var/qcategory = "Neutral"
-		if(qpoints > 0)
-			qcategory = "Positive"
-		else if(qpoints < 0)
-			qcategory = "Negative"
-		var/is_selected = (qname in prefs.all_quirks)
-		var/list/conflicts = list()
-		for(var/list/conflict_pair in SSquirks.quirk_blacklist)
-			if(qname in conflict_pair)
-				for(var/cname in conflict_pair)
-					if(cname != qname)
-						conflicts += cname
-		quirks_data += list(list(
-			"name" = qname,
-			"description" = Q.desc,
-			"points" = qpoints,
-			"category" = qcategory,
-			"selected" = is_selected,
-			"conflicts" = conflicts,
-		))
-		if(ispath(qpath))
-			qdel(Q)
-	data["quirks_data"] = quirks_data
-	data["quirk_balance"] = prefs.GetQuirkBalance(user)
-
-	// === KEYBINDINGS DATA ===
+	// === KEYBINDINGS DATA (dynamic only — categories are in ui_static_data) ===
 	var/list/user_binds = list()
 	var/list/user_modless_binds = list()
 	for(var/key in prefs.key_bindings)
@@ -517,66 +550,107 @@
 	for(var/key in prefs.modless_key_bindings)
 		user_modless_binds[prefs.modless_key_bindings[key]] = key
 
-	var/list/kb_categories = list()
-	for(var/name in GLOB.keybindings_by_name)
-		var/datum/keybinding/kb = GLOB.keybindings_by_name[name]
-		if(!kb_categories[kb.category])
-			kb_categories[kb.category] = list()
-		kb_categories[kb.category] += list(list(
-			"name" = kb.name,
-			"full_name" = kb.full_name,
-			"description" = kb.description,
-			"default_keys" = prefs.hotkeys ? kb.hotkey_keys : kb.classic_keys,
-		))
-
-	data["keybinding_categories"] = kb_categories
 	data["user_bindings"] = user_binds
 	data["user_modless_bindings"] = user_modless_binds
 
-	// Character preview as base64
-	var/preview_icon = generate_preview_icon()
-	if(preview_icon)
-		data["preview_icon"] = preview_icon
-
 	return data
 
-/datum/character_setup_ui/proc/generate_preview_icon()
-	if(!prefs || !owner)
-		return null
+/// Create the native BYOND map view for character preview
+/datum/character_setup_ui/proc/create_character_preview_view(mob/user)
+	QDEL_NULL(character_preview_view)
+	character_preview_view = new(null, prefs)
+	character_preview_view.generate_view("char_preview_[REF(character_preview_view)]")
+	character_preview_view.update_body()
+	return character_preview_view
 
-	var/datum/job/previewJob = prefs.get_highest_job()
+/// Native BYOND character preview using map_view
+/atom/movable/screen/map_view/char_preview
+	name = "character_preview"
+	icon = 'modular_citadel/icons/ui/backgrounds.dmi'
+	icon_state = "000"
+	/// The body that is displayed
+	var/mob/living/carbon/human/dummy/body
+	/// The preferences this refers to
+	var/datum/preferences/preferences
 
-	if(previewJob)
-		if(istype(previewJob, /datum/job/ai))
-			var/icon/ai_icon = icon('icons/mob/ai.dmi', icon_state = resolve_ai_icon(prefs.preferred_ai_core_display), dir = SOUTH)
-			return icon2base64(ai_icon)
-		if(istype(previewJob, /datum/job/cyborg))
-			var/icon/borg_icon = icon('icons/mob/robots.dmi', icon_state = "robot", dir = SOUTH)
-			return icon2base64(borg_icon)
+/atom/movable/screen/map_view/char_preview/Initialize(mapload, datum/preferences/preferences)
+	. = ..()
+	src.preferences = preferences
+	if(preferences?.bgstate)
+		icon_state = preferences.bgstate
 
-	var/mob/living/carbon/human/dummy/mannequin = generate_or_wait_for_human_dummy(DUMMY_HUMAN_SLOT_PREFERENCES)
-	prefs.copy_to(mannequin, initial_spawn = TRUE)
+/atom/movable/screen/map_view/char_preview/Destroy()
+	QDEL_NULL(body)
+	preferences = null
+	return ..()
 
-	switch(prefs.preview_pref)
+/// Updates the displayed preview body
+/atom/movable/screen/map_view/char_preview/proc/update_body()
+	if(isnull(body))
+		create_body()
+	else
+		body.wipe_state()
+
+	cut_overlays()
+
+	// Update background
+	icon_state = preferences?.bgstate || "000"
+
+	var/datum/job/preview_job = preferences.get_highest_job()
+
+	// Handle silicon previews
+	if(preview_job)
+		if(istype(preview_job, /datum/job/ai))
+			var/mutable_appearance/ai_ma = mutable_appearance('icons/mob/ai.dmi', icon_state = resolve_ai_icon(preferences.preferred_ai_core_display))
+			ai_ma.setDir(SOUTH)
+			ai_ma.transform = matrix()
+			ai_ma.pixel_x = 0
+			ai_ma.pixel_y = 0
+			add_overlay(ai_ma)
+			return
+		if(istype(preview_job, /datum/job/cyborg))
+			var/mutable_appearance/borg_ma = mutable_appearance('icons/mob/robots.dmi', icon_state = "robot")
+			borg_ma.setDir(SOUTH)
+			borg_ma.transform = matrix()
+			borg_ma.pixel_x = 0
+			borg_ma.pixel_y = 0
+			add_overlay(borg_ma)
+			return
+
+	preferences.copy_to(body, initial_spawn = TRUE)
+
+	switch(preferences.preview_pref)
 		if(PREVIEW_PREF_JOB)
-			if(previewJob)
-				mannequin.job = previewJob.title
-				previewJob.equip(mannequin, TRUE, preference_source = owner)
+			if(preview_job)
+				body.job = preview_job.title
+				preview_job.equip(body, TRUE, preference_source = preferences.parent)
 		if(PREVIEW_PREF_LOADOUT)
-			SSjob.equip_loadout(owner.mob, mannequin, bypass_prereqs = TRUE, can_drop = FALSE, is_dummy = TRUE)
-			SSjob.post_equip_loadout(owner.mob, mannequin, bypass_prereqs = TRUE, can_drop = FALSE, is_dummy = TRUE)
+			if(preferences.parent)
+				SSjob.equip_loadout(preferences.parent.mob, body, bypass_prereqs = TRUE, can_drop = FALSE, is_dummy = TRUE)
+				SSjob.post_equip_loadout(preferences.parent.mob, body, bypass_prereqs = TRUE, can_drop = FALSE, is_dummy = TRUE)
 		if(PREVIEW_PREF_NAKED_AROUSED)
-			for(var/obj/item/organ/genital/genital in mannequin.internal_organs)
+			for(var/obj/item/organ/genital/genital in body.internal_organs)
 				if(CHECK_BITFIELD(genital.genital_flags, GENITAL_CAN_AROUSE))
 					genital.set_aroused_state(TRUE, null)
 
-	mannequin.regenerate_icons()
+	body.regenerate_icons()
 
-	var/icon/preview = getFlatIcon(mannequin, defdir = SOUTH, no_anim = TRUE)
-	var/result = icon2base64(preview)
+	var/mutable_appearance/body_ma = new(body)
+	body_ma.setDir(body.dir)
+	body_ma.transform = matrix()
+	body_ma.pixel_x = 0
+	body_ma.pixel_y = 0
+	add_overlay(body_ma)
 
-	unset_busy_human_dummy(DUMMY_HUMAN_SLOT_PREFERENCES)
-	return result
+/atom/movable/screen/map_view/char_preview/proc/create_body()
+	QDEL_NULL(body)
+	body = new
+
+/// Set direction of the preview
+/atom/movable/screen/map_view/char_preview/proc/set_preview_dir(new_dir)
+	if(body)
+		body.setDir(new_dir)
+		update_body()
 
 /datum/character_setup_ui/ui_act(action, list/params, datum/tgui/ui)
 	. = ..()
@@ -612,6 +686,8 @@
 			var/pref = params["pref"]
 			if(pref in list(PREVIEW_PREF_JOB, PREVIEW_PREF_LOADOUT, PREVIEW_PREF_NAKED, PREVIEW_PREF_NAKED_AROUSED))
 				prefs.preview_pref = pref
+				if(character_preview_view)
+					character_preview_view.update_body()
 			return TRUE
 
 		// === CHARACTER SLOTS ===
@@ -620,7 +696,9 @@
 			if(num && num >= 1 && num <= prefs.max_save_slots)
 				prefs.default_slot = num
 				prefs.load_character()
-				prefs.update_preview_icon(prefs.current_tab)
+				tainted_slots = TRUE
+				if(character_preview_view)
+					character_preview_view.update_body()
 			return TRUE
 
 		if("toggle_empty_slots")
@@ -632,10 +710,12 @@
 			var/new_name = sanitize_name(params["name"])
 			if(new_name)
 				prefs.real_name = new_name
+				tainted_slots = TRUE
 			return TRUE
 
 		if("random_name")
 			prefs.real_name = random_unique_name(prefs.gender)
+			tainted_slots = TRUE
 			return TRUE
 
 		if("set_age")
@@ -996,7 +1076,15 @@
 			return TRUE
 
 		if("refresh_preview")
-			// Just return TRUE to trigger ui_data refresh with new preview
+			if(character_preview_view)
+				character_preview_view.update_body()
+			return TRUE
+
+		if("rotate_preview")
+			if(character_preview_view)
+				var/backwards = params["backwards"]
+				var/new_dir = turn(character_preview_view.body?.dir || SOUTH, backwards ? 90 : -90)
+				character_preview_view.set_preview_dir(new_dir)
 			return TRUE
 
 		// === JOB / QUIRK DELEGATION ===
@@ -1395,15 +1483,22 @@
 		if("save")
 			prefs.save_character()
 			prefs.save_preferences()
+			tainted_slots = TRUE
 			return TRUE
 
 		if("load")
 			prefs.load_character()
 			prefs.load_preferences()
+			tainted_slots = TRUE
+			if(character_preview_view)
+				character_preview_view.update_body()
 			return TRUE
 
 		if("randomize_all")
 			prefs.random_character()
+			tainted_slots = TRUE
+			if(character_preview_view)
+				character_preview_view.update_body()
 			return TRUE
 
 	// After any action, re-save and update preview

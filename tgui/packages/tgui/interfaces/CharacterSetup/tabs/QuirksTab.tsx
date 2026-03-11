@@ -8,11 +8,17 @@ import {
 } from '../../../components';
 import { CharacterSetupData } from '../types';
 
-export type QuirkInfo = {
+// Static quirk info from ui_static_data
+type QuirkStaticInfo = {
   name: string;
   description: string;
   value: number;
   category: string;
+  conflicts: string[];
+};
+
+// Computed quirk info with dynamic state
+type QuirkDisplay = QuirkStaticInfo & {
   selected: boolean;
   conflicting: boolean;
   conflict_reason: string;
@@ -23,8 +29,26 @@ export const QuirksTab = (_props, context) => {
   const {
     all_quirks = [],
     quirk_balance = 0,
-    quirks_data = [],
+    quirks_info = [],
   } = data as any;
+
+  const selectedSet = new Set(all_quirks as string[]);
+
+  // Compute selected/conflicting state on frontend (avoids rebuilding full quirk list in ui_data)
+  const quirks: QuirkDisplay[] = (quirks_info as QuirkStaticInfo[]).map(
+    (q) => {
+      const selected = selectedSet.has(q.name);
+      const activeConflicts = (q.conflicts || []).filter((c) =>
+        selectedSet.has(c)
+      );
+      return {
+        ...q,
+        selected,
+        conflicting: activeConflicts.length > 0,
+        conflict_reason: activeConflicts.join(', '),
+      };
+    }
+  );
 
   const [category, setCategory] = useLocalState(
     context,
@@ -32,24 +56,20 @@ export const QuirksTab = (_props, context) => {
     'Positive'
   );
 
-  const filteredQuirks = (quirks_data as QuirkInfo[]).filter(
-    (q: QuirkInfo) => q.category === category
-  );
+  const filteredQuirks = quirks.filter((q) => q.category === category);
 
-  const selectedQuirks = (quirks_data as QuirkInfo[]).filter(
-    (q: QuirkInfo) => q.selected
-  );
+  const selectedQuirks = quirks.filter((q) => q.selected);
 
   return (
     <Stack vertical>
       {/* Summary */}
       <Stack.Item>
-        <Section title="Selected Quirks">
+        <Section title="Выбранные особенности">
           <Stack>
             <Stack.Item grow>
               {selectedQuirks.length > 0 ? (
                 <Box>
-                  {selectedQuirks.map((q: QuirkInfo) => (
+                  {selectedQuirks.map((q) => (
                     <Button
                       key={q.name}
                       content={`${q.name} (${q.value > 0 ? '+' : ''}${q.value})`}
@@ -59,19 +79,19 @@ export const QuirksTab = (_props, context) => {
                   ))}
                 </Box>
               ) : (
-                <Box color="label" italic>No quirks selected</Box>
+                <Box color="label" italic>Особенности не выбраны</Box>
               )}
             </Stack.Item>
             <Stack.Item>
               <Box bold>
-                Balance: {quirk_balance} points
+                Баланс: {quirk_balance} очк.
               </Box>
             </Stack.Item>
           </Stack>
           <Box mt={1}>
             <Button
               icon="undo"
-              content="Reset All Quirks"
+              content="Сбросить все"
               color="red"
               onClick={() => act('reset_quirks')}
             />
@@ -81,19 +101,19 @@ export const QuirksTab = (_props, context) => {
 
       {/* Quirk settings */}
       <Stack.Item>
-        <Section title="Quirk Settings">
+        <Section title="Настройки">
           <Stack>
             <Stack.Item>
               <Button
                 icon="volume-up"
-                content="Shriek Type"
+                content="Тип крика"
                 onClick={() => act('change_shriek_option')}
               />
             </Stack.Item>
             <Stack.Item>
               <Button
                 icon="tag"
-                content="Summon Nickname"
+                content="Прозвище призыва"
                 onClick={() => act('set_summon_nickname')}
               />
             </Stack.Item>
@@ -107,17 +127,17 @@ export const QuirksTab = (_props, context) => {
           <Tabs.Tab
             selected={category === 'Positive'}
             onClick={() => setCategory('Positive')}>
-            Positive
+            Положительные
           </Tabs.Tab>
           <Tabs.Tab
             selected={category === 'Neutral'}
             onClick={() => setCategory('Neutral')}>
-            Neutral
+            Нейтральные
           </Tabs.Tab>
           <Tabs.Tab
             selected={category === 'Negative'}
             onClick={() => setCategory('Negative')}>
-            Negative
+            Отрицательные
           </Tabs.Tab>
         </Tabs>
       </Stack.Item>
@@ -126,7 +146,7 @@ export const QuirksTab = (_props, context) => {
       <Stack.Item>
         <Section fill scrollable>
           <Stack vertical>
-            {filteredQuirks.map((quirk: QuirkInfo) => (
+            {filteredQuirks.map((quirk) => (
               <Stack.Item key={quirk.name}>
                 <Button
                   fluid
@@ -143,7 +163,7 @@ export const QuirksTab = (_props, context) => {
                       </Box>
                       {quirk.conflicting && !quirk.selected && (
                         <Box color="bad" fontSize="11px">
-                          Blocked: {quirk.conflict_reason}
+                          Заблокировано: {quirk.conflict_reason}
                         </Box>
                       )}
                     </Stack.Item>

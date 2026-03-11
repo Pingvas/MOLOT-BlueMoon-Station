@@ -7,15 +7,15 @@ export const BackgroundTab = (_props, context) => {
 
   return (
     <Stack vertical>
-      {/* Flavor Text */}
+      {/* Описание */}
       <Stack.Item>
-        <Section title="Flavor Text">
+        <Section title="Описание персонажа">
           <Stack vertical>
             <Stack.Item>
               <Button
                 fluid
                 icon="pen"
-                content="Edit Flavor Text"
+                content="Редактировать описание"
                 onClick={() => act('set_flavor_text')}
               />
               {!!data.flavor_text && (
@@ -30,7 +30,7 @@ export const BackgroundTab = (_props, context) => {
               <Button
                 fluid
                 icon="pen"
-                content="Edit Naked Flavor Text"
+                content="Описание без одежды"
                 onClick={() => act('set_naked_flavor_text')}
               />
               {!!data.naked_flavor_text && (
@@ -45,7 +45,7 @@ export const BackgroundTab = (_props, context) => {
               <Button
                 fluid
                 icon="pen"
-                content="Edit Silicon Flavor Text"
+                content="Описание силикона"
                 onClick={() => act('set_silicon_flavor_text')}
               />
             </Stack.Item>
@@ -53,13 +53,13 @@ export const BackgroundTab = (_props, context) => {
         </Section>
       </Stack.Item>
 
-      {/* Custom Species Lore */}
+      {/* Лор расы */}
       <Stack.Item>
-        <Section title="Custom Species Lore">
+        <Section title="Лор расы">
           <Button
             fluid
             icon="pen"
-            content="Edit Custom Species Lore"
+            content="Редактировать лор расы"
             onClick={() => act('set_custom_species_lore')}
           />
           {!!data.custom_species_lore && (
@@ -72,15 +72,15 @@ export const BackgroundTab = (_props, context) => {
         </Section>
       </Stack.Item>
 
-      {/* Records */}
+      {/* Записи */}
       <Stack.Item>
-        <Section title="Records">
+        <Section title="Записи">
           <Stack>
             <Stack.Item grow basis={0}>
               <Button
                 fluid
                 icon="shield-alt"
-                content="Security Records"
+                content="Записи СБ"
                 onClick={() => act('set_security_records')}
               />
               {!!data.security_records && (
@@ -95,7 +95,7 @@ export const BackgroundTab = (_props, context) => {
               <Button
                 fluid
                 icon="medkit"
-                content="Medical Records"
+                content="Мед. записи"
                 onClick={() => act('set_medical_records')}
               />
               {!!data.medical_records && (
@@ -110,13 +110,13 @@ export const BackgroundTab = (_props, context) => {
         </Section>
       </Stack.Item>
 
-      {/* OOC Notes */}
+      {/* OOC заметки */}
       <Stack.Item>
-        <Section title="OOC Notes">
+        <Section title="OOC заметки">
           <Button
             fluid
             icon="comment"
-            content="Edit OOC Notes"
+            content="Редактировать OOC заметки"
             onClick={() => act('set_ooc_notes')}
           />
           {!!data.ooc_notes && (
@@ -129,20 +129,20 @@ export const BackgroundTab = (_props, context) => {
         </Section>
       </Stack.Item>
 
-      {/* Death Customization */}
+      {/* Смерть */}
       <Stack.Item>
-        <Section title="Death">
+        <Section title="Смерть">
           <LabeledList>
-            <LabeledList.Item label="Custom Deathgasp">
+            <LabeledList.Item label="Предсмертный хрип">
               <Button
-                content={data.custom_deathgasp || 'Default'}
+                content={data.custom_deathgasp || 'По умолч.'}
                 icon="pen"
                 onClick={() => act('set_custom_deathgasp')}
               />
             </LabeledList.Item>
-            <LabeledList.Item label="Custom Death Sound">
+            <LabeledList.Item label="Звук смерти">
               <Button
-                content={data.custom_deathsound || 'Default'}
+                content={data.custom_deathsound || 'По умолч.'}
                 icon="music"
                 onClick={() => act('set_custom_deathsound')}
               />
@@ -151,12 +151,12 @@ export const BackgroundTab = (_props, context) => {
         </Section>
       </Stack.Item>
 
-      {/* Headshots */}
+      {/* Портреты */}
       <Stack.Item>
-        <Section title="Headshots">
+        <Section title="Портреты">
           <Stack>
             <Stack.Item grow basis={0}>
-              <Section title="Clothed" level={2}>
+              <Section title="В одежде" level={2}>
                 <LabeledList>
                   <LabeledList.Item label="Main">
                     <HeadshotButton
@@ -180,7 +180,7 @@ export const BackgroundTab = (_props, context) => {
               </Section>
             </Stack.Item>
             <Stack.Item grow basis={0}>
-              <Section title="Naked" level={2}>
+              <Section title="Без одежды" level={2}>
                 <LabeledList>
                   <LabeledList.Item label="Main">
                     <HeadshotButton
@@ -214,7 +214,7 @@ const HeadshotButton = (props: { link?: string; onClick: () => void }) => {
   return (
     <Button
       icon={props.link ? 'image' : 'plus'}
-      content={props.link ? 'Change' : 'Set'}
+      content={props.link ? 'Изменить' : 'Задать'}
       color={props.link ? undefined : 'transparent'}
       onClick={props.onClick}
     />

@@ -28,28 +28,28 @@ export const SpeechTab = (_props, context) => {
 
   return (
     <Stack vertical>
-      {/* Speech Settings */}
+      {/* Настройки речи */}
       <Stack.Item>
-        <Section title="Speech">
+        <Section title="Речь">
           <LabeledList>
-            <LabeledList.Item label="Speech Verb">
+            <LabeledList.Item label="Глагол речи">
               <Button
                 content={speech_verb || 'Default'}
                 icon="comment"
                 onClick={() => act('set_speech_verb')}
               />
             </LabeledList.Item>
-            <LabeledList.Item label="Custom Tongue">
+            <LabeledList.Item label="Язык">
               <Button
-                content={custom_tongue || 'default'}
+                content={custom_tongue || 'обычный'}
                 onClick={() => act('set_custom_tongue')}
               />
             </LabeledList.Item>
-            <LabeledList.Item label="Laugh">
+            <LabeledList.Item label="Смех">
               <Stack inline>
                 <Stack.Item>
                   <Button
-                    content={custom_laugh || 'Default'}
+                    content={custom_laugh || 'По умолч.'}
                     onClick={() => act('set_custom_laugh')}
                   />
                 </Stack.Item>
@@ -57,14 +57,14 @@ export const SpeechTab = (_props, context) => {
                   <Stack.Item>
                     <Button
                       icon="play"
-                      tooltip="Preview Laugh"
+                      tooltip="Предпрослушать"
                       onClick={() => act('preview_laugh')}
                     />
                   </Stack.Item>
                 )}
               </Stack>
             </LabeledList.Item>
-            <LabeledList.Item label="Languages">
+            <LabeledList.Item label="Языки">
               <Button
                 content={
                   languages && languages.length
@@ -75,16 +75,15 @@ export const SpeechTab = (_props, context) => {
                 onClick={() => act('set_languages')}
               />
             </LabeledList.Item>
-            <LabeledList.Item label="Runechat Color">
+            <LabeledList.Item label="Цвет Runechat">
               <Button.Checkbox
                 checked={enable_personal_chat_color}
-                content="Custom"
+                content="Свой цвет"
                 onClick={() => act('toggle_personal_chat_color')}
               />
               {!!enable_personal_chat_color && (
                 <Button onClick={() => act('set_personal_chat_color')}>
                   <ColorBox color={personal_chat_color || '#ffffff'} mr={1} />
-                  Change
                 </Button>
               )}
             </LabeledList.Item>
@@ -92,11 +91,11 @@ export const SpeechTab = (_props, context) => {
         </Section>
       </Stack.Item>
 
-      {/* Bark */}
+      {/* Голос */}
       <Stack.Item>
-        <Section title="Bark Sound">
+        <Section title="Голос">
           <LabeledList>
-            <LabeledList.Item label="Sound">
+            <LabeledList.Item label="Звук">
               <Stack inline>
                 <Stack.Item grow>
                   <Dropdown
@@ -110,13 +109,13 @@ export const SpeechTab = (_props, context) => {
                 <Stack.Item>
                   <Button
                     icon="play"
-                    tooltip="Preview"
+                    tooltip="Предпрослушать"
                     onClick={() => act('preview_bark')}
                   />
                 </Stack.Item>
               </Stack>
             </LabeledList.Item>
-            <LabeledList.Item label="Pitch">
+            <LabeledList.Item label="Тон">
               <Slider
                 value={bark_pitch ?? 1}
                 minValue={0.5}
@@ -127,7 +126,7 @@ export const SpeechTab = (_props, context) => {
                 })}
               />
             </LabeledList.Item>
-            <LabeledList.Item label="Speed">
+            <LabeledList.Item label="Скорость">
               <Slider
                 value={bark_speed ?? 4}
                 minValue={1}
@@ -138,7 +137,7 @@ export const SpeechTab = (_props, context) => {
                 })}
               />
             </LabeledList.Item>
-            <LabeledList.Item label="Variance">
+            <LabeledList.Item label="Вариация">
               <Slider
                 value={bark_variance ?? 0}
                 minValue={0}

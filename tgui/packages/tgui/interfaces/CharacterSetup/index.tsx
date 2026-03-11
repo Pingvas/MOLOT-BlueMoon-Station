@@ -1,8 +1,7 @@
 import { useBackend } from '../../backend';
-import { Button, Section, Stack, Tabs } from '../../components';
+import { Button, Dropdown, Section, Stack, Tabs } from '../../components';
 import { Window } from '../../layouts';
 import { CharacterPreview } from './components/CharacterPreview';
-import { CharacterSlots } from './components/CharacterSlots';
 import { GeneralTab } from './tabs/GeneralTab';
 import { AppearanceTab } from './tabs/AppearanceTab';
 import { BackgroundTab } from './tabs/BackgroundTab';
@@ -14,7 +13,7 @@ import { GamePrefsTab } from './tabs/GamePrefsTab';
 import { OOCPrefsTab } from './tabs/OOCPrefsTab';
 import { ContentPrefsTab } from './tabs/ContentPrefsTab';
 import { KeybindingsTab } from './tabs/KeybindingsTab';
-import { CharacterSetupData } from './types';
+import { CharacterSetupData, CharacterSlot } from './types';
 
 const SETTINGS_TAB = 0;
 const PREFERENCES_TAB = 1;
@@ -37,78 +36,122 @@ export const CharacterSetup = (_props, context) => {
   const {
     current_tab = SETTINGS_TAB,
     character_settings_tab = GENERAL_CHAR_TAB,
+    slots = [],
+    active_slot = 1,
   } = data;
+
+  const currentSlot = slots.find(
+    (s: CharacterSlot) => s.index === active_slot
+  );
+  const slotOptions = slots.map((s: CharacterSlot) =>
+    s.is_empty ? `Слот ${s.index} (пусто)` : s.name
+  );
+  const selectedSlotLabel = currentSlot
+    ? (currentSlot.is_empty
+      ? `Слот ${currentSlot.index} (пусто)`
+      : currentSlot.name)
+    : `Слот ${active_slot}`;
 
   return (
     <Window
-      width={780}
-      height={700}
+      width={920}
+      height={720}
       title="Character Setup"
       resizable>
       <Window.Content>
-        <Stack vertical fill>
-          {/* Main tabs */}
-          <Stack.Item>
-            <Tabs fluid>
-              <Tabs.Tab
-                selected={current_tab === SETTINGS_TAB}
-                onClick={() => act('set_tab', { tab: SETTINGS_TAB })}>
-                Character Settings
-              </Tabs.Tab>
-              <Tabs.Tab
-                selected={current_tab === PREFERENCES_TAB}
-                onClick={() => act('set_tab', { tab: PREFERENCES_TAB })}>
-                Preferences
-              </Tabs.Tab>
-              <Tabs.Tab
-                selected={current_tab === KEYBINDINGS_TAB}
-                onClick={() => act('set_tab', { tab: KEYBINDINGS_TAB })}>
-                Keybindings
-              </Tabs.Tab>
-            </Tabs>
+        <Stack fill>
+          {/* === Left sidebar: Preview + Slot + Actions === */}
+          <Stack.Item basis="260px" shrink={0}>
+            <Stack vertical fill>
+              {/* Character preview */}
+              <Stack.Item grow>
+                <CharacterPreview />
+              </Stack.Item>
+
+              {/* Slot selector */}
+              <Stack.Item>
+                <Section>
+                  <Dropdown
+                    fluid
+                    selected={selectedSlotLabel}
+                    options={slotOptions}
+                    onSelected={(value) => {
+                      const idx = slotOptions.indexOf(value) + 1;
+                      if (idx > 0) {
+                        act('change_slot', { slot: idx });
+                      }
+                    }}
+                  />
+                  <Stack mt={1}>
+                    <Stack.Item grow>
+                      <Button
+                        fluid
+                        icon="save"
+                        content="Сохранить"
+                        color="green"
+                        onClick={() => act('save')}
+                      />
+                    </Stack.Item>
+                    <Stack.Item grow>
+                      <Button
+                        fluid
+                        icon="undo"
+                        content="Загрузить"
+                        onClick={() => act('load')}
+                      />
+                    </Stack.Item>
+                    <Stack.Item>
+                      <Button
+                        icon="dice"
+                        color="orange"
+                        tooltip="Рандомизировать"
+                        onClick={() => act('randomize_all')}
+                      />
+                    </Stack.Item>
+                  </Stack>
+                </Section>
+              </Stack.Item>
+            </Stack>
           </Stack.Item>
 
-          {/* Content */}
+          {/* === Right content area === */}
           <Stack.Item grow>
-            {current_tab === SETTINGS_TAB && (
-              <CharacterSettingsContent />
-            )}
-            {current_tab === PREFERENCES_TAB && (
-              <PreferencesContent />
-            )}
-            {current_tab === KEYBINDINGS_TAB && (
-              <KeybindingsTab />
-            )}
-          </Stack.Item>
+            <Stack vertical fill>
+              {/* Main category tabs */}
+              <Stack.Item>
+                <Tabs fluid>
+                  <Tabs.Tab
+                    icon="user"
+                    selected={current_tab === SETTINGS_TAB}
+                    onClick={() => act('set_tab', { tab: SETTINGS_TAB })}>
+                    Персонаж
+                  </Tabs.Tab>
+                  <Tabs.Tab
+                    icon="cog"
+                    selected={current_tab === PREFERENCES_TAB}
+                    onClick={() => act('set_tab', { tab: PREFERENCES_TAB })}>
+                    Настройки
+                  </Tabs.Tab>
+                  <Tabs.Tab
+                    icon="keyboard"
+                    selected={current_tab === KEYBINDINGS_TAB}
+                    onClick={() => act('set_tab', { tab: KEYBINDINGS_TAB })}>
+                    Клавиши
+                  </Tabs.Tab>
+                </Tabs>
+              </Stack.Item>
 
-          {/* Bottom bar: Save/Load */}
-          <Stack.Item>
-            <Stack>
+              {/* Content */}
               <Stack.Item grow>
-                <Button
-                  fluid
-                  icon="save"
-                  content="Save"
-                  color="green"
-                  onClick={() => act('save')}
-                />
-              </Stack.Item>
-              <Stack.Item grow>
-                <Button
-                  fluid
-                  icon="undo"
-                  content="Load"
-                  onClick={() => act('load')}
-                />
-              </Stack.Item>
-              <Stack.Item grow>
-                <Button
-                  fluid
-                  icon="dice"
-                  content="Randomize"
-                  color="orange"
-                  onClick={() => act('randomize_all')}
-                />
+                {current_tab === SETTINGS_TAB && (
+                  <CharacterSettingsContent />
+                )}
+                {current_tab === PREFERENCES_TAB && (
+                  <PreferencesContent />
+                )}
+                {current_tab === KEYBINDINGS_TAB && (
+                  <KeybindingsTab />
+                )}
               </Stack.Item>
             </Stack>
           </Stack.Item>
@@ -126,76 +169,80 @@ const CharacterSettingsContent = (_props, context) => {
   } = data;
 
   return (
-    <Stack fill>
-      {/* Left panel: Preview + Slots */}
-      <Stack.Item basis="220px">
-        <Stack vertical fill>
-          <Stack.Item grow>
-            <CharacterPreview />
-          </Stack.Item>
-          <Stack.Item>
-            <CharacterSlots />
-          </Stack.Item>
-        </Stack>
+    <Stack vertical fill>
+      <Stack.Item>
+        <Tabs fluid>
+          <Tabs.Tab
+            icon="id-card"
+            selected={character_settings_tab === GENERAL_CHAR_TAB}
+            onClick={() => act('set_character_tab', {
+              tab: GENERAL_CHAR_TAB,
+            })}>
+            Основное
+          </Tabs.Tab>
+          <Tabs.Tab
+            icon="book"
+            selected={character_settings_tab === BACKGROUND_CHAR_TAB}
+            onClick={() => act('set_character_tab', {
+              tab: BACKGROUND_CHAR_TAB,
+            })}>
+            Биография
+          </Tabs.Tab>
+          <Tabs.Tab
+            icon="palette"
+            selected={character_settings_tab === APPEARANCE_CHAR_TAB}
+            onClick={() => act('set_character_tab', {
+              tab: APPEARANCE_CHAR_TAB,
+            })}>
+            Внешность
+          </Tabs.Tab>
+          <Tabs.Tab
+            icon="paint-brush"
+            selected={character_settings_tab === MARKINGS_CHAR_TAB}
+            onClick={() => act('set_character_tab', {
+              tab: MARKINGS_CHAR_TAB,
+            })}>
+            Отметины
+          </Tabs.Tab>
+          <Tabs.Tab
+            icon="comment"
+            selected={character_settings_tab === SPEECH_CHAR_TAB}
+            onClick={() => act('set_character_tab', {
+              tab: SPEECH_CHAR_TAB,
+            })}>
+            Речь
+          </Tabs.Tab>
+          <Tabs.Tab
+            icon="box-open"
+            selected={character_settings_tab === LOADOUT_CHAR_TAB}
+            onClick={() => act('set_character_tab', {
+              tab: LOADOUT_CHAR_TAB,
+            })}>
+            Лоадаут
+          </Tabs.Tab>
+          {!!roundstart_traits && (
+            <Tabs.Tab
+              icon="star"
+              selected={character_settings_tab === QUIRKS_CHAR_TAB}
+              onClick={() => act('set_character_tab', {
+                tab: QUIRKS_CHAR_TAB,
+              })}>
+              Особенности
+            </Tabs.Tab>
+          )}
+        </Tabs>
       </Stack.Item>
 
-      {/* Right panel: Sub-tabs + Content */}
       <Stack.Item grow>
-        <Stack vertical fill>
-          <Stack.Item>
-            <Tabs fluid>
-              <Tabs.Tab
-                selected={character_settings_tab === GENERAL_CHAR_TAB}
-                onClick={() => act('set_character_tab', { tab: GENERAL_CHAR_TAB })}>
-                General
-              </Tabs.Tab>
-              <Tabs.Tab
-                selected={character_settings_tab === BACKGROUND_CHAR_TAB}
-                onClick={() => act('set_character_tab', { tab: BACKGROUND_CHAR_TAB })}>
-                Background
-              </Tabs.Tab>
-              <Tabs.Tab
-                selected={character_settings_tab === APPEARANCE_CHAR_TAB}
-                onClick={() => act('set_character_tab', { tab: APPEARANCE_CHAR_TAB })}>
-                Appearance
-              </Tabs.Tab>
-              <Tabs.Tab
-                selected={character_settings_tab === MARKINGS_CHAR_TAB}
-                onClick={() => act('set_character_tab', { tab: MARKINGS_CHAR_TAB })}>
-                Markings
-              </Tabs.Tab>
-              <Tabs.Tab
-                selected={character_settings_tab === SPEECH_CHAR_TAB}
-                onClick={() => act('set_character_tab', { tab: SPEECH_CHAR_TAB })}>
-                Speech
-              </Tabs.Tab>
-              <Tabs.Tab
-                selected={character_settings_tab === LOADOUT_CHAR_TAB}
-                onClick={() => act('set_character_tab', { tab: LOADOUT_CHAR_TAB })}>
-                Loadout
-              </Tabs.Tab>
-              {!!roundstart_traits && (
-                <Tabs.Tab
-                  selected={character_settings_tab === QUIRKS_CHAR_TAB}
-                  onClick={() => act('set_character_tab', { tab: QUIRKS_CHAR_TAB })}>
-                  Quirks
-                </Tabs.Tab>
-              )}
-            </Tabs>
-          </Stack.Item>
-
-          <Stack.Item grow>
-            <Section fill scrollable>
-              {character_settings_tab === GENERAL_CHAR_TAB && <GeneralTab />}
-              {character_settings_tab === BACKGROUND_CHAR_TAB && <BackgroundTab />}
-              {character_settings_tab === APPEARANCE_CHAR_TAB && <AppearanceTab />}
-              {character_settings_tab === MARKINGS_CHAR_TAB && <MarkingsTab />}
-              {character_settings_tab === SPEECH_CHAR_TAB && <SpeechTab />}
-              {character_settings_tab === LOADOUT_CHAR_TAB && <LoadoutTab />}
-              {character_settings_tab === QUIRKS_CHAR_TAB && <QuirksTab />}
-            </Section>
-          </Stack.Item>
-        </Stack>
+        <Section fill scrollable>
+          {character_settings_tab === GENERAL_CHAR_TAB && <GeneralTab />}
+          {character_settings_tab === BACKGROUND_CHAR_TAB && <BackgroundTab />}
+          {character_settings_tab === APPEARANCE_CHAR_TAB && <AppearanceTab />}
+          {character_settings_tab === MARKINGS_CHAR_TAB && <MarkingsTab />}
+          {character_settings_tab === SPEECH_CHAR_TAB && <SpeechTab />}
+          {character_settings_tab === LOADOUT_CHAR_TAB && <LoadoutTab />}
+          {character_settings_tab === QUIRKS_CHAR_TAB && <QuirksTab />}
+        </Section>
       </Stack.Item>
     </Stack>
   );
@@ -210,22 +257,22 @@ const PreferencesContent = (_props, context) => {
       <Stack.Item>
         <Tabs fluid>
           <Tabs.Tab
+            icon="gamepad"
             selected={preferences_tab === GAME_PREFS_TAB}
-            onClick={() => act('set_prefs_tab', { tab: GAME_PREFS_TAB })}
-          >
-            Game
+            onClick={() => act('set_prefs_tab', { tab: GAME_PREFS_TAB })}>
+            Игровые
           </Tabs.Tab>
           <Tabs.Tab
+            icon="comments"
             selected={preferences_tab === OOC_PREFS_TAB}
-            onClick={() => act('set_prefs_tab', { tab: OOC_PREFS_TAB })}
-          >
+            onClick={() => act('set_prefs_tab', { tab: OOC_PREFS_TAB })}>
             OOC
           </Tabs.Tab>
           <Tabs.Tab
+            icon="heart"
             selected={preferences_tab === CONTENT_PREFS_TAB}
-            onClick={() => act('set_prefs_tab', { tab: CONTENT_PREFS_TAB })}
-          >
-            Content
+            onClick={() => act('set_prefs_tab', { tab: CONTENT_PREFS_TAB })}>
+            Контент
           </Tabs.Tab>
         </Tabs>
       </Stack.Item>

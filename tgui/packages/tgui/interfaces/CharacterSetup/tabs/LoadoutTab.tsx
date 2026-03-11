@@ -69,7 +69,7 @@ export const LoadoutTab = (_props, context) => {
       <Stack.Item>
         <Stack>
           <Stack.Item>
-            <Box bold inline mr={1}>Slot:</Box>
+            <Box bold inline mr={1}>Слот:</Box>
             {[1, 2, 3, 4, 5].map((i) => (
               <Button
                 key={i}
@@ -81,13 +81,13 @@ export const LoadoutTab = (_props, context) => {
           </Stack.Item>
           <Stack.Item grow>
             <Box inline ml={2}>
-              Points: {gear_points}
+              Очки: {gear_points}
             </Box>
           </Stack.Item>
           <Stack.Item>
             <Button.Checkbox
               checked={loadout_enabled}
-              content="Loadout Enabled"
+              content="Экипировка вкл."
               onClick={() => act('toggle_loadout_enabled')}
             />
           </Stack.Item>
@@ -95,7 +95,7 @@ export const LoadoutTab = (_props, context) => {
             <Button
               icon="trash"
               color="red"
-              content="Clear"
+              content="Очистить"
               onClick={() => act('clear_loadout')}
             />
           </Stack.Item>
@@ -149,9 +149,9 @@ export const LoadoutTab = (_props, context) => {
           <Table>
             <Table.Row header>
               <Table.Cell />
-              <Table.Cell>Name</Table.Cell>
-              <Table.Cell>Cost</Table.Cell>
-              <Table.Cell>Description</Table.Cell>
+              <Table.Cell>Название</Table.Cell>
+              <Table.Cell>Цена</Table.Cell>
+              <Table.Cell>Описание</Table.Cell>
             </Table.Row>
             {(category_items as CategoryItem[]).map((item: CategoryItem) => (
               <Table.Row
@@ -201,7 +201,7 @@ const LoadoutItemActions = (props: { item: CategoryItem }, context) => {
           <Stack.Item>
             <Button
               icon="palette"
-              content="Color"
+              content="Цвет"
               onClick={() => act('loadout_color', { name: item.path })}
             />
           </Stack.Item>
@@ -210,7 +210,7 @@ const LoadoutItemActions = (props: { item: CategoryItem }, context) => {
           <Stack.Item>
             <Button
               icon="pen"
-              content="Rename"
+              content="Переименовать"
               onClick={() => act('loadout_rename', { name: item.path })}
             />
           </Stack.Item>
@@ -218,7 +218,7 @@ const LoadoutItemActions = (props: { item: CategoryItem }, context) => {
         <Stack.Item>
           <Button
             icon="star"
-            content="Heirloom"
+            content="Реликвия"
             onClick={() => act('loadout_heirloom', { name: item.path })}
           />
         </Stack.Item>

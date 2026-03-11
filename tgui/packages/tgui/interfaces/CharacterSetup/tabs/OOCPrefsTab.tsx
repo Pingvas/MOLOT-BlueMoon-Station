@@ -56,12 +56,12 @@ export const OOCPrefsTab = (_props, context) => {
     <Stack vertical>
       {/* OOC Colors */}
       <Stack.Item>
-        <Section title="OOC Settings">
+        <Section title="Настройки OOC">
           <LabeledList>
-            <LabeledList.Item label="OOC Color">
+            <LabeledList.Item label="Цвет OOC">
               <Button.Checkbox
                 checked={customOoc}
-                content="Custom"
+                content="Свой"
                 onClick={() => act('toggle_flag', {
                   flag: 'custom_color_ooc',
                 })}
@@ -69,14 +69,13 @@ export const OOCPrefsTab = (_props, context) => {
               {customOoc && (
                 <Button onClick={() => act('set_ooccolor')}>
                   <ColorBox color={ooccolor} mr={1} />
-                  Change
                 </Button>
               )}
             </LabeledList.Item>
-            <LabeledList.Item label="AOOC Color">
+            <LabeledList.Item label="Цвет AOOC">
               <Button.Checkbox
                 checked={customAooc}
-                content="Custom"
+                content="Свой"
                 onClick={() => act('toggle_flag', {
                   flag: 'custom_color_aooc',
                 })}
@@ -84,7 +83,6 @@ export const OOCPrefsTab = (_props, context) => {
               {customAooc && (
                 <Button onClick={() => act('set_aooccolor')}>
                   <ColorBox color={aooccolor} mr={1} />
-                  Change
                 </Button>
               )}
             </LabeledList.Item>
@@ -94,23 +92,23 @@ export const OOCPrefsTab = (_props, context) => {
 
       {/* Sounds & Notifications */}
       <Stack.Item>
-        <Section title="Sounds & Notifications">
+        <Section title="Звуки и уведомления">
           <Stack>
             <Stack.Item grow basis={0}>
               <LabeledList>
-                <LabeledList.Item label="Window Flashing">
+                <LabeledList.Item label="Мигание окна">
                   <Button.Checkbox
                     checked={windowflashing}
                     onClick={() => act('toggle_flag', { flag: 'winflash' })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Window Noise">
+                <LabeledList.Item label="Звук окна">
                   <Button.Checkbox
                     checked={windownoise}
                     onClick={() => act('toggle_flag', { flag: 'winnoise' })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Lobby Music">
+                <LabeledList.Item label="Музыка лобби">
                   <Button.Checkbox
                     checked={!!(toggles & SOUND_LOBBY)}
                     onClick={() => act('toggle_flag', {
@@ -118,7 +116,7 @@ export const OOCPrefsTab = (_props, context) => {
                     })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Admin MIDIs">
+                <LabeledList.Item label="Админ MIDI">
                   <Button.Checkbox
                     checked={!!(toggles & SOUND_MIDI)}
                     onClick={() => act('toggle_flag', {
@@ -130,7 +128,7 @@ export const OOCPrefsTab = (_props, context) => {
             </Stack.Item>
             <Stack.Item grow basis={0}>
               <LabeledList>
-                <LabeledList.Item label="Instruments">
+                <LabeledList.Item label="Инструменты">
                   <Button.Checkbox
                     checked={!!(toggles & SOUND_INSTRUMENTS)}
                     onClick={() => act('toggle_flag', {
@@ -138,7 +136,7 @@ export const OOCPrefsTab = (_props, context) => {
                     })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Announcements">
+                <LabeledList.Item label="Объявления">
                   <Button.Checkbox
                     checked={!!(toggles & SOUND_ANNOUNCEMENTS)}
                     onClick={() => act('toggle_flag', {
@@ -146,7 +144,7 @@ export const OOCPrefsTab = (_props, context) => {
                     })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Jukeboxes">
+                <LabeledList.Item label="Джукбоксы">
                   <Button.Checkbox
                     checked={!!(toggles & SOUND_JUKEBOXES)}
                     onClick={() => act('toggle_flag', {
@@ -170,23 +168,23 @@ export const OOCPrefsTab = (_props, context) => {
 
       {/* Ghost Settings */}
       <Stack.Item>
-        <Section title="Ghost">
+        <Section title="Призрак">
           <Stack>
             <Stack.Item grow basis={0}>
               <LabeledList>
-                <LabeledList.Item label="Ghost Form">
+                <LabeledList.Item label="Форма">
                   <Button
                     content={ghost_form || 'ghost'}
                     onClick={() => act('set_ghost_form')}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Ghost Orbit">
+                <LabeledList.Item label="Орбита">
                   <Button
                     content={ghost_orbit || 'circle'}
                     onClick={() => act('set_ghost_orbit')}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Ghost Accessories">
+                <LabeledList.Item label="Аксессуары">
                   <Button
                     content={ghost_accs || 'Full'}
                     onClick={() => act('toggle_flag', {
@@ -194,7 +192,7 @@ export const OOCPrefsTab = (_props, context) => {
                     })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Ghost Others">
+                <LabeledList.Item label="Другие призраки">
                   <Button
                     content={ghost_others || 'Their Setting'}
                     onClick={() => act('toggle_flag', {
@@ -206,7 +204,7 @@ export const OOCPrefsTab = (_props, context) => {
             </Stack.Item>
             <Stack.Item grow basis={0}>
               <LabeledList>
-                <LabeledList.Item label="Ghost Ears">
+                <LabeledList.Item label="Слух призрака">
                   <Button.Checkbox
                     checked={!!(chat_toggles & CHAT_GHOSTEARS)}
                     onClick={() => act('toggle_chat_flag', {
@@ -214,7 +212,7 @@ export const OOCPrefsTab = (_props, context) => {
                     })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Ghost Sight">
+                <LabeledList.Item label="Зрение призрака">
                   <Button.Checkbox
                     checked={!!(chat_toggles & CHAT_GHOSTSIGHT)}
                     onClick={() => act('toggle_chat_flag', {
@@ -222,7 +220,7 @@ export const OOCPrefsTab = (_props, context) => {
                     })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Ghost Whispers">
+                <LabeledList.Item label="Шёпот призрака">
                   <Button.Checkbox
                     checked={!!(chat_toggles & CHAT_GHOSTWHISPER)}
                     onClick={() => act('toggle_chat_flag', {
@@ -230,7 +228,7 @@ export const OOCPrefsTab = (_props, context) => {
                     })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Ghost PDA">
+                <LabeledList.Item label="PDA призрака">
                   <Button.Checkbox
                     checked={!!(chat_toggles & CHAT_GHOSTPDA)}
                     onClick={() => act('toggle_chat_flag', {
@@ -238,7 +236,7 @@ export const OOCPrefsTab = (_props, context) => {
                     })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Ghost Radio">
+                <LabeledList.Item label="Радио призрака">
                   <Button.Checkbox
                     checked={!!(chat_toggles & CHAT_GHOSTRADIO)}
                     onClick={() => act('toggle_chat_flag', {

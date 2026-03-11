@@ -1,5 +1,5 @@
 import { useBackend } from '../../../backend';
-import { Box, Button, Section, Stack } from '../../../components';
+import { Box, Button, ByondUi, Stack } from '../../../components';
 import { CharacterSetupData } from '../types';
 
 const PREVIEW_PREF_JOB = 'Job';
@@ -9,86 +9,113 @@ const PREVIEW_PREF_NAKED_AROUSED = 'Naked - Aroused';
 
 export const CharacterPreview = (_props, context) => {
   const { act, data } = useBackend<CharacterSetupData>(context);
-  const { preview_icon, preview_pref = PREVIEW_PREF_JOB } = data;
+  const {
+    character_preview_view,
+    preview_pref = PREVIEW_PREF_JOB,
+  } = data;
 
   return (
-    <Section
-      title="Preview"
-      fill
-      buttons={
-        <Button
-          icon="sync"
-          tooltip="Refresh preview"
-          onClick={() => act('refresh_preview')}
-        />
-      }>
-      <Stack vertical fill>
-        <Stack.Item grow textAlign="center">
-          {preview_icon ? (
-            <Box
-              as="img"
-              src={`data:image/png;base64,${preview_icon}`}
-              style={{
-                'image-rendering': 'pixelated',
-                'max-width': '100%',
-                'max-height': '180px',
+    <Stack vertical fill>
+      {/* Preview area */}
+      <Stack.Item grow textAlign="center">
+        <Box
+          height="100%"
+          style={{
+            'display': 'flex',
+            'align-items': 'center',
+            'justify-content': 'center',
+            'border': '1px solid rgba(255,255,255,0.1)',
+            'border-radius': '3px',
+            'background': 'rgba(0,0,0,0.3)',
+          }}>
+          {character_preview_view ? (
+            <ByondUi
+              width="100%"
+              height="100%"
+              params={{
+                id: character_preview_view,
+                type: 'map',
               }}
             />
           ) : (
             <Box color="label" italic>
-              Loading...
+              Загрузка...
             </Box>
           )}
-        </Stack.Item>
-        <Stack.Item>
-          <Stack>
-            <Stack.Item grow>
-              <Button
-                fluid
-                selected={preview_pref === PREVIEW_PREF_JOB}
-                icon="briefcase"
-                tooltip="Job"
-                onClick={() => act('set_preview_pref', {
-                  pref: PREVIEW_PREF_JOB,
-                })}
-              />
-            </Stack.Item>
-            <Stack.Item grow>
-              <Button
-                fluid
-                selected={preview_pref === PREVIEW_PREF_LOADOUT}
-                icon="box-open"
-                tooltip="Loadout"
-                onClick={() => act('set_preview_pref', {
-                  pref: PREVIEW_PREF_LOADOUT,
-                })}
-              />
-            </Stack.Item>
-            <Stack.Item grow>
-              <Button
-                fluid
-                selected={preview_pref === PREVIEW_PREF_NAKED}
-                icon="tshirt"
-                tooltip="Naked"
-                onClick={() => act('set_preview_pref', {
-                  pref: PREVIEW_PREF_NAKED,
-                })}
-              />
-            </Stack.Item>
-            <Stack.Item grow>
-              <Button
-                fluid
-                selected={preview_pref === PREVIEW_PREF_NAKED_AROUSED}
-                icon="heart"
-                tooltip="Aroused"
-                onClick={() => act('set_preview_pref', {
-                  pref: PREVIEW_PREF_NAKED_AROUSED,
-                })}
-              />
-            </Stack.Item>
-          </Stack>
-        </Stack.Item>
-      </Stack>
-    </Section>
+        </Box>
+      </Stack.Item>
+
+      {/* Controls */}
+      <Stack.Item>
+        <Stack align="center">
+          {/* Rotate */}
+          <Stack.Item>
+            <Button
+              icon="undo"
+              tooltip="Повернуть влево"
+              onClick={() => act('rotate_preview', { backwards: 1 })}
+            />
+          </Stack.Item>
+          <Stack.Item>
+            <Button
+              icon="redo"
+              tooltip="Повернуть вправо"
+              onClick={() => act('rotate_preview', { backwards: 0 })}
+            />
+          </Stack.Item>
+          <Stack.Item>
+            <Button
+              icon="sync"
+              tooltip="Обновить"
+              onClick={() => act('refresh_preview')}
+            />
+          </Stack.Item>
+
+          <Stack.Item grow />
+
+          {/* Preview mode */}
+          <Stack.Item>
+            <Button
+              selected={preview_pref === PREVIEW_PREF_JOB}
+              icon="briefcase"
+              tooltip="Работа"
+              onClick={() => act('set_preview_pref', {
+                pref: PREVIEW_PREF_JOB,
+              })}
+            />
+          </Stack.Item>
+          <Stack.Item>
+            <Button
+              selected={preview_pref === PREVIEW_PREF_LOADOUT}
+              icon="box-open"
+              tooltip="Лоадаут"
+              onClick={() => act('set_preview_pref', {
+                pref: PREVIEW_PREF_LOADOUT,
+              })}
+            />
+          </Stack.Item>
+          <Stack.Item>
+            <Button
+              selected={preview_pref === PREVIEW_PREF_NAKED}
+              icon="tshirt"
+              tooltip="Голый"
+              onClick={() => act('set_preview_pref', {
+                pref: PREVIEW_PREF_NAKED,
+              })}
+            />
+          </Stack.Item>
+          <Stack.Item>
+            <Button
+              selected={preview_pref === PREVIEW_PREF_NAKED_AROUSED}
+              icon="heart"
+              tooltip="Возбуждён"
+              onClick={() => act('set_preview_pref', {
+                pref: PREVIEW_PREF_NAKED_AROUSED,
+              })}
+            />
+          </Stack.Item>
+        </Stack>
+      </Stack.Item>
+    </Stack>
   );
 };
