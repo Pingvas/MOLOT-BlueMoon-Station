@@ -1,6 +1,7 @@
 #define SEC_DATA_R_LIST		1
 #define SEC_DATA_MAINT		2
 #define SEC_DATA_RECORD		3
+#define SEC_DATA_LOGS		4
 
 /obj/machinery/computer/secure_data
 	name = "security records console"
@@ -107,6 +108,19 @@
 					)
 					records[++records.len] = record_line
 
+			if(SEC_DATA_LOGS)
+				var/list/all_logs = list()
+				for(var/datum/data/record/S in GLOB.data_core.security)
+					var/list/logs = S.fields["actions_logs"]
+					if(!islist(logs) || !length(logs))
+						continue
+					for(var/log_entry in logs)
+						all_logs += list(list(
+							"name" = S.fields["name"],
+							"id" = S.fields["id"],
+							"text" = log_entry,
+						))
+				data["allLogs"] = all_logs
 			if(SEC_DATA_RECORD)
 				var/list/general = list()
 				data["general"] = general
@@ -213,7 +227,7 @@
 		if("page")
 			if(!logged_in)
 				return
-			screen = clamp(text2num(params["page"]) || SEC_DATA_R_LIST, SEC_DATA_R_LIST, SEC_DATA_MAINT)
+			screen = clamp(text2num(params["page"]) || SEC_DATA_R_LIST, SEC_DATA_R_LIST, SEC_DATA_LOGS)
 			active1 = null
 			active2 = null
 		if("view")

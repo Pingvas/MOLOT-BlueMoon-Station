@@ -69,6 +69,8 @@ export const SecurityRecords = (properties, context) => {
     body = <PageMaintenance />;
   } else if (currentPage === 3) {
     body = <PageRecordView />;
+  } else if (currentPage === 4) {
+    body = <PageAllLogs />;
   }
 
   return (
@@ -125,6 +127,11 @@ const NavigationTabs = (_properties, context) => {
         selected={currentPage === 2}
         onClick={() => act('page', { page: 2 })}>
         <Icon name="wrench" /> Обслуживание
+      </Tabs.Tab>
+      <Tabs.Tab
+        selected={currentPage === 4}
+        onClick={() => act('page', { page: 4 })}>
+        <Icon name="clipboard-list" /> Логи
       </Tabs.Tab>
       {currentPage === 3 && general && !general.empty && (
         <Tabs.Tab selected>
@@ -272,6 +279,63 @@ const PageMaintenance = (_properties, context) => {
         </Box>
       )}
     </Box>
+  );
+};
+
+// ============= ALL LOGS PAGE =============
+
+const PageAllLogs = (_properties, context) => {
+  const { data } = useBackend(context);
+  const { allLogs } = data;
+  const [searchLogs, setSearchLogs] = useLocalState(context, 'searchLogs', '');
+
+  const logs = allLogs || [];
+  const filteredLogs = logs.filter(
+    createSearch(searchLogs, (entry) => {
+      return entry.name + '|' + entry.id + '|' + entry.text;
+    })
+  );
+
+  return (
+    <Fragment>
+      <Flex mb="0.5rem">
+        <Flex.Item grow="1">
+          <Input
+            placeholder="Поиск по имени, ID, тексту лога..."
+            width="100%"
+            onInput={(e, value) => setSearchLogs(value)}
+          />
+        </Flex.Item>
+      </Flex>
+      <Section title={'Все логи (' + filteredLogs.length + ')'}>
+        {filteredLogs.length === 0 ? (
+          <Box color="label" italic>
+            Нет логов.
+          </Box>
+        ) : (
+          <Box
+            maxHeight="450px"
+            overflowY="auto"
+            p="0.25rem"
+            backgroundColor="rgba(0,0,0,0.2)"
+            style={{ borderRadius: '3px' }}>
+            {filteredLogs.map((entry, i) => (
+              <Box key={i} py="0.15rem" fontSize="0.85rem">
+                <Box as="span" bold color="average">
+                  [{entry.name} ({entry.id})]
+                </Box>
+                {' '}
+                <Box
+                  as="span"
+                  color="label"
+                  dangerouslySetInnerHTML={{ __html: entry.text }}
+                />
+              </Box>
+            ))}
+          </Box>
+        )}
+      </Section>
+    </Fragment>
   );
 };
 
