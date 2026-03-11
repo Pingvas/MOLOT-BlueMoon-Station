@@ -372,7 +372,7 @@ const MedicalRecordsViruses = (_properties, context) => {
   return (
     <Table>
       <Table.Row bold header>
-        <Table.Cell>Virus</Table.Cell>
+        <Table.Cell>Вирус</Table.Cell>
       </Table.Row>
       {sorted.map((vir, i) => (
         <Table.Row

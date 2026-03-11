@@ -308,7 +308,7 @@
 				return
 			investigate_log("[key_name(usr)] has deleted all records for [active1.fields["name"]].", INVESTIGATE_RECORDS)
 			for(var/datum/data/record/R in GLOB.data_core.medical)
-				if(R.fields["name"] == active1.fields["name"] || R.fields["id"] == active1.fields["id"])
+				if(R.fields["name"] == active1.fields["name"] && R.fields["id"] == active1.fields["id"])
 					qdel(R)
 					break
 			qdel(active1)
@@ -575,7 +575,7 @@
 			var/w = I.Width()
 			var/h = I.Height()
 			var/dw = w - 32
-			var/dh = w - 32
+			var/dh = h - 32
 			I.Crop(dw/2, dh/2, w - dw/2, h - dh/2)
 			active1.fields[field_name] = photo
 			GLOB.data_core.append_sec_logs(active1.fields["id"], "%%GEN_AUTH%% отредактировал фотографию ([side])", login_state.name, login_state.rank)
@@ -683,9 +683,11 @@
 		while(active2.fields["com_[counter]"])
 			report_text += "[active2.fields["com_[counter]"]]<BR>"
 			counter++
-		P.name = "SR-[GLOB.data_core.securityPrintCount] '[active1.fields["name"]]'"
 	else
 		report_text += "<B>Security Record Lost!</B><BR>"
+	if(istype(active1, /datum/data/record) && active1.fields["name"])
+		P.name = "SR-[GLOB.data_core.securityPrintCount] '[active1.fields["name"]]'"
+	else
 		P.name = "SR-[GLOB.data_core.securityPrintCount] 'Record Lost'"
 	P.add_raw_text(report_text)
 	P.update_appearance()
