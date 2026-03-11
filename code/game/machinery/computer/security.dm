@@ -45,6 +45,12 @@
 		return
 	return ..()
 
+/obj/machinery/computer/secure_data/AltClick(mob/user)
+	. = ..()
+	if(!can_interact(user))
+		return
+	ui_login_eject()
+
 /obj/machinery/computer/secure_data/ui_interact(mob/user, datum/tgui/ui)
 	if(is_away_level(z))
 		to_chat(user, span_boldannounce("Unable to establish a connection") + ": You're too far away from the station!")
@@ -83,6 +89,13 @@
 				data["records"] = records
 				for(var/datum/data/record/G in GLOB.data_core.general)
 					var/datum/data/record/S = sec_records_assoc["[G.fields["name"]]|[G.fields["id"]]"]
+					var/thumb = null
+					if(istype(G.fields["photo_front"], /obj/item/photo))
+						var/obj/item/photo/P = G.fields["photo_front"]
+						if(P.picture?.picture_image)
+							thumb = icon2base64(P.picture.picture_image)
+					else if(isicon(G.fields["photo_front"]))
+						thumb = icon2base64(G.fields["photo_front"])
 					var/list/record_line = list(
 						"ref" = "\ref[G]",
 						"id" = G.fields["id"],
@@ -90,6 +103,7 @@
 						"rank" = G.fields["rank"],
 						"fingerprint" = G.fields["fingerprint"],
 						"status" = S?.fields["criminal"] || "Нет записи",
+						"thumb" = thumb,
 					)
 					records[++records.len] = record_line
 

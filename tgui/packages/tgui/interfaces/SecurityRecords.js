@@ -181,6 +181,7 @@ const PageRecordList = (_properties, context) => {
       </Flex>
       <Table className="SecurityRecords__list">
         <Table.Row bold>
+          <Table.Cell collapsing />
           <SortButton id="name">Имя</SortButton>
           <SortButton id="id">ID</SortButton>
           <SortButton id="rank">Должность</SortButton>
@@ -195,9 +196,22 @@ const PageRecordList = (_properties, context) => {
             }
             style={{ cursor: 'pointer' }}
             onClick={() => act('view', { ref: record.ref })}>
-            <Table.Cell>
-              <Icon name="user" /> {record.name}
+            <Table.Cell collapsing>
+              {record.thumb ? (
+                <img
+                  src={'data:image/png;base64,' + record.thumb}
+                  className="SecurityRecords__photo"
+                  style={{
+                    width: '24px',
+                    height: '24px',
+                    verticalAlign: 'middle',
+                  }}
+                />
+              ) : (
+                <Icon name="user" />
+              )}
             </Table.Cell>
+            <Table.Cell>{record.name}</Table.Cell>
             <Table.Cell>{record.id}</Table.Cell>
             <Table.Cell>{record.rank}</Table.Cell>
             <Table.Cell>{record.fingerprint}</Table.Cell>
