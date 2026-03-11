@@ -277,11 +277,15 @@
 /**
  * on_equip Triggers when the parent item gets equipped to any slot
  * Unwields if the item was wielded (e.g. put into backpack while wielded)
+ * Auto-wields if the item requires two hands and is equipped to hands
  */
 /datum/component/two_handed/proc/on_equip(datum/source, mob/living/carbon/user, slot)
 	SIGNAL_HANDLER
 	if(wielded)
 		unwield(user)
+	// Auto-wield require_twohands items when picked up into hands
+	if(require_twohands && !wielded && (slot & ITEM_SLOT_HANDS))
+		wield(user)
 
 /**
  * on_drop Triggers when the parent item or offhand item is dropped
