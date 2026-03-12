@@ -225,6 +225,9 @@
 	QDEL_NULL(coin)
 	QDEL_NULL(bill)
 	QDEL_NULL(Radio)
+	QDEL_LIST(product_records)
+	QDEL_LIST(hidden_records)
+	QDEL_LIST(coin_records)
 	return ..()
 
 /obj/machinery/vending/can_speak()
@@ -234,9 +237,9 @@
 	if(!component_parts)
 		return
 
-	product_records = list()
-	hidden_records = list()
-	coin_records = list()
+	QDEL_LIST(product_records)
+	QDEL_LIST(hidden_records)
+	QDEL_LIST(coin_records)
 	build_inventory(products, product_records, start_empty = TRUE)
 	build_inventory(contraband, hidden_records, start_empty = TRUE)
 	build_inventory(premium, coin_records, start_empty = TRUE)
