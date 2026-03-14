@@ -634,7 +634,13 @@ SUBSYSTEM_DEF(vote)
 			V.Grant(C.mob)
 			generated_actions += V
 			if(forced)
-				SSvote.ui_interact(C.mob) // Мяяяу
+				if(isnewplayer(C.mob))
+					var/mob/dead/new_player/NP = C.mob
+					if(NP.bm_lobby_ready)
+						var/vlabel = question ? html_encode(question) : ""
+						NP.client << output(vlabel, "bm_lobby_browser:bm_vote_notify")
+				else
+					SSvote.ui_interact(C.mob) // Мяяяу
 		return TRUE
 	return FALSE
 

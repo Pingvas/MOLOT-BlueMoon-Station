@@ -362,6 +362,8 @@ var _i=0;setInterval(function(){var s=_i%4;document.getElementById('d').textCont
 			return
 
 		if("polls_menu")
+			if(is_guest_key(src.key))
+				return
 			_bm_play_click_sound()
 			if(SSvote?.mode)
 				SSvote.ui_interact(src)

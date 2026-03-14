@@ -4,21 +4,25 @@ import { Window } from '../layouts';
 
 export const Vote = (props, context) => {
   const { data } = useBackend(context);
-  const { mode, question, lower_admin, custom_setup } = data;
+  const { mode, question, lower_admin, upper_admin, custom_setup, allow_vote_restart, allow_vote_mode } = data;
 
   let windowTitle = 'Голосование';
   if (mode) {
     windowTitle += ': ' + (question || mode).replace(/^\w/, (c) => c.toUpperCase());
   }
 
+  const canManage = lower_admin || allow_vote_restart || allow_vote_mode;
+
   return (
     <Window resizable title={windowTitle} width={440} height={620}>
       <Window.Content scrollable>
         <Stack fill vertical>
-          <Section title="Управление голосованием">
-            <VoteOptions />
-          </Section>
-          {!!(custom_setup && custom_setup.active) && <CustomVoteSetup />}
+          {!!canManage && (
+            <Section title="Управление голосованием">
+              <VoteOptions />
+            </Section>
+          )}
+          {!!(lower_admin && custom_setup && custom_setup.active) && <CustomVoteSetup />}
           <ChoicesPanel />
           {!!mode && <TimePanel />}
         </Stack>
@@ -92,7 +96,6 @@ const VoteOptions = (props, context) => {
 const CustomVoteSetup = (props, context) => {
   const { act, data } = useBackend(context);
   const { custom_setup, vote_type_options = [], all_display_settings = [] } = data;
-  const [qText, setQText] = useLocalState(context, 'cs_q', custom_setup && custom_setup.question || '');
   const [newOpt, setNewOpt] = useLocalState(context, 'cs_opt', '');
 
   const cs = custom_setup || {};
@@ -109,128 +112,125 @@ const CustomVoteSetup = (props, context) => {
 
   const typeLabels = {
     PLURALITY: 'Один вариант',
-    APPROVAL: 'Несколько вариантов',
+    APPROVAL: 'Несколько',
     IRV: 'Ранжирование (IRV)',
     SCHULZE: 'Ранжирование (Шульце)',
     SCORE: 'Оценки',
-    HIGHEST_MEDIAN: 'Медиана оценок',
+    HIGHEST_MEDIAN: 'Медиана',
   };
 
   return (
     <Stack.Item>
       <Section
-        title="Настройка кастомного голосования"
+        title="Настройка голосования"
         buttons={
           <Button color="red" icon="times" onClick={() => act('custom_abort')}>
             Отмена
           </Button>
         }>
-        <Stack vertical spacing={1}>
+        <Stack vertical spacing={1.5}>
           <Stack.Item>
-            <Box bold mb={0.5}>Вопрос голосования:</Box>
-            <Stack>
-              <Stack.Item grow>
+            <LabeledList>
+              <LabeledList.Item label="Имя">
                 <Input
                   fluid
-                  placeholder="Название голосования"
-                  value={qText}
-                  onInput={(e, val) => setQText(val)}
-                  onEnter={() => {
-                    if (qText.trim()) act('custom_set_question', { question: qText.trim() });
-                  }}
+                  placeholder="Название голосования..."
+                  value={cs.question || ''}
+                  onInput={(e, val) =>
+                    act('custom_set_question', { question: val.trim() })
+                  }
                 />
-              </Stack.Item>
-              <Stack.Item>
-                <Button
-                  icon="check"
-                  disabled={!qText.trim()}
-                  onClick={() => {
-                    if (qText.trim()) act('custom_set_question', { question: qText.trim() });
-                  }}>
-                  OK
-                </Button>
-              </Stack.Item>
-            </Stack>
-            {!!(cs.question) && (
-              <Box mt={0.5} color="good" italic>
-                ✓ {cs.question}
-              </Box>
-            )}
-          </Stack.Item>
-          <Stack.Item>
-            <Box bold mb={0.5}>Тип голосования:</Box>
-            <Stack wrap>
-              {vote_type_options.map((opt) => (
-                <Stack.Item key={opt.value}>
-                  <Button
-                    selected={cs.vote_type === opt.value}
-                    onClick={() => act('custom_set_type', { type: opt.value })}>
-                    {typeLabels[opt.value] || opt.label}
-                  </Button>
-                </Stack.Item>
-              ))}
-            </Stack>
-          </Stack.Item>
-          <Stack.Item>
-            <Box bold mb={0.5}>
-              Варианты ({optCount}/10, мин. 2):
-            </Box>
-            {(cs.options || []).map((opt, i) => (
-              <Box key={i} mt={0.2}>
-                <Button
-                  compact
-                  color="red"
-                  icon="times"
-                  onClick={() => act('custom_remove_option', { index: i + 1 })}
-                />{' '}
-                {opt}
-              </Box>
-            ))}
-            {optCount < 10 && (
-              <Stack mt={0.5}>
-                <Stack.Item grow>
-                  <Input
-                    fluid
-                    placeholder="Новый вариант..."
-                    value={newOpt}
-                    onInput={(e, val) => setNewOpt(val)}
-                    onEnter={() => handleAddOption()}
-                  />
-                </Stack.Item>
-                <Stack.Item>
-                  <Button
-                    icon="plus"
-                    disabled={!newOpt.trim()}
-                    onClick={() => handleAddOption()}>
-                    Добавить
-                  </Button>
-                </Stack.Item>
-              </Stack>
-            )}
-          </Stack.Item>
-          <Stack.Item>
-            <Box bold mb={0.5}>Показывать игрокам:</Box>
-            <Stack wrap>
-              {all_display_settings.map((ds) => (
-                <Stack.Item key={ds.flag}>
-                  <Button.Checkbox
-                    checked={!!(cs.display_flags & ds.flag)}
-                    onClick={() => act('custom_toggle_display', { flag: ds.flag })}>
-                    {ds.name}
-                  </Button.Checkbox>
-                </Stack.Item>
-              ))}
-            </Stack>
+              </LabeledList.Item>
+              <LabeledList.Item label="Тип">
+                <Stack wrap>
+                  {vote_type_options.map((opt) => (
+                    <Stack.Item key={opt.value}>
+                      <Button
+                        compact
+                        selected={cs.vote_type === opt.value}
+                        onClick={() => act('custom_set_type', { type: opt.value })}>
+                        {typeLabels[opt.value] || opt.label}
+                      </Button>
+                    </Stack.Item>
+                  ))}
+                </Stack>
+              </LabeledList.Item>
+              <LabeledList.Item label={`Варианты (${optCount}/10)`}>
+                <Stack vertical spacing={0.3}>
+                  {(cs.options || []).map((opt, i) => (
+                    <Stack.Item key={i}>
+                      <Stack align="center">
+                        <Stack.Item>
+                          <Box color="label" minWidth="1.2em" textAlign="right">
+                            {i + 1}.
+                          </Box>
+                        </Stack.Item>
+                        <Stack.Item grow>
+                          {opt}
+                        </Stack.Item>
+                        <Stack.Item>
+                          <Button
+                            compact
+                            color="transparent"
+                            icon="times"
+                            tooltip="Удалить"
+                            onClick={() => act('custom_remove_option', { index: i + 1 })}
+                          />
+                        </Stack.Item>
+                      </Stack>
+                    </Stack.Item>
+                  ))}
+                  {optCount < 10 && (
+                    <Stack.Item mt={optCount > 0 ? 0.5 : 0}>
+                      <Stack>
+                        <Stack.Item grow>
+                          <Input
+                            fluid
+                            placeholder="Новый вариант..."
+                            value={newOpt}
+                            onInput={(e, val) => setNewOpt(val)}
+                            onEnter={() => handleAddOption()}
+                          />
+                        </Stack.Item>
+                        <Stack.Item>
+                          <Button
+                            icon="plus"
+                            disabled={!newOpt.trim()}
+                            onClick={() => handleAddOption()}>
+                            Добавить
+                          </Button>
+                        </Stack.Item>
+                      </Stack>
+                    </Stack.Item>
+                  )}
+                </Stack>
+              </LabeledList.Item>
+              <LabeledList.Item label="Показывать">
+                <Stack wrap>
+                  {all_display_settings.map((ds) => (
+                    <Stack.Item key={ds.flag}>
+                      <Button.Checkbox
+                        compact
+                        checked={!!(cs.display_flags & ds.flag)}
+                        onClick={() => act('custom_toggle_display', { flag: ds.flag })}>
+                        {ds.name}
+                      </Button.Checkbox>
+                    </Stack.Item>
+                  ))}
+                </Stack>
+              </LabeledList.Item>
+            </LabeledList>
           </Stack.Item>
           <Stack.Item>
             <Button
-              color="green"
-              icon="play"
+              fluid
+              color={canConfirm ? 'green' : 'grey'}
+              icon={canConfirm ? 'play' : 'exclamation-circle'}
               disabled={!canConfirm}
               onClick={() => act('custom_confirm')}>
               {canConfirm
                 ? 'Начать голосование'
-                : 'Заполните вопрос и мин. 2 варианта'}
+                : 'Заполните вопрос и минимум 2 варианта'}
             </Button>
           </Stack.Item>
         </Stack>

@@ -164,6 +164,36 @@ function bm_show_notice(text, type) {
   if (text) bm_show_toast(text, type || 'error', 8000);
 }
 
+function bm_vote_notify(text) {
+  var container = document.getElementById('bm-toasts');
+  if (!container) return;
+  var prev = container.querySelectorAll('.bm-toast.vote:not(.dismiss)');
+  for (var i = 0; i < prev.length; i++) _bm_dismiss(prev[i]);
+  var toast = document.createElement('div');
+  toast.className = 'bm-toast vote';
+  if (text) {
+    var title = document.createElement('div');
+    title.textContent = text;
+    toast.appendChild(title);
+  }
+  var link = document.createElement('div');
+  link.className = 'bm-vote-link';
+  link.textContent = '\u25ba НАЖМИТЕ ЧТОБЫ ПРОГОЛОСОВАТЬ';
+  toast.appendChild(link);
+  toast.addEventListener('click', function() {
+    _bm_dismiss(toast);
+    location.href = '?src=' + window._BM_SRC + ';bm_lobby_action=polls_menu';
+  });
+  container.appendChild(toast);
+}
+
+function bm_vote_dismiss() {
+  var container = document.getElementById('bm-toasts');
+  if (!container) return;
+  var toasts = container.querySelectorAll('.bm-toast.vote:not(.dismiss)');
+  for (var i = 0; i < toasts.length; i++) _bm_dismiss(toasts[i]);
+}
+
 function bm_set_background(data) {
   var bg = document.getElementById('bm-bg');
   if (!bg) return;
