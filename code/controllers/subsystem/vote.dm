@@ -693,7 +693,7 @@ SUBSYSTEM_DEF(vote)
 	return GLOB.always_state
 
 /datum/controller/subsystem/vote/ui_close(mob/user, datum/tgui/ui)
-	voting -= user.client
+	voting -= user?.client
 
 /datum/controller/subsystem/vote/ui_static_data(mob/user)
 	var/list/data = list()
@@ -811,8 +811,18 @@ SUBSYSTEM_DEF(vote)
 				submit_vote(text2num(params["index"]))
 			return TRUE
 		if("vote_reset")
-			if(ui.user.ckey in voted)
-				voted -= ui.user.ckey
+			var/ckey = ui.user.ckey
+			if(ckey in voted)
+				switch(vote_system)
+					if(PLURALITY_VOTING)
+						var/old_vote = voted[ckey]
+						var/power = use_vote_power ? (users_vote_power[ckey] || 1) : 1
+						choices[choices[old_vote]] -= power
+					if(APPROVAL_VOTING)
+						var/power = use_vote_power ? (users_vote_power[ckey] || 1) : 1
+						for(var/old_vote in voted[ckey])
+							choices[choices[old_vote]] -= power
+				voted -= ckey
 			return TRUE
 		// === УПРАВЛЕНИЕ ===
 		if("cancel")

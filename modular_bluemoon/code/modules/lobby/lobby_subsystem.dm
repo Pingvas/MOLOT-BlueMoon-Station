@@ -30,7 +30,7 @@ SUBSYSTEM_DEF(title_bm)
 	for(var/mob/dead/new_player/player as anything in GLOB.new_player_list)
 		if(!player.client)
 			continue
-		player.bm_update_lobby_html()
+		INVOKE_ASYNC(player, TYPE_PROC_REF(/mob/dead/new_player, bm_update_lobby_html))
 		refreshed++
 	return refreshed
 

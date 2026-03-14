@@ -12,6 +12,13 @@ SUBSYSTEM_DEF(statpanels)
 
 /datum/controller/subsystem/statpanels/fire(resumed = FALSE)
 	if (!resumed)
+		var/any_statbrowser = FALSE
+		for(var/client/C in GLOB.clients)
+			if(C?.statbrowser_ready)
+				any_statbrowser = TRUE
+				break
+		if(!any_statbrowser)
+			return
 		var/datum/map_config/cached = SSmapping.next_map_config
 		var/round_time = world.time - SSticker.round_start_time
 		var/real_round_time = world.timeofday - SSticker.real_round_start_time
