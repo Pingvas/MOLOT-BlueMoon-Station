@@ -625,6 +625,8 @@ SUBSYSTEM_DEF(vote)
 		for(var/c in GLOB.clients)
 			SEND_SOUND(c, sound('sound/misc/votestart.ogg'))
 			var/client/C = c
+			if(!C.player_details)
+				continue
 			var/datum/action/vote/V = new
 			if(question)
 				V.name = "Vote: [question]"
