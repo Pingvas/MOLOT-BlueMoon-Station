@@ -245,21 +245,10 @@ var _i=0;setInterval(function(){var s=_i%4;document.getElementById('d').textCont
 	parts += is_antag_opted ? {"<span class='bm-checked'>☑</span> РОЛЬ АНТАГОНИСТА"} : {"<span class='bm-unchecked'>☒</span> РОЛЬ АНТАГОНИСТА"}
 	parts += "</a>"
 
-	if(length(GLOB.lobby_station_traits))
-		parts += {"<a class='bm-btn' href='?src=[R];bm_lobby_action=job_traits'>ОСОБЕННОСТИ РАБОТЫ</a>"}
-
-	if(!is_guest_key(src.key))
-		var/poll_html = _bm_build_polls_button()
-		if(poll_html)
-			parts += poll_html
+	if(!is_guest_key(src.key) && client?.prefs)
+		parts += {"<a class='bm-btn' href='?src=[R];bm_lobby_action=polls_menu'>ОПРОСЫ СЕРВЕРА</a>"}
 
 	return parts.Join("")
-
-/mob/dead/new_player/proc/_bm_build_polls_button()
-	if(!client?.prefs)
-		return null
-	var/R = REF(src)
-	return {"<a class='bm-btn' href='?src=[R];bm_lobby_action=polls_menu'>ОПРОСЫ СЕРВЕРА</a>"}
 
 // ===========================
 // ОБРАБОТКА HREF-ЗАПРОСОВ
@@ -372,11 +361,6 @@ var _i=0;setInterval(function(){var s=_i%4;document.getElementById('d').textCont
 			client.prefs.ShowChoices(src)
 			return
 
-		if("job_traits")
-			_bm_play_click_sound()
-			show_job_traits()
-			return
-
 		if("polls_menu")
 			_bm_play_click_sound()
 			if(SSvote?.mode)
@@ -405,24 +389,3 @@ var _i=0;setInterval(function(){var s=_i%4;document.getElementById('d').textCont
 	assets = list(
 		"bm_lobby.js" = 'modular_bluemoon/assets/js/bm_lobby.js'
 	)
-
-/mob/dead/new_player/proc/show_job_traits()
-	if(!client)
-		return
-	if(!length(GLOB.lobby_station_traits))
-		to_chat(src, span_warning("Сейчас нет доступных особенностей работы!"))
-		return
-	var/list/available = list()
-	for(var/datum/station_trait/trait as anything in GLOB.lobby_station_traits)
-		if(!trait.can_display_lobby_button(client))
-			continue
-		available += trait
-	if(!LAZYLEN(available))
-		to_chat(src, span_warning("Сейчас нет доступных особенностей работы!"))
-		return
-	var/datum/station_trait/clicked_trait = tgui_input_list(src, "Выберите особенность работы для регистрации:", "Особенности работы", available)
-	if(!clicked_trait)
-		return
-	if(QDELETED(src) || !client)
-		return
-	clicked_trait.on_lobby_button_click(src)
