@@ -15,7 +15,6 @@ SUBSYSTEM_DEF(title_bm)
 	var/cached_static_html = ""
 	var/cached_js_url = ""           // URL JS-библиотеки — вычисляется один раз в _build_static_html
 	var/cached_notice_js = ""        // JS-вызов для текущего объявления — кешируется в set_notice
-	var/ready_count = 0           	 // реактивный счётчик, обновляется через on_player_ready_change
 	var/current_sfw_image
 	var/current_nsfw_image
 
@@ -79,7 +78,6 @@ SUBSYSTEM_DEF(title_bm)
 	cached_static_html = ""
 	cached_js_url = ""
 	cached_notice_js = ""
-	ready_count = 0
 	return ..();
 
 /datum/controller/subsystem/title_bm/Recover()
@@ -96,7 +94,6 @@ SUBSYSTEM_DEF(title_bm)
 	cached_static_html      = SStitle_bm.cached_static_html
 	cached_js_url           = SStitle_bm.cached_js_url
 	cached_notice_js        = SStitle_bm.cached_notice_js
-	ready_count        = SStitle_bm.ready_count
 	current_sfw_image   = SStitle_bm.current_sfw_image
 	current_nsfw_image  = SStitle_bm.current_nsfw_image
 
@@ -213,11 +210,14 @@ SUBSYSTEM_DEF(title_bm)
 	user.client << output(name, "bm_lobby_browser:bm_update_character")
 
 /datum/controller/subsystem/title_bm/proc/_get_player_counts()
-	return list(length(GLOB.clients), length(GLOB.new_player_list), ready_count)
+	var/ready = 0
+	for(var/mob/dead/new_player/np as anything in GLOB.new_player_list)
+		if(np.ready)
+			ready++
+	return list(length(GLOB.clients), length(GLOB.new_player_list), ready)
 
-/// Вызывается при изменении ready-статуса игрока. delta = +1 (готов) или -1 (не готов).
+/// Вызывается при изменении ready-статуса игрока. Пересчитывает счётчик и рассылает payload.
 /datum/controller/subsystem/title_bm/proc/on_player_ready_change(delta)
-	ready_count = max(0, ready_count + delta)
 	update_player_counts_all()
 
 /datum/controller/subsystem/title_bm/proc/_build_counts_payload()

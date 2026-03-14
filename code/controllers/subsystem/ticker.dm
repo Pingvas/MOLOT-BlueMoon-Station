@@ -217,7 +217,11 @@ SUBSYSTEM_DEF(ticker)
 			if(isnull(timeLeft))
 				timeLeft = max(0,start_at - world.time)
 			totalPlayers = length(GLOB.new_player_list)
-			totalPlayersReady = SStitle_bm?.ready_count || 0
+			var/readied = 0
+			for(var/mob/dead/new_player/np as anything in GLOB.new_player_list)
+				if(np.ready)
+					readied++
+			totalPlayersReady = readied
 
 			if(start_immediately)
 				timeLeft = 0
