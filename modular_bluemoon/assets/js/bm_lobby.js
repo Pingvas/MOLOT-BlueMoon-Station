@@ -152,8 +152,9 @@ function bm_update_counts(p1, p2, p3, p4, p5) {
   _bm_countdown_render();
 }
 
+var _bm_is_admin = false;
 function bm_set_admin(val) {
-  // резервируем вызов для совместимости с сервером
+  _bm_is_admin = !!Number(val);
 }
 
 function bm_show_notice(text, type) {
@@ -169,8 +170,14 @@ function bm_vote_notify(text) {
   if (!container) return;
   var prev = container.querySelectorAll('.bm-toast.vote:not(.dismiss)');
   for (var i = 0; i < prev.length; i++) _bm_dismiss(prev[i]);
-  var toast = document.createElement('div');
+  // Используем <a> вместо <div> + location.href:
+  // В BYOND embedded browser location.href вызывает программную навигацию — браузер
+  // загружает пустой ответ и очищает страницу. <a href> перехватывается ДО навигации.
+  var toast = document.createElement('a');
   toast.className = 'bm-toast vote';
+  toast.href = '?src=' + window._BM_SRC + ';bm_lobby_action=polls_menu';
+  toast.style.textDecoration = 'none';
+  toast.style.display = 'block';
   if (text) {
     var title = document.createElement('div');
     title.textContent = text;
@@ -180,10 +187,7 @@ function bm_vote_notify(text) {
   link.className = 'bm-vote-link';
   link.textContent = '\u25ba НАЖМИТЕ ЧТОБЫ ПРОГОЛОСОВАТЬ';
   toast.appendChild(link);
-  toast.addEventListener('click', function() {
-    _bm_dismiss(toast);
-    location.href = '?src=' + window._BM_SRC + ';bm_lobby_action=polls_menu';
-  });
+  toast.addEventListener('click', function() { _bm_dismiss(toast); });
   container.appendChild(toast);
 }
 
@@ -229,6 +233,8 @@ function bm_set_background(data) {
     bm_show_volume_panel('video');
   } else if (type === 'iframe') {
     if (bg.tagName === 'IFRAME' && bg.getAttribute('data-bm-src') === url) return;
+    var _prev_bg = bg.cloneNode(false);
+    var _prev_media_type = bg.tagName === 'VIDEO' ? 'video' : (bg.tagName === 'IFRAME' ? 'iframe' : null);
     var fr = document.createElement('iframe');
     fr.id = 'bm-bg';
     fr.className = 'bg-video';
@@ -237,9 +243,67 @@ function bm_set_background(data) {
     fr.setAttribute('allowfullscreen', '');
     fr.setAttribute('data-bm-src', url);
     fr.style.pointerEvents = 'none';
+    // YouTube IFrame API: коды ошибок 101 и 150
+    var _yt_msg_handler = function(e) {
+      try {
+        var d = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
+        if (d.event === 'infoDelivery' && d.info && d.info.error) {
+          if (d.info.error === 101 || d.info.error === 150) {
+            window.removeEventListener('message', _yt_msg_handler);
+            _bm_video_confirm_dismiss();
+            var cur = document.getElementById('bm-bg');
+            if (cur && cur.tagName === 'IFRAME') {
+              var img = document.createElement('img');
+              img.id = 'bm-bg'; img.className = 'bg'; img.src = 'loading_screen.gif';
+              cur.parentNode.replaceChild(img, cur);
+            }
+            bm_show_volume_panel(null);
+            bm_show_toast('Видео недоступно для встраивания', 'warning', 6000);
+          }
+        }
+      } catch(ex) {}
+    };
+    window.addEventListener('message', _yt_msg_handler);
     bg.parentNode.replaceChild(fr, bg);
     bm_show_volume_panel('iframe');
+    // Показываем диалог подтверждения сразу только для админов
+    if (_bm_is_admin) _bm_video_confirm_show(function() {
+      // «Нет» — откатываем к предыдущему фону
+      window.removeEventListener('message', _yt_msg_handler);
+      var cur2 = document.getElementById('bm-bg');
+      if (cur2) cur2.parentNode.replaceChild(_prev_bg, cur2);
+      bm_show_volume_panel(_prev_media_type);
+    });
   }
+}
+
+// === ДИАЛОГ ПОДТВЕРЖДЕНИЯ ВИДЕО ===
+var _bm_vc_timer = null;
+function _bm_video_confirm_show(onNo) {
+  _bm_video_confirm_dismiss(); // на случай если старый ещё висит
+  var el = document.createElement('div');
+  el.id = 'bm-video-confirm';
+  el.innerHTML =
+    '<span class="bm-vc-text">Видео работает правильно?</span>' +
+    '<button class="bm-vc-btn bm-vc-yes">Да</button>' +
+    '<button class="bm-vc-btn bm-vc-no">Нет</button>';
+  el.querySelector('.bm-vc-yes').addEventListener('click', function() {
+    _bm_video_confirm_dismiss();
+  });
+  el.querySelector('.bm-vc-no').addEventListener('click', function() {
+    _bm_video_confirm_dismiss();
+    if (onNo) onNo();
+  });
+  document.body.appendChild(el);
+  // Автоматически закрываем через 20 сек если игрок не ответил (считаем что всё ок)
+  _bm_vc_timer = setTimeout(_bm_video_confirm_dismiss, 20000);
+}
+function _bm_video_confirm_dismiss() {
+  if (_bm_vc_timer) { clearTimeout(_bm_vc_timer); _bm_vc_timer = null; }
+  var el = document.getElementById('bm-video-confirm');
+  if (!el) return;
+  el.classList.add('dismiss');
+  setTimeout(function() { if (el.parentNode) el.parentNode.removeChild(el); }, 300);
 }
 
 // === РЕГУЛЯТОР ГРОМКОСТИ ВИДЕО ===
