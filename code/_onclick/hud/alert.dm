@@ -63,7 +63,7 @@
 	animate(thealert, transform = matrix(), time = 2.5, easing = BACK_EASING)
 
 	if(thealert.timeout)
-		addtimer(CALLBACK(src, PROC_REF(alert_timeout), thealert, category), thealert.timeout)
+		thealert.timeout_timer = addtimer(CALLBACK(src, PROC_REF(alert_timeout), thealert, category), thealert.timeout, TIMER_STOPPABLE)
 		thealert.timeout = world.time + thealert.timeout - world.tick_lag
 	return thealert
 
@@ -95,6 +95,7 @@
 	/// do we glow to represent we do stuff when clicked
 	var/clickable_glow = FALSE
 	var/timeout = 0 //If set to a number, this alert will clear itself after that many deciseconds
+	var/timeout_timer = null // stoppable timer ref — чтобы снять ссылку при преждевременном qdel
 	var/severity = 0
 	var/alerttooltipstyle = ""
 	var/override_alerts = FALSE //If it is overriding other alerts of the same type
@@ -365,6 +366,8 @@ or shoot a gun to move around via Newton's 3rd Law of Motion."
 	register_context()
 
 /atom/movable/screen/alert/give/Destroy()
+	if(owner)
+		UnregisterSignal(owner, COMSIG_MOVABLE_MOVED)
 	offerer = null
 	receiving = null
 	return ..()
@@ -790,6 +793,10 @@ so as to remain in compliance with the most up-to-date laws."
 	var/atom/target = null
 	var/action = NOTIFY_JUMP
 
+/atom/movable/screen/alert/notify_action/Destroy()
+	target = null
+	return ..()
+
 /atom/movable/screen/alert/notify_action/Click()
 	. = ..()
 	if(!.)
@@ -944,6 +951,9 @@ so as to remain in compliance with the most up-to-date laws."
 /atom/movable/screen/alert/Destroy()
 	animate(src)
 	transform = null
+	if(timeout_timer)
+		deltimer(timeout_timer)
+		timeout_timer = null
 	. = ..()
 	severity = 0
 	master = null
