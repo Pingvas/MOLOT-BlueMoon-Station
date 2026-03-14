@@ -185,8 +185,8 @@ html, body {
   margin-top: 0.5vmin; letter-spacing: 2px;
 }
 #bm-player-count {
-  font-size: clamp(7px,1.0vmin,11px); color: #445577;
-  margin-top: 0.4vmin; letter-spacing: 1px;
+  font-size: clamp(7px,1.1vmin,12px); color: #6688aa;
+  margin-top: 0.5vmin; letter-spacing: 1px; font-weight: 600;
 }
 
 /* ===== МЕНЮ-СПИСОК ===== */
@@ -312,6 +312,19 @@ body.style-bluemoon .bm-btn.bm-btn-admin:hover {
 .bm-count-val { color: #aaccff; font-weight: 700; }
 #bm-count-ready-wrap { display: none; }
 #bm-count-ready-wrap .bm-count-val { color: #66ffaa; }
+
+/* Обратный отсчёт до старта */
+#bm-countdown-row {
+  display: none;
+  justify-content: center; align-items: center;
+  padding: 0.4vmin 1.5vmin 0.3vmin;
+  border-top: 1px solid rgba(100,160,255,0.08);
+  font-size: clamp(7px,1.1vmin,12px); color: #4488cc;
+  letter-spacing: 1px;
+  gap: 0;
+}
+.bm-countdown-label { color: #335577; }
+#bm-countdown-val { color: #22aaff; font-weight: 700; font-size: clamp(8px,1.2vmin,13px); }
 
 /* Аудио-плеер */
 #bm-audio-bar {

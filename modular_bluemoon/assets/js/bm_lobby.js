@@ -1,24 +1,33 @@
 // Lobby UI Library сука ебанный бобот мне теперь для тебя прийдется писать пояснения для каждого пука.
 // Статический JS, загружается через asset cache.
-// инициализируются отдельным инлайн-скриптом в _bm_build_html().
 
 // СОСТОЯНИЕ
 var _bm_sidebar_open  = true;
 var _bm_settings_open = false;
-var _bm_is_admin      = false;
 var _bm_audio_playing = false;
 var _bm_audio_muted   = false;
 var _bm_audio_vol     = 35;
+var _bm_countdown_s   = -1; // секунд до старта; -1 = неактивен
+var _bm_countdown_iv  = null; // setInterval handle
 
-
-//  отправить action на сервер
-var _bm_action_last = 0;
-function bmAction(action) {
-  var now = Date.now();
-  if (now - _bm_action_last < 400) return;
-  _bm_action_last = now;
-  if (window._BM_SRC) location.href = '?src=' + window._BM_SRC + ';bm_lobby_action=' + action;
+function _bm_countdown_tick() {
+  if (_bm_countdown_s > 0) _bm_countdown_s--;
+  _bm_countdown_render();
+  if (_bm_countdown_s <= 0) {
+    clearInterval(_bm_countdown_iv); _bm_countdown_iv = null;
+  }
 }
+
+function _bm_countdown_render() {
+  var el_cd = document.getElementById('bm-countdown-row');
+  var el_cv = document.getElementById('bm-countdown-val');
+  if (el_cd) el_cd.style.display = (_bm_countdown_s > 0) ? 'flex' : 'none';
+  if (el_cv && _bm_countdown_s > 0) {
+    var m = Math.floor(_bm_countdown_s / 60), s = _bm_countdown_s % 60;
+    el_cv.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+  }
+} // Ебать, если хоть кто-то из будущих поколений поймет как эта хуйня работает, это будет такой восторг.
+
 
 // === SIDEBAR ===
 function bmToggleSidebar() {
@@ -109,25 +118,42 @@ function bm_update_admin_bg_indicator(val) {
   if (el) el.textContent = Number(val) ? '\u0412\u041a\u041b' : '\u0412\u042b\u041a\u041b';
 }
 
-function bm_update_counts(online, ready) {
-  if (ready === undefined && typeof online === 'string' && online.indexOf(',') >= 0) {
-    var _parts = online.split(','); online = _parts[0]; ready = _parts[1];
+function bm_update_counts(p1, p2, p3, p4, p5) {
+  // Формат: "total_online,lobby,ready,timer_s,is_pregame"
+  var total_online, lobby, ready, timer_s, is_pregame;
+  if (p2 === undefined && typeof p1 === 'string' && p1.indexOf(',') >= 0) {
+    var _parts = p1.split(',');
+    total_online = _parts[0]; lobby = _parts[1]; ready = _parts[2];
+    timer_s = _parts[3]; is_pregame = parseInt(_parts[4]) || 0;
+  } else {
+    total_online = p1; lobby = p2; ready = p3; timer_s = p4; is_pregame = parseInt(p5) || 0;
   }
-  var el_o = document.getElementById('bm-count-online');
-  var el_r = document.getElementById('bm-count-ready');
+  // Верхний счётчик — всего онлайн
   var el_h = document.getElementById('bm-player-count');
+  if (el_h) el_h.textContent = (total_online !== undefined ? total_online : '\u2014') + ' \u041e\u041d\u041b\u0410\u0419\u041d';
+  // Нижний левый — игроки в лобби
+  var el_o = document.getElementById('bm-count-online');
+  if (el_o) el_o.textContent = (lobby !== undefined) ? lobby : '\u2014';
+  // Нижний правый — готовы (виден только в прегейме)
+  var el_r = document.getElementById('bm-count-ready');
   var el_w = document.getElementById('bm-count-ready-wrap');
-  if (el_o) el_o.textContent = (online !== undefined) ? online : '\u2014';
-  if (el_h) el_h.textContent = ((online !== undefined) ? online : '\u2014') + ' \u0412 \u041b\u041e\u0411\u0411\u0418';
-  if (_bm_is_admin && el_r && el_w) {
-    el_w.style.display = 'inline'; el_r.textContent = (ready !== undefined) ? ready : '\u2014';
+  if (el_r) el_r.textContent = (ready !== undefined) ? ready : '\u2014';
+  if (el_w) el_w.style.display = is_pregame ? 'inline' : 'none';
+  // Таймер — синхронизируем значение с сервера, считаем клиентски
+  var t = parseInt(timer_s);
+  if (is_pregame && t > 0) {
+    _bm_countdown_s = t;
+    if (!_bm_countdown_iv)
+      _bm_countdown_iv = setInterval(_bm_countdown_tick, 1000);
+  } else {
+    _bm_countdown_s = -1;
+    if (_bm_countdown_iv) { clearInterval(_bm_countdown_iv); _bm_countdown_iv = null; }
   }
+  _bm_countdown_render();
 }
 
 function bm_set_admin(val) {
-  _bm_is_admin = !!Number(val);
-  var el = document.getElementById('bm-count-ready-wrap');
-  if (el) el.style.display = _bm_is_admin ? 'inline' : 'none';
+  // резервируем вызов для совместимости с сервером
 }
 
 function bm_show_notice(text, type) {
@@ -291,15 +317,4 @@ function bmAudioMute() {
   if (audio) audio.volume = _bm_audio_muted ? 0 : _bm_audio_vol / 100;
   if (sl)    sl.value = _bm_audio_muted ? 0 : _bm_audio_vol;
   if (btn)   btn.innerHTML = _bm_audio_muted ? '&#128263;' : (_bm_audio_vol > 50 ? '&#128266;' : '&#128265;');
-}
-
-/** Остановливаем при закрытии */
-function _bmStopAllMedia() {
-  var audio = document.getElementById('bm-audio');
-  if (audio) { try { audio.pause(); audio.src = ''; } catch(e){} }
-  var bg = document.getElementById('bm-bg');
-  if (bg) {
-    if (bg.tagName === 'VIDEO') { try { bg.pause(); bg.muted = true; bg.src = ''; } catch(e){} }
-    else if (bg.tagName === 'IFRAME') { try { bg.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*'); } catch(e){} }
-  }
 }

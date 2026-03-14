@@ -149,7 +149,7 @@ var _i=0;setInterval(function(){var s=_i%4;document.getElementById('d').textCont
       <span class="bm-s-value" id="bm-s-nsfw">ВЫКЛ</span>
     </a>
     <a class="bm-settings-row" href='?src=[R];bm_lobby_action=toggle_admin_bg' style="cursor:pointer">
-      <span class="bm-s-label">ЛОББИ ОТ АДМИНОВ</span>
+      <span class="bm-s-label">МЕДИА ОТ АДМИНОВ</span>
       <span class="bm-s-value" id="bm-s-adminbg">ВКЛ</span>
     </a>
   </div>
@@ -163,9 +163,12 @@ var _i=0;setInterval(function(){var s=_i%4;document.getElementById('d').textCont
 	parts += {"<div id=\"bm-footer\">
   <div id=\"bm-char-name\">[char_name ? char_name : "\u2014 \u2014 \u2014"]</div>
   <div id=\"bm-count-row\">
-    <span class=\"bm-count-lbl\">ОНЛАЙН&nbsp;<span class=\"bm-count-val\" id=\"bm-count-online\">&#8212;</span></span>
+    <span class=\"bm-count-lbl\">В ЛОББИ&nbsp;<span class=\"bm-count-val\" id=\"bm-count-online\">&#8212;</span></span>
     <span id=\"bm-count-ready-wrap\" class=\"bm-count-lbl\">ГОТОВЫ&nbsp;<span class=\"bm-count-val\" id=\"bm-count-ready\">&#8212;</span></span>
   </div>
+</div>"}
+	parts += {"<div id=\"bm-countdown-row\" style=\"display:none\">
+  <span class=\"bm-countdown-label\">ДО СТАРТА</span>&nbsp;<span id=\"bm-countdown-val\">—</span>
 </div>"}
 	parts += {"<div id=\"bm-audio-bar\">
   <div id=\"bm-audio-row\">
@@ -377,10 +380,7 @@ var _i=0;setInterval(function(){var s=_i%4;document.getElementById('d').textCont
 		if("polls_menu")
 			_bm_play_click_sound()
 			if(SSvote?.mode)
-				var/datum/browser/popup = new(src, "vote", "Voting Panel", nwidth=600, nheight=700)
-				popup.set_window_options("can_close=0")
-				popup.set_content(SSvote.interface(client))
-				popup.open(0)
+				SSvote.ui_interact(src)
 			else
 				client << output("Активных голосований нет.", "bm_lobby_browser:bm_show_notice")
 			return

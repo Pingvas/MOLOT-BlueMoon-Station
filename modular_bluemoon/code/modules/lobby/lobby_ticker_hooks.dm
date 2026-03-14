@@ -3,8 +3,6 @@
 	_rotate_current_images()  // выбираем случайную картинку один раз при старте прегейма
 	change_image(null)
 	deltimer(lobby_tick_timer)
-	last_online_count = -1
-	last_ready_count = -1
 	lobby_tick_timer = addtimer(CALLBACK(src, PROC_REF(_lobby_tick)), 15 SECONDS, TIMER_LOOP | TIMER_STOPPABLE)
 
 /datum/controller/subsystem/title_bm/proc/_lobby_tick()

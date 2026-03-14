@@ -12,8 +12,6 @@ SUBSYSTEM_DEF(title_bm)
 	var/lobby_tick_timer
 	var/refresh_timer
 	var/current_video_payload
-	var/last_online_count = -1
-	var/last_ready_count = -1
 	var/cached_static_html = ""
 	var/cached_js_url = ""           // URL JS-библиотеки — вычисляется один раз в _build_static_html
 	var/cached_notice_js = ""        // JS-вызов для текущего объявления — кешируется в set_notice
@@ -215,29 +213,27 @@ SUBSYSTEM_DEF(title_bm)
 	user.client << output(name, "bm_lobby_browser:bm_update_character")
 
 /datum/controller/subsystem/title_bm/proc/_get_player_counts()
-	// ready_count обновляется реактивно через on_player_ready_change — O(1) вместо O(N)
-	return list(length(GLOB.new_player_list), ready_count)
+	return list(length(GLOB.clients), length(GLOB.new_player_list), ready_count)
 
 /// Вызывается при изменении ready-статуса игрока. delta = +1 (готов) или -1 (не готов).
 /datum/controller/subsystem/title_bm/proc/on_player_ready_change(delta)
 	ready_count = max(0, ready_count + delta)
 	update_player_counts_all()
 
+/datum/controller/subsystem/title_bm/proc/_build_counts_payload()
+	var/list/counts = _get_player_counts()
+	var/timer_s = (SSticker?.timeLeft > 0) ? round(SSticker.timeLeft / 10) : -1
+	var/is_pregame = (!SSticker || SSticker.current_state <= GAME_STATE_PREGAME) ? 1 : 0
+	return "[counts[1]],[counts[2]],[counts[3]],[timer_s],[is_pregame]"
+
 /datum/controller/subsystem/title_bm/proc/push_player_count_to(mob/dead/new_player/player)
 	if(!(istype(player) && player.bm_lobby_ready && player.client))
 		return
-	var/list/counts = _get_player_counts()
-	player.client << output("[counts[1]],[counts[2]]", "bm_lobby_browser:bm_update_counts")
+	player.client << output(_build_counts_payload(), "bm_lobby_browser:bm_update_counts")
 
 /datum/controller/subsystem/title_bm/proc/update_player_counts_all()
-	var/list/counts = _get_player_counts()
-	var/online = counts[1]
-	var/ready = counts[2]
-	if(online == last_online_count && ready == last_ready_count)
-		return
-	last_online_count = online
-	last_ready_count = ready
+	var/payload = _build_counts_payload()
 	for(var/mob/dead/new_player/player as anything in GLOB.new_player_list)
 		if(!player.bm_lobby_ready || !player.client)
 			continue
-		player.client << output("[online],[ready]", "bm_lobby_browser:bm_update_counts")
+		player.client << output(payload, "bm_lobby_browser:bm_update_counts")

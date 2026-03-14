@@ -216,12 +216,8 @@ SUBSYSTEM_DEF(ticker)
 			//lobby stats for statpanels
 			if(isnull(timeLeft))
 				timeLeft = max(0,start_at - world.time)
-			totalPlayers = 0
-			totalPlayersReady = 0
-			for(var/mob/dead/new_player/player in GLOB.player_list)
-				++totalPlayers
-				if(player.ready == PLAYER_READY_TO_PLAY)
-					++totalPlayersReady
+			totalPlayers = length(GLOB.new_player_list)
+			totalPlayersReady = SStitle_bm?.ready_count || 0
 
 			if(start_immediately)
 				timeLeft = 0
