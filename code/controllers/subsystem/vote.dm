@@ -633,14 +633,8 @@ SUBSYSTEM_DEF(vote)
 			C.player_details.player_actions += V
 			V.Grant(C.mob)
 			generated_actions += V
-			if(forced)
-				if(isnewplayer(C.mob))
-					var/mob/dead/new_player/NP = C.mob
-					if(NP.bm_lobby_ready)
-						var/vlabel = question ? html_encode(question) : ""
-						NP.client << output(vlabel, "bm_lobby_browser:bm_vote_notify")
-				else
-					SSvote.ui_interact(C.mob) // Мяяяу
+			if(forced && !isnewplayer(C.mob)) // BLUEMOON EDIT - для new_player в лобби не открываем TGUI (ломает bm_lobby_browser), кнопка голосования есть в меню
+				SSvote.ui_interact(C.mob) // Мяяяу
 		return TRUE
 	return FALSE
 

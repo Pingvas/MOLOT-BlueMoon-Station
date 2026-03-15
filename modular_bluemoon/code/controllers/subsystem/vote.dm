@@ -25,9 +25,6 @@
 	. = ..()
 	vote_power = initial(vote_power)
 	users_vote_power = list()
-	for(var/mob/dead/new_player/player as anything in GLOB.new_player_list)
-		if(player.bm_lobby_ready && player.client)
-			player.client << output("", "bm_lobby_browser:bm_vote_dismiss")
 
 /datum/controller/subsystem/vote/proc/get_vote_power_by_role(client/C) //taken from TauCetiClassic
 	if(!istype(C))
