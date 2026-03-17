@@ -41,6 +41,7 @@
 /datum/character_setup_ui/ui_assets(mob/user)
 	return list(
 		get_asset_datum(/datum/asset/spritesheet/chat),
+		get_asset_datum(/datum/asset/spritesheet/loadout_items),
 	)
 
 /datum/character_setup_ui/ui_interact(mob/user, datum/tgui/ui)
@@ -54,20 +55,35 @@
 		character_preview_view?.display_to(user, ui.window)
 		update_preview()
 
+/// Find a gear datum by its type path string (e.g. "/datum/gear/accessory/tie")
+/datum/character_setup_ui/proc/find_gear_by_type(gear_type_path)
+	for(var/cat in GLOB.loadout_items)
+		for(var/subcat in GLOB.loadout_items[cat])
+			for(var/item_name in GLOB.loadout_items[cat][subcat])
+				var/datum/gear/G = GLOB.loadout_items[cat][subcat][item_name]
+				if("[G.type]" == gear_type_path)
+					return G
+	return null
+
 /datum/character_setup_ui/ui_static_data(mob/user)
 	var/list/data = list()
 
 	// Species list
 	var/list/species_list = list()
 	for(var/species_id in GLOB.roundstart_races)
-		var/datum/species/S = new species_id()
-		species_list += list(list(
-			"id" = S.id,
-			"name" = S.name,
-			"sexes" = S.sexes,
-			"use_skintones" = S.use_skintones,
-		))
-		qdel(S)
+		if(!species_id || !ispath(species_id))
+			continue
+		try
+			var/datum/species/S = new species_id()
+			species_list += list(list(
+				"id" = S.id,
+				"name" = S.name,
+				"sexes" = S.sexes,
+				"use_skintones" = S.use_skintones,
+			))
+			qdel(S)
+		catch
+			continue
 	data["species_list"] = species_list
 
 	// Hair styles
@@ -253,6 +269,8 @@
 	data["slots"] = cached_slots
 	data["active_slot"] = prefs.default_slot
 	data["collapse_empty_slots"] = prefs.collapse_empty_character_slots
+	data["has_offer"] = !QDELETED(prefs.offer)
+	data["offer_code"] = !QDELETED(prefs.offer) ? prefs.offer.redemption_code : null
 
 	// === GENERAL TAB DATA ===
 	data["real_name"] = prefs.real_name
@@ -511,6 +529,158 @@
 	data["disable_combat_mouse_lock"] = prefs.disable_combat_mouse_lock
 	data["be_victim"] = prefs.be_victim
 
+	// === JOB PREFERENCES DATA ===
+	data["job_preferences"] = prefs.job_preferences
+	data["joblessrole"] = prefs.joblessrole
+	data["overflow_role"] = SSjob.overflow_role
+	var/list/job_bans = list()
+	var/list/job_days_left = list()
+	var/list/job_exp_left = list()
+	var/list/job_species_blocked = list()
+	var/list/ui_jobs_data = list()
+	for(var/datum/job/J in SSjob.occupations)
+		if(!J.title)
+			continue
+		if(jobban_isbanned(user, J.title))
+			job_bans += J.title
+		if(J.minimal_player_age && CONFIG_GET(flag/use_age_restriction_for_jobs))
+			var/player_age = user.client ? user.client.player_age : 0
+			if(player_age < J.minimal_player_age)
+				job_days_left[J.title] = J.minimal_player_age - player_age
+		if(J.exp_requirements && J.exp_type)
+			var/req_remaining = J.required_playtime_remaining(user.client)
+			if(req_remaining > 0)
+				job_exp_left[J.title] = round(req_remaining / 60, 0.1)
+		if(J.is_species_blacklisted(user.client))
+			job_species_blocked += J.title
+		var/dept_name = "Other"
+		if(J.departments & DEPARTMENT_BITFLAG_COMMAND)
+			dept_name = "Command"
+		else if(J.departments & DEPARTMENT_BITFLAG_SECURITY)
+			dept_name = "Security"
+		else if(J.departments & DEPARTMENT_BITFLAG_ENGINEERING)
+			dept_name = "Engineering"
+		else if(J.departments & DEPARTMENT_BITFLAG_SCIENCE)
+			dept_name = "Science"
+		else if(J.departments & DEPARTMENT_BITFLAG_MEDICAL)
+			dept_name = "Medical"
+		else if(J.departments & DEPARTMENT_BITFLAG_SUPPLY)
+			dept_name = "Supply"
+		else if(J.departments & DEPARTMENT_BITFLAG_SERVICE)
+			dept_name = "Service"
+		else if(J.departments & DEPARTMENT_BITFLAG_SILICON)
+			dept_name = "Silicon"
+		else if(J.departments & DEPARTMENT_BITFLAG_LAW)
+			dept_name = "Law"
+		ui_jobs_data += list(list(
+			"title" = J.title,
+			"department" = dept_name,
+			"selection_color" = J.selection_color,
+			"display_order" = J.display_order,
+			"alt_titles" = (J.alt_titles ? J.alt_titles.Copy() : list()),
+			"is_head" = !!(J.departments & DEPARTMENT_BITFLAG_COMMAND),
+		))
+	data["jobs_info"] = ui_jobs_data
+	data["job_bans"] = job_bans
+	data["job_days_left"] = job_days_left
+	data["job_exp_left"] = job_exp_left
+	data["job_species_blocked"] = job_species_blocked
+	data["alt_titles_preferences"] = prefs.alt_titles_preferences
+
+	// === ANTAG ROLES DATA ===
+	var/list/antag_roles_data = list()
+	var/antag_banned = jobban_isbanned(user, ROLE_INTEQ)
+	data["antag_banned"] = antag_banned
+
+	var/static/list/antag_icons_b64 = list()
+	// Maps role name to antag datum type for preview icon generation
+	var/static/list/antag_datum_map = list(
+		"traitor" = /datum/antagonist/traitor,
+		"blood brother" = /datum/antagonist/brother,
+		"operative" = /datum/antagonist/nukeop,
+		"changeling" = /datum/antagonist/changeling,
+		"Changeling (Meteor)" = /datum/antagonist/changeling/space,
+		"wizard" = /datum/antagonist/wizard,
+		"revolutionary" = /datum/antagonist/rev,
+		"xenomorph" = /datum/antagonist/xeno,
+		"cultist" = /datum/antagonist/cult,
+		"blob" = /datum/antagonist/blob,
+		"space ninja" = /datum/antagonist/ninja,
+		"revenant" = /datum/antagonist/revenant,
+		"abductor" = /datum/antagonist/abductor,
+		"Heretic" = /datum/antagonist/heretic,
+		"bloodsucker" = /datum/antagonist/bloodsucker,
+		"family boss" = /datum/antagonist/gang,
+		"Space Dragon" = /datum/antagonist/space_dragon,
+		"Terror Spider" = /datum/antagonist/terror_spiders,
+	)
+	// Fallback HUD icons for roles without antag datums
+	var/static/list/antag_icon_fallback = list(
+		"Slaver" = "slaver",
+		"pAI" = "intruder",
+		"monkey" = "intruder",
+		"devil" = "devil",
+		"servant of Ratvar" = "clockwork",
+		"syndicate mutineer" = "synd",
+		"internal affairs agent" = "traitor",
+		"sentience potion spawn" = "intruder",
+		"Syndicate" = "synd",
+	)
+	// Special large icons for non-datum roles
+	var/static/list/antag_icon_special = list(
+		"malf AI" = list("file" = 'icons/mob/ai.dmi', "state" = "ai"),
+	)
+
+	if(!antag_banned)
+		for(var/role_name in GLOB.special_roles)
+			var/list/role_entry = list()
+			role_entry["name"] = role_name
+			// Generate icon via get_preview_icon() or fallback to HUD icons
+			if(!antag_icons_b64[role_name])
+				var/antag_type = antag_datum_map[role_name]
+				if(antag_type)
+					try
+						var/datum/antagonist/temp_antag = new antag_type()
+						var/icon/preview = temp_antag.get_preview_icon()
+						if(preview)
+							antag_icons_b64[role_name] = "data:image/png;base64,[icon2base64(preview)]"
+						qdel(temp_antag)
+					catch
+						// Silently ignore qdel warnings for ownerless antag datums
+				if(!antag_icons_b64[role_name])
+					var/list/special = antag_icon_special[role_name]
+					if(special)
+						var/icon/special_icon = icon(special["file"], special["state"])
+						special_icon.Scale(ANTAGONIST_PREVIEW_ICON_SIZE, ANTAGONIST_PREVIEW_ICON_SIZE)
+						antag_icons_b64[role_name] = "data:image/png;base64,[icon2base64(special_icon)]"
+				if(!antag_icons_b64[role_name])
+					var/fallback_state = antag_icon_fallback[role_name]
+					if(fallback_state)
+						var/icon/fallback_icon = icon('icons/mob/hud.dmi', fallback_state)
+						fallback_icon.Scale(48, 48)
+						antag_icons_b64[role_name] = "data:image/png;base64,[icon2base64(fallback_icon)]"
+			role_entry["icon_b64"] = antag_icons_b64[role_name]
+			if(jobban_isbanned(user, role_name))
+				role_entry["status"] = "banned"
+			else
+				var/days_remaining = null
+				if(ispath(GLOB.special_roles[role_name]) && CONFIG_GET(flag/use_age_restriction_for_jobs))
+					var/mode_path = GLOB.special_roles[role_name]
+					var/datum/game_mode/temp_mode = new mode_path
+					days_remaining = temp_mode.get_remaining_days(user.client)
+				if(days_remaining)
+					role_entry["status"] = "locked"
+					role_entry["days"] = days_remaining
+				else if(role_name in prefs.be_special)
+					if(prefs.be_special[role_name] >= 1)
+						role_entry["status"] = "enabled"
+					else
+						role_entry["status"] = "low"
+				else
+					role_entry["status"] = "disabled"
+			antag_roles_data += list(role_entry)
+	data["antag_roles"] = antag_roles_data
+
 	// === OOC PREFERENCES TAB ===
 	data["ooccolor"] = prefs.ooccolor
 	data["aooccolor"] = prefs.aooccolor
@@ -565,46 +735,76 @@
 	// === LOADOUT DATA ===
 	data["loadout_slot"] = prefs.loadout_slot
 	data["loadout_enabled"] = prefs.loadout_enabled
-	data["gear_points"] = prefs.gear_points
+
+	// Validate and auto-init gear category/subcategory
+	if(!prefs.gear_category || !GLOB.loadout_items[prefs.gear_category])
+		prefs.gear_category = null
+		for(var/cat in GLOB.loadout_items)
+			prefs.gear_category = cat
+			break
+	if(prefs.gear_category)
+		if(!prefs.gear_subcategory || !GLOB.loadout_items[prefs.gear_category][prefs.gear_subcategory])
+			prefs.gear_subcategory = null
+			for(var/sc in GLOB.loadout_items[prefs.gear_category])
+				prefs.gear_subcategory = sc
+				break
+
 	data["gear_category"] = prefs.gear_category
 	data["gear_subcategory"] = prefs.gear_subcategory
 
-	// Current loadout items
+	// Calculate gear points
+	var/total_gear_points = CONFIG_GET(number/initial_gear_points)
+	if(user.client)
+		if(IS_CKEY_DONATOR_GROUP(user.ckey, DONATOR_GROUP_TIER_1))
+			total_gear_points += CONFIG_GET(number/subscriber_extra_gear_points)
+		if(IS_CKEY_DONATOR_GROUP(user.ckey, DONATOR_GROUP_TIER_2))
+			total_gear_points += CONFIG_GET(number/sponsor_extra_gear_points)
+	var/list/chosen_gear = prefs.loadout_data["SAVE_[prefs.loadout_slot]"]
+	if(islist(chosen_gear))
+		for(var/list/loadout_entry in chosen_gear)
+			var/loadout_item_path = loadout_entry[LOADOUT_ITEM]
+			if(loadout_item_path)
+				var/datum/gear/loadout_gear_type = text2path(loadout_item_path)
+				if(loadout_gear_type)
+					total_gear_points -= initial(loadout_gear_type.cost)
+	data["gear_points"] = total_gear_points
+
+	// Current loadout items (selected in current slot)
 	var/list/loadout_items = list()
-	if(prefs.loadout_data && prefs.loadout_data["[prefs.loadout_slot]"])
-		var/list/slot_data = prefs.loadout_data["[prefs.loadout_slot]"]
-		for(var/gear_path in slot_data)
-			var/list/item_data = slot_data[gear_path]
+	if(prefs.loadout_data && prefs.loadout_data["SAVE_[prefs.loadout_slot]"])
+		var/list/slot_data = prefs.loadout_data["SAVE_[prefs.loadout_slot]"]
+		for(var/list/entry in slot_data)
+			var/gear_path = entry[LOADOUT_ITEM]
+			if(!gear_path)
+				continue
+			var/datum/gear/G = find_gear_by_type(gear_path)
 			loadout_items += list(list(
 				"path" = gear_path,
-				"name" = item_data[LOADOUT_CUSTOM_NAME] || gear_path,
-				"color" = item_data[LOADOUT_COLOR],
-				"is_heirloom" = item_data[LOADOUT_IS_HEIRLOOM],
+				"name" = entry[LOADOUT_CUSTOM_NAME] || (G ? G.name : gear_path),
+				"color" = entry[LOADOUT_COLOR],
+				"is_heirloom" = !!entry[LOADOUT_IS_HEIRLOOM],
 			))
 	data["loadout_items"] = loadout_items
 
-	// Items in current category
+	// Items in current category/subcategory
 	var/list/category_items = list()
-	if(prefs.gear_category && GLOB.loadout_items[prefs.gear_category])
-		var/curr_subcat = prefs.gear_subcategory
-		if(!curr_subcat || !GLOB.loadout_items[prefs.gear_category][curr_subcat])
-			for(var/sc in GLOB.loadout_items[prefs.gear_category])
-				curr_subcat = sc
-				break
-		if(curr_subcat && GLOB.loadout_items[prefs.gear_category][curr_subcat])
-			for(var/item_name in GLOB.loadout_items[prefs.gear_category][curr_subcat])
-				var/datum/gear/G = GLOB.loadout_items[prefs.gear_category][curr_subcat][item_name]
-				if(!G)
+	if(prefs.gear_category && prefs.gear_subcategory && GLOB.loadout_items[prefs.gear_category])
+		var/list/subcat_items = GLOB.loadout_items[prefs.gear_category][prefs.gear_subcategory]
+		if(length(subcat_items))
+			for(var/gear_name in subcat_items)
+				var/datum/gear/G = subcat_items[gear_name]
+				if(!istype(G))
 					continue
-				var/is_selected = !!prefs.has_loadout_gear(prefs.loadout_slot, "[G.type]")
+				var/has_gear = prefs.has_loadout_gear(prefs.loadout_slot, "[G.type]")
 				category_items += list(list(
-					"name" = item_name,
+					"name" = gear_name,
 					"path" = "[G.type]",
+					"sprite_id" = replacetext("[G.type]", "/", "_"),
 					"cost" = G.cost,
-					"description" = G.description,
-					"selected" = is_selected,
-					"can_color" = !!(G.loadout_flags & LOADOUT_CAN_COLOR_POLYCHROMIC),
-					"can_name" = !!(G.loadout_flags & LOADOUT_CAN_NAME),
+					"description" = (G.description ? G.description : ""),
+					"selected" = (has_gear ? 1 : 0),
+					"can_color" = ((G.loadout_flags & LOADOUT_CAN_COLOR_POLYCHROMIC) ? 1 : 0),
+					"can_name" = ((G.loadout_flags & LOADOUT_CAN_NAME) ? 1 : 0),
 				))
 	data["category_items"] = category_items
 
@@ -695,6 +895,31 @@
 	if(!prefs || !owner)
 		return
 
+	. = handle_ui_action(action, params, ui)
+
+	// Auto-update preview for visual changes
+	if(. && (action in list(\
+		"set_species", "set_body_model", "set_gender",\
+		"set_hair_style", "set_facial_hair_style", "set_grad_style",\
+		"set_hair_color", "set_facial_hair_color", "set_grad_color",\
+		"set_eye_color", "toggle_split_eyes", "set_eye_type",\
+		"set_skin_tone", "set_mutant_color", "set_body_size",\
+		"set_mutant_part", "set_mutant_part_color",\
+		"set_underwear", "set_undershirt", "set_socks",\
+		"toggle_color_scheme", "toggle_mismatched_markings", "toggle_fuzzy",\
+		"modify_limbs", "set_body_weight",\
+		"toggle_loadout_enabled", "toggle_gear", "clear_loadout",\
+		"marking_add", "marking_remove", "marking_color",\
+		"markings_clear_limb", "markings_remove_all",\
+		"toggle_arousable", "open_genital_config",\
+		"set_custom_blood_color", "toggle_custom_blood_color",\
+		"toggle_hardsuit_tail",\
+		"set_backbag", "toggle_jumpsuit_style",\
+		"change_slot", "import_slot", "retrieve_slot", "delete_slot"\
+	)))
+		update_preview()
+
+/datum/character_setup_ui/proc/handle_ui_action(action, list/params, datum/tgui/ui)
 	var/mob/user = ui.user
 
 	switch(action)
@@ -728,14 +953,147 @@
 		if("change_slot")
 			var/num = text2num(params["slot"])
 			if(num && num >= 1 && num <= prefs.max_save_slots)
-				prefs.default_slot = num
-				prefs.load_character()
+				if(prefs.char_queue)
+					deltimer(prefs.char_queue)
+				prefs.save_character(bypass_cooldown = TRUE)
+				if(!prefs.load_character(num, bypass_cooldown = TRUE))
+					prefs.random_character()
+					prefs.real_name = random_unique_name(prefs.gender)
+					prefs.save_character(bypass_cooldown = TRUE)
+				if(ui.user.client?.prefs)
+					var/list/payload = ui.user.client.prefs.custom_emote_panel
+					ui.user.client.tgui_panel?.window.send_message("emotes/setList", payload)
 				tainted_slots = TRUE
 				update_preview()
 			return TRUE
 
 		if("toggle_empty_slots")
 			prefs.collapse_empty_character_slots = !prefs.collapse_empty_character_slots
+			return TRUE
+
+		if("export_slot")
+			var/savefile/S = prefs.save_character(export = TRUE)
+			if(istype(S, /savefile))
+				usr.client?.Export(S)
+				tgui_alert_async(usr, "Слот успешно экспортирован.")
+			else
+				tgui_alert_async(usr, "Ошибка экспорта слота.")
+			return TRUE
+
+		if("import_slot")
+			var/savefile/S = new(usr.client?.Import())
+			if(istype(S, /savefile))
+				if(prefs.load_character(provided = S))
+					tgui_alert_async(usr, "Слот успешно импортирован.")
+					prefs.save_character(bypass_cooldown = TRUE)
+					tainted_slots = TRUE
+					update_preview()
+				else
+					tgui_alert_async(usr, "Ошибка загрузки слота.")
+			else
+				tgui_alert_async(usr, "Нет сохранённого локального слота.")
+			return TRUE
+
+		if("delete_local_copy")
+			usr.client?.clear_export()
+			tgui_alert_async(usr, "Локальная копия удалена.")
+			return TRUE
+
+		if("give_slot")
+			if(!QDELETED(prefs.offer))
+				// Cancel existing offer
+				var/datum/character_offer_instance/offer_datum = LAZYACCESS(GLOB.character_offers, prefs.offer.redemption_code)
+				if(offer_datum)
+					qdel(offer_datum)
+				prefs.offer = null
+			else
+				// Create new offer
+				var/savefile/S = prefs.save_character(export = TRUE)
+				if(istype(S, /savefile))
+					var/datum/character_offer_instance/offer_datum = new(usr.ckey, S)
+					if(QDELETED(offer_datum))
+						tgui_alert_async(usr, "Не удалось создать предложение, попробуйте позже.")
+						return TRUE
+					offer_datum.RegisterSignal(usr, COMSIG_MOB_CLIENT_LOGOUT, TYPE_PROC_REF(/datum/character_offer_instance, on_quit))
+					prefs.offer = offer_datum
+					tgui_alert_async(usr, "Код для получения: [offer_datum.redemption_code]")
+			return TRUE
+
+		if("retrieve_slot")
+			if(!LAZYLEN(GLOB.character_offers))
+				tgui_alert_async(usr, "Нет активных предложений.")
+				return TRUE
+			var/retrieve_code = tgui_input_text(usr, "Введите 5-значный код получения", "Получение слота")
+			if(!retrieve_code)
+				return TRUE
+			if(!text2num(retrieve_code))
+				tgui_alert_async(usr, "Допускаются только цифры.")
+				return TRUE
+			if(length(retrieve_code) != 5)
+				tgui_alert_async(usr, "Код должен содержать ровно 5 цифр.")
+				return TRUE
+			var/datum/character_offer_instance/offer_datum = LAZYACCESS(GLOB.character_offers, retrieve_code)
+			if(!offer_datum)
+				tgui_alert_async(usr, "Неверный код!")
+				return TRUE
+			if(prefs.offer == offer_datum)
+				tgui_alert_async(usr, "Вы не можете принять своё собственное предложение.")
+				return TRUE
+			var/savefile/savefile = offer_datum.character_savefile
+			var/mob/living/the_owner = get_mob_by_ckey(offer_datum.owner_ckey)
+			if(prefs.savefile_needs_update(savefile) == -2)
+				tgui_alert_async(usr, "Сейвфайл повреждён.")
+				to_chat(the_owner, span_boldwarning("Что-то пошло не так с обменом, он отменён."))
+				qdel(offer_datum)
+				return TRUE
+			var/character_name
+			savefile["real_name"] >> character_name
+			var/confirm = tgui_alert(usr, "Вы перезапишете текущий слот персонажем [character_name]. Вы уверены?", "Подтверждение", list("Да", "Нет"))
+			if(confirm != "Да")
+				return TRUE
+			if(QDELETED(offer_datum))
+				tgui_alert_async(usr, "Персонаж больше не доступен.")
+				return TRUE
+			to_chat(the_owner, span_boldwarning("[usr.key] забрал вашего персонажа [character_name]!"))
+			if(!prefs.load_character(provided = savefile))
+				tgui_alert_async(usr, "Ошибка загрузки сейвфайла!")
+				to_chat(the_owner, span_boldwarning("Ошибка при финальном шаге обмена."))
+				qdel(offer_datum)
+				return TRUE
+			tgui_alert_async(usr, "Вы успешно получили [character_name]!")
+			prefs.save_character(bypass_cooldown = TRUE)
+			qdel(offer_datum)
+			tainted_slots = TRUE
+			update_preview()
+			return TRUE
+
+		if("delete_slot")
+			var/num = text2num(params["slot"])
+			if(!num)
+				return TRUE
+			// Count occupied slots
+			var/occupied_count = 0
+			if(prefs.path)
+				var/savefile/S = new /savefile(prefs.path)
+				if(S)
+					for(var/i in 1 to prefs.max_save_slots)
+						S.cd = "/character[i]"
+						var/check_name
+						S["real_name"] >> check_name
+						if(check_name)
+							occupied_count++
+			if(occupied_count <= 1)
+				tgui_alert_async(usr, "Нельзя удалить единственного персонажа!")
+				return TRUE
+			var/confirm = tgui_alert(usr, "Вы уверены, что хотите удалить этого персонажа? Это действие необратимо!", "Удаление", list("Да", "Нет"))
+			if(confirm != "Да")
+				return TRUE
+			if(prefs.delete_character(num))
+				tgui_alert_async(usr, "Персонаж удалён.")
+				tainted_slots = TRUE
+				update_preview()
+			else
+				tgui_alert_async(usr, "Ошибка удаления.")
 			return TRUE
 
 		// === GENERAL TAB ACTIONS ===
@@ -1270,13 +1628,52 @@
 				update_preview()
 			return TRUE
 
-		// === JOB / QUIRK DELEGATION ===
-		if("open_job_menu")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "job", "task" = "menu"))
+		// === JOB PREFERENCE HANDLERS ===
+		if("set_job_priority")
+			var/job_title = params["job_title"]
+			var/level = text2num(params["level"])
+			var/datum/job/J = SSjob.GetJob(job_title)
+			if(!J)
+				return FALSE
+			if(jobban_isbanned(user, J.title))
+				to_chat(user, span_danger("Вам запрещено играть на этой должности."))
+				return FALSE
+			if(J.is_species_blacklisted(user.client))
+				to_chat(user, span_danger("Ваш вид не может занимать эту должность."))
+				return FALSE
+			if(level == 0)
+				prefs.SetJobPreferenceLevel(J, null)
+			else
+				prefs.SetJobPreferenceLevel(J, level)
+			prefs.save_preferences(user)
 			return TRUE
 
-		if("open_quirk_menu")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "trait", "task" = "menu"))
+		if("reset_jobs")
+			prefs.ResetJobs()
+			prefs.save_preferences(user)
+			return TRUE
+
+		if("set_jobless_role")
+			var/role = text2num(params["role"])
+			if(role in list(BEOVERFLOW, BERANDOMJOB, RETURNTOLOBBY))
+				if(role == BEOVERFLOW && jobban_isbanned(user, SSjob.overflow_role))
+					to_chat(user, span_danger("Вам запрещено играть на этой должности."))
+					return FALSE
+				prefs.joblessrole = role
+				prefs.save_preferences(user)
+			return TRUE
+
+		if("set_alt_title")
+			var/job_title = params["job_title"]
+			var/alt_title = params["alt_title"]
+			var/datum/job/J = SSjob.GetJob(job_title)
+			if(!J)
+				return FALSE
+			if(alt_title == job_title || !alt_title)
+				prefs.alt_titles_preferences -= job_title
+			else if(alt_title in J.alt_titles)
+				prefs.alt_titles_preferences[job_title] = alt_title
+			prefs.save_preferences(user)
 			return TRUE
 
 		// === PREFERENCES TAB SWITCHING ===
@@ -1587,8 +1984,20 @@
 					owner.fps = prefs.clientfps
 			return TRUE
 
-		if("open_antag_prefs")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "be_special", "task" = "input"))
+		if("toggle_antag_role")
+			var/role_name = params["role"]
+			if(!role_name || !(role_name in GLOB.special_roles))
+				return
+			if(jobban_isbanned(user, ROLE_INTEQ) || jobban_isbanned(user, role_name))
+				return
+			if(role_name in prefs.be_special)
+				if(prefs.be_special[role_name] >= 1)
+					prefs.be_special -= role_name
+				else
+					prefs.be_special[role_name] = 1
+			else
+				prefs.be_special += role_name
+				prefs.be_special[role_name] = 0
 			return TRUE
 
 		// === GAME PREFS: New toggles ===
@@ -1818,28 +2227,128 @@
 			return TRUE
 
 		if("toggle_gear")
-			var/name = params["name"]
+			var/gear_type_path = params["name"]
 			var/toggle = text2num(params["toggle"])
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "gear", "toggle_gear_path" = name, "toggle_gear" = "[toggle]"))
+			if(!gear_type_path)
+				return FALSE
+			if(!toggle && prefs.has_loadout_gear(prefs.loadout_slot, gear_type_path))
+				// Remove gear
+				var/gear = prefs.has_loadout_gear(prefs.loadout_slot, gear_type_path)
+				if(gear[LOADOUT_IS_HEIRLOOM])
+					gear[LOADOUT_IS_HEIRLOOM] = FALSE
+				prefs.remove_gear_from_loadout(prefs.loadout_slot, gear_type_path)
+			else if(toggle && !prefs.has_loadout_gear(prefs.loadout_slot, gear_type_path))
+				// Add gear — find the datum by type path
+				var/datum/gear/G = find_gear_by_type(gear_type_path)
+				if(!G)
+					return FALSE
+				if(G.donoritem && !G.donator_ckey_check(user.ckey))
+					to_chat(user, span_danger("Этот предмет доступен только донатерам."))
+					return FALSE
+				if(istype(G, /datum/gear/unlockable) && !prefs.can_use_unlockable(G))
+					to_chat(user, span_danger("Вы не выполнили требования для этого предмета."))
+					return FALSE
+				if(prefs.gear_points >= initial(G.cost))
+					var/list/new_loadout_data = list(LOADOUT_ITEM = gear_type_path)
+					if(length(G.loadout_initial_colors))
+						new_loadout_data[LOADOUT_COLOR] = G.loadout_initial_colors.Copy()
+					else
+						new_loadout_data[LOADOUT_COLOR] = list("#FFFFFF")
+					LAZYINITLIST(prefs.loadout_data["SAVE_[prefs.loadout_slot]"])
+					prefs.loadout_data["SAVE_[prefs.loadout_slot]"] += list(new_loadout_data)
+				else
+					to_chat(user, span_danger("Недостаточно очков экипировки."))
+					return FALSE
+			prefs.save_preferences(user)
 			return TRUE
 
 		if("loadout_color")
-			var/gear_name = params["name"]
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "gear", "loadout_color" = "1", "loadout_gear_name" = gear_name))
+			var/gear_type_path = params["name"]
+			if(!gear_type_path)
+				return FALSE
+			var/user_gear = prefs.has_loadout_gear(prefs.loadout_slot, gear_type_path)
+			if(!user_gear)
+				return FALSE
+			var/datum/gear/G = find_gear_by_type(gear_type_path)
+			if(!G)
+				return FALSE
+			if(G.loadout_flags & LOADOUT_CAN_COLOR_POLYCHROMIC)
+				// Polychromic — let user pick color index
+				if(!length(user_gear[LOADOUT_COLOR]))
+					user_gear[LOADOUT_COLOR] = list("#FFFFFF")
+				var/list/color_options = list()
+				for(var/i in 1 to length(user_gear[LOADOUT_COLOR]))
+					color_options += "Color [i]"
+				var/choice = tgui_input_list(user, "Какой цвет изменить?", "Polychromic Color", color_options)
+				if(!choice)
+					return FALSE
+				var/color_index = text2num(copytext(choice, 7))
+				if(!color_index || color_index < 1 || color_index > length(user_gear[LOADOUT_COLOR]))
+					return FALSE
+				var/current_color = user_gear[LOADOUT_COLOR][color_index]
+				var/new_color = input(user, "Выберите цвет:", "Loadout Color", current_color) as color|null
+				if(new_color)
+					user_gear[LOADOUT_COLOR][color_index] = sanitize_hexcolor(new_color, 6, TRUE, current_color)
+			else
+				// Mono color
+				if(!length(user_gear[LOADOUT_COLOR]))
+					user_gear[LOADOUT_COLOR] = list("#FFFFFF")
+				var/current_color = user_gear[LOADOUT_COLOR][1]
+				var/new_color = input(user, "Выберите цвет:", "Loadout Color", current_color) as color|null
+				if(new_color)
+					user_gear[LOADOUT_COLOR][1] = sanitize_hexcolor(new_color, 6, TRUE, current_color)
+			prefs.save_preferences(user)
 			return TRUE
 
 		if("loadout_rename")
-			var/gear_name = params["name"]
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "gear", "loadout_rename" = "1", "loadout_gear_name" = gear_name))
+			var/gear_type_path = params["name"]
+			if(!gear_type_path)
+				return FALSE
+			var/user_gear = prefs.has_loadout_gear(prefs.loadout_slot, gear_type_path)
+			if(!user_gear)
+				return FALSE
+			var/datum/gear/G = find_gear_by_type(gear_type_path)
+			if(!G || !(G.loadout_flags & LOADOUT_CAN_NAME))
+				return FALSE
+			var/new_name = stripped_input(user, "Введите новое название:", "Переименование", user_gear[LOADOUT_CUSTOM_NAME], MAX_NAME_LEN)
+			if(new_name)
+				user_gear[LOADOUT_CUSTOM_NAME] = new_name
+				prefs.save_preferences(user)
 			return TRUE
 
 		if("loadout_heirloom")
-			var/gear_name = params["name"]
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "gear", "loadout_addheirloom" = "1", "loadout_gear_name" = gear_name))
+			var/gear_type_path = params["name"]
+			if(!gear_type_path)
+				return FALSE
+			var/user_gear = prefs.has_loadout_gear(prefs.loadout_slot, gear_type_path)
+			if(!user_gear)
+				return FALSE
+			if(user_gear[LOADOUT_IS_HEIRLOOM])
+				// Remove heirloom
+				user_gear[LOADOUT_IS_HEIRLOOM] = FALSE
+			else
+				// Check if already have an heirloom
+				var/existing = prefs.find_gear_with_property(prefs.loadout_slot, LOADOUT_IS_HEIRLOOM, TRUE)
+				if(existing)
+					to_chat(user, span_danger("У вас уже есть реликвия в этом слоте."))
+					return FALSE
+				// Check if item is allowed as heirloom
+				var/resolved_path = text2path(gear_type_path)
+				if(!ispath(resolved_path))
+					return FALSE
+				var/datum/gear/temp_gear = new resolved_path()
+				var/forbidden = ispath_in_list(temp_gear.path, LOADOUT_IS_DISALLOWED_HEIRLOOM)
+				qdel(temp_gear)
+				if(forbidden)
+					to_chat(user, span_danger("Этот предмет не может быть реликвией."))
+					return FALSE
+				user_gear[LOADOUT_IS_HEIRLOOM] = TRUE
+			prefs.save_preferences(user)
 			return TRUE
 
 		if("clear_loadout")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "gear", "clear_loadout" = "1"))
+			prefs.loadout_data["SAVE_[prefs.loadout_slot]"] = list()
+			prefs.save_preferences(user)
 			return TRUE
 
 		// === QUIRKS ACTIONS ===
@@ -1885,8 +2394,10 @@
 			return TRUE
 
 		if("load")
-			prefs.load_character()
+			if(prefs.char_queue)
+				deltimer(prefs.char_queue)
 			prefs.load_preferences()
+			prefs.load_character()
 			tainted_slots = TRUE
 			update_preview()
 			return TRUE
@@ -1901,24 +2412,6 @@
 	if(.)
 		prefs.save_character()
 		// Update preview for appearance-affecting actions
-		if(action in list(\
-			"set_species", "set_body_model", "set_gender",\
-			"set_hair_style", "set_facial_hair_style", "set_grad_style",\
-			"set_hair_color", "set_facial_hair_color", "set_grad_color",\
-			"set_eye_color", "toggle_split_eyes", "set_eye_type",\
-			"set_skin_tone", "set_mutant_color", "set_body_size",\
-			"set_mutant_part", "set_mutant_part_color",\
-			"set_underwear", "set_undershirt", "set_socks",\
-			"toggle_color_scheme", "toggle_mismatched_markings", "toggle_fuzzy",\
-			"modify_limbs", "set_body_weight",\
-			"toggle_loadout_enabled", "toggle_gear", "clear_loadout",\
-			"marking_add", "marking_remove", "marking_color",\
-			"markings_clear_limb", "markings_remove_all",\
-			"toggle_arousable", "open_genital_config",\
-			"set_custom_blood_color", "toggle_custom_blood_color",\
-			"toggle_hardsuit_tail"\
-		))
-			update_preview()
 
 /client
 	var/datum/character_setup_ui/character_setup

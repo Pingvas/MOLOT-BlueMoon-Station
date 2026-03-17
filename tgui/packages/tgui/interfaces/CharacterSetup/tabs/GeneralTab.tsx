@@ -146,7 +146,7 @@ export const GeneralTab = (_props, context) => {
                 fluid
                 icon="briefcase"
                 content="Настроить должности"
-                onClick={() => act('open_job_menu')}
+                onClick={() => act('set_character_tab', { tab: 7 })}
               />
               <Box mt={1}>
                 <LabeledList>
@@ -174,7 +174,7 @@ export const GeneralTab = (_props, context) => {
                   fluid
                   icon="star"
                   content="Настроить особенности"
-                  onClick={() => act('open_quirk_menu')}
+                  onClick={() => act('set_character_tab', { tab: 6 })}
                 />
               </Section>
             </Flex.Item>

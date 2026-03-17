@@ -9,6 +9,7 @@ import { SpeechTab } from './tabs/SpeechTab';
 import { MarkingsTab } from './tabs/MarkingsTab';
 import { LoadoutTab } from './tabs/LoadoutTab';
 import { QuirksTab } from './tabs/QuirksTab';
+import { JobsTab } from './tabs/JobsTab';
 import { GamePrefsTab } from './tabs/GamePrefsTab';
 import { OOCPrefsTab } from './tabs/OOCPrefsTab';
 import { ContentPrefsTab } from './tabs/ContentPrefsTab';
@@ -26,6 +27,7 @@ const MARKINGS_CHAR_TAB = 3;
 const SPEECH_CHAR_TAB = 4;
 const LOADOUT_CHAR_TAB = 5;
 const QUIRKS_CHAR_TAB = 6;
+const JOBS_CHAR_TAB = 7;
 
 const GAME_PREFS_TAB = 0;
 const OOC_PREFS_TAB = 1;
@@ -106,6 +108,64 @@ export const CharacterSetup = (_props, context) => {
                         color="orange"
                         tooltip="Рандомизировать"
                         onClick={() => act('randomize_all')}
+                      />
+                    </Stack.Item>
+                  </Stack>
+                  <Stack mt={1}>
+                    <Stack.Item grow>
+                      <Button
+                        fluid
+                        icon="file-export"
+                        content="Экспорт"
+                        tooltip="Экспортировать слот в локальное хранилище"
+                        onClick={() => act('export_slot')}
+                      />
+                    </Stack.Item>
+                    <Stack.Item grow>
+                      <Button
+                        fluid
+                        icon="file-import"
+                        content="Импорт"
+                        tooltip="Импортировать слот из локального хранилища"
+                        onClick={() => act('import_slot')}
+                      />
+                    </Stack.Item>
+                  </Stack>
+                  <Stack mt={1}>
+                    <Stack.Item grow>
+                      <Button
+                        fluid
+                        icon={data.has_offer ? 'times' : 'gift'}
+                        content={data.has_offer ? 'Отменить' : 'Предложить'}
+                        color={data.has_offer ? 'bad' : undefined}
+                        tooltip={
+                          data.has_offer
+                            ? `Код: ${data.offer_code}. Нажмите для отмены`
+                            : 'Предложить слот другому игроку'
+                        }
+                        onClick={() => act('give_slot')}
+                      />
+                    </Stack.Item>
+                    <Stack.Item grow>
+                      <Button
+                        fluid
+                        icon="hand-holding"
+                        content="Забрать"
+                        tooltip="Забрать предложенного персонажа по коду"
+                        onClick={() => act('retrieve_slot')}
+                      />
+                    </Stack.Item>
+                  </Stack>
+                  <Stack mt={1}>
+                    <Stack.Item grow>
+                      <Button
+                        fluid
+                        icon="trash"
+                        content="Удалить слот"
+                        color="bad"
+                        onClick={() =>
+                          act('delete_slot', { slot: active_slot })
+                        }
                       />
                     </Stack.Item>
                   </Stack>
@@ -230,6 +290,14 @@ const CharacterSettingsContent = (_props, context) => {
               Особенности
             </Tabs.Tab>
           )}
+          <Tabs.Tab
+            icon="briefcase"
+            selected={character_settings_tab === JOBS_CHAR_TAB}
+            onClick={() => act('set_character_tab', {
+              tab: JOBS_CHAR_TAB,
+            })}>
+            Работа
+          </Tabs.Tab>
         </Tabs>
       </Stack.Item>
 
@@ -242,6 +310,7 @@ const CharacterSettingsContent = (_props, context) => {
           {character_settings_tab === SPEECH_CHAR_TAB && <SpeechTab />}
           {character_settings_tab === LOADOUT_CHAR_TAB && <LoadoutTab />}
           {character_settings_tab === QUIRKS_CHAR_TAB && <QuirksTab />}
+          {character_settings_tab === JOBS_CHAR_TAB && <JobsTab />}
         </Section>
       </Stack.Item>
     </Stack>

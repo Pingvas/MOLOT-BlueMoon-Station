@@ -3,13 +3,15 @@ import {
   Box,
   Button,
   ColorBox,
+  Flex,
   LabeledList,
   NumberInput,
   Section,
   Slider,
   Stack,
+  Tooltip,
 } from '../../../components';
-import { CharacterSetupData } from '../types';
+import { CharacterSetupData, AntagRoleInfo } from '../types';
 
 // toggles bitflags
 const SOUND_MIDI = 1 << 1;
@@ -19,6 +21,37 @@ const NO_ANTAG = 1 << 16;
 const VERB_CONSENT = 1 << 17;
 const LEWD_VERB_SOUNDS = 1 << 18;
 const RANGED_VERBS_CONSENT = 1 << 21;
+
+const ANTAG_ROLE_NAMES: Record<string, string> = {
+  'traitor': 'Предатель',
+  'blood brother': 'Кровный брат',
+  'operative': 'Оперативник',
+  'Slaver': 'Работорговец',
+  'changeling': 'Генокрад',
+  'Changeling (Meteor)': 'Генокрад (Метеор)',
+  'wizard': 'Волшебник',
+  'malf AI': 'Сбойный ИИ',
+  'revolutionary': 'Революционер',
+  'xenomorph': 'Ксеноморф',
+  'pAI': 'пИИ',
+  'cultist': 'Культист',
+  'blob': 'Блоб',
+  'space ninja': 'Космический ниндзя',
+  'monkey': 'Обезьяна',
+  'revenant': 'Ревенант',
+  'abductor': 'Похититель',
+  'devil': 'Дьявол',
+  'servant of Ratvar': 'Слуга Ратвара',
+  'syndicate mutineer': 'Мятежник Синдиката',
+  'internal affairs agent': 'Агент ВД',
+  'sentience potion spawn': 'Разумное существо',
+  'Heretic': 'Еретик',
+  'bloodsucker': 'Кровосос',
+  'family boss': 'Глава семьи',
+  'Space Dragon': 'Космический дракон',
+  'Terror Spider': 'Паук ужаса',
+  'Syndicate': 'Синдикат',
+};
 
 export const GamePrefsTab = (_props, context) => {
   const { act, data } = useBackend<CharacterSetupData>(context);
@@ -57,6 +90,8 @@ export const GamePrefsTab = (_props, context) => {
     disable_combat_cursor,
     disable_combat_mouse_lock,
     be_victim,
+    antag_banned,
+    antag_roles = [],
   } = data as any;
 
   return (
@@ -318,32 +353,206 @@ export const GamePrefsTab = (_props, context) => {
       {/* Antag */}
       <Stack.Item>
         <Section title="Антагонист">
-          <Stack>
-            <Stack.Item grow>
-              <Button
-                fluid
-                icon="user-secret"
-                content="Настроить антагонистов"
-                onClick={() => act('open_antag_prefs')}
-              />
-            </Stack.Item>
+          <Stack vertical>
             <Stack.Item>
-              <Button.Checkbox
-                checked={!!(toggles & MIDROUND_ANTAG)}
-                content="Антаг в середине"
-                onClick={() => act('toggle_flag', {
-                  flag: 'midround_antag',
-                })}
-              />
+              <Stack>
+                <Stack.Item>
+                  <Button.Checkbox
+                    checked={!(toggles & NO_ANTAG)}
+                    color={toggles & NO_ANTAG ? 'red' : 'green'}
+                    content={
+                      toggles & NO_ANTAG
+                        ? 'Антагонизм выключен'
+                        : 'Антагонизм включен'
+                    }
+                    onClick={() =>
+                      act('toggle_flag', {
+                        flag: 'disable_antag',
+                      })
+                    }
+                  />
+                </Stack.Item>
+                <Stack.Item>
+                  <Button.Checkbox
+                    checked={!!(toggles & MIDROUND_ANTAG)}
+                    content="Антаг в середине"
+                    onClick={() =>
+                      act('toggle_flag', {
+                        flag: 'midround_antag',
+                      })
+                    }
+                  />
+                </Stack.Item>
+                <Stack.Item>
+                  <Button
+                    content={be_victim || 'По умолч.'}
+                    icon="crosshairs"
+                    tooltip="Предпочитать быть жертвой антагониста"
+                    onClick={() => act('set_be_victim')}
+                  />
+                </Stack.Item>
+              </Stack>
             </Stack.Item>
-            <Stack.Item>
-              <Button
-                content={be_victim || 'По умолч.'}
-                icon="crosshairs"
-                tooltip="Предпочитать быть жертвой антагониста"
-                onClick={() => act('set_be_victim')}
-              />
-            </Stack.Item>
+            {antag_banned ? (
+              <Stack.Item>
+                <Box color="bad" bold mt={1}>
+                  Вы забанены от ролей антагонистов.
+                </Box>
+              </Stack.Item>
+            ) : (
+              <Stack.Item>
+                <Flex wrap="wrap" mt={1}>
+                  {(antag_roles as AntagRoleInfo[]).map((role) => {
+                    const label =
+                      ANTAG_ROLE_NAMES[role.name] || role.name;
+                    const isEnabled = role.status === 'enabled';
+                    const isLow = role.status === 'low';
+                    const isBanned = role.status === 'banned';
+                    const isLocked = role.status === 'locked';
+                    const isActive = isEnabled || isLow;
+                    const borderColor = isBanned || isLocked
+                      ? 'rgba(128, 128, 128, 0.5)'
+                      : isActive
+                        ? 'rgba(80, 200, 80, 0.9)'
+                        : 'rgba(200, 60, 60, 0.6)';
+                    return (
+                      <Flex.Item
+                        key={role.name}
+                        style={{
+                          width: '110px',
+                          textAlign: 'center',
+                          margin: '4px',
+                        }}
+                      >
+                        <Tooltip
+                          content={
+                            isBanned
+                              ? 'Забанен'
+                              : isLocked
+                                ? `Через ${role.days} дней`
+                                : isEnabled
+                                  ? 'Включено (высокий приоритет) — нажмите для выключения'
+                                  : isLow
+                                    ? 'Низкий приоритет — нажмите для повышения'
+                                    : 'Выключено — нажмите для включения'
+                          }
+                          position="bottom"
+                        >
+                          <Box
+                            style={{
+                              cursor:
+                                isBanned || isLocked
+                                  ? 'not-allowed'
+                                  : 'pointer',
+                              opacity:
+                                isBanned || isLocked
+                                  ? 0.4
+                                  : isActive
+                                    ? 1
+                                    : 0.55,
+                              transition: 'all 0.15s ease',
+                            }}
+                            onClick={() => {
+                              if (isBanned || isLocked) return;
+                              act('toggle_antag_role', {
+                                role: role.name,
+                              });
+                            }}
+                          >
+                            <Box
+                              style={{
+                                width: '80px',
+                                height: '80px',
+                                margin: '0 auto 4px',
+                                borderRadius: '50%',
+                                border: `3px solid ${borderColor}`,
+                                overflow: 'hidden',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                backgroundColor:
+                                  'rgba(0, 0, 0, 0.3)',
+                                position: 'relative',
+                              }}
+                            >
+                              {role.icon_b64 ? (
+                                <Box
+                                  as="img"
+                                  src={role.icon_b64}
+                                  style={{
+                                    width: '74px',
+                                    height: '74px',
+                                    imageRendering: 'pixelated',
+                                  }}
+                                />
+                              ) : (
+                                <Box
+                                  style={{
+                                    fontSize: '24px',
+                                    color: 'rgba(255,255,255,0.3)',
+                                  }}
+                                >
+                                  ?
+                                </Box>
+                              )}
+                              {isBanned && (
+                                <Box
+                                  style={{
+                                    position: 'absolute',
+                                    width: '100%',
+                                    height: '3px',
+                                    backgroundColor:
+                                      'rgba(180, 60, 60, 0.8)',
+                                    top: '50%',
+                                    left: '0',
+                                    transform:
+                                      'translateY(-50%) rotate(35deg)',
+                                  }}
+                                />
+                              )}
+                              {isLocked && (
+                                <Box
+                                  style={{
+                                    position: 'absolute',
+                                    bottom: '2px',
+                                    fontSize: '10px',
+                                    fontWeight: 'bold',
+                                    textShadow:
+                                      '1px 1px 2px rgba(0,0,0,0.8)',
+                                    color: '#ccc',
+                                  }}
+                                >
+                                  {role.days}д
+                                </Box>
+                              )}
+                            </Box>
+                            <Box
+                              style={{
+                                fontWeight: 'bold',
+                                fontSize: '11px',
+                                maxWidth: '110px',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                                color: isBanned || isLocked
+                                  ? '#777'
+                                  : isEnabled
+                                    ? '#6f6'
+                                    : isLow
+                                      ? '#ff6'
+                                      : '#ccc',
+                              }}
+                            >
+                              {label}
+                            </Box>
+                          </Box>
+                        </Tooltip>
+                      </Flex.Item>
+                    );
+                  })}
+                </Flex>
+              </Stack.Item>
+            )}
           </Stack>
         </Section>
       </Stack.Item>

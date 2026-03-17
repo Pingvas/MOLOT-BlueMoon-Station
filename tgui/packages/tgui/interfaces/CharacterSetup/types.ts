@@ -10,6 +10,8 @@ export type CharacterSetupData = {
   active_slot: number;
   collapse_empty_slots: boolean;
   max_save_slots: number;
+  has_offer: boolean;
+  offer_code: string | null;
 
   // General tab
   real_name: string;
@@ -140,6 +142,17 @@ export type CharacterSetupData = {
   all_quirks: string[];
   quirk_balance: number;
 
+  // Jobs
+  job_preferences: Record<string, number>;
+  joblessrole: number;
+  alt_titles_preferences: Record<string, string>;
+  job_bans: string[];
+  job_days_left: Record<string, number>;
+  job_exp_left: Record<string, number>;
+  job_species_blocked: string[];
+  jobs_info: JobInfo[];
+  overflow_role: string;
+
   // Game preferences
   UI_style: string;
   outline_enabled: boolean;
@@ -175,6 +188,10 @@ export type CharacterSetupData = {
   disable_combat_cursor: boolean;
   disable_combat_mouse_lock: boolean;
   be_victim: string;
+
+  // Antag roles
+  antag_banned: boolean;
+  antag_roles: AntagRoleInfo[];
 
   // OOC preferences
   ooccolor: string;
@@ -260,4 +277,20 @@ export type LanguageInfo = {
   desc: string;
   icon_b64: string;
   selected: boolean;
+};
+
+export type AntagRoleInfo = {
+  name: string;
+  status: 'enabled' | 'low' | 'disabled' | 'banned' | 'locked';
+  days?: number;
+  icon_b64?: string;
+};
+
+export type JobInfo = {
+  title: string;
+  department: string;
+  selection_color: string;
+  display_order: number;
+  alt_titles: string[];
+  is_head: boolean;
 };

@@ -213,10 +213,11 @@ export const SpeechTab = (_props, context) => {
                     width: '20px',
                     height: '20px',
                     verticalAlign: 'middle',
-                    marginRight: '6px',
+                    marginRight: '8px',
                     imageRendering: 'pixelated',
                   }}
                 />
+                {' '}
                 <b>{lang.name}</b>
               </Box>
               {!!lang.desc && (
