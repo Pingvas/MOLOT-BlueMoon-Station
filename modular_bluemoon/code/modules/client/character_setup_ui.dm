@@ -8,8 +8,8 @@
 	var/client/owner
 	/// Reference to the preferences datum
 	var/datum/preferences/prefs
-	/// Native BYOND map view for character preview
-	var/atom/movable/screen/map_view/char_preview/character_preview_view
+	/// Native character preview (map_view screen object)
+	var/atom/movable/screen/map_view/character_preview_screen/character_preview_view
 	/// Cached character slot data (tainted_character_profiles pattern from SPLURT)
 	var/list/cached_slots
 	/// Whether slot cache needs rebuilding
@@ -46,7 +46,8 @@
 		ui = new(user, src, "CharacterSetup")
 		ui.set_autoupdate(FALSE)
 		ui.open()
-		character_preview_view.display_to(user, ui.window)
+		character_preview_view?.display_to(user, ui.window)
+		update_preview()
 
 /datum/character_setup_ui/ui_static_data(mob/user)
 	var/list/data = list()
@@ -555,102 +556,70 @@
 
 	return data
 
-/// Create the native BYOND map view for character preview
+/// Create the character preview
 /datum/character_setup_ui/proc/create_character_preview_view(mob/user)
 	QDEL_NULL(character_preview_view)
-	character_preview_view = new(null, prefs)
-	character_preview_view.generate_view("char_preview_[REF(character_preview_view)]")
-	character_preview_view.update_body()
+	character_preview_view = new
+	character_preview_view.generate_view("char_setup_[REF(src)]_map")
 	return character_preview_view
 
-/// Native BYOND character preview using map_view
-/atom/movable/screen/map_view/char_preview
-	name = "character_preview"
-	icon = 'modular_citadel/icons/ui/backgrounds.dmi'
-	icon_state = "000"
-	/// The body that is displayed
-	var/mob/living/carbon/human/dummy/body
-	/// The preferences this refers to
-	var/datum/preferences/preferences
+/// Update the preview mannequin and refresh the overlay on the map_view
+/datum/character_setup_ui/proc/update_preview()
+	if(!character_preview_view || !prefs)
+		return
 
-/atom/movable/screen/map_view/char_preview/Initialize(mapload, datum/preferences/preferences)
-	. = ..()
-	src.preferences = preferences
-	if(preferences?.bgstate)
-		icon_state = preferences.bgstate
+	var/datum/job/preview_job = prefs.get_highest_job()
 
-/atom/movable/screen/map_view/char_preview/Destroy()
-	QDEL_NULL(body)
-	preferences = null
-	return ..()
-
-/// Updates the displayed preview body
-/atom/movable/screen/map_view/char_preview/proc/update_body()
-	if(isnull(body))
-		create_body()
-	else
-		body.wipe_state()
-
-	cut_overlays()
-
-	// Update background
-	icon_state = preferences?.bgstate || "000"
-
-	var/datum/job/preview_job = preferences.get_highest_job()
-
-	// Handle silicon previews
+	// Silicon previews — simple icon, no mannequin needed
 	if(preview_job)
 		if(istype(preview_job, /datum/job/ai))
-			var/mutable_appearance/ai_ma = mutable_appearance('icons/mob/ai.dmi', icon_state = resolve_ai_icon(preferences.preferred_ai_core_display))
-			ai_ma.setDir(SOUTH)
-			ai_ma.transform = matrix()
-			ai_ma.pixel_x = 0
-			ai_ma.pixel_y = 0
-			add_overlay(ai_ma)
+			character_preview_view.update_character_icon(mutable_appearance('icons/mob/ai.dmi', resolve_ai_icon(prefs.preferred_ai_core_display)))
 			return
 		if(istype(preview_job, /datum/job/cyborg))
-			var/mutable_appearance/borg_ma = mutable_appearance('icons/mob/robots.dmi', icon_state = "robot")
-			borg_ma.setDir(SOUTH)
-			borg_ma.transform = matrix()
-			borg_ma.pixel_x = 0
-			borg_ma.pixel_y = 0
-			add_overlay(borg_ma)
+			character_preview_view.update_character_icon(mutable_appearance('icons/mob/robots.dmi', "robot"))
 			return
 
-	preferences.copy_to(body, initial_spawn = TRUE)
+	// Use pooled dummy mannequin (same approach as old ShowChoices)
+	var/mob/living/carbon/human/dummy/mannequin = generate_or_wait_for_human_dummy(DUMMY_HUMAN_SLOT_PREFERENCES)
 
-	switch(preferences.preview_pref)
+	prefs.copy_to(mannequin, initial_spawn = TRUE)
+
+	switch(prefs.preview_pref)
 		if(PREVIEW_PREF_JOB)
 			if(preview_job)
-				body.job = preview_job.title
-				preview_job.equip(body, TRUE, preference_source = preferences.parent)
+				mannequin.job = preview_job.title
+				preview_job.equip(mannequin, TRUE, preference_source = prefs.parent)
 		if(PREVIEW_PREF_LOADOUT)
-			if(preferences.parent)
-				SSjob.equip_loadout(preferences.parent.mob, body, bypass_prereqs = TRUE, can_drop = FALSE, is_dummy = TRUE)
-				SSjob.post_equip_loadout(preferences.parent.mob, body, bypass_prereqs = TRUE, can_drop = FALSE, is_dummy = TRUE)
+			if(prefs.parent)
+				SSjob.equip_loadout(prefs.parent.mob, mannequin, bypass_prereqs = TRUE, can_drop = FALSE, is_dummy = TRUE)
+				SSjob.post_equip_loadout(prefs.parent.mob, mannequin, bypass_prereqs = TRUE, can_drop = FALSE, is_dummy = TRUE)
 		if(PREVIEW_PREF_NAKED_AROUSED)
-			for(var/obj/item/organ/genital/genital in body.internal_organs)
+			for(var/obj/item/organ/genital/genital in mannequin.internal_organs)
 				if(CHECK_BITFIELD(genital.genital_flags, GENITAL_CAN_AROUSE))
 					genital.set_aroused_state(TRUE, null)
 
-	body.regenerate_icons()
+	mannequin.setDir(character_preview_view.dir)
+	mannequin.regenerate_icons()
 
-	var/mutable_appearance/body_ma = new(body)
-	body_ma.setDir(body.dir)
-	body_ma.transform = matrix()
-	body_ma.pixel_x = 0
-	body_ma.pixel_y = 0
-	add_overlay(body_ma)
+	// Copy appearance as overlay (same approach as CharacterProfile)
+	character_preview_view.update_character_icon(new /mutable_appearance(mannequin))
 
-/atom/movable/screen/map_view/char_preview/proc/create_body()
-	QDEL_NULL(body)
-	body = new
+	unset_busy_human_dummy(DUMMY_HUMAN_SLOT_PREFERENCES)
 
-/// Set direction of the preview
-/atom/movable/screen/map_view/char_preview/proc/set_preview_dir(new_dir)
-	if(body)
-		body.setDir(new_dir)
-		update_body()
+/// Character preview screen — minimal map_view (same pattern as examine_panel_screen)
+/atom/movable/screen/map_view/character_preview_screen
+	name = "character preview"
+	icon = 'icons/turf/floors.dmi'
+	icon_state = "plating"
+
+/// Apply a mutable_appearance as an overlay on this map_view (exactly like CharacterProfile)
+/atom/movable/screen/map_view/character_preview_screen/proc/update_character_icon(mutable_appearance/appearance)
+	appearance.setDir(dir)
+	appearance.transform = matrix()
+	appearance.pixel_x = 0
+	appearance.pixel_y = 0
+	cut_overlays()
+	add_overlay(appearance)
 
 /datum/character_setup_ui/ui_act(action, list/params, datum/tgui/ui)
 	. = ..()
@@ -686,8 +655,7 @@
 			var/pref = params["pref"]
 			if(pref in list(PREVIEW_PREF_JOB, PREVIEW_PREF_LOADOUT, PREVIEW_PREF_NAKED, PREVIEW_PREF_NAKED_AROUSED))
 				prefs.preview_pref = pref
-				if(character_preview_view)
-					character_preview_view.update_body()
+				update_preview()
 			return TRUE
 
 		// === CHARACTER SLOTS ===
@@ -697,8 +665,7 @@
 				prefs.default_slot = num
 				prefs.load_character()
 				tainted_slots = TRUE
-				if(character_preview_view)
-					character_preview_view.update_body()
+				update_preview()
 			return TRUE
 
 		if("toggle_empty_slots")
@@ -1076,15 +1043,14 @@
 			return TRUE
 
 		if("refresh_preview")
-			if(character_preview_view)
-				character_preview_view.update_body()
+			update_preview()
 			return TRUE
 
 		if("rotate_preview")
 			if(character_preview_view)
 				var/backwards = params["backwards"]
-				var/new_dir = turn(character_preview_view.body?.dir || SOUTH, backwards ? 90 : -90)
-				character_preview_view.set_preview_dir(new_dir)
+				character_preview_view.setDir(turn(character_preview_view.dir, backwards ? 90 : -90))
+				update_preview()
 			return TRUE
 
 		// === JOB / QUIRK DELEGATION ===
@@ -1490,20 +1456,37 @@
 			prefs.load_character()
 			prefs.load_preferences()
 			tainted_slots = TRUE
-			if(character_preview_view)
-				character_preview_view.update_body()
+			update_preview()
 			return TRUE
 
 		if("randomize_all")
 			prefs.random_character()
 			tainted_slots = TRUE
-			if(character_preview_view)
-				character_preview_view.update_body()
+			update_preview()
 			return TRUE
 
 	// After any action, re-save and update preview
 	if(.)
 		prefs.save_character()
+		// Update preview for appearance-affecting actions
+		if(action in list(\
+			"set_species", "set_body_model", "set_gender",\
+			"set_hair_style", "set_facial_hair_style", "set_grad_style",\
+			"set_hair_color", "set_facial_hair_color", "set_grad_color",\
+			"set_eye_color", "toggle_split_eyes", "set_eye_type",\
+			"set_skin_tone", "set_mutant_color", "set_body_size",\
+			"set_mutant_part", "set_mutant_part_color",\
+			"set_underwear", "set_undershirt", "set_socks",\
+			"toggle_color_scheme", "toggle_mismatched_markings", "toggle_fuzzy",\
+			"modify_limbs", "set_body_weight",\
+			"toggle_loadout_enabled", "toggle_gear", "clear_loadout",\
+			"marking_add", "marking_remove", "marking_color",\
+			"markings_clear_limb", "markings_remove_all",\
+			"toggle_arousable", "open_genital_config",\
+			"set_custom_blood_color", "toggle_custom_blood_color",\
+			"toggle_hardsuit_tail"\
+		))
+			update_preview()
 
 /client
 	var/datum/character_setup_ui/character_setup
