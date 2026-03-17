@@ -1429,8 +1429,6 @@ GLOBAL_LIST_INIT(blacklisted_builds, list(
 		S.icon = null
 		S.screen_loc = null
 		S.appearance = null
-		animate(S)
-		S.transform = null
 		screen -= S
 		qdel(S)
 
