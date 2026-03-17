@@ -729,8 +729,29 @@
 			return TRUE
 
 		if("set_species")
-			// Delegate to existing process_link behavior
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "species", "task" = "input"))
+			var/result = tgui_input_list(user, "Select a species", "Species Selection", GLOB.roundstart_race_names)
+			if(result)
+				var/newtype = GLOB.species_list[GLOB.roundstart_race_names[result]]
+				prefs.pref_species = new newtype()
+				prefs.custom_species = null
+				if(!owner?.can_have_part("mam_body_markings"))
+					prefs.features["mam_body_markings"] = list()
+				if(owner?.can_have_part("mam_body_markings"))
+					if(prefs.features["mam_body_markings"] == "None")
+						prefs.features["mam_body_markings"] = list()
+				if(owner?.can_have_part("tail_lizard"))
+					prefs.features["tail_lizard"] = "Smooth"
+				if(prefs.pref_species.id == "felinid")
+					prefs.features["mam_tail"] = "Cat"
+					prefs.features["mam_ears"] = "Cat"
+				var/temp_hsv = RGBtoHSV(prefs.features["mcolor"])
+				if(prefs.features["mcolor"] == "#000000" || (!(MUTCOLORS_PARTSONLY in prefs.pref_species.species_traits) && ReadHSV(temp_hsv)[3] < ReadHSV("#202020")[3]))
+					prefs.features["mcolor"] = prefs.pref_species.default_color
+				if(prefs.features["mcolor2"] == "#000000" || (!(MUTCOLORS_PARTSONLY in prefs.pref_species.species_traits) && ReadHSV(temp_hsv)[3] < ReadHSV("#202020")[3]))
+					prefs.features["mcolor2"] = prefs.pref_species.default_color
+				if(prefs.features["mcolor3"] == "#000000" || (!(MUTCOLORS_PARTSONLY in prefs.pref_species.species_traits) && ReadHSV(temp_hsv)[3] < ReadHSV("#202020")[3]))
+					prefs.features["mcolor3"] = prefs.pref_species.default_color
+				prefs.eye_type = prefs.pref_species.eye_type
 			return TRUE
 
 		if("set_hair_style")
@@ -796,7 +817,24 @@
 			return TRUE
 
 		if("set_skin_tone")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "s_tone", "task" = "input"))
+			var/list/choices = GLOB.skin_tones - GLOB.nonstandard_skin_tones
+			if(CONFIG_GET(flag/allow_custom_skintones))
+				choices += "custom"
+			var/new_s_tone = tgui_input_list(user, "Выберите тон кожи персонажа:", "Тон Кожи", choices)
+			if(new_s_tone)
+				if(new_s_tone == "custom")
+					var/default = prefs.use_custom_skin_tone ? prefs.skin_tone : null
+					var/custom_tone = input(user, "Выберите свой тон кожи:", "Тон Кожи", default) as color|null
+					if(custom_tone)
+						var/temp_hsv = RGBtoHSV(custom_tone)
+						if(ReadHSV(temp_hsv)[3] < ReadHSV("#333333")[3] && CONFIG_GET(flag/character_color_limits))
+							to_chat(user, span_danger("Недопустимый цвет. Ваш цвет слишком тёмный."))
+						else
+							prefs.use_custom_skin_tone = TRUE
+							prefs.skin_tone = custom_tone
+				else
+					prefs.use_custom_skin_tone = FALSE
+					prefs.skin_tone = new_s_tone
 			return TRUE
 
 		if("set_mutant_color")
@@ -814,7 +852,9 @@
 			return TRUE
 
 		if("set_body_size")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "body_size", "task" = "input"))
+			var/new_body_size = input(user, "Выберите размер спрайта: ([CONFIG_GET(number/body_size_min)*100]-[CONFIG_GET(number/body_size_max)*100]%)\nВнимание: размер влияет на скорость и максимальное здоровье.", "Размер Тела", prefs.features["body_size"]*100) as num|null
+			if(new_body_size)
+				prefs.features["body_size"] = clamp(new_body_size * 0.01, CONFIG_GET(number/body_size_min), CONFIG_GET(number/body_size_max))
 			return TRUE
 
 		if("set_mutant_part")
@@ -873,76 +913,121 @@
 			return TRUE
 
 		if("modify_limbs")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "modify_limbs", "task" = "input"))
+			var/limb_type = tgui_input_list(user, "Выберите конечность для модификации:", "Модификация Конечностей", LOADOUT_ALLOWED_LIMB_TARGETS)
+			if(limb_type)
+				var/modification_type = tgui_input_list(user, "Выберите тип модификации:", "Модификация Конечностей", LOADOUT_LIMBS)
+				if(modification_type)
+					if(modification_type == LOADOUT_LIMB_PROSTHETIC)
+						var/prosthetic_type = tgui_input_list(user, "Выберите тип протеза:", "Модификация Конечностей", (list("prosthetic") + GLOB.prosthetic_limb_types))
+						if(prosthetic_type)
+							var/number_of_prosthetics = 0
+							for(var/modified_limb in prefs.modified_limbs)
+								if(prefs.modified_limbs[modified_limb][1] == LOADOUT_LIMB_PROSTHETIC && modified_limb != limb_type)
+									number_of_prosthetics += 1
+							if(number_of_prosthetics == MAXIMUM_LOADOUT_PROSTHETICS)
+								to_chat(user, span_danger("Максимум [MAXIMUM_LOADOUT_PROSTHETICS] протеза!"))
+							else
+								prefs.modified_limbs[limb_type] = list(modification_type, prosthetic_type)
+					else if(modification_type == LOADOUT_LIMB_NORMAL)
+						prefs.modified_limbs -= limb_type
+					else
+						prefs.modified_limbs[limb_type] = list(modification_type)
 			return TRUE
 
 		// === APPEARANCE: Equipment handlers ===
 		if("set_backbag")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "bag", "task" = "input"))
+			var/new_backbag = tgui_input_list(user, "Выберите стиль сумки персонажа:", "Стиль Сумки", GLOB.backbaglist)
+			if(new_backbag)
+				prefs.backbag = new_backbag
 			return TRUE
 
 		if("toggle_jumpsuit_style")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "suit"))
+			if(prefs.jumpsuit_style == PREF_SUIT)
+				prefs.jumpsuit_style = PREF_SKIRT
+			else
+				prefs.jumpsuit_style = PREF_SUIT
 			return TRUE
 
 		if("toggle_persistent_scars")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "persistent_scars"))
+			prefs.persistent_scars = !prefs.persistent_scars
 			return TRUE
 
 		if("set_uplink_loc")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "uplink_loc", "task" = "input"))
+			var/new_loc = tgui_input_list(user, "Выберите место появления аплинка предателя:", "Расположение Аплинка", GLOB.uplink_spawn_loc_list)
+			if(new_loc)
+				prefs.uplink_spawn_loc = new_loc
 			return TRUE
 
 		// === BACKGROUND TAB ACTIONS ===
 		if("set_flavor_text")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "flavor_text", "task" = "input"))
+			var/msg = input(user, "Задайте внешнее описание вашего персонажа.", "Описание Внешности", prefs.features["flavor_text"]) as message|null
+			if(!isnull(msg))
+				prefs.features["flavor_text"] = strip_html_simple(msg, MAX_FLAVOR_LEN, TRUE)
 			return TRUE
 
 		if("set_naked_flavor_text")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "naked_flavor_text", "task" = "input"))
+			var/msg = input(user, "Задайте описание вашего персонажа без одежды.", "Описание Голого Персонажа", prefs.features["naked_flavor_text"]) as message|null
+			if(!isnull(msg))
+				prefs.features["naked_flavor_text"] = strip_html_simple(msg, MAX_FLAVOR_LEN, TRUE)
 			return TRUE
 
 		if("set_ooc_notes")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "ooc_notes", "task" = "input"))
+			var/msg = stripped_multiline_input(user, "Установите OOC-заметки, связанные с вашими предпочтениями.", "ООС-Заметки", html_decode(prefs.features["ooc_notes"]), MAX_FLAVOR_LEN, TRUE)
+			if(!isnull(msg))
+				prefs.features["ooc_notes"] = msg
 			return TRUE
 
 		if("set_custom_species_lore")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "custom_species_lore", "task" = "input"))
+			var/msg = input(user, "Задайте особую предысторию расы своего персонажа.", "Предыстория Расы", prefs.features["custom_species_lore"]) as message|null
+			if(!isnull(msg))
+				prefs.features["custom_species_lore"] = strip_html_simple(msg, MAX_FLAVOR_LEN, TRUE)
 			return TRUE
 
 		if("set_security_records")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "security_records", "task" = "input"))
+			var/rec = stripped_multiline_input(user, "Напишите заметки службы безопасности о вашем персонаже.", "Заметки СБ", html_decode(prefs.security_records), MAX_FLAVOR_LEN, TRUE)
+			if(!isnull(rec))
+				prefs.security_records = rec
 			return TRUE
 
 		if("set_medical_records")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "medical_records", "task" = "input"))
+			var/rec = stripped_multiline_input(user, "Напишите медицинские заметки о вашем персонаже.", "Мед. Заметки", html_decode(prefs.medical_records), MAX_FLAVOR_LEN, TRUE)
+			if(!isnull(rec))
+				prefs.medical_records = rec
 			return TRUE
 
 		if("set_custom_deathgasp")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "custom_deathgasp", "task" = "input"))
+			var/msg = input(user, "Задайте эмоцию смерти вашего персонажа.", "Сообщение О Смерти", prefs.features["custom_deathgasp"]) as message|null
+			if(!isnull(msg))
+				prefs.features["custom_deathgasp"] = strip_html_simple(msg, MAX_DEATHGASP_LEN, TRUE)
 			return TRUE
 
 		if("set_custom_deathsound")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "custom_deathsound", "task" = "input"))
+			var/sound_name = tgui_input_list(user, "Выберите звук смерти персонажа:", "Звук Смерти", GLOB.deathgasp_sounds)
+			if(sound_name)
+				prefs.features["custom_deathsound"] = sound_name
 			return TRUE
 
 		if("set_silicon_flavor_text")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "silicon_flavor_text", "task" = "input"))
+			var/msg = input(user, "Задайте особые признаки своего синтетического персонажа.", "Описание Борга", prefs.features["silicon_flavor_text"]) as message|null
+			if(!isnull(msg))
+				prefs.features["silicon_flavor_text"] = strip_html_simple(msg, MAX_FLAVOR_LEN, TRUE)
 			return TRUE
 
 		if("set_headshot")
 			var/slot = params["slot"]
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "headshot[slot]"))
+			prefs.set_headshot_link(user, "headshot_link[slot]")
 			return TRUE
 
 		if("set_naked_headshot")
 			var/slot = params["slot"]
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "headshot_naked[slot]"))
+			prefs.set_headshot_link(user, "headshot_naked_link[slot]")
 			return TRUE
 
 		// === SPEECH TAB ACTIONS ===
 		if("set_speech_verb")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "speech_verb", "task" = "input"))
+			var/selected = tgui_input_list(user, "Выберите глагол речи (none = глагол вашей расы):", "Глагол Речи", GLOB.speech_verbs)
+			if(selected)
+				prefs.custom_speech_verb = selected
 			return TRUE
 
 		if("set_bark_sound")
@@ -970,20 +1055,46 @@
 			return TRUE
 
 		if("preview_bark")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "barkpreview"))
+			if(SSticker.current_state == GAME_STATE_STARTUP)
+				to_chat(user, span_warning("Предпрослушивание недоступно во время загрузки!"))
+				return TRUE
+			if(!COOLDOWN_FINISHED(prefs, bark_previewing))
+				return TRUE
+			if(!user)
+				return TRUE
+			COOLDOWN_START(prefs, bark_previewing, (5 SECONDS))
+			var/atom/movable/barkbox = new(get_turf(user))
+			barkbox.set_bark(prefs.bark_id)
+			var/total_delay
+			for(var/i in 1 to (round((32 / prefs.bark_speed)) + 1))
+				addtimer(CALLBACK(barkbox, TYPE_PROC_REF(/atom/movable, bark), list(user), 7, 70, BARK_DO_VARY(prefs.bark_pitch, prefs.bark_variance)), total_delay)
+				total_delay += rand(DS2TICKS(prefs.bark_speed/4), DS2TICKS(prefs.bark_speed/4) + DS2TICKS(prefs.bark_speed/4)) TICKS
+			QDEL_IN(barkbox, total_delay)
 			return TRUE
 
 		// === SPEECH: New handlers ===
 		if("set_custom_tongue")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "tongue", "task" = "input"))
+			var/selected = tgui_input_list(user, "Выберите язык (none = язык вашей расы):", "Язык", GLOB.roundstart_tongues)
+			if(selected)
+				prefs.custom_tongue = selected
 			return TRUE
 
 		if("set_custom_laugh")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "laugh", "task" = "input"))
+			var/selected = tgui_input_list(user, "Выберите смех персонажа:", "Смех", GLOB.mob_laughs)
+			if(selected)
+				prefs.custom_laugh = selected
 			return TRUE
 
 		if("preview_laugh")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "laughpreview"))
+			if(SSticker.current_state == GAME_STATE_STARTUP)
+				to_chat(user, span_warning("Предпрослушивание недоступно во время загрузки!"))
+				return TRUE
+			if(!COOLDOWN_FINISHED(prefs, laugh_preview))
+				return TRUE
+			if(!user || prefs.custom_laugh == "Default")
+				return TRUE
+			COOLDOWN_START(prefs, laugh_preview, (3 SECONDS))
+			user.playsound_local(user, pick(get_laugh_sound(prefs.custom_laugh, FALSE)), 50)
 			return TRUE
 
 		if("set_languages")
@@ -991,16 +1102,25 @@
 			return TRUE
 
 		if("toggle_personal_chat_color")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "enable_personal_chat_color"))
+			prefs.enable_personal_chat_color = !prefs.enable_personal_chat_color
 			return TRUE
 
 		if("set_personal_chat_color")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "personal_chat_color", "task" = "input"))
+			var/new_chat_color = input(user, "Выберите цвет чата персонажа:", "Цвет Чата", prefs.personal_chat_color) as color|null
+			if(new_chat_color)
+				if(color_hex2num(new_chat_color) > 200)
+					prefs.personal_chat_color = sanitize_hexcolor(new_chat_color, 6, TRUE)
+				else
+					to_chat(user, span_danger("Недопустимый цвет. Слишком тёмный."))
 			return TRUE
 
 		// === GENERAL TAB DELEGATION ===
 		if("set_blood_color")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "blood_color", "task" = "input"))
+			var/picked = input(user, "Выбирайте цвет крови своего персонажа.", "Character Preference", prefs.blood_color) as color|null
+			if(picked)
+				prefs.blood_color = sanitize_hexcolor(picked, 6, 1, initial(prefs.blood_color))
+				if(!prefs.custom_blood_color)
+					prefs.custom_blood_color = TRUE
 			return TRUE
 
 		if("set_custom_name")
@@ -1011,35 +1131,53 @@
 			return TRUE
 
 		if("set_security_dept")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "sec_dept", "task" = "input"))
+			var/department = tgui_input_list(user, "Choose your preferred security department:", "Security Departments", GLOB.security_depts_prefs)
+			if(department)
+				prefs.prefered_security_department = department
 			return TRUE
 
 		if("set_ai_core_display")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "ai_core_icon", "task" = "input"))
+			var/ai_core_icon = tgui_input_list(user, "Choose your preferred AI core display screen:", "AI Core Display Screen", GLOB.ai_core_display_screens)
+			if(ai_core_icon)
+				prefs.preferred_ai_core_display = ai_core_icon
 			return TRUE
 
 		if("set_pda_color")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "pda_color", "task" = "input"))
+			var/picked = input(user, "Выбирайте цвет интерфейса своего КПК.", "Character Preference", prefs.pda_color) as color|null
+			if(picked)
+				prefs.pda_color = picked
 			return TRUE
 
 		if("set_pda_style")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "pda_style", "task" = "input"))
+			var/picked = tgui_input_list(user, "Выбирайте стиль своего КПК.", "Character Preference", GLOB.pda_styles, prefs.pda_style)
+			if(picked)
+				prefs.pda_style = picked
 			return TRUE
 
 		if("set_pda_skin")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "pda_skin", "task" = "input"))
+			var/picked = tgui_input_list(user, "Выбирайте модель своего КПК.", "Character Preference", GLOB.pda_reskins, prefs.pda_skin)
+			if(picked)
+				prefs.pda_skin = picked
 			return TRUE
 
 		if("set_pda_ringtone")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "pda_ringtone", "task" = "input"))
+			var/picked = reject_bad_name(input(user, "Выбирайте рингтон своего КПК.", "Character Preference", prefs.pda_ringtone) as null|text, TRUE)
+			if(picked)
+				prefs.pda_ringtone = picked
 			return TRUE
 
 		if("set_silicon_lawset")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "silicon_lawset", "task" = "input"))
+			var/picked = tgui_input_list(user, "Выбирайте предпочитаемый список законов", "Silicon preference", list("None") + CONFIG_GET(keyed_list/choosable_laws), prefs.silicon_lawset)
+			if(picked)
+				if(picked == "None")
+					picked = null
+				prefs.silicon_lawset = picked
 			return TRUE
 
 		if("set_body_weight")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "body_weight", "task" = "input"))
+			var/new_weight = tgui_input_number(user, "Enter body weight (50-600 lbs):", "Body Weight", prefs.body_weight, 600, 50)
+			if(!isnull(new_weight))
+				prefs.body_weight = clamp(new_weight, 50, 600)
 			return TRUE
 
 		if("refresh_preview")
@@ -1091,16 +1229,36 @@
 				if("unholy_pref")
 					prefs.unholypref = value
 				if("tattoo_pref")
-					prefs.process_link(user, list("_src_" = "prefs", "preference" = "tattoo_pref"))
+					switch(prefs.tattoopref)
+						if("Yes")
+							prefs.tattoopref = "Ask"
+						if("Ask")
+							prefs.tattoopref = "No"
+						if("No")
+							prefs.tattoopref = "Yes"
 					return TRUE
 				if("extremeharm")
-					prefs.process_link(user, list("_src_" = "prefs", "preference" = "extremeharm"))
+					switch(prefs.extremeharm)
+						if("Yes")
+							prefs.extremeharm = "No"
+						if("No")
+							prefs.extremeharm = "Yes"
+					if(prefs.extremepref == "No")
+						prefs.extremeharm = "No"
 					return TRUE
 				if("mobsex_pref")
-					prefs.process_link(user, list("_src_" = "prefs", "preference" = "mobsex_pref"))
+					switch(prefs.mobsexpref)
+						if("Yes")
+							prefs.mobsexpref = "No"
+						if("No")
+							prefs.mobsexpref = "Yes"
 					return TRUE
 				if("hornyantags_pref")
-					prefs.process_link(user, list("_src_" = "prefs", "preference" = "hornyantags_pref"))
+					switch(prefs.hornyantagspref)
+						if("Yes")
+							prefs.hornyantagspref = "No"
+						if("No")
+							prefs.hornyantagspref = "Yes"
 					return TRUE
 			return TRUE
 
@@ -1114,12 +1272,135 @@
 
 		if("toggle_cit")
 			var/flag = params["flag"]
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = flag))
+			switch(flag)
+				if("genital_examine")
+					prefs.cit_toggles ^= GENITAL_EXAMINE
+				if("vore_examine")
+					prefs.cit_toggles ^= VORE_EXAMINE
+				if("hound_sleeper")
+					prefs.cit_toggles ^= MEDIHOUND_SLEEPER
+				if("toggleeatingnoise")
+					prefs.cit_toggles ^= EATING_NOISES
+				if("toggledigestionnoise")
+					prefs.cit_toggles ^= DIGESTION_NOISES
+				if("toggleforcefeedtrash")
+					prefs.cit_toggles ^= TRASH_FORCEFEED
+				if("breast_enlargement")
+					prefs.cit_toggles ^= BREAST_ENLARGEMENT
+				if("penis_enlargement")
+					prefs.cit_toggles ^= PENIS_ENLARGEMENT
+				if("butt_enlargement")
+					prefs.cit_toggles ^= BUTT_ENLARGEMENT
+				if("belly_inflation")
+					prefs.cit_toggles ^= BELLY_INFLATION
+				if("feminization")
+					prefs.cit_toggles ^= FORCED_FEM
+				if("masculinization")
+					prefs.cit_toggles ^= FORCED_MASC
+				if("hypno")
+					prefs.cit_toggles ^= HYPNO
+				if("never_hypno")
+					prefs.cit_toggles ^= NEVER_HYPNO
+				if("aphro")
+					prefs.cit_toggles ^= NO_APHRO
+				if("ass_slap")
+					prefs.cit_toggles ^= NO_ASS_SLAP
+				if("bimbo")
+					prefs.cit_toggles ^= BIMBOFICATION
+				if("auto_wag")
+					prefs.cit_toggles ^= NO_AUTO_WAG
+				if("disco_dance")
+					prefs.cit_toggles ^= NO_DISCO_DANCE
+				if("sex_jitter")
+					prefs.cit_toggles ^= SEX_JITTER
+				if("chastitypref")
+					prefs.cit_toggles ^= CHASTITY
+				if("stimulationpref")
+					prefs.cit_toggles ^= STIMULATION
+				if("edgingpref")
+					prefs.cit_toggles ^= EDGING
+				if("cumontopref")
+					prefs.cit_toggles ^= CUM_ONTO
 			return TRUE
 
 		if("toggle_flag")
 			var/flag = params["flag"]
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = flag))
+			switch(flag)
+				// toggles ^= CONSTANT
+				if("hear_adminhelps")
+					prefs.toggles ^= SOUND_ADMINHELP
+				if("announce_login")
+					prefs.toggles ^= ANNOUNCE_LOGIN
+				if("combohud_lighting")
+					prefs.toggles ^= COMBOHUD_LIGHTING
+				if("disable_antag")
+					prefs.toggles ^= NO_ANTAG
+				if("hear_midis")
+					prefs.toggles ^= SOUND_MIDI
+				if("verb_consent")
+					prefs.toggles ^= VERB_CONSENT
+				if("ranged_verb_consent")
+					prefs.toggles ^= RANGED_VERBS_CONSENT
+				if("lewd_verb_sounds")
+					prefs.toggles ^= LEWD_VERB_SOUNDS
+				if("lobby_music")
+					prefs.toggles ^= SOUND_LOBBY
+				if("allow_midround_antag")
+					prefs.toggles ^= MIDROUND_ANTAG
+				if("tg_player_panel")
+					prefs.toggles ^= TG_PLAYER_PANEL
+				if("member_public")
+					prefs.toggles ^= MEMBER_PUBLIC
+				if("hear_instruments")
+					prefs.toggles ^= SOUND_INSTRUMENTS
+				if("hear_announcements")
+					prefs.toggles ^= SOUND_ANNOUNCEMENTS
+				if("hear_jukeboxes")
+					prefs.toggles ^= SOUND_JUKEBOXES
+				// Simple bool toggles
+				if("winflash")
+					prefs.windowflashing = !prefs.windowflashing
+				if("winnoise")
+					prefs.windownoise = !prefs.windownoise
+				// chat_toggles ^= CONSTANT
+				if("ghost_ears")
+					prefs.chat_toggles ^= CHAT_GHOSTEARS
+				if("ghost_sight")
+					prefs.chat_toggles ^= CHAT_GHOSTSIGHT
+				if("ghost_whispers")
+					prefs.chat_toggles ^= CHAT_GHOSTWHISPER
+				if("ghost_radio")
+					prefs.chat_toggles ^= CHAT_GHOSTRADIO
+				if("ghost_pda")
+					prefs.chat_toggles ^= CHAT_GHOSTPDA
+				if("income_pings")
+					prefs.chat_toggles ^= CHAT_BANKCARD
+				if("pull_requests")
+					prefs.chat_toggles ^= CHAT_PULLR
+				// custom_colors ^= CONSTANT
+				if("custom_color_ooc")
+					prefs.custom_colors ^= CUSTOM_OOC
+				if("custom_color_aooc")
+					prefs.custom_colors ^= CUSTOM_AOOC
+				// Ghost accessory cycling
+				if("ghost_accs")
+					var/new_ghost_accs = tgui_input_list(user, "Выберите режим аксессуаров призрака:", "Аксессуары Призрака", list(GHOST_ACCS_FULL_NAME, GHOST_ACCS_DIR_NAME, GHOST_ACCS_NONE_NAME))
+					switch(new_ghost_accs)
+						if(GHOST_ACCS_FULL_NAME)
+							prefs.ghost_accs = GHOST_ACCS_FULL
+						if(GHOST_ACCS_DIR_NAME)
+							prefs.ghost_accs = GHOST_ACCS_DIR
+						if(GHOST_ACCS_NONE_NAME)
+							prefs.ghost_accs = GHOST_ACCS_NONE
+				if("ghost_others")
+					var/new_ghost_others = tgui_input_list(user, "Как показывать призраков других игроков?", "Другие Призраки", list(GHOST_OTHERS_THEIR_SETTING_NAME, GHOST_OTHERS_DEFAULT_SPRITE_NAME, GHOST_OTHERS_SIMPLE_NAME))
+					switch(new_ghost_others)
+						if(GHOST_OTHERS_THEIR_SETTING_NAME)
+							prefs.ghost_others = GHOST_OTHERS_THEIR_SETTING
+						if(GHOST_OTHERS_DEFAULT_SPRITE_NAME)
+							prefs.ghost_others = GHOST_OTHERS_DEFAULT_SPRITE
+						if(GHOST_OTHERS_SIMPLE_NAME)
+							prefs.ghost_others = GHOST_OTHERS_SIMPLE
 			return TRUE
 
 		if("open_genital_config")
@@ -1128,24 +1409,37 @@
 
 		// === CONTENT: New handlers ===
 		if("set_lust_tolerance")
-			var/new_val = text2num(params["value"])
-			if(!isnull(new_val))
-				prefs.process_link(user, list("_src_" = "prefs", "preference" = "lust_tolerance"))
+			var/lust_tol = input(user, "Установите порог похоти (25-200):", "Порог Похоти", prefs.lust_tolerance) as num|null
+			if(lust_tol)
+				prefs.lust_tolerance = clamp(lust_tol, 25, 200)
 			return TRUE
 
 		if("set_sexual_potency")
-			var/new_val = text2num(params["value"])
-			if(!isnull(new_val))
-				prefs.process_link(user, list("_src_" = "prefs", "preference" = "sexual_potency"))
+			var/sexual_pot = input(user, "Установите сексуальную потенцию (-1 до 25, -1 = без ограничений):", "Потенция", prefs.sexual_potency) as num|null
+			if(sexual_pot)
+				prefs.sexual_potency = clamp(sexual_pot, -1, 25)
 			return TRUE
 
 		if("set_gfluid_blacklist")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "gfluid_black", "task" = "input"))
+			var/list/datum/reagent/fluid_list = GLOB.genital_fluids_list.Copy()
+			var/list/blacklisted = list()
+			for(var/r in prefs.gfluid_blacklist)
+				LAZYADD(blacklisted, find_reagent_object_from_type(r))
+			LAZYREMOVE(fluid_list, GLOB.default_genital_fluids + blacklisted)
+			var/datum/reagent/selected = tgui_input_list(user, "Добавить жидкость в чёрный список:", "Чёрный Список Жидкостей", fluid_list)
+			if(selected)
+				LAZYADD(prefs.gfluid_blacklist, selected.type)
 			return TRUE
 
 		// === GAME PREFERENCES ACTIONS ===
 		if("set_ui_style")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "ui", "task" = "input"))
+			var/pickedui = tgui_input_list(user, "Выберите стиль интерфейса:", "Стиль UI", GLOB.available_ui_styles, prefs.UI_style)
+			if(pickedui)
+				prefs.UI_style = pickedui
+				if(owner?.mob?.hud_used)
+					QDEL_NULL(owner.mob.hud_used)
+					owner.mob.create_mob_hud()
+					owner.mob.hud_used.show_hud(1, owner.mob)
 			return TRUE
 
 		if("toggle_outline")
@@ -1153,15 +1447,21 @@
 			return TRUE
 
 		if("set_outline_color")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "outline_color"))
+			var/picked = input(user, "Выберите цвет контура:", "Цвет Контура", prefs.outline_color) as color|null
+			if(picked != prefs.outline_color)
+				prefs.outline_color = picked
 			return TRUE
 
 		if("set_screentip_pref")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "screentip_pref"))
+			var/choice = tgui_input_list(user, "Выберите режим подсказок:", "Подсказки", GLOB.screentip_pref_options, prefs.screentip_pref)
+			if(choice)
+				prefs.screentip_pref = choice
 			return TRUE
 
 		if("set_screentip_color")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "screentip_color"))
+			var/picked = input(user, "Выберите цвет подсказок:", "Цвет Подсказок", prefs.screentip_color) as color|null
+			if(picked)
+				prefs.screentip_color = picked
 			return TRUE
 
 		if("toggle_screentip_images")
@@ -1214,102 +1514,155 @@
 
 		// === GAME PREFS: New toggles ===
 		if("toggle_widescreenpref")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "widescreenpref"))
+			prefs.widescreenpref = !prefs.widescreenpref
+			if(owner)
+				owner.view_size.setDefault(getScreenSize(prefs.widescreenpref))
 			return TRUE
 
 		if("toggle_fullscreen")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "fullscreen"))
+			prefs.fullscreen = !prefs.fullscreen
+			if(owner)
+				owner.ToggleFullscreen()
 			return TRUE
 
 		if("toggle_long_strip_menu")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "long_strip_menu"))
+			prefs.long_strip_menu = !prefs.long_strip_menu
 			return TRUE
 
 		if("toggle_autostand")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "autostand"))
+			prefs.autostand = !prefs.autostand
 			return TRUE
 
 		if("toggle_auto_ooc")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "auto_ooc"))
+			prefs.auto_ooc = !prefs.auto_ooc
 			return TRUE
 
 		if("toggle_auto_capitalize")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "auto_capitalize_enabled"))
+			prefs.auto_capitalize_enabled = !prefs.auto_capitalize_enabled
 			return TRUE
 
 		if("toggle_no_tetris")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "no_tetris_storage"))
+			prefs.no_tetris_storage = !prefs.no_tetris_storage
 			return TRUE
 
 		if("set_screenshake")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "screenshake"))
+			var/desiredshake = input(user, "Задайте силу тряски экрана (0 = выкл, 100 = макс):", "Тряска Экрана", prefs.screenshake) as null|num
+			if(!isnull(desiredshake))
+				prefs.screenshake = desiredshake
 			return TRUE
 
 		if("set_damagescreenshake")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "damagescreenshake"))
+			switch(prefs.damagescreenshake)
+				if(0)
+					prefs.damagescreenshake = 1
+				if(1)
+					prefs.damagescreenshake = 2
+				if(2)
+					prefs.damagescreenshake = 0
+				else
+					prefs.damagescreenshake = 1
 			return TRUE
 
 		if("set_recoil_screenshake")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "recoil_screenshake"))
+			var/desiredshake = input(user, "Задайте силу тряски отдачи (0 = выкл, 100 = макс):", "Отдача", prefs.recoil_screenshake) as null|num
+			if(!isnull(desiredshake))
+				prefs.recoil_screenshake = desiredshake
 			return TRUE
 
 		if("set_parallax")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "parallax"))
+			prefs.parallax = WRAP(prefs.parallax + 1, PARALLAX_DISABLE, PARALLAX_INSANE + 1)
+			if(owner?.parallax_holder)
+				owner.parallax_holder.Reset()
 			return TRUE
 
 		if("toggle_ambientocclusion")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "ambientocclusion"))
+			prefs.ambientocclusion = !prefs.ambientocclusion
+			if(owner?.mob?.hud_used)
+				var/atom/movable/screen/plane_master/game_world/G = owner.mob.hud_used.plane_masters["[GAME_PLANE]"]
+				var/atom/movable/screen/plane_master/above_wall/A = owner.mob.hud_used.plane_masters["[ABOVE_WALL_PLANE]"]
+				var/atom/movable/screen/plane_master/wall/W = owner.mob.hud_used.plane_masters["[WALL_PLANE]"]
+				G?.backdrop(owner.mob)
+				A?.backdrop(owner.mob)
+				W?.backdrop(owner.mob)
 			return TRUE
 
 		if("toggle_auto_fit_viewport")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "auto_fit_viewport"))
+			prefs.auto_fit_viewport = !prefs.auto_fit_viewport
+			if(prefs.auto_fit_viewport && owner)
+				owner.fit_viewport()
 			return TRUE
 
 		if("toggle_hud_flash")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "hud_toggle_flash"))
+			prefs.hud_toggle_flash = !prefs.hud_toggle_flash
 			return TRUE
 
 		if("set_hud_color")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "hud_toggle_color"))
+			var/picked = input(user, "Выберите цвет мигания HUD:", "Цвет HUD", prefs.hud_toggle_color) as color|null
+			if(picked)
+				prefs.hud_toggle_color = picked
 			return TRUE
 
 		if("toggle_view_pixelshift")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "view_pixelshift"))
+			prefs.view_pixelshift = !prefs.view_pixelshift
 			return TRUE
 
 		if("toggle_combat_cursor")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "disable_combat_cursor"))
+			prefs.disable_combat_cursor = !prefs.disable_combat_cursor
 			return TRUE
 
 		if("toggle_combat_mouse_lock")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "disable_combat_mouse_lock"))
+			prefs.disable_combat_mouse_lock = !prefs.disable_combat_mouse_lock
 			return TRUE
 
 		if("set_be_victim")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "be_victim"))
+			var/picked = tgui_input_list(user, "Готовы ли вы к взаимодействию с антагонистами?", "Согласие Жертвы", list(BEVICTIM_NO, BEVICTIM_ASK, BEVICTIM_YES))
+			if(picked)
+				prefs.be_victim = picked
 			return TRUE
 
 		// === OOC PREFERENCES ACTIONS ===
 		if("set_ooccolor")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "ooccolor"))
+			var/new_ooccolor = input(user, "Выберите цвет OOC:", "Цвет OOC", prefs.ooccolor) as color|null
+			if(new_ooccolor)
+				prefs.ooccolor = sanitize_ooccolor(new_ooccolor)
 			return TRUE
 
 		if("set_aooccolor")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "aooccolor"))
+			var/new_aooccolor = input(user, "Выберите цвет AOOC:", "Цвет AOOC", prefs.aooccolor) as color|null
+			if(new_aooccolor)
+				prefs.aooccolor = sanitize_ooccolor(new_aooccolor)
 			return TRUE
 
 		if("set_ghost_form")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "ghost_form"))
+			var/new_form = tgui_input_list(user, "Выберите форму призрака:", "Форма Призрака", GLOB.ghost_forms)
+			if(new_form)
+				prefs.ghost_form = new_form
 			return TRUE
 
 		if("set_ghost_orbit")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "ghost_orbit"))
+			var/new_orbit = tgui_input_list(user, "Выберите орбиту призрака:", "Орбита Призрака", GLOB.ghost_orbits)
+			if(new_orbit)
+				prefs.ghost_orbit = new_orbit
 			return TRUE
 
 		if("toggle_chat_flag")
 			var/flag = params["flag"]
 			if(flag)
-				prefs.process_link(user, list("_src_" = "prefs", "preference" = flag))
+				switch(flag)
+					if("ghost_ears")
+						prefs.chat_toggles ^= CHAT_GHOSTEARS
+					if("ghost_sight")
+						prefs.chat_toggles ^= CHAT_GHOSTSIGHT
+					if("ghost_whispers")
+						prefs.chat_toggles ^= CHAT_GHOSTWHISPER
+					if("ghost_radio")
+						prefs.chat_toggles ^= CHAT_GHOSTRADIO
+					if("ghost_pda")
+						prefs.chat_toggles ^= CHAT_GHOSTPDA
+					if("income_pings")
+						prefs.chat_toggles ^= CHAT_BANKCARD
+					if("pull_requests")
+						prefs.chat_toggles ^= CHAT_PULLR
 			return TRUE
 
 		// === MARKINGS ACTIONS ===
@@ -1355,7 +1708,7 @@
 			return TRUE
 
 		if("open_tattoo_manager")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "open_tattoo_manager"))
+			user.client?.open_tattoo_manager()
 			return TRUE
 
 		// === LOADOUT ACTIONS ===

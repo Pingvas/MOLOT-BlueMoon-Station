@@ -3,6 +3,8 @@ import {
   Box,
   Button,
   ColorBox,
+  Divider,
+  Flex,
   Input,
   LabeledList,
   NumberInput,
@@ -15,50 +17,52 @@ export const GeneralTab = (_props, context) => {
   const { act, data } = useBackend<CharacterSetupData>(context);
 
   return (
-    <Stack vertical>
-      {/* Identity — the most important section */}
+    <Stack vertical fill>
+      {/* Row 1: Identity + Toggles */}
       <Stack.Item>
-        <Section title="Индентификация">
-          <Stack>
-            <Stack.Item grow basis={0}>
+        <Section
+          title="Идентификация"
+          buttons={
+            <Button
+              icon="dice"
+              content="Случайное имя"
+              onClick={() => act('random_name')}
+            />
+          }>
+          <Flex wrap="wrap">
+            {/* Left column */}
+            <Flex.Item basis="50%" grow={1} pr={1}>
               <LabeledList>
                 <LabeledList.Item label="Имя">
-                  <Stack inline>
-                    <Stack.Item grow>
-                      <Input
-                        fluid
-                        value={data.real_name}
-                        onInput={(e, value) => act('set_name', {
-                          name: value,
-                        })}
-                      />
-                    </Stack.Item>
-                    <Stack.Item>
-                      <Button
-                        icon="dice"
-                        tooltip="Случайное имя"
-                        onClick={() => act('random_name')}
-                      />
-                    </Stack.Item>
-                  </Stack>
+                  <Input
+                    fluid
+                    value={data.real_name}
+                    onInput={(e, value) => act('set_name', {
+                      name: value,
+                    })}
+                  />
                 </LabeledList.Item>
                 <LabeledList.Item label="Пол">
                   <Button
+                    compact
                     selected={data.gender === 'male'}
                     content="М"
                     onClick={() => act('set_gender', { gender: 'male' })}
                   />
                   <Button
+                    compact
                     selected={data.gender === 'female'}
                     content="Ж"
                     onClick={() => act('set_gender', { gender: 'female' })}
                   />
                   <Button
+                    compact
                     selected={data.gender === 'plural'}
                     content="Мн."
                     onClick={() => act('set_gender', { gender: 'plural' })}
                   />
                   <Button
+                    compact
                     selected={data.gender === 'neuter'}
                     content="Ср."
                     onClick={() => act('set_gender', { gender: 'neuter' })}
@@ -73,15 +77,10 @@ export const GeneralTab = (_props, context) => {
                     onChange={(e, value) => act('set_age', { age: value })}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Отдел СБ">
-                  <Button
-                    content={data.prefered_security_department || 'Не выбран'}
-                    onClick={() => act('set_security_dept')}
-                  />
-                </LabeledList.Item>
               </LabeledList>
-            </Stack.Item>
-            <Stack.Item grow basis={0}>
+            </Flex.Item>
+            {/* Right column */}
+            <Flex.Item basis="50%" grow={1} pl={1}>
               <LabeledList>
                 <LabeledList.Item label="Случ. имя">
                   <Button.Checkbox
@@ -125,22 +124,23 @@ export const GeneralTab = (_props, context) => {
                   />
                   {!!data.custom_blood_color && (
                     <Button
+                      compact
                       icon="palette"
                       onClick={() => act('set_blood_color')}>
-                      <ColorBox color={data.blood_color} mr={1} />
+                      <ColorBox color={data.blood_color} mr={0.5} />
                     </Button>
                   )}
                 </LabeledList.Item>
               </LabeledList>
-            </Stack.Item>
-          </Stack>
+            </Flex.Item>
+          </Flex>
         </Section>
       </Stack.Item>
 
-      {/* Occupation + Quirks row */}
+      {/* Row 2: Occupation + Quirks */}
       <Stack.Item>
-        <Stack>
-          <Stack.Item grow basis={0}>
+        <Flex>
+          <Flex.Item grow={1} basis="50%" pr={0.5}>
             <Section title="Работа">
               <Button
                 fluid
@@ -148,13 +148,25 @@ export const GeneralTab = (_props, context) => {
                 content="Настроить должности"
                 onClick={() => act('open_job_menu')}
               />
+              <Box mt={1}>
+                <LabeledList>
+                  <LabeledList.Item label="Отдел СБ">
+                    <Button
+                      compact
+                      content={data.prefered_security_department || 'Random'}
+                      onClick={() => act('set_security_dept')}
+                    />
+                  </LabeledList.Item>
+                </LabeledList>
+              </Box>
             </Section>
-          </Stack.Item>
+          </Flex.Item>
           {!!data.roundstart_traits && (
-            <Stack.Item grow basis={0}>
-              <Section title="Особенности"
+            <Flex.Item grow={1} basis="50%" pl={0.5}>
+              <Section
+                title="Особенности"
                 buttons={
-                  <Box inline color="label">
+                  <Box inline bold color="label">
                     Баланс: {data.quirk_balance ?? 0}
                   </Box>
                 }>
@@ -165,73 +177,74 @@ export const GeneralTab = (_props, context) => {
                   onClick={() => act('open_quirk_menu')}
                 />
               </Section>
-            </Stack.Item>
+            </Flex.Item>
           )}
-        </Stack>
+        </Flex>
       </Stack.Item>
 
-      {/* Custom names + Game specifics */}
+      {/* Row 3: Special Names + PDA + Silicon */}
       <Stack.Item>
-        <Stack>
-          <Stack.Item grow basis={0}>
+        <Flex>
+          <Flex.Item grow={1} basis="50%" pr={0.5}>
             <Section title="Особые имена">
               <SpecialNames />
             </Section>
-          </Stack.Item>
-          <Stack.Item grow basis={0}>
-            <Stack vertical>
-              <Stack.Item>
-                <Section title="PDA">
-                  <LabeledList>
-                    <LabeledList.Item label="Цвет">
-                      <Button onClick={() => act('set_pda_color')}>
-                        <ColorBox color={data.pda_color} mr={1} />
-                      </Button>
-                    </LabeledList.Item>
-                    <LabeledList.Item label="Стиль">
-                      <Button
-                        content={data.pda_style || 'По умолч.'}
-                        onClick={() => act('set_pda_style')}
-                      />
-                    </LabeledList.Item>
-                    <LabeledList.Item label="Скин">
-                      <Button
-                        content={data.pda_skin || 'По умолч.'}
-                        onClick={() => act('set_pda_skin')}
-                      />
-                    </LabeledList.Item>
-                    <LabeledList.Item label="Рингтон">
-                      <Button
-                        content={data.pda_ringtone || 'По умолч.'}
-                        onClick={() => act('set_pda_ringtone')}
-                      />
-                    </LabeledList.Item>
-                  </LabeledList>
-                </Section>
-              </Stack.Item>
-              <Stack.Item>
-                <Section title="Силикон">
-                  <LabeledList>
-                    <LabeledList.Item label="ИИ Ядро">
-                      <Button
-                        content={data.preferred_ai_core_display || 'По умолч.'}
-                        onClick={() => act('set_ai_core_display')}
-                      />
-                    </LabeledList.Item>
-                    {!!data.allow_silicon_choosing_laws && (
-                      <LabeledList.Item label="Законы">
-                        <Button
-                          content={data.silicon_lawset || 'По умолч.'}
-                          onClick={() => act('set_silicon_lawset')}
-                        />
-                      </LabeledList.Item>
-                    )}
-                  </LabeledList>
-                </Section>
-              </Stack.Item>
-            </Stack>
-          </Stack.Item>
-        </Stack>
+          </Flex.Item>
+          <Flex.Item grow={1} basis="50%" pl={0.5}>
+            <Section title="PDA">
+              <LabeledList>
+                <LabeledList.Item label="Цвет">
+                  <Button
+                    compact
+                    onClick={() => act('set_pda_color')}>
+                    <ColorBox color={data.pda_color} mr={0.5} />
+                  </Button>
+                </LabeledList.Item>
+                <LabeledList.Item label="Стиль">
+                  <Button
+                    compact
+                    content={data.pda_style || 'По умолч.'}
+                    onClick={() => act('set_pda_style')}
+                  />
+                </LabeledList.Item>
+                <LabeledList.Item label="Скин">
+                  <Button
+                    compact
+                    content={data.pda_skin || 'По умолч.'}
+                    onClick={() => act('set_pda_skin')}
+                  />
+                </LabeledList.Item>
+                <LabeledList.Item label="Рингтон">
+                  <Button
+                    compact
+                    content={data.pda_ringtone || 'По умолч.'}
+                    onClick={() => act('set_pda_ringtone')}
+                  />
+                </LabeledList.Item>
+              </LabeledList>
+              <Divider />
+              <Box bold mb={0.5}>Силикон</Box>
+              <LabeledList>
+                <LabeledList.Item label="ИИ Ядро">
+                  <Button
+                    compact
+                    content={data.preferred_ai_core_display || 'По умолч.'}
+                    onClick={() => act('set_ai_core_display')}
+                  />
+                </LabeledList.Item>
+                {!!data.allow_silicon_choosing_laws && (
+                  <LabeledList.Item label="Законы">
+                    <Button
+                      compact
+                      content={data.silicon_lawset || 'По умолч.'}
+                      onClick={() => act('set_silicon_lawset')}
+                    />
+                  </LabeledList.Item>
+                )}
+              </LabeledList>
+            </Section>
+          </Flex.Item>
+        </Flex>
       </Stack.Item>
     </Stack>
   );
@@ -247,7 +260,7 @@ const SpecialNames = (_props, context) => {
 
   return (
     <LabeledList>
-      {custom_name_types.map((nameType) => (
+      {custom_name_types.map((nameType, i) => (
         <LabeledList.Item label={nameType.label}>
           <Input
             fluid
