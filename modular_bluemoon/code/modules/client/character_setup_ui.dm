@@ -38,6 +38,11 @@
 	prefs?.save_preferences()
 	QDEL_NULL(character_preview_view)
 
+/datum/character_setup_ui/ui_assets(mob/user)
+	return list(
+		get_asset_datum(/datum/asset/spritesheet/chat),
+	)
+
 /datum/character_setup_ui/ui_interact(mob/user, datum/tgui/ui)
 	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
@@ -403,6 +408,67 @@
 	data["bark_id"] = prefs.bark_id
 	data["bark_pitch"] = prefs.bark_pitch
 	data["bark_speed"] = prefs.bark_speed
+
+	// === LANGUAGE DATA ===
+	var/max_languages = CONFIG_GET(number/max_languages)
+	data["max_languages"] = max_languages
+	var/list/available_languages = list()
+	// Russian translations for language descriptions
+	var/static/list/lang_desc_ru = list(
+		"Rachnidian" = "Язык, использующий тонкие танцевальные движения конечностей арахнидов для общения. Движения достаточно быстры и резки, чтобы издавать слышимые звуки, различимые по радио.",
+		"Beachtongue" = "Древний язык с далёкой Пляжной Планеты. Люди магическим образом начинают говорить на нём под воздействием космических наркотиков.",
+		"Draconic" = "Общий язык ящеролюдов, состоящий из шипящих звуков и трещоток.",
+		"Dwarvish" = "Язык дварфов.",
+		"Encoded Audio Language" = "Эффективный язык кодированных тонов, разработанный синтетиками и киборгами.",
+		"Chimpanzee" = "Ук ук ук.",
+		"Mushroom" = "Язык, состоящий из периодических порывов воздуха, наполненного спорами.",
+		"Neo-Kanji" = "Смесь множества старых земных азиатских диалектов. Известен как официальный язык клана пауков.",
+		"Space Sign Language" = "Те, кто не может говорить, могут выучить этот язык жестов.",
+		"Slime" = "Мелодичный и сложный язык слаймов. Некоторые ноты неслышимы для людей.",
+		"Sylvan" = "Сложный древний язык, на котором говорят растительные существа.",
+		"Siiktajr" = "Традиционный язык Адомая, состоящий из выразительных завываний и щебетаний. Родной для таджаран.",
+		"Voltaic" = "Искрящийся язык, создаваемый путём управления электрическими разрядами.",
+		"Canilunzt" = "Гортанный язык обитателей системы Ваззенд, состоящий из рычания, лая и активного использования ушей и хвоста. Вульпканины говорят на нём с лёгкостью.",
+		"Xenomorph" = "Общий язык ксеноморфов.",
+		"Galactic Common" = "Общегалактический язык.",
+		"Felinid" = "Естественный язык фелинидов. Полон мягкого мяуканья, мурлыканья и шипения. Ня~",
+		"Buggy" = "Едва понятный язык, на котором говорят существа, похожие на насекомых.",
+		"Calcic" = "Отрывистый язык плазмаменов. Также понятен скелетам.",
+		LANGUAGE_SERGAL = "Доминирующий язык родного мира сергалов — Тал. Состоит из агрессивного низкого шипения и горлового рычания.",
+		"Avian" = "Набор птичьих пений и криков, в основном приятных для человеческого слуха.",
+		"Skrellian" = "Мелодичный и сложный язык скреллов с Керрбалака. Некоторые ноты неслышимы для людей.",
+		LANGUAGE_ACRATARIAN = "Основной язык по всему Акратару, планете Акрадоров в системе Триос.",
+		LANGUAGE_CETRIA = "Редкий язык всех каткринов. Схож с немецким и латинским, с примесью шипения, мурлыканья и рычания.",
+		"Katzenjammer" = "Модернизированная версия немецкого языка с различными диалектами. Обычно используется жителями Земли.",
+		LANGUAGE_DEMONIC = "Родной язык многих потусторонних существ. Часто можно услышать от тех, кого люди назвали бы демонами.",
+	)
+	if(SSlanguage?.languages_by_name?.len)
+		var/static/list/lang_icons_b64 = list()
+		for(var/V in SSlanguage.languages_by_name)
+			var/datum/language/L = SSlanguage.languages_by_name[V]
+			if(!L)
+				continue
+			var/restricted = L.restricted
+			if(restricted && !(L.name in prefs.pref_species?.languagewhitelist))
+				var/quirklanguagefound = FALSE
+				for(var/qname in prefs.all_quirks)
+					var/datum/quirk/Q = SSquirks.quirks[qname]
+					if(Q && (L.name in Q.languagewhitelist))
+						quirklanguagefound = TRUE
+						break
+				if(!quirklanguagefound)
+					continue
+			var/desc_text = lang_desc_ru[L.name] || L.desc
+			if(!lang_icons_b64[L.name])
+				var/icon/lang_icon = icon(L.icon, L.icon_state)
+				lang_icons_b64[L.name] = "data:image/png;base64,[icon2base64(lang_icon)]"
+			available_languages += list(list(
+				"name" = L.name,
+				"desc" = desc_text,
+				"icon_b64" = lang_icons_b64[L.name],
+				"selected" = (L.name in prefs.language),
+			))
+	data["available_languages"] = available_languages
 	data["bark_variance"] = prefs.bark_variance
 
 	// === QUIRKS (dynamic only — static info is in ui_static_data) ===
@@ -1098,7 +1164,20 @@
 			return TRUE
 
 		if("set_languages")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "language", "task" = "menu"))
+			// Legacy fallback — теперь используются toggle_language / reset_languages
+			return TRUE
+
+		if("toggle_language")
+			var/lang_name = params["language_name"]
+			if(!lang_name || !SSlanguage.languages_by_name[lang_name])
+				return TRUE
+			if(!prefs.toggle_language(lang_name))
+				return TRUE
+			prefs.language = sort_list(prefs.language)
+			return TRUE
+
+		if("reset_languages")
+			prefs.language = list()
 			return TRUE
 
 		if("toggle_personal_chat_color")

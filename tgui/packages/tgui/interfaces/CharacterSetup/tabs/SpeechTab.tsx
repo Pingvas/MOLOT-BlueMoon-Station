@@ -1,5 +1,6 @@
 import { useBackend } from '../../../backend';
 import {
+  Box,
   Button,
   ColorBox,
   Dropdown,
@@ -8,7 +9,7 @@ import {
   Slider,
   Stack,
 } from '../../../components';
-import { CharacterSetupData } from '../types';
+import { CharacterSetupData, LanguageInfo } from '../types';
 
 export const SpeechTab = (_props, context) => {
   const { act, data } = useBackend<CharacterSetupData>(context);
@@ -17,6 +18,8 @@ export const SpeechTab = (_props, context) => {
     custom_tongue,
     custom_laugh,
     languages,
+    available_languages,
+    max_languages,
     enable_personal_chat_color,
     personal_chat_color,
     bark_id,
@@ -25,6 +28,15 @@ export const SpeechTab = (_props, context) => {
     bark_speed,
     bark_variance,
   } = data as any;
+
+  const selectedLangs = (available_languages || []).filter(
+    (l: LanguageInfo) => l.selected
+  );
+  const unselectedLangs = (available_languages || []).filter(
+    (l: LanguageInfo) => !l.selected
+  );
+  const isAtLimit =
+    max_languages !== -1 && selectedLangs.length >= max_languages;
 
   return (
     <Stack vertical>
@@ -63,17 +75,6 @@ export const SpeechTab = (_props, context) => {
                   </Stack.Item>
                 )}
               </Stack>
-            </LabeledList.Item>
-            <LabeledList.Item label="Языки">
-              <Button
-                content={
-                  languages && languages.length
-                    ? languages.join(', ')
-                    : 'None'
-                }
-                icon="language"
-                onClick={() => act('set_languages')}
-              />
             </LabeledList.Item>
             <LabeledList.Item label="Цвет Runechat">
               <Button.Checkbox
@@ -149,6 +150,86 @@ export const SpeechTab = (_props, context) => {
               />
             </LabeledList.Item>
           </LabeledList>
+        </Section>
+      </Stack.Item>
+
+      {/* Языки */}
+      <Stack.Item>
+        <Section
+          title="Языки"
+          buttons={
+            <Stack inline align="center">
+              <Stack.Item>
+                <Box inline color="label" mr={1}>
+                  {max_languages === -1
+                    ? `Выбрано: ${selectedLangs.length}`
+                    : `${selectedLangs.length} / ${max_languages}`}
+                </Box>
+              </Stack.Item>
+              <Stack.Item>
+                <Button
+                  icon="undo"
+                  content="Сбросить"
+                  color="bad"
+                  onClick={() => act('reset_languages')}
+                />
+              </Stack.Item>
+            </Stack>
+          }>
+          {(available_languages || []).map((lang: LanguageInfo) => (
+            <Box
+              key={lang.name}
+              mb={0.5}
+              style={{
+                padding: '4px 6px',
+                borderRadius: '3px',
+                background: lang.selected
+                  ? 'rgba(80, 180, 80, 0.15)'
+                  : 'rgba(255, 255, 255, 0.03)',
+                opacity: !lang.selected && isAtLimit ? 0.5 : 1,
+                cursor:
+                  !lang.selected && isAtLimit ? 'not-allowed' : 'pointer',
+              }}
+              onClick={() => {
+                if (!lang.selected && isAtLimit) return;
+                act('toggle_language', { language_name: lang.name });
+              }}>
+              <Box>
+                <Box
+                  inline
+                  style={{
+                    width: '16px',
+                    textAlign: 'center',
+                    marginRight: '4px',
+                  }}
+                  color={lang.selected ? 'green' : 'label'}>
+                  {lang.selected ? '\u2714' : '\u2610'}
+                </Box>
+                <Box
+                  as="img"
+                  inline
+                  src={lang.icon_b64}
+                  style={{
+                    width: '20px',
+                    height: '20px',
+                    verticalAlign: 'middle',
+                    marginRight: '6px',
+                    imageRendering: 'pixelated',
+                  }}
+                />
+                <b>{lang.name}</b>
+              </Box>
+              {!!lang.desc && (
+                <Box
+                  color="label"
+                  mt={0.3}
+                  italic
+                  style={{ fontSize: '11px', paddingLeft: '46px' }}>
+                  {lang.desc}
+                </Box>
+              )}
+            </Box>
+          ))}
         </Section>
       </Stack.Item>
     </Stack>

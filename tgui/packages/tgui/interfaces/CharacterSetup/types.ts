@@ -131,6 +131,8 @@ export type CharacterSetupData = {
   custom_tongue: string;
   custom_laugh: string;
   languages: string[];
+  available_languages: LanguageInfo[];
+  max_languages: number;
   enable_personal_chat_color: boolean;
   personal_chat_color: string;
 
@@ -251,4 +253,11 @@ export type LimbModification = {
   limb: string;
   type: string;
   detail: string | null;
+};
+
+export type LanguageInfo = {
+  name: string;
+  desc: string;
+  icon_b64: string;
+  selected: boolean;
 };
