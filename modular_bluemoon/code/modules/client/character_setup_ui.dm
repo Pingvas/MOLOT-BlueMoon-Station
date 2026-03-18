@@ -232,6 +232,44 @@
 		))
 	data["keybinding_categories"] = kb_categories
 
+	// === AVAILABLE MARKINGS (static) ===
+	var/list/available_markings = list()
+	var/list/body_zones = list("Head", "Chest", "Left Arm", "Right Arm", "Left Leg", "Right Leg")
+	for(var/marking_name in GLOB.mam_body_markings_list)
+		var/datum/sprite_accessory/mam_body_markings/marking = GLOB.mam_body_markings_list[marking_name]
+		if(!istype(marking))
+			continue
+		var/list/covered = list()
+		for(var/limb_name in marking.covered_limbs)
+			covered += limb_name
+		// Determine number of usable color channels based on matrix types
+		var/list/color_channels = list()
+		for(var/limb_name in marking.covered_limbs)
+			var/matrix_type = marking.covered_limbs[limb_name]
+			switch(matrix_type)
+				if(MATRIX_RED)
+					color_channels |= list(1)
+				if(MATRIX_GREEN)
+					color_channels |= list(2)
+				if(MATRIX_BLUE)
+					color_channels |= list(3)
+				if(MATRIX_RED_GREEN)
+					color_channels |= list(1, 2)
+				if(MATRIX_RED_BLUE)
+					color_channels |= list(1, 3)
+				if(MATRIX_GREEN_BLUE)
+					color_channels |= list(2, 3)
+				if(MATRIX_ALL)
+					color_channels |= list(1, 2, 3)
+		available_markings += list(list(
+			"name" = marking.name,
+			"covered_limbs" = covered,
+			"color_channels" = color_channels,
+			"ckeys_allowed" = marking.ckeys_allowed,
+		))
+	data["available_markings"] = available_markings
+	data["body_zones"] = body_zones
+
 	return data
 
 /datum/character_setup_ui/ui_data(mob/user)
@@ -723,12 +761,27 @@
 			if(length(entry) >= 3 && islist(entry[3]))
 				colors = entry[3]
 			var/limb_name = GLOB.bodypart_names[num2text(limb_value)]
+			// Get number of active color channels for this specific limb
+			var/active_colors = 3
+			var/datum/sprite_accessory/mam_body_markings/marking_datum = GLOB.mam_body_markings_list[marking_name]
+			if(istype(marking_datum) && limb_name && marking_datum.covered_limbs[limb_name])
+				var/matrix_type = marking_datum.covered_limbs[limb_name]
+				switch(matrix_type)
+					if(MATRIX_RED, MATRIX_GREEN, MATRIX_BLUE)
+						active_colors = 1
+					if(MATRIX_RED_GREEN, MATRIX_RED_BLUE, MATRIX_GREEN_BLUE)
+						active_colors = 2
+					if(MATRIX_ALL)
+						active_colors = 3
+					if(MATRIX_NONE)
+						active_colors = 0
 			markings_data += list(list(
 				"index" = i,
 				"limb_value" = limb_value,
 				"limb_name" = limb_name,
 				"marking_name" = marking_name,
 				"colors" = colors,
+				"active_colors" = active_colors,
 			))
 	data["markings"] = markings_data
 
@@ -910,6 +963,7 @@
 		"modify_limbs", "set_body_weight",\
 		"toggle_loadout_enabled", "toggle_gear", "clear_loadout",\
 		"marking_add", "marking_remove", "marking_color",\
+		"marking_up", "marking_down",\
 		"markings_clear_limb", "markings_remove_all",\
 		"toggle_arousable", "open_genital_config",\
 		"set_custom_blood_color", "toggle_custom_blood_color",\
@@ -2155,44 +2209,121 @@
 
 		// === MARKINGS ACTIONS ===
 		if("marking_add")
-			var/limb = params["limb"]
-			var/list/href = list("_src_" = "prefs", "preference" = "marking_add", "marking_type" = "mam_body_markings", "task" = "input")
-			if(limb)
-				href["limb"] = limb
-			prefs.process_link(user, href)
+			var/limb_name = params["limb"]
+			var/marking_name = params["marking"]
+			if(!limb_name || !marking_name)
+				return TRUE
+			var/datum/sprite_accessory/mam_body_markings/marking = GLOB.mam_body_markings_list[marking_name]
+			if(!istype(marking))
+				return TRUE
+			// ckey check
+			if(marking.ckeys_allowed && !marking.ckeys_allowed.Find(user.client?.ckey))
+				return TRUE
+			var/list/L = prefs.features["mam_body_markings"]
+			if(!islist(L))
+				L = list()
+				prefs.features["mam_body_markings"] = L
+			if(limb_name == "All")
+				for(var/limb in marking.covered_limbs)
+					var/limb_value = text2num(GLOB.bodypart_values[limb])
+					L += list(list(limb_value, marking_name))
+			else
+				if(!(limb_name in marking.covered_limbs))
+					return TRUE
+				var/limb_value = text2num(GLOB.bodypart_values[limb_name])
+				L += list(list(limb_value, marking_name))
 			return TRUE
 
 		if("marking_remove")
-			var/index = params["index"]
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "marking_remove", "marking_type" = "mam_body_markings", "marking_index" = index, "task" = "input"))
+			var/index = text2num(params["index"])
+			var/list/L = prefs.features["mam_body_markings"]
+			if(index && islist(L) && index >= 1 && index <= length(L))
+				L.Cut(index, index + 1)
 			return TRUE
 
 		if("marking_up")
-			var/index = params["index"]
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "marking_up", "marking_type" = "mam_body_markings", "marking_index" = index, "task" = "input"))
+			var/index = text2num(params["index"])
+			var/list/L = prefs.features["mam_body_markings"]
+			if(index && islist(L) && index > 1 && index <= length(L))
+				L.Swap(index, index - 1)
 			return TRUE
 
 		if("marking_down")
-			var/index = params["index"]
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "marking_down", "marking_type" = "mam_body_markings", "marking_index" = index, "task" = "input"))
+			var/index = text2num(params["index"])
+			var/list/L = prefs.features["mam_body_markings"]
+			if(index && islist(L) && index >= 1 && index < length(L))
+				L.Swap(index, index + 1)
 			return TRUE
 
 		if("marking_color")
-			var/index = params["index"]
-			var/color_num = params["color_num"]
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "marking_color_specific", "marking_type" = "mam_body_markings", "marking_index" = index, "number_color" = color_num, "task" = "input"))
+			var/index = text2num(params["index"])
+			var/color_number = text2num(params["color_num"])
+			if(!index || !color_number)
+				return TRUE
+			var/list/L = prefs.features["mam_body_markings"]
+			if(!islist(L) || index < 1 || index > length(L))
+				return TRUE
+			var/list/marking_entry = L[index]
+			if(!islist(marking_entry) || length(marking_entry) < 2)
+				return TRUE
+			// Ensure colors list exists
+			if(length(marking_entry) < 3 || !islist(marking_entry[3]))
+				marking_entry.len = 3
+				marking_entry[3] = list("#FFFFFF", "#FFFFFF", "#FFFFFF")
+			// MATRIX color remapping
+			var/datum/sprite_accessory/mam_body_markings/S = GLOB.mam_body_markings_list[marking_entry[2]]
+			if(istype(S))
+				var/limb_name = GLOB.bodypart_names[num2text(marking_entry[1])]
+				var/matrixed_sections = S.covered_limbs[limb_name]
+				if(color_number == 1)
+					switch(matrixed_sections)
+						if(MATRIX_GREEN)
+							color_number = 2
+						if(MATRIX_BLUE)
+							color_number = 3
+				else if(color_number == 2)
+					switch(matrixed_sections)
+						if(MATRIX_RED_BLUE)
+							color_number = 3
+						if(MATRIX_GREEN_BLUE)
+							color_number = 3
+			var/list/color_list = marking_entry[3]
+			if(color_number < 1 || color_number > length(color_list))
+				return TRUE
+			// Use provided color or open color picker
+			var/new_color = params["color"]
+			if(!new_color)
+				new_color = input(user, "Выберите цвет маркинга:", "Цвет маркинга", color_list[color_number]) as color|null
+			if(!new_color)
+				return TRUE
+			// Validate color brightness
+			var/sanitized = "#[sanitize_hexcolor(new_color, 6)]"
+			var/temp_hsv = RGBtoHSV(sanitized)
+			if(prefs.pref_species && !((MUTCOLORS_PARTSONLY in prefs.pref_species.species_traits) || ReadHSV(temp_hsv)[3] >= ReadHSV(MINIMUM_MUTANT_COLOR)[3] || !CONFIG_GET(flag/character_color_limits)))
+				to_chat(user, span_danger("Недопустимый цвет. Цвет недостаточно яркий."))
+				return TRUE
+			color_list[color_number] = sanitized
 			return TRUE
 
 		if("markings_clear_limb")
-			var/limb = params["limb"]
-			var/list/href = list("_src_" = "prefs", "preference" = "markings_clear_limb", "marking_type" = "mam_body_markings", "task" = "input")
-			if(limb)
-				href["limb"] = limb
-			prefs.process_link(user, href)
+			var/limb_name = params["limb"]
+			if(!limb_name)
+				return TRUE
+			var/list/L = prefs.features["mam_body_markings"]
+			if(!islist(L))
+				return TRUE
+			if(limb_name == "All")
+				clearlist(L)
+			else
+				var/limb_value = text2num(GLOB.bodypart_values[limb_name])
+				for(var/i = length(L), i >= 1, i--)
+					var/list/entry = L[i]
+					if(islist(entry) && entry[1] == limb_value)
+						L.Cut(i, i + 1)
 			return TRUE
 
 		if("markings_remove_all")
-			prefs.process_link(user, list("_src_" = "prefs", "preference" = "markings_remove", "task" = "input"))
+			clearlist(prefs.features["mam_body_markings"])
 			return TRUE
 
 		if("open_tattoo_manager")
