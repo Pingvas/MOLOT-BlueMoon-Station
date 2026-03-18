@@ -17,11 +17,18 @@ export const CharacterPreview = (_props, context) => {
   return (
     <Stack vertical fill>
       {/* Preview area */}
-      <Stack.Item textAlign="center">
+      <Stack.Item
+        grow
+        style={{
+          'display': 'flex',
+          'align-items': 'center',
+          'justify-content': 'center',
+          'overflow': 'hidden',
+        }}>
         {character_preview_view && config.status >= 2 ? (
           <ByondUi
-            height="160px"
-            width="160px"
+            height="100%"
+            width="100%"
             params={{
               id: character_preview_view,
               type: 'map',
@@ -30,8 +37,8 @@ export const CharacterPreview = (_props, context) => {
           />
         ) : (
           <Box
-            height="160px"
-            width="160px"
+            height="100%"
+            width="100%"
             style={{
               'display': 'flex',
               'align-items': 'center',

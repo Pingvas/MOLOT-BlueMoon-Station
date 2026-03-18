@@ -880,6 +880,12 @@
 	QDEL_NULL(character_preview_view)
 	character_preview_view = new
 	character_preview_view.generate_view("char_setup_[REF(src)]_map")
+	character_preview_view.set_position(2, 2)
+	// Create background — initial size, will be adjusted dynamically
+	var/atom/movable/screen/background/bg = new
+	bg.assigned_map = character_preview_view.assigned_map
+	bg.fill_rect(1, 1, 3, 3)
+	character_preview_view.preview_bg = bg
 	return character_preview_view
 
 /// Update the preview mannequin and refresh the overlay on the map_view
@@ -892,9 +898,11 @@
 	// Silicon previews — simple icon, no mannequin needed
 	if(preview_job)
 		if(istype(preview_job, /datum/job/ai))
+			character_preview_view.adapt_map_size(1)
 			character_preview_view.update_character_icon(mutable_appearance('icons/mob/ai.dmi', resolve_ai_icon(prefs.preferred_ai_core_display)))
 			return
 		if(istype(preview_job, /datum/job/cyborg))
+			character_preview_view.adapt_map_size(1)
 			character_preview_view.update_character_icon(mutable_appearance('icons/mob/robots.dmi', "robot"))
 			return
 
@@ -920,21 +928,49 @@
 	mannequin.setDir(character_preview_view.dir)
 	mannequin.regenerate_icons()
 
-	// Copy appearance as overlay (same approach as CharacterProfile)
-	character_preview_view.update_character_icon(new /mutable_appearance(mannequin))
+	// Adapt map size based on body_size, then render
+	var/body_scale = prefs.features["body_size"] || 1
+	character_preview_view.adapt_map_size(body_scale)
+	character_preview_view.update_character_icon(new /mutable_appearance(mannequin), body_scale)
 
 	unset_busy_human_dummy(DUMMY_HUMAN_SLOT_PREFERENCES)
 
-/// Character preview screen — minimal map_view (same pattern as examine_panel_screen)
+/// Character preview screen — 3x3 tile map_view to accommodate scaled characters up to 200%
 /atom/movable/screen/map_view/character_preview_screen
 	name = "character preview"
-	icon = 'icons/turf/floors.dmi'
-	icon_state = "plating"
+	icon = null
+	/// Background object that defines the map area
+	var/atom/movable/screen/background/preview_bg
 
-/// Apply a mutable_appearance as an overlay on this map_view (exactly like CharacterProfile)
-/atom/movable/screen/map_view/character_preview_screen/proc/update_character_icon(mutable_appearance/appearance)
+/atom/movable/screen/map_view/character_preview_screen/Destroy()
+	QDEL_NULL(preview_bg)
+	return ..()
+
+/atom/movable/screen/map_view/character_preview_screen/display_to_client(client/show_to)
+	. = ..()
+	if(preview_bg)
+		show_to.register_map_obj(preview_bg)
+
+/// Dynamically resize the map based on body_scale to maximize character display size
+/atom/movable/screen/map_view/character_preview_screen/proc/adapt_map_size(body_scale = 1)
+	if(!preview_bg)
+		return
+	if(body_scale > 1.1)
+		// Larger map for big characters — 3×4 tiles to fit scaled sprite
+		preview_bg.fill_rect(1, 1, 3, 4)
+		set_position(2, 2)
+	else
+		// 3×3 centered — keeps character in the middle of the view
+		preview_bg.fill_rect(1, 1, 3, 3)
+		set_position(2, 2)
+
+/// Apply a mutable_appearance as an overlay on this map_view, with optional body_size scaling
+/atom/movable/screen/map_view/character_preview_screen/proc/update_character_icon(mutable_appearance/appearance, body_scale = 1)
 	appearance.setDir(dir)
-	appearance.transform = matrix()
+	var/matrix/M = matrix()
+	if(body_scale != 1)
+		M.Scale(body_scale, body_scale)
+	appearance.transform = M
 	appearance.pixel_x = 0
 	appearance.pixel_y = 0
 	cut_overlays()
