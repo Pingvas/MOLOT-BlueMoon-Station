@@ -698,42 +698,40 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	if(!user || !user.client)
 		return
 	update_preview_icon(current_tab)
-	var/is_modern_theme = !!findtext(charcreation_theme, "modern")
 	var/list/dat
 	if(new_character_creator)
 		// Compact inline CSS: конкретные значения цветов для BYOND-браузера.
 		// Enhanced decoration — CSS-класс .csetup-decoration-enhanced (переключается без inline CSS).
 		var/modern_palette_css = ""
-		if(is_modern_theme)
-			var/list/theme = get_character_setup_palette_modern()
-			var/bg_primary = theme["bg_primary"]
-			var/bg_secondary = theme["bg_secondary"]
-			var/text_primary = theme["text_primary"]
-			var/text_secondary = theme["text_secondary"]
-			var/button_bg = theme["button_bg"]
-			var/button_hover = theme["button_hover"]
-			var/button_active = theme["button_active"]
-			var/button_text = theme["button_text"]
-			var/border_color = theme["border_color"]
-			var/accent_color = theme["accent_color"]
-			var/bg_pattern = theme["bg_pattern"]
-			var/button_radius = "7px"
-			switch(modern_button_shape)
-				if("rect")
-					button_radius = "0px"
-				if("soft")
-					button_radius = "4px"
-				if("round")
-					button_radius = "7px"
-			// Custom-палитра: также выставляем CSS-переменные для современных браузеров (rgba(var(...)) и пр.)
-			var/custom_vars = ""
-			if(charcreation_theme == "modern_custom")
-				var/accent_hex = replacetext(accent_color, "#", "")
-				var/accent_r = text2num("0x[copytext(accent_hex, 1, 3)]")
-				var/accent_g = text2num("0x[copytext(accent_hex, 3, 5)]")
-				var/accent_b = text2num("0x[copytext(accent_hex, 5, 7)]")
-				custom_vars = "--csetup-bg:[bg_primary];--csetup-panel:[bg_secondary];--csetup-panel-2:[bg_secondary];--csetup-border:[border_color];--csetup-text:[text_primary];--csetup-muted:[text_secondary];--csetup-accent:[accent_color];--csetup-accent-rgb:[accent_r],[accent_g],[accent_b];--csetup-btn-bg:[button_bg];--csetup-btn-hover:[button_hover];--csetup-btn-active:[button_active];--csetup-btn-active-text:[button_text];"
-			modern_palette_css = "<style>\n\
+		var/list/theme = get_character_setup_palette_modern()
+		var/bg_primary = theme["bg_primary"]
+		var/bg_secondary = theme["bg_secondary"]
+		var/text_primary = theme["text_primary"]
+		var/text_secondary = theme["text_secondary"]
+		var/button_bg = theme["button_bg"]
+		var/button_hover = theme["button_hover"]
+		var/button_active = theme["button_active"]
+		var/button_text = theme["button_text"]
+		var/border_color = theme["border_color"]
+		var/accent_color = theme["accent_color"]
+		var/bg_pattern = theme["bg_pattern"]
+		var/button_radius = "7px"
+		switch(modern_button_shape)
+			if("rect")
+				button_radius = "0px"
+			if("soft")
+				button_radius = "4px"
+			if("round")
+				button_radius = "7px"
+		// Custom-палитра: также выставляем CSS-переменные для современных браузеров (rgba(var(...)) и пр.)
+		var/custom_vars = ""
+		if(charcreation_theme == "modern_custom")
+			var/accent_hex = replacetext(accent_color, "#", "")
+			var/accent_r = text2num("0x[copytext(accent_hex, 1, 3)]")
+			var/accent_g = text2num("0x[copytext(accent_hex, 3, 5)]")
+			var/accent_b = text2num("0x[copytext(accent_hex, 5, 7)]")
+			custom_vars = "--csetup-bg:[bg_primary];--csetup-panel:[bg_secondary];--csetup-panel-2:[bg_secondary];--csetup-border:[border_color];--csetup-text:[text_primary];--csetup-muted:[text_secondary];--csetup-accent:[accent_color];--csetup-accent-rgb:[accent_r],[accent_g],[accent_b];--csetup-btn-bg:[button_bg];--csetup-btn-hover:[button_hover];--csetup-btn-active:[button_active];--csetup-btn-active-text:[button_text];"
+		modern_palette_css = "<style>\n\
 	.csetup-root{[custom_vars]background-color:[bg_primary];color:[text_primary];background-image:[bg_pattern]}\n\
 	.csetup-root a,.csetup-root a:link,.csetup-root a:visited{color:[text_primary];background-color:[button_bg];border-color:[border_color];border-radius:[button_radius]}\n\
 	.csetup-root a:hover{background-color:[button_hover]}\n\
@@ -756,10 +754,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	.csetup-root .theme-custom-editor{background-color:[bg_secondary];border-color:[border_color];color:[text_primary]}\n\
 	.csetup-root .theme-custom-editor-hint{color:[text_secondary]}\n\
 </style>"
-		var/theme_class = "csetup-theme-classic"
+		var/theme_class = "csetup-theme-modern csetup-accent-blue"
 		switch(charcreation_theme)
-			if("classic")
-				theme_class = "csetup-theme-classic"
 			if("modern")
 				theme_class = "csetup-theme-modern csetup-scheme-dark csetup-accent-blue"
 			if("modern_classic")
@@ -771,147 +767,141 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 			if("modern_neutral")
 				theme_class = "csetup-theme-modern csetup-scheme-neutral csetup-accent-neutral"
 			else
-				if(is_modern_theme)
-					theme_class = "csetup-theme-modern csetup-accent-blue"
+				theme_class = "csetup-theme-modern csetup-accent-blue"
 
-		var/button_shape_class = ""
-		if(is_modern_theme)
-			button_shape_class = "csetup-btnshape-[modern_button_shape]"
+		var/button_shape_class = "csetup-btnshape-[modern_button_shape]"
 		var/decoration_class = ""
-		if(is_modern_theme && ui_decoration_level == "enhanced")
+		if(ui_decoration_level == "enhanced")
 			decoration_class = "csetup-decoration-enhanced"
 		dat = list(modern_palette_css, "<div class='csetup-root [theme_class][button_shape_class ? " [button_shape_class]" : ""][decoration_class ? " [decoration_class]" : ""]'>")
 
 		// Compact theme picker (top-right): only for Modern UI themes.
-		if(is_modern_theme)
-			var/list/theme_order = list("modern_classic", "modern", "modern_purple", "modern_green", "modern_neutral")
-			var/list/theme_titles = list(
-				"modern_classic" = "Classic",
-				"modern" = "Dark (Blue)",
-				"modern_purple" = "Purple",
-				"modern_green" = "Green",
-				"modern_neutral" = "Neutral",
-				"modern_custom" = "Custom"
-			)
-			var/list/theme_swatches = list(
-				"modern_classic" = "#40628a",
-				"modern" = "#4da3ff",
-				"modern_purple" = "#c19bff",
-				"modern_green" = "#8bffb1",
-				"modern_neutral" = "#bfc2c7"
-			)
+		var/list/theme_order = list("modern_classic", "modern", "modern_purple", "modern_green", "modern_neutral")
+		var/list/theme_titles = list(
+			"modern_classic" = "Classic",
+			"modern" = "Dark (Blue)",
+			"modern_purple" = "Purple",
+			"modern_green" = "Green",
+			"modern_neutral" = "Neutral",
+			"modern_custom" = "Custom"
+		)
+		var/list/theme_swatches = list(
+			"modern_classic" = "#40628a",
+			"modern" = "#4da3ff",
+			"modern_purple" = "#c19bff",
+			"modern_green" = "#8bffb1",
+			"modern_neutral" = "#bfc2c7"
+		)
 
-			// Theme hub — icon buttons that never move
-			dat += "<div class='theme-container'>"
-			dat += "<div class='theme-hub'>"
-			var/picker_active_cls = !modern_theme_picker_collapsed ? " active" : ""
-			var/settings_active_cls = modern_theme_settings_open ? " active" : ""
-			dat += "<a href='?_src_=prefs;preference=modern_theme_picker;action=toggle' class='theme-hub-btn[picker_active_cls]' title='Темы'>🎨</a>"
-			dat += "<a href='?_src_=prefs;preference=modern_theme_settings;action=toggle' class='theme-hub-btn[settings_active_cls]' title='Настройки'>⚙</a>"
+		// Theme hub — icon buttons that never move
+		dat += "<div class='theme-container'>"
+		dat += "<div class='theme-hub'>"
+		var/picker_active_cls = !modern_theme_picker_collapsed ? " active" : ""
+		var/settings_active_cls = modern_theme_settings_open ? " active" : ""
+		dat += "<a href='?_src_=prefs;preference=modern_theme_picker;action=toggle' class='theme-hub-btn[picker_active_cls]' title='Темы'>🎨</a>"
+		dat += "<a href='?_src_=prefs;preference=modern_theme_settings;action=toggle' class='theme-hub-btn[settings_active_cls]' title='Настройки'>⚙</a>"
+		dat += "</div>"
+		// Theme picker panel
+		if(!modern_theme_picker_collapsed)
+			dat += "<div class='theme-picker-panel'>"
+			dat += "<span class='theme-label'>Themes</span>"
+			for(var/theme_id in theme_order)
+				var/is_active = (charcreation_theme == theme_id)
+				var/swatch_class = is_active ? "theme-swatch active" : "theme-swatch"
+				var/swatch_color = theme_swatches[theme_id]
+				var/swatch_title = theme_titles[theme_id]
+				dat += "<a href='?_src_=prefs;preference=charcreation_set;theme=[theme_id]' class='[swatch_class]' style='background-color: [swatch_color];' title='[swatch_title]'></a>"
+			var/custom_active = (charcreation_theme == "modern_custom")
+			var/custom_class = custom_active ? "theme-swatch theme-swatch--custom active" : "theme-swatch theme-swatch--custom"
+			var/custom_swatch_color = "#[modern_custom_bg_primary]"
+			var/custom_title = modern_custom_enabled ? "Custom" : "Custom (Off)"
+			dat += "<span class='theme-sep' aria-hidden='true'></span>"
+			dat += "<span class='theme-custom-group'>"
+			dat += "<span class='theme-label theme-label-custom'>Custom</span>"
+			dat += "<a href='?_src_=prefs;preference=charcreation_set;theme=modern_custom' class='[custom_class]' style='background-color: [custom_swatch_color];' title='[custom_title]'></a>"
+			dat += "<a href='?_src_=prefs;preference=modern_theme_editor;action=toggle' class='theme-gear' title='Custom theme settings (opens editor)'>⚙</a>"
+			dat += "</span>"
 			dat += "</div>"
-			// Theme picker panel
-			if(!modern_theme_picker_collapsed)
-				dat += "<div class='theme-picker-panel'>"
-				dat += "<span class='theme-label'>Themes</span>"
-				for(var/theme_id in theme_order)
-					var/is_active = (charcreation_theme == theme_id)
-					var/swatch_class = is_active ? "theme-swatch active" : "theme-swatch"
-					var/swatch_color = theme_swatches[theme_id]
-					var/swatch_title = theme_titles[theme_id]
-					dat += "<a href='?_src_=prefs;preference=charcreation_set;theme=[theme_id]' class='[swatch_class]' style='background-color: [swatch_color];' title='[swatch_title]'></a>"
-				var/custom_active = (charcreation_theme == "modern_custom")
-				var/custom_class = custom_active ? "theme-swatch theme-swatch--custom active" : "theme-swatch theme-swatch--custom"
-				var/custom_swatch_color = "#[modern_custom_bg_primary]"
-				var/custom_title = modern_custom_enabled ? "Custom" : "Custom (Off)"
-				dat += "<span class='theme-sep' aria-hidden='true'></span>"
-				dat += "<span class='theme-custom-group'>"
-				dat += "<span class='theme-label theme-label-custom'>Custom</span>"
-				dat += "<a href='?_src_=prefs;preference=charcreation_set;theme=modern_custom' class='[custom_class]' style='background-color: [custom_swatch_color];' title='[custom_title]'></a>"
-				dat += "<a href='?_src_=prefs;preference=modern_theme_editor;action=toggle' class='theme-gear' title='Custom theme settings (opens editor)'>⚙</a>"
-				dat += "</span>"
-				dat += "</div>"
 
-			if(modern_theme_settings_open)
-				dat += "<div class='theme-settings-panel'>"
-				dat += "<div class='theme-settings-title'><b>Settings</b> <span class='theme-settings-hint'>(WIP)</span></div>"
-				dat += "<div class='theme-settings-group'>"
-				dat += "<div class='theme-settings-label'>Рамка</div>"
-				dat += "<div class='theme-settings-options'>"
-				var/shape_rect_cls = "theme-settings-pill is-rect[modern_button_shape == "rect" ? " linkOn" : ""]"
-				var/shape_round_cls = "theme-settings-pill is-round[modern_button_shape == "round" ? " linkOn" : ""]"
-				var/shape_soft_cls = "theme-settings-pill is-soft[modern_button_shape == "soft" ? " linkOn" : ""]"
-				dat += "<a class='[shape_rect_cls]' href='?_src_=prefs;preference=modern_theme_settings;action=set_button_shape;shape=rect'>Квадрат</a>"
-				dat += "<a class='[shape_round_cls]' href='?_src_=prefs;preference=modern_theme_settings;action=set_button_shape;shape=round'>Круг</a>"
-				dat += "<a class='[shape_soft_cls]' href='?_src_=prefs;preference=modern_theme_settings;action=set_button_shape;shape=soft'>Мягкая</a>"
-				dat += "</div></div>"
-				dat += "<div class='theme-settings-group'>"
-				dat += "<div class='theme-settings-label'>Язык</div>"
-				dat += "<div class='theme-settings-options'>"
-				dat += get_modern_language_selector(src)
-				dat += "</div></div>"
-				// UI Decoration Level
-				dat += "<div class='theme-settings-group'>"
-				var/decoration_title = get_modern_text("ui_decoration_title", src, "UI Decoration")
-				var/decoration_hint = get_modern_text("ui_decoration_hint", src, "Effects performance")
-				dat += "<div class='theme-settings-label'>[decoration_title] <span class='theme-settings-hint'>([decoration_hint])</span></div>"
-				dat += "<div class='theme-settings-options'>"
-				var/minimal_label = get_modern_text("ui_decoration_minimal", src, "Minimal")
-				var/standard_label = get_modern_text("ui_decoration_standard", src, "Standard")
-				var/enhanced_label = get_modern_text("ui_decoration_enhanced", src, "Enhanced")
-				var/minimal_cls = "theme-settings-pill[ui_decoration_level == "minimal" ? " linkOn" : ""]"
-				var/standard_cls = "theme-settings-pill[ui_decoration_level == "standard" ? " linkOn" : ""]"
-				var/enhanced_cls = "theme-settings-pill[ui_decoration_level == "enhanced" ? " linkOn" : ""]"
-				dat += "<a class='[minimal_cls]' href='?_src_=prefs;preference=modern_theme_settings;action=set_decoration_level;level=minimal'>[minimal_label]</a>"
-				dat += "<a class='[standard_cls]' href='?_src_=prefs;preference=modern_theme_settings;action=set_decoration_level;level=standard'>[standard_label]</a>"
-				dat += "<a class='[enhanced_cls]' href='?_src_=prefs;preference=modern_theme_settings;action=set_decoration_level;level=enhanced'>[enhanced_label]</a>"
-				dat += "</div></div>"
-				dat += "</div>"
+		if(modern_theme_settings_open)
+			dat += "<div class='theme-settings-panel'>"
+			dat += "<div class='theme-settings-title'><b>Settings</b> <span class='theme-settings-hint'>(WIP)</span></div>"
+			dat += "<div class='theme-settings-group'>"
+			dat += "<div class='theme-settings-label'>Рамка</div>"
+			dat += "<div class='theme-settings-options'>"
+			var/shape_rect_cls = "theme-settings-pill is-rect[modern_button_shape == "rect" ? " linkOn" : ""]"
+			var/shape_round_cls = "theme-settings-pill is-round[modern_button_shape == "round" ? " linkOn" : ""]"
+			var/shape_soft_cls = "theme-settings-pill is-soft[modern_button_shape == "soft" ? " linkOn" : ""]"
+			dat += "<a class='[shape_rect_cls]' href='?_src_=prefs;preference=modern_theme_settings;action=set_button_shape;shape=rect'>Квадрат</a>"
+			dat += "<a class='[shape_round_cls]' href='?_src_=prefs;preference=modern_theme_settings;action=set_button_shape;shape=round'>Круг</a>"
+			dat += "<a class='[shape_soft_cls]' href='?_src_=prefs;preference=modern_theme_settings;action=set_button_shape;shape=soft'>Мягкая</a>"
+			dat += "</div></div>"
+			dat += "<div class='theme-settings-group'>"
+			dat += "<div class='theme-settings-label'>Язык</div>"
+			dat += "<div class='theme-settings-options'>"
+			dat += get_modern_language_selector(src)
+			dat += "</div></div>"
+			// UI Decoration Level
+			dat += "<div class='theme-settings-group'>"
+			var/decoration_title = get_modern_text("ui_decoration_title", src, "UI Decoration")
+			var/decoration_hint = get_modern_text("ui_decoration_hint", src, "Effects performance")
+			dat += "<div class='theme-settings-label'>[decoration_title] <span class='theme-settings-hint'>([decoration_hint])</span></div>"
+			dat += "<div class='theme-settings-options'>"
+			var/minimal_label = get_modern_text("ui_decoration_minimal", src, "Minimal")
+			var/standard_label = get_modern_text("ui_decoration_standard", src, "Standard")
+			var/enhanced_label = get_modern_text("ui_decoration_enhanced", src, "Enhanced")
+			var/minimal_cls = "theme-settings-pill[ui_decoration_level == "minimal" ? " linkOn" : ""]"
+			var/standard_cls = "theme-settings-pill[ui_decoration_level == "standard" ? " linkOn" : ""]"
+			var/enhanced_cls = "theme-settings-pill[ui_decoration_level == "enhanced" ? " linkOn" : ""]"
+			dat += "<a class='[minimal_cls]' href='?_src_=prefs;preference=modern_theme_settings;action=set_decoration_level;level=minimal'>[minimal_label]</a>"
+			dat += "<a class='[standard_cls]' href='?_src_=prefs;preference=modern_theme_settings;action=set_decoration_level;level=standard'>[standard_label]</a>"
+			dat += "<a class='[enhanced_cls]' href='?_src_=prefs;preference=modern_theme_settings;action=set_decoration_level;level=enhanced'>[enhanced_label]</a>"
+			dat += "</div></div>"
+			dat += "</div>"
 
-			if(modern_custom_editor_open)
-				dat += "<div class='theme-custom-editor'>"
-				dat += "<div class='theme-custom-editor-title'><b>Custom theme</b> <span class='theme-custom-editor-hint'>(applies only to Custom)</span></div>"
-				var/enabled_text = modern_custom_enabled ? "On" : "Off"
-				dat += "<div class='theme-custom-editor-actions'>"
-				dat += "<a href='?_src_=prefs;preference=modern_theme_editor;action=toggle' class='theme-action theme-action-close' title='Close editor'>Close</a> "
-				dat += "<a href='?_src_=prefs;preference=modern_theme_editor;action=toggle_enabled' class='theme-action theme-action-enabled' title='Toggle custom palette'>Enabled: [enabled_text]</a> "
-				dat += "<a href='?_src_=prefs;preference=modern_theme_editor;action=toggle_pattern' class='theme-action theme-action-pattern' title='Toggle subtle background stripes'>Pattern</a> "
-				dat += "<a href='?_src_=prefs;preference=modern_theme_editor;action=reset' class='theme-action theme-action-reset' title='Reset custom palette to defaults'>Reset</a>"
-				dat += "</div>"
-				dat += "<table class='theme-custom-editor-table'>"
-				var/list/rows = list(
-					"bg_primary" = "Background",
-					"bg_secondary" = "Panels",
-					"border_color" = "Dividers",
-					"text_primary" = "Text",
-					"text_secondary" = "Muted text",
-					"button_bg" = "Button",
-					"button_hover" = "Button hover",
-					"button_active" = "Button active",
-					"button_text" = "Active text",
-					"accent_color" = "Accent"
-				)
-				for(var/key in rows)
-					var/label = rows[key]
-					var/value_hex = ""
-					switch(key)
-						if("bg_primary") value_hex = modern_custom_bg_primary
-						if("bg_secondary") value_hex = modern_custom_bg_secondary
-						if("border_color") value_hex = modern_custom_border_color
-						if("text_primary") value_hex = modern_custom_text_primary
-						if("text_secondary") value_hex = modern_custom_text_secondary
-						if("button_bg") value_hex = modern_custom_button_bg
-						if("button_hover") value_hex = modern_custom_button_hover
-						if("button_active") value_hex = modern_custom_button_active
-						if("button_text") value_hex = modern_custom_button_text
-						if("accent_color") value_hex = modern_custom_accent_color
-					dat += "<tr><td class='k'>[label]</td><td class='v'><a class='colorbox' href='?_src_=prefs;preference=modern_custom_color;key=[key]' style='background-color: #[value_hex];' title='Pick color (opens BYOND color picker)'></a> #[value_hex]</td></tr>"
-				dat += "</table>"
-				dat += "</div>"
-			dat += "</div>" // theme-container
+		if(modern_custom_editor_open)
+			dat += "<div class='theme-custom-editor'>"
+			dat += "<div class='theme-custom-editor-title'><b>Custom theme</b> <span class='theme-custom-editor-hint'>(applies only to Custom)</span></div>"
+			var/enabled_text = modern_custom_enabled ? "On" : "Off"
+			dat += "<div class='theme-custom-editor-actions'>"
+			dat += "<a href='?_src_=prefs;preference=modern_theme_editor;action=toggle' class='theme-action theme-action-close' title='Close editor'>Close</a> "
+			dat += "<a href='?_src_=prefs;preference=modern_theme_editor;action=toggle_enabled' class='theme-action theme-action-enabled' title='Toggle custom palette'>Enabled: [enabled_text]</a> "
+			dat += "<a href='?_src_=prefs;preference=modern_theme_editor;action=toggle_pattern' class='theme-action theme-action-pattern' title='Toggle subtle background stripes'>Pattern</a> "
+			dat += "<a href='?_src_=prefs;preference=modern_theme_editor;action=reset' class='theme-action theme-action-reset' title='Reset custom palette to defaults'>Reset</a>"
+			dat += "</div>"
+			dat += "<table class='theme-custom-editor-table'>"
+			var/list/rows = list(
+				"bg_primary" = "Background",
+				"bg_secondary" = "Panels",
+				"border_color" = "Dividers",
+				"text_primary" = "Text",
+				"text_secondary" = "Muted text",
+				"button_bg" = "Button",
+				"button_hover" = "Button hover",
+				"button_active" = "Button active",
+				"button_text" = "Active text",
+				"accent_color" = "Accent"
+			)
+			for(var/key in rows)
+				var/label = rows[key]
+				var/value_hex = ""
+				switch(key)
+					if("bg_primary") value_hex = modern_custom_bg_primary
+					if("bg_secondary") value_hex = modern_custom_bg_secondary
+					if("border_color") value_hex = modern_custom_border_color
+					if("text_primary") value_hex = modern_custom_text_primary
+					if("text_secondary") value_hex = modern_custom_text_secondary
+					if("button_bg") value_hex = modern_custom_button_bg
+					if("button_hover") value_hex = modern_custom_button_hover
+					if("button_active") value_hex = modern_custom_button_active
+					if("button_text") value_hex = modern_custom_button_text
+					if("accent_color") value_hex = modern_custom_accent_color
+				dat += "<tr><td class='k'>[label]</td><td class='v'><a class='colorbox' href='?_src_=prefs;preference=modern_custom_color;key=[key]' style='background-color: #[value_hex];' title='Pick color (opens BYOND color picker)'></a> #[value_hex]</td></tr>"
+			dat += "</table>"
+			dat += "</div>"
+		dat += "</div>" // theme-container
 
 		dat += "<center>"
-	else
-		dat = list("<center>")
 
 	var/tab_class_settings = ""
 	var/tab_class_preferences = ""
@@ -947,7 +937,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					var/name
 					var/toggle_title = collapse_empty_character_slots ? "Показать пустые слоты" : "Скрыть пустые слоты"
 					var/toggle_symbol = collapse_empty_character_slots ? "▼" : "▲"
-					var/toggle_class = is_modern_theme ? "class='theme-collapse-hint'" : ""
+					var/toggle_class = "class='theme-collapse-hint'"
 					if(max_save_slots > 4)
 						dat += "<a href='?_src_=prefs;preference=character_slots;action=toggle_empty' [toggle_class] title='[toggle_title]' aria-label='[toggle_title]'>[toggle_symbol]</a> "
 					var/unspaced_slots = 0
@@ -1056,7 +1046,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[MARKINGS_CHAR_TAB]' [char_tab_class_markings]>[char_tab_markings]</a>"
 			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[SPEECH_CHAR_TAB]' [char_tab_class_speech]>[char_tab_speech]</a>"
 			dat += "<a href='?_src_=prefs;preference=character_tab;tab=[LOADOUT_CHAR_TAB]' [char_tab_class_loadout]>[char_tab_loadout]</a>" //If you change the index of this tab, change all the logic regarding tab
-			if(is_modern_theme && CONFIG_GET(flag/roundstart_traits))
+			if(CONFIG_GET(flag/roundstart_traits))
 				dat += "<a href='?_src_=prefs;preference=character_tab;tab=[QUIRKS_CHAR_TAB]' [char_tab_class_quirks]>[char_tab_quirks]</a>"
 			dat += "</center>"
 
@@ -1072,7 +1062,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 			dat += "<center>"
 			dat += "<table width='100%'>"
 			dat += "<tr>"
-			if(is_modern_theme && character_settings_tab != LOADOUT_CHAR_TAB)
+			if(character_settings_tab != LOADOUT_CHAR_TAB)
 				dat += "<td width='100%' colspan='2'>"
 			else
 				dat += "<td width='35%'>"
@@ -1097,17 +1087,10 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 			if(preview_pref == PREVIEW_PREF_NAKED_AROUSED)
 				preview_class_naked_aroused = "class='linkOn'"
 			dat += "<center style=\"line-height:20px\">"
-			if(is_modern_theme)
-				dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_JOB]' [preview_class_job]>[preview_job_label]</a> "
-				dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_LOADOUT]' [preview_class_loadout]>[preview_loadout_label]</a> "
-				dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_NAKED]' [preview_class_naked]>[preview_naked_label]</a> "
-				dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_NAKED_AROUSED]' [preview_class_naked_aroused]>[preview_naked_aroused_label]</a>"
-			else
-				dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_JOB]' [preview_class_job]>[preview_job_label]</a>"
-				dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_LOADOUT]' [preview_class_loadout]>[preview_loadout_label]</a>"
-				dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_NAKED]' [preview_class_naked]>[preview_naked_label]</a>"
-				dat += "<br>"
-				dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_NAKED_AROUSED]' [preview_class_naked_aroused]>[preview_naked_aroused_label]</a>"
+			dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_JOB]' [preview_class_job]>[preview_job_label]</a> "
+			dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_LOADOUT]' [preview_class_loadout]>[preview_loadout_label]</a> "
+			dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_NAKED]' [preview_class_naked]>[preview_naked_label]</a> "
+			dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_NAKED_AROUSED]' [preview_class_naked_aroused]>[preview_naked_aroused_label]</a>"
 			dat += "</center>"
 			dat += "</td>"
 			if(character_settings_tab == LOADOUT_CHAR_TAB) //if loadout
@@ -1144,17 +1127,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 				// BLUEMOON ADD END
 				dat += "<center><a href='?_src_=prefs;preference=gear;clear_loadout=1'>[clear_loadout_label]</a></center>"
 				dat += "</td>"
-			else
-				// Modern uses colspan=2 for the Preview cell above, so there is no right column here.
-				if(!is_modern_theme)
-					dat += "<td width='35%' style=\"line-height:10px\">"
-					dat += "<center><b>[mismatched_parts_label]:</b></center><br>"
-					dat += "<center><a href='?_src_=prefs;preference=mismatched_markings;task=input'>" + (show_mismatched_markings ? enabled_label : disabled_label) + "</a></center>"
-					dat += "</td>"
-					dat += "<td width='30%' style=\"line-height:10px\">"
-					dat += "<center><b>[advanced_colors_label]:</b></center><br>"
-					dat += "<center><a href='?_src_=prefs;preference=color_scheme;task=input'>" + ((features["color_scheme"] == ADVANCED_CHARACTER_COLORING) ? enabled_label : disabled_label) + "</a></center>"
-					dat += "</td>"
 			dat += "</tr>"
 			dat += "</table>"
 			dat += "</center>"
@@ -1167,15 +1139,10 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					var/quirk_balance_remaining_label = src.use_modern_translations ? get_modern_text("quirk_balance_remaining", src) : "Quirk balance remaining:"
 					var/current_label = src.use_modern_translations ? get_modern_text("current", src) : "Current:"
 					var/open_quirks_tab_label = src.use_modern_translations ? get_modern_text("open_quirks_tab", src) : "Open Quirks Tab"
-					var/quirk_setup_label = src.use_modern_translations ? get_modern_text("quirk_setup", src) : "Quirk setup"
-					var/configure_quirks_label = src.use_modern_translations ? get_modern_text("configure_quirks", src) : "Configure quirks"
-					var/current_quirks_label = src.use_modern_translations ? get_modern_text("current_quirks", src) : "Current quirks:"
-					var/points_left_label = src.use_modern_translations ? get_modern_text("points_left", src) : "points left"
 					var/identity_label = src.use_modern_translations ? get_modern_text("identity", src) : "Identity"
 					var/you_are_banned_label = src.use_modern_translations ? get_modern_text("you_are_banned", src) : "You are forbidden to use custom names and appearance. You can continue to set up your characters, but you will be randomized upon joining the game."
 					var/default_designation_label = src.use_modern_translations ? get_modern_text("default_designation", src) : "Default designation"
 					var/name_label = src.use_modern_translations ? get_modern_text("name_label", src) : "Name"
-					var/random_name_label = src.use_modern_translations ? get_modern_text("random_name", src) : "Random name"
 					var/random_name_title_label = src.use_modern_translations ? get_modern_text("random_name_title", src) : "Random name"
 					var/hide_ckey_label = src.use_modern_translations ? get_modern_text("hide_ckey", src) : "Hide ckey"
 					var/be_nameless_label = src.use_modern_translations ? get_modern_text("be_nameless", src) : "Be nameless"
@@ -1202,34 +1169,21 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "<a href='?_src_=prefs;preference=job;task=menu'>[set_occupation_prefs_label]</a><br></center>"
 					if(CONFIG_GET(flag/roundstart_traits))
 						var/current_quirks_display = english_list(all_quirks, "None")
-						if(is_modern_theme)
-							//dat += "<center><h2>Quirks</h2></center>"
-							// UI tweak
-							dat += "<div class='notice csetup-quirks-summary'>"
-							dat += "<div class='csetup-quirks-summary-title' style='color: white;'><b>[quirk_balance_remaining_label]</b> " + "[GetQuirkBalance(user)]" + "</div>"
-							dat += "<div class='csetup-quirks-summary-current'><b>[current_label]</b> " + current_quirks_display + "</div>"
-							dat += "<div class='csetup-quirks-summary-actions'><a href='?_src_=prefs;preference=character_tab;tab=[QUIRKS_CHAR_TAB]'>[open_quirks_tab_label]</a></div>"
-							dat += "</div>"
-						else
-							dat += "<center><h2>[quirk_setup_label] ([GetQuirkBalance(user)] [points_left_label])</h2>"
-							dat += "<a href='?_src_=prefs;preference=trait;task=menu'>[configure_quirks_label]</a><br></center>"
-							dat += "<center><b>[current_quirks_label]</b> " + current_quirks_display + "</center>"
-					if(is_modern_theme) // UI tweak
-						dat += "<br><center><h2>[identity_label]</h2></center>"
-					else
-						dat += "<h2>[identity_label]</h2>"
+						//dat += "<center><h2>Quirks</h2></center>"
+						// UI tweak
+						dat += "<div class='notice csetup-quirks-summary'>"
+						dat += "<div class='csetup-quirks-summary-title' style='color: white;'><b>[quirk_balance_remaining_label]</b> " + "[GetQuirkBalance(user)]" + "</div>"
+						dat += "<div class='csetup-quirks-summary-current'><b>[current_label]</b> " + current_quirks_display + "</div>"
+						dat += "<div class='csetup-quirks-summary-actions'><a href='?_src_=prefs;preference=character_tab;tab=[QUIRKS_CHAR_TAB]'>[open_quirks_tab_label]</a></div>"
+						dat += "</div>"
+					dat += "<br><center><h2>[identity_label]</h2></center>"
 					dat += "<table width='100%'><tr><td width='30%' valign='top'>"
 					if(jobban_isbanned(user, "appearance"))
 						dat += "<b>[you_are_banned_label]</b><br>"
 
 					dat += "<b>[nameless ? default_designation_label : name_label]:</b><br>"
-					if(is_modern_theme)
-						dat += "<div class='csetup-name-row'><a href='?_src_=prefs;preference=name;task=input'>[real_name]</a><a class='csetup-dice-btn' href='?_src_=prefs;preference=name;task=random' title='[random_name_title_label]' aria-label='[random_name_title_label]'>&#127922;</a></div><BR>"
-					else
-						dat += "<a href='?_src_=prefs;preference=name;task=input'>[real_name]</a><br>"
+					dat += "<div class='csetup-name-row'><a href='?_src_=prefs;preference=name;task=input'>[real_name]</a><a class='csetup-dice-btn' href='?_src_=prefs;preference=name;task=random' title='[random_name_title_label]' aria-label='[random_name_title_label]'>&#127922;</a></div><BR>"
 					dat += "<a href='?_src_=prefs;preference=hide_ckey;task=input'><b>[hide_ckey_label]: [hide_ckey ? enabled_label : disabled_label]</b></a><BR>" // UI tweak
-					if(!is_modern_theme)
-						dat += "<a style='display:block;width:150px' href='?_src_=prefs;preference=name;task=random'>[random_name_label]</a>"
 					dat += "<a style='display:block;width:150px' href='?_src_=prefs;preference=nameless'>[be_nameless_label]: [nameless ? yes_label : no_label]</a><BR>"
 					dat += "<b>[always_random_name_label]:</b><a style='display:block;width:30px' href='?_src_=prefs;preference=name'>[be_random_name ? yes_label : no_label]</a><BR>"
 					dat += "<b>[hardsuit_with_tail_label]:</b><a style='display:block;width:30px' href='?_src_=prefs;preference=hardsuit_with_tail'>[features["hardsuit_with_tail"] == TRUE ? yes_label : no_label]</a><BR>"
@@ -1257,17 +1211,16 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "<b>[custom_job_preferences_label]:</b><BR>"
 					dat += "<a href='?_src_=prefs;preference=sec_dept;task=input'><b>[preferred_security_dept_label]:</b> [prefered_security_department]</a><BR>" // UI tweak
 					dat += "<a href='?_src_=prefs;preference=ai_core_icon;task=input'><b>[preferred_ai_core_label]:</b> [preferred_ai_core_display]</a><br>"
-					if(is_modern_theme)
-						var/ai_core_icon_state
-						if(preferred_ai_core_display == "Random")
-							ai_core_icon_state = "ai-random"
-						else
-							ai_core_icon_state = resolve_ai_icon(preferred_ai_core_display, TRUE)
-						var/icon/ai_core_preview_icon = icon('icons/mob/ai.dmi', ai_core_icon_state, SOUTH, 1, FALSE)
-						var/ai_core_preview_html = icon2base64html(ai_core_preview_icon)
-						if(!ai_core_preview_html)
-							ai_core_preview_html = ""
-						dat += "<div class='csetup-ai-core-preview'>" + ai_core_preview_html + "</div>"
+					var/ai_core_icon_state
+					if(preferred_ai_core_display == "Random")
+						ai_core_icon_state = "ai-random"
+					else
+						ai_core_icon_state = resolve_ai_icon(preferred_ai_core_display, TRUE)
+					var/icon/ai_core_preview_icon = icon('icons/mob/ai.dmi', ai_core_icon_state, SOUTH, 1, FALSE)
+					var/ai_core_preview_html = icon2base64html(ai_core_preview_icon)
+					if(!ai_core_preview_html)
+						ai_core_preview_html = ""
+					dat += "<div class='csetup-ai-core-preview'>" + ai_core_preview_html + "</div>"
 					dat += "</td>"
 
 					dat += "<td valign='top'>"
@@ -1294,14 +1247,11 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "</td></tr></table>"
 				//Character quirks (Modern only)
 				if(QUIRKS_CHAR_TAB)
-					if(is_modern_theme)
-						if(CONFIG_GET(flag/roundstart_traits))
-							dat += GetInlineQuirksMarkup(user)
-						else
-							var/quirks_disabled_label = src.use_modern_translations ? get_modern_text("quirks_disabled", src) : "Quirks are disabled on this server."
-							dat += "<center><i>[quirks_disabled_label]</i></center>"
+					if(CONFIG_GET(flag/roundstart_traits))
+						dat += GetInlineQuirksMarkup(user)
 					else
-						character_settings_tab = GENERAL_CHAR_TAB
+						var/quirks_disabled_label = src.use_modern_translations ? get_modern_text("quirks_disabled", src) : "Quirks are disabled on this server."
+						dat += "<center><i>[quirks_disabled_label]</i></center>"
 				//Character background
 				if(BACKGROUND_CHAR_TAB)
 					var/flavor_text_label = src.use_modern_translations ? get_modern_text("flavor_text_header", src) : "Flavor Text"
@@ -1376,26 +1326,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 							dat += "[features["silicon_flavor_text"]]"
 					else
 						dat += "[TextPreview(features["silicon_flavor_text"])]...<BR>"
-					if(!is_modern_theme)
-						dat += "<h2>[custom_species_lore_label]</h2>"
-						dat += "<a href='?_src_=prefs;preference=custom_species_lore;task=input'><b>[set_custom_species_lore_label]</b></a><br>"
-						if(length(features["custom_species_lore"]) <= MAX_FLAVOR_PREVIEW_LEN)
-							if(!length(features["custom_species_lore"]))
-								dat += "\[...\]<BR>"
-							else
-								dat += "[features["custom_species_lore"]]<BR>"
-						else
-							dat += "[TextPreview(features["custom_species_lore"])]...<BR>"
-						dat += "<h2>[ooc_notes_label]</h2>"
-						dat += "<a href='?_src_=prefs;preference=ooc_notes;task=input'><b>[set_ooc_notes_label]</b></a><br>"
-						var/ooc_notes_len = length(features["ooc_notes"])
-						if(ooc_notes_len <= MAX_FLAVOR_PREVIEW_LEN)
-							if(!ooc_notes_len)
-								dat += "\[...\]"
-							else
-								dat += "[features["ooc_notes"]]"
-						else
-							dat += "[TextPreview(features["ooc_notes"])]..."
 					//SPLURT EDIT
 					// BLUEMOON REMOVE
 					/*
@@ -1409,10 +1339,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					//SPLURT EDIT END
 					dat += "</td>"
 
-					if(is_modern_theme)
-						dat += "<td width='35%' valign='top'>"
-					else
-						dat += "<td valign='top'>"
+					dat += "<td width='35%' valign='top'>"
 					dat += "<h2>[records_label]</h2>"
 					dat += "<a href='?_src_=prefs;preference=security_records;task=input'><b>[security_records_label]</b></a><br>"
 					if(length_char(security_records) <= 40)
@@ -1432,30 +1359,28 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					else
 						dat += "[TextPreview(medical_records)]..."
 
-					if(is_modern_theme)
-						dat += "<br><h2>[custom_species_lore_label]</h2>"
-						dat += "<a href='?_src_=prefs;preference=custom_species_lore;task=input'><b>[set_custom_species_lore_label]</b></a><br>"
-						if(length(features["custom_species_lore"]) <= MAX_FLAVOR_PREVIEW_LEN)
-							if(!length(features["custom_species_lore"]))
-								dat += "\[...\]<BR>"
-							else
-								dat += "[features["custom_species_lore"]]<BR>"
+					dat += "<br><h2>[custom_species_lore_label]</h2>"
+					dat += "<a href='?_src_=prefs;preference=custom_species_lore;task=input'><b>[set_custom_species_lore_label]</b></a><br>"
+					if(length(features["custom_species_lore"]) <= MAX_FLAVOR_PREVIEW_LEN)
+						if(!length(features["custom_species_lore"]))
+							dat += "\[...\]<BR>"
 						else
-							dat += "[TextPreview(features["custom_species_lore"])]...<BR>"
-						dat += "<h2>[ooc_notes_label]</h2>"
-						dat += "<a href='?_src_=prefs;preference=ooc_notes;task=input'><b>[set_ooc_notes_label]</b></a><br>"
-						var/ooc_notes_len = length(features["ooc_notes"])
-						if(ooc_notes_len <= MAX_FLAVOR_PREVIEW_LEN)
-							if(!ooc_notes_len)
-								dat += "\[...\]"
-							else
-								dat += "[features["ooc_notes"]]"
+							dat += "[features["custom_species_lore"]]<BR>"
+					else
+						dat += "[TextPreview(features["custom_species_lore"])]...<BR>"
+					dat += "<h2>[ooc_notes_label]</h2>"
+					dat += "<a href='?_src_=prefs;preference=ooc_notes;task=input'><b>[set_ooc_notes_label]</b></a><br>"
+					var/ooc_notes_len = length(features["ooc_notes"])
+					if(ooc_notes_len <= MAX_FLAVOR_PREVIEW_LEN)
+						if(!ooc_notes_len)
+							dat += "\[...\]"
 						else
-							dat += "[TextPreview(features["ooc_notes"])]..."
+							dat += "[features["ooc_notes"]]"
+					else
+						dat += "[TextPreview(features["ooc_notes"])]..."
 
-					if(is_modern_theme)
-						dat += "</td>"
-						dat += "<td width='35%' valign='top'>"
+					dat += "</td>"
+					dat += "<td width='35%' valign='top'>"
 
 					// BLUEMOON ADD
 					dat += "<h2>[headshots_label]</h2>"
@@ -1539,9 +1464,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "<b>[gender_label]:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=gender;task=input'>[gender == MALE ? male_label : (gender == FEMALE ? female_label : (gender == PLURAL ? non_binary_label : object_label))]</a><BR>"
 					if(pref_species.sexes)
 						dat += "<b>[body_model_label]:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=body_model'>[features["body_model"] == MALE ? body_model_masc_label : body_model_fem_label]</a><BR>"
-					if(is_modern_theme)
-						dat += "<b><span title='[advanced_colors_hint]'>[advanced_colors_label]:</span></b><a style='display:block;width:100px' href='?_src_=prefs;preference=color_scheme;task=input'>[(features["color_scheme"] == ADVANCED_CHARACTER_COLORING) ? enabled_label : disabled_label]</a><BR>"
-						dat += "<b><span title='[mismatched_parts_hint]'>[mismatched_parts_label]:</span></b><a style='display:block;width:100px' href='?_src_=prefs;preference=mismatched_markings;task=input'>[show_mismatched_markings ? enabled_label : disabled_label]</a><BR>"
+					dat += "<b><span title='[advanced_colors_hint]'>[advanced_colors_label]:</span></b><a style='display:block;width:100px' href='?_src_=prefs;preference=color_scheme;task=input'>[(features["color_scheme"] == ADVANCED_CHARACTER_COLORING) ? enabled_label : disabled_label]</a><BR>"
+					dat += "<b><span title='[mismatched_parts_hint]'>[mismatched_parts_label]:</span></b><a style='display:block;width:100px' href='?_src_=prefs;preference=mismatched_markings;task=input'>[show_mismatched_markings ? enabled_label : disabled_label]</a><BR>"
 					dat += "<b>[limb_modification_label]:</b><BR>"
 					dat += "<a href='?_src_=prefs;preference=modify_limbs;task=input'>[modify_limbs_label]</a><BR>"
 					for(var/modification in modified_limbs)
@@ -1583,7 +1507,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 						dat += "<span style='border: 1px solid #161616; background-color: #[features["mcolor3"]];'><font color='[color_hex2num(features["mcolor3"]) < 200 ? "FFFFFF" : "000000"]'>#[features["mcolor3"]]</font></span> <a href='?_src_=prefs;preference=mutant_color3;task=input'>[change_label]</a><BR>"
 						mutant_colors = TRUE
 						// UI tweak
-						if(is_modern_theme && pref_species.use_skintones)
+						if(pref_species.use_skintones)
 							dat += "<b>[genitals_use_skintone_label]:</b><a href='?_src_=prefs;preference=genital_colour'>[features["genitals_use_skintone"] == TRUE ? yes_label : no_label]</a><BR>"
 
 						dat += "<b>[body_size_label]:</b> <a href='?_src_=prefs;preference=body_size;task=input'>[features["body_size"]*100]%</a><br>"
@@ -1600,11 +1524,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 							if(left_eye_color != right_eye_color)
 								split_eye_colors = TRUE
 							// UI tweak start
-							if (!is_modern_theme)
-								dat += "<h3>[heterochromia_label]</h3>"
-								dat += "<i>[heterochromia_hint]</i>"
-							else
-								dat += "<h3 title='[heterochromia_hint]'>[heterochromia_label]</h3>"
+							dat += "<h3 title='[heterochromia_hint]'>[heterochromia_label]</h3>"
 							// UI tweak end
 							dat += "</b><a style='display:block;width:100px' href='?_src_=prefs;preference=toggle_split_eyes;task=input'>[split_eye_colors ? enabled_label : disabled_label]</a>"
 							if(!split_eye_colors)
@@ -1734,10 +1654,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 
 					dat += "</td>"
 					// UI tweak start
-					if (!is_modern_theme)
-						dat += "<table><tr><td width='340px' height='300px' valign='top'>"
-					else
-						dat += "<table><tr><td width='20%' valign='top'>"
+					dat += "<table><tr><td width='20%' valign='top'>"
 					// UI tweak end
 
 					// Translation variables for clothing & equipment section
@@ -1749,12 +1666,9 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "<b>[backpack_label]:</b><a style='display:block;width:100px' href ='?_src_=prefs;preference=bag;task=input'>[backbag]</a>"
 					dat += "<b>[jumpsuit_label]:</b><BR><a href ='?_src_=prefs;preference=suit;task=input'>[jumpsuit_style]</a><BR>"
 					if((HAS_FLESH in pref_species.species_traits) || (HAS_BONE in pref_species.species_traits))
-						if(!is_modern_theme) // UI tweak
-							dat += "<BR>"
 						dat += "<b>Temporal Scarring:</b><BR><a href='?_src_=prefs;preference=persistent_scars'>[(persistent_scars) ? "Enabled" : "Disabled"]</A>"
 						dat += "<a href='?_src_=prefs;preference=clear_scars'>Clear scar slots</A>"
-					if (is_modern_theme) // UI tweak
-						dat += "<br>"
+					dat += "<br>"
 					dat += "<b>Uplink Location:</b><a style='display:block;width:100px' href ='?_src_=prefs;preference=uplink_loc;task=input'>[uplink_spawn_loc]</a>"
 
 					dat += "<h2>Consent preferences</h2>"
@@ -1769,9 +1683,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "<b>Sexual potency:</b><a href='?_src_=prefs;preference=sexual_potency;task=input'>[sexual_potency]</a>"
 
 					//SPLURT EDIT BEGIN - gregnancy preferences
-					if (!is_modern_theme) // UI tweak
-						dat += "</td>"
-						dat += "<td width='220px' height='300px' valign='top'>"
 					dat += "<h3>Pregnancy preferences</h3>"
 					dat += "<b>Chance of impregnation:</b><a style='display:block;width:100px' href ='?_src_=prefs;preference=virility;task=input'>[virility ? virility : "Disabled"]</a>"
 					dat += "<b>Chance of getting pregnant:</b><a style='display:block;width:100px' href ='?_src_=prefs;preference=fertility;task=input'>[fertility ? fertility : "Disabled"]</a>"
@@ -1844,9 +1755,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 						var/belly_accessible_label = src.use_modern_translations ? get_modern_text("belly_accessible", src) : "Belly Always Accessible"
 						var/belly_stuffing_label = src.use_modern_translations ? get_modern_text("belly_stuffing", src) : "Toys and Egg Stuffing"
 
-						if(!is_modern_theme) // UI tweak
-							if(pref_species.use_skintones)
-								dat += "<b>[genitals_use_skintone_label]:</b><a href='?_src_=prefs;preference=genital_colour'>[features["genitals_use_skintone"] == TRUE ? "Yes" : "No"]</a>"
 						dat += "<h3>[penis_header]</h3>"
 						dat += "<b>[has_penis_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=has_cock'>[features["has_cock"] == TRUE ? "Yes" : "No"]</a>"
 						if(features["has_cock"])
@@ -2047,112 +1955,111 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 						marking_type = "mam_body_markings"
 					if(marking_type)
 						dat += APPEARANCE_CATEGORY_COLUMN
-						if(is_modern_theme)
-							dat += "<div class='csetup-markings'>"
-							dat += "<div class='csetup-markings-toolbar'>"
-							dat += "<span class='csetup-toolbar-label'>[src.use_modern_translations ? get_modern_text(marking_type, src) : GLOB.all_mutant_parts[marking_type]]</span>"
-							dat += "<a href='?_src_=prefs;preference=marking_add;marking_type=[marking_type];task=input'>[add_label]</a>"
-							dat += "</div>"
-							dat += "<div class='csetup-markings-grid'>"
-							var/list/ordered_limbs = list("Head", "Right Leg", "Chest", "Left Arm", "Left Leg", "Right Arm")
-							for(var/limb in ordered_limbs)
-								var/limb_label = limb
-								if(src.use_modern_translations)
-									switch(limb)
-										if("Head")
-											limb_label = limb_head_label
-										if("Right Leg")
-											limb_label = limb_right_leg_label
-										if("Chest")
-											limb_label = limb_chest_label
-										if("Left Arm")
-											limb_label = limb_left_arm_label
-										if("Left Leg")
-											limb_label = limb_left_leg_label
-										if("Right Arm")
-											limb_label = limb_right_arm_label
-								dat += "<section class='csetup-marking-card'>"
-								dat += "<div class='csetup-marking-card-header'>"
-								dat += "<div class='csetup-marking-card-title'>[limb_label]</div>"
-								dat += "<div class='csetup-marking-card-actions'>"
-								dat += "<a class='csetup-mini-action' href='?_src_=prefs;preference=marking_add;marking_type=[marking_type];limb=[url_encode(limb)];task=input'>[add_label]</a>"
-								dat += "<a class='csetup-mini-action csetup-mini-danger' href='?_src_=prefs;preference=markings_clear_limb;marking_type=[marking_type];limb=[url_encode(limb)];task=input'>[clear_label]</a>"
-								dat += "</div>"
-								dat += "</div>"
-								dat += "<table class='csetup-marking-table'>"
-								dat += "<thead class='csetup-marking-table-head'><tr><th class='csetup-col-index'>#</th><th class='csetup-col-move'>[move_label]</th><th>[name_column_label]</th><th class='csetup-col-colors'>[colors_label]</th><th class='csetup-col-del'></th></tr></thead>"
-								dat += "<tbody>"
-								var/has_any = FALSE
-								if(length(features[marking_type]))
-									var/list/markings = features[marking_type]
-									if(!islist(markings))
-										markings = list()
-									for(var/list/marking_list in markings)
-										var/marking_index = markings.Find(marking_list)
-										var/limb_value = marking_list[1]
-										var/actual_name = GLOB.bodypart_names[num2text(limb_value)]
-										if(actual_name != limb)
-											continue
-										has_any = TRUE
-										var/color_marking_dat = ""
-										var/number_colors = 1
-										var/datum/sprite_accessory/mam_body_markings/S = GLOB.mam_body_markings_list[marking_list[2]]
-										var/matrixed_sections = S.covered_limbs[actual_name]
-										if(S && matrixed_sections)
-											if(length(marking_list) == 2)
-												var/first = "#FFFFFF"
-												var/second = "#FFFFFF"
-												var/third = "#FFFFFF"
-												if(features["mcolor"])
-													first = "#[features["mcolor"]]"
-												if(features["mcolor2"])
-													second = "#[features["mcolor2"]]"
-												if(features["mcolor3"])
-													third = "#[features["mcolor3"]]"
-												marking_list += list(list(first, second, third))
-											var/primary_index = 1
-											var/secondary_index = 2
-											var/tertiary_index = 3
-											switch(matrixed_sections)
-												if(MATRIX_GREEN)
-													primary_index = 2
-												if(MATRIX_BLUE)
-													primary_index = 3
-												if(MATRIX_RED_BLUE)
-													secondary_index = 2
-												if(MATRIX_GREEN_BLUE)
-													primary_index = 2
-													secondary_index = 3
-											color_marking_dat += "<a class='csetup-marking-chip-link' href='?_src_=prefs;preference=marking_color_specific;marking_index=[marking_index];marking_type=[marking_type];number_color=[number_colors];task=input'><span class='csetup-marking-chip' style='background-color: [marking_list[3][primary_index]];' title='[marking_list[3][primary_index]]'></span></a>"
-											if(matrixed_sections == MATRIX_RED_BLUE || matrixed_sections == MATRIX_GREEN_BLUE || matrixed_sections == MATRIX_RED_GREEN || matrixed_sections == MATRIX_ALL)
-												number_colors = 2
-												color_marking_dat += "<a class='csetup-marking-chip-link' href='?_src_=prefs;preference=marking_color_specific;marking_index=[marking_index];marking_type=[marking_type];number_color=[number_colors];task=input'><span class='csetup-marking-chip' style='background-color: [marking_list[3][secondary_index]];' title='[marking_list[3][secondary_index]]'></span></a>"
-											if(matrixed_sections == MATRIX_ALL)
-												number_colors = 3
-												color_marking_dat += "<a class='csetup-marking-chip-link' href='?_src_=prefs;preference=marking_color_specific;marking_index=[marking_index];marking_type=[marking_type];number_color=[number_colors];task=input'><span class='csetup-marking-chip' style='background-color: [marking_list[3][tertiary_index]];' title='[marking_list[3][tertiary_index]]'></span></a>"
-										dat += "<tr class='csetup-marking-row'>"
-										dat += "<td class='csetup-col-index'>[marking_index]</td>"
-										dat += "<td class='csetup-col-move'><span class='csetup-marking-move'>"
-										dat += "<a title='[top_label]' href='?_src_=prefs;preference=marking_top;task=input;marking_index=[marking_index];marking_type=[marking_type]'>&#8679;</a>"
-										dat += "<a title='[up_label]' href='?_src_=prefs;preference=marking_up;task=input;marking_index=[marking_index];marking_type=[marking_type]'>&#709;</a>"
-										dat += "<a title='[down_label]' href='?_src_=prefs;preference=marking_down;task=input;marking_index=[marking_index];marking_type=[marking_type];'>&#708;</a>"
-										dat += "<a title='[bottom_label]' href='?_src_=prefs;preference=marking_bottom;task=input;marking_index=[marking_index];marking_type=[marking_type]'>&#8681;</a>"
-										dat += "</span></td>"
-										dat += "<td>[marking_list[2]]</td>"
-										dat += "<td class='csetup-col-colors'>[color_marking_dat]</td>"
-										dat += "<td class='csetup-col-del'><a class='csetup-marking-del' href='?_src_=prefs;preference=marking_remove;task=input;marking_index=[marking_index];marking_type=[marking_type]'>&times;</a></td>"
-										dat += "</tr>"
-								if(!has_any)
-									dat += "<tr class='csetup-marking-row csetup-marking-row-empty'><td class='csetup-marking-empty' colspan='5'>Нет маркингов на этой части тела.</td></tr>"
-								dat += "</tbody></table>"
-								dat += "</section>"
-							dat += "</div>"
-							dat += "<div class='csetup-danger-zone'>"
-							dat += "<div class='csetup-danger-zone-title'>[danger_zone_label]</div>"
-							dat += "<a href='?_src_=prefs;preference=markings_remove;task=input'>[remove_all_markings_label]</a>"
+						dat += "<div class='csetup-markings'>"
+						dat += "<div class='csetup-markings-toolbar'>"
+						dat += "<span class='csetup-toolbar-label'>[src.use_modern_translations ? get_modern_text(marking_type, src) : GLOB.all_mutant_parts[marking_type]]</span>"
+						dat += "<a href='?_src_=prefs;preference=marking_add;marking_type=[marking_type];task=input'>[add_label]</a>"
+						dat += "</div>"
+						dat += "<div class='csetup-markings-grid'>"
+						var/list/ordered_limbs = list("Head", "Right Leg", "Chest", "Left Arm", "Left Leg", "Right Arm")
+						for(var/limb in ordered_limbs)
+							var/limb_label = limb
+							if(src.use_modern_translations)
+								switch(limb)
+									if("Head")
+										limb_label = limb_head_label
+									if("Right Leg")
+										limb_label = limb_right_leg_label
+									if("Chest")
+										limb_label = limb_chest_label
+									if("Left Arm")
+										limb_label = limb_left_arm_label
+									if("Left Leg")
+										limb_label = limb_left_leg_label
+									if("Right Arm")
+										limb_label = limb_right_arm_label
+							dat += "<section class='csetup-marking-card'>"
+							dat += "<div class='csetup-marking-card-header'>"
+							dat += "<div class='csetup-marking-card-title'>[limb_label]</div>"
+							dat += "<div class='csetup-marking-card-actions'>"
+							dat += "<a class='csetup-mini-action' href='?_src_=prefs;preference=marking_add;marking_type=[marking_type];limb=[url_encode(limb)];task=input'>[add_label]</a>"
+							dat += "<a class='csetup-mini-action csetup-mini-danger' href='?_src_=prefs;preference=markings_clear_limb;marking_type=[marking_type];limb=[url_encode(limb)];task=input'>[clear_label]</a>"
 							dat += "</div>"
 							dat += "</div>"
-							dat += "<div class='csetup-markings-classic'>"
+							dat += "<table class='csetup-marking-table'>"
+							dat += "<thead class='csetup-marking-table-head'><tr><th class='csetup-col-index'>#</th><th class='csetup-col-move'>[move_label]</th><th>[name_column_label]</th><th class='csetup-col-colors'>[colors_label]</th><th class='csetup-col-del'></th></tr></thead>"
+							dat += "<tbody>"
+							var/has_any = FALSE
+							if(length(features[marking_type]))
+								var/list/markings = features[marking_type]
+								if(!islist(markings))
+									markings = list()
+								for(var/list/marking_list in markings)
+									var/marking_index = markings.Find(marking_list)
+									var/limb_value = marking_list[1]
+									var/actual_name = GLOB.bodypart_names[num2text(limb_value)]
+									if(actual_name != limb)
+										continue
+									has_any = TRUE
+									var/color_marking_dat = ""
+									var/number_colors = 1
+									var/datum/sprite_accessory/mam_body_markings/S = GLOB.mam_body_markings_list[marking_list[2]]
+									var/matrixed_sections = S.covered_limbs[actual_name]
+									if(S && matrixed_sections)
+										if(length(marking_list) == 2)
+											var/first = "#FFFFFF"
+											var/second = "#FFFFFF"
+											var/third = "#FFFFFF"
+											if(features["mcolor"])
+												first = "#[features["mcolor"]]"
+											if(features["mcolor2"])
+												second = "#[features["mcolor2"]]"
+											if(features["mcolor3"])
+												third = "#[features["mcolor3"]]"
+											marking_list += list(list(first, second, third))
+										var/primary_index = 1
+										var/secondary_index = 2
+										var/tertiary_index = 3
+										switch(matrixed_sections)
+											if(MATRIX_GREEN)
+												primary_index = 2
+											if(MATRIX_BLUE)
+												primary_index = 3
+											if(MATRIX_RED_BLUE)
+												secondary_index = 2
+											if(MATRIX_GREEN_BLUE)
+												primary_index = 2
+												secondary_index = 3
+										color_marking_dat += "<a class='csetup-marking-chip-link' href='?_src_=prefs;preference=marking_color_specific;marking_index=[marking_index];marking_type=[marking_type];number_color=[number_colors];task=input'><span class='csetup-marking-chip' style='background-color: [marking_list[3][primary_index]];' title='[marking_list[3][primary_index]]'></span></a>"
+										if(matrixed_sections == MATRIX_RED_BLUE || matrixed_sections == MATRIX_GREEN_BLUE || matrixed_sections == MATRIX_RED_GREEN || matrixed_sections == MATRIX_ALL)
+											number_colors = 2
+											color_marking_dat += "<a class='csetup-marking-chip-link' href='?_src_=prefs;preference=marking_color_specific;marking_index=[marking_index];marking_type=[marking_type];number_color=[number_colors];task=input'><span class='csetup-marking-chip' style='background-color: [marking_list[3][secondary_index]];' title='[marking_list[3][secondary_index]]'></span></a>"
+										if(matrixed_sections == MATRIX_ALL)
+											number_colors = 3
+											color_marking_dat += "<a class='csetup-marking-chip-link' href='?_src_=prefs;preference=marking_color_specific;marking_index=[marking_index];marking_type=[marking_type];number_color=[number_colors];task=input'><span class='csetup-marking-chip' style='background-color: [marking_list[3][tertiary_index]];' title='[marking_list[3][tertiary_index]]'></span></a>"
+									dat += "<tr class='csetup-marking-row'>"
+									dat += "<td class='csetup-col-index'>[marking_index]</td>"
+									dat += "<td class='csetup-col-move'><span class='csetup-marking-move'>"
+									dat += "<a title='[top_label]' href='?_src_=prefs;preference=marking_top;task=input;marking_index=[marking_index];marking_type=[marking_type]'>&#8679;</a>"
+									dat += "<a title='[up_label]' href='?_src_=prefs;preference=marking_up;task=input;marking_index=[marking_index];marking_type=[marking_type]'>&#709;</a>"
+									dat += "<a title='[down_label]' href='?_src_=prefs;preference=marking_down;task=input;marking_index=[marking_index];marking_type=[marking_type];'>&#708;</a>"
+									dat += "<a title='[bottom_label]' href='?_src_=prefs;preference=marking_bottom;task=input;marking_index=[marking_index];marking_type=[marking_type]'>&#8681;</a>"
+									dat += "</span></td>"
+									dat += "<td>[marking_list[2]]</td>"
+									dat += "<td class='csetup-col-colors'>[color_marking_dat]</td>"
+									dat += "<td class='csetup-col-del'><a class='csetup-marking-del' href='?_src_=prefs;preference=marking_remove;task=input;marking_index=[marking_index];marking_type=[marking_type]'>&times;</a></td>"
+									dat += "</tr>"
+							if(!has_any)
+								dat += "<tr class='csetup-marking-row csetup-marking-row-empty'><td class='csetup-marking-empty' colspan='5'>Нет маркингов на этой части тела.</td></tr>"
+							dat += "</tbody></table>"
+							dat += "</section>"
+						dat += "</div>"
+						dat += "<div class='csetup-danger-zone'>"
+						dat += "<div class='csetup-danger-zone-title'>[danger_zone_label]</div>"
+						dat += "<a href='?_src_=prefs;preference=markings_remove;task=input'>[remove_all_markings_label]</a>"
+						dat += "</div>"
+						dat += "</div>"
+						dat += "<div class='csetup-markings-classic'>"
 						var/add_marking_label = src.use_modern_translations ? get_modern_text("add_marking", src) : "Add marking"
 						dat += "<center>"
 						dat += "<h3>[src.use_modern_translations ? get_modern_text(marking_type, src) : GLOB.all_mutant_parts[marking_type]]</h3>" // give it the appropriate title for the type of marking
@@ -2266,9 +2173,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 						dat += "<a href='?_src_=prefs;preference=markings_remove;task=input'>Remove All Markings</a>"
 						dat += "</center>"
 						// BLUEMOON ADD END
-						if(is_modern_theme)
-							dat += "</div>"
-							dat += "</div>"
+						dat += "</div>"
+						dat += "</div>"
 
 				if(SPEECH_CHAR_TAB)
 					dat += "<table><tr><td width='340px' height='300px' valign='top'>"
@@ -2338,10 +2244,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 							else
 								dat += " |"
 							if(category == gear_category)
-								if(is_modern_theme)
-									dat += " <a href='?_src_=prefs;preference=gear;select_category=[url_encode(category)]' class='linkOn'>[(category == LOADOUT_CATEGORY_ERROR && loadout_errors) ? "[category] (<font color=\"red\">!</font>)" : category]</a> "
-								else
-									dat += " <span class='linkOn'>[(category == LOADOUT_CATEGORY_ERROR && loadout_errors) ? "[category] (<font color=\"red\">!</font>)" : category]</span> "
+								dat += " <a href='?_src_=prefs;preference=gear;select_category=[url_encode(category)]' class='linkOn'>[(category == LOADOUT_CATEGORY_ERROR && loadout_errors) ? "[category] (<font color=\"red\">!</font>)" : category]</a> "
 							else
 								dat += " <a href='?_src_=prefs;preference=gear;select_category=[url_encode(category)]'>[(category == LOADOUT_CATEGORY_ERROR && loadout_errors) ? "[category] (<font color=\"red\">!</font>)" : category]</a> "
 
@@ -2364,10 +2267,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 								else
 									dat += " |"
 								if(gear_subcategory == subcategory)
-									if(is_modern_theme)
-										dat += " <a href='?_src_=prefs;preference=gear;select_subcategory=[url_encode(subcategory)]' class='linkOn'>[subcategory]</a> "
-									else
-										dat += " <span class='linkOn'>[subcategory]</span> "
+									dat += " <a href='?_src_=prefs;preference=gear;select_subcategory=[url_encode(subcategory)]' class='linkOn'>[subcategory]</a> "
 								else
 									dat += " <a href='?_src_=prefs;preference=gear;select_subcategory=[url_encode(subcategory)]'>[subcategory]</a> "
 							dat += "</b></center></td></tr>"
@@ -3744,7 +3644,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 		return TRUE
 
 	else if(href_list["preference"] == "trait")
-		var/is_inline_quirks = (new_character_creator && findtext(charcreation_theme, "modern") && character_settings_tab == QUIRKS_CHAR_TAB && CONFIG_GET(flag/roundstart_traits))
+		var/is_inline_quirks = (character_settings_tab == QUIRKS_CHAR_TAB && CONFIG_GET(flag/roundstart_traits))
 		switch(href_list["task"])
 			if("close")
 				user << browse(null, "window=mob_occupation")
@@ -3791,7 +3691,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					SetQuirks(user)
 	// BLUEMOON ADD START - возможность настраивать квирки
 	else if(href_list["preference"] == "traits_setup")
-		var/is_inline_quirks = (new_character_creator && findtext(charcreation_theme, "modern") && character_settings_tab == QUIRKS_CHAR_TAB && CONFIG_GET(flag/roundstart_traits))
+		var/is_inline_quirks = (character_settings_tab == QUIRKS_CHAR_TAB && CONFIG_GET(flag/roundstart_traits))
 		switch(href_list["task"])
 			if("change_shriek_option") // изменение вида крика от квирка крикуна
 				var/client/C = usr.client
@@ -3822,7 +3722,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 		return TRUE
 
 	else if(href_list["quirk_category"])
-		var/is_inline_quirks = (new_character_creator && findtext(charcreation_theme, "modern") && character_settings_tab == QUIRKS_CHAR_TAB && CONFIG_GET(flag/roundstart_traits))
+		var/is_inline_quirks = (character_settings_tab == QUIRKS_CHAR_TAB && CONFIG_GET(flag/roundstart_traits))
 		var/temp_quirk_category = href_list["quirk_category"]
 		if(temp_quirk_category == QUIRK_POSITIVE || temp_quirk_category == QUIRK_NEUTRAL || temp_quirk_category == QUIRK_NEGATIVE)
 			quirk_category = temp_quirk_category

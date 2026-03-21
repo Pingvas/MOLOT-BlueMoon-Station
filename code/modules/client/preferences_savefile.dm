@@ -77,12 +77,6 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 			if(!has_pixel_tilt)
 				LAZYADD(key_bindings["N"], "pixel_tilt")
 
-	// BLUEMOON ADD - перевод Character Setup UI на Modern
-	if(current_version < 63)
-		new_character_creator = TRUE
-		if(!istext(charcreation_theme) || !findtext(charcreation_theme, "modern"))
-			charcreation_theme = "modern"
-
 	// BLUEMOON ADD - принудительный FPS 120 для фикса лага движения в BYOND 516
 	if(current_version < 64)
 		clientfps = 120
@@ -575,7 +569,6 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	S["disable_combat_cursor"]	>> disable_combat_cursor
 	S["disable_combat_mouse_lock"]	>> disable_combat_mouse_lock
 	S["gfluid_blacklist"]		>> gfluid_blacklist
-	S["new_character_creator"]	>> new_character_creator
 	S["charcreation_theme"]		>> charcreation_theme
 	S["modern_button_shape"]	>> modern_button_shape
 	S["modern_custom_enabled"]	>> modern_custom_enabled
@@ -694,7 +687,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 
 	//SPLURT CHANGES BEGIN
 	gfluid_blacklist = sanitize_islist(gfluid_blacklist, list())
-	charcreation_theme = sanitize_inlist(charcreation_theme, list("classic", "modern", "modern_classic", "modern_purple", "modern_green", "modern_neutral", "modern_custom"), "classic")
+	charcreation_theme = sanitize_inlist(charcreation_theme, list("modern", "modern_classic", "modern_purple", "modern_green", "modern_neutral", "modern_custom"), "modern")
 	modern_button_shape = sanitize_inlist(modern_button_shape, list("rect", "soft", "round"), initial(modern_button_shape))
 	modern_custom_enabled = sanitize_integer(modern_custom_enabled, 0, 1, initial(modern_custom_enabled))
 	modern_custom_bg_primary = sanitize_hexcolor(modern_custom_bg_primary, 6, FALSE, initial(modern_custom_bg_primary))
@@ -857,7 +850,6 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	WRITE_FILE(S["disable_combat_cursor"], disable_combat_cursor)
 	WRITE_FILE(S["disable_combat_mouse_lock"], disable_combat_mouse_lock)
 	WRITE_FILE(S["gfluid_blacklist"], gfluid_blacklist)
-	WRITE_FILE(S["new_character_creator"], new_character_creator)
 	WRITE_FILE(S["charcreation_theme"], charcreation_theme)
 	WRITE_FILE(S["modern_button_shape"], modern_button_shape)
 	WRITE_FILE(S["modern_custom_enabled"], modern_custom_enabled)
