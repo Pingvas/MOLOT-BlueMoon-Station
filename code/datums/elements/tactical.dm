@@ -1,8 +1,7 @@
 /datum/element/tactical
-	element_flags = ELEMENT_BESPOKE|ELEMENT_DETACH
-	id_arg_index = 2
+	element_flags = ELEMENT_DETACH
 	var/allowed_slot
-	var/original_name // Сохраняем оригинальное имя
+	var/list/original_names = list()
 	var/static/list/hud_to_hide = list(
 		HEALTH_HUD,
 		STATUS_HUD,
@@ -26,6 +25,7 @@
 /datum/element/tactical/Detach(datum/target)
 	UnregisterSignal(target, list(COMSIG_ITEM_EQUIPPED, COMSIG_ITEM_DROPPED))
 	unmodify(target)
+	original_names -= target
 	return ..()
 
 /datum/element/tactical/proc/modify(obj/item/source, mob/user, slot)
@@ -35,29 +35,26 @@
 
 	var/image/I = image(icon = source.icon, icon_state = source.icon_state, loc = user)
 	I.copy_overlays(source)
-	I.override = TRUE
-	source.add_alt_appearance(/datum/atom_hud/alternate_appearance/basic/everyone, "sneaking_mission", I)
 	I.layer = ABOVE_MOB_LAYER
-
-	// Скрывание имени - сохраняем оригинальное имя и заменяем на имя предмета
-	if(ishuman(user))
-		original_name = user.name
-		user.name = source.name
+	I.override = TRUE
+	if(!original_names[source])
+		user.add_alt_appearance(/datum/atom_hud/alternate_appearance/basic/everyone, "sneaking_mission", I)
+		if(ishuman(user))
+			original_names[source] = user.name
+			user.name = source.name
 
 	set_hud_alpha(user, 100)
 
 /datum/element/tactical/proc/unmodify(obj/item/source, mob/user)
 	if(!user)
-		if(!ismob(source.loc))
-			return
-		user = source.loc
+		original_names -= source
+		return
 
 	user.remove_alt_appearance("sneaking_mission")
-	
-	// Восстанавливаем оригинальное имя
-	if(ishuman(user) && original_name)
-		user.name = original_name
-		original_name = null
+
+	if(ishuman(user) && original_names[source])
+		user.name = original_names[source]
+	original_names -= source
 
 	set_hud_alpha(user, 255)
 

@@ -47,7 +47,8 @@
 		var/filter = get_filter(filter_name)
 		if(filter)
 			animate(filter)
-	return ..()
+	..()
+	return QDEL_HINT_HARDDEL_NOW
 
 ///Things rendered on "openspace"; holes in multi-z
 /atom/movable/screen/plane_master/openspace

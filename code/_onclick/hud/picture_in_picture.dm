@@ -19,7 +19,10 @@
 	make_backgrounds()
 
 /atom/movable/screen/movable/pic_in_pic/Destroy()
-	for(var/C in shown_to)
+	vis_contents -= viewing_turfs
+	viewing_turfs.Cut()
+	center = null
+	for(var/C in shown_to.Copy())
 		unshow_to(C)
 	QDEL_NULL(button_x)
 	QDEL_NULL(button_shrink)
@@ -28,7 +31,9 @@
 
 /atom/movable/screen/movable/pic_in_pic/component_click(atom/movable/screen/component_button/component, params)
 	if(component == button_x)
-		qdel(src)
+		unshow_to(usr?.client)
+		if(!shown_to.len)
+			qdel(src) // никто не смотрит — чистим
 	else if(component == button_expand)
 		set_view_size(width+1, height+1)
 	else if(component == button_shrink)

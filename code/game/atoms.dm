@@ -293,9 +293,10 @@
  */
 /atom/Destroy()
 	if(alternate_appearances)
-		for(var/K in alternate_appearances)
+		for(var/K in alternate_appearances.Copy())
 			var/datum/atom_hud/alternate_appearance/AA = alternate_appearances[K]
-			AA.remove_from_hud(src)
+			if(AA)
+				AA.remove_from_hud(src)
 
 	if(reagents)
 		QDEL_NULL(reagents)

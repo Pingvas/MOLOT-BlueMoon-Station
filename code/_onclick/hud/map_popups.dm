@@ -15,12 +15,13 @@ INITIALIZE_IMMEDIATE(/atom/movable/screen/map_view)
 	var/client/registered_client
 
 /atom/movable/screen/map_view/Destroy()
-	if(registered_client)
+	if(registered_client && !QDELETED(registered_client))
 		registered_client.clear_map(assigned_map)
-		registered_client = null
+	registered_client = null
 	for(var/atom/movable/screen/plane_master/pm as anything in popup_plane_masters)
 		pm.screen_loc = null
-	QDEL_LIST(popup_plane_masters)
+	popup_plane_masters?.Cut()
+	popup_plane_masters = null
 	return ..()
 
 /atom/movable/screen/map_view/proc/generate_view(map_key)

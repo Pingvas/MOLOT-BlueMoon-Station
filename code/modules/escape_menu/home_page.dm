@@ -105,8 +105,9 @@
 	escape_menu = null
 	QDEL_NULL(on_click_callback)
 	QDEL_NULL(home_button_text)
-
-	return ..()
+	// screen_object_holder явно убрал нас из client.screen до qdel’а — сразу HardDel
+	..()
+	return QDEL_HINT_HARDDEL_NOW
 
 /atom/movable/screen/escape_menu/home_button/Click(location, control, params)
 	if (!enabled())

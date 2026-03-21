@@ -22,7 +22,8 @@
 /atom/movable/screen/movable/action_button/Destroy()
 	if(our_hud)
 		var/mob/viewer = our_hud.mymob
-		our_hud.hide_action(src)
+		if(location != SCRN_OBJ_DEFAULT) // hide_action CRASHes для SCRN_OBJ_DEFAULT
+			our_hud.hide_action(src)
 		viewer?.client?.screen -= src
 		linked_action?.viewers -= our_hud
 		viewer?.update_action_buttons()
@@ -224,7 +225,11 @@
 
 /atom/movable/screen/button_palette/Destroy()
 	if(our_hud)
-		our_hud.mymob?.client?.screen -= src
+		var/mob/viewer = our_hud.mymob
+		viewer?.client?.screen -= src
+		for(var/mob/dead/observer/observe as anything in viewer?.observers)
+			if(observe.client)
+				observe.client.screen -= src
 		our_hud.toggle_palette = null
 		our_hud = null
 	return ..()
@@ -390,7 +395,11 @@ GLOBAL_LIST_INIT(palette_removed_matrix, list(1.4,0,0,0, 0.7,0.4,0,0, 0.4,0,0.6,
 
 /atom/movable/screen/palette_scroll/down/Destroy()
 	if(our_hud)
-		our_hud.mymob?.client?.screen -= src
+		var/mob/viewer = our_hud.mymob
+		viewer?.client?.screen -= src
+		for(var/mob/dead/observer/observe as anything in viewer?.observers)
+			if(observe.client)
+				observe.client.screen -= src
 		our_hud.palette_down = null
 		our_hud = null
 	return ..()
@@ -403,7 +412,11 @@ GLOBAL_LIST_INIT(palette_removed_matrix, list(1.4,0,0,0, 0.7,0.4,0,0, 0.4,0,0.6,
 
 /atom/movable/screen/palette_scroll/up/Destroy()
 	if(our_hud)
-		our_hud.mymob?.client?.screen -= src
+		var/mob/viewer = our_hud.mymob
+		viewer?.client?.screen -= src
+		for(var/mob/dead/observer/observe as anything in viewer?.observers)
+			if(observe.client)
+				observe.client.screen -= src
 		our_hud.palette_up = null
 		our_hud = null
 	return ..()
