@@ -49,13 +49,8 @@
 	set_new_hud(hud_owner)
 
 /atom/movable/screen/Destroy()
-	if(istype(hud) && hud.mymob)
-		var/mob/screenmob = hud.mymob
-		if(screenmob.client)
-			screenmob.client.screen -= src
-		for(var/mob/dead/observer/observe as anything in screenmob.observers)
-			if(observe.client)
-				observe.client.screen -= src
+	if(istype(hud) && hud.mymob?.client)
+		hud.mymob.client.screen -= src
 	set_new_hud(null)
 	master = null
 	vis_contents.Cut()

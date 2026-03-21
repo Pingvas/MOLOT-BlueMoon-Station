@@ -6,11 +6,6 @@
 	. = ..()
 	master = new_master
 
-/atom/movable/screen/storage/Destroy()
-	master = null
-	..()
-	return QDEL_HINT_HARDDEL_NOW
-
 /atom/movable/screen/storage/Click(location, control, params)
 	if(!insertion_click)
 		return ..()

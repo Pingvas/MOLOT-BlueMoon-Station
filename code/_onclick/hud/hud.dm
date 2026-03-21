@@ -125,7 +125,7 @@ GLOBAL_LIST_INIT(available_ui_styles, list(
 	static_inventory += screentip_text
 
 /datum/hud/Destroy()
-	if(mymob?.hud_used == src)
+	if(mymob.hud_used == src)
 		mymob.hud_used = null
 
 	if(mymob?.observers?.len)
@@ -151,15 +151,6 @@ GLOBAL_LIST_INIT(available_ui_styles, list(
 		C.screen -= hotkeybuttons
 		C.screen -= infodisplay
 		C.screen -= screenoverlays
-	if(mymob?.observers?.len)
-		for(var/mob/dead/observer/observe in mymob.observers)
-			if(observe.client)
-				observe.client.screen -= static_inventory
-				observe.client.screen -= toggleable_inventory
-				observe.client.screen -= extra_inventory
-				observe.client.screen -= hotkeybuttons
-				observe.client.screen -= infodisplay
-				observe.client.screen -= screenoverlays
 	QDEL_LIST(static_inventory)
 
 	inv_slots.Cut()
@@ -198,7 +189,10 @@ GLOBAL_LIST_INIT(available_ui_styles, list(
 			mymob.client.screen -= plane_masters[key]
 	QDEL_LIST_ASSOC_VAL(plane_masters)
 	QDEL_LIST_ASSOC_VAL(plane_master_controllers)
+	QDEL_LIST(screenoverlays)
 	mymob = null
+
+	QDEL_NULL(screentip_text)
 
 	return ..()
 

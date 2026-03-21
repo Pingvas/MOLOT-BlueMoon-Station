@@ -72,16 +72,6 @@
 /datum/hud/robot
 	ui_style = 'icons/mob/screen_cyborg.dmi'
 
-/datum/hud/robot/Destroy()
-	var/mob/living/silicon/robot/robit = mymob
-	if(istype(robit))
-		robit.inv1 = null
-		robit.inv2 = null
-		robit.inv3 = null
-		robit.hands = null
-		robit.thruster_button = null
-	return ..()
-
 /datum/hud/robot/New(mob/owner)
 	..()
 	// i, Robit
