@@ -451,8 +451,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/preferred_chaos_level = 2
 	var/auto_capitalize_enabled = FALSE
 
-	/// Character Setup browser UI theme (used by the "new" character creator UI).
-	/// Supported values: "classic", "modern", "modern_classic", "modern_purple", "modern_green", "modern_neutral"
+	var/new_character_creator = TRUE
 	var/charcreation_theme = "modern"
 
 	/// Modern character creator: button shape preset (persisted).
@@ -699,7 +698,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	if(!user || !user.client)
 		return
 	update_preview_icon(current_tab)
-	var/is_modern_theme = (new_character_creator && !!findtext(charcreation_theme, "modern"))
+	var/is_modern_theme = !!findtext(charcreation_theme, "modern")
 	var/list/dat
 	if(new_character_creator)
 		// Compact inline CSS: конкретные значения цветов для BYOND-браузера.
@@ -2514,10 +2513,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 				if(GAME_PREFS_TAB)
 					dat += "<table><tr><td width='340px' height='300px' valign='top'>"
 					var/general_settings_label = src.use_modern_translations ? get_modern_text("general_settings", src) : "General Settings"
-					var/char_setup_ui_label = src.use_modern_translations ? get_modern_text("char_setup_ui", src) : "Character Setup UI"
-					var/char_setup_old = src.use_modern_translations ? get_modern_text("char_setup_old", src) : "Old"
-					var/char_setup_new = src.use_modern_translations ? get_modern_text("char_setup_new", src) : "New"
-					var/char_setup_modern = src.use_modern_translations ? get_modern_text("char_setup_modern", src) : "Modern"
 					var/ui_style_label = src.use_modern_translations ? get_modern_text("ui_style", src) : "UI Style"
 					var/outline_label = src.use_modern_translations ? get_modern_text("outline", src) : "Outline"
 					var/outline_color_label = src.use_modern_translations ? get_modern_text("outline_color", src) : "Outline Color"
@@ -2561,12 +2556,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					var/low_label = src.use_modern_translations ? get_modern_text("low", src) : "Low"
 					var/allow_midround_antag_label = src.use_modern_translations ? get_modern_text("allow_midround_antag", src) : "Allow Midround Antagonist Roll"
 					dat += "<h2>[general_settings_label]</h2>"
-					var/char_setup_ui = "Old"
-					if(new_character_creator)
-						char_setup_ui = "New"
-						if(findtext(charcreation_theme, "modern"))
-							char_setup_ui = "Modern"
-					dat += "<b>[char_setup_ui_label] ([char_setup_ui]):</b> <a href='?_src_=prefs;preference=charcreation_set;theme=old'>[char_setup_old]</a> <a href='?_src_=prefs;preference=charcreation_set;theme=classic'>[char_setup_new]</a> <a href='?_src_=prefs;preference=charcreation_set;theme=modern'>[char_setup_modern]</a><br>"
 					dat += "<b>[ui_style_label]:</b> <a href='?_src_=prefs;task=input;preference=ui'>[UI_style]</a><br>"
 					dat += "<b>[outline_label]:</b> <a href='?_src_=prefs;preference=outline_enabled'>[outline_enabled ? enabled_label : disabled_label]</a><br>"
 					dat += "<b>[outline_color_label]:</b> [outline_color ? "<span style='border:1px solid #161616; background-color: [outline_color];'>" : "[outline_color_theme_based]"]<font color='[color_hex2num(outline_color) < 200 ? "FFFFFF" : "000000"]'>[outline_color]</font></span> <a href='?_src_=prefs;preference=outline_color'>[change_label]</a><BR>"
@@ -2780,7 +2769,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "<b>[fullscreen_label]:</b> <a href='?_src_=prefs;preference=fullscreen'>[fullscreen ? enabled_label : disabled_label]</a><br>"
 					dat += "<b>[long_strip_menu_label]:</b> <a href='?_src_=prefs;preference=long_strip_menu'>[long_strip_menu ? enabled_label : disabled_label]</a><br>"
 					var/modern_accent_label = "—"
-					if(new_character_creator && findtext(charcreation_theme, "modern"))
+					if(findtext(charcreation_theme, "modern"))
 						switch(charcreation_theme)
 							if("modern_neutral")
 								modern_accent_label = "—"
@@ -3012,46 +3001,22 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	dat += "<a href='?_src_=prefs;preference=reset_all'>Reset Setup</a>"
 	dat += "</center>"
 
-	if(new_character_creator)
-		dat += "</div>"
+	dat += "</div>"
 
 	if(!user?.client)
 		return
 
 	winshow(user, "preferences_window", TRUE)
 	var/datum/browser/popup = new(user, "preferences_browser", "<div align='center'>Character Setup</div>", 640, 770)
-	if(new_character_creator && findtext(charcreation_theme, "modern"))
+	if(findtext(charcreation_theme, "modern"))
 		popup.add_stylesheet("preferences_modern", 'html/browser/preferences_modern.css')
-	if(new_character_creator && findtext(charcreation_theme, "modern"))
+	if(findtext(charcreation_theme, "modern"))
 		popup.add_script("prefs_state", 'html/browser/prefs_state.js')
 	popup.set_content(dat.Join())
 	popup.open(FALSE)
 	onclose(user, "preferences_window", src)
 
-/datum/preferences/proc/cycle_character_creation_menu_style()
-	// Cycle: Old -> New (classic) -> New (modern) -> Old
-	if(!new_character_creator)
-		new_character_creator = TRUE
-		charcreation_theme = "classic"
-		return
-
-	if(charcreation_theme == "classic")
-		charcreation_theme = "modern"
-		return
-
-	// Any modern variant should go back to Old with one click.
-	if(findtext(charcreation_theme, "modern"))
-		charcreation_theme = "classic"
-		new_character_creator = FALSE
-		return
-
-	charcreation_theme = "classic"
-	new_character_creator = FALSE
-
 /datum/preferences/proc/cycle_character_creation_modern_accent()
-	// Only cycles the accent for Modern themes. Style cycle remains 3-state.
-	if(!new_character_creator)
-		return
 	if(!findtext(charcreation_theme, "modern"))
 		return
 	if(charcreation_theme == "modern")
@@ -3550,11 +3515,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 		qdel(query_get_jobban)
 		return
 
-	if(href_list["preference"] == "charcreation_style")
-		cycle_character_creation_menu_style()
-		ShowChoices(user)
-		return TRUE
-
 	if(href_list["preference"] == "charcreation_accent")
 		cycle_character_creation_modern_accent()
 		ShowChoices(user)
@@ -3563,52 +3523,33 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	if(href_list["preference"] == "charcreation_set")
 		var/selected_theme = href_list["theme"]
 		if(selected_theme)
-			// Interface style + CSS themes.
 			switch(selected_theme)
-				if("old")
-					new_character_creator = FALSE
-					charcreation_theme = "classic"
-					save_preferences(silent = TRUE)
-					ShowChoices(user)
-					return TRUE
-				if("classic")
-					new_character_creator = TRUE
-					charcreation_theme = "classic"
-					save_preferences(silent = TRUE)
-					ShowChoices(user)
-					return TRUE
 				if("modern")
-					new_character_creator = TRUE
 					charcreation_theme = "modern"
 					save_preferences(silent = TRUE)
 					ShowChoices(user)
 					return TRUE
 				if("modern_classic")
-					new_character_creator = TRUE
 					charcreation_theme = "modern_classic"
 					save_preferences(silent = TRUE)
 					ShowChoices(user)
 					return TRUE
 				if("modern_purple")
-					new_character_creator = TRUE
 					charcreation_theme = "modern_purple"
 					save_preferences(silent = TRUE)
 					ShowChoices(user)
 					return TRUE
 				if("modern_green")
-					new_character_creator = TRUE
 					charcreation_theme = "modern_green"
 					save_preferences(silent = TRUE)
 					ShowChoices(user)
 					return TRUE
 				if("modern_neutral")
-					new_character_creator = TRUE
 					charcreation_theme = "modern_neutral"
 					save_preferences(silent = TRUE)
 					ShowChoices(user)
 					return TRUE
 				if("modern_custom")
-					new_character_creator = TRUE
 					charcreation_theme = "modern_custom"
 					modern_custom_enabled = TRUE
 					save_preferences(silent = TRUE)
@@ -3622,28 +3563,24 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 			if("toggle")
 				modern_custom_editor_open = !modern_custom_editor_open
 				if(modern_custom_editor_open)
-					new_character_creator = TRUE
 					charcreation_theme = "modern_custom"
 					modern_custom_enabled = TRUE
 					save_preferences(silent = TRUE)
 				ShowChoices(user)
 				return TRUE
 			if("toggle_enabled")
-				new_character_creator = TRUE
 				charcreation_theme = "modern_custom"
 				modern_custom_enabled = !modern_custom_enabled
 				save_preferences(silent = TRUE)
 				ShowChoices(user)
 				return TRUE
 			if("toggle_pattern")
-				new_character_creator = TRUE
 				charcreation_theme = "modern_custom"
 				modern_custom_bg_pattern = !modern_custom_bg_pattern
 				save_preferences(silent = TRUE)
 				ShowChoices(user)
 				return TRUE
 			if("reset")
-				new_character_creator = TRUE
 				charcreation_theme = "modern_custom"
 				reset_modern_custom_theme()
 				save_preferences(silent = TRUE)

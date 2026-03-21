@@ -592,10 +592,6 @@ var/list/ru_strings = list(
 	"custom" = "Пользовательский",
 
 	// Game preferences (General tab)
-	"char_setup_ui" = "Интерфейс создания персонажа",
-	"char_setup_old" = "Старый",
-	"char_setup_new" = "Новый",
-	"char_setup_modern" = "Современный",
 	"ui_style" = "Стиль UI",
 	"outline" = "Контур",
 	"outline_color" = "Цвет контура",
@@ -1458,10 +1454,6 @@ var/list/en_strings = list(
 	"custom" = "custom",
 
 	// Game preferences (General tab)
-	"char_setup_ui" = "Character Setup UI",
-	"char_setup_old" = "Old",
-	"char_setup_new" = "New",
-	"char_setup_modern" = "Modern",
 	"ui_style" = "UI Style",
 	"outline" = "Outline",
 	"outline_color" = "Outline Color",
