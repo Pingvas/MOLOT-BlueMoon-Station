@@ -38,7 +38,7 @@ GLOBAL_LIST_EMPTY(bluemoon_criminal_characters)
 
 /datum/quirk/bluemoon_criminal/Destroy()
 	if(quirk_holder && !(quirk_holder.real_name in GLOB.bluemoon_criminal_characters))
-		GLOB.bluemoon_criminal_characters += quirk_holder.real_name
+		GLOB.bluemoon_criminal_characters += quirk_holder.name
 	return ..()
 
 /datum/quirk/bluemoon_criminal/proc/on_crime_creation()
