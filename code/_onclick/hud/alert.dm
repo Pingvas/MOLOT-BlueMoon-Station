@@ -83,12 +83,7 @@
 	alerts -= category
 	if(client && hud_used)
 		hud_used.reorganize_alerts()
-	if(client)
-		alert.screen_loc = null
-		client.screen -= alert
-		for(var/mob/dead/observer/observe as anything in observers)
-			if(observe.client)
-				observe.client.screen -= alert
+	alert.detach_from_owner()
 	qdel(alert)
 	return TRUE
 
@@ -119,9 +114,9 @@
 					alert_owner.alerts -= category
 		if(alert_owner.client)
 			alert_owner.client.screen -= src
-			for(var/mob/dead/observer/observe as anything in alert_owner.observers)
-				if(observe.client)
-					observe.client.screen -= src
+		for(var/mob/dead/observer/observe as anything in alert_owner.observers)
+			if(observe.client)
+				observe.client.screen -= src
 	master_ref = null
 	screen_loc = null
 	owner = null
