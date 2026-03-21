@@ -75,8 +75,12 @@
 
 		var/button_shape_class = "csetup-btnshape-[modern_button_shape]"
 		var/decoration_class = ""
-		if(ui_decoration_level == "enhanced")
-			decoration_class = "csetup-decoration-enhanced"
+		switch(ui_decoration_level)
+			if("minimal")
+				decoration_class = "csetup-decoration-minimal"
+			if("enhanced")
+				decoration_class = "csetup-decoration-enhanced"
+			// "standard" = baseline CSS без класса
 		dat = list(modern_palette_css, "<div class='csetup-root [theme_class][button_shape_class ? " [button_shape_class]" : ""][decoration_class ? " [decoration_class]" : ""]'>")
 
 		// Compact theme picker (top-right): only for Modern UI themes.

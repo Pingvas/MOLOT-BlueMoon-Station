@@ -1613,3 +1613,123 @@ body {
 	background: linear-gradient(180deg, #ff8d8d, #ff3b3b) !important;
 	box-shadow: 0 0 10px rgba(255, 59, 59, 0.35) !important;
 }
+
+/*
+ * =====================================================================
+ * MINIMAL decoration — strips ALL expensive CSS for low-end hardware.
+ * No transitions, no transforms, no shadows, no gradients, no animations.
+ * Hovering still changes colors (cheap operation), but zero motion/glow.
+ * =====================================================================
+ */
+
+/* Kill every transition and animation globally */
+.csetup-root.csetup-decoration-minimal,
+.csetup-root.csetup-decoration-minimal * {
+	transition: none !important;
+	animation: none !important;
+	transform: none !important;
+}
+
+/* Remove box-shadows everywhere */
+.csetup-root.csetup-decoration-minimal a,
+.csetup-root.csetup-decoration-minimal a:link,
+.csetup-root.csetup-decoration-minimal a:visited,
+.csetup-root.csetup-decoration-minimal a:hover,
+.csetup-root.csetup-decoration-minimal a:focus,
+.csetup-root.csetup-decoration-minimal a:active {
+	box-shadow: none !important;
+	transform: none !important;
+}
+
+/* Flat background — no radial gradients */
+.csetup-root.csetup-decoration-minimal {
+	background-image: none !important;
+}
+
+/* Character nodes — minimal rounding, no transitions */
+.csetup-root.csetup-decoration-minimal .csetup_character_node {
+	border-radius: 4px;
+	transition: none !important;
+}
+
+/* Character nodes hover — only color, no transform/shadow */
+.csetup-root.csetup-decoration-minimal .csetup_character_node:hover {
+	border-color: rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.45);
+	background-color: rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.06);
+	transform: none !important;
+	box-shadow: none !important;
+}
+
+/* Quirk rows — no shadows, no transforms, minimal rounding */
+.csetup-root.csetup-decoration-minimal .csetup-quirk-row {
+	border-radius: 6px;
+	box-shadow: none !important;
+	transition: none !important;
+}
+
+.csetup-root.csetup-decoration-minimal .csetup-quirk-row:hover,
+.csetup-root.csetup-decoration-minimal .csetup-quirk-row.is-selected,
+.csetup-root.csetup-decoration-minimal .csetup-quirk-row.is-locked {
+	transform: none !important;
+	box-shadow: none !important;
+}
+
+/* Quirk indicator bar — flat solid color instead of gradient */
+.csetup-root.csetup-decoration-minimal .csetup-quirk-row::before {
+	background: currentColor !important;
+	box-shadow: none !important;
+}
+
+.csetup-root.csetup-decoration-minimal .csetup-quirk-row.is-positive::before { background: #3bd76b !important; }
+.csetup-root.csetup-decoration-minimal .csetup-quirk-row.is-negative::before { background: #ff5c5c !important; }
+.csetup-root.csetup-decoration-minimal .csetup-quirk-row.is-locked::before  { background: #ff5c5c !important; }
+.csetup-root.csetup-decoration-minimal .csetup-quirk-row.is-selected::before { background: #3bd76b !important; }
+
+/* Theme panels — flat, no shadows, minimal rounding */
+.csetup-root.csetup-decoration-minimal .theme-hub,
+.csetup-root.csetup-decoration-minimal .theme-picker-panel,
+.csetup-root.csetup-decoration-minimal .theme-settings-panel,
+.csetup-root.csetup-decoration-minimal .theme-custom-editor {
+	border-radius: 4px;
+	box-shadow: none !important;
+}
+
+/* hr — flat solid line instead of gradient */
+.csetup-root.csetup-decoration-minimal hr {
+	background: var(--csetup-border) !important;
+}
+
+/* Marking cards — minimal rounding */
+.csetup-root.csetup-decoration-minimal .csetup-markings .csetup-marking-card {
+	border-radius: 4px;
+}
+
+/* AI core preview — no inner shadow */
+.csetup-root.csetup-decoration-minimal .csetup-ai-core-preview img {
+	box-shadow: none !important;
+}
+
+/* linkOn — keep color highlight but no shadow */
+.csetup-root.csetup-decoration-minimal .linkOn,
+.csetup-root.csetup-decoration-minimal a.linkOn:link,
+.csetup-root.csetup-decoration-minimal a.linkOn:visited,
+.csetup-root.csetup-decoration-minimal a.linkOn:active {
+	box-shadow: none !important;
+}
+
+/* Theme swatch — no scale/glow */
+.csetup-root.csetup-decoration-minimal a.theme-swatch:hover {
+	transform: none !important;
+	box-shadow: none !important;
+}
+
+.csetup-root.csetup-decoration-minimal a.theme-swatch.active {
+	box-shadow: none !important;
+}
+
+/* Notice/quirks cards — flat */
+.csetup-root.csetup-decoration-minimal .notice,
+.csetup-root.csetup-decoration-minimal .csetup-quirks-summary,
+.csetup-root.csetup-decoration-minimal .notice.csetup-quirks-help {
+	box-shadow: none !important;
+}

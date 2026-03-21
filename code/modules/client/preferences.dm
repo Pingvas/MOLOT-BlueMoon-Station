@@ -1,4 +1,13 @@
 GLOBAL_LIST_EMPTY(preferences_datums)
+// Файл расформирован на несколько частей, с модулей удалены хвосты.
+// Теперь суть такова Preferences - все var/ деклорации
+// (game prefs, character prefs, UI state, loadout, все модульные vars (body_weight, fuzzy, favorite_interactions, arousal_multiplier и т.д.)
+// Preferences_ui - Рендер интерфейса ShowChoices и все в этом духе.
+// Preferences_jobs_quirks - Выбор профессии и квирков
+// Prefenences_handlers - Обработчик кликов (ссылки href и process_link`и + Хедшоты)
+// Preferences_copy_to - Применение настроек к персонажу (внешка персов)
+// Preferences_savefile - Ну понятно все, ничего не изменилось в целом.
+// Preferences_toggles - Верб тогглы настроек.
 
 /datum/preferences
 	var/client/parent
