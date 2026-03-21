@@ -23,7 +23,7 @@
 			return thealert
 		if(new_master)
 			var/atom/existing_master = thealert.master_ref?.resolve()
-			if(!isnull(existing_master) && existing_master != new_master)
+			if(existing_master != new_master) // null (stale/qdel'd) тоже считается сменой master
 				WARNING("[src] threw alert [category] with new_master [new_master] while already having that alert with master [existing_master]")
 				clear_alert(category)
 				return .()
@@ -982,7 +982,10 @@ so as to remain in compliance with the most up-to-date laws."
 	return TRUE
 
 /atom/movable/screen/alert/Destroy()
+	var/mob/alert_owner = owner
 	detach_from_owner(TRUE)
+	if(alert_owner && !QDELETED(alert_owner))
+		alert_owner.hud_used?.reorganize_alerts()
 	animate(src)
 	transform = null
 	..()

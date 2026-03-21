@@ -161,6 +161,7 @@ GLOBAL_LIST_INIT(available_ui_styles, list(
 				observe.client.screen -= infodisplay
 				observe.client.screen -= screenoverlays
 	QDEL_LIST(static_inventory)
+	QDEL_LIST(screenoverlays)
 
 	inv_slots.Cut()
 	action_intent = null
