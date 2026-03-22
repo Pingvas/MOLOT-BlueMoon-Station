@@ -107,6 +107,12 @@
 #define LOADOUT_CHAR_TAB		5
 #define QUIRKS_CHAR_TAB			6
 
+//subtabs for APPEARANCE_CHAR_TAB
+#define APPEARANCE_SUBTAB_BODY		0
+#define APPEARANCE_SUBTAB_HAIR_EYES	1
+#define APPEARANCE_SUBTAB_MUTPARTS	2
+#define APPEARANCE_SUBTAB_INTIMACY	3
+
 //subtabs for preferences tab
 #define GAME_PREFS_TAB			0
 #define OOC_PREFS_TAB			1

@@ -390,6 +390,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/show_mismatched_markings = FALSE //determines whether or not the markings lists should show markings that don't match the currently selected species. Intentionally left unsaved.
 
 	var/character_settings_tab = GENERAL_CHAR_TAB
+	var/appearance_subtab = APPEARANCE_SUBTAB_BODY
 	var/preferences_tab = GAME_PREFS_TAB
 	var/preview_pref = PREVIEW_PREF_JOB
 

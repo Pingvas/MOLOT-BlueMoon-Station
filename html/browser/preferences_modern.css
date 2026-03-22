@@ -1208,6 +1208,39 @@ body {
 	box-shadow: none;
 }
 
+/* --- Appearance sub-tabs --- */
+.csetup-root .csetup-app-subtabs {
+	margin: 4px 0 6px;
+	line-height: 28px;
+}
+
+.csetup-root .csetup-app-subtabs a {
+	display: inline-block;
+	padding: 3px 14px;
+	margin: 0 2px;
+	border-bottom: 2px solid transparent;
+	font-size: 11.5px;
+	font-weight: 500;
+}
+
+.csetup-root.csetup-theme-modern .csetup-app-subtabs a {
+	border-radius: var(--csetup-btn-radius, 7px);
+	background: rgba(0, 0, 0, 0.30);
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	margin: 0 3px;
+}
+
+.csetup-root.csetup-theme-modern .csetup-app-subtabs a.linkOn {
+	background: rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.18) !important;
+	border-color: rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.45) !important;
+	color: var(--csetup-accent, #4da3ff) !important;
+}
+
+.csetup-root.csetup-theme-classic .csetup-app-subtabs a.linkOn {
+	text-decoration: underline;
+	font-weight: bold;
+}
+
 /* --- Quirks (Modern inline UI) --- */
 .csetup-root.csetup-theme-modern .csetup-quirks {
 	max-width: 980px;

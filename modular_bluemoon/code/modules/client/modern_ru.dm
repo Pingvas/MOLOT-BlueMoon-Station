@@ -91,6 +91,10 @@ var/list/ru_strings = list(
 	"set_headshot_image" = "Установить изображение снимка головы",
 
 	// Appearance tab labels
+	"app_sub_body"     = "Тело",
+	"app_sub_hair"     = "Волосы",
+	"app_sub_mutparts" = "Мутпарты",
+	"app_sub_intimacy" = "Интимное",
 	"body" = "Тело",
 	"gender" = "Пол",
 	"body_model" = "Модель тела",

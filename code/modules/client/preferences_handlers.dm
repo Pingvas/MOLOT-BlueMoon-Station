@@ -2644,6 +2644,10 @@
 							new_tab = GENERAL_CHAR_TAB
 						character_settings_tab = new_tab
 
+				if("appearance_subtab")
+					if(href_list["tab"])
+						appearance_subtab = text2num(href_list["tab"])
+
 				if("preferences_tab")
 					if(href_list["tab"])
 						preferences_tab = text2num(href_list["tab"])
