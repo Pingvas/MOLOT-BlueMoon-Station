@@ -21,6 +21,7 @@
 		SStitle_bm.on_player_ready_change(-1)
 	else
 		SStitle_bm?.update_player_counts_all()
+	return ..()
 
 /mob/dead/new_player/proc/bm_show_lobby()
 	if(!client)
