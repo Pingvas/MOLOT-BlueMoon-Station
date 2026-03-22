@@ -124,7 +124,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/list/alt_titles_preferences = list()
 
 	// Modern UI translations
-	var/use_modern_translations = TRUE		// Enable modern translation system for UI elements
 	var/modern_ui_language = 0				// 0 = English, 1 = Russian
 
 	var/hardsuit_tail_style = null // Пока не используется. Вскоре нужно будет бахнуть новых спрайтов.
@@ -460,7 +459,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/preferred_chaos_level = 2
 	var/auto_capitalize_enabled = FALSE
 
-	var/new_character_creator = TRUE
 	var/charcreation_theme = "modern"
 
 	/// Modern character creator: button shape preset (persisted).
@@ -581,6 +579,9 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 
 #define APPEARANCE_CATEGORY_COLUMN "<td valign='top' width='17%'>"
 #define MAX_MUTANT_ROWS 5
+
+/datum/preferences/proc/T(key, fallback = "")
+	return get_modern_text(key, src)
 
 /// Возвращает палитру для Modern Character Setup (конкретные цвета, без CSS variables).
 /datum/preferences/proc/get_character_setup_palette_modern()

@@ -191,7 +191,6 @@
 		if(!color_key)
 			ShowChoices(user)
 			return TRUE
-		new_character_creator = TRUE
 		charcreation_theme = "modern_custom"
 		modern_custom_enabled = TRUE
 		var/current_value = ""
