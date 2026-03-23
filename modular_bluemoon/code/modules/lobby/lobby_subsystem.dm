@@ -10,7 +10,6 @@ SUBSYSTEM_DEF(title_bm)
 	var/current_notice
 	var/loading_image = BM_LOBBY_LOADING_GIF
 	var/lobby_tick_timer
-	var/refresh_timer
 	var/current_video_payload
 	var/cached_static_html = ""
 	var/cached_js_url = ""           // URL JS-библиотеки — вычисляется один раз в _build_static_html
@@ -69,8 +68,6 @@ SUBSYSTEM_DEF(title_bm)
 	UnregisterSignal(SSticker, list(COMSIG_TICKER_ENTER_PREGAME, COMSIG_TICKER_ENTER_SETTING_UP))
 	deltimer(lobby_tick_timer)
 	lobby_tick_timer = null
-	deltimer(refresh_timer)
-	refresh_timer = null
 	sfw_images = null
 	nsfw_images = null
 	current_sfw_image = null
@@ -262,8 +259,6 @@ SUBSYSTEM_DEF(title_bm)
 	SIGNAL_HANDLER
 	deltimer(lobby_tick_timer)
 	lobby_tick_timer = null
-	deltimer(refresh_timer)
-	refresh_timer = null
 	for(var/mob/dead/new_player/player as anything in GLOB.new_player_list)
 		if(player.spawning || player.new_character || !player.client)
 			continue

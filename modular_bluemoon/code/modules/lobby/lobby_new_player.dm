@@ -87,11 +87,6 @@
 	src << browse(img_to_send, "file=[filename];display=0")
 	client << output(filename, "bm_lobby_browser:bm_set_background")
 
-/mob/dead/new_player/proc/bm_push_player_count()
-	if(!client || !bm_lobby_ready)
-		return
-	SStitle_bm?.push_player_count_to(src)
-
 /mob/dead/new_player/proc/_bm_build_loading_stub()
 	// Фон — bm_stub_bg.gif, отправленный через browse() до этого вызова.
 	return {"<!DOCTYPE html><html><head><meta charset='UTF-8'>
@@ -391,6 +386,8 @@ var _i=0;setInterval(function(){var s=_i%4;document.getElementById('d').textCont
 
 		if("changelog")
 			_bm_play_click_sound()
+			if(!GLOB.changelog_tgui)
+				GLOB.changelog_tgui = new /datum/changelog()
 			GLOB.changelog_tgui.ui_interact(src)
 			return
 
