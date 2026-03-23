@@ -146,6 +146,7 @@
 /// BLUEMOON TESTS
 #include "bad_defines_defined.dm"
 #include "disposal_holder.dm"
+#include "memory_leak_limits.dm"
 #include "human_mob_gc.dm"
 
 #undef TEST_ASSERT

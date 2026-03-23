@@ -9,6 +9,7 @@
 /mob/dead/new_player/Login()
 	. = ..()
 	bm_show_lobby()
+	SStitle_bm?.update_player_counts_all()
 
 /mob/dead/new_player/Destroy()
 	// Must run BEFORE parent Destroy: we override base new_player/Destroy, so we must remove ourselves.
@@ -18,6 +19,8 @@
 	var/was_ready = ready
 	if(was_ready && SStitle_bm)
 		SStitle_bm.on_player_ready_change(-1)
+	else
+		SStitle_bm?.update_player_counts_all()
 	return ..()
 
 /mob/dead/new_player/proc/bm_show_lobby()
