@@ -350,6 +350,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/fullscreen = TRUE
 
 	var/ambientocclusion = TRUE
+	var/lighting_blur = LIGHTING_BLUR_DEFAULT
 	///Should we automatically fit the viewport?
 	var/auto_fit_viewport = FALSE
 	///Should we be in the widescreen mode set by the config?

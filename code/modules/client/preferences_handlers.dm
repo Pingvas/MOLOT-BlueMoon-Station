@@ -2534,13 +2534,37 @@
 
 				if("ambientocclusion")
 					ambientocclusion = !ambientocclusion
-					if(parent && parent.screen && parent.screen.len)
-						var/atom/movable/screen/plane_master/game_world/G = parent.mob.hud_used.plane_masters["[GAME_PLANE]"]
-						var/atom/movable/screen/plane_master/above_wall/A = parent.mob.hud_used.plane_masters["[ABOVE_WALL_PLANE]"]
-						var/atom/movable/screen/plane_master/wall/W = parent.mob.hud_used.plane_masters["[WALL_PLANE]"]
-						G.backdrop(parent.mob)
-						A.backdrop(parent.mob)
-						W.backdrop(parent.mob)
+					if(parent?.mob?.hud_used && parent.screen?.len)
+						var/datum/hud/H = parent.mob.hud_used
+						var/atom/movable/screen/plane_master/G = H.plane_masters["[GAME_PLANE]"]
+						var/atom/movable/screen/plane_master/A = H.plane_masters["[ABOVE_WALL_PLANE]"]
+						var/atom/movable/screen/plane_master/W = H.plane_masters["[WALL_PLANE]"]
+						var/atom/movable/screen/plane_master/F = H.plane_masters["[FLOOR_PLANE]"]
+						var/atom/movable/screen/plane_master/L = H.plane_masters["[LIGHTING_PLANE]"]
+						var/atom/movable/screen/plane_master/C = H.plane_masters["[CHAT_PLANE]"]
+						G?.backdrop(parent.mob)
+						A?.backdrop(parent.mob)
+						W?.backdrop(parent.mob)
+						F?.backdrop(parent.mob)
+						L?.backdrop(parent.mob)
+						C?.backdrop(parent.mob)
+
+				if("lighting_blur")
+					lighting_blur = (lighting_blur + 1) % (LIGHTING_BLUR_MAX + 1)
+					if(parent?.mob?.hud_used && parent.screen?.len)
+						var/datum/hud/H = parent.mob.hud_used
+						var/atom/movable/screen/plane_master/L = H.plane_masters["[LIGHTING_PLANE]"]
+						var/atom/movable/screen/plane_master/G = H.plane_masters["[GAME_PLANE]"]
+						var/atom/movable/screen/plane_master/A = H.plane_masters["[ABOVE_WALL_PLANE]"]
+						var/atom/movable/screen/plane_master/W = H.plane_masters["[WALL_PLANE]"]
+						var/atom/movable/screen/plane_master/F = H.plane_masters["[FLOOR_PLANE]"]
+						var/atom/movable/screen/plane_master/E = H.plane_masters["[EMISSIVE_PLANE]"]
+						L?.backdrop(parent.mob)
+						G?.backdrop(parent.mob)
+						A?.backdrop(parent.mob)
+						W?.backdrop(parent.mob)
+						F?.backdrop(parent.mob)
+						E?.backdrop(parent.mob)
 
 				if("auto_fit_viewport")
 					auto_fit_viewport = !auto_fit_viewport
