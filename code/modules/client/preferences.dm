@@ -91,6 +91,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/tgui_fancy = TRUE
 	var/tgui_lock = TRUE
 	var/tgui_input_mode = TRUE			// All the Input Boxes (Text,Number,List,Alert)
+	var/tgui_input_verbs = TRUE 		// Все частоиспользуемые вербы: SAY, ME, OOC и т.д.
 	var/tgui_large_buttons = TRUE
 	var/tgui_swapped_buttons = FALSE
 	var/tgui_panel_theme = "default"

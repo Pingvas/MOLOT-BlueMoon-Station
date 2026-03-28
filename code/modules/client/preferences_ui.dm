@@ -1780,6 +1780,8 @@
 					var/screentip_images_tooltip = T("screentip_images_tooltip", "This is an accessibility preference, if disabled, fallbacks to only text which colorblind people can understand better")
 					var/allowed_label = T("allowed", "Allowed")
 					var/disallowed_label = T("disallowed", "Disallowed")
+					var/tgui_input_label = T("tgui_input_mode", "Input Framework")
+					var/tgui_input_verbs_label = T("tgui_input_verbs", "Input Verbs (SAY, ME, OOC, etc.) Framework")
 					var/tgui_monitors_label = T("tgui_monitors", "tgui Monitors")
 					var/tgui_monitor_primary = T("tgui_monitor_primary", "Primary")
 					var/tgui_monitor_all = T("tgui_monitor_all", "All")
@@ -1821,6 +1823,9 @@
 					dat += "<font style='border-bottom:2px dotted white; cursor:help;'\
 						title=\"[screentip_images_tooltip]\">\
 						<b>[screentip_images_label]:</b></font> <a href='?_src_=prefs;preference=screentip_images'>[screentip_images ? allowed_label : disallowed_label]</a><br>"
+					dat += "<b>[tgui_input_label]:</b> <a href='?_src_=prefs;preference=tgui_input_mode'>[(tgui_input_mode) ? "TGUI" : "BYOND"]</a><br>"
+					if(tgui_input_mode)
+						dat += "<b>[tgui_input_verbs_label]:</b> <a href='?_src_=prefs;preference=tgui_input_verbs'>[(tgui_input_verbs) ? "TGUI" : "BYOND"]</a><br>"
 					dat += "<b>[tgui_monitors_label]:</b> <a href='?_src_=prefs;preference=tgui_lock'>[(tgui_lock) ? tgui_monitor_primary : tgui_monitor_all]</a><br>"
 					dat += "<b>[tgui_style_label]:</b> <a href='?_src_=prefs;preference=tgui_fancy'>[(tgui_fancy) ? tgui_style_fancy : tgui_style_no_frills]</a><br>"
 					dat += "<b>[runechat_bubbles_label]:</b> <a href='?_src_=prefs;preference=chat_on_map'>[chat_on_map ? enabled_label : disabled_label]</a><br>"

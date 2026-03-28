@@ -2332,6 +2332,8 @@
 					tgui_fancy = !tgui_fancy
 				if("tgui_input_mode")
 					tgui_input_mode = !tgui_input_mode
+				if("tgui_input_verbs")
+					tgui_input_verbs = !tgui_input_verbs
 				if("tgui_large_buttons")
 					tgui_large_buttons = !tgui_large_buttons
 				if("tgui_swapped_buttons")
