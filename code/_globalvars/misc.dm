@@ -30,5 +30,7 @@ GLOBAL_VAR(bible_name)
 GLOBAL_VAR(bible_icon_state)
 GLOBAL_VAR(bible_item_state)
 
+// Словарь локализации Char setup
+GLOBAL_LIST_EMPTY(modern_strings)
 
 GLOBAL_VAR_INIT(internal_tick_usage, 0.2 * world.tick_lag)

@@ -584,7 +584,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 #define MAX_MUTANT_ROWS 5
 
 /datum/preferences/proc/T(key, fallback = "")
-	return get_modern_text(key, src)
+	var/result = get_modern_text(key, src, fallback)
+	return result
 
 /// Возвращает палитру для Modern Character Setup (конкретные цвета, без CSS variables).
 /datum/preferences/proc/get_character_setup_palette_modern()
