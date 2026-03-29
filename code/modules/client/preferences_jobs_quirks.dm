@@ -36,9 +36,8 @@
 					//the last job's selection color. Creating a rather nice effect.
 					for(var/i = 0, i < (limit - index), i += 1)
 						HTML += "<tr bgcolor='[lastJob.selection_color]'><td width='60%' align='right'>&nbsp</td><td>&nbsp</td></tr>"
-				HTML += "</table></td></tr></table>"
-				HTML += "</center>"
-				continue
+				HTML += "</table></td><td width='20%'><table width='100%' cellpadding='1' cellspacing='0'>"
+				index = 0
 
 			HTML += "<tr bgcolor='[job.selection_color]'><td width='60%' align='right'>"
 			var/rank = job.title
