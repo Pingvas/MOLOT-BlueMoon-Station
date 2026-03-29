@@ -188,11 +188,13 @@
 
 /datum/preferences/proc/post_copy_to(mob/living/carbon/human/character)
 	//if no legs, and not a paraplegic or a slime, give them a free wheelchair
-	if(modified_limbs[BODY_ZONE_L_LEG] == LOADOUT_LIMB_AMPUTATED && modified_limbs[BODY_ZONE_R_LEG] == LOADOUT_LIMB_AMPUTATED && !character.has_quirk(/datum/quirk/paraplegic) && !isjellyperson(character))
+	var/list/left_leg = modified_limbs[BODY_ZONE_L_LEG]
+	var/list/right_leg = modified_limbs[BODY_ZONE_R_LEG]
+	if(left_leg && left_leg[1] == LOADOUT_LIMB_AMPUTATED && right_leg && right_leg[1] == LOADOUT_LIMB_AMPUTATED && !character.has_quirk(/datum/quirk/paraplegic) && !isjellyperson(character))
 		if(character.buckled)
 			character.buckled.unbuckle_mob(character)
 		var/turf/T = get_turf(character)
-		var/obj/structure/chair/spawn_chair = locate() in T
+		var/obj/structure/chair/spawn_chair = locate(/obj/structure/chair) in T
 		var/obj/vehicle/ridden/wheelchair/wheels = new(T)
 		if(spawn_chair) // Makes spawning on the arrivals shuttle more consistent looking
 			wheels.setDir(spawn_chair.dir)
@@ -305,11 +307,6 @@
 
 	return prefs_holder?.prefs.chat_toggles
 
-
-// ========== Splurt: fuzzy copy_to ==========
-/datum/preferences/copy_to(mob/living/carbon/human/character, icon_updates, roundstart_checks, initial_spawn)
-	character.fuzzy = fuzzy
-	. = ..()
 
 // ========== BlueMoon: mob size helpers ==========
 /datum/preferences/proc/mob_size_name_to_num(body_weight_name)
