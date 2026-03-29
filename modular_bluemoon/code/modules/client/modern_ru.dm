@@ -1,7 +1,3 @@
-/// Modern UI Language Support Extension - COMPLETE TRANSLATION SYSTEM
-/// Расширение поддержки языка в modern меню preferences
-
-// Global translation dictionaries for modern UI - RUSSIAN
 var/list/ru_strings = list(
 	// Main interface tabs
 	"tab_character_settings" = "Настройки персонажа",
@@ -1080,6 +1076,10 @@ var/list/en_strings = list(
 	"set_examine_text" = "Set Examine Text",
 
 	// Appearance options
+	"app_sub_body"     = "Body",
+	"app_sub_hair"     = "Hair",
+	"app_sub_mutparts" = "Mutparts",
+	"app_sub_intimacy" = "Intimacy",
 	"appearance_body" = "Body",
 	"body_model" = "Body Model",
 	"body_model_masc" = "Masculine",
