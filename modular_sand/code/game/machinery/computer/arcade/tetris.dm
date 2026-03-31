@@ -90,20 +90,25 @@
 		data["personal_best"] = user.client.get_award_status(/datum/award/score/highscore/tetris) || 0
 	else
 		data["personal_best"] = 0
-	return data
-
-/obj/machinery/computer/arcade/tetris/ui_static_data(mob/user)
-	. = ..()
 	var/datum/award/score/highscore/tetris/S = SSachievements.scores[/datum/award/score/highscore/tetris]
+	var/list/leaderboard = list()
 	if(S && S.high_scores.len)
-		var/list/leaderboard = list()
-		var/rank = 0
+		var/list/entries = list()
 		for(var/ckey in S.high_scores)
+			entries += list(list("ckey" = ckey, "score" = S.high_scores[ckey]))
+		for(var/i = 1; i <= entries.len; i++)
+			for(var/j = i + 1; j <= entries.len; j++)
+				var/list/a = entries[i]
+				var/list/b = entries[j]
+				if(b["score"] > a["score"])
+					entries[i] = b
+					entries[j] = a
+		var/rank = 0
+		for(var/list/entry in entries)
 			rank++
-			leaderboard += list(list("rank" = rank, "ckey" = ckey, "score" = S.high_scores[ckey]))
-		.["leaderboard"] = leaderboard
-	else
-		.["leaderboard"] = list()
+			leaderboard += list(list("rank" = rank, "ckey" = entry["ckey"], "score" = entry["score"]))
+	data["leaderboard"] = leaderboard
+	return data
 
 /obj/machinery/computer/arcade/tetris/ui_act(action, params)
 	. = ..()
@@ -115,6 +120,8 @@
 			play_tetris_sfx(params["type"])
 			return TRUE
 		if("music_start")
+			if(game_active && usr != active_game_player)
+				return FALSE
 			game_active = TRUE
 			active_game_player = usr
 			start_tetris_music(usr)

@@ -32,6 +32,10 @@
 	/// Защита от дурочков с href
 	var/game_active = FALSE
 
+/datum/computer_file/program/tetris/ui_close(mob/user)
+	. = ..()
+	game_active = FALSE
+
 /datum/computer_file/program/tetris/ui_data(mob/user)
 	var/list/data = get_header_data()
 	data["high_score"] = high_score
@@ -39,21 +43,27 @@
 		data["personal_best"] = user.client.get_award_status(/datum/award/score/highscore/tetris) || 0
 	else
 		data["personal_best"] = 0
-	return data
-
-/datum/computer_file/program/tetris/ui_static_data(mob/user)
-	. = ..()
 	// Передаём глобальную таблицу лидеров (топ-50)
 	var/datum/award/score/highscore/tetris/S = SSachievements.scores[/datum/award/score/highscore/tetris]
+	var/list/leaderboard = list()
 	if(S && S.high_scores.len)
-		var/list/leaderboard = list()
-		var/rank = 0
+		var/list/entries = list()
 		for(var/ckey in S.high_scores)
+			entries += list(list("ckey" = ckey, "score" = S.high_scores[ckey]))
+		// Сортируем по убыванию счёта (в памяти порядок мог нарушиться)
+		for(var/i = 1; i <= entries.len; i++)
+			for(var/j = i + 1; j <= entries.len; j++)
+				var/list/a = entries[i]
+				var/list/b = entries[j]
+				if(b["score"] > a["score"])
+					entries[i] = b
+					entries[j] = a
+		var/rank = 0
+		for(var/list/entry in entries)
 			rank++
-			leaderboard += list(list("rank" = rank, "ckey" = ckey, "score" = S.high_scores[ckey]))
-		.["leaderboard"] = leaderboard
-	else
-		.["leaderboard"] = list()
+			leaderboard += list(list("rank" = rank, "ckey" = entry["ckey"], "score" = entry["score"]))
+	data["leaderboard"] = leaderboard
+	return data
 
 /datum/computer_file/program/tetris/ui_act(action, list/params)
 	. = ..()

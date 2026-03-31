@@ -20,5 +20,4 @@
 /datum/award/score/highscore/tetris
 	name = "Tetris High Score"
 	desc = "The pinnacle of stacking skills."
-	category = "Scores"
 	database_id = TETRIS_SCORE
