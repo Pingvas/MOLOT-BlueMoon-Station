@@ -129,7 +129,7 @@
 					LT.put_in_hands(IT)
 				else if(where == WHERE_TELEPORT_BELOW_MOB)
 					do_teleport(O, get_turf(user), channel = TELEPORT_CHANNEL_FREE, no_effects = TRUE)
-					do_sparks(5, TRUE, get_turf(O))
+					do_sparks(5, FALSE, get_turf(O))
 
 	if(pod)
 		new /obj/effect/pod_landingzone(get_turf(target), pod)

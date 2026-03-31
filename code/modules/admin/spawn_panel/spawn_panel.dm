@@ -28,14 +28,21 @@
 	var/list/offset
 	var/offset_type = OFFSET_RELATIVE
 	var/precise_mode = PRECISE_MODE_OFF
+	var/mob/owner = null
 
 /datum/spawnpanel/New()
-	. = ..()
+	. = (..())
+	owner = usr
 	offset = list("X" = 0, "Y" = 0, "Z" = 0)
 
 /datum/spawnpanel/Destroy()
-	if(precise_mode != PRECISE_MODE_OFF)
-		toggle_precise_mode(PRECISE_MODE_OFF)
+	if(precise_mode != PRECISE_MODE_OFF && owner?.client)
+		owner.client.click_intercept = null
+		owner.client.mouse_up_icon = null
+		owner.client.mouse_down_icon = null
+		owner.client.mouse_override_icon = null
+		owner.update_mouse_pointer()
+	owner = null
 	. = ..()
 
 /datum/spawnpanel/ui_interact(mob/user, datum/tgui/ui)
@@ -81,6 +88,7 @@
 		if("selected-atom-changed")
 			selected_atom = params["newObj"]
 			selected_icon = null
+			atom_name = null
 			if(selected_atom)
 				var/path = text2path(selected_atom)
 				if(path)
@@ -171,9 +179,13 @@
 		user.update_mouse_pointer()
 	else
 		user.client.click_intercept = src
-		if(new_mode == PRECISE_MODE_TARGET && where_target_type == WHERE_TARGETED_LOCATION_POD)
-			user.client.mouse_up_icon = 'icons/effects/mouse_pointers/supplypod_target.dmi'
-			user.client.mouse_down_icon = 'icons/effects/mouse_pointers/supplypod_down_target.dmi'
+		if(new_mode == PRECISE_MODE_TARGET)
+			if(where_target_type == WHERE_TARGETED_LOCATION_POD)
+				user.client.mouse_up_icon = 'icons/effects/mouse_pointers/supplypod_target.dmi'
+				user.client.mouse_down_icon = 'icons/effects/mouse_pointers/supplypod_down_target.dmi'
+			else
+				user.client.mouse_up_icon = 'icons/effects/mouse_pointers/supplypod_pickturf.dmi'
+				user.client.mouse_down_icon = 'icons/effects/mouse_pointers/supplypod_pickturf_down.dmi'
 			user.client.mouse_override_icon = user.client.mouse_up_icon
 			user.client.mouse_pointer_icon = user.client.mouse_override_icon
 	SStgui.update_uis(src)
