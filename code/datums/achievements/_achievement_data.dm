@@ -79,8 +79,9 @@
 		if(istype(A, /datum/award/score/highscore))
 			if(value > data[achievement_type])
 				data[achievement_type] = value
-				if(A.track_high_scores)
-					A.high_scores[owner_ckey] = value
+				var/datum/award/score/S = A
+				if(S.track_high_scores)
+					S.high_scores[owner_ckey] = value
 		else
 			data[achievement_type] += value
 
