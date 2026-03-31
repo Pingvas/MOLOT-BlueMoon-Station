@@ -6,7 +6,7 @@
 // ═══════════════════════════════════════════════════
 
 /// Порог подозрительного счёта
-#define NTOS_TETRIS_SCORE_HIGH 10000
+#define NTOS_TETRIS_SCORE_HIGH 50000
 /// Максимально допустимый счёт
 #define NTOS_TETRIS_SCORE_MAX 100000
 /// Максимум research points
@@ -29,11 +29,31 @@
 	var/high_score = 0
 	/// Кулдаун начисления RnD
 	COOLDOWN_DECLARE(reward_cooldown)
+	/// Защита от дурочков с href
+	var/game_active = FALSE
 
 /datum/computer_file/program/tetris/ui_data(mob/user)
 	var/list/data = get_header_data()
 	data["high_score"] = high_score
+	if(user?.client)
+		data["personal_best"] = user.client.get_award_status(/datum/award/score/highscore/tetris) || 0
+	else
+		data["personal_best"] = 0
 	return data
+
+/datum/computer_file/program/tetris/ui_static_data(mob/user)
+	. = ..()
+	// Передаём глобальную таблицу лидеров (топ-50)
+	var/datum/award/score/highscore/tetris/S = SSachievements.scores[/datum/award/score/highscore/tetris]
+	if(S && S.high_scores.len)
+		var/list/leaderboard = list()
+		var/rank = 0
+		for(var/ckey in S.high_scores)
+			rank++
+			leaderboard += list(list("rank" = rank, "ckey" = ckey, "score" = S.high_scores[ckey]))
+		.["leaderboard"] = leaderboard
+	else
+		.["leaderboard"] = list()
 
 /datum/computer_file/program/tetris/ui_act(action, list/params)
 	. = ..()
@@ -41,6 +61,9 @@
 		return
 
 	switch(action)
+		if("gameStart")
+			game_active = TRUE
+			return TRUE
 		if("sfx")
 			if(!computer)
 				return
@@ -64,9 +87,15 @@
 					playsound(computer.loc, 'modular_bluemoon/sound/machines/tetris/game_over.ogg', 55, TRUE, extrarange = -2)
 			return TRUE
 		if("submitScore")
+			if(!game_active)
+				return FALSE
+			game_active = FALSE
 			var/temp_score = clamp(text2num(params["score"]) || 0, 0, NTOS_TETRIS_SCORE_MAX)
 			if(temp_score > high_score)
 				high_score = temp_score
+
+			if(usr?.client && SSachievements.achievements_enabled)
+				usr.client.give_award(/datum/award/score/highscore/tetris, usr, temp_score)
 
 			// Проверка подозрительного счёта
 			if(temp_score > NTOS_TETRIS_SCORE_HIGH)

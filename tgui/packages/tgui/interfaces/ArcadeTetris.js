@@ -2,7 +2,7 @@ import { KEY_DOWN, KEY_LEFT, KEY_RIGHT, KEY_SPACE, KEY_UP } from 'common/keycode
 import { Component, createRef } from 'inferno';
 
 import { useBackend } from '../backend';
-import { Box, Button, Section, Stack } from '../components';
+import { Box, Button, Modal, Section, Stack, Table } from '../components';
 import { Window } from '../layouts';
 
 // ---- Constants ----
@@ -51,6 +51,7 @@ class TetrisGame extends Component {
       gameOver: false,
       paused: false,
       started: false,
+      showLeaderboard: false,
     };
     this.board = [];
     this.colors = [];
@@ -375,10 +376,54 @@ class TetrisGame extends Component {
   }
 
   render() {
-    const { score, level, lines, gameOver, paused, started } = this.state;
+    const { score, level, lines, gameOver, paused, started, showLeaderboard } = this.state;
+    const { leaderboard = [], personal_best = 0 } = this.props;
 
     return (
       <Stack fill>
+        {/* Leaderboard modal */}
+        {showLeaderboard && (
+          <Modal width="300px">
+            <Section
+              title="🏆 Таблица лидеров"
+              buttons={
+                <Button
+                  icon="times"
+                  color="transparent"
+                  onClick={() => this.setState({ showLeaderboard: false })}
+                />
+              }
+            >
+              {leaderboard.length === 0 ? (
+                <Box color="label" textAlign="center" mt={1}>
+                  {'Нет данных. Сыграйте партию!'}
+                </Box>
+              ) : (
+                <Table>
+                  <Table.Row header>
+                    <Table.Cell>{'#'}</Table.Cell>
+                    <Table.Cell>{'Игрок'}</Table.Cell>
+                    <Table.Cell>{'Счёт'}</Table.Cell>
+                  </Table.Row>
+                  {leaderboard.map((entry) => (
+                    <Table.Row key={entry.rank}>
+                      <Table.Cell color={entry.rank <= 3 ? 'good' : 'label'}>
+                        {entry.rank}
+                      </Table.Cell>
+                      <Table.Cell>{entry.ckey}</Table.Cell>
+                      <Table.Cell bold>{entry.score}</Table.Cell>
+                    </Table.Row>
+                  ))}
+                </Table>
+              )}
+              {personal_best > 0 && (
+                <Box mt={1} color="average" fontSize="11px">
+                  {'Ваш рекорд: ' + personal_best}
+                </Box>
+              )}
+            </Section>
+          </Modal>
+        )}
         {/* Game board */}
         <Stack.Item>
           <Box className="ArcadeTetris__board-wrap">
@@ -467,6 +512,15 @@ class TetrisGame extends Component {
                       </Button>
                     </Stack.Item>
                   )}
+                  <Stack.Item>
+                    <Button
+                      fluid
+                      icon="trophy"
+                      color="transparent"
+                      onClick={() => this.setState({ showLeaderboard: true })}>
+                      {'Лидерборд'}
+                    </Button>
+                  </Stack.Item>
                 </Stack>
               </Section>
             </Stack.Item>
@@ -489,12 +543,13 @@ class TetrisGame extends Component {
 
 // ---- Main export ----
 export const ArcadeTetris = (props, context) => {
-  const { act } = useBackend(context);
+  const { act, data } = useBackend(context);
+  const { personal_best = 0, leaderboard = [] } = data;
 
   return (
     <Window title="T.E.T.R.I.S." width={400} height={520}>
       <Window.Content className="ArcadeTetris">
-        <TetrisGame act={act} />
+        <TetrisGame act={act} leaderboard={leaderboard} personal_best={personal_best} />
       </Window.Content>
     </Window>
   );
