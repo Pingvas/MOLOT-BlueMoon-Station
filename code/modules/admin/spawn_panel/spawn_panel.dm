@@ -1,49 +1,40 @@
-#define WHERE_FLOOR_BELOW_MOB        "floor_below_mob"
-#define WHERE_SUPPLY_BELOW_MOB       "supply_below_mob"
-#define WHERE_MOB_HAND               "mob_hand"
-#define WHERE_MARKED_OBJECT          "marked_object"
-#define WHERE_IN_MARKED_OBJECT       "in_marked_object"
-#define WHERE_TARGETED_LOCATION      "targeted_location"
-#define WHERE_TARGETED_LOCATION_POD  "targeted_location_pod"
-#define WHERE_TARGETED_MOB_HAND      "targeted_mob_hand"
+// Spawn location where-targets - must match TGUI constants.ts strings
+#define WHERE_FLOOR_BELOW_MOB        "Current location"
+#define WHERE_SUPPLY_BELOW_MOB       "Current location (droppod)"
+#define WHERE_MOB_HAND               "In own mob's hand"
+#define WHERE_MARKED_OBJECT          "At a marked object"
+#define WHERE_IN_MARKED_OBJECT       "In the marked object"
+#define WHERE_TARGETED_LOCATION      "Targeted location"
+#define WHERE_TARGETED_LOCATION_POD  "Targeted location (droppod)"
+#define WHERE_TARGETED_MOB_HAND      "In targeted mob's hand"
 
+// Precise mode states
 #define PRECISE_MODE_OFF    "Off"
 #define PRECISE_MODE_TARGET "Target"
 #define PRECISE_MODE_COPY   "Copy"
 
-#define OFFSET_ABSOLUTE "absolute"
-#define OFFSET_RELATIVE "relative"
+// Offset types
+#define OFFSET_ABSOLUTE "Absolute offset"
+#define OFFSET_RELATIVE "Relative offset"
 
 /datum/spawnpanel
-	// Where the spawned atom should appear
 	var/where_target_type = WHERE_FLOOR_BELOW_MOB
-	// The currently-selected atom typepath (as text)
 	var/selected_atom = null
-	// How many atoms to spawn at once
 	var/atom_amount = 1
-	// Optional name override (null = use initial name)
 	var/atom_name = null
-	// Direction override (BYOND dir int; 1=NORTH by default)
-	var/atom_dir = 1
-	// Offset associative list: list("X"=0,"Y"=0,"Z"=0)
+	var/atom_dir = 2
 	var/list/offset
-	// Whether offset is absolute or relative (one of the OFFSET_* defines)
 	var/offset_type = OFFSET_RELATIVE
-	// Current precise mode state (one of the PRECISE_MODE_* defines)
 	var/precise_mode = PRECISE_MODE_OFF
-	// Turf captured by precise-mode click (for TARGET mode)
-	var/turf/precise_target = null
 
 /datum/spawnpanel/New()
 	. = ..()
 	offset = list("X" = 0, "Y" = 0, "Z" = 0)
 
 /datum/spawnpanel/Destroy()
-	if(precise_mode && precise_mode != PRECISE_MODE_OFF)
+	if(precise_mode != PRECISE_MODE_OFF)
 		toggle_precise_mode(PRECISE_MODE_OFF)
 	. = ..()
-
-// TGUI
 
 /datum/spawnpanel/ui_interact(mob/user, datum/tgui/ui)
 	ui = SStgui.try_update_ui(user, src, ui)
@@ -64,16 +55,14 @@
 
 /datum/spawnpanel/ui_data(mob/user)
 	return list(
-		"selectedAtom"  = selected_atom,
-		"whereTarget"   = where_target_type,
-		"amount"        = atom_amount,
-		"atomName"      = atom_name,
-		"atomDir"       = atom_dir,
-		"offsetX"       = offset["X"],
-		"offsetY"       = offset["Y"],
-		"offsetZ"       = offset["Z"],
-		"offsetType"    = offset_type,
-		"preciseMode"   = precise_mode,
+		"selected_object" = selected_atom,
+		"where_target_type" = where_target_type,
+		"atom_amount" = atom_amount,
+		"atom_name" = atom_name,
+		"atom_dir" = atom_dir,
+		"offset" = list(offset["X"], offset["Y"], offset["Z"]),
+		"offset_type" = offset_type,
+		"precise_mode" = precise_mode,
 	)
 
 /datum/spawnpanel/ui_act(action, params, datum/tgui/ui)
@@ -84,59 +73,76 @@
 
 	switch(action)
 		if("selected-atom-changed")
-			selected_atom = params["type"]
+			selected_atom = params["newObj"]
 			return TRUE
 
 		if("update-settings")
-			if(!isnull(params["whereTarget"]))
-				where_target_type = params["whereTarget"]
-			if(!isnull(params["amount"]))
-				atom_amount = clamp(text2num(params["amount"]) || 1, 1, ADMIN_SPAWN_CAP)
-			if(!isnull(params["atomName"]))
-				atom_name = sanitize(params["atomName"]) || null
-			if(!isnull(params["atomDir"]))
-				atom_dir = text2num(params["atomDir"])
-			if(!isnull(params["offsetX"]))
-				offset["X"] = text2num(params["offsetX"]) || 0
-			if(!isnull(params["offsetY"]))
-				offset["Y"] = text2num(params["offsetY"]) || 0
-			if(!isnull(params["offsetZ"]))
-				offset["Z"] = text2num(params["offsetZ"]) || 0
-			if(!isnull(params["offsetType"]))
-				offset_type = params["offsetType"]
+			if(!isnull(params["where_target_type"]))
+				where_target_type = params["where_target_type"]
+			if(!isnull(params["atom_amount"]))
+				atom_amount = clamp(text2num(params["atom_amount"]) || 1, 1, ADMIN_SPAWN_CAP)
+			if(!isnull(params["atom_name"]))
+				atom_name = sanitize(params["atom_name"]) || null
+			if(!isnull(params["atom_dir"]))
+				atom_dir = text2num(params["atom_dir"])
+			if(!isnull(params["offset"]))
+				var/list/off = params["offset"]
+				if(length(off) >= 3)
+					offset["X"] = text2num(off[1]) || 0
+					offset["Y"] = text2num(off[2]) || 0
+					offset["Z"] = text2num(off[3]) || 0
+			if(!isnull(params["offset_type"]))
+				offset_type = params["offset_type"]
 			return TRUE
 
 		if("create-atom-action")
+			var/use_atom = params["selected_atom"] || selected_atom
+			if(!use_atom)
+				return FALSE
+			if(!isnull(params["where_target_type"]))
+				where_target_type = params["where_target_type"]
+			if(!isnull(params["atom_amount"]))
+				atom_amount = clamp(text2num(params["atom_amount"]) || 1, 1, ADMIN_SPAWN_CAP)
+			if(!isnull(params["atom_name"]))
+				atom_name = sanitize(params["atom_name"]) || null
+			if(!isnull(params["atom_dir"]))
+				atom_dir = text2num(params["atom_dir"])
+			if(!isnull(params["offset"]))
+				var/list/off2 = params["offset"]
+				if(length(off2) >= 3)
+					offset["X"] = text2num(off2[1]) || 0
+					offset["Y"] = text2num(off2[2]) || 0
+					offset["Z"] = text2num(off2[3]) || 0
+			if(!isnull(params["offset_type"]))
+				offset_type = params["offset_type"]
 			var/list/spawn_params = list(
-				"type"        = params["type"] || selected_atom,
-				"amount"      = atom_amount,
-				"atomName"    = atom_name,
-				"atomDir"     = atom_dir,
-				"whereTarget" = where_target_type,
-				"offsetX"     = offset["X"],
-				"offsetY"     = offset["Y"],
-				"offsetZ"     = offset["Z"],
-				"offsetType"  = offset_type,
+				"type" = use_atom,
+				"amount" = atom_amount,
+				"atom_name" = atom_name,
+				"atom_dir" = atom_dir,
+				"where" = where_target_type,
+				"offsetX" = offset["X"],
+				"offsetY" = offset["Y"],
+				"offsetZ" = offset["Z"],
+				"offset_type" = offset_type,
 			)
 			spawn_atom(spawn_params, ui.user)
 			return TRUE
 
 		if("toggle-precise-mode")
-			var/new_mode = params["mode"] || PRECISE_MODE_OFF
+			var/new_mode = params["newPreciseType"] || PRECISE_MODE_OFF
 			toggle_precise_mode(new_mode)
 			return TRUE
 
 	return FALSE
 
-// PRECISE
-
 /datum/spawnpanel/proc/toggle_precise_mode(new_mode)
 	if(!selected_atom && new_mode != PRECISE_MODE_OFF)
+		to_chat(usr, span_warning("SpawnPanel: select an atom first."))
 		return
 	var/mob/user = usr
 	if(!user?.client)
 		return
-
 	precise_mode = new_mode
 	if(new_mode == PRECISE_MODE_OFF)
 		user.client.click_intercept = null
@@ -148,26 +154,23 @@
 	if(!check_rights_for(clicker.client, R_SPAWN))
 		toggle_precise_mode(PRECISE_MODE_OFF)
 		return TRUE
-
 	switch(precise_mode)
 		if(PRECISE_MODE_TARGET)
 			var/list/spawn_params = list(
-				"type"        = selected_atom,
-				"amount"      = atom_amount,
-				"atomName"    = atom_name,
-				"atomDir"     = atom_dir,
-				"whereTarget" = WHERE_TARGETED_LOCATION,
-				"targetTurf"  = get_turf(target),
-				"offsetX"     = 0,
-				"offsetY"     = 0,
-				"offsetZ"     = 0,
-				"offsetType"  = OFFSET_RELATIVE,
+				"type" = selected_atom,
+				"amount" = atom_amount,
+				"atom_name" = atom_name,
+				"atom_dir" = atom_dir,
+				"where" = WHERE_TARGETED_LOCATION,
+				"targetTurf" = get_turf(target),
+				"offsetX" = 0,
+				"offsetY" = 0,
+				"offsetZ" = 0,
+				"offset_type" = OFFSET_RELATIVE,
 			)
 			spawn_atom(spawn_params, clicker)
-
 		if(PRECISE_MODE_COPY)
 			selected_atom = "[target.type]"
 			toggle_precise_mode(PRECISE_MODE_OFF)
 			SStgui.update_uis(src)
-
 	return TRUE

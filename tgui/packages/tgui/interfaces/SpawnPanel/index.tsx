@@ -1,4 +1,4 @@
-import { resolveAsset } from '../../assets';
+﻿import { resolveAsset } from '../../assets';
 import { useLocalState } from '../../backend';
 import { Box, Stack } from '../../components';
 import { Window } from '../../layouts';
@@ -27,31 +27,31 @@ export const SpawnPanel = (props: any, context: any) => {
       })
       .then(json => setAtoms(json['atoms'] || {}))
       .catch(err => {
-        spawnPanelFetchStarted = false; // allow retry on next open
+        spawnPanelFetchStarted = false;
         setError(String(err));
       });
   }
 
   return (
-    <Window title="Spawn Panel" width={820} height={580} theme="admin">
+    <Window title="Spawn Panel" width={500} height={560} theme="admin">
       <Window.Content>
         {error && (
-          <Box color="bad">Failed to load atom list: {error}</Box>
+          <Box color="bad" p={1}>Failed to load atom list: {error}</Box>
         )}
         {!atoms && !error && (
-          <Box color="average">Loading atom data...</Box>
+          <Box color="average" mt={3} textAlign="center">Loading atom data...</Box>
         )}
         {atoms && (
-          <Stack fill>
-            <Stack.Item width="350px">
-              <CreateObject atoms={atoms} />
+          <Stack vertical fill>
+            <Stack.Item>
+              <CreateObjectSettings />
             </Stack.Item>
             <Stack.Item grow={1}>
-              <CreateObjectSettings />
+              <CreateObject atoms={atoms} />
             </Stack.Item>
           </Stack>
         )}
       </Window.Content>
     </Window>
   );
-}
+};
