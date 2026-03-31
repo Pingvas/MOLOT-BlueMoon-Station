@@ -613,6 +613,8 @@ GLOBAL_LIST_EMPTY(species_datums)
 	return TRUE
 
 /proc/randomize_human(mob/living/carbon/human/H, soft = FALSE)
+	if(!istype(H, /mob/living/carbon/human))
+		return
 	if(!soft)
 		H.gender = pick(MALE, FEMALE)
 		H.real_name = random_unique_name(H.gender)

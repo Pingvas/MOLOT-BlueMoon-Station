@@ -2,7 +2,7 @@ import { classes } from 'common/react';
 import { useBackend, useLocalState } from '../../backend';
 import { Box, Button, Icon, Input, NoticeBox, Section, Stack, Tabs } from '../../components';
 
-import { MAX_ATOM_DISPLAY, TAB_TYPE_COLORS, TAB_TYPE_LETTERS, TAB_TYPES } from './constants';
+import { MAX_ATOM_DISPLAY, LOCATIONS_NEEDING_CLICK, PRECISE_MODE_OFF, PRECISE_MODE_TARGET, TAB_TYPE_COLORS, TAB_TYPE_LETTERS, TAB_TYPES } from './constants';
 import { AtomData, SpawnPanelData } from './types';
 
 type CreateObjectProps = {
@@ -11,7 +11,7 @@ type CreateObjectProps = {
 
 export const CreateObject = (props: CreateObjectProps, context: any) => {
   const { act, data } = useBackend<SpawnPanelData>(context);
-  const { selected_object } = data;
+  const { selected_object, where_target_type = '', precise_mode = PRECISE_MODE_OFF } = data;
   const { atoms } = props;
 
   const [activeTab, setActiveTab] = useLocalState<string>(context, 'sp_tab', 'Objects');
@@ -183,7 +183,15 @@ export const CreateObject = (props: CreateObjectProps, context: any) => {
                 atom={atom}
                 selected={selected_object === typepath}
                 onSelect={() => act('selected-atom-changed', { newObj: typepath })}
-                onSpawn={() => act('create-atom-action', { selected_atom: typepath })}
+                onSpawn={() => {
+                  if (LOCATIONS_NEEDING_CLICK.includes(where_target_type)) {
+                    act('toggle-precise-mode', {
+                      newPreciseType: precise_mode === PRECISE_MODE_TARGET ? PRECISE_MODE_OFF : PRECISE_MODE_TARGET,
+                    });
+                  } else {
+                    act('create-atom-action', { selected_atom: typepath });
+                  }
+                }}
               />
             ))}
           </>

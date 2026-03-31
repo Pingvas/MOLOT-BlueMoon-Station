@@ -18,21 +18,26 @@ export const SpawnPanel = (props: any, context: any) => {
     context, 'sp_error', null
   );
 
-  if (!atoms && !error && !fetchInProgress) {
-    fetchInProgress = true;
-    fetch(resolveAsset('spawnpanel_atom_data.json'))
-      .then(r => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        return r.json();
-      })
-      .then(json => {
-        cachedAtoms = json['atoms'] || {};
-        setAtoms(cachedAtoms);
-      })
-      .catch(err => {
-        fetchInProgress = false;
-        setError(String(err));
-      });
+  if (!atoms && !error) {
+    if (cachedAtoms) {
+      setAtoms(cachedAtoms);
+    } else if (!fetchInProgress) {
+      fetchInProgress = true;
+      fetch(resolveAsset('spawnpanel_atom_data.json'))
+        .then(r => {
+          if (!r.ok) throw new Error(`HTTP ${r.status}`);
+          return r.json();
+        })
+        .then(json => {
+          cachedAtoms = json['atoms'] || {};
+          fetchInProgress = false;
+          setAtoms(cachedAtoms);
+        })
+        .catch(err => {
+          fetchInProgress = false;
+          setError(String(err));
+        });
+    }
   }
 
   return (

@@ -347,6 +347,7 @@ export const CreateObjectSettings = (props: any, context: any) => {
             placeholder="X, Y, Z"
             value={`${ox}, ${oy}, ${oz}`}
             width="90px"
+            onChange={handleOffsetInput}
             onEnter={handleOffsetInput}
           />
         </Stack.Item>
@@ -359,6 +360,7 @@ export const CreateObjectSettings = (props: any, context: any) => {
             placeholder="Name override..."
             value={atom_name ?? ''}
             fluid
+            onChange={(_e: any, val: string) => send({ atom_name: val || null })}
             onEnter={(_e: any, val: string) => send({ atom_name: val || null })}
           />
         </Stack.Item>

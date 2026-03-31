@@ -54,7 +54,7 @@
 /datum/spawnpanel/ui_close(mob/user)
 	. = ..()
 	if(precise_mode != PRECISE_MODE_OFF)
-		toggle_precise_mode(PRECISE_MODE_OFF)
+		toggle_precise_mode(PRECISE_MODE_OFF, user)
 
 /datum/spawnpanel/ui_state(mob/user)
 	return GLOB.admin_state
@@ -158,16 +158,15 @@
 
 		if("toggle-precise-mode")
 			var/new_mode = params["newPreciseType"] || PRECISE_MODE_OFF
-			toggle_precise_mode(new_mode)
+			toggle_precise_mode(new_mode, ui.user)
 			return TRUE
 
 	return FALSE
 
-/datum/spawnpanel/proc/toggle_precise_mode(new_mode)
+/datum/spawnpanel/proc/toggle_precise_mode(new_mode, mob/user = owner)
 	if(!selected_atom && new_mode != PRECISE_MODE_OFF)
-		to_chat(usr, span_warning("SpawnPanel: select an atom first."))
+		to_chat(user, span_warning("SpawnPanel: select an atom first."))
 		return
-	var/mob/user = usr
 	if(!user?.client)
 		return
 	precise_mode = new_mode
@@ -192,7 +191,7 @@
 
 /datum/spawnpanel/proc/InterceptClickOn(mob/clicker, params, atom/target)
 	if(!check_rights_for(clicker.client, R_SPAWN))
-		toggle_precise_mode(PRECISE_MODE_OFF)
+		toggle_precise_mode(PRECISE_MODE_OFF, clicker)
 		return TRUE
 	switch(precise_mode)
 		if(PRECISE_MODE_TARGET)
@@ -214,6 +213,6 @@
 			spawn_atom(spawn_params, clicker)
 		if(PRECISE_MODE_COPY)
 			selected_atom = "[target.type]"
-			toggle_precise_mode(PRECISE_MODE_OFF)
+			toggle_precise_mode(PRECISE_MODE_OFF, clicker)
 			SStgui.update_uis(src)
 	return TRUE
