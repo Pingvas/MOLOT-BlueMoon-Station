@@ -4,7 +4,8 @@ GLOBAL_LIST_EMPTY(spawnpanel_icon_map) // "[typepath]" → spritesheet imgid str
 	name = "spawnpanel"
 
 /datum/asset/spritesheet/spawnpanel/ModifyInserted(icon/pre_asset)
-	pre_asset.Scale(32, 32)
+	if(pre_asset.Width() != 32 || pre_asset.Height() != 32)
+		pre_asset.Scale(32, 32)
 	return pre_asset
 
 /datum/asset/spritesheet/spawnpanel/proc/resolve_icon_state(icon_file, icon_state)
@@ -111,7 +112,6 @@ GLOBAL_LIST_EMPTY(spawnpanel_icon_map) // "[typepath]" → spritesheet imgid str
 			continue
 		atoms["[obj_type]"] = list(
 			"name" = "[initial(obj_type:name)]",
-			"description" = "[initial(obj_type:desc)]",
 			"type" = "Objects",
 			"iconid" = GLOB.spawnpanel_icon_map["[obj_type]"]
 		)
@@ -121,7 +121,6 @@ GLOBAL_LIST_EMPTY(spawnpanel_icon_map) // "[typepath]" → spritesheet imgid str
 			continue
 		atoms["[turf_type]"] = list(
 			"name" = "[initial(turf_type:name)]",
-			"description" = "[initial(turf_type:desc)]",
 			"type" = "Turfs",
 			"iconid" = GLOB.spawnpanel_icon_map["[turf_type]"]
 		)
@@ -131,7 +130,6 @@ GLOBAL_LIST_EMPTY(spawnpanel_icon_map) // "[typepath]" → spritesheet imgid str
 			continue
 		atoms["[mob_type]"] = list(
 			"name" = "[initial(mob_type:name)]",
-			"description" = "[initial(mob_type:desc)]",
 			"type" = "Mobs",
 			"iconid" = GLOB.spawnpanel_icon_map["[mob_type]"]
 		)

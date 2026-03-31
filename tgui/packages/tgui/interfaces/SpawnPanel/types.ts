@@ -1,6 +1,5 @@
 ﻿export type AtomData = {
   name: string;
-  description: string;
   type: 'Objects' | 'Turfs' | 'Mobs';
   iconid: string | null;
 };
