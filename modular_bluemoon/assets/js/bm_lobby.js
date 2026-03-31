@@ -273,6 +273,7 @@ function bm_set_background(data) {
     // Показываем диалог подтверждения сразу только для админов
     if (_bm_is_admin) _bm_video_confirm_show(function() {
       // «Нет» — откатываем к предыдущему фону
+      location.href = '?src=' + (window._BM_SRC || '') + ';bm_lobby_action=video_reject';
       window.removeEventListener('message', _yt_msg_handler);
       var cur2 = document.getElementById('bm-bg');
       if (cur2) cur2.parentNode.replaceChild(_prev_bg, cur2);

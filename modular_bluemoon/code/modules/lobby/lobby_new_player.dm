@@ -412,6 +412,16 @@ var _i=0;setInterval(function(){var s=_i%4;document.getElementById('d').textCont
 			message_admins("[key_name_admin(src)] запустил раунд через HTML-лобби.")
 			return
 
+		if("video_reject")
+			if(!check_rights_for(client, R_FUN))
+				return
+			if(!SStitle_bm?.current_video_payload)
+				return
+			log_admin("[key_name(src)] убрал видео с лобби (подтверждение не прошло).")
+			message_admins("[key_name_admin(src)] убрал видео с лобби (видео работало некорректно).")
+			SStitle_bm.change_image(null)
+			return
+
 	return ..()
 
 /mob/dead/new_player/proc/_bm_play_click_sound()
