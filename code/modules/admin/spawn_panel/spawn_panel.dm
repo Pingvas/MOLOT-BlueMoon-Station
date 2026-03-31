@@ -1,4 +1,4 @@
-﻿// Spawn location where-targets - must match TGUI constants.ts strings
+// Spawn location where-targets - must match TGUI constants.ts strings
 #define WHERE_FLOOR_BELOW_MOB        "Current location"
 #define WHERE_SUPPLY_BELOW_MOB       "Current location (droppod)"
 #define WHERE_MOB_HAND               "In own mob's hand"
@@ -86,7 +86,11 @@
 					var/atom_icon = initial(path:icon)
 					var/atom_state = initial(path:icon_state)
 					if(atom_icon)
-						var/icon/I = icon(atom_icon, atom_state)
+						if(isnull(atom_state) || atom_state == "")
+							var/list/states = icon_states(atom_icon)
+							if(!("" in states) && length(states))
+								atom_state = states[1]
+						var/icon/I = icon(atom_icon, atom_state, SOUTH, 1)
 						selected_icon = "data:image/png;base64,[icon2base64(I)]"
 			return TRUE
 
