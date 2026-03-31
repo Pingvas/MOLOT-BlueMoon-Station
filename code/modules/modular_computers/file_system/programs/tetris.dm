@@ -31,10 +31,13 @@
 	COOLDOWN_DECLARE(reward_cooldown)
 	/// Защита от дурочков с href
 	var/game_active = FALSE
+	var/mob/active_game_player = null
 
 /datum/computer_file/program/tetris/ui_close(mob/user)
 	. = ..()
-	game_active = FALSE
+	if(user == active_game_player)
+		game_active = FALSE
+		active_game_player = null
 
 /datum/computer_file/program/tetris/ui_data(mob/user)
 	var/list/data = get_header_data()
@@ -72,7 +75,10 @@
 
 	switch(action)
 		if("gameStart")
+			if(game_active && usr != active_game_player)
+				return FALSE
 			game_active = TRUE
+			active_game_player = usr
 			return TRUE
 		if("sfx")
 			if(!computer)
@@ -97,9 +103,10 @@
 					playsound(computer.loc, 'modular_bluemoon/sound/machines/tetris/game_over.ogg', 55, TRUE, extrarange = -2)
 			return TRUE
 		if("submitScore")
-			if(!game_active)
+			if(!game_active || usr != active_game_player)
 				return FALSE
 			game_active = FALSE
+			active_game_player = null
 			var/temp_score = clamp(text2num(params["score"]) || 0, 0, NTOS_TETRIS_SCORE_MAX)
 			if(temp_score > high_score)
 				high_score = temp_score
