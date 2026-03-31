@@ -7,26 +7,30 @@ import { CreateObject } from './CreateObject';
 import { CreateObjectSettings } from './CreateObjectSettings';
 import { AtomData } from './types';
 
-let spawnPanelFetchStarted = false;
+let cachedAtoms: Record<string, AtomData> | null = null;
+let fetchInProgress = false;
 
 export const SpawnPanel = (props: any, context: any) => {
   const [atoms, setAtoms] = useLocalState<Record<string, AtomData> | null>(
-    context, 'sp_atoms', null
+    context, 'sp_atoms', cachedAtoms
   );
   const [error, setError] = useLocalState<string | null>(
     context, 'sp_error', null
   );
 
-  if (!atoms && !error && !spawnPanelFetchStarted) {
-    spawnPanelFetchStarted = true;
+  if (!atoms && !error && !fetchInProgress) {
+    fetchInProgress = true;
     fetch(resolveAsset('spawnpanel_atom_data.json'))
       .then(r => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.json();
       })
-      .then(json => setAtoms(json['atoms'] || {}))
+      .then(json => {
+        cachedAtoms = json['atoms'] || {};
+        setAtoms(cachedAtoms);
+      })
       .catch(err => {
-        spawnPanelFetchStarted = false;
+        fetchInProgress = false;
         setError(String(err));
       });
   }
