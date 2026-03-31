@@ -25,6 +25,7 @@
 	var/turf/target = null
 	var/mob/target_mob = null
 	var/obj/structure/closet/supplypod/centcompod/pod = null
+	var/area/pod_storage_area = null
 
 	if(where == WHERE_FLOOR_BELOW_MOB)
 		var/turf/user_turf = get_turf(user)
@@ -46,7 +47,8 @@
 			target = locate(user_turf2.x + offset_x, user_turf2.y + offset_y, user_turf2.z + offset_z)
 		if(!target)
 			target = user_turf2
-		pod = new /obj/structure/closet/supplypod/centcompod()
+		pod_storage_area = locate(/area/centcom/supplypod/podStorage) in GLOB.sortedAreas
+		pod = new /obj/structure/closet/supplypod/centcompod(pod_storage_area ? pick(get_area_turfs(pod_storage_area)) : null)
 
 	else if(where == WHERE_MOB_HAND)
 		if(!iscarbon(user) && !iscyborg(user))
@@ -81,7 +83,8 @@
 			to_chat(user, span_warning("SpawnPanel: No targeted location set."))
 			return
 		target = click_turf2
-		pod = new /obj/structure/closet/supplypod/centcompod()
+		pod_storage_area = locate(/area/centcom/supplypod/podStorage) in GLOB.sortedAreas
+		pod = new /obj/structure/closet/supplypod/centcompod(pod_storage_area ? pick(get_area_turfs(pod_storage_area)) : null)
 
 	else if(where == WHERE_TARGETED_MOB_HAND)
 		var/mob/hand_target = spawn_params["targetMob"]
@@ -126,6 +129,7 @@
 					LT.put_in_hands(IT)
 				else if(where == WHERE_TELEPORT_BELOW_MOB)
 					do_teleport(O, get_turf(user), channel = TELEPORT_CHANNEL_FREE, no_effects = TRUE)
+					do_sparks(5, TRUE, get_turf(O))
 
 	if(pod)
 		new /obj/effect/pod_landingzone(get_turf(target), pod)

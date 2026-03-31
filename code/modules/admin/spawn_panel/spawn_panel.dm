@@ -165,8 +165,17 @@
 	precise_mode = new_mode
 	if(new_mode == PRECISE_MODE_OFF)
 		user.client.click_intercept = null
+		user.client.mouse_up_icon = null
+		user.client.mouse_down_icon = null
+		user.client.mouse_override_icon = null
+		user.update_mouse_pointer()
 	else
 		user.client.click_intercept = src
+		if(new_mode == PRECISE_MODE_TARGET && where_target_type == WHERE_TARGETED_LOCATION_POD)
+			user.client.mouse_up_icon = 'icons/effects/mouse_pointers/supplypod_target.dmi'
+			user.client.mouse_down_icon = 'icons/effects/mouse_pointers/supplypod_down_target.dmi'
+			user.client.mouse_override_icon = user.client.mouse_up_icon
+			user.client.mouse_pointer_icon = user.client.mouse_override_icon
 	SStgui.update_uis(src)
 
 /datum/spawnpanel/proc/InterceptClickOn(mob/clicker, params, atom/target)
@@ -180,13 +189,16 @@
 				"amount" = atom_amount,
 				"atom_name" = atom_name,
 				"atom_dir" = atom_dir,
-				"where" = WHERE_TARGETED_LOCATION,
-				"targetTurf" = get_turf(target),
+				"where" = where_target_type,
 				"offsetX" = 0,
 				"offsetY" = 0,
 				"offsetZ" = 0,
 				"offset_type" = OFFSET_RELATIVE,
 			)
+			if(where_target_type == WHERE_TARGETED_MOB_HAND)
+				spawn_params["targetMob"] = ismob(target) ? target : null
+			else
+				spawn_params["targetTurf"] = get_turf(target)
 			spawn_atom(spawn_params, clicker)
 		if(PRECISE_MODE_COPY)
 			selected_atom = "[target.type]"

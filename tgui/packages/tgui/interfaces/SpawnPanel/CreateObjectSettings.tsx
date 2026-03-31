@@ -221,9 +221,15 @@ export const CreateObjectSettings = (props: any, context: any) => {
         {/* SPAWN button */}
         <Stack.Item>
           <Button
-            color={selected_object ? 'good' : 'grey'}
+            color={selected_object ? (needsClick && precise_mode === PRECISE_MODE_TARGET ? 'average' : 'good') : 'grey'}
             disabled={!selected_object}
-            tooltip={selected_object ? `Spawn ${atom_amount}× ${displayName}` : 'Select an atom first'}
+            tooltip={selected_object
+              ? (needsClick && precise_mode === PRECISE_MODE_OFF
+                ? 'Активировать прицел'
+                : needsClick && precise_mode === PRECISE_MODE_TARGET
+                  ? 'Отменить прицел'
+                  : `Сотворить ${atom_amount}× ${displayName}`)
+              : 'Сначала выберите объект'}
             style={{
               'height': '48px',
               'min-width': '72px',
@@ -236,15 +242,23 @@ export const CreateObjectSettings = (props: any, context: any) => {
               'justify-content': 'center',
               'border-radius': '6px',
             }}
-            onClick={() => act('create-atom-action', {
-              selected_atom: selected_object,
-              where_target_type,
-              atom_amount,
-              atom_name,
-              atom_dir,
-              offset: [ox, oy, oz],
-              offset_type,
-            })}
+            onClick={() => {
+              if (needsClick) {
+                act('toggle-precise-mode', {
+                  newPreciseType: precise_mode === PRECISE_MODE_TARGET ? PRECISE_MODE_OFF : PRECISE_MODE_TARGET,
+                });
+              } else {
+                act('create-atom-action', {
+                  selected_atom: selected_object,
+                  where_target_type,
+                  atom_amount,
+                  atom_name,
+                  atom_dir,
+                  offset: [ox, oy, oz],
+                  offset_type,
+                });
+              }
+            }}
           >
             <Box>SPAWN</Box>
             {atom_amount > 1 && (
