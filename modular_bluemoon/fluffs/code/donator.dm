@@ -1101,7 +1101,7 @@
 /datum/gear/donator/bm/hecu_black
 	name = "Black HECU Backpack"
 	path = /obj/item/storage/backpack/hecu/black
-	slot = ITEM_SLOT_BACKPACK
+	slot = ITEM_SLOT_BACK
 	ckeywhitelist = list("xaeshkavd")
 
 /datum/gear/donator/bm/razorsong
@@ -1398,7 +1398,7 @@
 
 /datum/gear/donator/bm/hahun_bag
 	name = "Unloading bag"
-	slot = ITEM_SLOT_BACKPACK
+	slot = ITEM_SLOT_BACK
 	path = /obj/item/storage/backpack/satchel/hahun_bag
 	ckeywhitelist = list("dolbajob", "enigma418")
 
@@ -1548,7 +1548,7 @@
 
 /datum/gear/donator/bm/dilivery_bag
 	name = "Delivery Bag"
-	slot = ITEM_SLOT_BACKPACK
+	slot = ITEM_SLOT_BACK
 	path = /obj/item/storage/backpack/satchel/dilivery_bag
 	ckeywhitelist = list("troubleneko17th", "dimofon", "hazzi", "cupteazee", "kolhozniik", "dimakr")
 
@@ -1560,31 +1560,31 @@
 
 /datum/gear/donator/bm/pawpack
 	name = "Paw Backpack"
-	slot = ITEM_SLOT_BACKPACK
+	slot = ITEM_SLOT_BACK
 	path = /obj/item/storage/backpack/satchel/pawpack
-	ckeywhitelist = list("deltarayx")
+	ckeywhitelist = list("deltarayx", "pingvas")
 
 /datum/gear/donator/bm/coffin
 	name = "Black Rose atelier worker coffin."
-	slot = ITEM_SLOT_BACKPACK
+	slot = ITEM_SLOT_BACK
 	path = /obj/item/storage/backpack/coffin
 	ckeywhitelist = list("hateredsoul", "ggishka")
 
 /datum/gear/donator/bm/coffinb2
 	name = "Black Rose atelier worker cofin"
-	slot = ITEM_SLOT_BACKPACK
+	slot = ITEM_SLOT_BACK
 	path = /obj/item/storage/backpack/coffin/b2
 	ckeywhitelist = list("hateredsoul", "ggishka")
 
 /datum/gear/donator/bm/coffinw
 	name = "Black Rose atelier worker. Coffin"
-	slot = ITEM_SLOT_BACKPACK
+	slot = ITEM_SLOT_BACK
 	path = /obj/item/storage/backpack/coffin/w
 	ckeywhitelist = list("hateredsoul", "ggishka")
 
 /datum/gear/donator/bm/coffinw2
 	name = "Black Rose Atelier worker coffin"
-	slot = ITEM_SLOT_BACKPACK
+	slot = ITEM_SLOT_BACK
 	path = /obj/item/storage/backpack/coffin/w2
 	ckeywhitelist = list("hateredsoul", "ggishka")
 
