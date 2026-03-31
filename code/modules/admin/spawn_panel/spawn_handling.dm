@@ -35,6 +35,9 @@
 		if(!target)
 			target = user_turf
 
+	else if(where == WHERE_TELEPORT_BELOW_MOB)
+		target = get_turf(user)
+
 	else if(where == WHERE_SUPPLY_BELOW_MOB)
 		var/turf/user_turf2 = get_turf(user)
 		if(offset_type == OFFSET_ABSOLUTE)
@@ -121,6 +124,8 @@
 					var/mob/living/LT = target_mob
 					var/obj/item/IT = O
 					LT.put_in_hands(IT)
+				else if(where == WHERE_TELEPORT_BELOW_MOB)
+					do_teleport(O, get_turf(user), channel = TELEPORT_CHANNEL_FREE, no_effects = TRUE)
 
 	if(pod)
 		new /obj/effect/pod_landingzone(get_turf(target), pod)

@@ -1,12 +1,13 @@
 // Spawn location where-targets - must match TGUI constants.ts strings
-#define WHERE_FLOOR_BELOW_MOB        "Current location"
-#define WHERE_SUPPLY_BELOW_MOB       "Current location (droppod)"
-#define WHERE_MOB_HAND               "In own mob's hand"
-#define WHERE_MARKED_OBJECT          "At a marked object"
-#define WHERE_IN_MARKED_OBJECT       "In the marked object"
-#define WHERE_TARGETED_LOCATION      "Targeted location"
-#define WHERE_TARGETED_LOCATION_POD  "Targeted location (droppod)"
-#define WHERE_TARGETED_MOB_HAND      "In targeted mob's hand"
+#define WHERE_FLOOR_BELOW_MOB        "Под существом"
+#define WHERE_SUPPLY_BELOW_MOB       "Под существом дроп-подом"
+#define WHERE_TELEPORT_BELOW_MOB     "Под существом телепортацией"
+#define WHERE_MOB_HAND               "В ваших руках/лапах"
+#define WHERE_MARKED_OBJECT          "На маркированном объекте"
+#define WHERE_IN_MARKED_OBJECT       "В маркированном объекте"
+#define WHERE_TARGETED_LOCATION      "Таргетная локация"
+#define WHERE_TARGETED_LOCATION_POD  "Таргетная локация дроп-подом"
+#define WHERE_TARGETED_MOB_HAND      "В руках/лапах выбранного существа"
 
 // Precise mode states
 #define PRECISE_MODE_OFF    "Off"

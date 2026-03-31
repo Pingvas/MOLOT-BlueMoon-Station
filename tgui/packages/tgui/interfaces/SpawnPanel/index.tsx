@@ -36,23 +36,36 @@ export const SpawnPanel = (props: any, context: any) => {
   }
 
   return (
-    <Window title="Spawn Panel" width={530} height={600} theme="admin">
-      <Window.Content>
+    <Window title="Сотворить хуйню" width={540} height={620} theme="admin">
+      <Window.Content style={{ 'padding': '0', 'display': 'flex', 'flex-direction': 'column' }}>
         {error && (
-          <Box color="bad" p={1}>Failed to load atom list: {error}</Box>
+          <Box color="bad" p={1} style={{ 'flex-shrink': '0' }}>
+            Failed to load atom list: {error}
+          </Box>
         )}
         {!atoms && !error && (
-          <Box color="average" mt={3} textAlign="center">Loading atom data...</Box>
+          <Box
+            style={{
+              'flex': '1',
+              'display': 'flex',
+              'align-items': 'center',
+              'justify-content': 'center',
+              'color': 'rgba(255,255,255,0.3)',
+              'font-size': '13px',
+            }}
+          >
+            Loading atom data...
+          </Box>
         )}
         {atoms && (
-          <Stack vertical fill>
-            <Stack.Item>
+          <Box style={{ 'display': 'flex', 'flex-direction': 'column', 'height': '100%' }}>
+            <Box style={{ 'flex-shrink': '0' }}>
               <CreateObjectSettings />
-            </Stack.Item>
-            <Stack.Item grow={1}>
+            </Box>
+            <Box style={{ 'flex': '1', 'overflow': 'hidden' }}>
               <CreateObject atoms={atoms} />
-            </Stack.Item>
-          </Stack>
+            </Box>
+          </Box>
         )}
       </Window.Content>
     </Window>

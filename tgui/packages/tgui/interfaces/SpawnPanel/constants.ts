@@ -1,23 +1,25 @@
 ﻿export const SPAWN_LOCATIONS = [
-  'Current location',
-  'Current location (droppod)',
-  "In own mob's hand",
-  'At a marked object',
-  'In the marked object',
-  'Targeted location',
-  'Targeted location (droppod)',
-  "In targeted mob's hand",
+  'Под существом',
+  'Под существом дроп-подом',
+  'Под существом телепортацией',
+  'В ваших руках/лапах',
+  'На маркированном объекте',
+  'В маркированном объекте',
+  'Таргетная локация',
+  'Таргетная локация дроп-подом',
+  'В руках/лапах выбранного существа',
 ] as const;
 
 export const SPAWN_LOCATION_ICONS: Record<string, string> = {
-  'Current location': 'map-marker',
-  'Current location (droppod)': 'box',
-  "In own mob's hand": 'hand-paper',
-  'At a marked object': 'bookmark',
-  'In the marked object': 'box-open',
-  'Targeted location': 'crosshairs',
-  'Targeted location (droppod)': 'satellite',
-  "In targeted mob's hand": 'user',
+  'Под существом': 'map-marker',
+  'Под существом дроп-подом': 'box',
+  'Под существом телепортацией': 'magic',
+  'В ваших руках/лапах': 'hand-paper',
+  'На маркированном объекте': 'bookmark',
+  'В маркированном объекте': 'box-open',
+  'Таргетная локация': 'crosshairs',
+  'Таргетная локация дроп-подом': 'satellite',
+  'В руках/лапах выбранного существа': 'user',
 };
 
 export const TAB_TYPES = ['Objects', 'Turfs', 'Mobs'] as const;
@@ -65,9 +67,9 @@ export const OFFSET_ABSOLUTE = 'Absolute offset';
 export const OFFSET_RELATIVE = 'Relative offset';
 
 export const LOCATIONS_NEEDING_CLICK = [
-  'Targeted location',
-  'Targeted location (droppod)',
-  "In targeted mob's hand",
+  'Таргетная локация',
+  'Таргетная локация дроп-подом',
+  'В руках/лапах выбранного существа',
 ];
 
 export const MAX_ATOM_DISPLAY = 200;
