@@ -22,6 +22,18 @@ export const SPAWN_LOCATION_ICONS: Record<string, string> = {
 
 export const TAB_TYPES = ['Objects', 'Turfs', 'Mobs'] as const;
 
+export const TAB_TYPE_COLORS: Record<string, string> = {
+  Objects: '#4a9fd4',
+  Turfs: '#7dba5e',
+  Mobs: '#d47a4a',
+};
+
+export const TAB_TYPE_LETTERS: Record<string, string> = {
+  Objects: 'O',
+  Turfs: 'T',
+  Mobs: 'M',
+};
+
 // BYOND direction constants (bitmask)
 export const DIR_SOUTH = 1;
 export const DIR_NORTH = 2;

@@ -1,4 +1,4 @@
-﻿import { resolveAsset } from '../../assets';
+import { resolveAsset } from '../../assets';
 import { useLocalState } from '../../backend';
 import { Box, Stack } from '../../components';
 import { Window } from '../../layouts';
@@ -7,7 +7,6 @@ import { CreateObject } from './CreateObject';
 import { CreateObjectSettings } from './CreateObjectSettings';
 import { AtomData } from './types';
 
-// Module-level flag so we only start one fetch per session
 let spawnPanelFetchStarted = false;
 
 export const SpawnPanel = (props: any, context: any) => {
@@ -33,7 +32,7 @@ export const SpawnPanel = (props: any, context: any) => {
   }
 
   return (
-    <Window title="Spawn Panel" width={500} height={560} theme="admin">
+    <Window title="Spawn Panel" width={530} height={600} theme="admin">
       <Window.Content>
         {error && (
           <Box color="bad" p={1}>Failed to load atom list: {error}</Box>

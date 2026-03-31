@@ -1,4 +1,4 @@
-// Spawn location where-targets - must match TGUI constants.ts strings
+﻿// Spawn location where-targets - must match TGUI constants.ts strings
 #define WHERE_FLOOR_BELOW_MOB        "Current location"
 #define WHERE_SUPPLY_BELOW_MOB       "Current location (droppod)"
 #define WHERE_MOB_HAND               "In own mob's hand"
@@ -20,6 +20,7 @@
 /datum/spawnpanel
 	var/where_target_type = WHERE_FLOOR_BELOW_MOB
 	var/selected_atom = null
+	var/selected_icon = null // base64 of current atom icon, generated on selection
 	var/atom_amount = 1
 	var/atom_name = null
 	var/atom_dir = 2
@@ -51,11 +52,15 @@
 	return GLOB.admin_state
 
 /datum/spawnpanel/ui_assets(mob/user)
-	return list(get_asset_datum(/datum/asset/json/spawnpanel))
+	return list(
+		get_asset_datum(/datum/asset/spritesheet/spawnpanel),
+		get_asset_datum(/datum/asset/json/spawnpanel),
+	)
 
 /datum/spawnpanel/ui_data(mob/user)
 	return list(
 		"selected_object" = selected_atom,
+		"selected_icon" = selected_icon,
 		"where_target_type" = where_target_type,
 		"atom_amount" = atom_amount,
 		"atom_name" = atom_name,
@@ -74,6 +79,15 @@
 	switch(action)
 		if("selected-atom-changed")
 			selected_atom = params["newObj"]
+			selected_icon = null
+			if(selected_atom)
+				var/path = text2path(selected_atom)
+				if(path)
+					var/atom_icon = initial(path:icon)
+					var/atom_state = initial(path:icon_state)
+					if(atom_icon)
+						var/icon/I = icon(atom_icon, atom_state)
+						selected_icon = "data:image/png;base64,[icon2base64(I)]"
 			return TRUE
 
 		if("update-settings")
