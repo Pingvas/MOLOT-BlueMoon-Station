@@ -114,6 +114,8 @@
 	. = ..()
 	if(.)
 		return
+	if(params["ic_advactivator"])
+		return
 
 	switch(action)
 		if("sfx")
