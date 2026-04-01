@@ -1789,6 +1789,7 @@
 					var/tgui_style_fancy = T("tgui_style_fancy", "Fancy")
 					var/tgui_style_no_frills = T("tgui_style_no_frills", "No Frills")
 					var/runechat_bubbles_label = T("runechat_bubbles", "Show Runechat Chat Bubbles")
+					var/runechat_looc_bubbles_label = T("runechat_looc_bubbles", "Show Runechat LOOC Chat Bubbles")
 					var/runechat_char_limit_label = T("runechat_char_limit", "Runechat message char limit")
 					var/runechat_non_mobs_label = T("runechat_non_mobs", "See Runechat for non-mobs")
 					var/runechat_emotes_label = T("runechat_emotes", "See Runechat for emotes")
@@ -1829,6 +1830,8 @@
 					dat += "<b>[tgui_monitors_label]:</b> <a href='?_src_=prefs;preference=tgui_lock'>[(tgui_lock) ? tgui_monitor_primary : tgui_monitor_all]</a><br>"
 					dat += "<b>[tgui_style_label]:</b> <a href='?_src_=prefs;preference=tgui_fancy'>[(tgui_fancy) ? tgui_style_fancy : tgui_style_no_frills]</a><br>"
 					dat += "<b>[runechat_bubbles_label]:</b> <a href='?_src_=prefs;preference=chat_on_map'>[chat_on_map ? enabled_label : disabled_label]</a><br>"
+					if(chat_on_map)
+						dat += "<b>[runechat_looc_bubbles_label]:</b> <a href='?_src_=prefs;preference=chat_on_map_looc'>[chat_on_map_looc ? enabled_label : disabled_label]</a><br>"
 					dat += "<b>[runechat_char_limit_label]:</b> <a href='?_src_=prefs;preference=max_chat_length;task=input'>[max_chat_length]</a><br>"
 					dat += "<b>[runechat_non_mobs_label]:</b> <a href='?_src_=prefs;preference=see_chat_non_mob'>[see_chat_non_mob ? enabled_label : disabled_label]</a><br>"
 					//SANDSTORM CHANGES BEGIN
