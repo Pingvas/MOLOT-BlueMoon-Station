@@ -2318,6 +2318,8 @@
 
 				if("chat_on_map")
 					chat_on_map = !chat_on_map
+				if("chat_on_map_looc")
+					chat_on_map_looc = !chat_on_map_looc
 				if("see_chat_non_mob")
 					see_chat_non_mob = !see_chat_non_mob
 				//Sandstorm changes begin
