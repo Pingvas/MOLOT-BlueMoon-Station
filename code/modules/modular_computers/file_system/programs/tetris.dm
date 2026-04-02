@@ -66,6 +66,7 @@
 			rank++
 			leaderboard += list(list("rank" = rank, "ckey" = entry["ckey"], "score" = entry["score"]))
 	data["leaderboard"] = leaderboard
+	data["is_admin"] = user?.client ? user.client.check_rights(R_ADMIN) : FALSE
 	return data
 
 /datum/computer_file/program/tetris/ui_act(action, list/params)
@@ -134,6 +135,14 @@
 					SSresearch.science_tech.add_point_list(list(TECHWEB_POINT_TYPE_GENERIC = science_points))
 					computer.say("Обнаружен исследовательский персонал. +[science_points] очков исследований.")
 
+			return TRUE
+		if("deleteRecord")
+			if(!usr?.client?.check_rights(R_ADMIN))
+				return FALSE
+			var/datum/award/score/highscore/tetris/del_score = SSachievements.scores[/datum/award/score/highscore/tetris]
+			if(!del_score)
+				return FALSE
+			del_score.admin_delete_record(usr, ckey(params["ckey"]))
 			return TRUE
 
 #undef NTOS_TETRIS_SCORE_HIGH

@@ -365,7 +365,8 @@ class TetrisGame extends Component {
 
   render() {
     const { score, level, lines, gameOver, paused, started, showLeaderboard } = this.state;
-    const { highScore, leaderboard = [], personal_best = 0 } = this.props;
+    const { highScore, leaderboard = [], personal_best = 0, is_admin = false } = this.props;
+    const isAdmin = !!is_admin;
 
     return (
       <Stack fill>
@@ -392,6 +393,7 @@ class TetrisGame extends Component {
                     <Table.Cell>{'#'}</Table.Cell>
                     <Table.Cell>{'Игрок'}</Table.Cell>
                     <Table.Cell>{'Счёт'}</Table.Cell>
+                    {isAdmin && <Table.Cell />}
                   </Table.Row>
                   {leaderboard.map((entry) => (
                     <Table.Row key={entry.rank}>
@@ -400,6 +402,17 @@ class TetrisGame extends Component {
                       </Table.Cell>
                       <Table.Cell>{entry.ckey}</Table.Cell>
                       <Table.Cell bold>{entry.score}</Table.Cell>
+                      {isAdmin && (
+                        <Table.Cell>
+                          <Button
+                            icon="trash"
+                            color="bad"
+                            compact
+                            tooltip="Удалить рекорд"
+                            onClick={() => this.props.act('deleteRecord', { ckey: entry.ckey })}
+                          />
+                        </Table.Cell>
+                      )}
                     </Table.Row>
                   ))}
                 </Table>
@@ -539,12 +552,12 @@ class TetrisGame extends Component {
 // ---- Main export ----
 export const NtosTetris = (props, context) => {
   const { act, data } = useBackend(context);
-  const { high_score = 0, personal_best = 0, leaderboard = [] } = data;
+  const { high_score = 0, personal_best = 0, leaderboard = [], is_admin = false } = data;
 
   return (
     <NtosWindow width={420} height={510}>
       <NtosWindow.Content className="ArcadeTetris">
-        <TetrisGame act={act} highScore={high_score} leaderboard={leaderboard} personal_best={personal_best} />
+        <TetrisGame act={act} highScore={high_score} leaderboard={leaderboard} personal_best={personal_best} is_admin={is_admin} />
       </NtosWindow.Content>
     </NtosWindow>
   );
