@@ -4,8 +4,6 @@
 	if(!target_ckey || !high_scores[target_ckey])
 		return FALSE
 
-	high_scores.Remove(target_ckey)
-
 	if(SSdbcore.Connect())
 		var/datum/db_query/Q = SSdbcore.NewQuery(
 			"DELETE FROM [format_table_name("achievements")] WHERE ckey = :ckey AND achievement_key = :achievement_key",
@@ -15,6 +13,10 @@
 			qdel(Q)
 			return FALSE
 		qdel(Q)
+	else
+		return FALSE
+
+	high_scores.Remove(target_ckey)
 
 	if(GLOB.player_details[target_ckey])
 		var/datum/player_details/PD = GLOB.player_details[target_ckey]

@@ -66,7 +66,7 @@
 			rank++
 			leaderboard += list(list("rank" = rank, "ckey" = entry["ckey"], "score" = entry["score"]))
 	data["leaderboard"] = leaderboard
-	data["is_admin"] = user?.client ? user.client.check_rights(R_ADMIN) : FALSE
+	data["is_admin"] = check_rights_for(user?.client, R_ADMIN)
 	return data
 
 /datum/computer_file/program/tetris/ui_act(action, list/params)
@@ -137,13 +137,12 @@
 
 			return TRUE
 		if("deleteRecord")
-			if(!usr?.client?.check_rights(R_ADMIN))
+			if(!check_rights_for(usr?.client, R_ADMIN))
 				return FALSE
 			var/datum/award/score/highscore/tetris/del_score = SSachievements.scores[/datum/award/score/highscore/tetris]
 			if(!del_score)
 				return FALSE
-			del_score.admin_delete_record(usr, ckey(params["ckey"]))
-			return TRUE
+			return del_score.admin_delete_record(usr, ckey(params["ckey"]))
 
 #undef NTOS_TETRIS_SCORE_HIGH
 #undef NTOS_TETRIS_SCORE_MAX
