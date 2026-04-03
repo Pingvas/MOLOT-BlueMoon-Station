@@ -1434,22 +1434,6 @@ body {
 	box-shadow: none;
 }
 
-/* Optional utility classes you can use later for custom buttons */
-.csetup-root.csetup-theme-modern .csetup-btn {
-	display: inline-block;
-	padding: 5px 8px;
-	border-radius: 8px;
-	background: var(--csetup-panel-2);
-	border: 1px solid var(--csetup-border);
-	color: var(--csetup-text);
-}
-
-.csetup-root.csetup-theme-modern .csetup-btn--danger {
-	background: rgba(255, 107, 107, 0.12);
-	border-color: rgba(255, 107, 107, 0.28);
-	color: var(--csetup-text);
-}
-
 /*
  * Enhanced UI Decoration (activated via .csetup-decoration-enhanced class on root).
  * Adds gradients, shadows, transforms, and animations.

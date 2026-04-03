@@ -1532,7 +1532,6 @@
 						dat += "</center>"
 						// BLUEMOON ADD END
 						dat += "</div>"
-						dat += "</div>"
 
 				if(SPEECH_CHAR_TAB)
 					dat += "<table><tr><td width='340px' height='300px' valign='top'>"
@@ -2298,11 +2297,12 @@
 			dat += "</body>"
 
 
-	dat += "<hr><center>"
+	dat += "<hr>"
+	dat += "<center>"
 
 	if(!IsGuestKey(user.key))
-		dat += "<a href='?_src_=prefs;preference=load'>Undo</a> "
-		dat += "<a href='?_src_=prefs;preference=save'>Save Setup</a> "
+		dat += "<a href='?_src_=prefs;preference=load'>Undo</a>"
+		dat += "<a href='?_src_=prefs;preference=save'>Save Setup</a>"
 
 	dat += "<a href='?_src_=prefs;preference=reset_all'>Reset Setup</a>"
 	dat += "</center>"
