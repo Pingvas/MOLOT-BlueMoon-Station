@@ -114,7 +114,7 @@
 	"silicon_flavor_text"    = list("ru" = "Описание силикона",                 "en" = "Silicon Flavor Text"),
 	"set_silicon_examine_text" = list("ru" = "Изменить",                        "en" = "Set Silicon Examine Text"),
 	"set_silicon_flavor_text"= list("ru" = "Изменить",                          "en" = "Set Silicon Examine Text"),
-	"custom_species_lore"    = list("ru" = "Пользовательское предание вида",    "en" = "Custom Species Lore"),
+	"custom_species_lore"    = list("ru" = "Предистория вида",				    "en" = "Custom Species Lore"),
 	"set_custom_species_lore"= list("ru" = "Изменить",                          "en" = "Set Custom Species Lore Text"),
 	"ooc_notes"              = list("ru" = "OOC заметки",                       "en" = "OOC notes"),
 	"set_ooc_notes"          = list("ru" = "Изменить",                          "en" = "Set OOC notes"),
@@ -128,11 +128,10 @@
 	"set_headshot_1"         = list("ru" = "Установить фотографию 1",           "en" = "Set Headshot 1 Image"),
 	"set_headshot_2"         = list("ru" = "Установить фотографию 2",           "en" = "Set Headshot 2 Image"),
 	"set_headshot_3"         = list("ru" = "Установить фотографию 3",           "en" = "Set Headshot 3 Image"),
-	"headshots_nsfw"         = list("ru" = "Фотографии (NSFW)",                 "en" = "Naked (NSFW) Headshots"),
+	"naked_headshots"        = list("ru" = "Портреты (NSFW)",                   "en" = "Naked (NSFW) Headshots"),
 	"set_naked_headshot_1"   = list("ru" = "Установить фотографию 1",           "en" = "Set Headshot 1 Image"),
 	"set_naked_headshot_2"   = list("ru" = "Установить фотографию 2",           "en" = "Set Headshot 2 Image"),
 	"set_naked_headshot_3"   = list("ru" = "Установить фотографию 3",           "en" = "Set Headshot 3 Image"),
-	"naked_headshots"        = list("ru" = "Портреты (NSFW)",                   "en" = "Naked (NSFW) Headshots"),
 	"set_headshot_image"     = list("ru" = "Установить изображение",            "en" = "Set Headshot Image"),
 
 	// Identity section
@@ -169,7 +168,6 @@
 	"set_occupation_preferences" = list("ru" = "Установить приоритет профессий","en" = "Set Occupation Preferences"),
 	"custom_job_preferences" = list("ru" = "Предпочтения профессий",            "en" = "Custom job preferences"),
 	"preferred_security_dept"= list("ru" = "Предпочтительный отдел безопасности","en" = "Preferred Security Department"),
-	"preferred_security_department" = list("ru" = "Предпочтительный отдел безопасности","en" = "Preferred Security Department"),
 	"preferred_ai_core"      = list("ru" = "Предпочтительное отображение ядра ИИ","en" = "Preferred AI Core Display"),
 	"preferred_ai_core_display" = list("ru" = "Предпочтительное отображение ядра ИИ","en" = "Preferred AI Core Display"),
 
@@ -179,7 +177,7 @@
 	"set_pda_color"          = list("ru" = "Установить цвет PDA",               "en" = "Set PDA color"),
 	"pda_style"              = list("ru" = "Стиль PDA",                         "en" = "PDA Style"),
 	"set_pda_style"          = list("ru" = "Интерфейс PDA",                     "en" = "Set PDA style"),
-	"pda_reskin"             = list("ru" = "Переделка PDA",                     "en" = "PDA Reskin"),
+	"pda_reskin"             = list("ru" = "Корпус PDA",                     	"en" = "PDA Reskin"),
 	"set_pda_reskin"         = list("ru" = "Вид PDA",                           "en" = "Set PDA reskin"),
 	"pda_ringtone"           = list("ru" = "Рингтон PDA",                       "en" = "PDA Ringtone"),
 	"set_pda_ringtone"       = list("ru" = "Установить рингтон PDA",            "en" = "Set PDA ringtone"),

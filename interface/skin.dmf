@@ -325,7 +325,7 @@ window "preferences_window"
 		saved-params = ""
 	elem "character_preview_map"
 		type = MAP
-		pos = 960,0
+		pos = 950,0
 		size = 320x320
 		anchor1 = 100,0
 		anchor2 = none
