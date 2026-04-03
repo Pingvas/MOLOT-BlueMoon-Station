@@ -2634,36 +2634,17 @@
 				if("tab")
 					if(href_list["tab"])
 						current_tab = text2num(href_list["tab"])
-				//SPLURT edit
-				// BLUEMOON REMOVE - Ищи в `modular_bluemoon/code/modules/client/preferences.dm`
-				/*
-				if("headshot")
-					var/usr_input = input(user, "Input the image link: (For Discord links, try putting the file's type at the end of the link, after the '&'. for example '&.jpg/.png/.jpeg')", "Headshot Image", features["headshot_link"]) as text|null
-					if(isnull(usr_input))
-						return
-					if(!usr_input)
-						features["headshot_link"] = null
-						return
-
-					var/static/link_regex = regex("https://i.gyazo.com|https://static1.e621.net") //Do not touch the damn duplicates.
-					var/static/end_regex = regex(".jpg|.jpg|.png|.jpeg|.jpeg") //Regex is terrible, don't touch the duplicate extensions
-
-					if(!findtext(usr_input, link_regex))
-						to_chat(usr, span_warning("You need a valid link!"))
-						return
-					if(!findtext(usr_input, end_regex))
-						to_chat(usr, span_warning("You need either \".png\", \".jpg\", or \".jpeg\" in the link!"))
-						return
-
-					if(features["headshot_link"] != usr_input)
-						to_chat(usr, span_notice("If the photo doesn't show up properly in-game, ensure that it's a direct image link that opens properly in a browser."))
-						to_chat(usr, span_notice("Keep in mind that the photo will be downsized to 250x250 pixels, so the more square the photo, the better it will look."))
-					features["headshot_link"] = usr_input
-				*/
-				// BLUEMOON REMOVE END
-
+						// Show/hide MAP preview element when switching top-level tabs.
+						var/map_visible = (current_tab == SETTINGS_TAB) ? "true" : "false"
+						winset(user.client, "character_preview_map", "is-visible=[map_visible]")
 				if("character_preview")
 					preview_pref = href_list["tab"]
+
+				if("preview_direction")
+					var/new_dir = text2num(href_list["dir"])
+					if(new_dir in GLOB.cardinals)
+						preview_direction = new_dir
+						update_preview_icon(current_tab)
 
 				if("character_tab")
 					if(href_list["tab"])

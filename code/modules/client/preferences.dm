@@ -397,6 +397,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/appearance_subtab = APPEARANCE_SUBTAB_BODY
 	var/preferences_tab = GAME_PREFS_TAB
 	var/preview_pref = PREVIEW_PREF_JOB
+	var/preview_direction = SOUTH
 
 	var/no_tetris_storage = FALSE
 

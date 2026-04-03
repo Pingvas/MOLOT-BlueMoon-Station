@@ -1,10 +1,10 @@
 //This is the lowest supported version, anything below this is completely obsolete and the entire savefile will be wiped.
 #define SAVEFILE_VERSION_MIN	18
 
-//This is the current version, anything below this will attempt to update (if it's not obsolete)
+/* This is the current version, anything below this will attempt to update (if it's not obsolete)
 //	You do not need to raise this if you are adding new values that have sane defaults.
 //	Only raise this value when changing the meaning/format/name/layout of an existing value
-//	where you would want the updater procs below to run
+	where you would want the updater procs below to run */
 #define SAVEFILE_VERSION_MAX	68
 
 /*
@@ -34,12 +34,12 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 		return savefile_version
 	return -1
 
-//should these procs get fairly long
-//just increase SAVEFILE_VERSION_MIN so it's not as far behind
-//SAVEFILE_VERSION_MAX and then delete any obsolete if clauses
-//from these procs.
-//This only really meant to avoid annoying frequent players
-//if your savefile is 3 months out of date, then 'tough shit'.
+/* 	should these procs get fairly long
+	just increase SAVEFILE_VERSION_MIN so it's not as far behind
+	SAVEFILE_VERSION_MAX and then delete any obsolete if clauses
+	from these procs.
+	This only really meant to avoid annoying frequent players
+	if your savefile is 3 months out of date, then 'tough shit'. */
 
 /datum/preferences/proc/update_preferences(current_version, savefile/S)
 	if(current_version < 30)

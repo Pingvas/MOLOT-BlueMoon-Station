@@ -1391,31 +1391,31 @@ GLOBAL_LIST_INIT(blacklisted_builds, list(
 
 /client/proc/show_character_previews(mutable_appearance/source)
 	LAZYINITLIST(char_render_holders)
-	if(!LAZYLEN(char_render_holders))
-		for(var/plane_master_path as anything in subtypesof(/atom/movable/screen/plane_master))
-			var/atom/movable/screen/plane_master/plane_master = new plane_master_path()
-			char_render_holders["plane_master-[plane_master.plane]"] = plane_master
-			plane_master.backdrop(mob)
-			screen |= plane_master
-			plane_master.screen_loc = "character_preview_map:0,CENTER"
-		// Disable lighting on the preview — no lighting objects exist there,
-		// and the blur edge-fix filter would force the empty plane opaque black
+
+	if(!char_render_holders["plane_master-[GAME_PLANE]"])
+		winset(src, "character_preview_map", "zoom=4")
+		for(var/pm_type in subtypesof(/atom/movable/screen/plane_master))
+			var/atom/movable/screen/plane_master/pm = new pm_type()
+			pm.screen_loc = "character_preview_map:CENTER"
+			pm.filters = null
+			char_render_holders["plane_master-[pm.plane]"] = pm
+			screen |= pm
 		var/atom/movable/screen/plane_master/lighting_pm = char_render_holders["plane_master-[LIGHTING_PLANE]"]
 		if(lighting_pm)
 			lighting_pm.alpha = LIGHTING_PLANE_ALPHA_INVISIBLE
 			lighting_pm.filters = null
 
-	var/pos = 0
-	for(var/dir in GLOB.cardinals)
-		pos++
-		var/atom/movable/screen/preview = char_render_holders["preview-[dir]"]
-		if(!preview)
-			preview = new
-			char_render_holders["preview-[dir]"] = preview
-			screen |= preview
-		preview.appearance = source
-		preview.dir = dir
-		preview.screen_loc = "character_preview_map:0,[pos]"
+	var/preview_dir = prefs?.preview_direction || SOUTH
+	var/atom/movable/screen/preview = char_render_holders["preview-main"]
+	if(!preview)
+		preview = new /atom/movable/screen()
+		char_render_holders["preview-main"] = preview
+		screen |= preview
+	preview.appearance = source
+	preview.appearance_flags |= KEEP_TOGETHER
+	preview.plane = GAME_PLANE
+	preview.dir = preview_dir
+	preview.screen_loc = "character_preview_map:CENTER,CENTER"
 
 /client/proc/clear_character_previews()
 	if(!LAZYLEN(char_render_holders))
@@ -1427,7 +1427,10 @@ GLOBAL_LIST_INIT(blacklisted_builds, list(
 
 	for(var/index in char_render_holders_copy)
 		var/atom/movable/screen/S = char_render_holders_copy[index]
-		S.vis_contents.Cut()
+		if(!S)
+			continue
+		if(S.vis_contents)
+			S.vis_contents.Cut()
 		S.overlays.Cut()
 		S.underlays.Cut()
 		S.filters = null

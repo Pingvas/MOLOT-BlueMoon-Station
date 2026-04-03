@@ -80,7 +80,8 @@
 		if("enhanced")
 			decoration_class = "csetup-decoration-enhanced"
 		// "standard" = baseline CSS без класса
-	dat = list(modern_palette_css, "<div class='csetup-root [theme_class][button_shape_class ? " [button_shape_class]" : ""][decoration_class ? " [decoration_class]" : ""]'>")
+	var/sidebar_class = (current_tab == SETTINGS_TAB ? " csetup-has-sidebar" : "")
+	dat = list(modern_palette_css, "<div class='csetup-root [theme_class][button_shape_class ? " [button_shape_class]" : ""][decoration_class ? " [decoration_class]" : ""][sidebar_class]'>")
 
 	// Compact theme picker (top-right): only for Modern UI themes.
 	var/list/theme_order = list("modern_classic", "modern", "modern_purple", "modern_green", "modern_neutral")
@@ -236,19 +237,60 @@
 	dat += "<HR>"
 
 	switch(current_tab)
-		if(SETTINGS_TAB) // Character Settings#
+		if(SETTINGS_TAB) // Character Settings
+			dat += "<div class='csetup-settings-wrap'>"
+
+			dat += "<div class='csetup-settings-sidebar'>"
+
+			var/dir_s = (preview_direction == SOUTH)
+			var/dir_n = (preview_direction == NORTH)
+			var/dir_e = (preview_direction == EAST)
+			var/dir_w = (preview_direction == WEST)
+			var/dir_label_s = T("dir_south", "Front")
+			var/dir_label_n = T("dir_north", "Back")
+			var/dir_label_e = T("dir_east", "Right")
+			var/dir_label_w = T("dir_west", "Left")
+			dat += "<div class='csetup-dir-bar'>"
+			dat += "<a class='csetup-dir-btn[dir_s ? " linkOn" : ""]' href='?_src_=prefs;preference=preview_direction;dir=[SOUTH]'>[dir_label_s]</a>"
+			dat += "<a class='csetup-dir-btn[dir_n ? " linkOn" : ""]' href='?_src_=prefs;preference=preview_direction;dir=[NORTH]'>[dir_label_n]</a>"
+			dat += "<a class='csetup-dir-btn[dir_e ? " linkOn" : ""]' href='?_src_=prefs;preference=preview_direction;dir=[EAST]'>[dir_label_e]</a>"
+			dat += "<a class='csetup-dir-btn[dir_w ? " linkOn" : ""]' href='?_src_=prefs;preference=preview_direction;dir=[WEST]'>[dir_label_w]</a>"
+			dat += "</div>"
+			// Preview mode buttons
+			var/preview_job_label    = T("preview_job",          "On job")
+			var/preview_loadout_label = T("preview_loadout",     "Loadout")
+			var/preview_naked_label   = T("preview_naked",       "Naked")
+			var/preview_naked_aroused_label = T("preview_naked_aroused", "Naked+")
+			dat += "<div class='csetup-preview-bar'>"
+			dat += "<a class='csetup-preview-btn[preview_pref == PREVIEW_PREF_JOB ? " linkOn" : ""]' href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_JOB]'>[preview_job_label]</a>"
+			dat += "<a class='csetup-preview-btn[preview_pref == PREVIEW_PREF_LOADOUT ? " linkOn" : ""]' href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_LOADOUT]'>[preview_loadout_label]</a>"
+			dat += "<a class='csetup-preview-btn[preview_pref == PREVIEW_PREF_NAKED ? " linkOn" : ""]' href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_NAKED]'>[preview_naked_label]</a>"
+			dat += "<a class='csetup-preview-btn[preview_pref == PREVIEW_PREF_NAKED_AROUSED ? " linkOn" : ""]' href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_NAKED_AROUSED]'>[preview_naked_aroused_label]</a>"
+			dat += "</div>"
+
+			// ── Slot panel ──
 			if(path)
 				var/savefile/S = new /savefile(path)
 				if(S)
-					dat += "<center>"
 					var/name
-					var/toggle_title = collapse_empty_character_slots ? "Показать пустые слоты" : "Скрыть пустые слоты"
-					var/toggle_symbol = collapse_empty_character_slots ? "▼" : "▲"
-					var/toggle_class = "class='theme-collapse-hint'"
-					if(max_save_slots > 4)
-						dat += "<a href='?_src_=prefs;preference=character_slots;action=toggle_empty' [toggle_class] title='[toggle_title]' aria-label='[toggle_title]'>[toggle_symbol]</a> "
-					var/unspaced_slots = 0
 					var/empty_slot_label = T("empty_slot_label", "Character")
+					var/current_slot_name = ""
+					S.cd = "/character[default_slot]"
+					S["real_name"] >> current_slot_name
+					if(!current_slot_name)
+						current_slot_name = "[empty_slot_label][default_slot]"
+					var/delete_slot_label = T("delete_slot_label", "Delete current slot")
+					var/toggle_title = collapse_empty_character_slots ? T("show_empty_slots", "Show empty slots") : T("hide_empty_slots", "Hide empty slots")
+					var/toggle_symbol = collapse_empty_character_slots ? "+" : "–"
+					dat += "<div class='csetup-slot-header'>"
+					dat += "<span class='csetup-slot-current-label'>[current_slot_name]</span>"
+					dat += "<span class='csetup-slot-controls'>"
+					if(max_save_slots > 4)
+						dat += "<a class='csetup-slot-ctrl-btn' href='?_src_=prefs;preference=character_slots;action=toggle_empty' title='[toggle_title]'>[toggle_symbol]</a>"
+					dat += "<a class='csetup-slot-ctrl-btn csetup-slot-delete' href='?_src_=prefs;preference=character_slots;action=delete_slot;slot=[default_slot]' title='[delete_slot_label]'>✕</a>"
+					dat += "</span>"
+					dat += "</div>"
+					dat += "<div class='csetup-slot-panel'>"
 					for(var/i=1, i<=max_save_slots, i++)
 						name = null
 						S.cd = "/character[i]"
@@ -256,30 +298,26 @@
 						var/is_empty_slot = !name
 						if(collapse_empty_character_slots && is_empty_slot && i != default_slot)
 							continue
-						unspaced_slots++
-						if(unspaced_slots > 4)
-							dat += "<br>"
-							unspaced_slots = 1
 						if(!name)
 							name = "[empty_slot_label][i]"
-						var/slot_class = ""
+						var/slot_cls = "csetup-slot-btn"
 						if(i == default_slot)
-							slot_class = "class='linkOn'"
-						dat += "<a style='white-space:nowrap;' href='?_src_=prefs;preference=changeslot;num=[i];' [slot_class]>[name]</a> "
-					dat += "</center>"
-					// Кнопка удаления текущего слота
-					var/delete_slot_label = T("delete_slot_label", "Delete current slot")
-					dat += "<center><a href='?_src_=prefs;preference=character_slots;action=delete_slot;slot=[default_slot]' style='white-space:nowrap;background:#eb2e2e;font-size:0.85em;'>[delete_slot_label]</a></center>"
+							slot_cls += " linkOn"
+						if(is_empty_slot)
+							slot_cls += " csetup-slot-empty"
+						dat += "<a class='[slot_cls]' href='?_src_=prefs;preference=changeslot;num=[i];'>[name]</a>"
+					dat += "</div>"
 
-				dat += "<center>"
+				// Character management
+				dat += "<div class='csetup-mgmt-panel'>"
 				var/local_storage_label = T("local_storage", "Local storage")
 				var/empty_label = T("empty_label", "Empty")
-				var/export_slot_label = T("export_slot", "Export current slot")
-				var/import_slot_label = T("import_slot", "Import into current slot")
-				var/delete_local_label = T("delete_local", "Delete locally saved character")
+				var/export_slot_label = T("export_slot", "Export slot")
+				var/import_slot_label = T("import_slot", "Import")
+				var/delete_local_label = T("delete_local", "Delete local")
 				var/offer_slot_label = T("offer_slot", "Offer slot")
 				var/cancel_offer_label = T("cancel_offer", "Cancel offer")
-				var/retrieve_offered_label = T("retrieve_offered", "Retrieve offered character")
+				var/retrieve_offered_label = T("retrieve_offered", "Retrieve offered")
 				var/redemption_code_label = T("redemption_code", "Redemption code")
 				var/offer_auto_cancel_label = T("offer_auto_cancel", "The offer will automatically be cancelled if there is an error, or if someone takes it")
 				var/file = user.client.Import()
@@ -290,31 +328,32 @@
 					if(istype(client_file, /savefile))
 						if(!client_file["deleted"] || savefile_needs_update(client_file) != -2)
 							client_file["real_name"] >> savefile_name
-				dat += "[local_storage_label]: " + (savefile_name ? savefile_name : empty_label)
-				dat += "<br />"
+				dat += "<div class='csetup-mgmt-local'>[local_storage_label]: <b>[savefile_name ? savefile_name : empty_label]</b></div>"
+				dat += "<div class='csetup-mgmt-btns'>"
 				dat += "<a href='?_src_=prefs;preference=export_slot'>[export_slot_label]</a>"
-				var/import_attr = "class='linkOff'"
+				var/import_attr = "class='linkOff csetup-mgmt-btn'"
 				if(savefile_name)
-					import_attr = "href='?_src_=prefs;preference=import_slot' style='white-space:normal;'"
+					import_attr = "class='csetup-mgmt-btn' href='?_src_=prefs;preference=import_slot'"
 				var/offer_style = ""
 				var/offer_text = offer_slot_label
 				if(offer)
-					offer_style = "style='white-space:normal;background:#eb2e2e;'"
+					offer_style = "class='csetup-mgmt-btn csetup-mgmt-danger'"
 					offer_text = cancel_offer_label
+				else
+					offer_style = "class='csetup-mgmt-btn'"
 				dat += "<a [import_attr]>[import_slot_label]</a>"
-				dat += "<a href='?_src_=prefs;preference=delete_local_copy' style='white-space:normal;background:#eb2e2e;'>[delete_local_label]</a>"
-				dat += "<br />"
-				dat += "<a href='?_src_=prefs;preference=give_slot' [offer_style]>[offer_text]</a>"
-				dat += "<a href='?_src_=prefs;preference=retrieve_slot'>[retrieve_offered_label]</a>"
+				dat += "<a class='csetup-mgmt-btn csetup-mgmt-danger' href='?_src_=prefs;preference=delete_local_copy'>[delete_local_label]</a>"
+				dat += "<a [offer_style] href='?_src_=prefs;preference=give_slot'>[offer_text]</a>"
+				dat += "<a class='csetup-mgmt-btn' href='?_src_=prefs;preference=retrieve_slot'>[retrieve_offered_label]</a>"
+				dat += "</div>"
 				if(offer)
-					dat += "<br />"
-					dat += "[redemption_code_label]: <b>[offer.redemption_code]</b>"
-					dat += "<br />"
-					dat += offer_auto_cancel_label
+					dat += "<div class='csetup-mgmt-code'>[redemption_code_label]: <b>[offer.redemption_code]</b></div>"
+					dat += "<div class='csetup-mgmt-hint'>[offer_auto_cancel_label]</div>"
+				dat += "</div>" // end csetup-mgmt-panel
 
-				dat += "</center>"
+			dat += "</div>" // end csetup-settings-sidebar
 
-			dat += "<HR>"
+			dat += "<div class='csetup-settings-content'>"
 
 			dat += "<center>"
 			var/char_tab_class_general = ""
@@ -366,47 +405,11 @@
 			var/no_label = T("no", "No")
 			var/none_label = T("none", "None")
 
-			dat += "<center>"
-			dat += "<table width='100%'>"
-			dat += "<tr>"
-			if(character_settings_tab != LOADOUT_CHAR_TAB)
-				dat += "<td width='100%' colspan='2'>"
-			else
-				dat += "<td width='35%'>"
-			var/preview_title_label = T("preview_title", "Preview")
-			var/preview_job_label = T("preview_job", "On job")
-			var/preview_loadout_label = T("preview_loadout", "With items")
-			var/preview_naked_label = T("preview_naked", "Naked")
-			var/preview_naked_aroused_label = T("preview_naked_aroused", "Naked (aroused)")
-			var/mismatched_parts_label = T("mismatched_parts", "Mismatched parts")
-			var/advanced_colors_label = T("advanced_colors", "Advanced colors")
-			dat += "<center><b>[preview_title_label]:</b></center>"
-			var/preview_class_job = ""
-			var/preview_class_loadout = ""
-			var/preview_class_naked = ""
-			var/preview_class_naked_aroused = ""
-			if(preview_pref == PREVIEW_PREF_JOB)
-				preview_class_job = "class='linkOn'"
-			if(preview_pref == PREVIEW_PREF_LOADOUT)
-				preview_class_loadout = "class='linkOn'"
-			if(preview_pref == PREVIEW_PREF_NAKED)
-				preview_class_naked = "class='linkOn'"
-			if(preview_pref == PREVIEW_PREF_NAKED_AROUSED)
-				preview_class_naked_aroused = "class='linkOn'"
-			dat += "<center style=\"line-height:20px\">"
-			dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_JOB]' [preview_class_job]>[preview_job_label]</a> "
-			dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_LOADOUT]' [preview_class_loadout]>[preview_loadout_label]</a> "
-			dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_NAKED]' [preview_class_naked]>[preview_naked_label]</a> "
-			dat += "<a href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_NAKED_AROUSED]' [preview_class_naked_aroused]>[preview_naked_aroused_label]</a>"
-			dat += "</center>"
-			dat += "</td>"
-			if(character_settings_tab == LOADOUT_CHAR_TAB) //if loadout
-				//calculate your gear points from the chosen item
+			if(character_settings_tab == LOADOUT_CHAR_TAB)
 				gear_points = CONFIG_GET(number/initial_gear_points) + (IS_CKEY_DONATOR_GROUP(user.ckey, DONATOR_GROUP_TIER_1) ? CONFIG_GET(number/subscriber_extra_gear_points) : 0) + (IS_CKEY_DONATOR_GROUP(user.ckey, DONATOR_GROUP_TIER_2) ? CONFIG_GET(number/sponsor_extra_gear_points) : 0)
 				var/loadout_points_label = T("loadout_points", "loadout point")
 				var/loadout_points_remaining_label = T("loadout_points_remaining", "remaining")
 				var/clear_loadout_label = T("clear_loadout", "Clear Loadout")
-				var/loadout_points_word = loadout_points_label
 				var/list/chosen_gear = loadout_data["SAVE_[loadout_slot]"]
 				if(islist(chosen_gear))
 					loadout_errors = 0
@@ -422,20 +425,13 @@
 							loadout_errors++
 				else
 					chosen_gear = list()
-				dat += "<td width='65%'>"
-				dat += "<center><b><font color='" + (gear_points == 0 ? "#E62100" : "#CCDDFF") + "'>[gear_points]</font> [loadout_points_word] [loadout_points_remaining_label]</b></center><br>"
-				// BLUEMOON ADD - переключатель "спавниться с лодаутом"
+				dat += "<center><b><font color='[gear_points == 0 ? "#E62100" : "#CCDDFF"]'>[gear_points]</font> [loadout_points_label] [loadout_points_remaining_label]</b></center>"
 				var/loadout_enabled_label = T("loadout_enabled_label", "Replace clothing with loadout")
 				var/loadout_toggle_color = loadout_enabled ? "#6ABF6A" : "#E62100"
 				var/loadout_toggle_text = loadout_enabled ? (T("enabled", "ON")) : (T("disabled", "OFF"))
-				dat += "<center>[loadout_enabled_label]: <a href='?_src_=prefs;preference=gear;toggle_loadout_enabled=1'><font color='[loadout_toggle_color]'><b>[loadout_toggle_text]</b></font></a></center><br>"
-				// BLUEMOON ADD END
+				dat += "<center>[loadout_enabled_label]: <a href='?_src_=prefs;preference=gear;toggle_loadout_enabled=1'><font color='[loadout_toggle_color]'><b>[loadout_toggle_text]</b></font></a></center>"
 				dat += "<center><a href='?_src_=prefs;preference=gear;clear_loadout=1'>[clear_loadout_label]</a></center>"
-				dat += "</td>"
-			dat += "</tr>"
-			dat += "</table>"
-			dat += "</center>"
-			dat += "<HR>"
+				dat += "<HR>"
 			switch(character_settings_tab)
 				//General
 				if(GENERAL_CHAR_TAB)
@@ -736,6 +732,8 @@
 					var/body_model_fem_label = T("body_model_fem", "Feminine")
 					var/advanced_colors_hint = T("advanced_colors_hint", "Enables advanced coloring of individual body parts (if supported by species).")
 					var/mismatched_parts_hint = T("mismatched_parts_hint", "Show parts/markings that do not match the current species.")
+					var/advanced_colors_label = T("advanced_colors", "Advanced colors")
+					var/mismatched_parts_label = T("mismatched_parts", "Mismatched parts")
 					var/limb_modification_label = T("limb_modification", "Limb Modification")
 					var/modify_limbs_label = T("modify_limbs", "Modify Limbs")
 					var/species_label = T("species_label", "Species")
@@ -1750,6 +1748,8 @@
 									dat += json_encode(other_data)
 									dat += "</td></tr>"
 					dat += "</table>"
+			dat += "</div>" // end csetup-settings-content
+			dat += "</div>" // end csetup-settings-wrap
 		if(PREFERENCES_TAB) // Game Preferences
 			dat += "<center>"
 			// Declare common labels used across multiple preferences tabs to avoid undefined var errors
@@ -2280,6 +2280,8 @@
 		popup.add_script("prefs_state", 'html/browser/prefs_state.js')
 	popup.set_content(dat.Join())
 	popup.open(FALSE)
+	var/map_visible = (current_tab == SETTINGS_TAB) ? "true" : "false"
+	winset(user.client, "character_preview_map", "is-visible=[map_visible]")
 	onclose(user, "preferences_window", src)
 
 /datum/preferences/proc/cycle_character_creation_modern_accent()

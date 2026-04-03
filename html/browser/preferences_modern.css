@@ -1208,39 +1208,6 @@ body {
 	box-shadow: none;
 }
 
-/* --- Appearance sub-tabs --- */
-.csetup-root .csetup-app-subtabs {
-	margin: 4px 0 6px;
-	line-height: 28px;
-}
-
-.csetup-root .csetup-app-subtabs a {
-	display: inline-block;
-	padding: 3px 14px;
-	margin: 0 2px;
-	border-bottom: 2px solid transparent;
-	font-size: 11.5px;
-	font-weight: 500;
-}
-
-.csetup-root.csetup-theme-modern .csetup-app-subtabs a {
-	border-radius: var(--csetup-btn-radius, 7px);
-	background: rgba(0, 0, 0, 0.30);
-	border: 1px solid rgba(255, 255, 255, 0.08);
-	margin: 0 3px;
-}
-
-.csetup-root.csetup-theme-modern .csetup-app-subtabs a.linkOn {
-	background: rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.18) !important;
-	border-color: rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.45) !important;
-	color: var(--csetup-accent, #4da3ff) !important;
-}
-
-.csetup-root.csetup-theme-classic .csetup-app-subtabs a.linkOn {
-	text-decoration: underline;
-	font-weight: bold;
-}
-
 /* --- Quirks (Modern inline UI) --- */
 .csetup-root.csetup-theme-modern .csetup-quirks {
 	max-width: 980px;
@@ -1647,122 +1614,261 @@ body {
 	box-shadow: 0 0 10px rgba(255, 59, 59, 0.35) !important;
 }
 
-/*
- * =====================================================================
- * MINIMAL decoration — strips ALL expensive CSS for low-end hardware.
- * No transitions, no transforms, no shadows, no gradients, no animations.
- * Hovering still changes colors (cheap operation), but zero motion/glow.
- * =====================================================================
- */
+/* Settings layout two column */
 
-/* Kill every transition and animation globally */
-.csetup-root.csetup-decoration-minimal,
-.csetup-root.csetup-decoration-minimal * {
-	transition: none !important;
-	animation: none !important;
-	transform: none !important;
+.csetup-root.csetup-has-sidebar > center,
+.csetup-root.csetup-has-sidebar > hr {
+	margin-right: 320px;
 }
 
-/* Remove box-shadows everywhere */
-.csetup-root.csetup-decoration-minimal a,
-.csetup-root.csetup-decoration-minimal a:link,
-.csetup-root.csetup-decoration-minimal a:visited,
-.csetup-root.csetup-decoration-minimal a:hover,
-.csetup-root.csetup-decoration-minimal a:focus,
-.csetup-root.csetup-decoration-minimal a:active {
-	box-shadow: none !important;
-	transform: none !important;
+/* Kostili bara ebannie :( */
+.csetup-root.csetup-has-sidebar .theme-container {
+	right: 328px;
 }
 
-/* Flat background — no radial gradients */
-.csetup-root.csetup-decoration-minimal {
-	background-image: none !important;
+/* Reserved place*/
+.csetup-root.csetup-theme-modern .csetup-settings-wrap,
+.csetup-root.csetup-theme-classic .csetup-settings-wrap {
+	display: block;
+	margin-right: 320px;
 }
 
-/* Character nodes — minimal rounding, no transitions */
-.csetup-root.csetup-decoration-minimal .csetup_character_node {
-	border-radius: 4px;
-	transition: none !important;
+.csetup-root.csetup-theme-modern .csetup-settings-content,
+.csetup-root.csetup-theme-classic .csetup-settings-content {
+	display: block;
 }
 
-/* Character nodes hover — only color, no transform/shadow */
-.csetup-root.csetup-decoration-minimal .csetup_character_node:hover {
-	border-color: rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.45);
-	background-color: rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.06);
-	transform: none !important;
-	box-shadow: none !important;
+/* squere 320x320 */
+.csetup-root.csetup-theme-modern .csetup-settings-sidebar,
+.csetup-root.csetup-theme-classic .csetup-settings-sidebar {
+	position: fixed;
+	top: 320px;
+	right: 0;
+	bottom: 0;
+	width: 320px;
+	height: auto;
+	overflow-y: auto;
+	overflow-x: hidden;
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+	background: var(--csetup-bg, #121212);
+	border-left: 1px solid var(--csetup-border, #2f2f2f);
+	z-index: 50;
+	scrollbar-width: thin;
+	scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
 }
 
-/* Quirk rows — no shadows, no transforms, minimal rounding */
-.csetup-root.csetup-decoration-minimal .csetup-quirk-row {
-	border-radius: 6px;
-	box-shadow: none !important;
-	transition: none !important;
+.csetup-root.csetup-theme-modern .csetup-settings-sidebar::-webkit-scrollbar,
+.csetup-root.csetup-theme-classic .csetup-settings-sidebar::-webkit-scrollbar {
+	width: 5px;
 }
 
-.csetup-root.csetup-decoration-minimal .csetup-quirk-row:hover,
-.csetup-root.csetup-decoration-minimal .csetup-quirk-row.is-selected,
-.csetup-root.csetup-decoration-minimal .csetup-quirk-row.is-locked {
-	transform: none !important;
-	box-shadow: none !important;
+.csetup-root.csetup-theme-modern .csetup-settings-sidebar::-webkit-scrollbar-thumb,
+.csetup-root.csetup-theme-classic .csetup-settings-sidebar::-webkit-scrollbar-thumb {
+	background: rgba(255, 255, 255, 0.15);
+	border-radius: 999px;
 }
 
-/* Quirk indicator bar — flat solid color instead of gradient */
-.csetup-root.csetup-decoration-minimal .csetup-quirk-row::before {
-	background: currentColor !important;
-	box-shadow: none !important;
+/* Map spacer setup */
+.csetup-root.csetup-theme-modern .csetup-map-spacer,
+.csetup-root.csetup-theme-classic .csetup-map-spacer {
+	display: none;
 }
 
-.csetup-root.csetup-decoration-minimal .csetup-quirk-row.is-positive::before { background: #3bd76b !important; }
-.csetup-root.csetup-decoration-minimal .csetup-quirk-row.is-negative::before { background: #ff5c5c !important; }
-.csetup-root.csetup-decoration-minimal .csetup-quirk-row.is-locked::before  { background: #ff5c5c !important; }
-.csetup-root.csetup-decoration-minimal .csetup-quirk-row.is-selected::before { background: #3bd76b !important; }
-
-/* Theme panels — flat, no shadows, minimal rounding */
-.csetup-root.csetup-decoration-minimal .theme-hub,
-.csetup-root.csetup-decoration-minimal .theme-picker-panel,
-.csetup-root.csetup-decoration-minimal .theme-settings-panel,
-.csetup-root.csetup-decoration-minimal .theme-custom-editor {
-	border-radius: 4px;
-	box-shadow: none !important;
+.csetup-root.csetup-theme-modern .csetup-dir-bar,
+.csetup-root.csetup-theme-classic .csetup-dir-bar {
+	display: flex;
+	gap: 3px;
+	justify-content: center;
+	flex-shrink: 0;
 }
 
-/* hr — flat solid line instead of gradient */
-.csetup-root.csetup-decoration-minimal hr {
-	background: var(--csetup-border) !important;
+.csetup-root.csetup-theme-modern a.csetup-dir-btn,
+.csetup-root.csetup-theme-classic a.csetup-dir-btn {
+	flex: 1 1 0;
+	padding: 3px 4px !important;
+	font-size: 11px !important;
+	text-align: center;
 }
 
-/* Marking cards — minimal rounding */
-.csetup-root.csetup-decoration-minimal .csetup-markings .csetup-marking-card {
-	border-radius: 4px;
+.csetup-root.csetup-theme-modern .csetup-preview-bar,
+.csetup-root.csetup-theme-classic .csetup-preview-bar {
+	display: flex;
+	gap: 3px;
+	justify-content: center;
+	flex-shrink: 0;
 }
 
-/* AI core preview — no inner shadow */
-.csetup-root.csetup-decoration-minimal .csetup-ai-core-preview img {
-	box-shadow: none !important;
+.csetup-root.csetup-theme-modern a.csetup-preview-btn,
+.csetup-root.csetup-theme-classic a.csetup-preview-btn {
+	flex: 1 1 0;
+	padding: 3px 4px !important;
+	font-size: 10px !important;
+	text-align: center;
 }
 
-/* linkOn — keep color highlight but no shadow */
-.csetup-root.csetup-decoration-minimal .linkOn,
-.csetup-root.csetup-decoration-minimal a.linkOn:link,
-.csetup-root.csetup-decoration-minimal a.linkOn:visited,
-.csetup-root.csetup-decoration-minimal a.linkOn:active {
-	box-shadow: none !important;
+/* Char slot panel */
+
+.csetup-root.csetup-theme-modern .csetup-slot-header,
+.csetup-root.csetup-theme-classic .csetup-slot-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 6px;
+	padding: 4px 8px;
+	background: var(--csetup-panel);
+	border-top: 1px solid var(--csetup-border);
+	border-bottom: none;
 }
 
-/* Theme swatch — no scale/glow */
-.csetup-root.csetup-decoration-minimal a.theme-swatch:hover {
-	transform: none !important;
-	box-shadow: none !important;
+.csetup-root.csetup-theme-modern .csetup-slot-current-label,
+.csetup-root.csetup-theme-classic .csetup-slot-current-label {
+	font-weight: 700;
+	font-size: 11px;
+	color: var(--csetup-text);
+	flex: 1 1 auto;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
-.csetup-root.csetup-decoration-minimal a.theme-swatch.active {
-	box-shadow: none !important;
+.csetup-root.csetup-theme-modern .csetup-slot-controls,
+.csetup-root.csetup-theme-classic .csetup-slot-controls {
+	display: flex;
+	gap: 3px;
+	flex-shrink: 0;
 }
 
-/* Notice/quirks cards — flat */
-.csetup-root.csetup-decoration-minimal .notice,
-.csetup-root.csetup-decoration-minimal .csetup-quirks-summary,
-.csetup-root.csetup-decoration-minimal .notice.csetup-quirks-help {
-	box-shadow: none !important;
+.csetup-root.csetup-theme-modern a.csetup-slot-ctrl-btn,
+.csetup-root.csetup-theme-classic a.csetup-slot-ctrl-btn {
+	padding: 2px 6px !important;
+	font-size: 10px !important;
+	border-radius: 5px !important;
+}
+
+.csetup-root.csetup-theme-modern a.csetup-slot-delete,
+.csetup-root.csetup-theme-classic a.csetup-slot-delete {
+	background: rgba(255, 107, 107, 0.12) !important;
+	border-color: rgba(255, 107, 107, 0.40) !important;
+	color: var(--csetup-danger, #ff6b6b) !important;
+}
+
+.csetup-root.csetup-theme-modern a.csetup-slot-delete:hover,
+.csetup-root.csetup-theme-classic a.csetup-slot-delete:hover {
+	background: rgba(255, 107, 107, 0.22) !important;
+}
+
+.csetup-root.csetup-theme-modern .csetup-slot-panel,
+.csetup-root.csetup-theme-classic .csetup-slot-panel {
+	display: flex;
+	flex-direction: column;
+	flex: 0 0 auto;
+	max-height: 200px;
+	gap: 2px;
+	overflow-y: auto;
+	overflow-x: hidden;
+	padding: 4px 6px;
+	background: var(--csetup-panel);
+	border-top: 1px solid var(--csetup-border);
+	scrollbar-width: thin;
+	scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+
+.csetup-root.csetup-theme-modern .csetup-slot-panel::-webkit-scrollbar,
+.csetup-root.csetup-theme-classic .csetup-slot-panel::-webkit-scrollbar {
+	width: 5px;
+}
+
+.csetup-root.csetup-theme-modern .csetup-slot-panel::-webkit-scrollbar-thumb,
+.csetup-root.csetup-theme-classic .csetup-slot-panel::-webkit-scrollbar-thumb {
+	background: rgba(255, 255, 255, 0.15);
+	border-radius: 999px;
+}
+
+.csetup-root.csetup-theme-modern a.csetup-slot-btn,
+.csetup-root.csetup-theme-classic a.csetup-slot-btn {
+	padding: 3px 8px !important;
+	font-size: 11px !important;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	width: 100%;
+	box-sizing: border-box;
+	flex-shrink: 0;
+	display: block;
+}
+
+.csetup-root.csetup-theme-modern a.csetup-slot-btn.csetup-slot-empty,
+.csetup-root.csetup-theme-classic a.csetup-slot-btn.csetup-slot-empty {
+	opacity: 0.40;
+	font-style: italic;
+	font-weight: normal !important;
+}
+
+.csetup-root.csetup-theme-modern .csetup-slot-panel a.csetup-slot-btn.linkOn,
+.csetup-root.csetup-theme-classic .csetup-slot-panel a.csetup-slot-btn.linkOn {
+	background-color: var(--csetup-btn-active) !important;
+	border-color: rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.55) !important;
+	color: var(--csetup-btn-active-text, #0b1c2f) !important;
+	opacity: 1 !important;
+	font-style: normal !important;
+	font-weight: 700 !important;
+}
+
+/* Management slot offer i t.d. */
+
+.csetup-root.csetup-theme-modern .csetup-mgmt-panel,
+.csetup-root.csetup-theme-classic .csetup-mgmt-panel {
+	flex-shrink: 0;
+	margin-top: auto;
+	padding: 6px 8px;
+	border-top: 1px solid var(--csetup-border);
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.csetup-root.csetup-theme-modern .csetup-mgmt-local,
+.csetup-root.csetup-theme-classic .csetup-mgmt-local {
+	font-size: 10px;
+	color: var(--csetup-muted);
+}
+
+.csetup-root.csetup-theme-modern .csetup-mgmt-btns,
+.csetup-root.csetup-theme-classic .csetup-mgmt-btns {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 3px;
+}
+
+.csetup-root.csetup-theme-modern a.csetup-mgmt-btn,
+.csetup-root.csetup-theme-classic a.csetup-mgmt-btn {
+	font-size: 10px !important;
+	padding: 3px 7px !important;
+}
+
+.csetup-root.csetup-theme-modern a.csetup-mgmt-danger,
+.csetup-root.csetup-theme-classic a.csetup-mgmt-danger {
+	background: rgba(255, 107, 107, 0.12) !important;
+	border-color: rgba(255, 107, 107, 0.40) !important;
+	color: var(--csetup-danger, #ff6b6b) !important;
+}
+
+.csetup-root.csetup-theme-modern a.csetup-mgmt-danger:hover,
+.csetup-root.csetup-theme-classic a.csetup-mgmt-danger:hover {
+	background: rgba(255, 107, 107, 0.22) !important;
+}
+
+.csetup-root.csetup-theme-modern .csetup-mgmt-code,
+.csetup-root.csetup-theme-classic .csetup-mgmt-code {
+	font-size: 11px;
+	color: var(--csetup-text);
+}
+
+.csetup-root.csetup-theme-modern .csetup-mgmt-hint,
+.csetup-root.csetup-theme-classic .csetup-mgmt-hint {
+	font-size: 10px;
+	color: var(--csetup-muted);
+	line-height: 1.3;
 }
