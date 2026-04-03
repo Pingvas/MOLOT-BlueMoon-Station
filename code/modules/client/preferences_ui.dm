@@ -1772,7 +1772,6 @@
 			switch(preferences_tab)
 				if(GAME_PREFS_TAB)
 					dat += "<table><tr><td width='340px' height='300px' valign='top'>"
-					var/general_settings_label = T("general_settings", "General Settings")
 					var/ui_style_label = T("ui_style", "UI Style")
 					var/outline_label = T("outline", "Outline")
 					var/outline_color_label = T("outline_color", "Outline Color")
@@ -1797,6 +1796,10 @@
 					var/runechat_non_mobs_label = T("runechat_non_mobs", "See Runechat for non-mobs")
 					var/runechat_emotes_label = T("runechat_emotes", "See Runechat for emotes")
 					var/pixelshift_view_label = T("pixelshift_view", "Shift view when pixelshifting")
+					var/ghost_form_label = T("ghost_form", "Ghost Form")
+					var/ghost_orbit_label = T("ghost_orbit", "Ghost Orbit")
+					var/ghost_accessories_label = T("ghost_accessories", "Ghost Accessories")
+					var/ghosts_of_others_label = T("ghosts_of_others", "Ghosts of Others")
 					var/ghost_ears_label = T("ghost_ears", "Ghost Ears")
 					var/ghost_radio_label = T("ghost_radio", "Ghost Radio")
 					var/ghost_sight_label = T("ghost_sight", "Ghost Sight")
@@ -1809,7 +1812,6 @@
 					var/ghost_all_emotes_label = T("ghost_all_emotes", "All Emotes")
 					var/auto_capitalize_label = T("auto_capitalize", "Auto-Capitalize Speech")
 					var/preferred_chaos_level_label = T("preferred_chaos_level", "Preferred Chaos Level")
-					var/special_role_settings_label = T("special_role_settings", "Special Role Settings")
 					var/antag_banned_label = T("antag_banned", "You are banned from antagonist roles.")
 					var/disable_all_antag_label = T("disable_all_antag", "DISABLE ALL ANTAGONISM")
 					var/be_role_label = T("be_role", "Be")
@@ -1818,7 +1820,12 @@
 					var/days_label = T("days_label", "DAYS")
 					var/low_label = T("low", "Low")
 					var/allow_midround_antag_label = T("allow_midround_antag", "Allow Midround Antagonist Roll")
-					dat += "<h2>[general_settings_label]</h2>"
+					var/sec_interface = T("pref_sec_interface", "Interface")
+					var/sec_chat = T("pref_sec_chat", "Chat")
+					var/sec_ghost = T("pref_sec_ghost", "Ghost")
+					var/sec_misc = T("pref_sec_misc", "Other")
+					var/sec_antag = T("pref_sec_antag", "Antagonists")
+					dat += "<h2>[sec_interface]</h2>"
 					dat += "<b>[ui_style_label]:</b> <a href='?_src_=prefs;task=input;preference=ui'>[UI_style]</a><br>"
 					dat += "<b>[outline_label]:</b> <a href='?_src_=prefs;preference=outline_enabled'>[outline_enabled ? enabled_label : disabled_label]</a><br>"
 					dat += "<b>[outline_color_label]:</b> [outline_color ? "<span style='border:1px solid #161616; background-color: [outline_color];'>" : "[outline_color_theme_based]"]<font color='[color_hex2num(outline_color) < 200 ? "FFFFFF" : "000000"]'>[outline_color]</font></span> <a href='?_src_=prefs;preference=outline_color'>[change_label]</a><BR>"
@@ -1832,6 +1839,7 @@
 						dat += "<b>[tgui_input_verbs_label]:</b> <a href='?_src_=prefs;preference=tgui_input_verbs'>[(tgui_input_verbs) ? "TGUI" : "BYOND"]</a><br>"
 					dat += "<b>[tgui_monitors_label]:</b> <a href='?_src_=prefs;preference=tgui_lock'>[(tgui_lock) ? tgui_monitor_primary : tgui_monitor_all]</a><br>"
 					dat += "<b>[tgui_style_label]:</b> <a href='?_src_=prefs;preference=tgui_fancy'>[(tgui_fancy) ? tgui_style_fancy : tgui_style_no_frills]</a><br>"
+					dat += "<h2>[sec_chat]</h2>"
 					dat += "<b>[runechat_bubbles_label]:</b> <a href='?_src_=prefs;preference=chat_on_map'>[chat_on_map ? enabled_label : disabled_label]</a><br>"
 					if(chat_on_map)
 						dat += "<b>[runechat_looc_bubbles_label]:</b> <a href='?_src_=prefs;preference=chat_on_map_looc'>[chat_on_map_looc ? enabled_label : disabled_label]</a><br>"
@@ -1841,13 +1849,33 @@
 					dat += "<b>[runechat_emotes_label]:</b> <a href='?_src_=prefs;preference=see_chat_emotes'>[see_chat_emotes ? enabled_label : disabled_label]</a><br>"
 					//SANDSTORM CHANGES END
 					dat += "<b>[pixelshift_view_label]:</b> <a href='?_src_=prefs;preference=view_pixelshift'>[view_pixelshift ? enabled_label : disabled_label]</a><br>" //SPLURT Edit
-					dat += "<br>"
+					dat += "<h2>[sec_ghost]</h2>"
 					dat += "<b>[ghost_ears_label]:</b> <a href='?_src_=prefs;preference=ghost_ears'>[(chat_toggles & CHAT_GHOSTEARS) ? ghost_all_speech_label : ghost_nearest_creatures_label]</a><br>"
 					dat += "<b>[ghost_radio_label]:</b> <a href='?_src_=prefs;preference=ghost_radio'>[(chat_toggles & CHAT_GHOSTRADIO) ? ghost_all_messages_label : ghost_no_messages_label]</a><br>"
 					dat += "<b>[ghost_sight_label]:</b> <a href='?_src_=prefs;preference=ghost_sight'>[(chat_toggles & CHAT_GHOSTSIGHT) ? ghost_all_emotes_label : ghost_nearest_creatures_label]</a><br>"
 					dat += "<b>[ghost_whispers_label]:</b> <a href='?_src_=prefs;preference=ghost_whispers'>[(chat_toggles & CHAT_GHOSTWHISPER) ? ghost_all_speech_label : ghost_nearest_creatures_label]</a><br>"
 					dat += "<b>[ghost_pda_label]:</b> <a href='?_src_=prefs;preference=ghost_pda'>[(chat_toggles & CHAT_GHOSTPDA) ? ghost_all_messages_label : ghost_nearest_creatures_label]</a><br>"
-					dat += "<br>"
+					if(unlock_content)
+						dat += "<b>[ghost_form_label]:</b> <a href='?_src_=prefs;task=input;preference=ghostform'>[ghost_form]</a><br>"
+						dat += "<b>[ghost_orbit_label]:</b> <a href='?_src_=prefs;task=input;preference=ghostorbit'>[ghost_orbit]</a><br>"
+					var/button_name_ghost = "If you see this something went wrong."
+					switch(ghost_accs)
+						if(GHOST_ACCS_FULL)
+							button_name_ghost = GHOST_ACCS_FULL_NAME
+						if(GHOST_ACCS_DIR)
+							button_name_ghost = GHOST_ACCS_DIR_NAME
+						if(GHOST_ACCS_NONE)
+							button_name_ghost = GHOST_ACCS_NONE_NAME
+					dat += "<b>[ghost_accessories_label]:</b> <a href='?_src_=prefs;task=input;preference=ghostaccs'>[button_name_ghost]</a><br>"
+					switch(ghost_others)
+						if(GHOST_OTHERS_THEIR_SETTING)
+							button_name_ghost = GHOST_OTHERS_THEIR_SETTING_NAME
+						if(GHOST_OTHERS_DEFAULT_SPRITE)
+							button_name_ghost = GHOST_OTHERS_DEFAULT_SPRITE_NAME
+						if(GHOST_OTHERS_SIMPLE)
+							button_name_ghost = GHOST_OTHERS_SIMPLE_NAME
+					dat += "<b>[ghosts_of_others_label]:</b> <a href='?_src_=prefs;task=input;preference=ghostothers'>[button_name_ghost]</a><br>"
+					dat += "<h2>[sec_misc]</h2>"
 					dat += "<b>[auto_capitalize_label]:</b> <a href='?_src_=prefs;preference=auto_capitalize_enabled'>[(auto_capitalize_enabled ? enabled_label : disabled_label)]</a><br>"
 					dat += "<b>[preferred_chaos_level_label]:</b> <a style='display:block;width:30px' href='?_src_=prefs;preference=preferred_chaos_level'>[preferred_chaos_level]</a><br>"
 
@@ -1855,7 +1883,7 @@
 
 					dat += "<td width='300px' height='300px' valign='top'>"
 
-					dat += "<h2>[special_role_settings_label]</h2>"
+					dat += "<h2>[sec_antag]</h2>"
 
 					if(jobban_isbanned(user, ROLE_INTEQ))
 						dat += "<font color=red><b>[antag_banned_label]</b></font>"
@@ -1892,7 +1920,6 @@
 				if(OOC_PREFS_TAB)
 					dat += "<table>"
 					dat += "<tr><td width='340px' height='300px' valign='top'>"
-					var/ooc_settings_label = T("ooc_settings", "OOC Settings")
 					var/window_flashing_label = T("window_flashing", "Window Flashing")
 					var/window_noise_label = T("window_noise", "Window Noise")
 					var/play_admin_midis_label = T("play_admin_midis", "Play Admin MIDIs")
@@ -1905,7 +1932,6 @@
 					var/ooc_color_label = T("ooc_color", "OOC Color")
 					var/custom_color_aooc_label = T("custom_color_aooc", "Custom AOOC Color")
 					var/antag_ooc_color_label = T("antag_ooc_color", "Antag OOC Color")
-					var/admin_settings_label = T("admin_settings", "Admin Settings")
 					var/adminhelp_sounds_label = T("adminhelp_sounds", "Adminhelp Sounds")
 					var/announce_login_label = T("announce_login", "Announce Login")
 					var/combo_hud_lighting_label = T("combo_hud_lighting", "Combo HUD Lighting")
@@ -1921,14 +1947,18 @@
 					var/as_silicon_label = T("as_silicon", "As Silicon")
 					var/deadmin_label = T("deadmin", "Deadmin")
 					var/keep_admin_label = T("keep_admin", "Keep Admin")
-					dat += "<h2>[ooc_settings_label]</h2>"
-					dat += "<b>[window_flashing_label]:</b> <a href='?_src_=prefs;preference=winflash'>[(windowflashing) ? enabled_label : disabled_label]</a><br>"
-					dat += "<b>[window_noise_label]:</b> <a href='?_src_=prefs;preference=winnoise'>[(windownoise) ? enabled_label : disabled_label]</a><br>"
-					dat += "<br>"
+					var/sec_sound = T("pref_sec_sound", "Sound")
+					var/sec_notify = T("pref_sec_notify", "Notifications")
+					var/sec_ooc = T("pref_sec_ooc", "OOC")
+					var/sec_admin = T("pref_sec_admin", "Administrator")
+					dat += "<h2>[sec_sound]</h2>"
 					dat += "<b>[play_admin_midis_label]:</b> <a href='?_src_=prefs;preference=hear_midis'>[(toggles & SOUND_MIDI) ? enabled_label : disabled_label]</a><br>"
 					dat += "<b>[play_lobby_music_label]:</b> <a href='?_src_=prefs;preference=lobby_music'>[(toggles & SOUND_LOBBY) ? enabled_label : disabled_label]</a><br>"
+					dat += "<h2>[sec_notify]</h2>"
+					dat += "<b>[window_flashing_label]:</b> <a href='?_src_=prefs;preference=winflash'>[(windowflashing) ? enabled_label : disabled_label]</a><br>"
+					dat += "<b>[window_noise_label]:</b> <a href='?_src_=prefs;preference=winnoise'>[(windownoise) ? enabled_label : disabled_label]</a><br>"
 					dat += "<b>[see_pull_requests_label]:</b> <a href='?_src_=prefs;preference=pull_requests'>[(chat_toggles & CHAT_PULLR) ? enabled_label : disabled_label]</a><br>"
-					dat += "<br>"
+					dat += "<h2>[sec_ooc]</h2>"
 					if(user.client)
 						if(unlock_content)
 							dat += "<b>[byond_publicity_label]:</b> <a href='?_src_=prefs;preference=publicity'>[(toggles & MEMBER_PUBLIC) ? public_label : hidden_label]</a><br>"
@@ -1941,7 +1971,7 @@
 								dat += "<b>[antag_ooc_color_label]:</b> <span style='border: 1px solid #161616; background-color: [aooccolor ? aooccolor : GLOB.normal_aooc_colour];'><font color='[color_hex2num(aooccolor ? aooccolor : GLOB.normal_aooc_colour) < 200 ? "FFFFFF" : "000000"]'>[aooccolor ? aooccolor : GLOB.normal_aooc_colour]</font></span> <a href='?_src_=prefs;preference=aooccolor;task=input'>[change_label]</a><br>"
 
 					if(is_admin(user.client))
-						dat += "<h2>[admin_settings_label]</h2>"
+						dat += "<h2>[sec_admin]</h2>"
 						dat += "<b>[adminhelp_sounds_label]:</b> <a href='?_src_=prefs;preference=hear_adminhelps'>[(toggles & SOUND_ADMINHELP)? enabled_label : disabled_label]</a><br>"
 						dat += "<b>[announce_login_label]:</b> <a href='?_src_=prefs;preference=announce_login'>[(toggles & ANNOUNCE_LOGIN)? enabled_label : disabled_label]</a><br>"
 						dat += "<br>"
@@ -1980,8 +2010,7 @@
 
 					dat += "<td width='300px' height='300px' valign='top'>"
 
-					// Citadel Preferences labels
-					var/citadel_prefs_label = T("citadel_prefs", "Citadel Preferences")
+					// Labels
 					var/widescreen_label = T("widescreen", "Widescreen")
 					var/fullscreen_label = T("fullscreen", "Fullscreen")
 					var/long_strip_menu_label = T("long_strip_menu", "Long strip menu")
@@ -1997,23 +2026,12 @@
 					var/on_label = T("on", "On")
 					var/off_label = T("off", "Off")
 					var/only_when_down_label = T("only_when_down", "Only when down")
-
-					// S.P.L.U.R.T. Preferences labels
-					var/splurt_prefs_label = T("splurt_prefs", "S.P.L.U.R.T. Preferences")
 					var/be_victim_label = T("be_victim", "Be Antagonist Victim")
 					var/disable_combat_cursor_label = T("disable_combat_cursor", "Disable combat mode cursor")
 					var/disable_combat_mouse_lock_label = T("disable_combat_mouse_lock", "Disable combat mode mouse lock")
 					var/playerpanel_style_label = T("playerpanel_style", "Splashscreen Player Panel Style")
 					var/tg_label = T("tg_label", "TG")
 					var/old_label = T("old_label", "Old")
-
-					// Ghost settings labels
-					var/ghost_form_label = T("ghost_form", "Ghost Form")
-					var/ghost_orbit_label = T("ghost_orbit", "Ghost Orbit")
-					var/ghost_accessories_label = T("ghost_accessories", "Ghost Accessories")
-					var/ghosts_of_others_label = T("ghosts_of_others", "Ghosts of Others")
-
-					// Display settings labels
 					var/fps_label = T("fps", "FPS")
 					var/income_updates_label = T("income_updates", "Income Updates")
 					var/allowed_label = T("allowed", "Allowed")
@@ -2031,72 +2049,17 @@
 					var/hud_flash_color_label = T("hud_flash_color", "HUD Button Flash Color")
 					var/preferred_map_label = T("preferred_map", "Preferred Map")
 					var/default_label = T("default", "Default")
+					var/sec_screen = T("pref_sec_screen", "Screen")
+					var/sec_hud_label = T("pref_sec_hud", "HUD")
+					var/sec_gameplay = T("pref_sec_gameplay", "Gameplay")
+					var/sec_map = T("pref_sec_map", "Map")
 
-					dat += "<h2>[citadel_prefs_label]</h2>" //Because fuck me if preferences can't be fucking modularized and expected to update in a reasonable timeframe.
+					// Экран
+					dat += "<h2>[sec_screen]</h2>"
 					dat += "<b>[widescreen_label]:</b> <a href='?_src_=prefs;preference=widescreenpref'>[widescreenpref ? "[enabled_label] ([CONFIG_GET(string/default_view)])" : "[disabled_label] (15x15)"]</a><br>"
 					dat += "<b>[fullscreen_label]:</b> <a href='?_src_=prefs;preference=fullscreen'>[fullscreen ? enabled_label : disabled_label]</a><br>"
-					dat += "<b>[long_strip_menu_label]:</b> <a href='?_src_=prefs;preference=long_strip_menu'>[long_strip_menu ? enabled_label : disabled_label]</a><br>"
-					var/modern_accent_label = "—"
-					if(findtext(charcreation_theme, "modern"))
-						switch(charcreation_theme)
-							if("modern_neutral")
-								modern_accent_label = "—"
-							if("modern_classic")
-								modern_accent_label = "—"
-							if("modern_purple")
-								modern_accent_label = "Purple"
-							if("modern_green")
-								modern_accent_label = "Green"
-							else
-								modern_accent_label = "Blue"
-						dat += "<b>[modern_accent_label_text]:</b> <a href='?_src_=prefs;preference=charcreation_accent'>[modern_accent_label]</a><br>"
-					dat += "<b>[auto_stand_label]:</b> <a href='?_src_=prefs;preference=autostand'>[autostand ? enabled_label : disabled_label]</a><br>"
-					dat += "<b>[auto_ooc_label]:</b> <a href='?_src_=prefs;preference=auto_ooc'>[auto_ooc ? enabled_label : disabled_label]</a><br>"
-					dat += "<b>[force_slot_storage_label]:</b> <a href='?_src_=prefs;preference=no_tetris_storage'>[no_tetris_storage ? enabled_label : disabled_label]</a><br>"
-					dat += "<b>[screen_shake_label]:</b> <a href='?_src_=prefs;preference=screenshake'>[(screenshake==100) ? full_label : ((screenshake==0) ? none_label : screenshake)]</a><br>"
-					if (user && user.client && !user.client.prefs.screenshake==0)
-						dat += "<b>[damage_screen_shake_label]:</b> <a href='?_src_=prefs;preference=damagescreenshake'>[(damagescreenshake==1) ? on_label : ((damagescreenshake==0) ? off_label : only_when_down_label)]</a><br>"
-					dat += "<b>[recoil_screen_push_label]:</b> <a href='?_src_=prefs;preference=recoil_screenshake'>[(recoil_screenshake==100) ? full_label : ((recoil_screenshake==0) ? none_label : recoil_screenshake)]</a><br>"
-
-					//SPLURT Edit
-					dat += "<h2>[splurt_prefs_label]</h2>"
-					dat += "<b>[be_victim_label]:</b> <a href='?_src_=prefs;preference=be_victim;task=input'>[be_victim ? be_victim : BEVICTIM_ASK]</a><br>"
-					dat += "<b>[disable_combat_cursor_label]:</b> <a href='?_src_=prefs;preference=disable_combat_cursor'>[disable_combat_cursor ? yes_label : no_label]</a><br>"
-					dat += "<b>[disable_combat_mouse_lock_label]:</b> <a href='?_src_=prefs;preference=disable_combat_mouse_lock'>[disable_combat_mouse_lock ? yes_label : no_label]</a><br>"
-					dat += "<b>[playerpanel_style_label]:</b> <a href='?_src_=prefs;preference=tg_playerpanel'>[(toggles & TG_PLAYER_PANEL) ? tg_label : old_label]</a><br>"
-					//SPLURT Edit end
-
-					dat += "<br>"
-
-					if(unlock_content)
-						dat += "<b>[ghost_form_label]:</b> <a href='?_src_=prefs;task=input;preference=ghostform'>[ghost_form]</a><br>"
-						dat += "<b>[ghost_orbit_label]:</b> <a href='?_src_=prefs;task=input;preference=ghostorbit'>[ghost_orbit]</a><br>"
-					var/button_name = "If you see this something went wrong."
-					switch(ghost_accs)
-						if(GHOST_ACCS_FULL)
-							button_name = GHOST_ACCS_FULL_NAME
-						if(GHOST_ACCS_DIR)
-							button_name = GHOST_ACCS_DIR_NAME
-						if(GHOST_ACCS_NONE)
-							button_name = GHOST_ACCS_NONE_NAME
-
-					dat += "<b>[ghost_accessories_label]:</b> <a href='?_src_=prefs;task=input;preference=ghostaccs'>[button_name]</a><br>"
-					switch(ghost_others)
-						if(GHOST_OTHERS_THEIR_SETTING)
-							button_name = GHOST_OTHERS_THEIR_SETTING_NAME
-						if(GHOST_OTHERS_DEFAULT_SPRITE)
-							button_name = GHOST_OTHERS_DEFAULT_SPRITE_NAME
-						if(GHOST_OTHERS_SIMPLE)
-							button_name = GHOST_OTHERS_SIMPLE_NAME
-
-					dat += "<b>[ghosts_of_others_label]:</b> <a href='?_src_=prefs;task=input;preference=ghostothers'>[button_name]</a><br>"
-					dat += "<br>"
-
 					dat += "<b>[fps_label]:</b> <a href='?_src_=prefs;preference=clientfps;task=input'>[clientfps ? clientfps : "Авто ([CONFIG_GET(number/fps)])"]</a><br>"
-
-					dat += "<b>[income_updates_label]:</b> <a href='?_src_=prefs;preference=income_pings'>[(chat_toggles & CHAT_BANKCARD) ? allowed_label : muted_label]</a><br>"
-					dat += "<br>"
-
+					dat += "<b>[fit_viewport_label]:</b> <a href='?_src_=prefs;preference=auto_fit_viewport'>[auto_fit_viewport ? auto_label : manual_label]</a><br>"
 					dat += "<b>[parallax_label]:</b> <a href='?_src_=prefs;preference=parallaxdown' oncontextmenu='window.location.href=\"?_src_=prefs;preference=parallaxup\";return false;'>"
 					switch (parallax)
 						if (PARALLAX_LOW)
@@ -2112,10 +2075,43 @@
 					dat += "</a><br>"
 					dat += "<b>[ambient_occlusion_label]:</b> <a href='?_src_=prefs;preference=ambientocclusion'>[ambientocclusion ? enabled_label : disabled_label]</a><br>"
 					dat += "<b>Размытие освещения:</b> <a href='?_src_=prefs;preference=lighting_blur'>[lighting_blur]</a>[lighting_blur >= 3 ? " <span style='color:#ff6600'>(может снизить FPS)</span>" : ""]<br>"
-					dat += "<b>[fit_viewport_label]:</b> <a href='?_src_=prefs;preference=auto_fit_viewport'>[auto_fit_viewport ? auto_label : manual_label]</a><br>"
+					dat += "<b>[screen_shake_label]:</b> <a href='?_src_=prefs;preference=screenshake'>[(screenshake==100) ? full_label : ((screenshake==0) ? none_label : screenshake)]</a><br>"
+					if (user && user.client && !user.client.prefs.screenshake==0)
+						dat += "<b>[damage_screen_shake_label]:</b> <a href='?_src_=prefs;preference=damagescreenshake'>[(damagescreenshake==1) ? on_label : ((damagescreenshake==0) ? off_label : only_when_down_label)]</a><br>"
+					dat += "<b>[recoil_screen_push_label]:</b> <a href='?_src_=prefs;preference=recoil_screenshake'>[(recoil_screenshake==100) ? full_label : ((recoil_screenshake==0) ? none_label : recoil_screenshake)]</a><br>"
+
+					// HUD
+					dat += "<h2>[sec_hud_label]</h2>"
+					dat += "<b>[long_strip_menu_label]:</b> <a href='?_src_=prefs;preference=long_strip_menu'>[long_strip_menu ? enabled_label : disabled_label]</a><br>"
+					var/modern_accent_label = "—"
+					if(findtext(charcreation_theme, "modern"))
+						switch(charcreation_theme)
+							if("modern_neutral")
+								modern_accent_label = "—"
+							if("modern_classic")
+								modern_accent_label = "—"
+							if("modern_purple")
+								modern_accent_label = "Purple"
+							if("modern_green")
+								modern_accent_label = "Green"
+							else
+								modern_accent_label = "Blue"
+						dat += "<b>[modern_accent_label_text]:</b> <a href='?_src_=prefs;preference=charcreation_accent'>[modern_accent_label]</a><br>"
 					dat += "<b>[hud_button_flashes_label]:</b> <a href='?_src_=prefs;preference=hud_toggle_flash'>[hud_toggle_flash ? enabled_label : disabled_label]</a><br>"
 					dat += "<b>[hud_flash_color_label]:</b> <span style='border: 1px solid #161616; background-color: [hud_toggle_color];'><font color='[color_hex2num(hud_toggle_color) < 200 ? "FFFFFF" : "000000"]'>[hud_toggle_color]</font></span> <a href='?_src_=prefs;preference=hud_toggle_color;task=input'>[change_label]</a><br>"
+					dat += "<b>[income_updates_label]:</b> <a href='?_src_=prefs;preference=income_pings'>[(chat_toggles & CHAT_BANKCARD) ? allowed_label : muted_label]</a><br>"
+					dat += "<b>[playerpanel_style_label]:</b> <a href='?_src_=prefs;preference=tg_playerpanel'>[(toggles & TG_PLAYER_PANEL) ? tg_label : old_label]</a><br>"
+					dat += "<b>[force_slot_storage_label]:</b> <a href='?_src_=prefs;preference=no_tetris_storage'>[no_tetris_storage ? enabled_label : disabled_label]</a><br>"
 
+					// Геймплей
+					dat += "<h2>[sec_gameplay]</h2>"
+					dat += "<b>[auto_stand_label]:</b> <a href='?_src_=prefs;preference=autostand'>[autostand ? enabled_label : disabled_label]</a><br>"
+					dat += "<b>[auto_ooc_label]:</b> <a href='?_src_=prefs;preference=auto_ooc'>[auto_ooc ? enabled_label : disabled_label]</a><br>"
+					dat += "<b>[be_victim_label]:</b> <a href='?_src_=prefs;preference=be_victim;task=input'>[be_victim ? be_victim : BEVICTIM_ASK]</a><br>"
+					dat += "<b>[disable_combat_cursor_label]:</b> <a href='?_src_=prefs;preference=disable_combat_cursor'>[disable_combat_cursor ? yes_label : no_label]</a><br>"
+					dat += "<b>[disable_combat_mouse_lock_label]:</b> <a href='?_src_=prefs;preference=disable_combat_mouse_lock'>[disable_combat_mouse_lock ? yes_label : no_label]</a><br>"
+
+					// Карта
 					if (CONFIG_GET(flag/maprotation) && CONFIG_GET(flag/tgstyle_maprotation))
 						var/p_map = preferred_map
 						if (!p_map)
@@ -2132,7 +2128,9 @@
 							else
 								p_map += " (No longer exists)"
 						if(CONFIG_GET(flag/allow_map_voting))
+							dat += "<h2>[sec_map]</h2>"
 							dat += "<b>[preferred_map_label]:</b> <a href='?_src_=prefs;preference=preferred_map;task=input'>[p_map]</a><br>"
+					dat += "</td></tr></table>"
 				if(CONTENT_PREFS_TAB)
 					dat += "<table><tr><td width='340px' height='300px' valign='top'>"
 					dat += "<h2>Fetish content prefs</h2>"

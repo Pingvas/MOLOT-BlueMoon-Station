@@ -613,5 +613,157 @@
 	"no_ass_slap"            = list("ru" = "Без шлепков по попе",               "en" = "No Ass Slap"),
 	"no_auto_wag"            = list("ru" = "Без авто виляния",                  "en" = "No Auto Wag"),
 	"chastity_pref"          = list("ru" = "Предпочтение целомудрия",           "en" = "Chastity Pref"),
-	"stimulation_pref"       = list("ru" = "Предпочтение стимуляции",           "en" = "Stimulation Pref")
+	"stimulation_pref"       = list("ru" = "Предпочтение стимуляции",           "en" = "Stimulation Pref"),
+
+	// Preferences tab — top subtabs
+	"pref_general"           = list("ru" = "Основное",                          "en" = "General"),
+	"pref_ooc"               = list("ru" = "OOC",                               "en" = "OOC"),
+	"pref_content"           = list("ru" = "Контент",                           "en" = "Content"),
+
+	// Preferences section headers
+	"pref_sec_interface"     = list("ru" = "Интерфейс",                         "en" = "Interface"),
+	"pref_sec_chat"          = list("ru" = "Чат",                               "en" = "Chat"),
+	"pref_sec_ghost"         = list("ru" = "Призрак",                           "en" = "Ghost"),
+	"pref_sec_misc"          = list("ru" = "Прочее",                            "en" = "Other"),
+	"pref_sec_antag"         = list("ru" = "Антагонисты",                       "en" = "Antagonists"),
+	"pref_sec_sound"         = list("ru" = "Звук",                              "en" = "Sound"),
+	"pref_sec_notify"        = list("ru" = "Уведомления",                       "en" = "Notifications"),
+	"pref_sec_ooc"           = list("ru" = "OOC",                               "en" = "OOC"),
+	"pref_sec_admin"         = list("ru" = "Администратор",                     "en" = "Administrator"),
+	"pref_sec_screen"        = list("ru" = "Экран",                             "en" = "Screen"),
+	"pref_sec_hud"           = list("ru" = "HUD",                               "en" = "HUD"),
+	"pref_sec_gameplay"      = list("ru" = "Геймплей",                          "en" = "Gameplay"),
+	"pref_sec_map"           = list("ru" = "Карта",                             "en" = "Map"),
+
+	// Interface section
+	"outline"                = list("ru" = "Обводка",                           "en" = "Outline"),
+	"outline_color"          = list("ru" = "Цвет обводки",                      "en" = "Outline Color"),
+	"outline_color_theme_based" = list("ru" = "Цвет темы",                      "en" = "Theme-based (null)"),
+	"screentip"              = list("ru" = "Подсказка при наведении",           "en" = "Screentip"),
+	"screentip_color"        = list("ru" = "Цвет подсказки курсора",            "en" = "Screentip Color"),
+	"screentip_images_label" = list("ru" = "Подсказки с иконками",              "en" = "Screentip context with images"),
+	"screentip_images_tooltip" = list("ru" = "Настройка доступности: если отключено, показывается только текст без иконок.", "en" = "Accessibility preference: if disabled, fallbacks to text-only which is easier for colorblind players."),
+	"allowed"                = list("ru" = "Разрешено",                         "en" = "Allowed"),
+	"disallowed"             = list("ru" = "Запрещено",                         "en" = "Disallowed"),
+	"tgui_input_mode"        = list("ru" = "Строка ввода",                      "en" = "Input Framework"),
+	"tgui_input_verbs"       = list("ru" = "Вербы ввода (SAY, ME, OOC...)",     "en" = "Input Verbs (SAY, ME, OOC, etc.) Framework"),
+	"tgui_monitors"          = list("ru" = "Мониторы tgui",                     "en" = "tgui Monitors"),
+	"tgui_monitor_primary"   = list("ru" = "Основной",                          "en" = "Primary"),
+	"tgui_monitor_all"       = list("ru" = "Все",                               "en" = "All"),
+	"tgui_style"             = list("ru" = "Стиль tgui",                        "en" = "tgui Style"),
+	"tgui_style_fancy"       = list("ru" = "Улучшенный",                        "en" = "Fancy"),
+	"tgui_style_no_frills"   = list("ru" = "Базовый",                           "en" = "No Frills"),
+
+	// Chat section
+	"runechat_bubbles"       = list("ru" = "Текст над головой",                 "en" = "Show Chat Bubbles"),
+	"runechat_looc_bubbles"  = list("ru" = "Текст LOOC над головой",            "en" = "Show LOOC Chat Bubbles"),
+	"runechat_char_limit"    = list("ru" = "Лимит символов над головой",        "en" = "Chat bubble char limit"),
+	"runechat_non_mobs"      = list("ru" = "Текст от объектов",                 "en" = "See chat for non-mobs"),
+	"runechat_emotes"        = list("ru" = "Эмоции над головой",                "en" = "See emotes in chat bubbles"),
+	"pixelshift_view"        = list("ru" = "Смещение вида при пиксель-сдвиге",  "en" = "Shift view when pixelshifting"),
+
+	// Ghost section
+	"ghost_ears"             = list("ru" = "Слух призрака",                     "en" = "Ghost Ears"),
+	"ghost_radio"            = list("ru" = "Радио призрака",                    "en" = "Ghost Radio"),
+	"ghost_sight"            = list("ru" = "Зрение призрака",                   "en" = "Ghost Sight"),
+	"ghost_whispers"         = list("ru" = "Шёпот призрака",                    "en" = "Ghost Whispers"),
+	"ghost_pda"              = list("ru" = "PDA призрака",                      "en" = "Ghost PDA"),
+	"ghost_all_speech"       = list("ru" = "Все речи",                          "en" = "All Speech"),
+	"ghost_nearest_creatures"= list("ru" = "Ближайшие существа",                "en" = "Nearest Creatures"),
+	"ghost_all_messages"     = list("ru" = "Все сообщения",                     "en" = "All Messages"),
+	"ghost_no_messages"      = list("ru" = "Без сообщений",                     "en" = "No Messages"),
+	"ghost_all_emotes"       = list("ru" = "Все эмоции",                        "en" = "All Emotes"),
+	"ghost_form"             = list("ru" = "Форма призрака",                    "en" = "Ghost Form"),
+	"ghost_orbit"            = list("ru" = "Орбит призрака",                   "en" = "Ghost Orbit"),
+	"ghost_accessories"      = list("ru" = "Аксессуары призрака",               "en" = "Ghost Accessories"),
+	"ghosts_of_others"       = list("ru" = "Призраки других",                   "en" = "Ghosts of Others"),
+
+	// Other / Misc section
+	"auto_capitalize"        = list("ru" = "Авто-заглавные буквы в речи",       "en" = "Auto-Capitalize Speech"),
+	"preferred_chaos_level"  = list("ru" = "Предпочитаемый уровень хаоса",      "en" = "Preferred Chaos Level"),
+
+	// Antagonists section
+	"antag_banned"           = list("ru" = "Вы забанены от ролей антагонистов.", "en" = "You are banned from antagonist roles."),
+	"disable_all_antag"      = list("ru" = "ОТКЛЮЧИТЬ АНТАГОНИЗМ",              "en" = "DISABLE ALL ANTAGONISM"),
+	"be_role"                = list("ru" = "Играть",                            "en" = "Be"),
+	"banned"                 = list("ru" = "ЗАБАНЕН",                           "en" = "BANNED"),
+	"in_label"               = list("ru" = "ЧЕРЕЗ",                             "en" = "IN"),
+	"days_label"             = list("ru" = "ДНЕЙ",                              "en" = "DAYS"),
+	"allow_midround_antag"   = list("ru" = "Быть мидраунд-антагонистом",        "en" = "Allow Midround Antagonist Roll"),
+
+	// Sound section (OOC tab)
+	"play_admin_midis"       = list("ru" = "Админ MIDI",            			"en" = "Play Admin MIDIs"),
+	"play_lobby_music"       = list("ru" = "Музыка лобби",                      "en" = "Play Lobby Music"),
+
+	// Notifications section
+	"window_noise"           = list("ru" = "Звук окна",                         "en" = "Window Noise"),
+	"see_pull_requests"      = list("ru" = "Pull Request'ы",                    "en" = "See Pull Requests"),
+
+	// OOC Colors section
+	"byond_membership_publicity" = list("ru" = "Членство BYOND",            	"en" = "BYOND Membership Publicity"),
+	"public"                 = list("ru" = "Публично",                          "en" = "Public"),
+	"hidden"                 = list("ru" = "Скрыто",                            "en" = "Hidden"),
+	"custom_color_ooc"       = list("ru" = "Свой цвет OOC",                     "en" = "Custom OOC Color"),
+	"ooc_color"              = list("ru" = "Цвет OOC",                          "en" = "OOC Color"),
+	"custom_color_aooc"      = list("ru" = "Свой цвет AOOC",                    "en" = "Custom AOOC Color"),
+	"antag_ooc_color"        = list("ru" = "Цвет OOC антагониста",              "en" = "Antag OOC Color"),
+
+	// Administrator section
+	"adminhelp_sounds"       = list("ru" = "Звук adminhelp",                    "en" = "Adminhelp Sounds"),
+	"announce_login"         = list("ru" = "Объявлять о входе",                 "en" = "Announce Login"),
+	"combo_hud_lighting"     = list("ru" = "Освещение комбо HUD",               "en" = "Combo HUD Lighting"),
+	"full_bright"            = list("ru" = "Полная яркость",                    "en" = "Full-bright"),
+	"no_change"              = list("ru" = "Без изменений",                     "en" = "No Change"),
+	"deadmin_while_playing"  = list("ru" = "Деадмин во время игры",             "en" = "Deadmin While Playing"),
+	"onlogin_deadmin"        = list("ru" = "Деадмин при входе",                 "en" = "Deadmin On Login"),
+	"onspawn_deadmin"        = list("ru" = "Деадмин при спавне",                "en" = "Deadmin On Spawn"),
+	"forced"                 = list("ru" = "ОБЯЗАТЕЛЬНО",                       "en" = "FORCED"),
+	"as_antag"               = list("ru" = "Как антаг",                         "en" = "As Antag"),
+	"as_command"             = list("ru" = "Как командование",                  "en" = "As Command"),
+	"as_security"            = list("ru" = "Как охрана",                        "en" = "As Security"),
+	"as_silicon"             = list("ru" = "Как силикон",                       "en" = "As Silicon"),
+	"deadmin"                = list("ru" = "Деадмин",                           "en" = "Deadmin"),
+	"keep_admin"             = list("ru" = "Оставить права",                    "en" = "Keep Admin"),
+
+	// Screen section
+	"widescreen"             = list("ru" = "Широкоформат",                   	"en" = "Widescreen"),
+	"fullscreen"             = list("ru" = "На весь экран",                     "en" = "Fullscreen"),
+	"fps"                    = list("ru" = "FPS",                               "en" = "FPS"),
+	"fit_viewport"           = list("ru" = "Корректировка камеры",              "en" = "Fit Viewport"),
+	"auto"                   = list("ru" = "Авто",                              "en" = "Auto"),
+	"manual"                 = list("ru" = "Вручную",                           "en" = "Manual"),
+	"parallax"               = list("ru" = "Параллакс",                         "en" = "Parallax (Fancy Space)"),
+	"low"                    = list("ru" = "Низкий",                            "en" = "Low"),
+	"medium"                 = list("ru" = "Средний",                           "en" = "Medium"),
+	"high"                   = list("ru" = "Высокий",                           "en" = "High"),
+	"insane"                 = list("ru" = "Безумный",                          "en" = "Insane"),
+	"screen_shake"           = list("ru" = "Тряска экрана",                     "en" = "Screen Shake"),
+	"damage_screen_shake"    = list("ru" = "Тряска от урона",                   "en" = "Damage Screen Shake"),
+	"recoil_screen_push"     = list("ru" = "Отдача экрана",                     "en" = "Recoil Screen Push"),
+	"full"                   = list("ru" = "Полная",                            "en" = "Full"),
+	"on"                     = list("ru" = "Вкл",                               "en" = "On"),
+	"off"                    = list("ru" = "Выкл",                              "en" = "Off"),
+	"only_when_down"         = list("ru" = "Только лёжа",                       "en" = "Only when down"),
+
+	// HUD section
+	"long_strip_menu"        = list("ru" = "Длинное меню раздевания",           "en" = "Long strip menu"),
+	"modern_accent"          = list("ru" = "Модерн акцент",                     "en" = "Modern Accent"),
+	"hud_button_flashes"     = list("ru" = "Мигание кнопок HUD",                "en" = "HUD Button Flashes"),
+	"hud_flash_color"        = list("ru" = "Цвет мигания кнопок HUD",           "en" = "HUD Button Flash Color"),
+	"income_updates"         = list("ru" = "Уведомления о обновлениях",         "en" = "Income Updates"),
+	"muted"                  = list("ru" = "Заглушено",                         "en" = "Muted"),
+	"playerpanel_style"      = list("ru" = "Стиль панели игрока",               "en" = "Player Panel Style"),
+	"tg_label"               = list("ru" = "TG",                                "en" = "TG"),
+	"old_label"              = list("ru" = "Старый",                            "en" = "Old"),
+	"force_slot_storage"     = list("ru" = "HUD хранилища слотов",              "en" = "Force Slot Storage HUD"),
+
+	// Gameplay section
+	"auto_ooc"               = list("ru" = "Авто OOC",                          "en" = "Auto OOC"),
+	"be_victim"              = list("ru" = "Быть жертвой антагониста",          "en" = "Be Antagonist Victim"),
+	"disable_combat_cursor"  = list("ru" = "Откл. курсор боевого режима",       "en" = "Disable combat mode cursor"),
+	"disable_combat_mouse_lock" = list("ru" = "Откл. блокировку мыши в бою",    "en" = "Disable combat mode mouse lock"),
+
+	// Map section
+	"preferred_map"          = list("ru" = "Предпочтительная карта",            "en" = "Preferred Map"),
+	"default"                = list("ru" = "По умолчанию",                      "en" = "Default")
 )
