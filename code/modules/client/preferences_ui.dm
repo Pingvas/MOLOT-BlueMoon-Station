@@ -892,19 +892,22 @@
 						dat += "<h3>[hair_style_label]</h3>"
 
 						dat += "<a style='display:block;width:180px' href='?_src_=prefs;preference=hair_style;task=input'>[hair_style]</a>" // BLUEMOON EDIT - увеличена ширина со 100 до 180
-						dat += "<a href='?_src_=prefs;preference=previous_hair_style;task=input'>&lt;</a> <a href='?_src_=prefs;preference=next_hair_style;task=input'>&gt;</a><BR>"
+						dat += "<a href='?_src_=prefs;preference=previous_hair_style;task=input'>&lt;</a> <a href='?_src_=prefs;preference=next_hair_style;task=input'>&gt;</a> "
+						dat += "<a href='?_src_=prefs;preference=open_hair_picker;task=input' style='font-size:11px;padding:1px 5px;border:1px solid #555;background:#2a2a3a;border-radius:3px;'>&#x1F4CB; Выбрать</a><BR>"
 						dat += "<span style='border:1px solid #161616; background-color: #[hair_color];'><font color='[color_hex2num(hair_color) < 200 ? "FFFFFF" : "000000"]'>#[hair_color]</font></span> <a href='?_src_=prefs;preference=hair;task=input'>[change_label]</a><BR>"
 
 						dat += "<h3>[facial_hair_style_label]</h3>"
 
 						dat += "<a style='display:block;width:180px' href='?_src_=prefs;preference=facial_hair_style;task=input'>[facial_hair_style]</a>" // BLUEMOON EDIT - увеличена ширина со 100 до 180
-						dat += "<a href='?_src_=prefs;preference=previous_facehair_style;task=input'>&lt;</a> <a href='?_src_=prefs;preference=next_facehair_style;task=input'>&gt;</a><BR>"
+						dat += "<a href='?_src_=prefs;preference=previous_facehair_style;task=input'>&lt;</a> <a href='?_src_=prefs;preference=next_facehair_style;task=input'>&gt;</a> "
+						dat += "<a href='?_src_=prefs;preference=open_facial_hair_picker;task=input' style='font-size:11px;padding:1px 5px;border:1px solid #555;background:#2a2a3a;border-radius:3px;'>&#x1F4CB; Выбрать</a><BR>"
 						dat += "<span style='border:1px solid #161616; background-color: #[facial_hair_color];'><font color='[color_hex2num(facial_hair_color) < 200 ? "FFFFFF" : "000000"]'>#[facial_hair_color]</font></span> <a href='?_src_=prefs;preference=facial;task=input'>[change_label]</a><BR>"
 
 						dat += "<h3>[hair_gradient_label]</h3>"
 
 						dat += "<a style='display:block;width:180px' href='?_src_=prefs;preference=grad_style;task=input'>[grad_style]</a>"
-						dat += "<a href='?_src_=prefs;preference=previous_grad_style;task=input'>&lt;</a> <a href='?_src_=prefs;preference=next_grad_style;task=input'>&gt;</a><BR>" // BLUEMOON EDIT - увеличена ширина со 100 до 180
+						dat += "<a href='?_src_=prefs;preference=previous_grad_style;task=input'>&lt;</a> <a href='?_src_=prefs;preference=next_grad_style;task=input'>&gt;</a> "
+						dat += "<a href='?_src_=prefs;preference=open_gradient_picker;task=input' style='font-size:11px;padding:1px 5px;border:1px solid #555;background:#2a2a3a;border-radius:3px;'>&#x1F4CB; Выбрать</a><BR>"
 						dat += "<span style='border:1px solid #161616; background-color: #[grad_color];'><font color='[color_hex2num(grad_color) < 200 ? "FFFFFF" : "000000"]'>#[grad_color]</font></span> <a href='?_src_=prefs;preference=grad_color;task=input'>[change_label]</a><BR>"
 
 						dat += "</td>"

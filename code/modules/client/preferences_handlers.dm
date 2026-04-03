@@ -561,6 +561,11 @@
 					if(new_hair_style)
 						hair_style = new_hair_style
 
+				if("open_hair_picker")
+					var/datum/tgui_hair_style_picker/picker = new(user, "hair")
+					picker.ui_interact(user)
+					return TRUE
+
 				if("next_hair_style")
 					hair_style = next_list_item(hair_style, GLOB.hair_styles_list)
 
@@ -578,6 +583,11 @@
 					if(new_facial_hair_style)
 						facial_hair_style = new_facial_hair_style
 
+				if("open_facial_hair_picker")
+					var/datum/tgui_hair_style_picker/picker = new(user, "facial_hair")
+					picker.ui_interact(user)
+					return TRUE
+
 				if("next_facehair_style")
 					facial_hair_style = next_list_item(facial_hair_style, GLOB.facial_hair_styles_list)
 
@@ -594,6 +604,11 @@
 					new_grad_style = tgui_input_list(user, "Choose your character's hair gradient style:", "Character Preference", GLOB.hair_gradients_list)
 					if(new_grad_style)
 						grad_style = new_grad_style
+
+				if("open_gradient_picker")
+					var/datum/tgui_hair_style_picker/picker = new(user, "gradient")
+					picker.ui_interact(user)
+					return TRUE
 
 				if("next_grad_style")
 					grad_style = next_list_item(grad_style, GLOB.hair_gradients_list)
