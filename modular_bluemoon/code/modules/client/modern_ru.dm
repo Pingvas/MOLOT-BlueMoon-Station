@@ -674,7 +674,7 @@
 	"ghost_no_messages"      = list("ru" = "Без сообщений",                     "en" = "No Messages"),
 	"ghost_all_emotes"       = list("ru" = "Все эмоции",                        "en" = "All Emotes"),
 	"ghost_form"             = list("ru" = "Форма призрака",                    "en" = "Ghost Form"),
-	"ghost_orbit"            = list("ru" = "Орбит призрака",                   "en" = "Ghost Orbit"),
+	"ghost_orbit"            = list("ru" = "Орбит призрака",                   	"en" = "Ghost Orbit"),
 	"ghost_accessories"      = list("ru" = "Аксессуары призрака",               "en" = "Ghost Accessories"),
 	"ghosts_of_others"       = list("ru" = "Призраки других",                   "en" = "Ghosts of Others"),
 
@@ -685,7 +685,7 @@
 	// Antagonists section
 	"antag_banned"           = list("ru" = "Вы забанены от ролей антагонистов.", "en" = "You are banned from antagonist roles."),
 	"disable_all_antag"      = list("ru" = "ОТКЛЮЧИТЬ АНТАГОНИЗМ",              "en" = "DISABLE ALL ANTAGONISM"),
-	"be_role"                = list("ru" = "Играть",                            "en" = "Be"),
+	"be_role"                = list("ru" = "Быть",                            	"en" = "Be"),
 	"banned"                 = list("ru" = "ЗАБАНЕН",                           "en" = "BANNED"),
 	"in_label"               = list("ru" = "ЧЕРЕЗ",                             "en" = "IN"),
 	"days_label"             = list("ru" = "ДНЕЙ",                              "en" = "DAYS"),
@@ -765,5 +765,53 @@
 
 	// Map section
 	"preferred_map"          = list("ru" = "Предпочтительная карта",            "en" = "Preferred Map"),
-	"default"                = list("ru" = "По умолчанию",                      "en" = "Default")
+	"default"                = list("ru" = "По умолчанию",                      "en" = "Default"),
+
+	// Content tab sections
+	"pref_sec_fetish"        = list("ru" = "Эротический контент",               "en" = "Fetish Content"),
+	"pref_sec_other_content" = list("ru" = "Прочий контент",                    "en" = "Other Content"),
+
+	// Content tab - Fetish section
+	"allow_lewd_verbs"       = list("ru" = "Разрешить эротические действия",    "en" = "Allow Lewd Verbs"),
+	"allow_lewd_ranged_verbs"= list("ru" = "Эротика на расстоянии",             "en" = "Allow Lewd Ranged Verbs"), // АХаххаха сука эротика на расстоянии это когда белфор посылает аллименты своим котятам.
+	"lewd_verb_sounds"       = list("ru" = "Звуки эротических действий",        "en" = "Lewd Verb Sounds"),
+	"arousal"                = list("ru" = "Возбуждение",                       "en" = "Arousal"),
+	"allow_knotting"         = list("ru" = "Вязка",                             "en" = "Allow Knotting"),
+	"genital_examine"        = list("ru" = "Описание гениталий при осмотре",    "en" = "Genital Examine Text"),
+	"vore_examine"           = list("ru" = "Текст поглощения",                  "en" = "Vore Examine Text"),
+	"medihound_sleeper"      = list("ru" = "Воре слиперы",		                "en" = "Voracious MediHound Sleepers"),
+	"hear_vore_sounds"       = list("ru" = "Звуки поглощения",                  "en" = "Hear Vore Sounds"),
+	"hear_vore_digestion"    = list("ru" = "Звуки пищеварения вора",            "en" = "Hear Vore Digestion Sounds"),
+	"trash_forcefeed"        = list("ru" = "Кормление мусором (квирк)", 		"en" = "Allow Trash Forcefeeding (requires Trashcan quirk)"),
+	"forced_fem"             = list("ru" = "Принудительная феминизация",        "en" = "Forced Feminization"),
+	"forced_masc"            = list("ru" = "Принудительная маскулинизация",     "en" = "Forced Masculinization"),
+	"lewd_hypno"             = list("ru" = "Эротический гипноз",                "en" = "Lewd Hypno"),
+	"bimbofication"          = list("ru" = "Бимбофикация",                      "en" = "Bimbofication"),
+
+	// Content tab - Other section
+	"breast_enlargement"     = list("ru" = "Увеличение груди",                  "en" = "Breast Enlargement"),
+	"penis_enlargement"      = list("ru" = "Увеличение члена",                  "en" = "Penis Enlargement"),
+	"butt_enlargement"       = list("ru" = "Увеличение ягодиц",                 "en" = "Butt Enlargement"),
+	"belly_inflation"        = list("ru" = "Увеличение живота",                 "en" = "Belly Inflation"), // https://www.youtube.com/shorts/4PlpH5y1mUE
+	"hypno"                  = list("ru" = "Гипноз",                            "en" = "Hypno"),
+	"aphrodisiacs"           = list("ru" = "Афродизиаки",                       "en" = "Aphrodisiacs"),
+	"ass_slapping"           = list("ru" = "Шлепки",                            "en" = "Ass Slapping"),
+	"sex_jitter"             = list("ru" = "Дрожь от секса",                    "en" = "Sex Jitter"),
+	"chastity_interactions"  = list("ru" = "Пояс целомудрия",                   "en" = "Chastity Interactions"),
+	"genital_stimulation"    = list("ru" = "Модификатор стимуляции гениталий",  "en" = "Genital Stimulation Modifiers"),
+	"edging"                 = list("ru" = "Эджинг",                            "en" = "Edging"),
+	"receive_cum"            = list("ru" = "Покрытие жидкостью",                "en" = "Receive Cum Covering"),
+	"unholy_erp_verbs"       = list("ru" = "Грязные ERP действия",	            "en" = "Unholy ERP Verbs"),
+	"unholy_erp_tooltip"     = list("ru" = "Разрешает действия, связанные с газами, фекалиями и мочой.", "en" = "Enables verbs involving farts, shit and piss."),
+	"macro_micro_tooltip"    = list("ru" = "Разрешает взаимодействия макро/микро. Позволяет наступать на мелких человечков.", "en" = "Enables macro / micro stepping and stomping interactions."),
+	"extreme_erp_verbs"      = list("ru" = "Экстремальные ERP действия",        "en" = "Extreme ERP Verbs"),
+	"extreme_erp_tooltip"    = list("ru" = "Разрешает действия, связанные с проникновением в ухо, мозг, сдавливание головы бедрами.", "en" = "Enables verbs involving ear/brain fucking."),
+	"harmful_erp_verbs"      = list("ru" = "Опасные ERP действия",              "en" = "Harmful ERP Verbs"),
+	"auto_wag"               = list("ru" = "Авто-виляние хвоста",               "en" = "Automatic Wagging"),
+	"disco_dance"            = list("ru" = "Танцы у диско-шара",                "en" = "Dance Near Disco Ball"),
+	"tattoos_from_others"    = list("ru" = "Тату от других",                    "en" = "Tattoos From Others"),
+	"genital_fluid_blacklist"= list("ru" = "Чёрный список жидкостей",           "en" = "Genital Fluid Blacklist"),
+	"genital_fluid_blacklist_tooltip" = list("ru" = "Если кто-то использует запрещённую жидкость — применяется стандартная.", "en" = "If anyone cums a blacklisted fluid into you, it uses the default fluid for that genital."),
+	"genital_fluid_unblacklist" = list("ru" = "Убрать из чёрного списка",       "en" = "Genital Fluid Un-Blacklist"),
+	"genital_fluid_unblacklist_tooltip" = list("ru" = "Убрать жидкость из чёрного списка.", "en" = "Remove a genital fluid from your blacklist.")
 )

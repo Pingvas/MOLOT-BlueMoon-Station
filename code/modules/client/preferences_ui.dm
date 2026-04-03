@@ -2132,61 +2132,100 @@
 							dat += "<b>[preferred_map_label]:</b> <a href='?_src_=prefs;preference=preferred_map;task=input'>[p_map]</a><br>"
 					dat += "</td></tr></table>"
 				if(CONTENT_PREFS_TAB)
+					var/sec_fetish = T("pref_sec_fetish", "Fetish Content")
+					var/sec_other_content = T("pref_sec_other_content", "Other Content")
+					var/allow_lewd_verbs_label = T("allow_lewd_verbs", "Allow Lewd Verbs")
+					var/allow_lewd_ranged_verbs_label = T("allow_lewd_ranged_verbs", "Allow Lewd Ranged Verbs")
+					var/lewd_verb_sounds_label = T("lewd_verb_sounds", "Lewd Verb Sounds")
+					var/arousal_label = T("arousal", "Arousal")
+					var/allow_knotting_label = T("allow_knotting", "Allow Knotting")
+					var/genital_examine_label = T("genital_examine", "Genital Examine Text")
+					var/vore_examine_label = T("vore_examine", "Vore Examine Text")
+					var/medihound_sleeper_label = T("medihound_sleeper", "Voracious MediHound Sleepers")
+					var/hear_vore_sounds_label = T("hear_vore_sounds", "Hear Vore Sounds")
+					var/hear_vore_digestion_label = T("hear_vore_digestion", "Hear Vore Digestion Sounds")
+					var/trash_forcefeed_label = T("trash_forcefeed", "Allow Trash Forcefeeding (requires Trashcan quirk)")
+					var/forced_fem_label = T("forced_fem", "Forced Feminization")
+					var/forced_masc_label = T("forced_masc", "Forced Masculinization")
+					var/lewd_hypno_label = T("lewd_hypno", "Lewd Hypno")
+					var/bimbofication_label = T("bimbofication", "Bimbofication")
+					var/breast_enlargement_label = T("breast_enlargement", "Breast Enlargement")
+					var/penis_enlargement_label = T("penis_enlargement", "Penis Enlargement")
+					var/butt_enlargement_label = T("butt_enlargement", "Butt Enlargement")
+					var/belly_inflation_label = T("belly_inflation", "Belly Inflation")
+					var/hypno_label = T("hypno", "Hypno")
+					var/aphrodisiacs_label = T("aphrodisiacs", "Aphrodisiacs")
+					var/ass_slapping_label = T("ass_slapping", "Ass Slapping")
+					var/sex_jitter_label = T("sex_jitter", "Sex Jitter")
+					var/chastity_label = T("chastity_interactions", "Chastity Interactions")
+					var/genital_stim_label = T("genital_stimulation", "Genital Stimulation Modifiers")
+					var/edging_label = T("edging", "Edging")
+					var/receive_cum_label = T("receive_cum", "Receive Cum Covering")
+					var/unholy_erp_label = T("unholy_erp_verbs", "Unholy ERP Verbs")
+					var/unholy_erp_tooltip = T("unholy_erp_tooltip", "Enables verbs involving farts, shit and piss.")
+					var/extreme_erp_label = T("extreme_erp_verbs", "Extreme ERP Verbs")
+					var/extreme_erp_tooltip = T("extreme_erp_tooltip", "Enables verbs involving ear/brain fucking.")
+					var/macro_tooltip = T("macro_micro_tooltip", "Enables macro / micro stepping and stomping interactions.")
+					var/harmful_erp_label = T("harmful_erp_verbs", "Harmful ERP Verbs")
+					var/auto_wag_label = T("auto_wag", "Automatic Wagging")
+					var/disco_dance_label = T("disco_dance", "Dance Near Disco Ball")
+					var/tattoos_from_others_label = T("tattoos_from_others", "Tattoos From Others")
+					var/gfluid_blacklist_label = T("genital_fluid_blacklist", "Genital Fluid Blacklist")
+					var/gfluid_blacklist_tooltip = T("genital_fluid_blacklist_tooltip", "If anyone cums a blacklisted fluid into you, it uses the default fluid for that genital.")
+					var/gfluid_unblacklist_label = T("genital_fluid_unblacklist", "Genital Fluid Un-Blacklist")
+					var/gfluid_unblacklist_tooltip = T("genital_fluid_unblacklist_tooltip", "Remove a genital fluid from your blacklist.")
+					var/allowed_label = T("allowed", "Allowed")
+					var/disallowed_label = T("disallowed", "Disallowed")
 					dat += "<table><tr><td width='340px' height='300px' valign='top'>"
-					dat += "<h2>Fetish content prefs</h2>"
-					dat += "<b>Allow Lewd Verbs:</b> <a href='?_src_=prefs;preference=verb_consent'>[(toggles & VERB_CONSENT) ? "Yes":"No"]</a><br>" // Skyrat - ERP Mechanic Addition
-					dat += "<b>Allow Lewd Ranged Verbs:</b> <a href='?_src_=prefs;preference=ranged_verb_consent'>[(toggles & RANGED_VERBS_CONSENT) ? "Yes":"No"]</a><br>" // BLUEMOON ADD интеракты с расстояния
-					dat += "<b>Lewd Verb Sounds:</b> <a href='?_src_=prefs;preference=lewd_verb_sounds'>[(toggles & LEWD_VERB_SOUNDS) ? "Yes":"No"]</a><br>" // Sandstorm - ERP Mechanic Addition
-					dat += "<b>Arousal:</b><a href='?_src_=prefs;preference=arousable'>[arousable == TRUE ? "Enabled" : "Disabled"]</a><BR>"
-					dat += "<b>Allow Knotting:</b><a href='?_src_=prefs;preference=sexknotting'>[sexknotting == TRUE ? "Enabled" : "Disabled"]</a><BR>"
-					dat += "<b>Genital examine text</b>:<a href='?_src_=prefs;preference=genital_examine'>[(cit_toggles & GENITAL_EXAMINE) ? "Enabled" : "Disabled"]</a><BR>"
-					dat += "<b>Vore examine text</b>:<a href='?_src_=prefs;preference=vore_examine'>[(cit_toggles & VORE_EXAMINE) ? "Enabled" : "Disabled"]</a><BR>"
-					dat += "<b>Voracious MediHound sleepers:</b> <a href='?_src_=prefs;preference=hound_sleeper'>[(cit_toggles & MEDIHOUND_SLEEPER) ? "Yes" : "No"]</a><br>"
-					dat += "<b>Hear Vore Sounds:</b> <a href='?_src_=prefs;preference=toggleeatingnoise'>[(cit_toggles & EATING_NOISES) ? "Yes" : "No"]</a><br>"
-					dat += "<b>Hear Vore Digestion Sounds:</b> <a href='?_src_=prefs;preference=toggledigestionnoise'>[(cit_toggles & DIGESTION_NOISES) ? "Yes" : "No"]</a><br>"
-					dat += "<b>Allow trash forcefeeding (requires Trashcan quirk)</b> <a href='?_src_=prefs;preference=toggleforcefeedtrash'>[(cit_toggles & TRASH_FORCEFEED) ? "Yes" : "No"]</a><br>"
-					dat += "<b>Forced Feminization:</b> <a href='?_src_=prefs;preference=feminization'>[(cit_toggles & FORCED_FEM) ? "Allowed" : "Disallowed"]</a><br>"
-					dat += "<b>Forced Masculinization:</b> <a href='?_src_=prefs;preference=masculinization'>[(cit_toggles & FORCED_MASC) ? "Allowed" : "Disallowed"]</a><br>"
-					dat += "<b>Lewd Hypno:</b> <a href='?_src_=prefs;preference=hypno'>[(cit_toggles & HYPNO) ? "Allowed" : "Disallowed"]</a><br>"
-					dat += "<b>Bimbofication:</b> <a href='?_src_=prefs;preference=bimbo'>[(cit_toggles & BIMBOFICATION) ? "Allowed" : "Disallowed"]</a><br>"
+					dat += "<h2>[sec_fetish]</h2>"
+					dat += "<b>[allow_lewd_verbs_label]:</b> <a href='?_src_=prefs;preference=verb_consent'>[(toggles & VERB_CONSENT) ? yes_label : no_label]</a><br>" // Skyrat - ERP Mechanic Addition
+					dat += "<b>[allow_lewd_ranged_verbs_label]:</b> <a href='?_src_=prefs;preference=ranged_verb_consent'>[(toggles & RANGED_VERBS_CONSENT) ? yes_label : no_label]</a><br>" // BLUEMOON ADD интеракты с расстояния
+					dat += "<b>[lewd_verb_sounds_label]:</b> <a href='?_src_=prefs;preference=lewd_verb_sounds'>[(toggles & LEWD_VERB_SOUNDS) ? yes_label : no_label]</a><br>" // Sandstorm - ERP Mechanic Addition
+					dat += "<b>[arousal_label]:</b><a href='?_src_=prefs;preference=arousable'>[arousable == TRUE ? enabled_label : disabled_label]</a><BR>"
+					dat += "<b>[allow_knotting_label]:</b><a href='?_src_=prefs;preference=sexknotting'>[sexknotting == TRUE ? enabled_label : disabled_label]</a><BR>"
+					dat += "<b>[genital_examine_label]</b>:<a href='?_src_=prefs;preference=genital_examine'>[(cit_toggles & GENITAL_EXAMINE) ? enabled_label : disabled_label]</a><BR>"
+					dat += "<b>[vore_examine_label]</b>:<a href='?_src_=prefs;preference=vore_examine'>[(cit_toggles & VORE_EXAMINE) ? enabled_label : disabled_label]</a><BR>"
+					dat += "<b>[medihound_sleeper_label]:</b> <a href='?_src_=prefs;preference=hound_sleeper'>[(cit_toggles & MEDIHOUND_SLEEPER) ? yes_label : no_label]</a><br>"
+					dat += "<b>[hear_vore_sounds_label]:</b> <a href='?_src_=prefs;preference=toggleeatingnoise'>[(cit_toggles & EATING_NOISES) ? yes_label : no_label]</a><br>"
+					dat += "<b>[hear_vore_digestion_label]:</b> <a href='?_src_=prefs;preference=toggledigestionnoise'>[(cit_toggles & DIGESTION_NOISES) ? yes_label : no_label]</a><br>"
+					dat += "<b>[trash_forcefeed_label]</b> <a href='?_src_=prefs;preference=toggleforcefeedtrash'>[(cit_toggles & TRASH_FORCEFEED) ? yes_label : no_label]</a><br>"
+					dat += "<b>[forced_fem_label]:</b> <a href='?_src_=prefs;preference=feminization'>[(cit_toggles & FORCED_FEM) ? allowed_label : disallowed_label]</a><br>"
+					dat += "<b>[forced_masc_label]:</b> <a href='?_src_=prefs;preference=masculinization'>[(cit_toggles & FORCED_MASC) ? allowed_label : disallowed_label]</a><br>"
+					dat += "<b>[lewd_hypno_label]:</b> <a href='?_src_=prefs;preference=hypno'>[(cit_toggles & HYPNO) ? allowed_label : disallowed_label]</a><br>"
+					dat += "<b>[bimbofication_label]:</b> <a href='?_src_=prefs;preference=bimbo'>[(cit_toggles & BIMBOFICATION) ? allowed_label : disallowed_label]</a><br>"
 					dat += "</td>"
 					dat +="<td width='300px' height='300px' valign='top'>"
-					dat += "<h2>Other content prefs</h2>"
-					dat += "<b>Breast Enlargement:</b> <a href='?_src_=prefs;preference=breast_enlargement'>[(cit_toggles & BREAST_ENLARGEMENT) ? "Allowed" : "Disallowed"]</a><br>"
-					dat += "<b>Penis Enlargement:</b> <a href='?_src_=prefs;preference=penis_enlargement'>[(cit_toggles & PENIS_ENLARGEMENT) ? "Allowed" : "Disallowed"]</a><br>"
-					dat += "<b>Butt Enlargement:</b> <a href='?_src_=prefs;preference=butt_enlargement'>[(cit_toggles & BUTT_ENLARGEMENT) ? "Allowed" : "Disallowed"]</a><br>"
-					dat += "<b>Belly Inflation:</b> <a href='?_src_=prefs;preference=belly_inflation'>[(cit_toggles & BELLY_INFLATION) ? "Allowed" : "Disallowed"]</a><br>" //SPLURT Edit
-					dat += "<b>Hypno:</b> <a href='?_src_=prefs;preference=never_hypno'>[(cit_toggles & NEVER_HYPNO) ? "Disallowed" : "Allowed"]</a><br>"
-					dat += "<b>Aphrodisiacs:</b> <a href='?_src_=prefs;preference=aphro'>[(cit_toggles & NO_APHRO) ? "Disallowed" : "Allowed"]</a><br>"
-					dat += "<b>Ass Slapping:</b> <a href='?_src_=prefs;preference=ass_slap'>[(cit_toggles & NO_ASS_SLAP) ? "Disallowed" : "Allowed"]</a><br>"
-					//Gardelin0 EDIT
-					dat += "<b>Sex Jitter:</b> <a href='?_src_=prefs;preference=sex_jitter'>[(cit_toggles & SEX_JITTER) ? "Allowed" : "Disallowed"]</a><br>"
-					//SPLURT EDIT
-					dat += "<b>Chastity Interactions :</b> <a href='?_src_=prefs;preference=chastitypref'>[(cit_toggles & CHASTITY) ? "Allowed" : "Disallowed"]</a><br>"
-					dat += "<b>Genital Stimulation Modifiers :</b> <a href='?_src_=prefs;preference=stimulationpref'>[(cit_toggles & STIMULATION) ? "Allowed" : "Disallowed"]</a><br>"
-					dat += "<b>Edging :</b> <a href='?_src_=prefs;preference=edgingpref'>[(cit_toggles & EDGING) ? "Allowed" : "Disallowed"]</a><br>"
-					dat += "<b>Receive Cum Covering :</b> <a href='?_src_=prefs;preference=cumontopref'>[(cit_toggles & CUM_ONTO) ? "Allowed" : "Disallowed"]</a><br>"
-					dat += "<span style='border-radius: 2px;border:1px dotted white;cursor:help;' title='Enables verbs involving farts, shit and piss.'>?</span> "
-					dat += "<b>Unholy ERP verbs :</b> <a href='?_src_=prefs;preference=unholypref'>[unholypref]</a><br>" //https://www.youtube.com/watch?v=OHKARc-GObU
-					dat += "<span style='border-radius: 2px;border:1px dotted white;cursor:help;' title='Enables macro / micro stepping and stomping interactions.'>?</span> "
-	//					dat += "<b>Stomping Interactions :</b> <a href='?_src_=prefs;preference=stomppref'>[stomppref ? "Yes" : "No"]</a><br>"
-					//END OF SPLURT EDIT
-					dat += "<span style='border-radius: 2px;border:1px dotted white;cursor:help;' title='Enables verbs involving ear/brain fucking.'>?</span> " //SPLURT Edit (wow! editception???)
+					dat += "<h2>[sec_other_content]</h2>"
+					dat += "<b>[breast_enlargement_label]:</b> <a href='?_src_=prefs;preference=breast_enlargement'>[(cit_toggles & BREAST_ENLARGEMENT) ? allowed_label : disallowed_label]</a><br>"
+					dat += "<b>[penis_enlargement_label]:</b> <a href='?_src_=prefs;preference=penis_enlargement'>[(cit_toggles & PENIS_ENLARGEMENT) ? allowed_label : disallowed_label]</a><br>"
+					dat += "<b>[butt_enlargement_label]:</b> <a href='?_src_=prefs;preference=butt_enlargement'>[(cit_toggles & BUTT_ENLARGEMENT) ? allowed_label : disallowed_label]</a><br>"
+					dat += "<b>[belly_inflation_label]:</b> <a href='?_src_=prefs;preference=belly_inflation'>[(cit_toggles & BELLY_INFLATION) ? allowed_label : disallowed_label]</a><br>" //SPLURT Edit
+					dat += "<b>[hypno_label]:</b> <a href='?_src_=prefs;preference=never_hypno'>[(cit_toggles & NEVER_HYPNO) ? disallowed_label : allowed_label]</a><br>"
+					dat += "<b>[aphrodisiacs_label]:</b> <a href='?_src_=prefs;preference=aphro'>[(cit_toggles & NO_APHRO) ? disallowed_label : allowed_label]</a><br>"
+					dat += "<b>[ass_slapping_label]:</b> <a href='?_src_=prefs;preference=ass_slap'>[(cit_toggles & NO_ASS_SLAP) ? disallowed_label : allowed_label]</a><br>"
+					dat += "<b>[sex_jitter_label]:</b> <a href='?_src_=prefs;preference=sex_jitter'>[(cit_toggles & SEX_JITTER) ? allowed_label : disallowed_label]</a><br>"
+					dat += "<b>[chastity_label]:</b> <a href='?_src_=prefs;preference=chastitypref'>[(cit_toggles & CHASTITY) ? allowed_label : disallowed_label]</a><br>"
+					dat += "<b>[genital_stim_label]:</b> <a href='?_src_=prefs;preference=stimulationpref'>[(cit_toggles & STIMULATION) ? allowed_label : disallowed_label]</a><br>"
+					dat += "<b>[edging_label]:</b> <a href='?_src_=prefs;preference=edgingpref'>[(cit_toggles & EDGING) ? allowed_label : disallowed_label]</a><br>"
+					dat += "<b>[receive_cum_label]:</b> <a href='?_src_=prefs;preference=cumontopref'>[(cit_toggles & CUM_ONTO) ? allowed_label : disallowed_label]</a><br>"
+					dat += "<span style='border-radius: 2px;border:1px dotted white;cursor:help;' title='[unholy_erp_tooltip]'>?</span> "
+					dat += "<b>[unholy_erp_label]:</b> <a href='?_src_=prefs;preference=unholypref'>[unholypref]</a><br>" // Сила - Срать и лаять афаф
+					dat += "<span style='border-radius: 2px;border:1px dotted white;cursor:help;' title='[macro_tooltip]'>?</span> "
+	//					dat += "<b>Stomping Interactions :</b> <a href='?_src_=prefs;preference=stomppref'>[stomppref ? yes_label : no_label]</a><br>"
+					dat += "<span style='border-radius: 2px;border:1px dotted white;cursor:help;' title='[extreme_erp_tooltip]'>?</span> "
 					//SANDSTORM EDIT
-					dat += 	"<b>Extreme ERP verbs :</b> <a href='?_src_=prefs;preference=extremepref'>[extremepref]</a><br>" // https://youtu.be/0YrU9ASVw6w
+					dat += 	"<b>[extreme_erp_label]:</b> <a href='?_src_=prefs;preference=extremepref'>[extremepref]</a><br>" // https://youtu.be/0YrU9ASVw6w
 					if(extremepref != "No")
-						dat += "<span style='border-radius: 2px;border:1px dotted white;cursor:help;' title='Enables verbs involving ear/brain fucking.'>?</span> " //SPLURT Edit
-						dat += "<b><span style='color: #e60000;'>Harmful ERP verbs :</b> <a href='?_src_=prefs;preference=extremeharm'>[extremeharm]</a><br>"
-					//END OF SANDSTORM EDIT
-					dat += "<b>Automatic Wagging:</b> <a href='?_src_=prefs;preference=auto_wag'>[(cit_toggles & NO_AUTO_WAG) ? "Disabled" : "Enabled"]</a><br>"
-					dat += "<b>Dance Near Disco Ball:</b> <a href='?_src_=prefs;preference=disco_dance'>[(cit_toggles & NO_DISCO_DANCE) ? "Disabled" : "Enabled"]</a><br>"
-					dat += "<b>Tattoos from others:</b> <a href='?_src_=prefs;preference=tattoo_pref'>[tattoopref]</a><br>" // BLUEMOON ADD - tattoo consent
-					dat += "<span style='border-radius: 2px;border:1px dotted white;cursor:help;' title='If anyone cums a blacklisted fluid into you, it uses the default fluid for that genital.'>?</span> "
-					dat += "<b><a href='?_src_=prefs;preference=gfluid_black;task=input'>Genital Fluid Blacklist</a></b><br>"
+						dat += "<span style='border-radius: 2px;border:1px dotted white;cursor:help;' title='[extreme_erp_tooltip]'>?</span> " //SPLURT Edit
+						dat += "<b><span style='color: #e60000;'>[harmful_erp_label]:</b> <a href='?_src_=prefs;preference=extremeharm'>[extremeharm]</a><br>"
+					dat += "<b>[auto_wag_label]:</b> <a href='?_src_=prefs;preference=auto_wag'>[(cit_toggles & NO_AUTO_WAG) ? disabled_label : enabled_label]</a><br>"
+					dat += "<b>[disco_dance_label]:</b> <a href='?_src_=prefs;preference=disco_dance'>[(cit_toggles & NO_DISCO_DANCE) ? disabled_label : enabled_label]</a><br>"
+					dat += "<b>[tattoos_from_others_label]:</b> <a href='?_src_=prefs;preference=tattoo_pref'>[tattoopref]</a><br>" // BLUEMOON ADD - tattoo consent
+					dat += "<span style='border-radius: 2px;border:1px dotted white;cursor:help;' title='[gfluid_blacklist_tooltip]'>?</span> "
+					dat += "<b><a href='?_src_=prefs;preference=gfluid_black;task=input'>[gfluid_blacklist_label]</a></b><br>"
 					if(gfluid_blacklist?.len)
-						dat += "<span style='border-radius: 2px;border:1px dotted white;cursor:help;' title='Remove a genital fluid from your blacklist.'>?</span> "
-						dat += "<b><a href='?_src_=prefs;preference=gfluid_unblack;task=input'>Genital Fluid Un-Blacklist</a></b><br>"
-					//SPLURT Edit end
+						dat += "<span style='border-radius: 2px;border:1px dotted white;cursor:help;' title='[gfluid_unblacklist_tooltip]'>?</span> "
+						dat += "<b><a href='?_src_=prefs;preference=gfluid_unblack;task=input'>[gfluid_unblacklist_label]</a></b><br>"
 					dat += "</tr></table>"
 
 		if(KEYBINDINGS_TAB) // Custom keybindings
