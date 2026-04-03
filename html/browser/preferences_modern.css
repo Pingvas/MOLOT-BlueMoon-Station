@@ -405,10 +405,44 @@ body {
 }
 
 .csetup-root.csetup-theme-modern .csetup-markings .csetup-markings-grid {
-	column-count: 2;
-	column-gap: 8px;
-	column-width: 320px;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
 	margin: 6px 0 0 0;
+}
+
+.csetup-root.csetup-theme-modern .csetup-markings .csetup-marking-section {
+	display: flex;
+	flex-direction: column;
+}
+
+.csetup-root.csetup-theme-modern .csetup-markings .csetup-marking-section-label {
+	font-size: 10px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.8px;
+	color: var(--csetup-accent);
+	padding: 2px 4px 4px 0;
+	margin-bottom: 6px;
+	border-bottom: 1px solid rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.20);
+}
+
+.csetup-root.csetup-theme-modern .csetup-markings .csetup-marking-section-cards {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	align-items: flex-start;
+}
+
+.csetup-root.csetup-theme-modern .csetup-markings .csetup-marking-section-cards .csetup-marking-card {
+	flex: 1 1 280px;
+	min-width: 240px;
+	margin: 0;
+}
+
+.csetup-root.csetup-theme-modern .csetup-markings .csetup-marking-card--head {
+	flex: 0 0 100%;
+	max-width: 100%;
 }
 
 .csetup-root.csetup-theme-modern .csetup-markings h3 {
@@ -440,11 +474,6 @@ body {
 
 /* Cards per limb */
 .csetup-root.csetup-theme-modern .csetup-markings .csetup-marking-card {
-	margin: 0;
-	display: inline-block;
-	width: 100%;
-	break-inside: avoid;
-	margin: 0 0 8px 0;
 	background: var(--csetup-panel);
 	border: 1px solid rgba(255, 255, 255, 0.08);
 	border-radius: 10px;

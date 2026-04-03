@@ -1890,21 +1890,24 @@
 					// move the specified marking to the top
 					var/index = text2num(href_list["marking_index"])
 					var/marking_type = href_list["marking_type"]
-					if(index && marking_type && features[marking_type] && index != 1)
-						var/list/markings = features[marking_type]
-						var/list/entry = markings[index]
-						markings.Cut(index, index + 1)
-						markings.Insert(1, entry)
+					if(index && marking_type && features[marking_type] && index > 1)
+						var/markings = features[marking_type]
+						for(var/i = index, i > 1, i--)
+							var/temp = markings[i]
+							markings[i] = markings[i-1]
+							markings[i-1] = temp
 
 				if("marking_bottom")
 					// move the specified marking to the bottom
 					var/index = text2num(href_list["marking_index"])
 					var/marking_type = href_list["marking_type"]
-					if(index && marking_type && features[marking_type] && index != length(features[marking_type]))
-						var/list/markings = features[marking_type]
-						var/list/entry = markings[index]
-						markings.Cut(index, index + 1)
-						markings += list(entry)
+					if(index && marking_type && features[marking_type] && index < length(features[marking_type]))
+						var/markings = features[marking_type]
+						var/len = length(markings)
+						for(var/i = index, i < len, i++)
+							var/temp = markings[i]
+							markings[i] = markings[i+1]
+							markings[i+1] = temp
 
 				if("marking_remove")
 					// move the specified marking up
@@ -1992,7 +1995,7 @@
 									color_number = 3
 
 						var/color_list = features[marking_type][index][3]
-						var/new_marking_color = input(user, "Choose your character's marking color:", "Character Preference","#"+color_list[color_number]) as color|null
+						var/new_marking_color = input(user, "Choose your character's marking color:", "Character Preference",color_list[color_number]) as color|null
 						if(new_marking_color)
 							var/temp_hsv = RGBtoHSV(new_marking_color)
 							if((MUTCOLORS_PARTSONLY in pref_species.species_traits) || ReadHSV(temp_hsv)[3] >= ReadHSV(MINIMUM_MUTANT_COLOR)[3] || !CONFIG_GET(flag/character_color_limits)) // mutantcolors must be bright, but only if they affect the skin //SPLURT EDIT

@@ -1320,23 +1320,19 @@
 						dat += "<a href='?_src_=prefs;preference=marking_add;marking_type=[marking_type];task=input'>[add_label]</a>"
 						dat += "</div>"
 						dat += "<div class='csetup-markings-grid'>"
-						var/list/ordered_limbs = list("Head", "Right Leg", "Chest", "Left Arm", "Left Leg", "Right Arm")
+						var/list/ordered_limbs = list("Head", "Chest", "Left Arm", "Right Arm", "Left Leg", "Right Leg")
+						var/list/limb_label_map = list("Head" = limb_head_label, "Chest" = limb_chest_label, "Left Arm" = limb_left_arm_label, "Right Arm" = limb_right_arm_label, "Left Leg" = limb_left_leg_label, "Right Leg" = limb_right_leg_label)
+						var/list/limb_section_start = list("Head" = T("marking_group_body", "Body"), "Left Arm" = T("marking_group_arms", "Arms"), "Left Leg" = T("marking_group_legs", "Legs"))
+						var/marking_section_open = FALSE
 						for(var/limb in ordered_limbs)
-							var/limb_label = limb
-							switch(limb)
-								if("Head")
-									limb_label = limb_head_label
-								if("Right Leg")
-									limb_label = limb_right_leg_label
-								if("Chest")
-									limb_label = limb_chest_label
-								if("Left Arm")
-									limb_label = limb_left_arm_label
-								if("Left Leg")
-									limb_label = limb_left_leg_label
-								if("Right Arm")
-									limb_label = limb_right_arm_label
-							dat += "<section class='csetup-marking-card'>"
+							if(limb_section_start[limb])
+								if(marking_section_open)
+									dat += "</div></div>"
+								dat += "<div class='csetup-marking-section'><div class='csetup-marking-section-label'>[limb_section_start[limb]]</div><div class='csetup-marking-section-cards'>"
+								marking_section_open = TRUE
+							var/limb_label = limb_label_map[limb]
+							var/card_extra_class = limb == "Head" ? " csetup-marking-card--head" : ""
+							dat += "<section class='csetup-marking-card[card_extra_class]'>"
 							dat += "<div class='csetup-marking-card-header'>"
 							dat += "<div class='csetup-marking-card-title'>[limb_label]</div>"
 							dat += "<div class='csetup-marking-card-actions'>"
@@ -1411,6 +1407,8 @@
 								dat += "<tr class='csetup-marking-row csetup-marking-row-empty'><td class='csetup-marking-empty' colspan='5'>Нет маркингов на этой части тела.</td></tr>"
 							dat += "</tbody></table>"
 							dat += "</section>"
+						if(marking_section_open)
+							dat += "</div></div>"
 						dat += "</div>"
 						dat += "<div class='csetup-danger-zone'>"
 						dat += "<div class='csetup-danger-zone-title'>[danger_zone_label]</div>"
