@@ -1744,10 +1744,13 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 		default_slot = new_slot
 		load_character(new_slot)
 
+	cached_slot_names = null
 	save_preferences(bypass_cooldown = TRUE, silent = TRUE)
 	return TRUE
 
 /datum/preferences/proc/save_character(bypass_cooldown = FALSE, silent = FALSE, export = FALSE)
+	if(!export)
+		cached_slot_names = null
 	if(!path)
 		return FALSE
 	if(!bypass_cooldown)

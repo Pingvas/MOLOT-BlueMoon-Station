@@ -14,6 +14,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/path
 	var/vr_path
 	var/default_slot = 1				//Holder so it doesn't default to slot 1, rather the last one used
+	var/list/cached_slot_names			// null = dirty
 	var/max_save_slots = 40
 	var/last_ip
 	/// Last CID the person was seen on

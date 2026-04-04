@@ -1,5 +1,6 @@
 // Hair Style Picker
 #define HAIR_PICKER_PAGE_SIZE 24
+#define HAIR_ICON_CACHE_MAX 128
 
 /datum/tgui_hair_style_picker
 	var/client/holder
@@ -11,8 +12,10 @@
 	var/total_pages = 1
 	var/list/filtered_names = list()
 	var/preview_icon64 = null
+	var/preview_generating = FALSE
+	var/preview_pending = FALSE
 
-	// Статический кэш.
+	// Статический кэш base64 иконок по типу.
 	var/static/list/hair_icon_cache = null
 	var/static/list/facial_icon_cache = null
 	var/static/list/gradient_icon_cache = null
@@ -26,6 +29,7 @@
 	pick_type = type
 	rebuild_filtered(search_text)
 	load_page_icons()
+	INVOKE_ASYNC(src, PROC_REF(_preload_remaining_icons)) // фоновый прогрев оставшихся страниц
 	refresh_preview_icon()
 
 /datum/tgui_hair_style_picker/ui_interact(mob/user, datum/tgui/ui)
@@ -95,7 +99,8 @@
 					prefs.facial_hair_style = style
 				if("gradient")
 					prefs.grad_style = style
-			prefs.ShowChoices(holder.mob)
+			// ShowChoices() не вызывается при каждом клике — слишком дорого (2500+ строк логики).
+			// Обновление главного меню происходит при confirm.
 			refresh_preview_icon()
 			return TRUE
 
@@ -167,14 +172,49 @@
 		if(SA && SA.icon && SA.icon_state)
 			var/encode = icon2base64(icon(SA.icon, SA.icon_state, SOUTH, 1))
 			if(encode)
-				cache[style_name] = encode
+				if(cache.len < HAIR_ICON_CACHE_MAX)
+					cache[style_name] = encode
 				current_icons[style_name] = encode
 
-// Генерирует flat иконку персонажа с текущими настройками и сохраняет в preview_icon64
 /datum/tgui_hair_style_picker/proc/refresh_preview_icon()
+	if(preview_generating)
+		preview_pending = TRUE
+		return
+	INVOKE_ASYNC(src, PROC_REF(_do_refresh_preview))
+
+/datum/tgui_hair_style_picker/proc/_do_refresh_preview()
+	preview_generating = TRUE
+	preview_pending = FALSE
+	var/species_id = prefs.pref_species ? prefs.pref_species.id : "null"
+	var/cache_key = "hairpick_[prefs.hair_style]_[prefs.hair_color]_[prefs.grad_style]_[prefs.facial_hair_style]_[prefs.facial_hair_color]_[prefs.skin_tone]_[species_id]"
 	var/dummy_slot = "hair_picker_preview_[REF(src)]"
-	var/icon/I = get_flat_human_icon(null, null, prefs, dummy_slot, list(SOUTH), null, TRUE)
+	var/icon/I = get_flat_human_icon(cache_key, null, prefs, dummy_slot, list(SOUTH), null, TRUE)
+	if(QDELETED(src))
+		return
 	if(I)
 		preview_icon64 = icon2base64_scaled(I, 4) // 32px × 4 = 128px
 	else
 		preview_icon64 = null
+	preview_generating = FALSE
+	SStgui.update_uis(src)
+	if(preview_pending)
+		refresh_preview_icon()
+
+/datum/tgui_hair_style_picker/proc/_preload_remaining_icons()
+	var/list/cache = get_icon_cache()
+	var/list/styles = get_style_list()
+	var/batch = 0
+	for(var/style_name in styles)
+		if(QDELETED(src))
+			return
+		if(cache[style_name])
+			continue
+		if(cache.len >= HAIR_ICON_CACHE_MAX)
+			return
+		var/datum/sprite_accessory/SA = styles[style_name]
+		if(SA && SA.icon && SA.icon_state)
+			var/encode = icon2base64(icon(SA.icon, SA.icon_state, SOUTH, 1))
+			if(encode)
+				cache[style_name] = encode
+		if(++batch % 8 == 0)
+			CHECK_TICK

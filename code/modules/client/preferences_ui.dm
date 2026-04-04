@@ -1,4 +1,4 @@
-/datum/preferences/proc/ShowChoices(mob/user, skip_preview_update = FALSE)
+﻿/datum/preferences/proc/ShowChoices(mob/user, skip_preview_update = FALSE)
 	if(!user || !user.client)
 		return
 	if(!skip_preview_update)
@@ -280,43 +280,46 @@
 
 			// ── Slot panel ──
 			if(path)
-				var/savefile/S = new /savefile(path)
-				if(S)
-					var/name
-					var/empty_slot_label = T("empty_slot_label", "Character")
-					var/current_slot_name = ""
-					S.cd = "/character[default_slot]"
-					S["real_name"] >> current_slot_name
-					if(!current_slot_name)
-						current_slot_name = "[empty_slot_label][default_slot]"
-					var/delete_slot_label = T("delete_slot_label", "Delete current slot")
-					var/toggle_title = collapse_empty_character_slots ? T("show_empty_slots", "Show empty slots") : T("hide_empty_slots", "Hide empty slots")
-					var/toggle_symbol = collapse_empty_character_slots ? "+" : "–"
-					dat += "<div class='csetup-slot-header'>"
-					dat += "<span class='csetup-slot-current-label'>[current_slot_name]</span>"
-					dat += "<span class='csetup-slot-controls'>"
-					if(max_save_slots > 4)
-						dat += "<a class='csetup-slot-ctrl-btn' href='?_src_=prefs;preference=character_slots;action=toggle_empty' title='[toggle_title]'>[toggle_symbol]</a>"
-					dat += "<a class='csetup-slot-ctrl-btn csetup-slot-delete' href='?_src_=prefs;preference=character_slots;action=delete_slot;slot=[default_slot]' title='[delete_slot_label]'>✕</a>"
-					dat += "</span>"
-					dat += "</div>"
-					dat += "<div class='csetup-slot-panel'>"
-					for(var/i=1, i<=max_save_slots, i++)
-						name = null
-						S.cd = "/character[i]"
-						S["real_name"] >> name
-						var/is_empty_slot = !name
-						if(collapse_empty_character_slots && is_empty_slot && i != default_slot)
-							continue
-						if(!name)
-							name = "[empty_slot_label][i]"
-						var/slot_cls = "csetup-slot-btn"
-						if(i == default_slot)
-							slot_cls += " linkOn"
-						if(is_empty_slot)
-							slot_cls += " csetup-slot-empty"
-						dat += "<a class='[slot_cls]' href='?_src_=prefs;preference=changeslot;num=[i];'>[name]</a>"
-					dat += "</div>"
+				if(!cached_slot_names)
+					cached_slot_names = list()
+					cached_slot_names.len = max_save_slots
+					var/savefile/S = new /savefile(path)
+					if(S)
+						for(var/i=1, i<=max_save_slots, i++)
+							var/slot_name
+							S.cd = "/character[i]"
+							S["real_name"] >> slot_name
+							cached_slot_names[i] = slot_name
+				var/empty_slot_label = T("empty_slot_label", "Character")
+				var/current_slot_name = cached_slot_names[default_slot]
+				if(!current_slot_name)
+					current_slot_name = "[empty_slot_label][default_slot]"
+				var/delete_slot_label = T("delete_slot_label", "Delete current slot")
+				var/toggle_title = collapse_empty_character_slots ? T("show_empty_slots", "Show empty slots") : T("hide_empty_slots", "Hide empty slots")
+				var/toggle_symbol = collapse_empty_character_slots ? "+" : "–"
+				dat += "<div class='csetup-slot-header'>"
+				dat += "<span class='csetup-slot-current-label'>[current_slot_name]</span>"
+				dat += "<span class='csetup-slot-controls'>"
+				if(max_save_slots > 4)
+					dat += "<a class='csetup-slot-ctrl-btn' href='?_src_=prefs;preference=character_slots;action=toggle_empty' title='[toggle_title]'>[toggle_symbol]</a>"
+				dat += "<a class='csetup-slot-ctrl-btn csetup-slot-delete' href='?_src_=prefs;preference=character_slots;action=delete_slot;slot=[default_slot]' title='[delete_slot_label]'>✕</a>"
+				dat += "</span>"
+				dat += "</div>"
+				dat += "<div class='csetup-slot-panel'>"
+				for(var/i=1, i<=max_save_slots, i++)
+					var/name = cached_slot_names[i]
+					var/is_empty_slot = !name
+					if(collapse_empty_character_slots && is_empty_slot && i != default_slot)
+						continue
+					if(!name)
+						name = "[empty_slot_label][i]"
+					var/slot_cls = "csetup-slot-btn"
+					if(i == default_slot)
+						slot_cls += " linkOn"
+					if(is_empty_slot)
+						slot_cls += " csetup-slot-empty"
+					dat += "<a class='[slot_cls]' href='?_src_=prefs;preference=changeslot;num=[i];'>[name]</a>"
+				dat += "</div>"
 
 				// Лодаут сайдбар
 				var/list/sidebar_chosen_gear = islist(loadout_data) ? loadout_data["SAVE_[loadout_slot]"] : null
@@ -325,6 +328,7 @@
 				if(!islist(sidebar_chosen_gear) || !length(sidebar_chosen_gear))
 					dat += "<div style='font-size:10px;opacity:0.42;text-align:center;padding:3px 0'>Нет предметов в лодауте</div>"
 				else
+					var/datum/asset/spritesheet/loadout_icons/sb_sheet = get_asset_datum(/datum/asset/spritesheet/loadout_icons)
 					for(var/sidebar_raw_entry in sidebar_chosen_gear)
 						if(!islist(sidebar_raw_entry))
 							continue
@@ -347,7 +351,6 @@
 						var/sidebar_wrench_url = "?_src_=prefs;preference=gear;select_category=[url_encode(sidebar_cat)];select_subcategory=[url_encode(sidebar_subcat)];switch_to_loadout_tab=1"
 						var/sidebar_trash_url = "?_src_=prefs;preference=gear;sidebar_remove_gear=[url_encode(sidebar_path_str)]"
 						dat += "<table width='100%' cellpadding='2' cellspacing='0' style='margin:2px 0;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:3px'><tr style='vertical-align:middle'>"
-						var/datum/asset/spritesheet/loadout_icons/sb_sheet = get_asset_datum(/datum/asset/spritesheet/loadout_icons)
 						var/sb_sprite = replacetext("[sidebar_gear_datum.type]", "/", "_")
 						if(sb_sheet?.sprites[sb_sprite])
 							dat += "<td width='36' align='center'>[sb_sheet.icon_tag(sb_sprite)]</td>"
@@ -568,10 +571,16 @@
 						ai_core_icon_state = "ai-random"
 					else
 						ai_core_icon_state = resolve_ai_icon(preferred_ai_core_display, TRUE)
-					var/icon/ai_core_preview_icon = icon('icons/mob/ai.dmi', ai_core_icon_state, SOUTH, 1, FALSE)
-					var/ai_core_preview_html = icon2base64html(ai_core_preview_icon)
-					if(!ai_core_preview_html)
-						ai_core_preview_html = ""
+					var/static/ai_core_b64_cache
+					if(isnull(ai_core_b64_cache))
+						ai_core_b64_cache = list()
+					var/ai_core_preview_html = ai_core_b64_cache[ai_core_icon_state]
+					if(isnull(ai_core_preview_html))
+						var/icon/ai_core_preview_icon = icon('icons/mob/ai.dmi', ai_core_icon_state, SOUTH, 1, FALSE)
+						ai_core_preview_html = icon2base64html(ai_core_preview_icon)
+						if(!ai_core_preview_html)
+							ai_core_preview_html = ""
+						ai_core_b64_cache[ai_core_icon_state] = ai_core_preview_html
 					dat += "<div class='csetup-ai-core-preview'>" + ai_core_preview_html + "</div>"
 					dat += "</td>"
 
@@ -1428,8 +1437,8 @@
 								var/list/markings = features[marking_type]
 								if(!islist(markings))
 									markings = list()
-								for(var/list/marking_list in markings)
-									var/marking_index = markings.Find(marking_list)
+								for(var/marking_index in 1 to markings.len)
+									var/list/marking_list = markings[marking_index]
 									var/limb_value = marking_list[1]
 									var/actual_name = GLOB.bodypart_names[num2text(limb_value)]
 									if(actual_name != limb)
@@ -1529,8 +1538,8 @@
 									// something went terribly wrong
 									markings = list()
 
-								for(var/list/marking_list in markings)
-									var/marking_index = markings.Find(marking_list) // consider changing loop to go through indexes over lists instead of using Find here
+								for(var/marking_index in 1 to markings.len)
+									var/list/marking_list = markings[marking_index]
 									var/limb_value = marking_list[1]
 									var/actual_name = GLOB.bodypart_names[num2text(limb_value)] // get the actual name from the bitflag representing the part the marking is applied to
 									if(actual_name != limb)
