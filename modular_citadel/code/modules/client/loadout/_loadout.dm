@@ -95,9 +95,6 @@ GLOBAL_LIST_EMPTY(loadout_whitelist_ids)
 
 	var/restricted_desc
 
-	// BLUEMOON EDIT START - превью для вещей в лодауте
-	// Автоматически гененерируемая base64 иконка для превью в лодауте
-	var/base64icon
 	// Возможный оверрайд иконки
 	var/item_icon = null
 	// Возможный оверрайд стейта иконки
@@ -108,25 +105,8 @@ GLOBAL_LIST_EMPTY(loadout_whitelist_ids)
 	if(isnull(donoritem))
 		if(donator_group_id || ckeywhitelist)
 			donoritem = TRUE
-	// BLUEMOON EDIT START - превью для вещей в лодауте
 	if(!description && path)
 		description = initial(path.desc)
-	// BLUEMOON FIX - Wrap icon generation in try-catch to prevent initialization failures from runtime errors
-	try
-		var/init_icon = item_icon ? item_icon : initial(path.icon)
-		var/init_icon_state = item_icon_state ? item_icon_state : initial(path.icon_state)
-		CHECK_TICK
-		if(init_icon && init_icon_state)
-			var/static/list/loadout_icon_cache = list()
-			var/cache_key = "[init_icon]:[init_icon_state]"
-			if(cache_key in loadout_icon_cache)
-				base64icon = loadout_icon_cache[cache_key]
-			else
-				base64icon = icon2base64(icon(init_icon, init_icon_state, SOUTH, 1, FALSE))
-				loadout_icon_cache[cache_key] = base64icon
-	catch(var/exception/e)
-		stack_trace("Loadout icon generation failed for [name] ([type]): [e]")
-		base64icon = null  // Item will work without preview icon
 	// BLUEMOON EDIT END
 
 

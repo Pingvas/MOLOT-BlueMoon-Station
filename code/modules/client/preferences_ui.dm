@@ -2,6 +2,8 @@
 	if(!user || !user.client)
 		return
 	update_preview_icon(current_tab)
+	if(findtext(charcreation_theme, "modern"))
+		get_asset_datum(/datum/asset/spritesheet/loadout_icons)?.send(user.client)
 	var/list/dat
 	// Compact inline CSS: конкретные значения цветов для BYOND-браузера.
 	// Enhanced decoration — CSS-класс .csetup-decoration-enhanced (переключается без inline CSS).
@@ -341,8 +343,10 @@
 						var/sidebar_wrench_url = "?_src_=prefs;preference=gear;select_category=[url_encode(sidebar_cat)];select_subcategory=[url_encode(sidebar_subcat)];switch_to_loadout_tab=1"
 						var/sidebar_trash_url = "?_src_=prefs;preference=gear;sidebar_remove_gear=[url_encode(sidebar_path_str)]"
 						dat += "<table width='100%' cellpadding='2' cellspacing='0' style='margin:2px 0;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:3px'><tr style='vertical-align:middle'>"
-						if(sidebar_gear_datum.base64icon)
-							dat += "<td width='36' align='center'><img src='data:image/jpeg;base64,[sidebar_gear_datum.base64icon]' width='32' height='32'></td>"
+						var/datum/asset/spritesheet/loadout_icons/sb_sheet = get_asset_datum(/datum/asset/spritesheet/loadout_icons)
+						var/sb_sprite = replacetext("[sidebar_gear_datum.type]", "/", "_")
+						if(sb_sheet?.sprites[sb_sprite])
+							dat += "<td width='36' align='center'>[sb_sheet.icon_tag(sb_sprite)]</td>"
 						else
 							dat += "<td width='36'></td>"
 						dat += "<td style='padding:0 3px'><font size='1'>[sidebar_display_name]</font></td>"
@@ -1718,6 +1722,7 @@
 										stack_trace("Loadout init failure: Category '[gear_category]'/subcategory '[gear_subcategory]' defined but has no items (user: [user?.ckey])")
 									dat += "<tr><td colspan=4><center><i style=\"color: grey;\">No items available in this category.</i></center></td></tr>"
 								// BLUEMOON FIX END
+								var/datum/asset/spritesheet/loadout_icons/g_sheet = get_asset_datum(/datum/asset/spritesheet/loadout_icons)
 								for(var/name in subcategory_items)
 									var/datum/gear/gear = subcategory_items[name]
 									if(!gear)
@@ -1732,8 +1737,9 @@
 									var/class_link = ""
 									var/list/loadout_item = has_loadout_gear(loadout_slot, "[gear.type]")
 									var/extra_loadout_data = ""
-									if(gear.base64icon)
-										extra_loadout_data += "<center><img src='data:image/jpeg;base64,[gear.base64icon]'></center>"
+									var/g_sprite = replacetext("[gear.type]", "/", "_")
+									if(g_sheet?.sprites[g_sprite])
+										extra_loadout_data += "<center>[g_sheet.icon_tag(g_sprite)]</center>"
 									if(loadout_item)
 										class_link = "style='white-space:normal;' class='linkOn' href='?_src_=prefs;preference=gear;toggle_gear_path=[url_encode(name)];toggle_gear=0'"
 										if(gear.loadout_flags & LOADOUT_CAN_COLOR_POLYCHROMIC)
@@ -2384,6 +2390,9 @@
 
 	winshow(user, "preferences_window", TRUE)
 	var/datum/browser/popup = new(user, "preferences_browser", "<div align='center'>Character Setup</div>", 640, 770)
+	if(findtext(charcreation_theme, "modern"))
+		var/datum/asset/spritesheet/loadout_icons/loadout_sheet = get_asset_datum(/datum/asset/spritesheet/loadout_icons)
+		popup.add_stylesheet(loadout_sheet)
 	if(findtext(charcreation_theme, "modern"))
 		popup.add_stylesheet("preferences_modern", 'html/browser/preferences_modern.css')
 	if(findtext(charcreation_theme, "modern"))
