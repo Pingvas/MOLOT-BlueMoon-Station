@@ -273,6 +273,8 @@
 
 /datum/preferences/proc/has_loadout_gear(save_slot, gear_type)
 	var/list/gear_list = loadout_data["SAVE_[save_slot]"]
+	if(!islist(gear_list))
+		return FALSE
 	for(var/loadout_gear in gear_list)
 		if(loadout_gear[LOADOUT_ITEM] == gear_type)
 			return loadout_gear

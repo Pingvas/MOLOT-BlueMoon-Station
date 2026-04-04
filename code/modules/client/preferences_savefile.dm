@@ -577,6 +577,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	S["color_presets_tint"]>> color_presets_tint // BLUEMOON ADD
 	S["color_presets_hsv"]>> color_presets_hsv // BLUEMOON ADD
 	S["color_presets_matrix"]>> color_presets_matrix // BLUEMOON ADD
+	S["eorg_enabled"] >> eorg_enabled // BLUEMOON ADD
 	S["clientfps"] >> clientfps
 	S["parallax"] >> parallax
 	S["ambientocclusion"] >> ambientocclusion
@@ -1750,7 +1751,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 
 /datum/preferences/proc/save_character(bypass_cooldown = FALSE, silent = FALSE, export = FALSE)
 	if(!export)
-		if(cached_slot_names)
+		if(cached_slot_names && default_slot >= 1 && default_slot <= cached_slot_names.len)
 			cached_slot_names[default_slot] = real_name
 	if(!path)
 		return FALSE
@@ -1847,7 +1848,6 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	WRITE_FILE(S["feature_cock_visibility"], features["cock_visibility"])
 	WRITE_FILE(S["feature_cock_accessible"], features["cock_accessible"])
 	WRITE_FILE(S["feature_cock_stuffing"], features["cock_stuffing"])
-	WRITE_FILE(S["feature_cock_accessible"], features["cock_accessible"])
 
 	WRITE_FILE(S["feature_has_balls"], features["has_balls"])
 	WRITE_FILE(S["feature_balls_color"], features["balls_color"])
@@ -1857,7 +1857,6 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	WRITE_FILE(S["feature_balls_accessible"], features["balls_accessible"])
 	WRITE_FILE(S["feature_balls_stuffing"], features["balls_stuffing"])
 	WRITE_FILE(S["feature_balls_fluid"], features["balls_fluid"])
-	WRITE_FILE(S["feature_balls_accessible"], features["balls_accessible"])
 
 	WRITE_FILE(S["feature_has_breasts"], features["has_breasts"])
 	WRITE_FILE(S["feature_breasts_size"], features["breasts_size"])
@@ -1868,7 +1867,6 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	WRITE_FILE(S["feature_breasts_visibility"], features["breasts_visibility"])
 	WRITE_FILE(S["feature_breasts_accessible"], features["breasts_accessible"])
 	WRITE_FILE(S["feature_breasts_stuffing"], features["breasts_stuffing"])
-	WRITE_FILE(S["feature_breasts_accessible"], features["breasts_accessible"])
 
 	WRITE_FILE(S["feature_has_vag"], features["has_vag"])
 	WRITE_FILE(S["feature_vag_shape"], features["vag_shape"])
@@ -1876,7 +1874,6 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	WRITE_FILE(S["feature_vag_visibility"], features["vag_visibility"])
 	WRITE_FILE(S["feature_vag_accessible"], features["vag_accessible"])
 	WRITE_FILE(S["feature_vag_stuffing"], features["vag_stuffing"])
-	WRITE_FILE(S["feature_vag_accessible"], features["vag_accessible"])
 
 	WRITE_FILE(S["feature_has_womb"], features["has_womb"])
 	WRITE_FILE(S["feature_womb_fluid"], features["womb_fluid"])
@@ -1887,7 +1884,6 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	WRITE_FILE(S["feature_butt_visibility"], features["butt_visibility"])
 	WRITE_FILE(S["feature_butt_accessible"], features["butt_accessible"])
 	WRITE_FILE(S["feature_butt_stuffing"], features["butt_stuffing"])
-	WRITE_FILE(S["feature_butt_accessible"], features["butt_accessible"])
 
 	WRITE_FILE(S["feature_has_belly"], features["has_belly"])
 	WRITE_FILE(S["feature_belly_color"], features["belly_color"])
@@ -2095,11 +2091,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	lust_tolerance = sanitize_integer(lust_tolerance, 25, 200, initial(lust_tolerance))
 	sexual_potency = sanitize_integer(sexual_potency, -1, 25, initial(sexual_potency))
 
-	S["silicon_lawset"] >> silicon_lawset
-
-	silicon_lawset = sanitize_inlist(silicon_lawset, CONFIG_GET(keyed_list/choosable_laws), "None")
-	if(silicon_lawset == "None")
-		silicon_lawset = null
+	// silicon_lawset handled by bluemoon_character_pref_load
 
 /datum/preferences/proc/cit_character_pref_save(savefile/S)
 	//ipcs
@@ -2139,7 +2131,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	WRITE_FILE(S["personal_chat_color"], personal_chat_color)
 	WRITE_FILE(S["lust_tolerance"], lust_tolerance)
 	WRITE_FILE(S["sexual_potency"], sexual_potency)
-	WRITE_FILE(S["silicon_lawset"], silicon_lawset)
+	// silicon_lawset handled by bluemoon_character_pref_save
 
 // ========== Splurt character prefs load/save ==========
 

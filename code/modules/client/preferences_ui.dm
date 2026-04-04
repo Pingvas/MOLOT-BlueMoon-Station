@@ -83,8 +83,6 @@ datum/preferences/proc/ShowChoices(mob/user, skip_preview_update = FALSE)
 			theme_class = "csetup-theme-modern csetup-scheme-green csetup-accent-green"
 		if("modern_neutral")
 			theme_class = "csetup-theme-modern csetup-scheme-neutral csetup-accent-neutral"
-		else
-			theme_class = "csetup-theme-modern csetup-accent-blue"
 
 	var/button_shape_class = "csetup-btnshape-[modern_button_shape]"
 	var/decoration_class = ""
@@ -299,6 +297,9 @@ datum/preferences/proc/ShowChoices(mob/user, skip_preview_update = FALSE)
 							S["real_name"] >> slot_name
 							cached_slot_names[i] = slot_name
 				var/empty_slot_label = T("empty_slot_label", "Character")
+				// Bounds guard: default_slot мог быть сохранён при большем max_save_slots (например, донатор)
+				if(default_slot < 1 || default_slot > cached_slot_names.len)
+					default_slot = 1
 				var/current_slot_name = cached_slot_names[default_slot]
 				if(!current_slot_name)
 					current_slot_name = "[empty_slot_label][default_slot]"
@@ -360,7 +361,7 @@ datum/preferences/proc/ShowChoices(mob/user, skip_preview_update = FALSE)
 						var/sidebar_trash_url = "?_src_=prefs;preference=gear;sidebar_remove_gear=[url_encode(sidebar_path_str)]"
 						dat += "<table width='100%' cellpadding='2' cellspacing='0' style='margin:2px 0;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:3px'><tr style='vertical-align:middle'>"
 						var/sb_sprite = replacetext("[sidebar_gear_datum.type]", "/", "_")
-						if(sb_sheet?.sprites[sb_sprite])
+						if(sb_sheet && islist(sb_sheet.sprites) && sb_sheet.sprites[sb_sprite])
 							dat += "<td width='36' align='center'>[sb_sheet.icon_tag(sb_sprite)]</td>"
 						else
 							dat += "<td width='36'></td>"
@@ -390,6 +391,7 @@ datum/preferences/proc/ShowChoices(mob/user, skip_preview_update = FALSE)
 					if(istype(client_file, /savefile))
 						if(!client_file["deleted"] || savefile_needs_update(client_file) != -2)
 							client_file["real_name"] >> savefile_name
+					qdel(client_file)
 				dat += "<div class='csetup-mgmt-local'>[local_storage_label]: <b>[savefile_name ? savefile_name : empty_label]</b></div>"
 				dat += "<div class='csetup-mgmt-btns'>"
 				dat += "<a href='?_src_=prefs;preference=export_slot'>[export_slot_label]</a>"
@@ -1648,7 +1650,7 @@ datum/preferences/proc/ShowChoices(mob/user, skip_preview_update = FALSE)
 									var/list/loadout_item = selected_gear_map["[gear.type]"]
 									var/extra_loadout_data = ""
 									var/g_sprite = replacetext("[gear.type]", "/", "_")
-									if(g_sheet?.sprites[g_sprite])
+									if(g_sheet && islist(g_sheet.sprites) && g_sheet.sprites[g_sprite])
 										extra_loadout_data += "<center>[g_sheet.icon_tag(g_sprite)]</center>"
 									if(loadout_item)
 										class_link = "style='white-space:normal;' class='linkOn' href='?_src_=prefs;preference=gear;toggle_gear_path=[url_encode(name)];toggle_gear=0'"
@@ -1876,17 +1878,19 @@ datum/preferences/proc/ShowChoices(mob/user, skip_preview_update = FALSE)
 
 					dat += "<b>[disable_all_antag_label]</b> <a href='?_src_=prefs;preference=disable_antag'>[(toggles & NO_ANTAG) ? yes_label : no_label]</a><br>"
 
+					if(isnull(antag_days_remaining) && CONFIG_GET(flag/use_age_restriction_for_jobs))
+						antag_days_remaining = list()
+						for(var/role in GLOB.special_roles)
+							var/role_path = GLOB.special_roles[role]
+							if(ispath(role_path))
+								var/datum/game_mode/role_mode = new role_path
+								antag_days_remaining[role] = role_mode.get_remaining_days(user.client)
+								qdel(role_mode)
+
 					for (var/i in GLOB.special_roles)
 						if(jobban_isbanned(user, i))
 							dat += "<b>[be_role_label] [capitalize(i)]:</b> <a href='?_src_=prefs;jobbancheck=[i]'>[banned_label]</a><br>"
 						else
-							if(isnull(antag_days_remaining) && CONFIG_GET(flag/use_age_restriction_for_jobs))
-								antag_days_remaining = list()
-								for(var/role in GLOB.special_roles)
-									var/role_path = GLOB.special_roles[role]
-									if(ispath(role_path))
-										var/datum/game_mode/role_mode = new role_path
-										antag_days_remaining[role] = role_mode.get_remaining_days(user.client)
 							var/days_remaining = antag_days_remaining?[i]
 							if(days_remaining)
 								dat += "<b>[be_role_label] [capitalize(i)]:</b> <font color=red> \[[in_label] [days_remaining] [days_label]\]</font><br>"

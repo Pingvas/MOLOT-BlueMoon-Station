@@ -1977,7 +1977,7 @@
 				// BLUEMOON ADD START - кнопка для удаления всех маркингов на персонаже
 				if("markings_remove")
 					last_preview_key = null
-					var/are_you_sure_about_that = tgalert(parent.mob, "Это действие удалит все татуировки с персонажа. Вы уверены, что хотите сделать это?", "Удаление всех маркингов" ,"Да", "Нет")
+					var/are_you_sure_about_that = tgui_alert(user, "Это действие удалит все татуировки с персонажа. Вы уверены, что хотите сделать это?", "Удаление всех маркингов", list("Да", "Нет"))
 					if(are_you_sure_about_that == "Да")
 						clearlist(features["mam_body_markings"])
 				// BLUEMOON ADD END
@@ -2092,10 +2092,6 @@
 					features["anus_accessible"] = !features["anus_accessible"]
 				if("has_anus")
 					features["has_anus"] = !features["has_anus"]
-				if("butt_accessible")
-					features["butt_accessible"] = !features["butt_accessible"]
-				if("anus_accessible")
-					features["anus_accessible"] = !features["anus_accessible"]
 				if("belly_accessible")
 					features["belly_accessible"] = !features["belly_accessible"]
 				if("widescreenpref")
