@@ -30,22 +30,35 @@
 	age = rand(AGE_MIN,AGE_MAX)
 
 /datum/preferences/proc/update_preview_icon(current_tab)
-	// Determine what job is marked as 'High' priority, and dress them up as such.
+	if(preview_generating)
+		return
+	INVOKE_ASYNC(src, PROC_REF(_generate_preview_icon))
+
+/datum/preferences/proc/_generate_preview_icon()
+	preview_generating = TRUE
 	var/datum/job/previewJob = get_highest_job()
 
 	if(previewJob)
 		// Silicons only need a very basic preview since there is no customization for them.
 		if(istype(previewJob,/datum/job/ai))
-			parent.show_character_previews(image('icons/mob/ai.dmi', icon_state = resolve_ai_icon(preferred_ai_core_display), dir = SOUTH))
+			var/icon/ai_icon = icon('icons/mob/ai.dmi', icon_state = resolve_ai_icon(preferred_ai_core_display), dir = preview_direction)
+			preview_icon64 = icon2base64_scaled(ai_icon, 4)
+			var/mob/user = parent?.mob
+			if(user)
+				ShowChoices(user)
+			preview_generating = FALSE
 			return
 		if(istype(previewJob,/datum/job/cyborg))
-			parent.show_character_previews(image('icons/mob/robots.dmi', icon_state = "robot", dir = SOUTH))
+			var/icon/bot_icon = icon('icons/mob/robots.dmi', icon_state = "robot", dir = preview_direction)
+			preview_icon64 = icon2base64_scaled(bot_icon, 4)
+			var/mob/user = parent?.mob
+			if(user)
+				ShowChoices(user)
+			preview_generating = FALSE
 			return
 
 	// Set up the dummy for its photoshoot
 	var/mob/living/carbon/human/dummy/mannequin = generate_or_wait_for_human_dummy(DUMMY_HUMAN_SLOT_PREFERENCES)
-	// Apply the Dummy's preview background first so we properly layer everything else on top of it.
-	mannequin.add_overlay(mutable_appearance('modular_citadel/icons/ui/backgrounds.dmi', bgstate, layer = SPACE_LAYER))
 	copy_to(mannequin, initial_spawn = TRUE)
 
 	switch(preview_pref)
@@ -74,8 +87,17 @@
 
 	mannequin.regenerate_icons()
 
-	parent.show_character_previews(new /mutable_appearance(mannequin))
+	var/icon/flat = getFlatIcon(mannequin, defdir = preview_direction, no_anim = TRUE)
+	if(flat)
+		preview_icon64 = icon2base64_scaled(flat, 4)
+	else
+		preview_icon64 = null
 	unset_busy_human_dummy(DUMMY_HUMAN_SLOT_PREFERENCES)
+
+	var/mob/user = parent?.mob
+	if(user)
+		ShowChoices(user)
+	preview_generating = FALSE
 
 /datum/preferences/proc/get_highest_job()
 	var/highest_pref = 0

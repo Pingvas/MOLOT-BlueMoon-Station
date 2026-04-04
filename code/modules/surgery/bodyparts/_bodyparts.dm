@@ -919,7 +919,15 @@
 						mark = image(marking_list[1], "[marking_list[2]]_[digitigrade_type]_[use_digitigrade]_[body_zone]", -MARKING_LAYER, image_dir)
 					mark.appearance_flags = RESET_COLOR
 					if(color_src && length(marking_list) == 3)
-						mark.color = marking_list[3]
+						var/list/c3 = marking_list[3]
+						var/list/cmat = list()
+						cmat += ReadRGB(copytext(c3[1], 2) + "00")
+						cmat += ReadRGB(copytext(c3[2], 2) + "00")
+						cmat += ReadRGB(copytext(c3[3], 2) + "00")
+						cmat += list(0, 0, 0, 255)
+						for(var/idx in 1 to cmat.len)
+							cmat[idx] /= 255
+						mark.color = list(cmat)
 					limb.overlays += mark
 
 		// Citadel End
@@ -937,7 +945,15 @@
 						var/image/aux_marking_image = image(marking_list[1], "[marking_list[2]]_[I]", -aux_layer, image_dir)
 						aux_marking_image.appearance_flags = RESET_COLOR
 						if(length(marking_list) == 3)
-							aux_marking_image.color = marking_list[3]
+							var/list/c3 = marking_list[3]
+							var/list/cmat = list()
+							cmat += ReadRGB(copytext(c3[1], 2) + "00")
+							cmat += ReadRGB(copytext(c3[2], 2) + "00")
+							cmat += ReadRGB(copytext(c3[3], 2) + "00")
+							cmat += list(0, 0, 0, 255)
+							for(var/idx in 1 to cmat.len)
+								cmat[idx] /= 255
+							aux_marking_image.color = list(cmat)
 						aux_img.overlays += aux_marking_image
 				aux += aux_img
 			. += aux
@@ -962,7 +978,15 @@
 						var/image/aux_marking_image = image(marking_list[1], "[marking_list[2]]_[I]", -aux_layer, image_dir)
 						aux_marking_image.appearance_flags = RESET_COLOR
 						if(length(marking_list) == 3)
-							aux_marking_image.color = marking_list[3]
+							var/list/c3 = marking_list[3]
+							var/list/cmat = list()
+							cmat += ReadRGB(copytext(c3[1], 2) + "00")
+							cmat += ReadRGB(copytext(c3[2], 2) + "00")
+							cmat += ReadRGB(copytext(c3[3], 2) + "00")
+							cmat += list(0, 0, 0, 255)
+							for(var/idx in 1 to cmat.len)
+								cmat[idx] /= 255
+							aux_marking_image.color = list(cmat)
 						aux_img.overlays += aux_marking_image
 				aux += aux_img
 			. += aux

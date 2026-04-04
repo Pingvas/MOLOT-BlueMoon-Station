@@ -323,14 +323,6 @@ window "preferences_window"
 		anchor1 = 0,0
 		anchor2 = 100,100
 		saved-params = ""
-	elem "character_preview_map"
-		type = MAP
-		pos = 950,0
-		size = 320x320
-		anchor1 = 100,0
-		anchor2 = none
-		right-click = true
-		saved-params = "zoom;letterbox;zoom-mode"
 
 window "statwindow"
 	elem "statwindow"

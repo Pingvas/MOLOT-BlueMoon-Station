@@ -1655,7 +1655,7 @@ body {
 .csetup-root.csetup-theme-modern .csetup-settings-sidebar,
 .csetup-root.csetup-theme-classic .csetup-settings-sidebar {
 	position: fixed;
-	top: 320px;
+	top: 0;
 	right: 0;
 	bottom: 0;
 	width: 320px;
@@ -1683,10 +1683,28 @@ body {
 	border-radius: 999px;
 }
 
-/* Map spacer setup */
-.csetup-root.csetup-theme-modern .csetup-map-spacer,
-.csetup-root.csetup-theme-classic .csetup-map-spacer {
-	display: none;
+/* Canvas preview image — replaces MAP element */
+.csetup-root.csetup-theme-modern .csetup-preview-img,
+.csetup-root.csetup-theme-classic .csetup-preview-img {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 320px;
+	height: 320px;
+	min-height: 320px;
+	flex-shrink: 0;
+	background: var(--csetup-bg, #121212);
+	border-bottom: 1px solid var(--csetup-border, #2f2f2f);
+	overflow: hidden;
+}
+
+.csetup-root.csetup-theme-modern .csetup-preview-img img,
+.csetup-root.csetup-theme-classic .csetup-preview-img img {
+	image-rendering: pixelated;
+	image-rendering: crisp-edges;
+	max-width: 100%;
+	max-height: 100%;
+	object-fit: contain;
 }
 
 .csetup-root.csetup-theme-modern .csetup-dir-bar,

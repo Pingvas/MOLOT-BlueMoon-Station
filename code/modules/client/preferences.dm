@@ -398,6 +398,9 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/preferences_tab = GAME_PREFS_TAB
 	var/preview_pref = PREVIEW_PREF_JOB
 	var/preview_direction = SOUTH
+	var/preview_icon64 = null
+	// Guard flag — TRUE пока ассинхронная генерация работает.
+	var/preview_generating = FALSE
 
 	var/no_tetris_storage = FALSE
 

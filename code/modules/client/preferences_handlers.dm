@@ -2652,11 +2652,9 @@
 				if("tab")
 					if(href_list["tab"])
 						current_tab = text2num(href_list["tab"])
-						// Show/hide MAP preview element when switching top-level tabs.
-						var/map_visible = (current_tab == SETTINGS_TAB) ? "true" : "false"
-						winset(user.client, "character_preview_map", "is-visible=[map_visible]")
 				if("character_preview")
 					preview_pref = href_list["tab"]
+					update_preview_icon(current_tab)
 
 				if("preview_direction")
 					var/new_dir = text2num(href_list["dir"])

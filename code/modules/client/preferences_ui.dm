@@ -267,6 +267,10 @@
 			dat += "<a class='csetup-preview-btn[preview_pref == PREVIEW_PREF_NAKED ? " linkOn" : ""]' href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_NAKED]'>[preview_naked_label]</a>"
 			dat += "<a class='csetup-preview-btn[preview_pref == PREVIEW_PREF_NAKED_AROUSED ? " linkOn" : ""]' href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_NAKED_AROUSED]'>[preview_naked_aroused_label]</a>"
 			dat += "</div>"
+			dat += "<div class='csetup-preview-img'>"
+			if(preview_icon64)
+				dat += "<img src='data:image/png;base64,[preview_icon64]' alt=''>"
+			dat += "</div>"
 
 			// ── Slot panel ──
 			if(path)
@@ -2347,8 +2351,6 @@
 		popup.add_script("prefs_state", 'html/browser/prefs_state.js')
 	popup.set_content(dat.Join())
 	popup.open(FALSE)
-	var/map_visible = (current_tab == SETTINGS_TAB) ? "true" : "false"
-	winset(user.client, "character_preview_map", "is-visible=[map_visible]")
 	onclose(user, "preferences_window", src)
 
 /datum/preferences/proc/cycle_character_creation_modern_accent()
