@@ -1750,7 +1750,8 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 
 /datum/preferences/proc/save_character(bypass_cooldown = FALSE, silent = FALSE, export = FALSE)
 	if(!export)
-		cached_slot_names = null
+		if(cached_slot_names)
+			cached_slot_names[default_slot] = real_name
 	if(!path)
 		return FALSE
 	if(!bypass_cooldown)

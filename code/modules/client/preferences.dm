@@ -499,6 +499,12 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/tmp/modern_theme_settings_open = FALSE
 	/// UI state: collapse empty character slots in the top slot list (persisted in preferences)
 	var/collapse_empty_character_slots = FALSE
+
+	var/tmp/cached_palette_css = null
+	var/tmp/cached_palette_css_key = null
+	var/tmp/loadout_sheet_sent = FALSE
+	var/tmp/last_preview_key = null
+	var/tmp/list/antag_days_remaining = null
 	/// UI decoration level for modern theme: "minimal" (performance), "standard" (current), "enhanced" (gradients)
 	var/ui_decoration_level = "enhanced"
 

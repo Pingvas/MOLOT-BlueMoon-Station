@@ -32,6 +32,14 @@
 /datum/preferences/proc/update_preview_icon(current_tab)
 	if(preview_generating)
 		return
+	// Пропускаем регенерацию, если внешность не изменилась (сравниваем ключ по ключевым полям)
+	var/datum/job/preview_job = get_highest_job()
+	var/new_key = "[pref_species?.id]_[hair_style]_[hair_color]_[facial_hair_style]_[facial_hair_color]\
+_[skin_tone]_[use_custom_skin_tone]_[preview_direction]_[preview_pref]_[preview_job?.type]\
+_[features["mcolor"]]_[features["mcolor2"]]_[features["mcolor3"]]_[features["body_model"]]_[features["body_size"]]"
+	if(new_key == last_preview_key && preview_icon64)
+		return
+	last_preview_key = new_key
 	INVOKE_ASYNC(src, PROC_REF(_generate_preview_icon))
 
 /datum/preferences/proc/_generate_preview_icon()

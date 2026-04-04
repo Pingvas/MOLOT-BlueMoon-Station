@@ -1,46 +1,51 @@
-﻿/datum/preferences/proc/ShowChoices(mob/user, skip_preview_update = FALSE)
+datum/preferences/proc/ShowChoices(mob/user, skip_preview_update = FALSE)
 	if(!user || !user.client)
 		return
 	if(!skip_preview_update)
 		update_preview_icon(current_tab)
+	var/is_modern_theme = !!findtext(charcreation_theme, "modern")
 	var/datum/asset/spritesheet/loadout_icons/loadout_sheet
-	if(findtext(charcreation_theme, "modern"))
+	if(is_modern_theme)
 		loadout_sheet = get_asset_datum(/datum/asset/spritesheet/loadout_icons)
-		if(istype(loadout_sheet))
+		if(istype(loadout_sheet) && !loadout_sheet_sent)
 			loadout_sheet.send(user.client)
+			loadout_sheet_sent = TRUE
 	var/list/dat
-	// Compact inline CSS: конкретные значения цветов для BYOND-браузера.
-	// Enhanced decoration — CSS-класс .csetup-decoration-enhanced (переключается без inline CSS).
 	var/modern_palette_css = ""
-	var/list/theme = get_character_setup_palette_modern()
-	var/bg_primary = theme["bg_primary"]
-	var/bg_secondary = theme["bg_secondary"]
-	var/text_primary = theme["text_primary"]
-	var/text_secondary = theme["text_secondary"]
-	var/button_bg = theme["button_bg"]
-	var/button_hover = theme["button_hover"]
-	var/button_active = theme["button_active"]
-	var/button_text = theme["button_text"]
-	var/border_color = theme["border_color"]
-	var/accent_color = theme["accent_color"]
-	var/bg_pattern = theme["bg_pattern"]
-	var/button_radius = "7px"
-	switch(modern_button_shape)
-		if("rect")
-			button_radius = "0px"
-		if("soft")
-			button_radius = "4px"
-		if("round")
-			button_radius = "7px"
-	// Custom-палитра: также выставляем CSS-переменные для современных браузеров (rgba(var(...)) и пр.)
-	var/custom_vars = ""
+	var/palette_cache_key = "[charcreation_theme]_[modern_button_shape]_[ui_decoration_level]"
 	if(charcreation_theme == "modern_custom")
-		var/accent_hex = replacetext(accent_color, "#", "")
-		var/accent_r = text2num("0x[copytext(accent_hex, 1, 3)]")
-		var/accent_g = text2num("0x[copytext(accent_hex, 3, 5)]")
-		var/accent_b = text2num("0x[copytext(accent_hex, 5, 7)]")
-		custom_vars = "--csetup-bg:[bg_primary];--csetup-panel:[bg_secondary];--csetup-panel-2:[bg_secondary];--csetup-border:[border_color];--csetup-text:[text_primary];--csetup-muted:[text_secondary];--csetup-accent:[accent_color];--csetup-accent-rgb:[accent_r],[accent_g],[accent_b];--csetup-btn-bg:[button_bg];--csetup-btn-hover:[button_hover];--csetup-btn-active:[button_active];--csetup-btn-active-text:[button_text];"
-	modern_palette_css = "<style>\n\
+		palette_cache_key += "_[modern_custom_bg_primary]_[modern_custom_accent_color]_[modern_custom_enabled]"
+	if(cached_palette_css && cached_palette_css_key == palette_cache_key)
+		modern_palette_css = cached_palette_css
+	else
+		var/list/theme = get_character_setup_palette_modern()
+		var/bg_primary = theme["bg_primary"]
+		var/bg_secondary = theme["bg_secondary"]
+		var/text_primary = theme["text_primary"]
+		var/text_secondary = theme["text_secondary"]
+		var/button_bg = theme["button_bg"]
+		var/button_hover = theme["button_hover"]
+		var/button_active = theme["button_active"]
+		var/button_text = theme["button_text"]
+		var/border_color = theme["border_color"]
+		var/accent_color = theme["accent_color"]
+		var/bg_pattern = theme["bg_pattern"]
+		var/button_radius = "7px"
+		switch(modern_button_shape)
+			if("rect")
+				button_radius = "0px"
+			if("soft")
+				button_radius = "4px"
+			if("round")
+				button_radius = "7px"
+		var/custom_vars = ""
+		if(charcreation_theme == "modern_custom")
+			var/accent_hex = replacetext(accent_color, "#", "")
+			var/accent_r = text2num("0x[copytext(accent_hex, 1, 3)]")
+			var/accent_g = text2num("0x[copytext(accent_hex, 3, 5)]")
+			var/accent_b = text2num("0x[copytext(accent_hex, 5, 7)]")
+			custom_vars = "--csetup-bg:[bg_primary];--csetup-panel:[bg_secondary];--csetup-panel-2:[bg_secondary];--csetup-border:[border_color];--csetup-text:[text_primary];--csetup-muted:[text_secondary];--csetup-accent:[accent_color];--csetup-accent-rgb:[accent_r],[accent_g],[accent_b];--csetup-btn-bg:[button_bg];--csetup-btn-hover:[button_hover];--csetup-btn-active:[button_active];--csetup-btn-active-text:[button_text];"
+		modern_palette_css = "<style>\n\
 	.csetup-root{[custom_vars]background-color:[bg_primary];color:[text_primary];background-image:[bg_pattern]}\n\
 	.csetup-root a,.csetup-root a:link,.csetup-root a:visited{color:[text_primary];background-color:[button_bg];border-color:[border_color];border-radius:[button_radius]}\n\
 	.csetup-root a:hover{background-color:[button_hover]}\n\
@@ -63,6 +68,9 @@
 	.csetup-root .theme-custom-editor{background-color:[bg_secondary];border-color:[border_color];color:[text_primary]}\n\
 	.csetup-root .theme-custom-editor-hint{color:[text_secondary]}\n\
 	</style>"
+		// Сохраняем в кэш
+		cached_palette_css = modern_palette_css
+		cached_palette_css_key = palette_cache_key
 	var/theme_class = "csetup-theme-modern csetup-accent-blue"
 	switch(charcreation_theme)
 		if("modern")
@@ -1394,8 +1402,6 @@
 					dat += "</center>"
 					dat += "<hr>"
 					// BLUEMOON ADD END
-					var/iterated_markings = 0
-					var/total_pages = 0
 					// rp marking selection
 					// assume you can only have mam markings or regular markings or none, never both
 					var/marking_type
@@ -1503,121 +1509,6 @@
 						dat += "<div class='csetup-danger-zone-title'>[danger_zone_label]</div>"
 						dat += "<a href='?_src_=prefs;preference=markings_remove;task=input'>[remove_all_markings_label]</a>"
 						dat += "</div>"
-						dat += "</div>"
-						dat += "<div class='csetup-markings-classic'>"
-						var/add_marking_label = T("add_marking", "Add marking")
-						dat += "<center>"
-						dat += "<h3>[T(marking_type, GLOB.all_mutant_parts[marking_type])]</h3>" // give it the appropriate title for the type of marking
-						dat += "<a href='?_src_=prefs;preference=marking_add;marking_type=[marking_type];task=input'>[add_marking_label]</a>"
-						dat += "</center>"
-
-						dat += "<table width=100%><tr>"
-
-						for(var/limb in GLOB.bodypart_values)
-							if(length(GLOB.bodypart_values) % 3 != 0)
-								continue
-							total_pages++
-
-						for(var/limb in GLOB.bodypart_values)
-							if(!iterated_markings)
-								dat += "<td width=[(100 / total_pages)]%>"
-							dat += "<h3><center>[limb]</center></h3>"
-							dat += "<table align='center'; width='100%'; height='100px'; style='background-color:#13171C'>"
-							dat += "<td width=4%><font size=2> </font></td>"
-							dat += "<td width=10%><font size=2> </font></td>"
-							dat += "<td width=6%><font size=2> </font></td>"
-							dat += "<td width=25%><font size=2> </font></td>"
-							dat += "<td width=40%><font size=2> </font></td>"
-							dat += "<td width=15%><font size=2> </font></td>"
-							dat += "</tr>"
-
-							// list out the current markings you have
-							if(length(features[marking_type]))
-								var/list/markings = features[marking_type]
-								if(!islist(markings))
-									// something went terribly wrong
-									markings = list()
-
-								for(var/marking_index in 1 to markings.len)
-									var/list/marking_list = markings[marking_index]
-									var/limb_value = marking_list[1]
-									var/actual_name = GLOB.bodypart_names[num2text(limb_value)] // get the actual name from the bitflag representing the part the marking is applied to
-									if(actual_name != limb)
-										continue
-									var/color_marking_dat = ""
-									var/number_colors = 1
-									var/datum/sprite_accessory/mam_body_markings/S = GLOB.mam_body_markings_list[marking_list[2]]
-									var/matrixed_sections = S.covered_limbs[actual_name]
-									if(S && matrixed_sections)
-										// if it has nothing initialize it to white
-										if(length(marking_list) == 2)
-											var/first = "#FFFFFF"
-											var/second = "#FFFFFF"
-											var/third = "#FFFFFF"
-											if(features["mcolor"])
-												first = "#[features["mcolor"]]"
-											if(features["mcolor2"])
-												second = "#[features["mcolor2"]]"
-											if(features["mcolor3"])
-												third = "#[features["mcolor3"]]"
-											marking_list += list(list(first, second, third)) // just assume its 3 colours if it isnt it doesnt matter we just wont use the other values
-										// index magic
-										var/primary_index = 1
-										var/secondary_index = 2
-										var/tertiary_index = 3
-										switch(matrixed_sections)
-											if(MATRIX_GREEN)
-												primary_index = 2
-											if(MATRIX_BLUE)
-												primary_index = 3
-											if(MATRIX_RED_BLUE)
-												secondary_index = 2
-											if(MATRIX_GREEN_BLUE)
-												primary_index = 2
-												secondary_index = 3
-
-										// we know it has one matrixed section at minimum
-										color_marking_dat += "<a href='?_src_=prefs;preference=marking_color_specific;marking_index=[marking_index];marking_type=[marking_type];number_color=[number_colors];task=input'><span style='border: 1px solid #161616; background-color: [marking_list[3][primary_index]];'><font color='[color_hex2num(marking_list[3][primary_index]) < 200 ? "FFFFFF" : "000000"]'>[marking_list[3][primary_index]]</font></span></a>"
-										// if it has a second section, add it
-										if(matrixed_sections == MATRIX_RED_BLUE || matrixed_sections == MATRIX_GREEN_BLUE || matrixed_sections == MATRIX_RED_GREEN || matrixed_sections == MATRIX_ALL)
-											number_colors = 2
-											color_marking_dat += "<a href='?_src_=prefs;preference=marking_color_specific;marking_index=[marking_index];marking_type=[marking_type];number_color=[number_colors];task=input'><span style='border: 1px solid #161616; background-color: [marking_list[3][secondary_index]];'><font color='[color_hex2num(marking_list[3][secondary_index]) < 200 ? "FFFFFF" : "000000"]'>[marking_list[3][secondary_index]]</font></span></a>"
-										// if it has a third section, add it
-										if(matrixed_sections == MATRIX_ALL)
-											number_colors = 3
-											color_marking_dat += "<a href='?_src_=prefs;preference=marking_color_specific;marking_index=[marking_index];marking_type=[marking_type];number_color=[number_colors];task=input'><span style='border: 1px solid #161616; background-color: [marking_list[3][tertiary_index]];'><font color='[color_hex2num(marking_list[3][tertiary_index]) < 200 ? "FFFFFF" : "000000"]'>[marking_list[3][tertiary_index]]</font></span></a>"
-									dat += "<tr style='vertical-align:top;'>"
-									dat += "<td>[marking_index]</td>"
-									dat += "<td><a href='?_src_=prefs;preference=marking_up;task=input;marking_index=[marking_index];marking_type=[marking_type]'>&#709;</a></td>"
-									dat += "<td><a href='?_src_=prefs;preference=marking_down;task=input;marking_index=[marking_index];marking_type=[marking_type];'>&#708;</a></td>"
-									dat += "<td>[marking_list[2]]</td>"
-									dat += "<td>[color_marking_dat]</td>"
-									dat += "<td><a href='?_src_=prefs;preference=marking_remove;task=input;marking_index=[marking_index];marking_type=[marking_type]'>X</a></td>"
-									dat += "</tr>"
-
-							else
-								dat += "<tr style='vertical-align:top;'>"
-								dat += "<td> </td>"
-								dat += "<td> </td>"
-								dat += "<td> </td>"
-								dat += "<td> </td>"
-								dat += "<td> </td>"
-								dat += "<td> </td>"
-								dat += "</tr>"
-
-							dat += "</table>"
-
-							iterated_markings++
-							if(iterated_markings >= 3)
-								dat += "</td>"
-								iterated_markings = 0
-						dat += "</tr></table>"
-						// BLUEMOON ADD START - кнопка для удаления всех маркингов на персонаже
-						dat += "<center>"
-						dat += "<h3>[T("danger_zone", "Danger Zone")]</h3>"
-						dat += "<a href='?_src_=prefs;preference=markings_remove;task=input'>Remove All Markings</a>"
-						dat += "</center>"
-						// BLUEMOON ADD END
 						dat += "</div>"
 
 				if(SPEECH_CHAR_TAB)
@@ -1735,7 +1626,13 @@
 										stack_trace("Loadout init failure: Category '[gear_category]'/subcategory '[gear_subcategory]' defined but has no items (user: [user?.ckey])")
 									dat += "<tr><td colspan=4><center><i style=\"color: grey;\">No items available in this category.</i></center></td></tr>"
 								// BLUEMOON FIX END
-								var/datum/asset/spritesheet/loadout_icons/g_sheet = get_asset_datum(/datum/asset/spritesheet/loadout_icons)
+								var/datum/asset/spritesheet/loadout_icons/g_sheet = loadout_sheet
+								var/list/selected_gear_map = list()
+								var/list/slot_gear_list = loadout_data["SAVE_[loadout_slot]"]
+								if(islist(slot_gear_list))
+									for(var/list/sge in slot_gear_list)
+										if(islist(sge) && sge[LOADOUT_ITEM])
+											selected_gear_map["[sge[LOADOUT_ITEM]]"] = sge
 								for(var/name in subcategory_items)
 									var/datum/gear/gear = subcategory_items[name]
 									if(!gear)
@@ -1748,7 +1645,7 @@
 										background_cl = "#17191C"
 									even = !even
 									var/class_link = ""
-									var/list/loadout_item = has_loadout_gear(loadout_slot, "[gear.type]")
+									var/list/loadout_item = selected_gear_map["[gear.type]"]
 									var/extra_loadout_data = ""
 									var/g_sprite = replacetext("[gear.type]", "/", "_")
 									if(g_sheet?.sprites[g_sprite])
@@ -1983,12 +1880,14 @@
 						if(jobban_isbanned(user, i))
 							dat += "<b>[be_role_label] [capitalize(i)]:</b> <a href='?_src_=prefs;jobbancheck=[i]'>[banned_label]</a><br>"
 						else
-							var/days_remaining = null
-							if(ispath(GLOB.special_roles[i]) && CONFIG_GET(flag/use_age_restriction_for_jobs)) //If it's a game mode antag, check if the player meets the minimum age
-								var/mode_path = GLOB.special_roles[i]
-								var/datum/game_mode/temp_mode = new mode_path
-								days_remaining = temp_mode.get_remaining_days(user.client)
-
+							if(isnull(antag_days_remaining) && CONFIG_GET(flag/use_age_restriction_for_jobs))
+								antag_days_remaining = list()
+								for(var/role in GLOB.special_roles)
+									var/role_path = GLOB.special_roles[role]
+									if(ispath(role_path))
+										var/datum/game_mode/role_mode = new role_path
+										antag_days_remaining[role] = role_mode.get_remaining_days(user.client)
+							var/days_remaining = antag_days_remaining?[i]
 							if(days_remaining)
 								dat += "<b>[be_role_label] [capitalize(i)]:</b> <font color=red> \[[in_label] [days_remaining] [days_label]\]</font><br>"
 							else
