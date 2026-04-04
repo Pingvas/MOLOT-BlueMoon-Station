@@ -129,6 +129,8 @@
 
 	if(features["anus_accessible"])
 		character.toggle_anus_always_accessible(TRUE)
+	else
+		character.toggle_anus_always_accessible(FALSE)
 
 	character.give_genitals(TRUE) //character.update_genitals() is already called on genital.update_appearance()
 

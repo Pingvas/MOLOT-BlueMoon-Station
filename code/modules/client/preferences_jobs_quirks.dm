@@ -208,7 +208,7 @@
 		dat += "<center><b>Choose quirk setup</b></center><br>"
 		// BLUEMOON ADD START - настройки для отдельных квирков
 		dat += "Настройки для отдельных квирков. Если нужный квирк не будет выставлен, то они работать не будут.<br>"
-		dat += "<a href='?_src_=prefs;preference=traits_setup;task=change_shriek_option'>([BLUEMOON_TRAIT_NAME_SHRIEK]) Тип Крика: [shriek_type]</a>"
+		dat += "<a href='?_src_=prefs;preference=traits_setup;task=change_shriek_option'>([BLUEMOON_TRAIT_NAME_SHRIEK]) Тип Крика: [html_encode(shriek_type)]</a>"
 		dat += "<a href='?_src_=prefs;preference=traits_setup;task=lewd_summon_nickname'>([TRAIT_LEWD_SUMMON]) Прозвище для призываемого[summon_nickname ? ": " : ""][html_encode(summon_nickname)]</a>"
 		dat += "<hr>"
 		// BLUEMOON ADD END
@@ -256,10 +256,10 @@
 				<font color='red'><b>LOCKED: [lock_reason]</b></font><br>"
 			else
 				if(has_quirk)
-					dat += "<a href='?_src_=prefs;preference=trait;task=update;trait=[quirk_name]'>[has_quirk ? "Remove" : "Take"] ([quirk_cost] pts.)</a> \
+					dat += "<a href='?_src_=prefs;preference=trait;task=update;trait=[url_encode(quirk_name)]'>[has_quirk ? "Remove" : "Take"] ([quirk_cost] pts.)</a> \
 					<b><font color='[font_color]'>[quirk_name]</font></b> - [initial(T.desc)]<br>"
 				else
-					dat += "<a href='?_src_=prefs;preference=trait;task=update;trait=[quirk_name]'>[has_quirk ? "Remove" : "Take"] ([quirk_cost] pts.)</a> \
+					dat += "<a href='?_src_=prefs;preference=trait;task=update;trait=[url_encode(quirk_name)]'>[has_quirk ? "Remove" : "Take"] ([quirk_cost] pts.)</a> \
 					<font color='[font_color]'>[quirk_name]</font> - [initial(T.desc)]<br>"
 		dat += "<br><center><a href='?_src_=prefs;preference=trait;task=reset'>Reset Quirks</a></center>"
 
@@ -284,7 +284,7 @@
 	dat += "<h3>Настройки квирков</h3>"
 	var/display_summon_nickname = summon_nickname ? html_encode(summon_nickname) : "—"
 	dat += "<div class='csetup-quirk-settings'>"
-	dat += "<a class='csetup-quirk-setting' href='?_src_=prefs;preference=traits_setup;task=change_shriek_option'>Тип крика: <b>[shriek_type]</b></a>"
+	dat += "<a class='csetup-quirk-setting' href='?_src_=prefs;preference=traits_setup;task=change_shriek_option'>Тип крика: <b>[html_encode(shriek_type)]</b></a>"
 	dat += "<a class='csetup-quirk-setting' href='?_src_=prefs;preference=traits_setup;task=lewd_summon_nickname'>Прозвище: <b>[display_summon_nickname]</b></a>"
 	dat += "</div>"
 
@@ -372,7 +372,7 @@
 			other_rows += row_html
 			continue
 
-		var/row_action_href = "?_src_=prefs;preference=trait;task=update;trait=[quirk_name]"
+		var/row_action_href = "?_src_=prefs;preference=trait;task=update;trait=[url_encode(quirk_name)]"
 		var/row_html = "<div class='[row_classes]'>"
 		row_html += "<a class='csetup-quirk-hitbox' href='[row_action_href]'></a>"
 		row_html += "<div class='csetup-quirk-head'>[title_html][cost_html]</div>"

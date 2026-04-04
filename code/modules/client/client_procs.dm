@@ -1389,34 +1389,6 @@ GLOBAL_LIST_INIT(blacklisted_builds, list(
 	if(prefs && prefs.chat_toggles & CHAT_PULLR)
 		to_chat(src, announcement)
 
-/client/proc/show_character_previews(mutable_appearance/source)
-	LAZYINITLIST(char_render_holders)
-
-	if(!char_render_holders["plane_master-[GAME_PLANE]"])
-		winset(src, "character_preview_map", "zoom=4")
-		for(var/pm_type in subtypesof(/atom/movable/screen/plane_master))
-			var/atom/movable/screen/plane_master/pm = new pm_type()
-			pm.screen_loc = "character_preview_map:CENTER"
-			pm.filters = null
-			char_render_holders["plane_master-[pm.plane]"] = pm
-			screen |= pm
-		var/atom/movable/screen/plane_master/lighting_pm = char_render_holders["plane_master-[LIGHTING_PLANE]"]
-		if(lighting_pm)
-			lighting_pm.alpha = LIGHTING_PLANE_ALPHA_INVISIBLE
-			lighting_pm.filters = null
-
-	var/preview_dir = prefs?.preview_direction || SOUTH
-	var/atom/movable/screen/preview = char_render_holders["preview-main"]
-	if(!preview)
-		preview = new /atom/movable/screen()
-		char_render_holders["preview-main"] = preview
-		screen |= preview
-	preview.appearance = source
-	preview.appearance_flags |= KEEP_TOGETHER
-	preview.plane = GAME_PLANE
-	preview.dir = preview_dir
-	preview.screen_loc = "character_preview_map:CENTER,CENTER"
-
 /client/proc/clear_character_previews()
 	if(!LAZYLEN(char_render_holders))
 		char_render_holders = null

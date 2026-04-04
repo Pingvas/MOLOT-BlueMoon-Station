@@ -100,8 +100,17 @@
 			return TRUE
 
 		if("confirm")
-			if(!(prefs.hair_style in get_style_list()) && pick_type == "hair")
-				return
+			var/list/valid_styles = get_style_list()
+			switch(pick_type)
+				if("hair")
+					if(!(prefs.hair_style in valid_styles))
+						return
+				if("facial_hair")
+					if(!(prefs.facial_hair_style in valid_styles))
+						return
+				if("gradient")
+					if(!(prefs.grad_style in valid_styles))
+						return
 			prefs.save_preferences()
 			prefs.ShowChoices(holder.mob)
 			SStgui.close_uis(src)
