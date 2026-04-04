@@ -253,6 +253,8 @@
 	"change"                 = list("ru" = "Изменить",							"en" = "Change"),
 	"invalid_label"          = list("ru" = "НЕДОПУСТИМО",						"en" = "INVALID"),
 	"genitals_use_skintone"  = list("ru" = "Гениталии используют тон кожи",		"en" = "Genitals Use Skin Tone"),
+	"skintone_override"      = list("ru" = "Тон кожи (переопределение)",        "en" = "Skin tone overriding"),
+	"nothing_label"          = list("ru" = "Ничего",                            "en" = "Nothing?"),
 
 	// Body size
 	"body_size"              = list("ru" = "Размер тела",						"en" = "Body Size"),
@@ -293,7 +295,7 @@
 	// Body sprite
 	"body_sprite"            = list("ru" = "Спрайт тела",                       "en" = "Body Sprite"),
 	"set_body_sprite"        = list("ru" = "Установить спрайт тела",            "en" = "Set Body Sprite"),
-	"be_slime"               = list("ru" = "Быть слизью?",                      "en" = "Be Slime?"),
+	"be_a_slime"             = list("ru" = "Быть слаймом?",                     "en" = "Be a slime?"),
 
 	// Clothing and equipment
 	"clothing_equipment"     = list("ru" = "Одежда и оборудование",             "en" = "Clothing & Equipment"),
@@ -318,23 +320,33 @@
 	"noncon_preference"      = list("ru" = "Non-Con",                           "en" = "Non-Con"),
 	"noncon_pref"            = list("ru" = "Несогласие",                        "en" = "Non-Con"),
 	"vore_preference"        = list("ru" = "Vore",                              "en" = "Vore"),
-	"vore_pref"              = list("ru" = "Вор",                               "en" = "Vore"),
-	"mobsex_pref"            = list("ru" = "Мобовый секс",                      "en" = "Mob Sex"),
-	"hornyantags_pref"       = list("ru" = "Похотливые антаги",                 "en" = "Horny Antags"),
+	"vore_pref"              = list("ru" = "Vore",                              "en" = "Vore"),
+	"mobsex_pref"            = list("ru" = "Mob Non-Con Sex",                   "en" = "Mob Non-Con Sex"),
+	"hornyantags_pref"       = list("ru" = "Horny Antags",                      "en" = "Horny Antags"),
+	"erp_pref_label"         = list("ru" = "ERP",                               "en" = "ERP"),
+	"noncon_pref_label"      = list("ru" = "Non-Con",                     		"en" = "Non-Con"),
+	"vore_pref_label"        = list("ru" = "Vore",                              "en" = "Vore"),
+	"mobsex_pref_label"      = list("ru" = "Mob Non-Con Sex",                   "en" = "Mob Non-Con Sex"),
+	"hornyantags_pref_label" = list("ru" = "Horny Antags",                 		"en" = "Horny Antags"),
 
 	// Lewd preferences
 	"lewd_preferences"       = list("ru" = "Развратные предпочтения",           "en" = "Lewd Preferences"),
 	"lust_tolerance"         = list("ru" = "Допуск похоти",                     "en" = "Lust Tolerance"),
 	"sexual_potency"         = list("ru" = "Сексуальная потенция",              "en" = "Sexual Potency"),
+	"lust_tolerance_label"   = list("ru" = "Допуск похоти",                     "en" = "Lust tolerance"),
+	"sexual_potency_label"   = list("ru" = "Сексуальная потенция",              "en" = "Sexual potency"),
 
 	// Pregnancy preferences
 	"pregnancy_preferences"  = list("ru" = "Предпочтения беременности",         "en" = "Pregnancy Preferences"),
 	"chance_impregnation"    = list("ru" = "Шанс оплодотворения",               "en" = "Chance of Impregnation"),
 	"chance_pregnant"        = list("ru" = "Шанс забеременеть",                 "en" = "Chance to Get Pregnant"),
 	"lay_inert_eggs"         = list("ru" = "Откладывать инертные яйца",         "en" = "Lay Inert Eggs"),
-	"pregnancy_inflation"    = list("ru" = "Вздутие при беременности",          "en" = "Pregnancy Inflation"),
+	"pregnancy_inflation"    = list("ru" = "Живот при беременности",          	"en" = "Pregnancy Inflation"),
 	"pregnancy_breast_growth"= list("ru" = "Рост груди при беременности",       "en" = "Pregnancy Breast Growth"),
 	"egg_shell"              = list("ru" = "Скорлупа яйца",                     "en" = "Egg Shell"),
+	"pregnancy_inflation_label"    = list("ru" = "Живот при беременности",    	"en" = "Pregnancy inflation"),
+	"pregnancy_breast_growth_label"= list("ru" = "Рост груди при беременности", "en" = "Pregnancy breast growth"),
+	"egg_shell_label"        = list("ru" = "Скорлупа яйца",                     "en" = "Egg shell"),
 	"set_egg_shell"          = list("ru" = "Установить скорлупу яйца",          "en" = "Set Egg Shell"),
 
 	// Genitals - Penis
@@ -356,9 +368,13 @@
 	"set_penis_visibility"   = list("ru" = "Установить видимость пениса",       "en" = "Set Penis Visibility"),
 	"penis_accessible"       = list("ru" = "Пенис всегда доступен",             "en" = "Penis Always Accessible"),
 	"penis_stuffing"         = list("ru" = "Игрушки и пополнение",              "en" = "Toys & Stuffing"),
+	"max_length"             = list("ru" = "Макс длина",                        "en" = "Max Length"),
+	"min_length"             = list("ru" = "Мин длина",                         "en" = "Min Length"),
+	"centimeters"            = list("ru" = "сантиметр(-ов)",                    "en" = "centimeter(-s)"),
 
 	// Genitals - Testicles
 	"testicles"              = list("ru" = "Яички",                             "en" = "Testicles"),
+	"testicles_header"       = list("ru" = "Яички",                             "en" = "Testicles"),
 	"has_testicles"          = list("ru" = "Иметь яички",                       "en" = "Has Testicles"),
 	"testicles_color"        = list("ru" = "Цвет яичек",                        "en" = "Testicles Color"),
 	"set_testicles_color"    = list("ru" = "Установить цвет яичек",             "en" = "Set Testicles Color"),
@@ -375,6 +391,9 @@
 	"testicles_min_size"     = list("ru" = "Мин размер яичек",                  "en" = "Min Testicles Size"),
 	"set_testicles_min_size" = list("ru" = "Установить мин размер яичек",       "en" = "Set Min Testicles Size"),
 	"testicles_fluid"        = list("ru" = "Произведено",                       "en" = "Produced"),
+	"testicles_size_label"   = list("ru" = "Размер яичек",                      "en" = "Testicles Size"),
+	"max_size"               = list("ru" = "Макс размер",                       "en" = "Max Size"),
+	"min_size"               = list("ru" = "Мин размер",                        "en" = "Min Size"),
 	"set_testicles_fluid"    = list("ru" = "Установить жидкость",               "en" = "Set Fluid"),
 
 	// Genitals - Vagina
@@ -461,6 +480,8 @@
 	"neckfire"               = list("ru" = "Огонь шеи",                         "en" = "Neckfire"),
 	"has_neckfire"           = list("ru" = "Иметь огонь шеи",                   "en" = "Has Neckfire"),
 	"neckfire_color"         = list("ru" = "Цвет огня",                         "en" = "Fire Color"),
+	"neckfire_header"        = list("ru" = "Огонь шеи",                         "en" = "Neckfire"),
+	"neckfire_color_label"   = list("ru" = "Цвет",                              "en" = "Color"),
 	"set_neckfire_color"     = list("ru" = "Установить цвет огня",              "en" = "Set Fire Color"),
 
 	// Taur
@@ -515,14 +536,26 @@
 	// Mutant parts tab
 	"mutant_parts"           = list("ru" = "Мутантные части",                   "en" = "Mutant Parts"),
 	"ears"                   = list("ru" = "Уши",                               "en" = "Ears"),
+	"mam_ears"               = list("ru" = "Уши",                               "en" = "Ears"),
 	"tail"                   = list("ru" = "Хвост",                             "en" = "Tail"),
+	"mam_tail"               = list("ru" = "Хвост",                             "en" = "Tail"),
 	"wings"                  = list("ru" = "Крылья",                            "en" = "Wings"),
 	"horns"                  = list("ru" = "Рога",                              "en" = "Horns"),
 	"snout"                  = list("ru" = "Морда",                             "en" = "Snout"),
+	"mam_snouts"             = list("ru" = "Морда",                             "en" = "Snout"),
 	"frills"                 = list("ru" = "Оборки",                            "en" = "Frills"),
 	"spines"                 = list("ru" = "Шипы",                              "en" = "Spines"),
 	"antenna"                = list("ru" = "Антенны",                           "en" = "Antenna"),
 	"legs"                   = list("ru" = "Ноги",                              "en" = "Legs"),
+	"deco_wings"             = list("ru" = "Декоративные крылья",               "en" = "Decorative Wings"),
+	"insect_wings"           = list("ru" = "Крылья насекомого",                 "en" = "Insect Wings"),
+	"insect_fluff"           = list("ru" = "Шея и позвоночник",                 "en" = "Neck And Spine"),
+	"insect_markings"        = list("ru" = "Маркинги насекомого",               "en" = "Insect Markings"),
+	"mam_body_markings"      = list("ru" = "Маркинги вида",                     "en" = "Species Markings"),
+	"meat_type"              = list("ru" = "Тип мяса",                          "en" = "Meat Type"),
+	"xenohead"               = list("ru" = "Голова ксено",                      "en" = "Caste Head"),
+	"xenotail"               = list("ru" = "Хвост ксеноморфа",                  "en" = "Tail"),
+	"xenodorsal"             = list("ru" = "Спинные шипы",                      "en" = "Dorsal Spines"),
 	"digitigrade"            = list("ru" = "Дигитиградные ноги",                "en" = "Digitigrade Legs"),
 	"plantigrade"            = list("ru" = "Планоходящие ноги",                 "en" = "Plantigrade Legs"),
 	"moth_antennae"          = list("ru" = "Антенны мотылька",                  "en" = "Moth Antennae"),

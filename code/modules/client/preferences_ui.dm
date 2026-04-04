@@ -919,6 +919,8 @@
 					if(appearance_subtab == APPEARANCE_SUBTAB_MUTPARTS)
 						dat += "<table><tr>"
 					var/mutant_category = 0
+					var/body_sprite_label = T("body_sprite", "Body Sprite")
+					var/be_a_slime_label = T("be_a_slime", "Be a slime?")
 
 					for(var/mutant_part in GLOB.all_mutant_parts)
 						if(mutant_part == "mam_body_markings")
@@ -934,7 +936,7 @@
 							// BLUEMOON ADD END
 							var/color_type = GLOB.colored_mutant_parts[mutant_part] //if it can be coloured, show the appropriate button
 							if(color_type)
-								dat += "<span style='border:1px solid #161616; background-color: #[features[color_type]];'><font color='[color_hex2num(features[color_type]) < 200 ? "FFFFFF" : "000000"]'>#[features[color_type]]</font></span> <a href='?_src_=prefs;preference=[color_type];task=input'>Change</a><BR>"
+								dat += "<span style='border:1px solid #161616; background-color: #[features[color_type]];'><font color='[color_hex2num(features[color_type]) < 200 ? "FFFFFF" : "000000"]'>#[features[color_type]]</font></span> <a href='?_src_=prefs;preference=[color_type];task=input'>[change_label]</a><BR>"
 							else
 								if(features["color_scheme"] == ADVANCED_CHARACTER_COLORING) //advanced individual part colouring system
 									//is it matrixed or does it have extra parts to be coloured?
@@ -970,14 +972,14 @@
 														if(MATRIX_GREEN_BLUE) //composed of a green and blue section
 															primary_feature = secondary_feature //swap primary for secondary, as first option is green, which is linked to the secondary
 															secondary_feature = tertiary_feature //swap secondary for tertiary, as second option is blue, which is linked to the tertiary
-												dat += "<b>Primary Color</b><BR>"
-												dat += "<span style='border:1px solid #161616; background-color: #[features[primary_feature]];'><font color='[color_hex2num(features[primary_feature]) < 200 ? "FFFFFF" : "000000"]'>#[features[primary_feature]]</font></span> <a href='?_src_=prefs;preference=[primary_feature];task=input'>Change</a><BR>"
+												dat += "<b>[primary_color_label]</b><BR>"
+												dat += "<span style='border:1px solid #161616; background-color: #[features[primary_feature]];'><font color='[color_hex2num(features[primary_feature]) < 200 ? "FFFFFF" : "000000"]'>#[features[primary_feature]]</font></span> <a href='?_src_=prefs;preference=[primary_feature];task=input'>[change_label]</a><BR>"
 												if((accessory.color_src == MATRIXED && (matrixed_sections == MATRIX_RED_BLUE || matrixed_sections == MATRIX_GREEN_BLUE || matrixed_sections == MATRIX_RED_GREEN || matrixed_sections == MATRIX_ALL)) || (accessory.extra && (accessory.extra_color_src == MUTCOLORS || accessory.extra_color_src == MUTCOLORS2 || accessory.extra_color_src == MUTCOLORS3)))
-													dat += "<b>Secondary Color</b><BR>"
-													dat += "<span style='border:1px solid #161616; background-color: #[features[secondary_feature]];'><font color='[color_hex2num(features[secondary_feature]) < 200 ? "FFFFFF" : "000000"]'>#[features[secondary_feature]]</font></span> <a href='?_src_=prefs;preference=[secondary_feature];task=input'>Change</a><BR>"
+													dat += "<b>[secondary_color_label]</b><BR>"
+													dat += "<span style='border:1px solid #161616; background-color: #[features[secondary_feature]];'><font color='[color_hex2num(features[secondary_feature]) < 200 ? "FFFFFF" : "000000"]'>#[features[secondary_feature]]</font></span> <a href='?_src_=prefs;preference=[secondary_feature];task=input'>[change_label]</a><BR>"
 													if((accessory.color_src == MATRIXED && matrixed_sections == MATRIX_ALL) || (accessory.extra2 && (accessory.extra2_color_src == MUTCOLORS || accessory.extra2_color_src == MUTCOLORS2 || accessory.extra2_color_src == MUTCOLORS3)))
-														dat += "<b>Tertiary Color</b><BR>"
-														dat += "<span style='border:1px solid #161616; background-color: #[features[tertiary_feature]];'><font color='[color_hex2num(features[tertiary_feature]) < 200 ? "FFFFFF" : "000000"]'>#[features[tertiary_feature]]</font></span> <a href='?_src_=prefs;preference=[tertiary_feature];task=input'>Change</a><BR>"
+														dat += "<b>[tertiary_color_label]</b><BR>"
+														dat += "<span style='border:1px solid #161616; background-color: #[features[tertiary_feature]];'><font color='[color_hex2num(features[tertiary_feature]) < 200 ? "FFFFFF" : "000000"]'>#[features[tertiary_feature]]</font></span> <a href='?_src_=prefs;preference=[tertiary_feature];task=input'>[change_label]</a><BR>"
 
 							mutant_category++
 							if(mutant_category >= MAX_MUTANT_ROWS)
@@ -989,15 +991,15 @@
 							chosen_limb_id = pref_species.limbs_id || pref_species.id
 						if(!mutant_category)
 							dat += "<td width='20%' valign='top'>"
-						dat += "<h3>Body sprite</h3>"
+						dat += "<h3>[body_sprite_label]</h3>"
 						dat += "<a style='display:block;width:100px' href='?_src_=prefs;preference=bodysprite;task=input'>[chosen_limb_id]</a>"
 
 					//BLUEMOON edit start
 					if(appearance_subtab == APPEARANCE_SUBTAB_MUTPARTS && pref_species.type == /datum/species/jelly/roundstartslime)
 						if(!mutant_category)
 							dat += "<td width='20%' valign='top'>"
-						dat += "<h3>be a slime?</h3>"
-						dat += "<a style='display:block;width:100px' href='?_src_=prefs;preference=puddle_slime_task;task=input'>[features["puddle_slime_fea"] ? "Yes" : "No"]</a>"
+						dat += "<h3>[be_a_slime_label]</h3>"
+						dat += "<a style='display:block;width:100px' href='?_src_=prefs;preference=puddle_slime_task;task=input'>[features["puddle_slime_fea"] ? yes_label : no_label]</a>"
 						dat += "</td>"
 					//BLUEMOON edit end
 
@@ -1009,44 +1011,60 @@
 						dat += "</tr></table>"
 
 					// Intimacy subtab: Consent, Pregnancy, Genitals
+					var/consent_preferences_label = T("consent_preferences", "Consent preferences")
+					var/erp_pref_label = T("erp_pref_label", "ERP")
+					var/noncon_pref_label = T("noncon_pref_label", "Non-Con")
+					var/vore_pref_label = T("vore_pref_label", "Vore")
+					var/mobsex_pref_label = T("mobsex_pref_label", "Mob Non-Con Sex")
+					var/hornyantags_pref_label = T("hornyantags_pref_label", "Horny Antags")
+					var/lewd_preferences_label = T("lewd_preferences", "Lewd preferences")
+					var/lust_tolerance_label = T("lust_tolerance_label", "Lust tolerance")
+					var/sexual_potency_label = T("sexual_potency_label", "Sexual potency")
+					var/pregnancy_preferences_label = T("pregnancy_preferences", "Pregnancy preferences")
+					var/chance_impregnation_label = T("chance_impregnation", "Chance of impregnation")
+					var/chance_pregnant_label = T("chance_pregnant", "Chance of getting pregnant")
+					var/lay_inert_eggs_label = T("lay_inert_eggs", "Lay inert eggs")
+					var/pregnancy_inflation_label = T("pregnancy_inflation_label", "Pregnancy inflation")
+					var/pregnancy_breast_growth_label = T("pregnancy_breast_growth_label", "Pregnancy breast growth")
+					var/egg_shell_label = T("egg_shell_label", "Egg shell")
 					if(appearance_subtab == APPEARANCE_SUBTAB_INTIMACY)
 						dat += "<table><tr><td width='20%' valign='top'>"
 
 					if(appearance_subtab == APPEARANCE_SUBTAB_INTIMACY)
-						dat += "<h2>Consent preferences</h2>"
+						dat += "<h2>[consent_preferences_label]</h2>"
 					if(appearance_subtab == APPEARANCE_SUBTAB_INTIMACY)
-						dat += "ERP : <a href='?_src_=prefs;preference=erp_pref'>[erppref]</a><br>"
+						dat += "[erp_pref_label] : <a href='?_src_=prefs;preference=erp_pref'>[erppref]</a><br>"
 					if(appearance_subtab == APPEARANCE_SUBTAB_INTIMACY)
-						dat += "Non-Con : <a href='?_src_=prefs;preference=noncon_pref'>[nonconpref]</a><br>"
+						dat += "[noncon_pref_label] : <a href='?_src_=prefs;preference=noncon_pref'>[nonconpref]</a><br>"
 					if(appearance_subtab == APPEARANCE_SUBTAB_INTIMACY)
-						dat += "Vore : <a href='?_src_=prefs;preference=vore_pref'>[vorepref]</a><br>"
+						dat += "[vore_pref_label] : <a href='?_src_=prefs;preference=vore_pref'>[vorepref]</a><br>"
 					if(appearance_subtab == APPEARANCE_SUBTAB_INTIMACY)
-						dat += "Mob Non-Con Sex : <a href='?_src_=prefs;preference=mobsex_pref'>[mobsexpref]</a><br>"
+						dat += "[mobsex_pref_label] : <a href='?_src_=prefs;preference=mobsex_pref'>[mobsexpref]</a><br>"
 					if(appearance_subtab == APPEARANCE_SUBTAB_INTIMACY)
-						dat += "Horny Antags : <a href='?_src_=prefs;preference=hornyantags_pref'>[hornyantagspref]</a><br>"
+						dat += "[hornyantags_pref_label] : <a href='?_src_=prefs;preference=hornyantags_pref'>[hornyantagspref]</a><br>"
 
 					if(appearance_subtab == APPEARANCE_SUBTAB_INTIMACY)
-						dat += "<h2>Lewd preferences</h2>"
+						dat += "<h2>[lewd_preferences_label]</h2>"
 					if(appearance_subtab == APPEARANCE_SUBTAB_INTIMACY)
-						dat += "<b>Lust tolerance:</b><a href='?_src_=prefs;preference=lust_tolerance;task=input'>[lust_tolerance]</a><br>"
+						dat += "<b>[lust_tolerance_label]:</b><a href='?_src_=prefs;preference=lust_tolerance;task=input'>[lust_tolerance]</a><br>"
 					if(appearance_subtab == APPEARANCE_SUBTAB_INTIMACY)
-						dat += "<b>Sexual potency:</b><a href='?_src_=prefs;preference=sexual_potency;task=input'>[sexual_potency]</a>"
+						dat += "<b>[sexual_potency_label]:</b><a href='?_src_=prefs;preference=sexual_potency;task=input'>[sexual_potency]</a>"
 
 					//SPLURT EDIT BEGIN - gregnancy preferences
 					if(appearance_subtab == APPEARANCE_SUBTAB_INTIMACY)
-						dat += "<h3>Pregnancy preferences</h3>"
+						dat += "<h3>[pregnancy_preferences_label]</h3>"
 					if(appearance_subtab == APPEARANCE_SUBTAB_INTIMACY)
-						dat += "<b>Chance of impregnation:</b><a style='display:block;width:100px' href ='?_src_=prefs;preference=virility;task=input'>[virility ? virility : "Disabled"]</a>"
+						dat += "<b>[chance_impregnation_label]:</b><a style='display:block;width:100px' href ='?_src_=prefs;preference=virility;task=input'>[virility ? virility : disabled_label]</a>"
 					if(appearance_subtab == APPEARANCE_SUBTAB_INTIMACY)
-						dat += "<b>Chance of getting pregnant:</b><a style='display:block;width:100px' href ='?_src_=prefs;preference=fertility;task=input'>[fertility ? fertility : "Disabled"]</a>"
+						dat += "<b>[chance_pregnant_label]:</b><a style='display:block;width:100px' href ='?_src_=prefs;preference=fertility;task=input'>[fertility ? fertility : disabled_label]</a>"
 					if(appearance_subtab == APPEARANCE_SUBTAB_INTIMACY)
-						dat += "<b>Lay inert eggs:</b><a style='display:block;width:100px' href ='?_src_=prefs;preference=inert_eggs'>[features["inert_eggs"] == TRUE ? "Enabled" : "Disabled"]</a>"
+						dat += "<b>[lay_inert_eggs_label]:</b><a style='display:block;width:100px' href ='?_src_=prefs;preference=inert_eggs'>[features["inert_eggs"] == TRUE ? enabled_label : disabled_label]</a>"
 					if(appearance_subtab == APPEARANCE_SUBTAB_INTIMACY && fertility)
-						dat += "<b>Pregnancy inflation:</b><a style='display:block;width:100px' href ='?_src_=prefs;preference=pregnancy_inflation;task=input'>[pregnancy_inflation ? "Enabled" : "Disabled"]</a>"
+						dat += "<b>[pregnancy_inflation_label]:</b><a style='display:block;width:100px' href ='?_src_=prefs;preference=pregnancy_inflation;task=input'>[pregnancy_inflation ? enabled_label : disabled_label]</a>"
 					if(appearance_subtab == APPEARANCE_SUBTAB_INTIMACY && fertility)
-						dat += "<b>Pregnancy breast growth:</b><a style='display:block;width:100px' href ='?_src_=prefs;preference=pregnancy_breast_growth;task=input'>[pregnancy_breast_growth ? "Enabled" : "Disabled"]</a>"
+						dat += "<b>[pregnancy_breast_growth_label]:</b><a style='display:block;width:100px' href ='?_src_=prefs;preference=pregnancy_breast_growth;task=input'>[pregnancy_breast_growth ? enabled_label : disabled_label]</a>"
 					if(appearance_subtab == APPEARANCE_SUBTAB_INTIMACY && (fertility || features["inert_eggs"]))
-						dat += "<b>Egg shell:</b><a style='display:block;width:100px' href ='?_src_=prefs;preference=egg_shell;task=input'>[egg_shell]</a>"
+						dat += "<b>[egg_shell_label]:</b><a style='display:block;width:100px' href ='?_src_=prefs;preference=egg_shell;task=input'>[egg_shell]</a>"
 					if(appearance_subtab == APPEARANCE_SUBTAB_INTIMACY)
 						dat += "</td>"
 					//SPLURT EDIT END
@@ -1112,16 +1130,27 @@
 							var/belly_visibility_label = T("belly_visibility", "Belly Visibility")
 							var/belly_accessible_label = T("belly_accessible", "Belly Always Accessible")
 							var/belly_stuffing_label = T("belly_stuffing", "Toys and Egg Stuffing")
+							var/testicles_header_label = T("testicles_header", "Testicles")
+							var/testicles_size_label = T("testicles_size", "Testicles Size")
+							var/max_size_label = T("max_size", "Max Size")
+							var/min_size_label = T("min_size", "Min Size")
+							var/max_length_label = T("max_length", "Max Length")
+							var/min_length_label = T("min_length", "Min Length")
+							var/centimeters_label = T("centimeters", "centimeter(-s)")
+							var/skintone_override_label = T("skintone_override", "Skin tone overriding")
+							var/neckfire_header_label = T("neckfire_header", "Neckfire")
+							var/neckfire_color_label = T("neckfire_color_label", "Color")
+							var/nothing_label = T("nothing_label", "Nothing?")
 
 							dat += "<h3>[penis_header]</h3>"
-							dat += "<b>[has_penis_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=has_cock'>[features["has_cock"] == TRUE ? "Yes" : "No"]</a>"
+							dat += "<b>[has_penis_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=has_cock'>[features["has_cock"] == TRUE ? yes_label : no_label]</a>"
 							if(features["has_cock"])
 								if(pref_species.use_skintones && features["genitals_use_skintone"] == TRUE)
 									dat += "<b>[penis_color_label]:</b></a><BR>"
-									dat += "<span style='border: 1px solid #161616; background-color: [SKINTONE2HEX(skin_tone)];'><font color='[color_hex2num(SKINTONE2HEX(skin_tone)) < 200 ? "FFFFFF" : "000000"]'>[SKINTONE2HEX(skin_tone)]</font></span>(Skin tone overriding)</a><br>"
+									dat += "<span style='border: 1px solid #161616; background-color: [SKINTONE2HEX(skin_tone)];'><font color='[color_hex2num(SKINTONE2HEX(skin_tone)) < 200 ? "FFFFFF" : "000000"]'>[SKINTONE2HEX(skin_tone)]</font></span>([skintone_override_label])</a><br>"
 								else
 									dat += "<b>[penis_color_label]:</b></a><BR>"
-									dat += "<span style='border: 1px solid #161616; background-color: #[features["cock_color"]];'><font color='[color_hex2num(features["cock_color"]) < 200 ? "FFFFFF" : "000000"]'>#[features["cock_color"]]</font></span> <a href='?_src_=prefs;preference=cock_color;task=input'>Change</a><br>"
+									dat += "<span style='border: 1px solid #161616; background-color: #[features["cock_color"]];'><font color='[color_hex2num(features["cock_color"]) < 200 ? "FFFFFF" : "000000"]'>#[features["cock_color"]]</font></span> <a href='?_src_=prefs;preference=cock_color;task=input'>[change_label]</a><br>"
 								var/tauric_shape = FALSE
 								if(features["cock_taur"])
 									var/datum/sprite_accessory/penis/P = GLOB.cock_shapes_list[features["cock_shape"]]
@@ -1130,56 +1159,56 @@
 										if(T.taur_mode & P.accepted_taurs)
 											tauric_shape = TRUE
 								dat += "<b>[penis_shape_label]:</b> <a style='display:block;width:120px' href='?_src_=prefs;preference=cock_shape;task=input'>[features["cock_shape"]][tauric_shape ? " (Taur)" : ""]</a>"
-								dat += "<b>[penis_length_label]:</b> <a style='display:block;width:120px' href='?_src_=prefs;preference=cock_length;task=input'>[features["cock_length"]] centimeter(-s)</a>"
-								dat += "<b>Max Length:</b><a style='display:block;width:120px' href='?_src_=prefs;preference=cock_max_length;task=input'>[features["cock_max_length"] ? features["cock_max_length"] : "Disabled"]</a>"
-								dat += "<b>Min Length:</b><a style='display:block;width:120px' href='?_src_=prefs;preference=cock_min_length;task=input'>[features["cock_min_length"] ? features["cock_min_length"] : "Disabled"]</a>"
+								dat += "<b>[penis_length_label]:</b> <a style='display:block;width:120px' href='?_src_=prefs;preference=cock_length;task=input'>[features["cock_length"]] [centimeters_label]</a>"
+								dat += "<b>[max_length_label]:</b><a style='display:block;width:120px' href='?_src_=prefs;preference=cock_max_length;task=input'>[features["cock_max_length"] ? features["cock_max_length"] : disabled_label]</a>"
+								dat += "<b>[min_length_label]:</b><a style='display:block;width:120px' href='?_src_=prefs;preference=cock_min_length;task=input'>[features["cock_min_length"] ? features["cock_min_length"] : disabled_label]</a>"
 								dat += "<b>[penis_diameter_ratio_label]:</b> <a style='display:block;width:120px' href='?_src_=prefs;preference=cock_diameter_ratio;task=input'>[features["cock_diameter_ratio"]]</a>" //SPLURT Edit
 								dat += "<b>[penis_visibility_label]:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=cock_visibility;task=input'>[features["cock_visibility"]]</a>"
-								dat += "<b>[penis_accessible_label]:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=cock_accessible'>[features["cock_accessible"] ? "Yes" : "No"]</a>"
-								dat += "<b>[penis_stuffing_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=cock_stuffing'>[features["cock_stuffing"] == TRUE ? "Yes" : "No"]</a>" //SPLURT Edit
+								dat += "<b>[penis_accessible_label]:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=cock_accessible'>[features["cock_accessible"] ? yes_label : no_label]</a>"
+								dat += "<b>[penis_stuffing_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=cock_stuffing'>[features["cock_stuffing"] == TRUE ? yes_label : no_label]</a>" //SPLURT Edit
 
-							dat += "<h3>Testicles</h3>"
-							dat += "<b>[has_testicles_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=has_balls'>[features["has_balls"] == TRUE ? "Yes" : "No"]</a>"
+							dat += "<h3>[testicles_header_label]</h3>"
+							dat += "<b>[has_testicles_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=has_balls'>[features["has_balls"] == TRUE ? yes_label : no_label]</a>"
 							if(features["has_balls"])
 								if(pref_species.use_skintones && features["genitals_use_skintone"] == TRUE)
-									dat += "<b>Testicles Color:</b></a><BR>"
-									dat += "<span style='border: 1px solid #161616; background-color: [SKINTONE2HEX(skin_tone)];'><font color='[color_hex2num(SKINTONE2HEX(skin_tone)) < 200 ? "FFFFFF" : "000000"]'>[SKINTONE2HEX(skin_tone)]</font></span>(Skin tone overriding)<br>"
+									dat += "<b>[testicles_color_label]:</b></a><BR>"
+									dat += "<span style='border: 1px solid #161616; background-color: [SKINTONE2HEX(skin_tone)];'><font color='[color_hex2num(SKINTONE2HEX(skin_tone)) < 200 ? "FFFFFF" : "000000"]'>[SKINTONE2HEX(skin_tone)]</font></span>([skintone_override_label])<br>"
 								else
 									dat += "<b>[testicles_color_label]:</b></a><BR>"
-									dat += "<span style='border: 1px solid #161616; background-color: #[features["balls_color"]];'><font color='[color_hex2num(features["balls_color"]) < 200 ? "FFFFFF" : "000000"]'>#[features["balls_color"]]</font></span> <a href='?_src_=prefs;preference=balls_color;task=input'>Change</a><br>"
+									dat += "<span style='border: 1px solid #161616; background-color: #[features["balls_color"]];'><font color='[color_hex2num(features["balls_color"]) < 200 ? "FFFFFF" : "000000"]'>#[features["balls_color"]]</font></span> <a href='?_src_=prefs;preference=balls_color;task=input'>[change_label]</a><br>"
 								dat += "<b>[testicles_shape_label]:</b> <a style='display:block;width:120px' href='?_src_=prefs;preference=balls_shape;task=input'>[features["balls_shape"]]</a>"
-								dat += "<b>Testicles Size:</b> <a style='display:block;width:120px' href='?_src_=prefs;preference=balls_size;task=input'>[features["balls_size"]]</a>"
+								dat += "<b>[testicles_size_label]:</b> <a style='display:block;width:120px' href='?_src_=prefs;preference=balls_size;task=input'>[features["balls_size"]]</a>"
 								dat += "<b>[testicles_visibility_label]:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=balls_visibility;task=input'>[features["balls_visibility"]]</a>"
-								dat += "<b>[testicles_accessible_label]:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=balls_accessible'>[features["balls_accessible"] ? "Yes" : "No"]</a>"
+								dat += "<b>[testicles_accessible_label]:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=balls_accessible'>[features["balls_accessible"] ? yes_label : no_label]</a>"
 
 								//SPLURT Edit
-								dat += "<b>[testicles_stuffing_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=balls_stuffing'>[features["balls_stuffing"] == TRUE ? "Yes" : "No"]</a>"
-								dat += "<b>Max Size:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=balls_max_size;task=input'>[features["balls_max_size"] ? features["balls_max_size"] : "Disabled"]</a>"
-								dat += "<b>Min Size:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=balls_min_size;task=input'>[features["balls_min_size"] ? features["balls_min_size"] : "Disabled"]</a>"
+								dat += "<b>[testicles_stuffing_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=balls_stuffing'>[features["balls_stuffing"] == TRUE ? yes_label : no_label]</a>"
+								dat += "<b>[max_size_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=balls_max_size;task=input'>[features["balls_max_size"] ? features["balls_max_size"] : disabled_label]</a>"
+								dat += "<b>[min_size_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=balls_min_size;task=input'>[features["balls_min_size"] ? features["balls_min_size"] : disabled_label]</a>"
 								dat += "<b>[testicles_fluid_label]:</b>"
 								var/datum/reagent/balls_fluid = find_reagent_object_from_type(features["balls_fluid"])
 								if(balls_fluid && (balls_fluid in GLOB.genital_fluids_list))
 									dat += "<a style='display:block;width:50px' href='?_src_=prefs;preference=balls_fluid;task=input'>[balls_fluid.name]</a>"
 								else
-									dat += "<a style='display:block;width:50px' href='?_src_=prefs;preference=balls_fluid;task=input'>Nothing?</a>"
+									dat += "<a style='display:block;width:50px' href='?_src_=prefs;preference=balls_fluid;task=input'>[nothing_label]</a>"
 								//SPLURT Edit end
 
 							dat += "</td>"
 							dat += APPEARANCE_CATEGORY_COLUMN
 							dat += "<h3>[vagina_header]</h3>"
-							dat += "<b>[has_vagina_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=has_vag'>[features["has_vag"] == TRUE ? "Yes" : "No"]</a>"
+							dat += "<b>[has_vagina_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=has_vag'>[features["has_vag"] == TRUE ? yes_label : no_label]</a>"
 							if(features["has_vag"])
 								dat += "<b>[vagina_type_label]:</b> <a style='display:block;width:100px' href='?_src_=prefs;preference=vag_shape;task=input'>[features["vag_shape"]]</a>"
 								if(pref_species.use_skintones && features["genitals_use_skintone"] == TRUE)
 									dat += "<b>[vagina_color_label]:</b></a><BR>"
-									dat += "<span style='border: 1px solid #161616; background-color: [SKINTONE2HEX(skin_tone)];'><font color='[color_hex2num(SKINTONE2HEX(skin_tone)) < 200 ? "FFFFFF" : "000000"]'>[SKINTONE2HEX(skin_tone)]</font></span>(Skin tone overriding)<br>"
+									dat += "<span style='border: 1px solid #161616; background-color: [SKINTONE2HEX(skin_tone)];'><font color='[color_hex2num(SKINTONE2HEX(skin_tone)) < 200 ? "FFFFFF" : "000000"]'>[SKINTONE2HEX(skin_tone)]</font></span>([skintone_override_label])<br>"
 								else
 									dat += "<b>[vagina_color_label]:</b></a><BR>"
-									dat += "<span style='border: 1px solid #161616; background-color: #[features["vag_color"]];'><font color='[color_hex2num(features["vag_color"]) < 200 ? "FFFFFF" : "000000"]'>#[features["vag_color"]]</font></span> <a href='?_src_=prefs;preference=vag_color;task=input'>Change</a><br>"
+									dat += "<span style='border: 1px solid #161616; background-color: #[features["vag_color"]];'><font color='[color_hex2num(features["vag_color"]) < 200 ? "FFFFFF" : "000000"]'>#[features["vag_color"]]</font></span> <a href='?_src_=prefs;preference=vag_color;task=input'>[change_label]</a><br>"
 								dat += "<b>[vagina_visibility_label]:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=vag_visibility;task=input'>[features["vag_visibility"]]</a>"
-								dat += "<b>[vagina_accessible_label]:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=vag_accessible'>[features["vag_accessible"] ? "Yes" : "No"]</a>"
-								dat += "<b>[vagina_stuffing_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=vag_stuffing'>[features["vag_stuffing"] == TRUE ? "Yes" : "No"]</a>" //SPLURT Edit
-								dat += "<b>[has_womb_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=has_womb'>[features["has_womb"] == TRUE ? "Yes" : "No"]</a>"
+								dat += "<b>[vagina_accessible_label]:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=vag_accessible'>[features["vag_accessible"] ? yes_label : no_label]</a>"
+								dat += "<b>[vagina_stuffing_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=vag_stuffing'>[features["vag_stuffing"] == TRUE ? yes_label : no_label]</a>" //SPLURT Edit
+								dat += "<b>[has_womb_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=has_womb'>[features["has_womb"] == TRUE ? yes_label : no_label]</a>"
 								//SPLURT Edit
 								if(features["has_womb"] == TRUE)
 									dat += "<b>[womb_fluid_label]:</b>"
@@ -1187,90 +1216,90 @@
 									if(womb_fluid && (womb_fluid in GLOB.genital_fluids_list))
 										dat += "<a style='display:block;width:50px' href='?_src_=prefs;preference=womb_fluid;task=input'>[womb_fluid.name]</a>"
 									else
-										dat += "<a style='display:block;width:50px' href='?_src_=prefs;preference=womb_fluid;task=input'>Nothing?</a>"
+										dat += "<a style='display:block;width:50px' href='?_src_=prefs;preference=womb_fluid;task=input'>[nothing_label]</a>"
 								//SPLURT Edit end
 							dat += "</td>"
 							dat += APPEARANCE_CATEGORY_COLUMN
 							dat += "<h3>[breasts_header]</h3>"
-							dat += "<b>[has_breasts_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=has_breasts'>[features["has_breasts"] == TRUE ? "Yes" : "No"]</a>"
+							dat += "<b>[has_breasts_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=has_breasts'>[features["has_breasts"] == TRUE ? yes_label : no_label]</a>"
 							if(features["has_breasts"])
 								if(pref_species.use_skintones && features["genitals_use_skintone"] == TRUE)
 									dat += "<b>[breasts_color_label]:</b></a><BR>"
-									dat += "<span style='border: 1px solid #161616; background-color: [SKINTONE2HEX(skin_tone)];'><font color='[color_hex2num(SKINTONE2HEX(skin_tone)) < 200 ? "FFFFFF" : "000000"]'>[SKINTONE2HEX(skin_tone)]</font></span>(Skin tone overriding)<br>"
+									dat += "<span style='border: 1px solid #161616; background-color: [SKINTONE2HEX(skin_tone)];'><font color='[color_hex2num(SKINTONE2HEX(skin_tone)) < 200 ? "FFFFFF" : "000000"]'>[SKINTONE2HEX(skin_tone)]</font></span>([skintone_override_label])<br>"
 								else
 									dat += "<b>[breasts_color_label]:</b></a><BR>"
-									dat += "<span style='border: 1px solid #161616; background-color: #[features["breasts_color"]];'><font color='[color_hex2num(features["breasts_color"]) < 200 ? "FFFFFF" : "000000"]'>#[features["breasts_color"]]</font></span> <a href='?_src_=prefs;preference=breasts_color;task=input'>Change</a><br>"
+									dat += "<span style='border: 1px solid #161616; background-color: #[features["breasts_color"]];'><font color='[color_hex2num(features["breasts_color"]) < 200 ? "FFFFFF" : "000000"]'>#[features["breasts_color"]]</font></span> <a href='?_src_=prefs;preference=breasts_color;task=input'>[change_label]</a><br>"
 								dat += "<b>[breasts_size_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=breasts_size;task=input'>[features["breasts_size"]]</a>"
 								dat += "<b>[breasts_shape_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=breasts_shape;task=input'>[features["breasts_shape"]]</a>"
 								dat += "<b>[breasts_visibility_label]:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=breasts_visibility;task=input'>[features["breasts_visibility"]]</a>"
-								dat += "<b>[breasts_lactates_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=breasts_producing'>[features["breasts_producing"] == TRUE ? "Yes" : "No"]</a>"
+								dat += "<b>[breasts_lactates_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=breasts_producing'>[features["breasts_producing"] == TRUE ? yes_label : no_label]</a>"
 								//SPLURT Edit
-								dat += "<b>[breasts_stuffing_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=breasts_stuffing'>[features["breasts_stuffing"] == TRUE ? "Yes" : "No"]</a>"
-								dat += "<b>Max Size:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=breasts_max_size;task=input'>[features["breasts_max_size"] ? features["breasts_max_size"] : "Disabled"]</a>"
-								dat += "<b>Min Size:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=breasts_min_size;task=input'>[features["breasts_min_size"] ? features["breasts_min_size"] : "Disabled"]</a>"
+								dat += "<b>[breasts_stuffing_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=breasts_stuffing'>[features["breasts_stuffing"] == TRUE ? yes_label : no_label]</a>"
+								dat += "<b>[max_size_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=breasts_max_size;task=input'>[features["breasts_max_size"] ? features["breasts_max_size"] : disabled_label]</a>"
+								dat += "<b>[min_size_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=breasts_min_size;task=input'>[features["breasts_min_size"] ? features["breasts_min_size"] : disabled_label]</a>"
 								if(features["breasts_producing"] == TRUE)
 									dat += "<b>[breast_fluid_label]:</b>"
 									var/datum/reagent/breasts_fluid = find_reagent_object_from_type(features["breasts_fluid"])
 									if(breasts_fluid && (breasts_fluid in GLOB.genital_fluids_list))
 										dat += "<a style='display:block;width:50px' href='?_src_=prefs;preference=breasts_fluid;task=input'>[breasts_fluid.name]</a>"
 									else
-										dat += "<a style='display:block;width:50px' href='?_src_=prefs;preference=breasts_fluid;task=input'>Nothing?</a>"
+										dat += "<a style='display:block;width:50px' href='?_src_=prefs;preference=breasts_fluid;task=input'>[nothing_label]</a>"
 								//SPLURT Edit end
 							dat += "</td>"
 							dat += APPEARANCE_CATEGORY_COLUMN
 							dat += "<h3>[butt_header]</h3>"
-							dat += "<b>[has_butt_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=has_butt'>[features["has_butt"] == TRUE ? "Yes" : "No"]</a>"
+							dat += "<b>[has_butt_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=has_butt'>[features["has_butt"] == TRUE ? yes_label : no_label]</a>"
 							if(features["has_butt"])
 								if(pref_species.use_skintones && features["genitals_use_skintone"] == TRUE)
 									dat += "<b>[butt_color_label]:</b></a><BR>"
-									dat += "<span style='border: 1px solid #161616; background-color: [SKINTONE2HEX(skin_tone)];'><font color='[color_hex2num(SKINTONE2HEX(skin_tone)) < 200 ? "FFFFFF" : "000000"]'>[SKINTONE2HEX(skin_tone)]</font></span>(Skin tone overriding)<br>"
+									dat += "<span style='border: 1px solid #161616; background-color: [SKINTONE2HEX(skin_tone)];'><font color='[color_hex2num(SKINTONE2HEX(skin_tone)) < 200 ? "FFFFFF" : "000000"]'>[SKINTONE2HEX(skin_tone)]</font></span>([skintone_override_label])<br>"
 								else
 									dat += "<b>[butt_color_label]:</b></a><BR>"
-									dat += "<span style='border: 1px solid #161616; background-color: #[features["butt_color"]];'><font color='[color_hex2num(features["butt_color"]) < 200 ? "FFFFFF" : "000000"]'>#[features["butt_color"]]</font></span> <a href='?_src_=prefs;preference=butt_color;task=input'>Change</a><br>"
+									dat += "<span style='border: 1px solid #161616; background-color: #[features["butt_color"]];'><font color='[color_hex2num(features["butt_color"]) < 200 ? "FFFFFF" : "000000"]'>#[features["butt_color"]]</font></span> <a href='?_src_=prefs;preference=butt_color;task=input'>[change_label]</a><br>"
 								dat += "<b>[butt_size_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=butt_size;task=input'>[features["butt_size"]]</a>"
 								dat += "<b>[butt_visibility_label]:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=butt_visibility;task=input'>[features["butt_visibility"]]</a>"
-								dat += "<b>[butt_accessible_label]:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=butt_accessible'>[features["butt_accessible"] ? "Yes" : "No"]</a>"
+								dat += "<b>[butt_accessible_label]:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=butt_accessible'>[features["butt_accessible"] ? yes_label : no_label]</a>"
 							//SPLURT Edit
-								dat += "<b>[butt_stuffing_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=butt_stuffing'>[features["butt_stuffing"] == TRUE ? "Yes" : "No"]</a>"
-								dat += "<b>Max Size:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=butt_max_size;task=input'>[features["butt_max_size"] ? features["butt_max_size"] : "Disabled"]</a>"
-								dat += "<b>Min Size:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=butt_min_size;task=input'>[features["butt_min_size"] ? features["butt_min_size"] : "Disabled"]</a>"
-								dat += "<b>[has_anus_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=has_anus'>[features["has_anus"] == TRUE ? "Yes" : "No"]</a>"
+								dat += "<b>[butt_stuffing_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=butt_stuffing'>[features["butt_stuffing"] == TRUE ? yes_label : no_label]</a>"
+								dat += "<b>[max_size_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=butt_max_size;task=input'>[features["butt_max_size"] ? features["butt_max_size"] : disabled_label]</a>"
+								dat += "<b>[min_size_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=butt_min_size;task=input'>[features["butt_min_size"] ? features["butt_min_size"] : disabled_label]</a>"
+								dat += "<b>[has_anus_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=has_anus'>[features["has_anus"] == TRUE ? yes_label : no_label]</a>"
 								if(features["has_anus"])
 									dat += "<b>[anus_color_label]:</b></a><BR>"
 									if(pref_species.use_skintones && features["genitals_use_skintone"] == TRUE)
-										dat += "<span style='border: 1px solid #161616; background-color: [SKINTONE2HEX(skin_tone)];'><font color='[color_hex2num(SKINTONE2HEX(skin_tone)) < 200 ? "FFFFFF" : "000000"]'>[SKINTONE2HEX(skin_tone)]</font></span>(Skin tone overriding)<br>"
+										dat += "<span style='border: 1px solid #161616; background-color: [SKINTONE2HEX(skin_tone)];'><font color='[color_hex2num(SKINTONE2HEX(skin_tone)) < 200 ? "FFFFFF" : "000000"]'>[SKINTONE2HEX(skin_tone)]</font></span>([skintone_override_label])<br>"
 									else
-										dat += "<span style='border: 1px solid #161616; background-color: #[features["anus_color"]];'><font color='[color_hex2num(features["anus_color"]) < 200 ? "FFFFFF" : "000000"]'>#[features["anus_color"]]</font></span> <a href='?_src_=prefs;preference=anus_color;task=input'>Change</a><br>"
+										dat += "<span style='border: 1px solid #161616; background-color: #[features["anus_color"]];'><font color='[color_hex2num(features["anus_color"]) < 200 ? "FFFFFF" : "000000"]'>#[features["anus_color"]]</font></span> <a href='?_src_=prefs;preference=anus_color;task=input'>[change_label]</a><br>"
 									dat += "<b>[anus_shape_label]:</b> <a style='display:block;width:120px' href='?_src_=prefs;preference=anus_shape;task=input'>[features["anus_shape"]]</a>"
 									dat += "<b>[anus_visibility_label]:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=anus_visibility;task=input'>[features["anus_visibility"]]</a>"
-									dat += "<b>[anus_accessible_label]:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=anus_accessible'>[features["anus_accessible"] ? "Yes" : "No"]</a>"
-									dat += "<b>[anus_stuffing_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=anus_stuffing'>[features["anus_stuffing"] == TRUE ? "Yes" : "No"]</a>"
+									dat += "<b>[anus_accessible_label]:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=anus_accessible'>[features["anus_accessible"] ? yes_label : no_label]</a>"
+									dat += "<b>[anus_stuffing_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=anus_stuffing'>[features["anus_stuffing"] == TRUE ? yes_label : no_label]</a>"
 
 							dat += "</td>"
 							dat += APPEARANCE_CATEGORY_COLUMN
 							dat += "<h3>[belly_header]</h3>"
-							dat += "<b>[has_belly_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=has_belly'>[features["has_belly"] == TRUE ? "Yes" : "No"]</a>"
+							dat += "<b>[has_belly_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=has_belly'>[features["has_belly"] == TRUE ? yes_label : no_label]</a>"
 							if(features["has_belly"])
 								if(pref_species.use_skintones && features["genitals_use_skintone"] == TRUE)
 									dat += "<b>[belly_color_label]:</b></a><BR>"
-									dat += "<span style='border: 1px solid #161616; background-color: [SKINTONE2HEX(skin_tone)];'><font color='[color_hex2num(SKINTONE2HEX(skin_tone)) < 200 ? "FFFFFF" : "000000"]'>[SKINTONE2HEX(skin_tone)]</font></span>(Skin tone overriding)<br>"
+									dat += "<span style='border: 1px solid #161616; background-color: [SKINTONE2HEX(skin_tone)];'><font color='[color_hex2num(SKINTONE2HEX(skin_tone)) < 200 ? "FFFFFF" : "000000"]'>[SKINTONE2HEX(skin_tone)]</font></span>([skintone_override_label])<br>"
 								else
 									dat += "<b>[belly_color_label]:</b></a><BR>"
-									dat += "<span style='border: 1px solid #161616; background-color: #[features["belly_color"]];'><font color='[color_hex2num(features["belly_color"]) < 200 ? "FFFFFF" : "000000"]'>#[features["belly_color"]]</font></span> <a href='?_src_=prefs;preference=belly_color;task=input'>Change</a><br>"
+									dat += "<span style='border: 1px solid #161616; background-color: #[features["belly_color"]];'><font color='[color_hex2num(features["belly_color"]) < 200 ? "FFFFFF" : "000000"]'>#[features["belly_color"]]</font></span> <a href='?_src_=prefs;preference=belly_color;task=input'>[change_label]</a><br>"
 								dat += "<b>[belly_size_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=belly_size;task=input'>[features["belly_size"]]</a>"
-								dat += "<b>Max Size:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=belly_max_size;task=input'>[features["belly_max_size"] ? features["belly_max_size"] : "Disabled" ]</a>"
-								dat += "<b>Min Size:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=belly_min_size;task=input'>[features["belly_min_size"] ? features["belly_min_size"] : "Disabled" ]</a>"
+								dat += "<b>[max_size_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=belly_max_size;task=input'>[features["belly_max_size"] ? features["belly_max_size"] : disabled_label ]</a>"
+								dat += "<b>[min_size_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=belly_min_size;task=input'>[features["belly_min_size"] ? features["belly_min_size"] : disabled_label ]</a>"
 								dat += "<b>[belly_visibility_label]:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=belly_visibility;task=input'>[features["belly_visibility"]]</a>"
-								dat += "<b>[belly_stuffing_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=belly_stuffing'>[features["belly_stuffing"] == TRUE ? "Yes" : "No"]</a>"
-								dat += "<b>[belly_accessible_label]:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=belly_accessible'>[features["belly_accessible"] ? "Yes" : "No"]</a>"
+								dat += "<b>[belly_stuffing_label]:</b><a style='display:block;width:50px' href='?_src_=prefs;preference=belly_stuffing'>[features["belly_stuffing"] == TRUE ? yes_label : no_label]</a>"
+								dat += "<b>[belly_accessible_label]:</b><a style='display:block;width:100px' href='?_src_=prefs;preference=belly_accessible'>[features["belly_accessible"] ? yes_label : no_label]</a>"
 							dat += "</td>"
 							if(all_quirks.Find("Дуллахан"))
 								dat += APPEARANCE_CATEGORY_COLUMN
-								dat += "<h3>Neckfire</h3>"
-								dat += "<a style='display:block;width:50px' href='?_src_=prefs;preference=has_neckfire;task=input'>[features["neckfire"] ? "Yes" : "No"]</a>"
+								dat += "<h3>[neckfire_header_label]</h3>"
+								dat += "<a style='display:block;width:50px' href='?_src_=prefs;preference=has_neckfire;task=input'>[features["neckfire"] ? yes_label : no_label]</a>"
 								if(features["neckfire"])
-									dat += "<b>Color:</b></a><BR>"
-									dat += "<span style='border: 1px solid #161616; background-color: #[features["neckfire_color"]];'><font color='[color_hex2num(features["neckfire_color"]) < 200 ? "FFFFFF" : "000000"]'>#[features["neckfire_color"]]</font></span><a href='?_src_=prefs;preference=has_neckfire_color;task=input'>Change</a><br>"
+									dat += "<b>[neckfire_color_label]:</b></a><BR>"
+									dat += "<span style='border: 1px solid #161616; background-color: #[features["neckfire_color"]];'><font color='[color_hex2num(features["neckfire_color"]) < 200 ? "FFFFFF" : "000000"]'>#[features["neckfire_color"]]</font></span><a href='?_src_=prefs;preference=has_neckfire_color;task=input'>[change_label]</a><br>"
 
 								dat += "</td>"
 							//SPLURT Edit end
@@ -1525,7 +1554,7 @@
 						dat += "</tr></table>"
 						// BLUEMOON ADD START - кнопка для удаления всех маркингов на персонаже
 						dat += "<center>"
-						dat += "<h3>Danger Zone</h3>"
+						dat += "<h3>[T("danger_zone", "Danger Zone")]</h3>"
 						dat += "<a href='?_src_=prefs;preference=markings_remove;task=input'>Remove All Markings</a>"
 						dat += "</center>"
 						// BLUEMOON ADD END
