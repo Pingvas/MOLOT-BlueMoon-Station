@@ -505,6 +505,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/tmp/loadout_sheet_sent = FALSE
 	var/tmp/last_preview_key = null
 	var/tmp/list/antag_days_remaining = null
+	var/tmp/list/ui_strings_cache = null
+	var/tmp/ui_strings_lang = -1
 	/// UI decoration level for modern theme: "minimal" (performance), "standard" (current), "enhanced" (gradients)
 	var/ui_decoration_level = "enhanced"
 
@@ -597,8 +599,20 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 #define MAX_MUTANT_ROWS 5
 
 /datum/preferences/proc/T(key, fallback = "")
-	var/result = get_modern_text(key, src, fallback)
-	return result
+	if(ui_strings_lang != modern_ui_language)
+		ui_strings_lang = modern_ui_language
+		ui_strings_cache = list()
+		if(!GLOB.modern_strings || !length(GLOB.modern_strings))
+			init_modern_strings()
+		var/lang = modern_ui_language ? "ru" : "en"
+		for(var/k in GLOB.modern_strings)
+			var/list/entry = GLOB.modern_strings[k]
+			if(!islist(entry))
+				continue
+			ui_strings_cache[k] = entry[lang] || entry["en"] || k
+	if(!key)
+		return fallback
+	return ui_strings_cache[key] || (fallback ? fallback : key)
 
 /// Возвращает палитру для Modern Character Setup (конкретные цвета, без CSS variables).
 /datum/preferences/proc/get_character_setup_palette_modern()
