@@ -2789,6 +2789,14 @@
 			loadout_enabled = !loadout_enabled
 			save_preferences()
 		// BLUEMOON ADD END
+		// Лодаут сайдбар
+		if(href_list["switch_to_loadout_tab"])
+			character_settings_tab = LOADOUT_CHAR_TAB
+		if(href_list["sidebar_remove_gear"])
+			var/sidebar_gear_to_remove = url_decode(href_list["sidebar_remove_gear"])
+			if(sidebar_gear_to_remove)
+				remove_gear_from_loadout(loadout_slot, sidebar_gear_to_remove)
+				save_preferences()
 		if(href_list["select_category"])
 			gear_category = url_decode(href_list["select_category"])
 			// BLUEMOON FIX - Add null check to prevent runtime when category doesn't exist

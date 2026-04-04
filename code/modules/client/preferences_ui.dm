@@ -312,6 +312,45 @@
 						dat += "<a class='[slot_cls]' href='?_src_=prefs;preference=changeslot;num=[i];'>[name]</a>"
 					dat += "</div>"
 
+				// Лодаут сайдбар
+				var/list/sidebar_chosen_gear = islist(loadout_data) ? loadout_data["SAVE_[loadout_slot]"] : null
+				dat += "<div style='margin:3px 0;padding:3px;border:1px solid rgba(128,128,128,0.25)'>"
+				dat += "<div style='font-size:10px;font-weight:bold;opacity:0.7;margin-bottom:2px;padding:0 2px'>Лодаут [loadout_slot]:</div>"
+				if(!islist(sidebar_chosen_gear) || !length(sidebar_chosen_gear))
+					dat += "<div style='font-size:10px;opacity:0.42;text-align:center;padding:3px 0'>Нет предметов в лодауте</div>"
+				else
+					for(var/sidebar_raw_entry in sidebar_chosen_gear)
+						if(!islist(sidebar_raw_entry))
+							continue
+						var/list/sidebar_entry = sidebar_raw_entry
+						var/sidebar_path_str = sidebar_entry[LOADOUT_ITEM]
+						if(!sidebar_path_str)
+							continue
+						var/datum/gear/sidebar_gear_type = text2path(sidebar_path_str)
+						if(!ispath(sidebar_gear_type, /datum/gear))
+							continue
+						var/sidebar_cat = initial(sidebar_gear_type.category)
+						var/sidebar_subcat = initial(sidebar_gear_type.subcategory)
+						var/sidebar_gname = initial(sidebar_gear_type.name)
+						var/datum/gear/sidebar_gear_datum
+						if(GLOB.loadout_items[sidebar_cat] && GLOB.loadout_items[sidebar_cat][sidebar_subcat])
+							sidebar_gear_datum = GLOB.loadout_items[sidebar_cat][sidebar_subcat][sidebar_gname]
+						if(!sidebar_gear_datum)
+							continue
+						var/sidebar_display_name = sidebar_entry[LOADOUT_CUSTOM_NAME] ? sidebar_entry[LOADOUT_CUSTOM_NAME] : sidebar_gear_datum.name
+						var/sidebar_wrench_url = "?_src_=prefs;preference=gear;select_category=[url_encode(sidebar_cat)];select_subcategory=[url_encode(sidebar_subcat)];switch_to_loadout_tab=1"
+						var/sidebar_trash_url = "?_src_=prefs;preference=gear;sidebar_remove_gear=[url_encode(sidebar_path_str)]"
+						dat += "<table width='100%' cellpadding='2' cellspacing='0' style='margin:2px 0;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:3px'><tr style='vertical-align:middle'>"
+						if(sidebar_gear_datum.base64icon)
+							dat += "<td width='36' align='center'><img src='data:image/jpeg;base64,[sidebar_gear_datum.base64icon]' width='32' height='32'></td>"
+						else
+							dat += "<td width='36'></td>"
+						dat += "<td style='padding:0 3px'><font size='1'>[sidebar_display_name]</font></td>"
+						dat += "<td width='22' align='center'><a href='[sidebar_wrench_url]' title='Настроить' style='padding:2px 3px'>&#9881;</a></td>"
+						dat += "<td width='22' align='center'><a href='[sidebar_trash_url]' title='Удалить из лодаута' style='padding:2px 3px'>&#10005;</a></td>"
+						dat += "</tr></table>"
+				dat += "</div>"
+
 				// Character management
 				dat += "<div class='csetup-mgmt-panel'>"
 				var/local_storage_label = T("local_storage", "Local storage")
