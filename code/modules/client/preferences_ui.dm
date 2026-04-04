@@ -3,7 +3,9 @@
 		return
 	update_preview_icon(current_tab)
 	if(findtext(charcreation_theme, "modern"))
-		get_asset_datum(/datum/asset/spritesheet/loadout_icons)?.send(user.client)
+		var/datum/asset/spritesheet/loadout_icons/loadout_asset = get_asset_datum(/datum/asset/spritesheet/loadout_icons)
+		if(loadout_asset)
+			loadout_asset.send(user.client)
 	var/list/dat
 	// Compact inline CSS: конкретные значения цветов для BYOND-браузера.
 	// Enhanced decoration — CSS-класс .csetup-decoration-enhanced (переключается без inline CSS).
