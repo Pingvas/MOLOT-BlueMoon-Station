@@ -1,11 +1,13 @@
-/datum/preferences/proc/ShowChoices(mob/user)
+/datum/preferences/proc/ShowChoices(mob/user, skip_preview_update = FALSE)
 	if(!user || !user.client)
 		return
-	update_preview_icon(current_tab)
+	if(!skip_preview_update)
+		update_preview_icon(current_tab)
+	var/datum/asset/spritesheet/loadout_icons/loadout_sheet
 	if(findtext(charcreation_theme, "modern"))
-		var/datum/asset/spritesheet/loadout_icons/loadout_asset = get_asset_datum(/datum/asset/spritesheet/loadout_icons)
-		if(loadout_asset)
-			loadout_asset.send(user.client)
+		loadout_sheet = get_asset_datum(/datum/asset/spritesheet/loadout_icons)
+		if(istype(loadout_sheet))
+			loadout_sheet.send(user.client)
 	var/list/dat
 	// Compact inline CSS: конкретные значения цветов для BYOND-браузера.
 	// Enhanced decoration — CSS-класс .csetup-decoration-enhanced (переключается без inline CSS).
@@ -2392,12 +2394,9 @@
 
 	winshow(user, "preferences_window", TRUE)
 	var/datum/browser/popup = new(user, "preferences_browser", "<div align='center'>Character Setup</div>", 640, 770)
-	if(findtext(charcreation_theme, "modern"))
-		var/datum/asset/spritesheet/loadout_icons/loadout_sheet = get_asset_datum(/datum/asset/spritesheet/loadout_icons)
+	if(loadout_sheet)
 		popup.add_stylesheet(loadout_sheet)
-	if(findtext(charcreation_theme, "modern"))
 		popup.add_stylesheet("preferences_modern", 'html/browser/preferences_modern.css')
-	if(findtext(charcreation_theme, "modern"))
 		popup.add_script("prefs_state", 'html/browser/prefs_state.js')
 	popup.set_content(dat.Join())
 	popup.open(FALSE)

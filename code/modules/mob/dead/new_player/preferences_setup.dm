@@ -43,18 +43,18 @@
 		if(istype(previewJob,/datum/job/ai))
 			var/icon/ai_icon = icon('icons/mob/ai.dmi', icon_state = resolve_ai_icon(preferred_ai_core_display), dir = preview_direction)
 			preview_icon64 = icon2base64_scaled(ai_icon, 4)
+			preview_generating = FALSE
 			var/mob/user = parent?.mob
 			if(user)
-				ShowChoices(user)
-			preview_generating = FALSE
+				ShowChoices(user, skip_preview_update = TRUE)
 			return
 		if(istype(previewJob,/datum/job/cyborg))
 			var/icon/bot_icon = icon('icons/mob/robots.dmi', icon_state = "robot", dir = preview_direction)
 			preview_icon64 = icon2base64_scaled(bot_icon, 4)
+			preview_generating = FALSE
 			var/mob/user = parent?.mob
 			if(user)
-				ShowChoices(user)
-			preview_generating = FALSE
+				ShowChoices(user, skip_preview_update = TRUE)
 			return
 
 	// Set up the dummy for its photoshoot
@@ -94,10 +94,10 @@
 		preview_icon64 = null
 	unset_busy_human_dummy(DUMMY_HUMAN_SLOT_PREFERENCES)
 
+	preview_generating = FALSE
 	var/mob/user = parent?.mob
 	if(user)
-		ShowChoices(user)
-	preview_generating = FALSE
+		ShowChoices(user, skip_preview_update = TRUE)
 
 /datum/preferences/proc/get_highest_job()
 	var/highest_pref = 0

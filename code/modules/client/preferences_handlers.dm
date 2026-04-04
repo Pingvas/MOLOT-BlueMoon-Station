@@ -363,6 +363,7 @@
 		SetLanguage(user)
 		return TRUE
 
+	var/skip_preview = FALSE
 	switch(href_list["task"])
 		if("random")
 			switch(href_list["preference"])
@@ -2650,6 +2651,7 @@
 						user.client.tgui_panel?.window.send_message("emotes/setList", payload)
 
 				if("tab")
+					skip_preview = TRUE
 					if(href_list["tab"])
 						current_tab = text2num(href_list["tab"])
 				if("character_preview")
@@ -2663,6 +2665,7 @@
 						update_preview_icon(current_tab)
 
 				if("character_tab")
+					skip_preview = TRUE
 					if(href_list["tab"])
 						var/new_tab = text2num(href_list["tab"])
 						if(new_tab == QUIRKS_CHAR_TAB && !(findtext(charcreation_theme, "modern") && CONFIG_GET(flag/roundstart_traits)))
@@ -2670,10 +2673,12 @@
 						character_settings_tab = new_tab
 
 				if("appearance_subtab")
+					skip_preview = TRUE
 					if(href_list["tab"])
 						appearance_subtab = text2num(href_list["tab"])
 
 				if("preferences_tab")
+					skip_preview = TRUE
 					if(href_list["tab"])
 						preferences_tab = text2num(href_list["tab"])
 
@@ -2965,7 +2970,7 @@
 				else
 					user_gear -= "loadout_examtooltip"
 
-	ShowChoices(user)
+	ShowChoices(user, skip_preview_update = skip_preview)
 	return TRUE
 
 
