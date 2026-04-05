@@ -2198,11 +2198,23 @@
 	slot = ITEM_SLOT_OCLOTHING
 	ckeywhitelist = list("kladmenuwu")
 
+
 /datum/gear/donator/bm/nebular_t_kit
 	name = "Nebular-T Kit"
 	slot = ITEM_SLOT_BACKPACK
 	path = /obj/item/modkit/nebular_t_kit
 	ckeywhitelist = list("lapkee")
+
+/// Личный маяк: призывает kit с owner_ckey; развернуть мультитулом может только владелец. Остальные собирают крафтом (5 коробок + pie cannon).
+/datum/gear/donator/bm/cardboard_tank_summon_beacon
+	name = "Маяк призыва: картонный танк (личный)"
+	description = "Заказной складной танк. Развернуть мультитулом сможете только вы."
+	slot = ITEM_SLOT_BACKPACK
+	path = /obj/item/choice_beacon/bm_cardboard_tank
+	category = LOADOUT_CATEGORY_DONATOR
+	subcategory = LOADOUT_SUBCATEGORIES_DON01
+	donator_group_id = DONATOR_GROUP_TIER_1
+	cost = 2
 
 /datum/gear/donator/bm/sheya_dress
 	name = "Gothic dress"
@@ -2221,3 +2233,15 @@
 	slot = ITEM_SLOT_BACKPACK
 	path = /obj/item/modkit/casull_kit
 	ckeywhitelist = list("lev1932")
+
+/datum/gear/donator/bm/pulsar_kit
+	name = "Pulsar Kit"
+	slot = ITEM_SLOT_BACKPACK
+	path = /obj/item/modkit/pulsar_kit
+	ckeywhitelist = list("lapkee")
+
+/datum/gear/donator/bm/supernova_kit
+	name = "Supernova Kit"
+	slot = ITEM_SLOT_BACKPACK
+	path = /obj/item/modkit/supernova_kit
+	ckeywhitelist = list("lapkee")
