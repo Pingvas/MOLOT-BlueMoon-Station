@@ -202,7 +202,6 @@ export const CreateObject = (props: CreateObjectProps, context: any) => {
 };
 
 type AtomRowProps = {
-  key?: any;
   typepath: string;
   atom: AtomData;
   selected: boolean;
