@@ -1081,67 +1081,48 @@ datum/preferences/proc/ShowChoices(mob/user, skip_preview_update = FALSE)
 						dat += "</tr></table>"
 
 					// Intimacy subtab: Consent, Pregnancy, Genitals
-					var/consent_preferences_label = T("consent_preferences", "Consent preferences")
-					var/erp_pref_label = T("erp_pref_label", "ERP")
-					var/noncon_pref_label = T("noncon_pref_label", "Non-Con")
-					var/vore_pref_label = T("vore_pref_label", "Vore")
-					var/mobsex_pref_label = T("mobsex_pref_label", "Mob Non-Con Sex")
-					var/hornyantags_pref_label = T("hornyantags_pref_label", "Horny Antags")
-					var/lewd_preferences_label = T("lewd_preferences", "Lewd preferences")
-					var/lust_tolerance_label = T("lust_tolerance_label", "Lust tolerance")
-					var/sexual_potency_label = T("sexual_potency_label", "Sexual potency")
-					var/pregnancy_preferences_label = T("pregnancy_preferences", "Pregnancy preferences")
-					var/chance_impregnation_label = T("chance_impregnation", "Chance of impregnation")
-					var/chance_pregnant_label = T("chance_pregnant", "Chance of getting pregnant")
-					var/lay_inert_eggs_label = T("lay_inert_eggs", "Lay inert eggs")
-					var/pregnancy_inflation_label = T("pregnancy_inflation_label", "Pregnancy inflation")
-					var/pregnancy_breast_growth_label = T("pregnancy_breast_growth_label", "Pregnancy breast growth")
-					var/egg_shell_label = T("egg_shell_label", "Egg shell")
 					if(appearance_subtab == APPEARANCE_SUBTAB_INTIMACY)
+						var/consent_preferences_label = T("consent_preferences", "Consent preferences")
+						var/erp_pref_label = T("erp_pref_label", "ERP")
+						var/noncon_pref_label = T("noncon_pref_label", "Non-Con")
+						var/vore_pref_label = T("vore_pref_label", "Vore")
+						var/mobsex_pref_label = T("mobsex_pref_label", "Mob Non-Con Sex")
+						var/hornyantags_pref_label = T("hornyantags_pref_label", "Horny Antags")
+						var/lewd_preferences_label = T("lewd_preferences", "Lewd preferences")
+						var/lust_tolerance_label = T("lust_tolerance_label", "Lust tolerance")
+						var/sexual_potency_label = T("sexual_potency_label", "Sexual potency")
+						var/pregnancy_preferences_label = T("pregnancy_preferences", "Pregnancy preferences")
+						var/chance_impregnation_label = T("chance_impregnation", "Chance of impregnation")
+						var/chance_pregnant_label = T("chance_pregnant", "Chance of getting pregnant")
+						var/lay_inert_eggs_label = T("lay_inert_eggs", "Lay inert eggs")
+						var/pregnancy_inflation_label = T("pregnancy_inflation_label", "Pregnancy inflation")
+						var/pregnancy_breast_growth_label = T("pregnancy_breast_growth_label", "Pregnancy breast growth")
+						var/egg_shell_label = T("egg_shell_label", "Egg shell")
 						dat += "<table><tr><td width='20%' valign='top'>"
 
-					if(appearance_subtab == APPEARANCE_SUBTAB_INTIMACY)
 						dat += "<h2>[consent_preferences_label]</h2>"
-					if(appearance_subtab == APPEARANCE_SUBTAB_INTIMACY)
 						dat += "[erp_pref_label] : <a href='?_src_=prefs;preference=erp_pref'>[erppref]</a><br>"
-					if(appearance_subtab == APPEARANCE_SUBTAB_INTIMACY)
 						dat += "[noncon_pref_label] : <a href='?_src_=prefs;preference=noncon_pref'>[nonconpref]</a><br>"
-					if(appearance_subtab == APPEARANCE_SUBTAB_INTIMACY)
 						dat += "[vore_pref_label] : <a href='?_src_=prefs;preference=vore_pref'>[vorepref]</a><br>"
-					if(appearance_subtab == APPEARANCE_SUBTAB_INTIMACY)
 						dat += "[mobsex_pref_label] : <a href='?_src_=prefs;preference=mobsex_pref'>[mobsexpref]</a><br>"
-					if(appearance_subtab == APPEARANCE_SUBTAB_INTIMACY)
 						dat += "[hornyantags_pref_label] : <a href='?_src_=prefs;preference=hornyantags_pref'>[hornyantagspref]</a><br>"
 
-					if(appearance_subtab == APPEARANCE_SUBTAB_INTIMACY)
 						dat += "<h2>[lewd_preferences_label]</h2>"
-					if(appearance_subtab == APPEARANCE_SUBTAB_INTIMACY)
 						dat += "<b>[lust_tolerance_label]:</b><a href='?_src_=prefs;preference=lust_tolerance;task=input'>[lust_tolerance]</a><br>"
-					if(appearance_subtab == APPEARANCE_SUBTAB_INTIMACY)
 						dat += "<b>[sexual_potency_label]:</b><a href='?_src_=prefs;preference=sexual_potency;task=input'>[sexual_potency]</a>"
 
-					//SPLURT EDIT BEGIN - gregnancy preferences
-					if(appearance_subtab == APPEARANCE_SUBTAB_INTIMACY)
 						dat += "<h3>[pregnancy_preferences_label]</h3>"
-					if(appearance_subtab == APPEARANCE_SUBTAB_INTIMACY)
 						dat += "<b>[chance_impregnation_label]:</b><a style='display:block;width:100px' href ='?_src_=prefs;preference=virility;task=input'>[virility ? virility : disabled_label]</a>"
-					if(appearance_subtab == APPEARANCE_SUBTAB_INTIMACY)
 						dat += "<b>[chance_pregnant_label]:</b><a style='display:block;width:100px' href ='?_src_=prefs;preference=fertility;task=input'>[fertility ? fertility : disabled_label]</a>"
-					if(appearance_subtab == APPEARANCE_SUBTAB_INTIMACY)
 						dat += "<b>[lay_inert_eggs_label]:</b><a style='display:block;width:100px' href ='?_src_=prefs;preference=inert_eggs'>[features["inert_eggs"] == TRUE ? enabled_label : disabled_label]</a>"
-					if(appearance_subtab == APPEARANCE_SUBTAB_INTIMACY && fertility)
-						dat += "<b>[pregnancy_inflation_label]:</b><a style='display:block;width:100px' href ='?_src_=prefs;preference=pregnancy_inflation;task=input'>[pregnancy_inflation ? enabled_label : disabled_label]</a>"
-					if(appearance_subtab == APPEARANCE_SUBTAB_INTIMACY && fertility)
-						dat += "<b>[pregnancy_breast_growth_label]:</b><a style='display:block;width:100px' href ='?_src_=prefs;preference=pregnancy_breast_growth;task=input'>[pregnancy_breast_growth ? enabled_label : disabled_label]</a>"
-					if(appearance_subtab == APPEARANCE_SUBTAB_INTIMACY && (fertility || features["inert_eggs"]))
-						dat += "<b>[egg_shell_label]:</b><a style='display:block;width:100px' href ='?_src_=prefs;preference=egg_shell;task=input'>[egg_shell]</a>"
-					if(appearance_subtab == APPEARANCE_SUBTAB_INTIMACY)
+						if(fertility)
+							dat += "<b>[pregnancy_inflation_label]:</b><a style='display:block;width:100px' href ='?_src_=prefs;preference=pregnancy_inflation;task=input'>[pregnancy_inflation ? enabled_label : disabled_label]</a>"
+							dat += "<b>[pregnancy_breast_growth_label]:</b><a style='display:block;width:100px' href ='?_src_=prefs;preference=pregnancy_breast_growth;task=input'>[pregnancy_breast_growth ? enabled_label : disabled_label]</a>"
+						if(fertility || features["inert_eggs"])
+							dat += "<b>[egg_shell_label]:</b><a style='display:block;width:100px' href ='?_src_=prefs;preference=egg_shell;task=input'>[egg_shell]</a>"
 						dat += "</td>"
-					//SPLURT EDIT END
-					if(appearance_subtab == APPEARANCE_SUBTAB_INTIMACY)
 						dat += APPEARANCE_CATEGORY_COLUMN
 
-					if(appearance_subtab == APPEARANCE_SUBTAB_INTIMACY)
 						if(NOGENITALS in pref_species.species_traits)
 							dat += "<b>Your species ([pref_species.name]) does not support genitals!</b><br>"
 						else
@@ -1374,7 +1355,6 @@ datum/preferences/proc/ShowChoices(mob/user, skip_preview_update = FALSE)
 								dat += "</td>"
 							//SPLURT Edit end
 							dat += "</td>"
-					if(appearance_subtab == APPEARANCE_SUBTAB_INTIMACY)
 						dat += "</tr></table>"
 				//Markings
 				if(MARKINGS_CHAR_TAB)
