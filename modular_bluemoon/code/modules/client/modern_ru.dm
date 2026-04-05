@@ -70,7 +70,7 @@
 	"preview_job"           = list("ru" = "Работа",          "en" = "Job"),
 	"preview_loadout"       = list("ru" = "Снаряжение",      "en" = "Loadout"),
 	"preview_naked"         = list("ru" = "Нагота",          "en" = "Naked"),
-	"preview_naked_aroused" = list("ru" = "Возбужденный",    "en" = "Naked (aroused)"),
+	"preview_naked_aroused" = list("ru" = "Возбужденный",    "en" = "Aroused"),
 
 	// Character creation tabs
 	"char_tab_general"     = list("ru" = "Основное",     "en" = "General"),
@@ -846,5 +846,26 @@
 	"genital_fluid_blacklist"= list("ru" = "Чёрный список жидкостей",           "en" = "Genital Fluid Blacklist"),
 	"genital_fluid_blacklist_tooltip" = list("ru" = "Если кто-то использует запрещённую жидкость — применяется стандартная.", "en" = "If anyone cums a blacklisted fluid into you, it uses the default fluid for that genital."),
 	"genital_fluid_unblacklist" = list("ru" = "Убрать из чёрного списка",       "en" = "Genital Fluid Un-Blacklist"),
-	"genital_fluid_unblacklist_tooltip" = list("ru" = "Убрать жидкость из чёрного списка.", "en" = "Remove a genital fluid from your blacklist.")
+	"genital_fluid_unblacklist_tooltip" = list("ru" = "Убрать жидкость из чёрного списка.", "en" = "Remove a genital fluid from your blacklist."),
+
+	// Side bar
+	"dir_south"                  = list("ru" = "Спереди",            "en" = "Front"),
+	"dir_north"                  = list("ru" = "Сзади",              "en" = "Back"),
+	"dir_east"                   = list("ru" = "Справа",             "en" = "Right"),
+	"dir_west"                   = list("ru" = "Слева",              "en" = "Left"),
+	"show_empty_slots"           = list("ru" = "Показать пустые слоты", "en" = "Show empty slots"),
+	"hide_empty_slots"           = list("ru" = "Скрыть пустые слоты",  "en" = "Hide empty slots"),
+	"loadout_points"             = list("ru" = "очков снаряжения",    "en" = "loadout point"),
+	"loadout_points_remaining"   = list("ru" = "осталось",           "en" = "remaining"),
+	"appearance_body"            = list("ru" = "Тело",               "en" = "Body"),
+	"penis_diameter_ratio"       = list("ru" = "Соотношение диаметра", "en" = "Diameter Ratio"),
+	"add_label"                  = list("ru" = "Добавить",           "en" = "Add"),
+	"clear_label"                = list("ru" = "Очистить",           "en" = "Clear"),
+	"move_label"                 = list("ru" = "Переместить",        "en" = "Move"),
+	"name_column"                = list("ru" = "Название",           "en" = "Name"),
+	"colors_label"               = list("ru" = "Цвета",              "en" = "Colors"),
+	"top_label"                  = list("ru" = "Наверх",             "en" = "Top"),
+	"up_label"                   = list("ru" = "Вверх",              "en" = "Up"),
+	"down_label"                 = list("ru" = "Вниз",               "en" = "Down"),
+	"bottom_label"               = list("ru" = "Вниз до конца",      "en" = "Bottom")
 )
