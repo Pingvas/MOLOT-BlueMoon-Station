@@ -231,7 +231,7 @@ export const HairStylePicker = (props, context) => {
                         "min-height": "140px",
                       }}>
                       <PixelArtImage
-                        src={`data:image/png;base64,${preview_icon64}`}
+                        src={preview_icon64}
                         style={{
                           width: "128px",
                           height: "128px",

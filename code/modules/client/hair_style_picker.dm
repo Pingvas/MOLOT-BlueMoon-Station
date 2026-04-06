@@ -192,7 +192,7 @@
 	if(QDELETED(src))
 		return
 	if(I)
-		preview_icon64 = icon2base64_scaled(I, 4) // 32px × 4 = 128px
+		preview_icon64 = icon2html(I, holder, sourceonly = TRUE) // asset URL, не base64
 	else
 		preview_icon64 = null
 	preview_generating = FALSE
