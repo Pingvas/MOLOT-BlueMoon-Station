@@ -2,7 +2,7 @@ datum/preferences/proc/ShowChoices(mob/user, skip_preview_update = FALSE)
 	if(!user || !user.client)
 		return
 	if(!skip_preview_update)
-		update_preview_icon(current_tab)
+		update_preview_icon()
 	var/is_modern_theme = !!findtext(charcreation_theme, "modern")
 	var/datum/asset/spritesheet/loadout_icons/loadout_sheet
 	if(is_modern_theme)

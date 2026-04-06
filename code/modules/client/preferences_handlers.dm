@@ -1864,7 +1864,6 @@
 						chosen_limb_id = selected_body_sprite //this gets sanitized before loading
 
 				if("marking_down")
-					last_preview_key = null
 					// move the specified marking down
 					var/index = text2num(href_list["marking_index"])
 					var/marking_type = href_list["marking_type"]
@@ -1877,7 +1876,6 @@
 						markings[index_down] = first_marking
 
 				if("marking_up")
-					last_preview_key = null
 					// move the specified marking up
 					var/index = text2num(href_list["marking_index"])
 					var/marking_type = href_list["marking_type"]
@@ -1890,7 +1888,6 @@
 						markings[index_up] = first_marking
 
 				if("marking_top")
-					last_preview_key = null
 					// move the specified marking to the top
 					var/index = text2num(href_list["marking_index"])
 					var/marking_type = href_list["marking_type"]
@@ -1902,7 +1899,6 @@
 							markings[i-1] = temp
 
 				if("marking_bottom")
-					last_preview_key = null
 					// move the specified marking to the bottom
 					var/index = text2num(href_list["marking_index"])
 					var/marking_type = href_list["marking_type"]
@@ -1915,7 +1911,6 @@
 							markings[i+1] = temp
 
 				if("marking_remove")
-					last_preview_key = null
 					// move the specified marking up
 					var/index = text2num(href_list["marking_index"])
 					var/marking_type = href_list["marking_type"]
@@ -1925,7 +1920,6 @@
 						L.Cut(index, index + 1)
 
 				if("marking_add")
-					last_preview_key = null
 					// add a marking
 					var/marking_type = href_list["marking_type"]
 					if(marking_type && features[marking_type])
@@ -1957,7 +1951,6 @@
 										features[marking_type] += list(list(limb_value, selected_marking))
 
 				if("markings_clear_limb")
-					last_preview_key = null
 					var/marking_type = href_list["marking_type"]
 					if(marking_type && features[marking_type])
 						var/selected_limb = href_list["limb"]
@@ -1976,13 +1969,11 @@
 
 				// BLUEMOON ADD START - кнопка для удаления всех маркингов на персонаже
 				if("markings_remove")
-					last_preview_key = null
 					var/are_you_sure_about_that = tgui_alert(user, "Это действие удалит все татуировки с персонажа. Вы уверены, что хотите сделать это?", "Удаление всех маркингов", list("Да", "Нет"))
 					if(are_you_sure_about_that == "Да")
 						clearlist(features["mam_body_markings"])
 				// BLUEMOON ADD END
 				if("marking_color_specific")
-					last_preview_key = null
 					var/index = text2num(href_list["marking_index"])
 					var/marking_type = href_list["marking_type"]
 					var/color_number = text2num(href_list["number_color"])
@@ -2661,13 +2652,13 @@
 						current_tab = text2num(href_list["tab"])
 				if("character_preview")
 					preview_pref = href_list["tab"]
-					update_preview_icon(current_tab)
+					update_preview_icon()
 
 				if("preview_direction")
 					var/new_dir = text2num(href_list["dir"])
 					if(new_dir in GLOB.cardinals)
 						preview_direction = new_dir
-						update_preview_icon(current_tab)
+						update_preview_icon()
 
 				if("character_tab")
 					skip_preview = TRUE

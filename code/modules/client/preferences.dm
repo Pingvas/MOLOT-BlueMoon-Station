@@ -402,6 +402,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/tmp/preview_icon64 = null
 	// Guard flag — TRUE пока ассинхронная генерация работает.
 	var/preview_generating = FALSE
+	var/tmp/pending_preview_update = FALSE
 
 	var/no_tetris_storage = FALSE
 
@@ -503,7 +504,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/tmp/cached_palette_css = null
 	var/tmp/cached_palette_css_key = null
 	var/tmp/loadout_sheet_sent = FALSE
-	var/tmp/last_preview_key = null
 	var/tmp/list/antag_days_remaining = null
 	var/tmp/list/ui_strings_cache = null
 	var/tmp/ui_strings_lang = -1

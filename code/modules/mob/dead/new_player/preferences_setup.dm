@@ -29,25 +29,16 @@
 	bark_variance = BARK_VARIANCE_RAND
 	age = rand(AGE_MIN,AGE_MAX)
 
-/datum/preferences/proc/update_preview_icon(current_tab)
+/datum/preferences/proc/update_preview_icon()
 	if(preview_generating)
+		pending_preview_update = TRUE
 		return
-	// Пропускаем регенерацию, если внешность не изменилась (сравниваем ключ по ключевым полям)
-	var/datum/job/preview_job = get_highest_job()
-	var/new_key = "[pref_species?.id]_[hair_style]_[hair_color]_[facial_hair_style]_[facial_hair_color]\
-_[skin_tone]_[use_custom_skin_tone]_[preview_direction]_[preview_pref]_[preview_job?.type]\
-_[features["mcolor"]]_[features["mcolor2"]]_[features["mcolor3"]]_[features["body_model"]]_[features["body_size"]]"
-	if(new_key == last_preview_key && preview_icon64)
-		return
-	last_preview_key = new_key
 	INVOKE_ASYNC(src, PROC_REF(_generate_preview_icon))
 
 /datum/preferences/proc/_generate_preview_icon()
 	if(QDELETED(src))
 		return
 	preview_generating = TRUE
-	// Watchdog: если генерация зависла (рантайм/дедлок), сбрасываем флаг через 30 секунд
-	addtimer(CALLBACK(src, TYPE_PROC_REF(/datum/preferences, _reset_preview_generating)), 300)
 	var/datum/job/previewJob = get_highest_job()
 
 	if(previewJob)
@@ -56,17 +47,21 @@ _[features["mcolor"]]_[features["mcolor2"]]_[features["mcolor3"]]_[features["bod
 			var/icon/ai_icon = icon('icons/mob/ai.dmi', icon_state = resolve_ai_icon(preferred_ai_core_display), dir = preview_direction)
 			preview_icon64 = icon2html(ai_icon, parent)
 			preview_generating = FALSE
+			var/had_pending_ai = pending_preview_update
+			pending_preview_update = FALSE
 			var/mob/user = parent?.mob
 			if(user)
-				ShowChoices(user, skip_preview_update = TRUE)
+				ShowChoices(user, skip_preview_update = !had_pending_ai)
 			return
 		if(istype(previewJob,/datum/job/cyborg))
 			var/icon/bot_icon = icon('icons/mob/robots.dmi', icon_state = "robot", dir = preview_direction)
 			preview_icon64 = icon2html(bot_icon, parent)
 			preview_generating = FALSE
+			var/had_pending_cyborg = pending_preview_update
+			pending_preview_update = FALSE
 			var/mob/user = parent?.mob
 			if(user)
-				ShowChoices(user, skip_preview_update = TRUE)
+				ShowChoices(user, skip_preview_update = !had_pending_cyborg)
 			return
 
 	// Set up the dummy for its photoshoot
@@ -113,13 +108,10 @@ _[features["mcolor"]]_[features["mcolor2"]]_[features["mcolor3"]]_[features["bod
 
 	preview_generating = FALSE
 	var/mob/user = parent?.mob
+	var/had_pending = pending_preview_update
+	pending_preview_update = FALSE
 	if(user)
-		ShowChoices(user, skip_preview_update = TRUE)
-
-/// Сбрасывает preview_generating если флаг застрял (вызывается через addtimer watchdog).
-/datum/preferences/proc/_reset_preview_generating()
-	if(preview_generating)
-		preview_generating = FALSE
+		ShowChoices(user, skip_preview_update = !had_pending)
 
 /datum/preferences/proc/get_highest_job()
 	var/highest_pref = 0
