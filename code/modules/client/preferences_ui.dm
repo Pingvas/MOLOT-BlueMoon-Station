@@ -364,15 +364,16 @@ datum/preferences/proc/ShowChoices(mob/user, skip_preview_update = FALSE)
 				var/empty_label = T("empty_label")
 				var/offer_slot_label = T("offer_slot")
 				var/cancel_offer_label = T("cancel_offer")
-				var/file = user.client.Import()
-				var/savefile/client_file
-				var/savefile_name
-				if(file)
-					client_file = new(file)
-					if(istype(client_file, /savefile))
-						if(!client_file["deleted"] || savefile_needs_update(client_file) != -2)
-							client_file["real_name"] >> savefile_name
-					qdel(client_file)
+				if(!cached_import_checked)
+					var/import_file = user.client.Import()
+					if(import_file)
+						var/savefile/client_file = new(import_file)
+						if(istype(client_file, /savefile))
+							if(!client_file["deleted"] || savefile_needs_update(client_file) != -2)
+								client_file["real_name"] >> cached_import_save_name
+						qdel(client_file)
+					cached_import_checked = TRUE
+				var/savefile_name = cached_import_save_name
 				dat += "<div class='csetup-mgmt-local'>[T("local_storage")]: <b>[savefile_name ? savefile_name : empty_label]</b></div>"
 				dat += "<div class='csetup-mgmt-btns'>"
 				dat += "<a href='?_src_=prefs;preference=export_slot'>[T("export_slot")]</a>"
@@ -1712,8 +1713,6 @@ datum/preferences/proc/ShowChoices(mob/user, skip_preview_update = FALSE)
 					var/on_label = T("on")
 					var/off_label = T("off")
 					var/only_when_down_label = T("only_when_down")
-					var/tg_label = T("tg_label")
-					var/old_label = T("old_label")
 					var/allowed_label = T("allowed")
 					var/muted_label = T("muted")
 					var/low_label = T("low")
@@ -1770,7 +1769,6 @@ datum/preferences/proc/ShowChoices(mob/user, skip_preview_update = FALSE)
 					dat += "<b>[T("hud_button_flashes")]:</b> <a href='?_src_=prefs;preference=hud_toggle_flash'>[hud_toggle_flash ? enabled_label : disabled_label]</a><br>"
 					dat += "<b>[T("hud_flash_color")]:</b> <span style='border: 1px solid #161616; background-color: [hud_toggle_color];'><font color='[color_hex2num(hud_toggle_color) < 200 ? "FFFFFF" : "000000"]'>[hud_toggle_color]</font></span> <a href='?_src_=prefs;preference=hud_toggle_color;task=input'>[change_label]</a><br>"
 					dat += "<b>[T("income_updates")]:</b> <a href='?_src_=prefs;preference=income_pings'>[(chat_toggles & CHAT_BANKCARD) ? allowed_label : muted_label]</a><br>"
-					dat += "<b>[T("playerpanel_style")]:</b> <a href='?_src_=prefs;preference=tg_playerpanel'>[(toggles & TG_PLAYER_PANEL) ? tg_label : old_label]</a><br>"
 					dat += "<b>[T("force_slot_storage")]:</b> <a href='?_src_=prefs;preference=no_tetris_storage'>[no_tetris_storage ? enabled_label : disabled_label]</a><br>"
 
 					// Геймплей

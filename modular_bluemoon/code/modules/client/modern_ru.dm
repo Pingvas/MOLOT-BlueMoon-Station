@@ -788,7 +788,6 @@
 	"hud_flash_color"        = list("ru" = "Цвет мигания кнопок HUD",           "en" = "HUD Button Flash Color"),
 	"income_updates"         = list("ru" = "Уведомления о обновлениях",         "en" = "Income Updates"),
 	"muted"                  = list("ru" = "Заглушено",                         "en" = "Muted"),
-	"playerpanel_style"      = list("ru" = "Стиль панели игрока",               "en" = "Player Panel Style"),
 	"tg_label"               = list("ru" = "TG",                                "en" = "TG"),
 	"old_label"              = list("ru" = "Старый",                            "en" = "Old"),
 	"force_slot_storage"     = list("ru" = "HUD хранилища слотов",              "en" = "Force Slot Storage HUD"),

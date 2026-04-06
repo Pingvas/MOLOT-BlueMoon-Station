@@ -2031,10 +2031,6 @@
 					disable_combat_cursor = !disable_combat_cursor
 				if("disable_combat_mouse_lock")
 					disable_combat_mouse_lock = !disable_combat_mouse_lock
-				if("tg_playerpanel")
-					toggles ^= TG_PLAYER_PANEL
-					to_chat(user, span_warning("Please relog in order to apply the changes"))
-					save_preferences()
 				//CITADEL PREFERENCES EDIT - I can't figure out how to modularize these, so they have to go here. :c -Pooj
 				if("genital_colour")
 					features["genitals_use_skintone"] = !features["genitals_use_skintone"]
@@ -2283,10 +2279,7 @@
 						user << browse(null, "window=capturekeypress")
 						if(href_list["special"])		// special keys need a full reset
 							user.client.ensure_keys_set(src)
-						save_preferences()
-						ShowChoices(user)
-						return
-
+							save_preferences(silent = TRUE)
 					var/new_key = uppertext(href_list["key"])
 					var/AltMod = text2num(href_list["alt"]) ? "Alt" : ""
 					var/CtrlMod = text2num(href_list["ctrl"]) ? "Ctrl" : ""
@@ -2320,7 +2313,7 @@
 					if(href_list["special"])		// special keys need a full reset
 						user.client.ensure_keys_set(src)
 					user << browse(null, "window=capturekeypress")
-					save_preferences()
+					save_preferences(silent = TRUE)
 
 				if("keybindings_reset")
 					var/choice = tgalert(user, "Would you prefer 'hotkey' or 'classic' defaults?", "Setup keybindings", "Hotkey", "Classic", "Cancel")
@@ -2692,6 +2685,8 @@
 					var/savefile/S = save_character(export = TRUE)
 					if(istype(S, /savefile))
 						user.client.Export(S)
+						cached_import_checked = FALSE
+						cached_import_save_name = null
 						tgui_alert_async(user, "Successfully saved character slot")
 					else
 						tgui_alert_async(user, "Failed saving character slot")
@@ -2712,6 +2707,8 @@
 
 				if("delete_local_copy")
 					user.client.clear_export()
+					cached_import_checked = FALSE
+					cached_import_save_name = null
 					tgui_alert_async(user, "Local save data erased.")
 
 				if("give_slot")
@@ -2785,11 +2782,11 @@
 			loadout_slot = chosen
 		if(href_list["clear_loadout"])
 			loadout_data["SAVE_[loadout_slot]"] = list()
-			save_preferences()
+			save_preferences(silent = TRUE)
 		// BLUEMOON ADD - переключатель лодаута
 		if(href_list["toggle_loadout_enabled"])
 			loadout_enabled = !loadout_enabled
-			save_preferences()
+			save_preferences(silent = TRUE)
 		// BLUEMOON ADD END
 		// Лодаут сайдбар
 		if(href_list["switch_to_loadout_tab"])
@@ -2798,7 +2795,7 @@
 			var/sidebar_gear_to_remove = url_decode(href_list["sidebar_remove_gear"])
 			if(sidebar_gear_to_remove)
 				remove_gear_from_loadout(loadout_slot, sidebar_gear_to_remove)
-				save_preferences()
+				save_preferences(silent = TRUE)
 		if(href_list["select_category"])
 			gear_category = url_decode(href_list["select_category"])
 			// BLUEMOON FIX - Add null check to prevent runtime when category doesn't exist

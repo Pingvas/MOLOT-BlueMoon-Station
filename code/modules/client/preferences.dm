@@ -15,6 +15,10 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/vr_path
 	var/default_slot = 1				//Holder so it doesn't default to slot 1, rather the last one used
 	var/list/cached_slot_names			// null = dirty
+	/// Cached name from client's local save file — avoids Import() I/O on every ShowChoices render
+	var/tmp/cached_import_save_name = null
+	/// FALSE means cache is dirty and Import() needs to run again
+	var/tmp/cached_import_checked = FALSE
 	var/max_save_slots = 40
 	var/last_ip
 	/// Last CID the person was seen on
@@ -120,7 +124,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/be_victim = null
 	var/disable_combat_cursor = FALSE
 	var/disable_combat_mouse_lock = FALSE
-	var/tg_playerpanel = "TG"
 	var/pda_style = MONO
 	var/pda_color = "#808000"
 	var/pda_skin = PDA_SKIN_ALT
