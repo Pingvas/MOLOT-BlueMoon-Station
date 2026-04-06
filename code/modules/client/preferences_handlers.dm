@@ -1981,6 +1981,8 @@
 						// perform some magic on the color number
 						var/list/marking_list = features[marking_type][index]
 						var/datum/sprite_accessory/mam_body_markings/S = GLOB.mam_body_markings_list[marking_list[2]]
+						if(!S)
+							break
 						var/matrixed_sections = S.covered_limbs[GLOB.bodypart_names[num2text(marking_list[1])]]
 						if(color_number == 1)
 							switch(matrixed_sections)

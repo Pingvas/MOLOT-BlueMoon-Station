@@ -1225,7 +1225,7 @@ datum/preferences/proc/ShowChoices(mob/user, skip_preview_update = FALSE)
 									var/color_marking_dat = ""
 									var/number_colors = 1
 									var/datum/sprite_accessory/mam_body_markings/S = GLOB.mam_body_markings_list[marking_list[2]]
-									var/matrixed_sections = S.covered_limbs[actual_name]
+									var/matrixed_sections = S ? S.covered_limbs[actual_name] : null
 									if(S && matrixed_sections)
 										if(length(marking_list) == 2)
 											var/first = "#FFFFFF"
