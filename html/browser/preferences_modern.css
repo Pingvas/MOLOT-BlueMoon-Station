@@ -1702,8 +1702,8 @@ body {
 .csetup-root.csetup-theme-classic .csetup-preview-img img {
 	image-rendering: pixelated;
 	image-rendering: crisp-edges;
-	max-width: 100%;
-	max-height: 100%;
+	width: 100%;
+	height: 100%;
 	object-fit: contain;
 }
 

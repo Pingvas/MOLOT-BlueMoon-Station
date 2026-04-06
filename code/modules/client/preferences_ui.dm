@@ -270,7 +270,7 @@ datum/preferences/proc/ShowChoices(mob/user, skip_preview_update = FALSE)
 			dat += "</div>"
 			dat += "<div class='csetup-preview-img'>"
 			if(preview_icon64)
-				dat += "<img src='data:image/png;base64,[preview_icon64]' alt=''>"
+				dat += preview_icon64
 			dat += "</div>"
 
 			// ── Slot panel ──

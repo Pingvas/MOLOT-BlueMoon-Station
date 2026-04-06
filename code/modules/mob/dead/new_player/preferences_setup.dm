@@ -54,7 +54,7 @@ _[features["mcolor"]]_[features["mcolor2"]]_[features["mcolor3"]]_[features["bod
 		// Silicons only need a very basic preview since there is no customization for them.
 		if(istype(previewJob,/datum/job/ai))
 			var/icon/ai_icon = icon('icons/mob/ai.dmi', icon_state = resolve_ai_icon(preferred_ai_core_display), dir = preview_direction)
-			preview_icon64 = icon2base64_scaled(ai_icon, 4)
+			preview_icon64 = icon2html(ai_icon, parent)
 			preview_generating = FALSE
 			var/mob/user = parent?.mob
 			if(user)
@@ -62,7 +62,7 @@ _[features["mcolor"]]_[features["mcolor2"]]_[features["mcolor3"]]_[features["bod
 			return
 		if(istype(previewJob,/datum/job/cyborg))
 			var/icon/bot_icon = icon('icons/mob/robots.dmi', icon_state = "robot", dir = preview_direction)
-			preview_icon64 = icon2base64_scaled(bot_icon, 4)
+			preview_icon64 = icon2html(bot_icon, parent)
 			preview_generating = FALSE
 			var/mob/user = parent?.mob
 			if(user)
@@ -106,7 +106,7 @@ _[features["mcolor"]]_[features["mcolor2"]]_[features["mcolor3"]]_[features["bod
 
 	var/icon/flat = getFlatIcon(mannequin, defdir = preview_direction, no_anim = TRUE)
 	if(flat)
-		preview_icon64 = icon2base64_scaled(flat, 4)
+		preview_icon64 = icon2html(flat, parent)
 	else
 		preview_icon64 = null
 	unset_busy_human_dummy(DUMMY_HUMAN_SLOT_PREFERENCES)
