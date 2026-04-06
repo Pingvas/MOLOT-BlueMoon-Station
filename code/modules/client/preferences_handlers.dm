@@ -1981,30 +1981,29 @@
 						// perform some magic on the color number
 						var/list/marking_list = features[marking_type][index]
 						var/datum/sprite_accessory/mam_body_markings/S = GLOB.mam_body_markings_list[marking_list[2]]
-						if(!S)
-							break
-						var/matrixed_sections = S.covered_limbs[GLOB.bodypart_names[num2text(marking_list[1])]]
-						if(color_number == 1)
-							switch(matrixed_sections)
-								if(MATRIX_GREEN)
-									color_number = 2
-								if(MATRIX_BLUE)
-									color_number = 3
-						else if(color_number == 2)
-							switch(matrixed_sections)
-								if(MATRIX_RED_BLUE)
-									color_number = 3
-								if(MATRIX_GREEN_BLUE)
-									color_number = 3
+						if(S)
+							var/matrixed_sections = S.covered_limbs[GLOB.bodypart_names[num2text(marking_list[1])]]
+							if(color_number == 1)
+								switch(matrixed_sections)
+									if(MATRIX_GREEN)
+										color_number = 2
+									if(MATRIX_BLUE)
+										color_number = 3
+							else if(color_number == 2)
+								switch(matrixed_sections)
+									if(MATRIX_RED_BLUE)
+										color_number = 3
+									if(MATRIX_GREEN_BLUE)
+										color_number = 3
 
-						var/color_list = features[marking_type][index][3]
-						var/new_marking_color = input(user, "Choose your character's marking color:", "Character Preference",color_list[color_number]) as color|null
-						if(new_marking_color)
-							var/temp_hsv = RGBtoHSV(new_marking_color)
-							if((MUTCOLORS_PARTSONLY in pref_species.species_traits) || ReadHSV(temp_hsv)[3] >= ReadHSV(MINIMUM_MUTANT_COLOR)[3] || !CONFIG_GET(flag/character_color_limits)) // mutantcolors must be bright, but only if they affect the skin //SPLURT EDIT
-								color_list[color_number] = "#[sanitize_hexcolor(new_marking_color, 6)]"
-							else
-								to_chat(user, "<span class='danger'>Invalid color. Your color is not bright enough.</span>")
+							var/color_list = features[marking_type][index][3]
+							var/new_marking_color = input(user, "Choose your character's marking color:", "Character Preference",color_list[color_number]) as color|null
+							if(new_marking_color)
+								var/temp_hsv = RGBtoHSV(new_marking_color)
+								if((MUTCOLORS_PARTSONLY in pref_species.species_traits) || ReadHSV(temp_hsv)[3] >= ReadHSV(MINIMUM_MUTANT_COLOR)[3] || !CONFIG_GET(flag/character_color_limits)) // mutantcolors must be bright, but only if they affect the skin //SPLURT EDIT
+									color_list[color_number] = "#[sanitize_hexcolor(new_marking_color, 6)]"
+								else
+									to_chat(user, "<span class='danger'>Invalid color. Your color is not bright enough.</span>")
 				//SPLURT Edit
 				if("gfluid_black")
 					var/list/datum/reagent/fluid_list = GLOB.genital_fluids_list.Copy()

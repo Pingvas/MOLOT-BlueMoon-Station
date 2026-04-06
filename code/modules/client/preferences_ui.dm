@@ -1009,7 +1009,7 @@ datum/preferences/proc/ShowChoices(mob/user, skip_preview_update = FALSE)
 									var/datum/sprite_accessory/penis/P = GLOB.cock_shapes_list[features["cock_shape"]]
 									if(P?.taur_icon && parent?.can_have_part("taur"))
 										var/datum/sprite_accessory/taur/T = GLOB.taur_list[features["taur"]]
-										if(T.taur_mode & P.accepted_taurs)
+										if(T?.taur_mode & P.accepted_taurs)
 											tauric_shape = TRUE
 								dat += "<b>[T("penis_shape")]:</b> <a style='display:block;width:120px' href='?_src_=prefs;preference=cock_shape;task=input'>[features["cock_shape"]][tauric_shape ? " (Taur)" : ""]</a>"
 								dat += "<b>[T("penis_length")]:</b> <a style='display:block;width:120px' href='?_src_=prefs;preference=cock_length;task=input'>[features["cock_length"]] [T("centimeters")]</a>"
@@ -1413,13 +1413,24 @@ datum/preferences/proc/ShowChoices(mob/user, skip_preview_update = FALSE)
 										if(gear.loadout_flags & LOADOUT_CAN_COLOR_POLYCHROMIC)
 											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color_polychromic=1;loadout_gear_name=[url_encode(gear.name)];'>Color</a>"
 											for(var/loadout_color in loadout_item[LOADOUT_COLOR])
-												extra_loadout_data += "<span style='border: 1px solid #161616; background-color: [loadout_color];'><font color='[color_hex2num(loadout_color) < 200 ? "FFFFFF" : "000000"]'>[loadout_color]</font></span>"
+												if(islist(loadout_color))
+													extra_loadout_data += "<span style='border: 1px solid #161616; padding: 1px 4px; font-size: 10px;'>HSV</span>"
+												else
+													extra_loadout_data += "<span style='border: 1px solid #161616; background-color: [loadout_color];'><font color='[color_hex2num(loadout_color) < 200 ? "FFFFFF" : "000000"]'>[loadout_color]</font></span>"
 										else
 											var/loadout_color_non_poly = "#FFFFFF"
+											var/loadout_color_is_hsv = FALSE
 											if(length(loadout_item[LOADOUT_COLOR]))
-												loadout_color_non_poly = loadout_item[LOADOUT_COLOR][1]
+												var/raw_lc = loadout_item[LOADOUT_COLOR][1]
+												if(istext(raw_lc))
+													loadout_color_non_poly = raw_lc
+												else if(islist(raw_lc))
+													loadout_color_is_hsv = TRUE
 											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color=1;loadout_gear_name=[url_encode(gear.name)];'>Color</a>"
-											extra_loadout_data += "<span style='border: 1px solid #161616; background-color: [loadout_color_non_poly];'><font color='[color_hex2num(loadout_color_non_poly) < 200 ? "FFFFFF" : "000000"]'>[loadout_color_non_poly]</font></span>"
+											if(loadout_color_is_hsv)
+												extra_loadout_data += "<span style='border: 1px solid #161616; padding: 1px 4px; font-size: 10px;'>HSV</span>"
+											else
+												extra_loadout_data += "<span style='border: 1px solid #161616; background-color: [loadout_color_non_poly];'><font color='[color_hex2num(loadout_color_non_poly) < 200 ? "FFFFFF" : "000000"]'>[loadout_color_non_poly]</font></span>"
 											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color_HSV=1;loadout_gear_name=[url_encode(gear.name)];'>HSV Color</a>" // SPLURT EDIT
 										if(gear.loadout_flags & LOADOUT_CAN_NAME)
 											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_rename=1;loadout_gear_name=[url_encode(gear.name)];'>Name</a> [loadout_item[LOADOUT_CUSTOM_NAME] ? loadout_item[LOADOUT_CUSTOM_NAME] : "N/A"]"
