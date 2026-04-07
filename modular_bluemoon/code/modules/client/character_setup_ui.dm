@@ -1246,7 +1246,7 @@
 			return TRUE
 
 		if("set_species")
-			var/result = tgui_input_list(user, "Select a species", "Species Selection", GLOB.roundstart_race_names)
+			var/result = tgui_input_list(user, "Выберите расу", "Выбор расы", GLOB.roundstart_race_names)
 			if(result)
 				var/newtype = GLOB.species_list[GLOB.roundstart_race_names[result]]
 				prefs.pref_species = new newtype()
@@ -1646,7 +1646,7 @@
 
 		// === GENERAL TAB DELEGATION ===
 		if("set_blood_color")
-			var/picked = input(user, "Выбирайте цвет крови своего персонажа.", "Character Preference", prefs.blood_color) as color|null
+			var/picked = input(user, "Выбирайте цвет крови своего персонажа.", "Настройка персонажа", prefs.blood_color) as color|null
 			if(picked)
 				prefs.blood_color = sanitize_hexcolor(picked, 6, 1, initial(prefs.blood_color))
 				if(!prefs.custom_blood_color)
@@ -1661,51 +1661,51 @@
 			return TRUE
 
 		if("set_security_dept")
-			var/department = tgui_input_list(user, "Choose your preferred security department:", "Security Departments", GLOB.security_depts_prefs)
+			var/department = tgui_input_list(user, "Выберите предпочитаемый отдел охраны:", "Отделы безопасности", GLOB.security_depts_prefs)
 			if(department)
 				prefs.prefered_security_department = department
 			return TRUE
 
 		if("set_ai_core_display")
-			var/ai_core_icon = tgui_input_list(user, "Choose your preferred AI core display screen:", "AI Core Display Screen", GLOB.ai_core_display_screens)
+			var/ai_core_icon = tgui_input_list(user, "Выберите предпочитаемый экран ИИ:", "Экран ИИ-ядра", GLOB.ai_core_display_screens)
 			if(ai_core_icon)
 				prefs.preferred_ai_core_display = ai_core_icon
 			return TRUE
 
 		if("set_pda_color")
-			var/picked = input(user, "Выбирайте цвет интерфейса своего КПК.", "Character Preference", prefs.pda_color) as color|null
+			var/picked = input(user, "Выбирайте цвет интерфейса своего КПК.", "Настройка персонажа", prefs.pda_color) as color|null
 			if(picked)
 				prefs.pda_color = picked
 			return TRUE
 
 		if("set_pda_style")
-			var/picked = tgui_input_list(user, "Выбирайте стиль своего КПК.", "Character Preference", GLOB.pda_styles, prefs.pda_style)
+			var/picked = tgui_input_list(user, "Выбирайте стиль своего КПК.", "Настройка персонажа", GLOB.pda_styles, prefs.pda_style)
 			if(picked)
 				prefs.pda_style = picked
 			return TRUE
 
 		if("set_pda_skin")
-			var/picked = tgui_input_list(user, "Выбирайте модель своего КПК.", "Character Preference", GLOB.pda_reskins, prefs.pda_skin)
+			var/picked = tgui_input_list(user, "Выбирайте модель своего КПК.", "Настройка персонажа", GLOB.pda_reskins, prefs.pda_skin)
 			if(picked)
 				prefs.pda_skin = picked
 			return TRUE
 
 		if("set_pda_ringtone")
-			var/picked = reject_bad_name(input(user, "Выбирайте рингтон своего КПК.", "Character Preference", prefs.pda_ringtone) as null|text, TRUE)
+			var/picked = reject_bad_name(input(user, "Выбирайте рингтон своего КПК.", "Настройка персонажа", prefs.pda_ringtone) as null|text, TRUE)
 			if(picked)
 				prefs.pda_ringtone = picked
 			return TRUE
 
 		if("set_silicon_lawset")
-			var/picked = tgui_input_list(user, "Выбирайте предпочитаемый список законов", "Silicon preference", list("None") + CONFIG_GET(keyed_list/choosable_laws), prefs.silicon_lawset)
+			var/picked = tgui_input_list(user, "Выбирайте предпочитаемый список законов", "Настройка силикона", list("Нет") + CONFIG_GET(keyed_list/choosable_laws), prefs.silicon_lawset)
 			if(picked)
-				if(picked == "None")
+				if(picked == "Нет")
 					picked = null
 				prefs.silicon_lawset = picked
 			return TRUE
 
 		if("set_body_weight")
-			var/new_weight = tgui_input_number(user, "Enter body weight (50-600 lbs):", "Body Weight", prefs.body_weight, 600, 50)
+			var/new_weight = tgui_input_number(user, "Введите вес тела (50–600 фунтов):", "Вес тела", prefs.body_weight, 600, 50)
 			if(!isnull(new_weight))
 				prefs.body_weight = clamp(new_weight, 50, 600)
 			return TRUE
@@ -2466,15 +2466,15 @@
 					user_gear[LOADOUT_COLOR] = list("#FFFFFF")
 				var/list/color_options = list()
 				for(var/i in 1 to length(user_gear[LOADOUT_COLOR]))
-					color_options += "Color [i]"
-				var/choice = tgui_input_list(user, "Какой цвет изменить?", "Polychromic Color", color_options)
+					color_options += "Цвет [i]"
+				var/choice = tgui_input_list(user, "Какой цвет изменить?", "Полихромный цвет", color_options)
 				if(!choice)
 					return FALSE
-				var/color_index = text2num(copytext(choice, 7))
+				var/color_index = text2num(copytext(choice, 6))
 				if(!color_index || color_index < 1 || color_index > length(user_gear[LOADOUT_COLOR]))
 					return FALSE
 				var/current_color = user_gear[LOADOUT_COLOR][color_index]
-				var/new_color = input(user, "Выберите цвет:", "Loadout Color", current_color) as color|null
+				var/new_color = input(user, "Выберите цвет:", "Цвет снаряжения", current_color) as color|null
 				if(new_color)
 					user_gear[LOADOUT_COLOR][color_index] = sanitize_hexcolor(new_color, 6, TRUE, current_color)
 			else
@@ -2482,7 +2482,7 @@
 				if(!length(user_gear[LOADOUT_COLOR]))
 					user_gear[LOADOUT_COLOR] = list("#FFFFFF")
 				var/current_color = user_gear[LOADOUT_COLOR][1]
-				var/new_color = input(user, "Выберите цвет:", "Loadout Color", current_color) as color|null
+				var/new_color = input(user, "Выберите цвет:", "Цвет снаряжения", current_color) as color|null
 				if(new_color)
 					user_gear[LOADOUT_COLOR][1] = sanitize_hexcolor(new_color, 6, TRUE, current_color)
 			prefs.save_preferences(user)
