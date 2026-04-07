@@ -2553,6 +2553,22 @@
 			prefs.all_quirks = list()
 			return TRUE
 
+		if("change_shriek_option")
+			var/new_shriek_type = tgui_input_list(user, "Выберите тип крика персонажа:", "Тип крика", GLOB.shriek_types, prefs.shriek_type)
+			if(new_shriek_type)
+				prefs.shriek_type = new_shriek_type
+			return TRUE
+
+		if("set_summon_nickname")
+			var/new_nickname = input(user, "Задайте прозвище при призыве персонажа:", "Прозвище призыва", prefs.summon_nickname) as text|null
+			if(new_nickname)
+				new_nickname = reject_bad_name(new_nickname, allow_numbers = TRUE)
+				if(new_nickname)
+					prefs.summon_nickname = new_nickname
+				else
+					to_chat(user, span_warning("Недопустимое прозвище. Минимум 2, максимум [MAX_NAME_LEN] символов. Допускаются: A-Z, a-z, А-Я, а-я, -, ', ."))
+			return TRUE
+
 		// === KEYBINDINGS ACTIONS ===
 		if("capture_keybinding")
 			var/kb_name = params["keybinding"]

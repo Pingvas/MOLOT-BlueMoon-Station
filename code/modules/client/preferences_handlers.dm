@@ -114,20 +114,20 @@
 			if("change_shriek_option") // изменение вида крика от квирка крикуна
 				var/client/C = usr.client
 				if(C)
-					var/new_shriek_type = tgui_input_list(user, "Choose your character's shriek type.", "Character Preference", GLOB.shriek_types)
+					var/new_shriek_type = tgui_input_list(user, "Выберите тип крика персонажа:", "Тип крика", GLOB.shriek_types)
 					if(new_shriek_type)
 						shriek_type = new_shriek_type
 				SStgui.update_user_uis(user, /datum/character_setup_ui)
 			if("lewd_summon_nickname")
 				var/client/C = usr.client
 				if(C)
-					var/new_summon_nickname = input(user, "Задайте прозвище во время призыва вашего персонажа:", "Character Preference") as text|null
+					var/new_summon_nickname = input(user, "Задайте прозвище при призыве персонажа:", "Прозвище призыва") as text|null
 					if(new_summon_nickname)
 						new_summon_nickname = reject_bad_name(new_summon_nickname, allow_numbers = TRUE)
 						if(new_summon_nickname)
 							summon_nickname = new_summon_nickname
 						else
-							to_chat(user, "<font color='red'>Invalid name. Your name should be at least 2 and at most [MAX_NAME_LEN] characters long. It may only contain the characters A-Z, a-z, А-Я, а-я, -, ' and .</font>")
+							to_chat(user, span_warning("Недопустимое прозвище. Минимум 2, максимум [MAX_NAME_LEN] символов."))
 				SStgui.update_user_uis(user, /datum/character_setup_ui)
 	// BLUEMOON ADD END
 		return TRUE
