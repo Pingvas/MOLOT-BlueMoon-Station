@@ -31,7 +31,8 @@
 	return ..()
 
 /datum/character_setup_ui/ui_state(mob/user)
-	return GLOB.always_state
+	// Only accessible from lobby (new_player mob) or by admins — prevents editing character mid-round
+	return GLOB.new_player_state
 
 /datum/character_setup_ui/ui_close(mob/user)
 	prefs?.save_character()
