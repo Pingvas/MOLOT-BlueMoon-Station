@@ -71,6 +71,7 @@
 	"preview_loadout"       = list("ru" = "Снаряжение",      "en" = "Loadout"),
 	"preview_naked"         = list("ru" = "Нагота",          "en" = "Naked"),
 	"preview_naked_aroused" = list("ru" = "Возбужденный",    "en" = "Aroused"),
+	"preview_reference"     = list("ru" = "Эталон",          "en" = "Reference"),
 
 	// Character creation tabs
 	"char_tab_general"     = list("ru" = "Основное",     "en" = "General"),
@@ -259,7 +260,7 @@
 	// Body size
 	"body_size"              = list("ru" = "Размер тела",						"en" = "Body Size"),
 	"normalized_size"        = list("ru" = "Нормализованный размер",			"en" = "Normalized Size"),
-	"scaled_appearance"      = list("ru" = "Масштабированное появление",		"en" = "Scaled Appearance"),
+	"scaled_appearance"      = list("ru" = "Режим масштабирования",				"en" = "Scaling Mode"),
 	"fuzzy"                  = list("ru" = "Размытый",							"en" = "Fuzzy"),
 	"sharp"                  = list("ru" = "Резкий",							"en" = "Sharp"),
 	"weight"                 = list("ru" = "Вес",								"en" = "Weight"),

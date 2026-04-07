@@ -266,7 +266,11 @@
 ///Searching for loadout item which `property` ([LOADOUT_ITEM], [LOADOUT_COLOR], etc) equals to `value`; returns this items, or FALSE if no gear matched conditions
 /datum/preferences/proc/find_gear_with_property(save_slot, property, value)
 	var/list/gear_list = loadout_data["SAVE_[save_slot]"]
+	if(!islist(gear_list))
+		return FALSE
 	for(var/loadout_gear in gear_list)
+		if(!islist(loadout_gear))
+			continue
 		if(loadout_gear[property] == value)
 			return loadout_gear
 	return FALSE
@@ -276,6 +280,8 @@
 	if(!islist(gear_list))
 		return FALSE
 	for(var/loadout_gear in gear_list)
+		if(!islist(loadout_gear))
+			continue
 		if(loadout_gear[LOADOUT_ITEM] == gear_type)
 			return loadout_gear
 	return FALSE

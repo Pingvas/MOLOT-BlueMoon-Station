@@ -1475,6 +1475,12 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 			else
 				loadout_data[save_key] = list()
 
+	// Ensure SAVE_X keys exist even when loadout data wasn't loaded from text (old savefile format)
+	for(var/ensure_idx = 1, ensure_idx <= MAXIMUM_LOADOUT_SAVES, ensure_idx++)
+		var/ensure_key = "SAVE_[ensure_idx]"
+		if(!islist(loadout_data[ensure_key]))
+			loadout_data[ensure_key] = list()
+
 	//let's remember their last used slot, i'm sure "oops i brought the wrong stuff" will be an issue now
 	S["loadout_slot"] >> loadout_slot
 	// BLUEMOON ADD - загрузка переключателя лодаута

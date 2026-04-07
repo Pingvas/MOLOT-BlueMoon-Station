@@ -268,10 +268,42 @@ datum/preferences/proc/ShowChoices(mob/user, skip_preview_update = FALSE)
 			dat += "<a class='csetup-preview-btn[preview_pref == PREVIEW_PREF_NAKED ? " linkOn" : ""]' href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_NAKED]'>[T("preview_naked")]</a>"
 			dat += "<a class='csetup-preview-btn[preview_pref == PREVIEW_PREF_NAKED_AROUSED ? " linkOn" : ""]' href='?_src_=prefs;preference=character_preview;tab=[PREVIEW_PREF_NAKED_AROUSED]'>[T("preview_naked_aroused")]</a>"
 			dat += "</div>"
-			dat += "<div class='csetup-preview-img'>"
-			if(preview_icon64)
-				dat += preview_icon64
+			// Zoom slider + reference toggle
+			var/zoom_scale = preview_zoom * 0.01
+			dat += "<div class='csetup-zoom-bar'>"
+			dat += "<span class='csetup-zoom-label'>[preview_zoom]%</span>"
+			dat += "<input type='range' class='csetup-zoom-slider' min='100' max='200' step='10' value='[preview_zoom]' onchange=\"window.location.href='?_src_=prefs;preference=preview_zoom;level='+this.value\">"
+			dat += "<a class='csetup-zoom-btn[preview_show_reference ? " linkOn" : ""]' href='?_src_=prefs;preference=preview_reference'>[T("preview_reference")]</a>"
 			dat += "</div>"
+			// Preview area: side-by-side when reference is on
+			var/has_reference = preview_show_reference && LAZYACCESS(preview_reference_cache, "[preview_direction]")
+			var/body_size_pct = round(features["body_size"] * 100)
+			if(has_reference)
+				dat += "<div class='csetup-preview-compare'>"
+				// Reference (100%) on the left
+				dat += "<div class='csetup-preview-half'>"
+				dat += "<div class='csetup-preview-inner' style='transform: scale([zoom_scale]); transform-origin: bottom center;'>"
+				dat += preview_reference_cache["[preview_direction]"]
+				dat += "</div>"
+				dat += "<div class='csetup-size-label'>100%</div>"
+				dat += "</div>"
+				// Character (actual size) on the right
+				dat += "<div class='csetup-preview-half'>"
+				dat += "<div class='csetup-preview-inner' style='transform: scale([zoom_scale]); transform-origin: bottom center;'>"
+				if(preview_icon64)
+					dat += preview_icon64
+				dat += "</div>"
+				dat += "<div class='csetup-size-label'>[body_size_pct]%</div>"
+				dat += "</div>"
+				dat += "</div>"
+			else
+				dat += "<div class='csetup-preview-img'>"
+				dat += "<div class='csetup-preview-inner' style='transform: scale([zoom_scale]); transform-origin: bottom center;'>"
+				if(preview_icon64)
+					dat += preview_icon64
+				dat += "</div>"
+				dat += "<div class='csetup-size-label'>[body_size_pct]%</div>"
+				dat += "</div>"
 
 			// ── Slot panel ──
 			if(path)
@@ -450,6 +482,8 @@ datum/preferences/proc/ShowChoices(mob/user, skip_preview_update = FALSE)
 				if(islist(chosen_gear))
 					loadout_errors = 0
 					for(var/loadout_item in chosen_gear)
+						if(!islist(loadout_item))
+							continue
 						var/loadout_item_path = loadout_item[LOADOUT_ITEM]
 						if(loadout_item_path)
 							var/datum/gear/loadout_gear = text2path(loadout_item_path)
@@ -786,7 +820,8 @@ datum/preferences/proc/ShowChoices(mob/user, skip_preview_update = FALSE)
 
 							dat += "<b>[T("body_size")]:</b> <a href='?_src_=prefs;preference=body_size;task=input'>[features["body_size"]*100]%</a><br>"
 							dat += "<b>[T("normalized_size")]:</b> <a href='?_src_=prefs;preference=normalized_size;task=input'>[features["normalized_size"]*100]%</a><br>"
-							dat += "<b>[T("scaled_appearance")]:</b> <a href='?_src_=prefs;preference=toggle_fuzzy;task=input'>[fuzzy ? fuzzy_label : sharp_label]</a><br>"
+							var/fuzzy_display = (fuzzy == SCALED_FUZZY) ? fuzzy_label : sharp_label
+							dat += "<b>[T("scaled_appearance")]:</b> <a href='?_src_=prefs;preference=toggle_fuzzy;task=input'>[fuzzy_display]</a><br>"
 							dat += "<b>[T("weight")]:</b> <a href='?_src_=prefs;preference=body_weight;task=input'>[all_quirks.Find("Пожиратель") ? NAME_WEIGHT_NORMAL : body_weight]</a><br>" //BLUEMOON ADD вес персонажей
 
 						if(!(NOEYES in pref_species.species_traits))
@@ -1490,21 +1525,22 @@ datum/preferences/proc/ShowChoices(mob/user, skip_preview_update = FALSE)
 								dat += "<td><font size=2><b>Data contained</b></font></td></tr>"
 								dat += "</center>"
 								var/list/sanitize_current_slot = loadout_data["SAVE_[loadout_slot]"]
-								for(var/list/entry in sanitize_current_slot)
-									var/test_item = entry["loadout_item"]
-									if(text2path(test_item))
-										continue
-									var/background_cl = "#23273C"
-									if(even)
-										background_cl = "#17191C"
-									even = !even
-									var/test_item_display = test_item ? test_item : "no path!!?! Report to an admin!"
-									var/encoded_test_item = url_encode(test_item ? test_item : "")
-									dat += "<tr style='vertical-align:top; background-color: [background_cl];'><td width=15%><a style='white-space:normal;' href='?_src_=prefs;preference=gear;clear_invalid_gear=[encoded_test_item];'>[test_item_display]</a></td>"
-									dat += "<td style='vertical-align:top'>"
-									var/list/other_data = entry["loadout_item"] ? entry - "loadout_item" : entry
-									dat += json_encode(other_data)
-									dat += "</td></tr>"
+								if(islist(sanitize_current_slot))
+									for(var/list/entry in sanitize_current_slot)
+										var/test_item = entry["loadout_item"]
+										if(text2path(test_item))
+											continue
+										var/background_cl = "#23273C"
+										if(even)
+											background_cl = "#17191C"
+										even = !even
+										var/test_item_display = test_item ? test_item : "no path!!?! Report to an admin!"
+										var/encoded_test_item = url_encode(test_item ? test_item : "")
+										dat += "<tr style='vertical-align:top; background-color: [background_cl];'><td width=15%><a style='white-space:normal;' href='?_src_=prefs;preference=gear;clear_invalid_gear=[encoded_test_item];'>[test_item_display]</a></td>"
+										dat += "<td style='vertical-align:top'>"
+										var/list/other_data = entry["loadout_item"] ? entry - "loadout_item" : entry
+										dat += json_encode(other_data)
+										dat += "</td></tr>"
 					dat += "</table>"
 			dat += "</div>" // end csetup-settings-content
 			dat += "</div>" // end csetup-settings-wrap

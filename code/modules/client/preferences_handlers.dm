@@ -1770,7 +1770,7 @@
 						features["body_size"] = clamp(new_body_size * 0.01, CONFIG_GET(number/body_size_min), CONFIG_GET(number/body_size_max))
 
 				if("toggle_fuzzy")
-					fuzzy = !fuzzy
+					fuzzy = (fuzzy + 1) % 2
 
 				//BLUEMOON ADD выбор веса персонажа, замена квирков на вес
 				if("body_weight")
@@ -2652,7 +2652,26 @@
 					var/new_dir = text2num(href_list["dir"])
 					if(new_dir in GLOB.cardinals)
 						preview_direction = new_dir
+						// Если есть закэшированная иконка для этого направления — используем мгновенно
+						if(LAZYACCESS(preview_dir_cache, "[new_dir]"))
+							preview_icon64 = preview_dir_cache["[new_dir]"]
+							skip_preview = TRUE
+						else
+							update_preview_icon()
+							skip_preview = TRUE
+
+				if("preview_zoom")
+					var/new_zoom = text2num(href_list["level"])
+					if(isnum(new_zoom))
+						preview_zoom = clamp(round(new_zoom, 10), 100, 200)
+					skip_preview = TRUE
+
+				if("preview_reference")
+					preview_show_reference = !preview_show_reference
+					if(preview_show_reference && !LAZYLEN(preview_reference_cache))
+						// Кэша нет — запускаем генерацию, ShowChoices вызовется по завершению
 						update_preview_icon()
+					skip_preview = TRUE
 
 				if("character_tab")
 					skip_preview = TRUE
@@ -2849,10 +2868,11 @@
 			if(!thing_to_remove)
 				return
 			var/list/sanitize_current_slot = loadout_data["SAVE_[loadout_slot]"]
-			for(var/list/entry in sanitize_current_slot)
-				if(entry["loadout_item"] == thing_to_remove)
-					sanitize_current_slot.Remove(list(entry))
-					break
+			if(islist(sanitize_current_slot))
+				for(var/list/entry in sanitize_current_slot)
+					if(entry["loadout_item"] == thing_to_remove)
+						sanitize_current_slot.Remove(list(entry))
+						break
 
 		if(href_list["loadout_color"] || href_list["loadout_color_polychromic"] || href_list["loadout_color_HSV"] || href_list["loadout_rename"] || href_list["loadout_redescribe"] || href_list["loadout_addheirloom"] || href_list["loadout_removeheirloom"] || href_list["loadout_tagname"] || href_list["loadout_examtooltip"])
 
