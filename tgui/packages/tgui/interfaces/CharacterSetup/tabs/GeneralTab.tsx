@@ -261,7 +261,7 @@ const SpecialNames = (_props, context) => {
   return (
     <LabeledList>
       {custom_name_types.map((nameType, i) => (
-        <LabeledList.Item label={nameType.label}>
+        <LabeledList.Item key={nameType.id} label={nameType.label}>
           <Input
             fluid
             value={custom_names[nameType.id] || ''}

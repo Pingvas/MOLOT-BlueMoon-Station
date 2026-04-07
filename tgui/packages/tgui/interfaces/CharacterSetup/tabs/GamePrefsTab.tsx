@@ -11,7 +11,7 @@ import {
   Stack,
   Tooltip,
 } from '../../../components';
-import { CharacterSetupData, AntagRoleInfo } from '../types';
+import { AntagRoleInfo, CharacterSetupData } from '../types';
 
 // toggles bitflags
 const SOUND_MIDI = 1 << 1;

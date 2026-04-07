@@ -1,8 +1,8 @@
 import { classes } from 'common/react';
-import { useBackend, useLocalState } from '../../backend';
-import { Box, Button, Icon, Input, NoticeBox, Section, Stack, Tabs } from '../../components';
 
-import { MAX_ATOM_DISPLAY, LOCATIONS_NEEDING_CLICK, PRECISE_MODE_OFF, PRECISE_MODE_TARGET, TAB_TYPE_COLORS, TAB_TYPE_LETTERS, TAB_TYPES } from './constants';
+import { useBackend, useLocalState } from '../../backend';
+import { Box, Button, Icon, Input, Stack } from '../../components';
+import { LOCATIONS_NEEDING_CLICK, MAX_ATOM_DISPLAY, PRECISE_MODE_OFF, PRECISE_MODE_TARGET, TAB_TYPE_COLORS, TAB_TYPE_LETTERS, TAB_TYPES } from './constants';
 import { AtomData, SpawnPanelData } from './types';
 
 type CreateObjectProps = {
@@ -202,7 +202,6 @@ export const CreateObject = (props: CreateObjectProps, context: any) => {
 };
 
 type AtomRowProps = {
-  key?: any;
   typepath: string;
   atom: AtomData;
   selected: boolean;

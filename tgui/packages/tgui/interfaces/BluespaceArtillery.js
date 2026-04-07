@@ -1,5 +1,5 @@
 import { useBackend } from '../backend';
-import { Box, Button, LabeledList, NoticeBox, ProgressBar, Section, Slider } from '../components';
+import { Box, Button, LabeledList, NoticeBox, Section, Slider } from '../components';
 import { Window } from '../layouts';
 
 const formatPower = (x) => {

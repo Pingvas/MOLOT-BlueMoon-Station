@@ -297,7 +297,7 @@ export const AppearanceTab = (_props, context) => {
             <Box mt={1}>
               <LabeledList>
                 {data.modified_limbs.map((limb) => (
-                  <LabeledList.Item label={limb.limb}>
+                  <LabeledList.Item key={limb.limb} label={limb.limb}>
                     {limb.type}
                     {limb.detail && ` (${limb.detail})`}
                   </LabeledList.Item>
@@ -386,7 +386,7 @@ const MutantPartsSection = (_props, context) => {
       <Section title="Мутантные части">
         <LabeledList>
           {visibleParts.map((part: MutantPartInfo) => (
-            <LabeledList.Item label={part.label}>
+            <LabeledList.Item key={part.id} label={part.label}>
               <Stack inline>
                 <Stack.Item grow>
                   <Dropdown

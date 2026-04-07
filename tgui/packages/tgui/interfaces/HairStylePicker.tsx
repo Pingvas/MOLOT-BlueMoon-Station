@@ -1,12 +1,13 @@
+import { debounce } from 'common/timer';
+
 import { useBackend, useLocalState } from '../backend';
 import { Box, Button, Input, Section, Stack } from '../components';
 import { PixelArtImage } from '../components';
 import { Window } from '../layouts';
-import { debounce } from 'common/timer';
 
 const PAGE_SIZE = 24;
 const ICON_SIZE = 64; // px – displayed size (32px native scaled 2x via CSS)
-const COLS = 6;       // icons per row
+const COLS = 6; // icons per row
 
 // Module-level debounced navigate to avoid re-creating on every render.
 // Stores the latest act() reference and calls it after 300ms of inactivity.

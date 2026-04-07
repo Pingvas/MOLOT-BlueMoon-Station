@@ -1,6 +1,5 @@
 import { useBackend } from '../../backend';
-import { Box, Button, Dropdown, Icon, Input, NumberInput, Section, Slider, Stack, Table } from '../../components';
-
+import { Box, Button, Dropdown, Icon, Input, NumberInput, Slider, Stack } from '../../components';
 import {
   DIR_ICONS,
   DIR_NAMES,
@@ -13,7 +12,6 @@ import {
   PRECISE_MODE_TARGET,
   SPAWN_LOCATION_ICONS,
   SPAWN_LOCATIONS,
-  TAB_TYPE_COLORS,
 } from './constants';
 import { SpawnPanelData } from './types';
 
@@ -328,7 +326,8 @@ export const CreateObjectSettings = (props: any, context: any) => {
                 selected={offset_type === OFFSET_ABSOLUTE}
                 tooltip="Absolute world coordinates"
                 onClick={() => send({ offset_type: OFFSET_ABSOLUTE })}
-              >A</Button>
+              >A
+              </Button>
             </Stack.Item>
             <Stack.Item>
               <Button
@@ -336,7 +335,8 @@ export const CreateObjectSettings = (props: any, context: any) => {
                 selected={offset_type === OFFSET_RELATIVE}
                 tooltip="Relative to spawn position"
                 onClick={() => send({ offset_type: OFFSET_RELATIVE })}
-              >R</Button>
+              >R
+              </Button>
             </Stack.Item>
           </Stack>
         </Stack.Item>

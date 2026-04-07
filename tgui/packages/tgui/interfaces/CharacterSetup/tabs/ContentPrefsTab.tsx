@@ -1,6 +1,5 @@
 import { useBackend } from '../../../backend';
 import {
-  Box,
   Button,
   LabeledList,
   NumberInput,
