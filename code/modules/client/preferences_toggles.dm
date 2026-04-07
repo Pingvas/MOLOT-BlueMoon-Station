@@ -1,4 +1,4 @@
-//this works as is to create a single checked item, but has no back end code for toggleing the check yet
+﻿//this works as is to create a single checked item, but has no back end code for toggleing the check yet
 #define TOGGLE_CHECKBOX(PARENT, CHILD) PARENT/CHILD/abstract = TRUE;PARENT/CHILD/checkbox = CHECKBOX_TOGGLE;PARENT/CHILD/verb/CHILD
 
 //Example usage TOGGLE_CHECKBOX(datum/verbs/menu/Settings/Ghost/chatterbox, toggle_ghost_ears)()
@@ -16,8 +16,7 @@
 	set name = "Game Preferences"
 	set category = "Preferences.Game"
 	set desc = "Open Game Preferences Window"
-	usr.client.prefs.current_tab = 1
-	usr.client.prefs.ShowChoices(usr)
+	usr.client?.open_character_setup_tgui()
 
 //toggles
 /datum/verbs/menu/Settings/Ghost/chatterbox
@@ -457,3 +456,57 @@ GLOBAL_LIST_INIT(ghost_orbits, list(GHOST_ORBIT_CIRCLE,GHOST_ORBIT_TRIANGLE,GHOS
 	prefs.save_preferences()
 	to_chat(src, "You will [(prefs.chat_toggles & CHAT_PRAYER) ? "now" : "no longer"] see prayerchat.")
 	SSblackbox.record_feedback("nested tally", "admin_toggle", 1, list("Toggle Prayer Visibility", "[prefs.chat_toggles & CHAT_PRAYER ? "Enabled" : "Disabled"]")) //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
+// ==================== Citadel TOGGLE_CHECKBOX procs ====================
+
+TOGGLE_CHECKBOX(/datum/verbs/menu/Settings/Sound, toggleeatingnoise)()
+	set name = "Toggle Eating Noises"
+	set category = "Preferences.Sounds"
+	set desc = "Hear Eating noises"
+	usr.client.prefs.cit_toggles ^= EATING_NOISES
+	usr.client.prefs.save_preferences()
+	usr.stop_sound_channel(CHANNEL_PRED)
+	to_chat(usr, "You will [(usr.client.prefs.cit_toggles & EATING_NOISES) ? "now" : "no longer"] hear eating noises.")
+/datum/verbs/menu/Settings/Sound/toggleeatingnoise/Get_checked(client/C)
+	return C.prefs.cit_toggles & EATING_NOISES
+
+
+TOGGLE_CHECKBOX(/datum/verbs/menu/Settings/Sound, toggledigestionnoise)()
+	set name = "Toggle Digestion Noises"
+	set category = "Preferences.Sounds"
+	set desc = "Hear digestive noises"
+	usr.client.prefs.cit_toggles ^= DIGESTION_NOISES
+	usr.client.prefs.save_preferences()
+	usr.stop_sound_channel(CHANNEL_DIGEST)
+	to_chat(usr, "You will [(usr.client.prefs.cit_toggles & DIGESTION_NOISES) ? "now" : "no longer"] hear digestion noises.")
+/datum/verbs/menu/Settings/Sound/toggledigestionnoise/Get_checked(client/C)
+	return C.prefs.cit_toggles & DIGESTION_NOISES
+
+TOGGLE_CHECKBOX(/datum/verbs/menu/Settings/Sound, togglehoundsleeper)()
+	set name = "Toggle Voracious Hound Sleepers"
+	set category = "Preferences.Game"
+	set desc = "Toggles Voracious MediHound Sleepers"
+	usr.client.prefs.cit_toggles ^= MEDIHOUND_SLEEPER
+	usr.client.prefs.save_preferences()
+	if(usr.client.prefs.cit_toggles & MEDIHOUND_SLEEPER)
+		to_chat(usr, "You have opted in for voracious medihound sleepers.")
+	else
+		to_chat(usr, "Medihound sleepers will no longer be voracious when you're involved.")
+	SSblackbox.record_feedback("nested tally", "preferences_verb", 1, list("Toggle MediHound Sleeper", "[usr.client.prefs.cit_toggles & MEDIHOUND_SLEEPER ? "Enabled" : "Disabled"]"))
+/datum/verbs/menu/Settings/Sound/togglehoundsleeper/Get_checked(client/C)
+	return C.prefs.cit_toggles & MEDIHOUND_SLEEPER
+
+// ==================== Sand TOGGLE_CHECKBOX procs ====================
+
+TOGGLE_CHECKBOX(/datum/verbs/menu/Settings/Sound, toggle_lewd_sounds)()
+	set name = "Hear/Silence Lewd Verb Sounds"
+	set category = "Preferences.Sounds"
+	set desc = "Hear Lewd Verb Sounds From Interactions"
+	usr.client.prefs.toggles ^= LEWD_VERB_SOUNDS
+	usr.client.prefs.save_preferences()
+	if(usr.client.prefs.toggles & LEWD_VERB_SOUNDS)
+		to_chat(usr, "You will now hear lewd verb sounds.")
+	else
+		to_chat(usr, "You will no longer hear lewd verb sounds")
+	SSblackbox.record_feedback("nested tally", "preferences_verb", 1, list("Toggle Hearing Lewd Verb Sounds", "[usr.client.prefs.toggles & LEWD_VERB_SOUNDS ? "Enabled" : "Disabled"]"))
+/datum/verbs/menu/Settings/Sound/toggle_lewd_sounds/Get_checked(client/C)
+	return C.prefs.toggles & LEWD_VERB_SOUNDS

@@ -53,7 +53,7 @@
 	qdel(src)
 
 /datum/escape_menu/proc/home_open_settings()
-	client?.prefs.ShowChoices(client?.mob)
+	client?.open_character_setup_tgui()
 	qdel(src)
 
 /datum/escape_menu/proc/home_stop_sounds()
