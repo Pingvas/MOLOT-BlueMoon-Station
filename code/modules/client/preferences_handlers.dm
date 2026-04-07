@@ -2701,8 +2701,8 @@
 						// Если есть закэшированная иконка для этого направления — используем мгновенно
 						if(LAZYACCESS(preview_dir_cache, "[new_dir]"))
 							preview_icon64 = preview_dir_cache["[new_dir]"]
-							// Targeted update — не пересоздаём 2500+ строк HTML ради смены направления
-							update_preview_html_only(user)
+							// В TGUI превью обновляется через character_setup_ui.update_preview() → ByondUi map
+							parent?.character_setup?.update_preview()
 							skip_preview = TRUE
 						else
 							update_preview_icon()

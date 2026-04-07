@@ -69,12 +69,10 @@
 			preview_generating = FALSE
 			var/had_pending_ai = pending_preview_update
 			pending_preview_update = FALSE
-			var/mob/user = parent?.mob
-			if(user)
-				if(had_pending_ai)
-					update_preview_icon()
-				else
-					update_preview_html_only(user)
+			if(had_pending_ai)
+				update_preview_icon()
+			else
+				parent?.character_setup?.update_preview()
 			return
 		if(istype(previewJob,/datum/job/cyborg))
 			LAZYINITLIST(preview_dir_cache)
@@ -85,12 +83,10 @@
 			preview_generating = FALSE
 			var/had_pending_cyborg = pending_preview_update
 			pending_preview_update = FALSE
-			var/mob/user = parent?.mob
-			if(user)
-				if(had_pending_cyborg)
-					update_preview_icon()
-				else
-					update_preview_html_only(user)
+			if(had_pending_cyborg)
+				update_preview_icon()
+			else
+				parent?.character_setup?.update_preview()
 			return
 
 	// --- Персистентный манекен: избегаем copy_to() + regenerate_icons() при каждом клике ---
@@ -189,10 +185,8 @@
 	preview_icon64 = preview_dir_cache["[preview_direction]"]
 
 	// Показываем результат сразу, не дожидаясь остальных 3 направлений
-	// Используем targeted output — обновляем ТОЛЬКО превью, не пересоздавая 2500+ строк HTML
-	var/mob/user = parent?.mob
-	if(user)
-		update_preview_html_only(user)
+	// В TGUI превью обновляется через character_setup_ui.update_preview() → ByondUi map
+	parent?.character_setup?.update_preview()
 
 	// Догенерируем остальные 3 направления в фоне (для мгновенных поворотов)
 	for(var/dir in GLOB.cardinals)
@@ -211,7 +205,7 @@
 	preview_generating = FALSE
 	var/had_pending = pending_preview_update
 	pending_preview_update = FALSE
-	if(had_pending && user)
+	if(had_pending)
 		update_preview_icon()
 
 /// Генерирует и кэширует превью-иконку для одного направления
