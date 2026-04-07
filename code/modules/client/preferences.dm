@@ -2,7 +2,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 // Файл расформирован на несколько частей, с модулей удалены хвосты.
 // Теперь суть такова Preferences - все var/ деклорации
 // (game prefs, character prefs, UI state, loadout, все модульные vars (body_weight, fuzzy, favorite_interactions, arousal_multiplier и т.д.)
-// Preferences_ui - Рендер интерфейса ShowChoices и все в этом духе.
+// Preferences_ui - CaptureKeybinding, SetLanguage, toggle_language, check_language_maxhit (ShowChoices удалён, заменён на TGUI CharacterSetup).
 // Preferences_jobs_quirks - Выбор профессии и квирков
 // Prefenences_handlers - Обработчик кликов (ссылки href и process_link`и + Хедшоты)
 // Preferences_copy_to - Применение настроек к персонажу (внешка персов)
@@ -15,7 +15,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/vr_path
 	var/default_slot = 1				//Holder so it doesn't default to slot 1, rather the last one used
 	var/list/cached_slot_names			// null = dirty
-	/// Cached name from client's local save file — avoids Import() I/O on every ShowChoices render
+	/// Cached name from client's local save file — avoids Import() I/O on every character setup open
 	var/tmp/cached_import_save_name = null
 	/// FALSE means cache is dirty and Import() needs to run again
 	var/tmp/cached_import_checked = FALSE

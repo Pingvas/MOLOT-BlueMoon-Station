@@ -369,13 +369,13 @@ var _i=0;setInterval(function(){var s=_i%4;document.getElementById('d').textCont
 		if("character_setup")
 			_bm_play_click_sound()
 			client.prefs.current_tab = SETTINGS_TAB
-			client.prefs.ShowChoices(src)
+			client.open_character_setup_tgui()
 			return
 
 		if("game_options")
 			_bm_play_click_sound()
 			client.prefs.current_tab = PREFERENCES_TAB
-			client.prefs.ShowChoices(src)
+			client.open_character_setup_tgui()
 			return
 
 		if("polls_menu")

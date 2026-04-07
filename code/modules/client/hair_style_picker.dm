@@ -136,7 +136,7 @@
 					if(!(prefs.grad_style in valid_styles))
 						return
 			prefs.save_preferences()
-			prefs.ShowChoices(holder.mob)
+			SStgui.update_user_uis(holder.mob)
 			SStgui.close_uis(src)
 
 /datum/tgui_hair_style_picker/proc/get_style_list()

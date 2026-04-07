@@ -32,8 +32,6 @@
 		return
 
 	if(href_list["preference"] == "charcreation_accent")
-		cycle_character_creation_modern_accent()
-		ShowChoices(user)
 		return TRUE
 
 	if(href_list["preference"] == "charcreation_set")
@@ -43,35 +41,28 @@
 				if("modern")
 					charcreation_theme = "modern"
 					save_preferences(silent = TRUE)
-					ShowChoices(user)
 					return TRUE
 				if("modern_classic")
 					charcreation_theme = "modern_classic"
 					save_preferences(silent = TRUE)
-					ShowChoices(user)
 					return TRUE
 				if("modern_purple")
 					charcreation_theme = "modern_purple"
 					save_preferences(silent = TRUE)
-					ShowChoices(user)
 					return TRUE
 				if("modern_green")
 					charcreation_theme = "modern_green"
 					save_preferences(silent = TRUE)
-					ShowChoices(user)
 					return TRUE
 				if("modern_neutral")
 					charcreation_theme = "modern_neutral"
 					save_preferences(silent = TRUE)
-					ShowChoices(user)
 					return TRUE
 				if("modern_custom")
 					charcreation_theme = "modern_custom"
 					modern_custom_enabled = TRUE
 					save_preferences(silent = TRUE)
-					ShowChoices(user)
 					return TRUE
-		ShowChoices(user)
 		return TRUE
 
 	if(href_list["preference"] == "modern_theme_editor")
@@ -82,27 +73,22 @@
 					charcreation_theme = "modern_custom"
 					modern_custom_enabled = TRUE
 					save_preferences(silent = TRUE)
-				ShowChoices(user)
 				return TRUE
 			if("toggle_enabled")
 				charcreation_theme = "modern_custom"
 				modern_custom_enabled = !modern_custom_enabled
 				save_preferences(silent = TRUE)
-				ShowChoices(user)
 				return TRUE
 			if("toggle_pattern")
 				charcreation_theme = "modern_custom"
 				modern_custom_bg_pattern = !modern_custom_bg_pattern
 				save_preferences(silent = TRUE)
-				ShowChoices(user)
 				return TRUE
 			if("reset")
 				charcreation_theme = "modern_custom"
 				reset_modern_custom_theme()
 				save_preferences(silent = TRUE)
-				ShowChoices(user)
 				return TRUE
-		ShowChoices(user)
 		return TRUE
 
 	if(href_list["preference"] == "modern_theme_picker")
@@ -111,22 +97,18 @@
 				modern_theme_picker_collapsed = !modern_theme_picker_collapsed
 				modern_theme_picker_animate = FALSE
 				save_preferences(bypass_cooldown = TRUE, silent = TRUE)
-				ShowChoices(user)
 				return TRUE
-		ShowChoices(user)
 		return TRUE
 
 	if(href_list["preference"] == "modern_theme_settings")
 		switch(href_list["action"])
 			if("toggle")
 				modern_theme_settings_open = !modern_theme_settings_open
-				ShowChoices(user)
 				return TRUE
 			if("set_button_shape")
 				var/shape = href_list["shape"]
 				modern_button_shape = sanitize_inlist(shape, list("rect", "soft", "round"), initial(modern_button_shape))
 				save_preferences(bypass_cooldown = TRUE, silent = TRUE)
-				ShowChoices(user)
 				return TRUE
 			if("set_language")
 				var/lang = href_list["lang"]
@@ -135,15 +117,12 @@
 				else if(lang == "en")
 					modern_ui_language = 0
 				save_preferences(bypass_cooldown = TRUE, silent = TRUE)
-				ShowChoices(user)
 				return TRUE
 			if("set_decoration_level")
 				var/level = href_list["level"]
 				ui_decoration_level = sanitize_inlist(level, list("minimal", "standard", "enhanced"), initial(ui_decoration_level))
 				save_preferences(bypass_cooldown = TRUE, silent = TRUE)
-				ShowChoices(user)
 				return TRUE
-		ShowChoices(user)
 		return TRUE
 
 	if(href_list["preference"] == "character_slots")
@@ -151,12 +130,10 @@
 			if("toggle_empty")
 				collapse_empty_character_slots = !collapse_empty_character_slots
 				save_preferences(silent = TRUE)
-				ShowChoices(user)
 				return TRUE
 			if("delete_slot")
 				var/slot = text2num(href_list["slot"])
 				if(!slot)
-					ShowChoices(user)
 					return TRUE
 				// Подсчитываем количество непустых слотов
 				var/occupied_count = 0
@@ -171,26 +148,21 @@
 								occupied_count++
 				if(occupied_count <= 1)
 					tgui_alert_async(user, "Нельзя удалить единственного персонажа! / Cannot delete the only character!")
-					ShowChoices(user)
 					return TRUE
 				// Запрашиваем подтверждение
 				var/confirm = tgui_alert(user, "Вы уверены, что хотите удалить этого персонажа? Это действие необратимо! / Are you sure you want to delete this character? This cannot be undone!", "Delete Character", list("Yes", "No"))
 				if(confirm != "Yes")
-					ShowChoices(user)
 					return TRUE
 				if(delete_character(slot))
 					tgui_alert_async(user, "Персонаж удалён. / Character deleted.")
 				else
 					tgui_alert_async(user, "Не удалось удалить персонажа. / Failed to delete character.")
-				ShowChoices(user)
 				return TRUE
-		ShowChoices(user)
 		return TRUE
 
 	if(href_list["preference"] == "modern_custom_color")
 		var/color_key = href_list["key"]
 		if(!color_key)
-			ShowChoices(user)
 			return TRUE
 		charcreation_theme = "modern_custom"
 		modern_custom_enabled = TRUE
@@ -208,20 +180,17 @@
 			if("accent_color") current_value = modern_custom_accent_color
 		var/new_value = input(user, "Выберите цвет:", "Custom theme: [color_key]", "#[current_value]") as color|null
 		if(isnull(new_value))
-			ShowChoices(user)
 			return TRUE
 		if(set_modern_custom_color(color_key, new_value))
 			save_preferences(silent = TRUE)
 		else
 			to_chat(user, span_warning("Неверный цвет."))
-		ShowChoices(user)
 		return TRUE
 
 	if(href_list["preference"] == "job")
 		switch(href_list["task"])
 			if("close")
 				user << browse(null, "window=mob_occupation")
-				ShowChoices(user)
 			if("reset")
 				ResetJobs()
 				SetChoices(user)
@@ -263,7 +232,6 @@
 		switch(href_list["task"])
 			if("close")
 				user << browse(null, "window=mob_occupation")
-				ShowChoices(user)
 			if("update")
 				var/quirk = href_list["trait"]
 				if(!SSquirks.quirks[quirk])
@@ -290,18 +258,15 @@
 						return
 					all_quirks += quirk
 				if(is_inline_quirks)
-					ShowChoices(user)
 				else
 					SetQuirks(user)
 			if("reset")
 				all_quirks = list()
 				if(is_inline_quirks)
-					ShowChoices(user)
 				else
 					SetQuirks(user)
 			else
 				if(is_inline_quirks)
-					ShowChoices(user)
 				else
 					SetQuirks(user)
 	// BLUEMOON ADD START - возможность настраивать квирки
@@ -315,7 +280,6 @@
 					if(new_shriek_type)
 						shriek_type = new_shriek_type
 						if(is_inline_quirks)
-							ShowChoices(user)
 						else
 							SetQuirks(user)
 			if("lewd_summon_nickname")
@@ -327,7 +291,6 @@
 						if(new_summon_nickname)
 							summon_nickname = new_summon_nickname
 							if(is_inline_quirks)
-								ShowChoices(user)
 							else
 								SetQuirks(user)
 						else
@@ -342,7 +305,6 @@
 		if(temp_quirk_category == QUIRK_POSITIVE || temp_quirk_category == QUIRK_NEUTRAL || temp_quirk_category == QUIRK_NEGATIVE)
 			quirk_category = temp_quirk_category
 			if(is_inline_quirks)
-				ShowChoices(user)
 			else
 				SetQuirks(user)
 
@@ -350,7 +312,6 @@
 		switch(href_list["task"])
 			if("close")
 				user << browse(null, "window=mob_occupation")
-				ShowChoices(user)
 				return TRUE
 			if("update")
 				var/lang = href_list["language"]
@@ -2345,7 +2306,6 @@
 					var/kb_name = href_list["keybinding"]
 					if(!kb_name)
 						user << browse(null, "window=capturekeypress")
-						ShowChoices(user)
 						return
 
 					var/independent = href_list["independent"]
@@ -2403,7 +2363,6 @@
 				if("keybindings_reset")
 					var/choice = tgalert(user, "Would you prefer 'hotkey' or 'classic' defaults?", "Setup keybindings", "Hotkey", "Classic", "Cancel")
 					if(choice == "Cancel")
-						ShowChoices(user)
 						return
 					hotkeys = (choice == "Hotkey")
 					key_bindings = (hotkeys) ? deepCopyList(GLOB.hotkey_keybinding_list_by_key) : deepCopyList(GLOB.classic_keybinding_list_by_key)
@@ -3038,7 +2997,6 @@
 				var/resolved_path = text2path(typepath)
 				if(!ispath(resolved_path, /datum/gear))
 					to_chat(user, "<font color='red'>Предмет лоадаута <b>[typepath]</b> повреждён. Удалите его из лоадаута через вкладку Errors.</font>")
-					ShowChoices(user)
 					return TRUE
 				var/forbidden = FALSE
 				var/datum/gear/temp_gear = new resolved_path()
@@ -3073,14 +3031,10 @@
 				else
 					user_gear -= "loadout_examtooltip"
 
-	// Оптимизация: если изменение влияет ТОЛЬКО на внешность (есть preview_change_hint),
-	// вызываем ShowChoices с skip_preview=TRUE (HTML обновится, но без дорогой генерации превью),
-	// а превью обновляем отдельно через инкрементальный update_preview_icon().
+	// Обновляем TGUI (инкрементально если известен hint — иначе полное обновление)
 	if(preview_change_hint && !skip_preview)
 		update_preview_icon()
-		ShowChoices(user, skip_preview_update = TRUE)
-	else
-		ShowChoices(user, skip_preview_update = skip_preview)
+	SStgui.update_user_uis(user)
 	return TRUE
 
 

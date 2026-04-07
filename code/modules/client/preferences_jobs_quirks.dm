@@ -162,12 +162,12 @@
 
 	if(!job)
 		user << browse(null, "window=mob_occupation")
-		ShowChoices(user)
+		SStgui.update_user_uis(user)
 		return
 
 	if (!isnum(desiredLvl))
 		to_chat(user, "<span class='danger'>UpdateJobPreference - desired level was not a number. Please notify coders!</span>")
-		ShowChoices(user)
+		SStgui.update_user_uis(user)
 		return
 
 	var/jpval = null
