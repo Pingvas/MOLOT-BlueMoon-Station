@@ -1,12 +1,14 @@
-import { useBackend } from '../../../backend';
+import { useBackend, useLocalState } from '../../../backend';
 import {
+  Box,
   Button,
+  Input,
   LabeledList,
   NumberInput,
   Section,
   Stack,
 } from '../../../components';
-import { CharacterSetupData } from '../types';
+import { CharacterSetupData, InteractionEntry } from '../types';
 
 // toggles bitflags
 const VERB_CONSENT = 1 << 17;
@@ -97,6 +99,10 @@ const PrefToggle = (props: {
 
 export const ContentPrefsTab = (_props, context) => {
   const { act, data } = useBackend<CharacterSetupData>(context);
+  const [
+    favSearchText,
+    setFavSearchText,
+  ] = useLocalState(context, 'favSearchText', '');
   const {
     erppref = 'Ask',
     nonconpref = 'Ask',
@@ -117,7 +123,13 @@ export const ContentPrefsTab = (_props, context) => {
     arousal_multiplier = 100,
     use_moaning_multiplier = false,
     moaning_multiplier = 65,
+    favorite_interactions = [] as string[],
+    available_interactions = [] as InteractionEntry[],
   } = data as any;
+
+  const filteredInteractions = available_interactions.filter(
+    (i: InteractionEntry) => i.desc.toLowerCase().includes(favSearchText.toLowerCase()),
+  );
 
   return (
     <Stack vertical>
@@ -535,6 +547,40 @@ export const ContentPrefsTab = (_props, context) => {
                 </LabeledList.Item>
               </LabeledList>
             </Stack.Item>
+          </Stack>
+        </Section>
+      </Stack.Item>
+
+      {/* Избранные взаимодействия */}
+      <Stack.Item>
+        <Section title="Избранные взаимодействия">
+          <Input
+            fluid
+            mb={1}
+            placeholder="Поиск..."
+            value={favSearchText}
+            onInput={(_e, value) => setFavSearchText(value)}
+          />
+          <Stack vertical style={{ maxHeight: '220px', overflowY: 'auto' }}>
+            {filteredInteractions.length > 0 ? (
+              filteredInteractions.map((interaction: InteractionEntry) => (
+                <Stack.Item key={interaction.key}>
+                  <Button
+                    fluid
+                    icon={favorite_interactions.includes(interaction.key) ? 'star' : 'star-o'}
+                    selected={favorite_interactions.includes(interaction.key)}
+                    content={interaction.desc}
+                    onClick={() => act('toggle_favorite_interaction', { key: interaction.key })}
+                  />
+                </Stack.Item>
+              ))
+            ) : (
+              <Stack.Item>
+                <Box opacity={0.5}>
+                    Взаимодействия не найдены.
+                </Box>
+              </Stack.Item>
+            )}
           </Stack>
         </Section>
       </Stack.Item>

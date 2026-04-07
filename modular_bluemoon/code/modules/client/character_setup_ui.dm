@@ -14,6 +14,8 @@
 	var/list/cached_slots
 	/// Whether slot cache needs rebuilding
 	var/tainted_slots = TRUE
+	/// Barkbox spawned for preview_bark — stored so it can be cleaned up on close
+	var/atom/movable/preview_barkbox
 
 /datum/character_setup_ui/New(client/C)
 	if(!C)
@@ -23,6 +25,7 @@
 	prefs = C.prefs
 
 /datum/character_setup_ui/Destroy()
+	QDEL_NULL(preview_barkbox)
 	QDEL_NULL(character_preview_view)
 	if(owner)
 		owner.character_setup = null
@@ -37,6 +40,7 @@
 /datum/character_setup_ui/ui_close(mob/user)
 	prefs?.save_character()
 	prefs?.save_preferences()
+	QDEL_NULL(preview_barkbox)
 	QDEL_NULL(character_preview_view)
 
 /datum/character_setup_ui/ui_assets(mob/user)
@@ -270,6 +274,19 @@
 		))
 	data["available_markings"] = available_markings
 	data["body_zones"] = body_zones
+
+	// === AVAILABLE INTERACTIONS (для пикера избранных) ===
+	if(SSinteractions?.interactions)
+		var/list/sent_interactions = list()
+		for(var/interaction_key in SSinteractions.interactions)
+			var/datum/interaction/I = SSinteractions.interactions[interaction_key]
+			if(!I.description || (I.interaction_flags & INTERACTION_FLAG_HIDE_IN_PANEL))
+				continue
+			sent_interactions += list(list(
+				"key" = interaction_key,
+				"desc" = I.description,
+			))
+		data["available_interactions"] = sent_interactions
 
 	return data
 
@@ -751,6 +768,7 @@
 	data["arousal_multiplier"] = prefs.arousal_multiplier
 	data["use_moaning_multiplier"] = prefs.use_moaning_multiplier
 	data["moaning_multiplier"] = prefs.moaning_multiplier
+	data["favorite_interactions"] = SANITIZE_LIST(prefs.favorite_interactions)
 	var/list/markings_data = list()
 	var/list/markings_raw = prefs.features["mam_body_markings"]
 	if(islist(markings_raw))
@@ -1580,7 +1598,9 @@
 			if(!user)
 				return TRUE
 			COOLDOWN_START(prefs, bark_previewing, (5 SECONDS))
+			QDEL_NULL(preview_barkbox)
 			var/atom/movable/barkbox = new(get_turf(user))
+			preview_barkbox = barkbox
 			barkbox.set_bark(prefs.bark_id)
 			var/total_delay
 			for(var/i in 1 to (round((32 / prefs.bark_speed)) + 1))
@@ -1612,10 +1632,6 @@
 				return TRUE
 			COOLDOWN_START(prefs, laugh_preview, (3 SECONDS))
 			user.playsound_local(user, pick(get_laugh_sound(prefs.custom_laugh, FALSE)), 50)
-			return TRUE
-
-		if("set_languages")
-			// Legacy fallback — теперь используются toggle_language / reset_languages
 			return TRUE
 
 		if("toggle_language")
@@ -2005,6 +2021,18 @@
 			var/val = params["value"]
 			if(!isnull(val))
 				prefs.moaning_multiplier = clamp(text2num(val), 0, 100)
+			return TRUE
+
+		if("toggle_favorite_interaction")
+			var/key = params["key"]
+			if(!key || !SSinteractions?.interactions[key])
+				return TRUE
+			var/datum/interaction/I = SSinteractions.interactions[key]
+			if(I.type in prefs.favorite_interactions)
+				LAZYREMOVE(prefs.favorite_interactions, I.type)
+			else
+				LAZYADD(prefs.favorite_interactions, I.type)
+			prefs.save_preferences(bypass_cooldown = TRUE, silent = TRUE)
 			return TRUE
 
 		if("set_gfluid_blacklist")

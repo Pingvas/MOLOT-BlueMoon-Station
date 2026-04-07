@@ -224,6 +224,7 @@ export type CharacterSetupData = {
   arousal_multiplier: number;
   use_moaning_multiplier: boolean;
   moaning_multiplier: number;
+  favorite_interactions: string[];
 
   // Character preview (ByondUi map view ID)
   character_preview_view: string;
@@ -242,6 +243,7 @@ export type CharacterSetupData = {
   bark_list: string[];
   roundstart_traits: boolean;
   allow_silicon_choosing_laws: boolean;
+  available_interactions: InteractionEntry[];
 };
 
 export type CharacterSlot = {
@@ -297,4 +299,9 @@ export type JobInfo = {
   display_order: number;
   alt_titles: string[];
   is_head: boolean;
+};
+
+export type InteractionEntry = {
+  key: string;
+  desc: string;
 };
