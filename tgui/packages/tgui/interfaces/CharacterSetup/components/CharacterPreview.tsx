@@ -1,5 +1,5 @@
 import { useBackend } from '../../../backend';
-import { Box, Button, ByondUi, Stack } from '../../../components';
+import { Box, Button, Stack } from '../../../components';
 import { CharacterSetupData } from '../types';
 
 const PREVIEW_PREF_JOB = 'Job';
@@ -8,10 +8,12 @@ const PREVIEW_PREF_NAKED = 'Naked';
 const PREVIEW_PREF_NAKED_AROUSED = 'Naked - Aroused';
 
 export const CharacterPreview = (_props, context) => {
-  const { act, data, config } = useBackend<CharacterSetupData>(context);
+  const { act, data } = useBackend<CharacterSetupData>(context);
   const {
-    character_preview_view,
+    preview_icon = null,
+    preview_generating = false,
     preview_pref = PREVIEW_PREF_JOB,
+    preview_zoom = 100,
   } = data as any;
 
   return (
@@ -24,30 +26,48 @@ export const CharacterPreview = (_props, context) => {
           'align-items': 'center',
           'justify-content': 'center',
           'overflow': 'hidden',
+          'background': 'rgba(0,0,0,0.25)',
+          'position': 'relative',
         }}>
-        {character_preview_view && config.status >= 2 ? (
-          <ByondUi
-            height="100%"
-            width="100%"
-            params={{
-              id: character_preview_view,
-              type: 'map',
-              zoom: 0,
+        {preview_icon ? (
+          <Box
+            as="img"
+            src={preview_icon}
+            style={{
+              'image-rendering': 'pixelated',
+              'transform': `scale(${preview_zoom / 100})`,
+              'transform-origin': 'center bottom',
+              'max-width': '100%',
+              'max-height': '100%',
             }}
           />
         ) : (
           <Box
-            height="100%"
-            width="100%"
             style={{
               'display': 'flex',
               'align-items': 'center',
               'justify-content': 'center',
-              'background': 'rgba(0,0,0,0.3)',
+              'width': '100%',
+              'height': '100%',
             }}>
             <Box color="label" italic>
-              Загрузка...
+              {preview_generating ? 'Генерация...' : 'Загрузка...'}
             </Box>
+          </Box>
+        )}
+        {/* Индикатор обновления */}
+        {preview_generating && preview_icon && (
+          <Box
+            style={{
+              'position': 'absolute',
+              'bottom': '4px',
+              'right': '4px',
+              'font-size': '10px',
+              'opacity': '0.5',
+            }}
+            color="label"
+            italic>
+            •••
           </Box>
         )}
       </Stack.Item>
@@ -73,8 +93,33 @@ export const CharacterPreview = (_props, context) => {
           <Stack.Item>
             <Button
               icon="sync"
-              tooltip="Обновить"
+              tooltip="Перестроить"
               onClick={() => act('refresh_preview')}
+            />
+          </Stack.Item>
+
+          {/* Zoom */}
+          <Stack.Item>
+            <Button
+              icon="search-minus"
+              tooltip="Уменьшить"
+              disabled={preview_zoom <= 50}
+              onClick={() => act('set_preview_zoom', { zoom: preview_zoom - 25 })}
+            />
+          </Stack.Item>
+          <Stack.Item>
+            <Box
+              style={{ 'min-width': '38px', 'text-align': 'center', 'font-size': '11px' }}
+              color="label">
+              {preview_zoom}%
+            </Box>
+          </Stack.Item>
+          <Stack.Item>
+            <Button
+              icon="search-plus"
+              tooltip="Увеличить"
+              disabled={preview_zoom >= 200}
+              onClick={() => act('set_preview_zoom', { zoom: preview_zoom + 25 })}
             />
           </Stack.Item>
 

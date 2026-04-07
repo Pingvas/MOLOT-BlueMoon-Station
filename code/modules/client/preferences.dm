@@ -405,6 +405,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/tmp/pending_preview_update = FALSE
 	/// Кэш иконок превью по направлениям (dir -> html string). Сбрасывается при изменении внешности.
 	var/tmp/list/preview_dir_cache
+	/// Кэш base64 data URL превью для TGUI CharacterSetup (dir -> "data:image/png;base64,...")
+	var/tmp/list/preview_dir_b64_cache
 	/// Зум превью в процентах (100-200, шаг 10) — session-only, не сохраняется.
 	var/tmp/preview_zoom = 100
 	/// Показывать эталонный манекен (100% размер) за спрайтом для сравнения.

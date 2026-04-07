@@ -226,8 +226,11 @@ export type CharacterSetupData = {
   moaning_multiplier: number;
   favorite_interactions: string[];
 
-  // Character preview (ByondUi map view ID)
-  character_preview_view: string;
+  // Character preview — base64 PNG from getFlatIcon() (no map_view overhead)
+  preview_icon: string | null;
+  preview_generating: boolean;
+  preview_zoom: number;
+  preview_direction: number;
 
   // Static data
   hair_styles: string[];

@@ -72,7 +72,7 @@
 			if(had_pending_ai)
 				update_preview_icon()
 			else
-				parent?.character_setup?.update_preview()
+				SStgui.update_user_uis(parent.mob, /datum/character_setup_ui)
 			return
 		if(istype(previewJob,/datum/job/cyborg))
 			LAZYINITLIST(preview_dir_cache)
@@ -86,7 +86,7 @@
 			if(had_pending_cyborg)
 				update_preview_icon()
 			else
-				parent?.character_setup?.update_preview()
+				SStgui.update_user_uis(parent.mob, /datum/character_setup_ui)
 			return
 
 	// --- Персистентный манекен: избегаем copy_to() + regenerate_icons() при каждом клике ---
@@ -185,8 +185,8 @@
 	preview_icon64 = preview_dir_cache["[preview_direction]"]
 
 	// Показываем результат сразу, не дожидаясь остальных 3 направлений
-	// В TGUI превью обновляется через character_setup_ui.update_preview() → ByondUi map
-	parent?.character_setup?.update_preview()
+	// Посылаем данные в TGUI CharacterSetup напрямую
+	SStgui.update_user_uis(parent.mob, /datum/character_setup_ui)
 
 	// Догенерируем остальные 3 направления в фоне (для мгновенных поворотов)
 	for(var/dir in GLOB.cardinals)
@@ -238,6 +238,10 @@
 		preview_dir_cache["[dir]"] = replacetext(raw_html, "<img ", scale_prefix)
 	else
 		preview_dir_cache["[dir]"] = raw_html
+
+	// Кэш для TGUI CharacterSetup — чистый data URL без <img> обёртки
+	LAZYINITLIST(preview_dir_b64_cache)
+	preview_dir_b64_cache["[dir]"] = "data:image/png;base64,[icon2base64(flat)]"
 
 /datum/preferences/proc/get_highest_job()
 	var/highest_pref = 0

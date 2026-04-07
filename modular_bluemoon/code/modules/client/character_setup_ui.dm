@@ -9,7 +9,8 @@
 	/// Reference to the preferences datum
 	var/datum/preferences/prefs
 	/// Native character preview (map_view screen object)
-	var/atom/movable/screen/map_view/character_preview_screen/character_preview_view
+	// REMOVED — теперь используем getFlatIcon() + кэш base64 через prefs.preview_dir_b64_cache
+	// (character_preview_view удалён — не нужно выделять map-зону на сервере для каждого игрока)
 	/// Cached character slot data (tainted_character_profiles pattern from SPLURT)
 	var/list/cached_slots
 	/// Whether slot cache needs rebuilding
@@ -26,7 +27,6 @@
 
 /datum/character_setup_ui/Destroy()
 	QDEL_NULL(preview_barkbox)
-	QDEL_NULL(character_preview_view)
 	if(owner)
 		owner.character_setup = null
 	owner = null
@@ -41,7 +41,7 @@
 	prefs?.save_character()
 	prefs?.save_preferences()
 	QDEL_NULL(preview_barkbox)
-	QDEL_NULL(character_preview_view)
+	// Персистентный манекен и кэш остаются до следующего открытия меню
 
 /datum/character_setup_ui/ui_assets(mob/user)
 	return list(
@@ -52,13 +52,12 @@
 /datum/character_setup_ui/ui_interact(mob/user, datum/tgui/ui)
 	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		if(!character_preview_view)
-			create_character_preview_view(user)
 		ui = new(user, src, "CharacterSetup")
 		ui.set_autoupdate(FALSE)
 		ui.open()
-		character_preview_view?.display_to(user, ui.window)
-		update_preview()
+		// Запускаем асинхронную генерацию превью при первом открытии
+		if(prefs && !LAZYLEN(prefs.preview_dir_b64_cache))
+			prefs.update_preview_icon()
 
 /// Find a gear datum by its type path string (e.g. "/datum/gear/accessory/tie")
 /datum/character_setup_ui/proc/find_gear_by_type(gear_type_path)
@@ -301,9 +300,12 @@
 	data["preferences_tab"] = prefs.preferences_tab
 	data["preview_pref"] = prefs.preview_pref
 
-	// Character preview map view ID
-	if(character_preview_view)
-		data["character_preview_view"] = character_preview_view.assigned_map
+	// Character preview — base64 data URL from getFlatIcon() cache (no map_view overhead)
+	if(prefs.preview_dir_b64_cache)
+		data["preview_icon"] = prefs.preview_dir_b64_cache["[prefs.preview_direction]"]
+	data["preview_generating"] = prefs.preview_generating
+	data["preview_direction"] = prefs.preview_direction
+	data["preview_zoom"] = prefs.preview_zoom
 
 	// Character slots (cached — only rebuilt when tainted)
 	if(tainted_slots || !cached_slots)
@@ -896,106 +898,14 @@
 
 	return data
 
-/// Create the character preview
-/datum/character_setup_ui/proc/create_character_preview_view(mob/user)
-	QDEL_NULL(character_preview_view)
-	character_preview_view = new
-	character_preview_view.generate_view("char_setup_[REF(src)]_map")
-	character_preview_view.set_position(2, 2)
-	// Create background — initial size, will be adjusted dynamically
-	var/atom/movable/screen/background/bg = new
-	bg.assigned_map = character_preview_view.assigned_map
-	bg.fill_rect(1, 1, 3, 3)
-	character_preview_view.preview_bg = bg
-	return character_preview_view
-
-/// Update the preview mannequin and refresh the overlay on the map_view
+/// Запустить асинхронную генерацию превью (персистентный манекен + getFlatIcon + кэш base64 по 4 направлениям)
 /datum/character_setup_ui/proc/update_preview()
-	if(!character_preview_view || !prefs)
+	if(!prefs)
 		return
+	prefs.update_preview_icon()
 
-	var/datum/job/preview_job = prefs.get_highest_job()
-
-	// Silicon previews — simple icon, no mannequin needed
-	if(preview_job)
-		if(istype(preview_job, /datum/job/ai))
-			character_preview_view.adapt_map_size(1)
-			character_preview_view.update_character_icon(mutable_appearance('icons/mob/ai.dmi', resolve_ai_icon(prefs.preferred_ai_core_display)))
-			return
-		if(istype(preview_job, /datum/job/cyborg))
-			character_preview_view.adapt_map_size(1)
-			character_preview_view.update_character_icon(mutable_appearance('icons/mob/robots.dmi', "robot"))
-			return
-
-	// Use pooled dummy mannequin (same approach as old ShowChoices)
-	var/mob/living/carbon/human/dummy/mannequin = generate_or_wait_for_human_dummy(DUMMY_HUMAN_SLOT_PREFERENCES)
-
-	prefs.copy_to(mannequin, initial_spawn = TRUE)
-
-	switch(prefs.preview_pref)
-		if(PREVIEW_PREF_JOB)
-			if(preview_job)
-				mannequin.job = preview_job.title
-				preview_job.equip(mannequin, TRUE, preference_source = prefs.parent)
-		if(PREVIEW_PREF_LOADOUT)
-			if(prefs.parent)
-				SSjob.equip_loadout(prefs.parent.mob, mannequin, bypass_prereqs = TRUE, can_drop = FALSE, is_dummy = TRUE)
-				SSjob.post_equip_loadout(prefs.parent.mob, mannequin, bypass_prereqs = TRUE, can_drop = FALSE, is_dummy = TRUE)
-		if(PREVIEW_PREF_NAKED_AROUSED)
-			for(var/obj/item/organ/genital/genital in mannequin.internal_organs)
-				if(CHECK_BITFIELD(genital.genital_flags, GENITAL_CAN_AROUSE))
-					genital.set_aroused_state(TRUE, null)
-
-	mannequin.setDir(character_preview_view.dir)
-	mannequin.regenerate_icons()
-
-	// Adapt map size based on body_size, then render
-	var/body_scale = prefs.features["body_size"] || 1
-	character_preview_view.adapt_map_size(body_scale)
-	character_preview_view.update_character_icon(new /mutable_appearance(mannequin), body_scale)
-
-	unset_busy_human_dummy(DUMMY_HUMAN_SLOT_PREFERENCES)
-
-/// Character preview screen — 3x3 tile map_view to accommodate scaled characters up to 200%
-/atom/movable/screen/map_view/character_preview_screen
-	name = "character preview"
-	icon = null
-	/// Background object that defines the map area
-	var/atom/movable/screen/background/preview_bg
-
-/atom/movable/screen/map_view/character_preview_screen/Destroy()
-	QDEL_NULL(preview_bg)
-	return ..()
-
-/atom/movable/screen/map_view/character_preview_screen/display_to_client(client/show_to)
-	. = ..()
-	if(preview_bg)
-		show_to.register_map_obj(preview_bg)
-
-/// Dynamically resize the map based on body_scale to maximize character display size
-/atom/movable/screen/map_view/character_preview_screen/proc/adapt_map_size(body_scale = 1)
-	if(!preview_bg)
-		return
-	if(body_scale > 1.1)
-		// Larger map for big characters — 3×4 tiles to fit scaled sprite
-		preview_bg.fill_rect(1, 1, 3, 4)
-		set_position(2, 2)
-	else
-		// 3×3 centered — keeps character in the middle of the view
-		preview_bg.fill_rect(1, 1, 3, 3)
-		set_position(2, 2)
-
-/// Apply a mutable_appearance as an overlay on this map_view, with optional body_size scaling
-/atom/movable/screen/map_view/character_preview_screen/proc/update_character_icon(mutable_appearance/appearance, body_scale = 1)
-	appearance.setDir(dir)
-	var/matrix/M = matrix()
-	if(body_scale != 1)
-		M.Scale(body_scale, body_scale)
-	appearance.transform = M
-	appearance.pixel_x = 0
-	appearance.pixel_y = 0
-	cut_overlays()
-	add_overlay(appearance)
+/// Данный тип удалён — больше не нужна map_view. Превью рендерится через getFlatIcon() в preferences_setup.dm.
+// /atom/movable/screen/map_view/character_preview_screen — REMOVED
 
 /datum/character_setup_ui/ui_act(action, list/params, datum/tgui/ui)
 	. = ..()
@@ -1007,28 +917,31 @@
 
 	. = handle_ui_action(action, params, ui)
 
-	// Auto-update preview for visual changes
-	if(. && (action in list(\
-		"set_species", "set_body_model", "set_gender",\
-		"set_hair_style", "set_facial_hair_style", "set_grad_style",\
-		"set_hair_color", "set_facial_hair_color", "set_grad_color",\
-		"set_eye_color", "toggle_split_eyes", "set_eye_type",\
-		"set_skin_tone", "set_mutant_color", "set_body_size",\
-		"set_mutant_part", "set_mutant_part_color",\
-		"set_underwear", "set_undershirt", "set_socks",\
-		"toggle_color_scheme", "toggle_mismatched_markings", "toggle_fuzzy",\
-		"modify_limbs", "set_body_weight",\
-		"toggle_loadout_enabled", "toggle_gear", "clear_loadout",\
-		"marking_add", "marking_remove", "marking_color",\
-		"marking_up", "marking_down",\
-		"markings_clear_limb", "markings_remove_all",\
-		"toggle_arousable", "open_genital_config",\
-		"set_custom_blood_color", "toggle_custom_blood_color",\
-		"toggle_hardsuit_tail",\
-		"set_backbag", "toggle_jumpsuit_style",\
-		"change_slot", "import_slot", "retrieve_slot", "delete_slot"\
-	)))
-		update_preview()
+	// Auto-update preview — с подсказками для инкрементальных обновлений
+	if(.)
+		if(action in list("set_hair_style", "set_facial_hair_style", "set_grad_style", "set_hair_color", "set_facial_hair_color", "set_grad_color"))
+			prefs.preview_change_hint = PREVIEW_HINT_HAIR
+			prefs.update_preview_icon()
+		else if(action in list("set_species", "set_body_model", "set_gender"))
+			prefs.invalidate_preview_mannequin()
+			prefs.update_preview_icon()
+		else if(action == "set_mutant_part")
+			prefs.preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
+			prefs.update_preview_icon()
+		else if(action in list("set_skin_tone", "set_mutant_color", "set_eye_color", "set_eye_type", "toggle_split_eyes", "set_body_size", "set_body_weight", "toggle_custom_skin_tone", "toggle_color_scheme", "toggle_fuzzy", "set_mutant_part_color", "marking_add", "marking_remove", "marking_color", "marking_up", "marking_down", "markings_clear_limb", "markings_remove_all", "modify_limbs"))
+			prefs.preview_change_hint = PREVIEW_HINT_BODY
+			prefs.update_preview_icon()
+		else if(action in list(
+			"set_underwear", "set_undershirt", "set_socks",
+			"toggle_mismatched_markings",
+			"toggle_loadout_enabled", "toggle_gear", "clear_loadout",
+			"toggle_arousable", "open_genital_config",
+			"set_custom_blood_color", "toggle_custom_blood_color",
+			"toggle_hardsuit_tail",
+			"set_backbag", "toggle_jumpsuit_style",
+			"change_slot", "import_slot", "retrieve_slot", "delete_slot"
+		))
+			prefs.update_preview_icon()
 
 /datum/character_setup_ui/proc/handle_ui_action(action, list/params, datum/tgui/ui)
 	var/mob/user = ui.user
@@ -1727,14 +1640,26 @@
 			return TRUE
 
 		if("refresh_preview")
-			update_preview()
+			prefs.preview_dir_b64_cache = null
+			prefs.invalidate_preview_mannequin()
+			prefs.update_preview_icon()
 			return TRUE
 
 		if("rotate_preview")
-			if(character_preview_view)
-				var/backwards = params["backwards"]
-				character_preview_view.setDir(turn(character_preview_view.dir, backwards ? 90 : -90))
-				update_preview()
+			var/backwards = params["backwards"]
+			prefs.preview_direction = turn(prefs.preview_direction, backwards ? 90 : -90)
+			// Кэш уже есть — поворот мгновенный, регенерация не нужна
+			if(prefs.preview_dir_b64_cache?["[prefs.preview_direction]"])
+				SStgui.update_user_uis(user, /datum/character_setup_ui)
+			else
+				prefs.update_preview_icon()
+			return TRUE
+
+		if("set_preview_zoom")
+			var/zoom = text2num(params["zoom"])
+			if(!isnull(zoom))
+				prefs.preview_zoom = clamp(round(zoom, 10), 50, 200)
+				SStgui.update_user_uis(user, /datum/character_setup_ui)
 			return TRUE
 
 		// === JOB PREFERENCE HANDLERS ===
