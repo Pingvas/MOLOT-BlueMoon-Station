@@ -82,6 +82,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/tgui_fancy = TRUE
 	var/tgui_lock = TRUE
 	var/tgui_input_mode = TRUE			// All the Input Boxes (Text,Number,List,Alert)
+	var/tgui_input_verbs = TRUE 		// Все частоиспользуемые вербы: SAY, ME, OOC и т.д.
 	var/tgui_large_buttons = TRUE
 	var/tgui_swapped_buttons = FALSE
 	var/tgui_panel_theme = "default"
@@ -342,6 +343,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/fullscreen = TRUE
 
 	var/ambientocclusion = TRUE
+	var/lighting_blur = LIGHTING_BLUR_DEFAULT
 	///Should we automatically fit the viewport?
 	var/auto_fit_viewport = FALSE
 	///Should we be in the widescreen mode set by the config?
@@ -2330,6 +2332,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					if(!length(GLOB.loadout_items))
 						dat += "<center>ERROR: No loadout categories - something is horribly wrong!"
 					else
+						sanitize_loadout_navigation(src)
 						if(!GLOB.loadout_categories[gear_category])
 							gear_category = GLOB.loadout_categories[1]
 						var/firstcat = TRUE
@@ -2366,11 +2369,11 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 									dat += " |"
 								if(gear_subcategory == subcategory)
 									if(is_modern_theme)
-										dat += " <a href='?_src_=prefs;preference=gear;select_subcategory=[url_encode(subcategory)]' class='linkOn'>[subcategory]</a> "
+										dat += " <a href='?_src_=prefs;preference=gear;select_category=[url_encode(gear_category)];select_subcategory=[url_encode(subcategory)]' class='linkOn'>[subcategory]</a> "
 									else
 										dat += " <span class='linkOn'>[subcategory]</span> "
 								else
-									dat += " <a href='?_src_=prefs;preference=gear;select_subcategory=[url_encode(subcategory)]'>[subcategory]</a> "
+									dat += " <a href='?_src_=prefs;preference=gear;select_category=[url_encode(gear_category)];select_subcategory=[url_encode(subcategory)]'>[subcategory]</a> "
 							dat += "</b></center></td></tr>"
 
 							var/even = FALSE
@@ -2528,6 +2531,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					var/screentip_images_tooltip = src.use_modern_translations ? get_modern_text("screentip_images_tooltip", src) : "This is an accessibility preference, if disabled, fallbacks to only text which colorblind people can understand better"
 					var/allowed_label = src.use_modern_translations ? get_modern_text("allowed", src) : "Allowed"
 					var/disallowed_label = src.use_modern_translations ? get_modern_text("disallowed", src) : "Disallowed"
+					var/tgui_input_label = src.tgui_input_mode ? get_modern_text("tgui_input_mode", src) : "Input Framework"
+					var/tgui_input_verbs_label = src.tgui_input_verbs ? get_modern_text("tgui_input_verbs", src) : "Input Verbs (SAY, ME, OOC, etc.) Framework"
 					var/tgui_monitors_label = src.use_modern_translations ? get_modern_text("tgui_monitors", src) : "tgui Monitors"
 					var/tgui_monitor_primary = src.use_modern_translations ? get_modern_text("tgui_monitor_primary", src) : "Primary"
 					var/tgui_monitor_all = src.use_modern_translations ? get_modern_text("tgui_monitor_all", src) : "All"
@@ -2575,6 +2580,9 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "<font style='border-bottom:2px dotted white; cursor:help;'\
 						title=\"[screentip_images_tooltip]\">\
 						<b>[screentip_images_label]:</b></font> <a href='?_src_=prefs;preference=screentip_images'>[screentip_images ? allowed_label : disallowed_label]</a><br>"
+					dat += "<b>[tgui_input_label]:</b> <a href='?_src_=prefs;preference=tgui_input_mode'>[(tgui_input_mode) ? "TGUI" : "BYOND"]</a><br>"
+					if(tgui_input_mode)
+						dat += "<b>[tgui_input_verbs_label]:</b> <a href='?_src_=prefs;preference=tgui_input_verbs'>[(tgui_input_verbs) ? "TGUI" : "BYOND"]</a><br>"
 					dat += "<b>[tgui_monitors_label]:</b> <a href='?_src_=prefs;preference=tgui_lock'>[(tgui_lock) ? tgui_monitor_primary : tgui_monitor_all]</a><br>"
 					dat += "<b>[tgui_style_label]:</b> <a href='?_src_=prefs;preference=tgui_fancy'>[(tgui_fancy) ? tgui_style_fancy : tgui_style_no_frills]</a><br>"
 					dat += "<b>[runechat_bubbles_label]:</b> <a href='?_src_=prefs;preference=chat_on_map'>[chat_on_map ? enabled_label : disabled_label]</a><br>"
@@ -2854,6 +2862,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 							dat += high_label
 					dat += "</a><br>"
 					dat += "<b>[ambient_occlusion_label]:</b> <a href='?_src_=prefs;preference=ambientocclusion'>[ambientocclusion ? enabled_label : disabled_label]</a><br>"
+					dat += "<b>Размытие освещения:</b> <a href='?_src_=prefs;preference=lighting_blur'>[lighting_blur]</a>[lighting_blur >= 3 ? " <span style='color:#ff6600'>(может снизить FPS)</span>" : ""]<br>"
 					dat += "<b>[fit_viewport_label]:</b> <a href='?_src_=prefs;preference=auto_fit_viewport'>[auto_fit_viewport ? auto_label : manual_label]</a><br>"
 					dat += "<b>[hud_button_flashes_label]:</b> <a href='?_src_=prefs;preference=hud_toggle_flash'>[hud_toggle_flash ? enabled_label : disabled_label]</a><br>"
 					dat += "<b>[hud_flash_color_label]:</b> <span style='border: 1px solid #161616; background-color: [hud_toggle_color];'><font color='[color_hex2num(hud_toggle_color) < 200 ? "FFFFFF" : "000000"]'>[hud_toggle_color]</font></span> <a href='?_src_=prefs;preference=hud_toggle_color;task=input'>[change_label]</a><br>"
@@ -5881,6 +5890,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					tgui_fancy = !tgui_fancy
 				if("tgui_input_mode")
 					tgui_input_mode = !tgui_input_mode
+				if("tgui_input_verbs")
+					tgui_input_verbs = !tgui_input_verbs
 				if("tgui_large_buttons")
 					tgui_large_buttons = !tgui_large_buttons
 				if("tgui_swapped_buttons")
@@ -6083,13 +6094,37 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 
 				if("ambientocclusion")
 					ambientocclusion = !ambientocclusion
-					if(parent && parent.screen && parent.screen.len)
-						var/atom/movable/screen/plane_master/game_world/G = parent.mob.hud_used.plane_masters["[GAME_PLANE]"]
-						var/atom/movable/screen/plane_master/above_wall/A = parent.mob.hud_used.plane_masters["[ABOVE_WALL_PLANE]"]
-						var/atom/movable/screen/plane_master/wall/W = parent.mob.hud_used.plane_masters["[WALL_PLANE]"]
-						G.backdrop(parent.mob)
-						A.backdrop(parent.mob)
-						W.backdrop(parent.mob)
+					if(parent?.mob?.hud_used && parent.screen?.len)
+						var/datum/hud/H = parent.mob.hud_used
+						var/atom/movable/screen/plane_master/G = H.plane_masters["[GAME_PLANE]"]
+						var/atom/movable/screen/plane_master/A = H.plane_masters["[ABOVE_WALL_PLANE]"]
+						var/atom/movable/screen/plane_master/W = H.plane_masters["[WALL_PLANE]"]
+						var/atom/movable/screen/plane_master/F = H.plane_masters["[FLOOR_PLANE]"]
+						var/atom/movable/screen/plane_master/L = H.plane_masters["[LIGHTING_PLANE]"]
+						var/atom/movable/screen/plane_master/C = H.plane_masters["[CHAT_PLANE]"]
+						G?.backdrop(parent.mob)
+						A?.backdrop(parent.mob)
+						W?.backdrop(parent.mob)
+						F?.backdrop(parent.mob)
+						L?.backdrop(parent.mob)
+						C?.backdrop(parent.mob)
+
+				if("lighting_blur")
+					lighting_blur = (lighting_blur + 1) % (LIGHTING_BLUR_MAX + 1)
+					if(parent?.mob?.hud_used && parent.screen?.len)
+						var/datum/hud/H = parent.mob.hud_used
+						var/atom/movable/screen/plane_master/L = H.plane_masters["[LIGHTING_PLANE]"]
+						var/atom/movable/screen/plane_master/G = H.plane_masters["[GAME_PLANE]"]
+						var/atom/movable/screen/plane_master/A = H.plane_masters["[ABOVE_WALL_PLANE]"]
+						var/atom/movable/screen/plane_master/W = H.plane_masters["[WALL_PLANE]"]
+						var/atom/movable/screen/plane_master/F = H.plane_masters["[FLOOR_PLANE]"]
+						var/atom/movable/screen/plane_master/E = H.plane_masters["[EMISSIVE_PLANE]"]
+						L?.backdrop(parent.mob)
+						G?.backdrop(parent.mob)
+						A?.backdrop(parent.mob)
+						W?.backdrop(parent.mob)
+						F?.backdrop(parent.mob)
+						E?.backdrop(parent.mob)
 
 				if("auto_fit_viewport")
 					auto_fit_viewport = !auto_fit_viewport
@@ -6320,6 +6355,9 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 				gear_subcategory = LOADOUT_SUBCATEGORY_NONE
 		if(href_list["select_subcategory"])
 			gear_subcategory = url_decode(href_list["select_subcategory"])
+		sanitize_loadout_navigation(src)
+		if(href_list["select_category"] || href_list["select_subcategory"])
+			save_preferences(silent = TRUE)
 		if(href_list["toggle_gear_path"])
 			var/name = url_decode(href_list["toggle_gear_path"])
 			// BLUEMOON FIX - Add null check to prevent runtime when category/subcategory doesn't exist
@@ -6390,6 +6428,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 				if(!length(user_gear[LOADOUT_COLOR]))
 					user_gear[LOADOUT_COLOR] = list("#FFFFFF")
 				var/current_color = user_gear[LOADOUT_COLOR][1]
+				if(!istext(current_color))
+					current_color = "#FFFFFF"
 				var/new_color = input(user, "Polychromic options", "Choose Color", current_color) as color|null
 				user_gear[LOADOUT_COLOR][1] = sanitize_hexcolor(new_color, 6, TRUE, current_color)
 
@@ -6413,6 +6453,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 				if(color_to_change)
 					var/color_index = text2num(copytext(color_to_change, 7))
 					var/current_color = user_gear[LOADOUT_COLOR][color_index]
+					if(!istext(current_color))
+						current_color = "#FFFFFF"
 					var/new_color = input(user, "Polychromic options", "Choose [color_to_change] Color", current_color) as color|null
 					if(new_color)
 						user_gear[LOADOUT_COLOR][color_index] = sanitize_hexcolor(new_color, 6, TRUE, current_color)

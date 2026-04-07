@@ -210,14 +210,15 @@
 /obj/item/storage/box/survival/centcom
 	name = "Extended-Capacity Survival Box"
 	icon_state = "ghostcostuming"
-	mask_type = /obj/item/clothing/mask/gas/sechailer
+	mask_type = /obj/item/clothing/mask/gas/sechailer/swat
 	internal_type = /obj/item/tank/internals/emergency_oxygen/double
 	medipen_type = /obj/item/reagent_containers/hypospray/medipen/atropine
 
 /obj/item/storage/box/survival/centcom/ComponentInitialize()
 	. = ..()
 	var/datum/component/storage/STR = GetComponent(/datum/component/storage)
-	STR.max_items = 9
+	STR.max_items = 10
+	STR.storage_flags = STORAGE_FLAGS_LEGACY_DEFAULT
 
 /obj/item/storage/box/survival/centcom/PopulateContents()
 	..() // we want the regular stuff too
@@ -227,6 +228,7 @@
 	new /obj/item/extinguisher/mini(src)
 	new /obj/item/flashlight/flare(src)
 	new /obj/item/hypospray/mkii/CMO/combat/synthflesh(src)
+	new /obj/item/pinpointer/nuke(src)
 
 /obj/item/storage/box/survival/centcom_max/PopulateContents()
 	..() // we want the regular stuff too

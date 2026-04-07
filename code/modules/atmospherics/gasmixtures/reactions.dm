@@ -188,12 +188,9 @@
 	G.set_temperature(500)
 	var/result = G.react()
 	if(result != REACTING)
-		qdel(G)
 		return list("success" = FALSE, "message" = "Reaction didn't go at all!")
 	if(!G.reaction_results["fire"])
-		qdel(G)
 		return list("success" = FALSE, "message" = "Trit fires aren't setting fire results correctly!")
-	qdel(G)
 	return ..()
 
 //plasma combustion: combustion of oxygen and plasma (treated as hydrocarbons). creates hotspots. exothermic
@@ -277,13 +274,10 @@
 	G.set_temperature(500)
 	var/result = G.react()
 	if(result != REACTING)
-		qdel(G)
 		return list("success" = FALSE, "message" = "Reaction didn't go at all!")
 	if(!G.reaction_results["fire"])
-		qdel(G)
 		return list("success" = FALSE, "message" = "Plasma fires aren't setting fire results correctly!")
 	if(!G.get_moles(GAS_CO2))
-		qdel(G)
 		return list("success" = FALSE, "message" = "Plasma fires aren't making CO2!")
 	G.clear()
 	G.set_moles(GAS_PLASMA,10)
@@ -291,9 +285,7 @@
 	G.set_temperature(500)
 	result = G.react()
 	if(!G.get_moles(GAS_TRITIUM))
-		qdel(G)
 		return list("success" = FALSE, "message" = "Plasma fires aren't making trit!")
-	qdel(G)
 	return ..()
 
 /datum/gas_reaction/genericfire
@@ -321,6 +313,9 @@
 
 /datum/gas_reaction/genericfire/react(datum/gas_mixture/air, datum/holder)
 	var/temperature = air.return_temperature()
+	var/turf/loc_turf = get_turf(holder)
+	// Mining/lavaland Z: N2 is not fuel here — removes only the generic N2+O2 (air) burn; methane etc. unchanged.
+	var/lavaland_block_n2 = loc_turf && is_mining_level(loc_turf.z)
 	var/list/oxidation_temps = GLOB.gas_data.oxidation_temperatures
 	var/list/oxidation_rates = GLOB.gas_data.oxidation_rates
 	var/oxidation_power = 0
@@ -341,6 +336,8 @@
 		else
 			var/fuel_temp = fuel_temps[G]
 			if(fuel_temp && fuel_temp > temperature)
+				if(lavaland_block_n2 && G == GAS_N2)
+					continue
 				var/amt = (air.get_moles(G) / fuel_rates[G]) * max(0, 1-(temperature / fuel_temp))
 				fuels[G] = amt // we have to calculate the actual amount we're using after we get all oxidation together
 				total_fuel += amt
@@ -485,25 +482,19 @@
 	G.set_volume(1000)
 	var/result = G.react()
 	if(result != REACTING)
-		qdel(G)
 		return list("success" = FALSE, "message" = "Reaction didn't go at all!")
 	if(abs(G.analyzer_results["fusion"] - 3) > 0.0000001)
 		var/instability = G.analyzer_results["fusion"]
-		qdel(G)
 		return list("success" = FALSE, "message" = "Fusion is not calculating analyzer results correctly, should be 3.000000045, is instead [instability]")
 	if(abs(G.get_moles(GAS_PLASMA) - 850.616) > 0.5)
 		var/plas = G.get_moles(GAS_PLASMA)
-		qdel(G)
 		return list("success" = FALSE, "message" = "Fusion is not calculating plasma correctly, should be 850.616, is instead [plas]")
 	if(abs(G.get_moles(GAS_CO2) - 1699.384) > 0.5)
 		var/co2 = G.get_moles(GAS_CO2)
-		qdel(G)
 		return list("success" = FALSE, "message" = "Fusion is not calculating co2 correctly, should be 1699.384, is instead [co2]")
 	if(abs(G.return_temperature() - 27600) > 200) // calculating this manually sucks dude
 		var/temp = G.return_temperature()
-		qdel(G)
 		return list("success" = FALSE, "message" = "Fusion is not calculating temperature correctly, should be around 27600, is instead [temp]")
-	qdel(G)
 	return ..()
 
 /datum/gas_reaction/nitrylformation //The formation of nitryl. Endothermic. Requires N2O as a catalyst.
@@ -546,12 +537,9 @@
 	G.set_temperature(150000)
 	var/result = G.react()
 	if(result != REACTING)
-		qdel(G)
 		return list("success" = FALSE, "message" = "Reaction didn't go at all!")
-	if(!G.get_moles(GAS_NITRYL) < 0.8)
-		qdel(G)
+	if(G.get_moles(GAS_NITRYL) < 0.8)
 		return list("success" = FALSE, "message" = "Nitryl isn't being generated correctly!")
-	qdel(G)
 	return ..()
 
 /datum/gas_reaction/bzformation //Formation of BZ by combining plasma and tritium at low pressures. Exothermic.
@@ -597,12 +585,9 @@
 	G.set_temperature(10)
 	var/result = G.react()
 	if(result != REACTING)
-		qdel(G)
 		return list("success" = FALSE, "message" = "Reaction didn't go at all!")
-	if(!G.get_moles(GAS_BZ) < 4) // efficiency is 4.0643 and bz generation == efficiency
-		qdel(G)
-		return list("success" = FALSE, "message" = "Nitryl isn't being generated correctly!")
-	qdel(G)
+	if(G.get_moles(GAS_BZ) < 4) // efficiency is 4.0643 and bz generation == efficiency
+		return list("success" = FALSE, "message" = "BZ isn't being generated correctly!")
 	return ..()
 
 /datum/gas_reaction/stimformation //Stimulum formation follows a strange pattern of how effective it will be at a given temperature, having some multiple peaks and some large dropoffs. Exo and endo thermic.
@@ -650,7 +635,7 @@
 	var/result = G.react()
 	if(result != REACTING)
 		return list("success" = FALSE, "message" = "Reaction didn't go at all!")
-	if(!G.get_moles(GAS_STIMULUM) < 900)
+	if(G.get_moles(GAS_STIMULUM) < 900)
 		return list("success" = FALSE, "message" = "Stimulum isn't being generated correctly!")
 	return ..()
 
@@ -690,12 +675,9 @@
 	G.set_temperature(5000000) // yeah, really
 	var/result = G.react()
 	if(result != REACTING)
-		qdel(G)
 		return list("success" = FALSE, "message" = "Reaction didn't go at all!")
 	if(abs(G.thermal_energy() - 23000000000) > 1000000) // god i hate floating points
-		qdel(G)
 		return list("success" = FALSE, "message" = "Hyper-nob formation isn't removing the right amount of heat! Should be 23,000,000,000, is instead [G.thermal_energy()]")
-	qdel(G)
 	return ..()
 
 
@@ -731,7 +713,6 @@
 	G.set_temperature(450)
 	var/result = G.react()
 	if(result != REACTING)
-		qdel(G)
 		return list("success" = FALSE, "message" = "Reaction didn't go at all!")
 	G.clear()
 	G.set_moles(GAS_MIASMA,1)
@@ -739,9 +720,7 @@
 	G.set_moles(GAS_H2O,0.5)
 	result = G.react()
 	if(result != NO_REACTION)
-		qdel(G)
 		return list("success" = FALSE, "message" = "Miasma sterilization not stopping due to water vapor correctly!")
-	qdel(G)
 	return ..()
 
 /datum/gas_reaction/nitric_oxide
@@ -767,11 +746,15 @@
 		air.adjust_moles(GAS_O2, -reaction_amount)
 		air.adjust_moles(GAS_NITRYL, reaction_amount*2)
 		enthalpy += (reaction_amount * -(enthalpies[GAS_NITRIC] - enthalpies[GAS_NITRYL]))
-	air.adjust_moles(GAS_NITRIC, -max_amount)
-	air.adjust_moles(GAS_O2, max_amount * 0.5)
-	air.adjust_moles(GAS_N2, max_amount * 0.5)
-	enthalpy += max_amount * -enthalpies[GAS_NITRIC]
-	air.set_temperature(enthalpy/(air.heat_capacity() + R_IDEAL_GAS_EQUATION * air.total_moles()))
+	var/decomp_amount = min(max_amount, air.get_moles(GAS_NITRIC))
+	if(decomp_amount > 0)
+		air.adjust_moles(GAS_NITRIC, -decomp_amount)
+		air.adjust_moles(GAS_O2, decomp_amount * 0.5)
+		air.adjust_moles(GAS_N2, decomp_amount * 0.5)
+		enthalpy += decomp_amount * -enthalpies[GAS_NITRIC]
+	var/denom = air.heat_capacity() + R_IDEAL_GAS_EQUATION * air.total_moles()
+	if(denom > MINIMUM_HEAT_CAPACITY)
+		air.set_temperature(enthalpy / denom)
 	return REACTING
 
 /datum/gas_reaction/hagedorn

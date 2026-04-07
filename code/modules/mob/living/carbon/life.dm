@@ -1,6 +1,8 @@
 /mob/living/carbon/BiologicalLife(delta_time, times_fired)
 	//Reagent processing needs to come before breathing, to prevent edge cases.
-	handle_organs(delta_time, times_fired)
+	// BLUEMOON OPTIMIZATION: stagger organ processing for clientless mobs (every other fire)
+	if(client || (times_fired % 2 == 0))
+		handle_organs(client ? delta_time : delta_time * 2, times_fired)
 	. = ..()		// if . is false, we are dead.
 	if(stat == DEAD)
 		stop_sound_channel(CHANNEL_HEARTBEAT)
@@ -79,7 +81,7 @@
 //Second link in a breath chain, calls check_breath()
 /mob/living/carbon/proc/breathe()
 	var/obj/item/organ/lungs = getorganslot(ORGAN_SLOT_LUNGS)
-	if(reagents.has_reagent(/datum/reagent/toxin/lexorin))
+	if(reagents?.has_reagent(/datum/reagent/toxin/lexorin))
 		return
 	if(istype(loc, /obj/machinery/atmospherics/components/unary/cryo_cell))
 		return
@@ -160,7 +162,7 @@
 
 	//CRIT
 	if(!breath || (breath.total_moles() == 0) || !lungs)
-		if(reagents.has_reagent(/datum/reagent/medicine/epinephrine) && lungs)
+		if(reagents?.has_reagent(/datum/reagent/medicine/epinephrine) && lungs)
 			return
 		adjustOxyLoss(1)
 
@@ -399,7 +401,7 @@
 			if(O)
 				O.on_life(seconds, times_fired)
 	else if(!QDELETED(src))
-		if(reagents.has_reagent(/datum/reagent/toxin/formaldehyde, 1) || reagents.has_reagent(/datum/reagent/preservahyde, 1)) // No organ decay if the body contains formaldehyde. Or preservahyde.
+		if(reagents?.has_reagent(/datum/reagent/toxin/formaldehyde, 1) || reagents?.has_reagent(/datum/reagent/preservahyde, 1)) // No organ decay if the body contains formaldehyde. Or preservahyde.
 			return
 		for(var/V in internal_organs)
 			var/obj/item/organ/O = V
@@ -407,6 +409,8 @@
 				O.on_death(seconds, times_fired) //Needed so organs decay while inside the body.
 
 /mob/living/carbon/handle_diseases()
+	if(!length(diseases))
+		return
 	for(var/thing in diseases)
 		var/datum/disease/D = thing
 		if(prob(D.infectivity))
@@ -416,6 +420,8 @@
 			D.stage_act()
 
 /mob/living/carbon/handle_wounds()
+	if(!length(all_wounds))
+		return
 	for(var/thing in all_wounds)
 		var/datum/wound/W = thing
 		if(W.processes) // meh
@@ -460,6 +466,8 @@
 
 /mob/living/carbon/handle_stomach()
 	set waitfor = 0
+	if(!length(stomach_contents))
+		return
 	for(var/mob/living/M in stomach_contents)
 		if(M.loc != src)
 			stomach_contents.Remove(M)
@@ -847,8 +855,9 @@ BLUEMOON REMOVAL END */
 		liver_failure(seconds, times_fired)
 
 /mob/living/carbon/proc/liver_failure(seconds, times_fired)
-	reagents.end_metabolization(src, keep_liverless = TRUE) //Stops trait-based effects on reagents, to prevent permanent buffs
-	reagents.metabolize(src, seconds, times_fired, can_overdose=FALSE, liverless = TRUE)
+	if(reagents)
+		reagents.end_metabolization(src, keep_liverless = TRUE) //Stops trait-based effects on reagents, to prevent permanent buffs
+		reagents.metabolize(src, seconds, times_fired, can_overdose=FALSE, liverless = TRUE)
 	if(HAS_TRAIT(src, TRAIT_STABLELIVER))
 		return
 	adjustToxLoss(4, TRUE,  TRUE)
@@ -900,4 +909,7 @@ BLUEMOON REMOVAL END */
 	if(!istype(heart))
 		return
 
-	heart.beating = !status
+	if(status)
+		heart.Stop()
+	else
+		heart.Restart()

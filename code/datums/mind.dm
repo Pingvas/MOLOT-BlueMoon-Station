@@ -262,6 +262,8 @@
 		return
 	var/datum/antagonist/A = has_antag_datum(datum_type)
 	if(A)
+		if(istype(A, /datum/antagonist/heretic) && current)
+			REMOVE_TRAIT(current, TRAIT_ANTIMAGIC_NO_SELFBLOCK, "heretic")
 		A.on_removal()
 		return TRUE
 
@@ -647,6 +649,7 @@ GLOBAL_LIST(objective_player_choices)
 		/datum/objective/custom,
 		/datum/objective/assassinate/once,
 		/datum/objective/protect,
+		/datum/objective/breakout,
 		/datum/objective/escape,
 		/datum/objective/survive,
 		/datum/objective/martyr,
@@ -666,6 +669,7 @@ GLOBAL_LIST(objective_choices)
 	var/list/allowed_types = list(
 		/datum/objective/custom,
 		/datum/objective/assassinate,
+		/datum/objective/assassinate/internal,
 		/datum/objective/assassinate/once,
 		/datum/objective/maroon,
 		/datum/objective/debrain,
@@ -681,6 +685,7 @@ GLOBAL_LIST(objective_choices)
 		/datum/objective/nuclear/revert,
 		/datum/objective/absorb,
 		/datum/objective/rescue_prisoner,
+		/datum/objective/breakout,
 		/datum/objective/custom
 		)
 

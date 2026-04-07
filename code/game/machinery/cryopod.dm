@@ -32,7 +32,9 @@ GLOBAL_LIST_EMPTY(ghost_records)
 	flags_1 = NODECONSTRUCT_1 // BLUEMOON ADD
 
 	max_integrity = 10000
-	obj_integrity = 10000
+	resistance_flags = LAVA_PROOF | FIRE_PROOF | UNACIDABLE | ACID_PROOF | FREEZE_PROOF
+	armor = list(MELEE = 10, BULLET = 60, LASER = 60, ENERGY = 60, BOMB = 30, BIO = 100, RAD = 100, FIRE = 100, ACID = 100)
+
 
 	// Used for logging people entering cryosleep and important items they are carrying.
 	var/list/frozen_crew = list()
@@ -149,6 +151,9 @@ GLOBAL_LIST_EMPTY(ghost_records)
 			usr.put_in_hands(I)
 		stored_packages -= I
 
+/// Time until despawn when a mob enters a cryopod. You can cryo other people in pods.
+#define TIME_TO_DESPAWN 30 SECONDS
+
 // Cryopods themselves.
 /obj/machinery/cryopod
 	name = "cryogenic freezer"
@@ -158,13 +163,17 @@ GLOBAL_LIST_EMPTY(ghost_records)
 	density = TRUE
 	anchored = TRUE
 	state_open = TRUE
+
+	resistance_flags = LAVA_PROOF | FIRE_PROOF | UNACIDABLE | ACID_PROOF | FREEZE_PROOF
+	max_integrity = 500
+	armor = list(MELEE = 10, BULLET = 60, LASER = 60, ENERGY = 60, BOMB = 30, BIO = 100, RAD = 100, FIRE = 100, ACID = 100)
+	flags_1 = NODECONSTRUCT_1
+
 	var/tele = FALSE
 
 	var/on_store_message = "has entered long-term storage."
 	var/on_store_name = "Cryogenic Oversight"
 
-	/// Time until despawn when a mob enters a cryopod. You can cryo other people in pods.
-	var/time_till_despawn = 30 SECONDS
 	/// Cooldown for when it's now safe to try an despawn the player.
 	COOLDOWN_DECLARE(despawn_world_time)
 
@@ -194,7 +203,7 @@ GLOBAL_LIST_EMPTY(ghost_records)
 		if(mob_occupant && mob_occupant.stat != DEAD)
 			to_chat(occupant, span_notice("<b>You feel cool air surround you. You go numb as your senses turn inward.</b>"))
 
-		COOLDOWN_START(src, despawn_world_time, time_till_despawn)
+		COOLDOWN_START(src, despawn_world_time, TIME_TO_DESPAWN)
 	icon_state = "cryopod"
 
 /obj/machinery/cryopod/open_machine()
@@ -361,6 +370,7 @@ GLOBAL_LIST_EMPTY(ghost_records)
 	return // Sorta gamey, but we don't really want these to be destroyed.
 
 #undef AHELP_FIRST_MESSAGE
+#undef TIME_TO_DESPAWN
 
 /obj/item/circuitboard/cryopodcontrol
 	name = "Circuit board (Cryogenic Oversight Console)"
@@ -412,17 +422,7 @@ GLOBAL_LIST_EMPTY(ghost_records)
 		crew_member["job"] = "N/A"
 
 	// Delete them from datacore.
-	var/announce_rank = null
-	for(var/datum/data/record/medical_record as anything in GLOB.data_core.medical)
-		if(medical_record.fields["name"] == mob_occupant.real_name)
-			qdel(medical_record)
-	for(var/datum/data/record/security_record as anything in GLOB.data_core.security)
-		if(security_record.fields["name"] == mob_occupant.real_name)
-			qdel(security_record)
-	for(var/datum/data/record/general_record as anything in GLOB.data_core.general)
-		if(general_record.fields["name"] == mob_occupant.real_name)
-			announce_rank = general_record.fields["rank"]
-			qdel(general_record)
+	var/announce_rank = GLOB.data_core.remove_records_by_name(mob_occupant.real_name)
 
 	var/obj/machinery/computer/cryopod/control_computer = control_computer_weakref?.resolve()
 	if(!control_computer)

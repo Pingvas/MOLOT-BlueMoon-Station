@@ -41,13 +41,19 @@
 	if(length(progressbars))
 		stack_trace("[src] destroyed with elements in its progressbars list.")
 		progressbars = null
-	for (var/alert in alerts)
+	for (var/alert in alerts.Copy())
 		clear_alert(alert, TRUE)
 	if(observers?.len)
 		for(var/mob/dead/observe as anything in observers)
 			observe.reset_perspective(null)
 	dispose_rendering()
 	qdel(hud_used)
+	if(hud_list)
+		for(var/hud_key in hud_list)
+			var/image/hud_image = hud_list[hud_key]
+			if(istype(hud_image))
+				hud_image.loc = null
+		hud_list = null
 	QDEL_LIST(client_colours)
 	clear_typing_indicator()
 	ghostize()
@@ -757,37 +763,21 @@ GLOBAL_VAR_INIT(exploit_warn_spam_prevention, 0)
 	client?.last_turn = world.time + MOB_FACE_DIRECTION_DELAY
 	return TRUE
 
-/mob/verb/eastshift()
-	set hidden = TRUE
-	if(!canface())
-		return FALSE
-	if(pixel_x <= PIXEL_SHIFT_MAXIMUM + base_pixel_x)
-		pixel_x++
-		is_shifted = TRUE
-
-/mob/verb/westshift()
-	set hidden = TRUE
-	if(!canface())
-		return FALSE
-	if(pixel_x >= -PIXEL_SHIFT_MAXIMUM + base_pixel_x)
-		pixel_x--
-		is_shifted = TRUE
-
 /mob/verb/northshift()
 	set hidden = TRUE
-	if(!canface())
-		return FALSE
-	if(pixel_y <= PIXEL_SHIFT_MAXIMUM + base_pixel_y)
-		pixel_y++
-		is_shifted = TRUE
+	pixel_shift(NORTH)
 
 /mob/verb/southshift()
 	set hidden = TRUE
-	if(!canface())
-		return FALSE
-	if(pixel_y >= -PIXEL_SHIFT_MAXIMUM + base_pixel_y)
-		pixel_y--
-		is_shifted = TRUE
+	pixel_shift(SOUTH)
+
+/mob/verb/eastshift()
+	set hidden = TRUE
+	pixel_shift(EAST)
+
+/mob/verb/westshift()
+	set hidden = TRUE
+	pixel_shift(WEST)
 
 /mob/proc/IsAdvancedToolUser()//This might need a rename but it should replace the can this mob use things check
 	return FALSE
@@ -993,7 +983,7 @@ GLOBAL_VAR_INIT(exploit_warn_spam_prevention, 0)
 /mob/proc/sync_lighting_plane_alpha()
 	if(hud_used)
 		var/atom/movable/screen/plane_master/lighting/L = hud_used.plane_masters["[LIGHTING_PLANE]"]
-		if (L)
+		if(L)
 			L.alpha = lighting_alpha
 
 /mob/proc/update_mouse_pointer()
