@@ -114,6 +114,10 @@ export const ContentPrefsTab = (_props, context) => {
     sexknotting = false,
     lust_tolerance = 100,
     sexual_potency = 15,
+    use_arousal_multiplier = false,
+    arousal_multiplier = 100,
+    use_moaning_multiplier = false,
+    moaning_multiplier = 65,
   } = data as any;
 
   return (
@@ -269,14 +273,54 @@ export const ContentPrefsTab = (_props, context) => {
                 <LabeledList.Item label="Потенция">
                   <NumberInput
                     value={sexual_potency}
-                    minValue={0}
-                    maxValue={100}
+                    minValue={-1}
+                    maxValue={25}
                     step={1}
                     onChange={(e, value) => act('set_sexual_potency', {
                       value,
                     })}
                   />
                 </LabeledList.Item>
+                <LabeledList.Item label="Множ. похоти">
+                  <Button.Checkbox
+                    checked={use_arousal_multiplier}
+                    content={use_arousal_multiplier ? 'Вкл.' : 'Выкл.'}
+                    onClick={() => act('toggle_arousal_multiplier')}
+                  />
+                </LabeledList.Item>
+                {use_arousal_multiplier && (
+                  <LabeledList.Item label="Коэф. похоти (%)">
+                    <NumberInput
+                      value={arousal_multiplier}
+                      minValue={0}
+                      maxValue={300}
+                      step={5}
+                      onChange={(e, value) => act('set_arousal_multiplier', {
+                        value,
+                      })}
+                    />
+                  </LabeledList.Item>
+                )}
+                <LabeledList.Item label="Множ. стонов">
+                  <Button.Checkbox
+                    checked={use_moaning_multiplier}
+                    content={use_moaning_multiplier ? 'Вкл.' : 'Выкл.'}
+                    onClick={() => act('toggle_moaning_multiplier')}
+                  />
+                </LabeledList.Item>
+                {use_moaning_multiplier && (
+                  <LabeledList.Item label="Шанс стона (%)">
+                    <NumberInput
+                      value={moaning_multiplier}
+                      minValue={0}
+                      maxValue={100}
+                      step={5}
+                      onChange={(e, value) => act('set_moaning_multiplier', {
+                        value,
+                      })}
+                    />
+                  </LabeledList.Item>
+                )}
               </LabeledList>
             </Stack.Item>
           </Stack>

@@ -220,6 +220,10 @@ export type CharacterSetupData = {
   cit_toggles: number;
   lust_tolerance: number;
   sexual_potency: number;
+  use_arousal_multiplier: boolean;
+  arousal_multiplier: number;
+  use_moaning_multiplier: boolean;
+  moaning_multiplier: number;
 
   // Character preview (ByondUi map view ID)
   character_preview_view: string;

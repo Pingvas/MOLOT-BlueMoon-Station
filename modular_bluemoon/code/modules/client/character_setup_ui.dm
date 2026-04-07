@@ -746,8 +746,10 @@
 	data["sexknotting"] = prefs.sexknotting
 	data["lust_tolerance"] = prefs.lust_tolerance
 	data["sexual_potency"] = prefs.sexual_potency
-
-	// === MARKINGS DATA ===
+	data["use_arousal_multiplier"] = prefs.use_arousal_multiplier
+	data["arousal_multiplier"] = prefs.arousal_multiplier
+	data["use_moaning_multiplier"] = prefs.use_moaning_multiplier
+	data["moaning_multiplier"] = prefs.moaning_multiplier
 	var/list/markings_data = list()
 	var/list/markings_raw = prefs.features["mam_body_markings"]
 	if(islist(markings_raw))
@@ -1973,15 +1975,35 @@
 
 		// === CONTENT: New handlers ===
 		if("set_lust_tolerance")
-			var/lust_tol = input(user, "Установите порог похоти (25-200):", "Порог Похоти", prefs.lust_tolerance) as num|null
-			if(lust_tol)
-				prefs.lust_tolerance = clamp(lust_tol, 25, 200)
+			var/lust_tol = params["value"]
+			if(!isnull(lust_tol))
+				prefs.lust_tolerance = clamp(text2num(lust_tol), 25, 200)
 			return TRUE
 
 		if("set_sexual_potency")
-			var/sexual_pot = input(user, "Установите сексуальную потенцию (-1 до 25, -1 = без ограничений):", "Потенция", prefs.sexual_potency) as num|null
-			if(sexual_pot)
-				prefs.sexual_potency = clamp(sexual_pot, -1, 25)
+			var/sexual_pot = params["value"]
+			if(!isnull(sexual_pot))
+				prefs.sexual_potency = clamp(text2num(sexual_pot), -1, 25)
+			return TRUE
+
+		if("toggle_arousal_multiplier")
+			prefs.use_arousal_multiplier = !prefs.use_arousal_multiplier
+			return TRUE
+
+		if("set_arousal_multiplier")
+			var/val = params["value"]
+			if(!isnull(val))
+				prefs.arousal_multiplier = clamp(text2num(val), 0, 300)
+			return TRUE
+
+		if("toggle_moaning_multiplier")
+			prefs.use_moaning_multiplier = !prefs.use_moaning_multiplier
+			return TRUE
+
+		if("set_moaning_multiplier")
+			var/val = params["value"]
+			if(!isnull(val))
+				prefs.moaning_multiplier = clamp(text2num(val), 0, 100)
 			return TRUE
 
 		if("set_gfluid_blacklist")
