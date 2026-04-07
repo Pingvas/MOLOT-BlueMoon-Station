@@ -4536,7 +4536,6 @@
 #include "modular_bluemoon\code\modules\client\antag_preview_icons.dm"
 #include "modular_bluemoon\code\modules\client\character_setup_ui.dm"
 #include "modular_bluemoon\code\modules\client\fullscreen.dm"
-#include "modular_bluemoon\code\modules\client\modern_ru.dm"
 #include "modular_bluemoon\code\modules\client\padezhi.dm"
 #include "modular_bluemoon\code\modules\client\pronouns_ru.dm"
 #include "modular_bluemoon\code\modules\client\varies.dm"

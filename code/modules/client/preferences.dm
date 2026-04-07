@@ -130,7 +130,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/pda_ringtone = "beep"
 	var/list/alt_titles_preferences = list()
 
-	// Modern UI translations
+	// DEPRECATED: HTML char menu language toggle — modern_ru.dm удалён, оставлено для compat savefile
 	var/modern_ui_language = 0				// 0 = English, 1 = Russian
 
 	var/hardsuit_tail_style = null // Пока не используется. Вскоре нужно будет бахнуть новых спрайтов.
