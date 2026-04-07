@@ -415,6 +415,15 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	/// Кэш иконок эталонного манекена (dir -> html string).
 	var/tmp/list/preview_reference_cache
 
+	/// Персистентный манекен для превью — не пересоздаётся каждый раз.
+	var/tmp/mob/living/carbon/human/dummy/preview_mannequin
+	/// TRUE если манекен уже инициализирован (copy_to вызван). Сбрасывается при смене species/gender/etc.
+	var/tmp/preview_mannequin_initialized = FALSE
+	/// Подсказка для инкрементального обновления — какие слои обновлять вместо полного regenerate_icons().
+	/// Устанавливается обработчиками настроек перед вызовом update_preview_icon().
+	/// null = полная пересборка.
+	var/tmp/preview_change_hint
+
 	var/no_tetris_storage = FALSE
 
 	///loadout stuff
