@@ -500,8 +500,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/unholypref = "No"
 	/// Список заблокированных генитальных жидкостей
 	var/list/gfluid_blacklist = list()
-	/// Размытый рендер спрайта (fuzzy scaling)
-	var/fuzzy = FALSE
+	/// Режим масштабирования спрайта (0=Sharp, 1=Fuzzy, 2=Per-Part WIP)
+	var/fuzzy = SCALED_SHARP
 
 	// ========== Sand additions — взаимодействия/возбуждение ==========
 	/// Избранные взаимодействия, показываются в отдельном табе
