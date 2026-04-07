@@ -1,4 +1,4 @@
-﻿//this works as is to create a single checked item, but has no back end code for toggleing the check yet
+//this works as is to create a single checked item, but has no back end code for toggleing the check yet
 #define TOGGLE_CHECKBOX(PARENT, CHILD) PARENT/CHILD/abstract = TRUE;PARENT/CHILD/checkbox = CHECKBOX_TOGGLE;PARENT/CHILD/verb/CHILD
 
 //Example usage TOGGLE_CHECKBOX(datum/verbs/menu/Settings/Ghost/chatterbox, toggle_ghost_ears)()
