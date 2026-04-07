@@ -118,8 +118,7 @@
 					prefs.facial_hair_style = style
 				if("gradient")
 					prefs.grad_style = style
-			// ShowChoices() не вызывается при каждом клике — слишком дорого (2500+ строк логики).
-			// Обновление главного меню происходит при confirm.
+			// В TGUI обновление главного меню происходит при confirm — при каждом клике только превью.
 			refresh_preview_icon()
 			return TRUE
 

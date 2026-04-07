@@ -33,167 +33,13 @@
 
 	if(href_list["preference"] == "charcreation_accent")
 		return TRUE
-
-	if(href_list["preference"] == "charcreation_set")
-		var/selected_theme = href_list["theme"]
-		if(selected_theme)
-			switch(selected_theme)
-				if("modern")
-					charcreation_theme = "modern"
-					save_preferences(silent = TRUE)
-					return TRUE
-				if("modern_classic")
-					charcreation_theme = "modern_classic"
-					save_preferences(silent = TRUE)
-					return TRUE
-				if("modern_purple")
-					charcreation_theme = "modern_purple"
-					save_preferences(silent = TRUE)
-					return TRUE
-				if("modern_green")
-					charcreation_theme = "modern_green"
-					save_preferences(silent = TRUE)
-					return TRUE
-				if("modern_neutral")
-					charcreation_theme = "modern_neutral"
-					save_preferences(silent = TRUE)
-					return TRUE
-				if("modern_custom")
-					charcreation_theme = "modern_custom"
-					modern_custom_enabled = TRUE
-					save_preferences(silent = TRUE)
-					return TRUE
-		return TRUE
-
-	if(href_list["preference"] == "modern_theme_editor")
-		switch(href_list["action"])
-			if("toggle")
-				modern_custom_editor_open = !modern_custom_editor_open
-				if(modern_custom_editor_open)
-					charcreation_theme = "modern_custom"
-					modern_custom_enabled = TRUE
-					save_preferences(silent = TRUE)
-				return TRUE
-			if("toggle_enabled")
-				charcreation_theme = "modern_custom"
-				modern_custom_enabled = !modern_custom_enabled
-				save_preferences(silent = TRUE)
-				return TRUE
-			if("toggle_pattern")
-				charcreation_theme = "modern_custom"
-				modern_custom_bg_pattern = !modern_custom_bg_pattern
-				save_preferences(silent = TRUE)
-				return TRUE
-			if("reset")
-				charcreation_theme = "modern_custom"
-				reset_modern_custom_theme()
-				save_preferences(silent = TRUE)
-				return TRUE
-		return TRUE
-
-	if(href_list["preference"] == "modern_theme_picker")
-		switch(href_list["action"])
-			if("toggle")
-				modern_theme_picker_collapsed = !modern_theme_picker_collapsed
-				modern_theme_picker_animate = FALSE
-				save_preferences(bypass_cooldown = TRUE, silent = TRUE)
-				return TRUE
-		return TRUE
-
-	if(href_list["preference"] == "modern_theme_settings")
-		switch(href_list["action"])
-			if("toggle")
-				modern_theme_settings_open = !modern_theme_settings_open
-				return TRUE
-			if("set_button_shape")
-				var/shape = href_list["shape"]
-				modern_button_shape = sanitize_inlist(shape, list("rect", "soft", "round"), initial(modern_button_shape))
-				save_preferences(bypass_cooldown = TRUE, silent = TRUE)
-				return TRUE
-			if("set_language")
-				var/lang = href_list["lang"]
-				if(lang == "ru")
-					modern_ui_language = 1
-				else if(lang == "en")
-					modern_ui_language = 0
-				save_preferences(bypass_cooldown = TRUE, silent = TRUE)
-				return TRUE
-			if("set_decoration_level")
-				var/level = href_list["level"]
-				ui_decoration_level = sanitize_inlist(level, list("minimal", "standard", "enhanced"), initial(ui_decoration_level))
-				save_preferences(bypass_cooldown = TRUE, silent = TRUE)
-				return TRUE
-		return TRUE
-
-	if(href_list["preference"] == "character_slots")
-		switch(href_list["action"])
-			if("toggle_empty")
-				collapse_empty_character_slots = !collapse_empty_character_slots
-				save_preferences(silent = TRUE)
-				return TRUE
-			if("delete_slot")
-				var/slot = text2num(href_list["slot"])
-				if(!slot)
-					return TRUE
-				// Подсчитываем количество непустых слотов
-				var/occupied_count = 0
-				if(path)
-					var/savefile/S = new /savefile(path)
-					if(S)
-						for(var/i in 1 to max_save_slots)
-							S.cd = "/character[i]"
-							var/check_name
-							S["real_name"] >> check_name
-							if(check_name)
-								occupied_count++
-				if(occupied_count <= 1)
-					tgui_alert_async(user, "Нельзя удалить единственного персонажа! / Cannot delete the only character!")
-					return TRUE
-				// Запрашиваем подтверждение
-				var/confirm = tgui_alert(user, "Вы уверены, что хотите удалить этого персонажа? Это действие необратимо! / Are you sure you want to delete this character? This cannot be undone!", "Delete Character", list("Yes", "No"))
-				if(confirm != "Yes")
-					return TRUE
-				if(delete_character(slot))
-					tgui_alert_async(user, "Персонаж удалён. / Character deleted.")
-				else
-					tgui_alert_async(user, "Не удалось удалить персонажа. / Failed to delete character.")
-				return TRUE
-		return TRUE
-
-	if(href_list["preference"] == "modern_custom_color")
-		var/color_key = href_list["key"]
-		if(!color_key)
-			return TRUE
-		charcreation_theme = "modern_custom"
-		modern_custom_enabled = TRUE
-		var/current_value = ""
-		switch(color_key)
-			if("bg_primary") current_value = modern_custom_bg_primary
-			if("bg_secondary") current_value = modern_custom_bg_secondary
-			if("text_primary") current_value = modern_custom_text_primary
-			if("text_secondary") current_value = modern_custom_text_secondary
-			if("button_bg") current_value = modern_custom_button_bg
-			if("button_hover") current_value = modern_custom_button_hover
-			if("button_active") current_value = modern_custom_button_active
-			if("button_text") current_value = modern_custom_button_text
-			if("border_color") current_value = modern_custom_border_color
-			if("accent_color") current_value = modern_custom_accent_color
-		var/new_value = input(user, "Выберите цвет:", "Custom theme: [color_key]", "#[current_value]") as color|null
-		if(isnull(new_value))
-			return TRUE
-		if(set_modern_custom_color(color_key, new_value))
-			save_preferences(silent = TRUE)
-		else
-			to_chat(user, span_warning("Неверный цвет."))
-		return TRUE
-
 	if(href_list["preference"] == "job")
 		switch(href_list["task"])
 			if("close")
 				user << browse(null, "window=mob_occupation")
 			if("reset")
 				ResetJobs()
-				SetChoices(user)
+				SStgui.update_user_uis(user, /datum/character_setup_ui)
 			if("random")
 				switch(joblessrole)
 					if(RETURNTOLOBBY)
@@ -205,7 +51,7 @@
 						joblessrole = BERANDOMJOB
 					if(BERANDOMJOB)
 						joblessrole = RETURNTOLOBBY
-				SetChoices(user)
+				SStgui.update_user_uis(user, /datum/character_setup_ui)
 			if("setJobLevel")
 				UpdateJobPreference(user, href_list["text"], text2num(href_list["level"]))
 			if("alt_title")
@@ -222,13 +68,12 @@
 							alt_titles_preferences.Remove(job_title)
 					else
 						alt_titles_preferences[job_title] = chosen_title
-				SetChoices(user)
+				SStgui.update_user_uis(user, /datum/character_setup_ui)
 			else
-				SetChoices(user)
+				SStgui.update_user_uis(user, /datum/character_setup_ui)
 		return TRUE
 
 	else if(href_list["preference"] == "trait")
-		var/is_inline_quirks = (character_settings_tab == QUIRKS_CHAR_TAB && CONFIG_GET(flag/roundstart_traits))
 		switch(href_list["task"])
 			if("close")
 				user << browse(null, "window=mob_occupation")
@@ -257,21 +102,14 @@
 						to_chat(user, "<span class='warning'>You don't have enough balance to gain this quirk!</span>")
 						return
 					all_quirks += quirk
-				if(is_inline_quirks)
-				else
-					SetQuirks(user)
+				SStgui.update_user_uis(user, /datum/character_setup_ui)
 			if("reset")
 				all_quirks = list()
-				if(is_inline_quirks)
-				else
-					SetQuirks(user)
+				SStgui.update_user_uis(user, /datum/character_setup_ui)
 			else
-				if(is_inline_quirks)
-				else
-					SetQuirks(user)
-	// BLUEMOON ADD START - возможность настраивать квирки
+				SStgui.update_user_uis(user, /datum/character_setup_ui)
+	// BLUEMOON ADD START: возможность настраивать квирки
 	else if(href_list["preference"] == "traits_setup")
-		var/is_inline_quirks = (character_settings_tab == QUIRKS_CHAR_TAB && CONFIG_GET(flag/roundstart_traits))
 		switch(href_list["task"])
 			if("change_shriek_option") // изменение вида крика от квирка крикуна
 				var/client/C = usr.client
@@ -279,34 +117,20 @@
 					var/new_shriek_type = tgui_input_list(user, "Choose your character's shriek type.", "Character Preference", GLOB.shriek_types)
 					if(new_shriek_type)
 						shriek_type = new_shriek_type
-						if(is_inline_quirks)
-						else
-							SetQuirks(user)
+				SStgui.update_user_uis(user, /datum/character_setup_ui)
 			if("lewd_summon_nickname")
 				var/client/C = usr.client
 				if(C)
-					var/new_summon_nickname = input(user, "Задайте прозвище во время призыва вашего персонажа:", "Character Preference")  as text|null
+					var/new_summon_nickname = input(user, "Задайте прозвище во время призыва вашего персонажа:", "Character Preference") as text|null
 					if(new_summon_nickname)
 						new_summon_nickname = reject_bad_name(new_summon_nickname, allow_numbers = TRUE)
 						if(new_summon_nickname)
 							summon_nickname = new_summon_nickname
-							if(is_inline_quirks)
-							else
-								SetQuirks(user)
 						else
 							to_chat(user, "<font color='red'>Invalid name. Your name should be at least 2 and at most [MAX_NAME_LEN] characters long. It may only contain the characters A-Z, a-z, А-Я, а-я, -, ' and .</font>")
-
+				SStgui.update_user_uis(user, /datum/character_setup_ui)
 	// BLUEMOON ADD END
 		return TRUE
-
-	else if(href_list["quirk_category"])
-		var/is_inline_quirks = (character_settings_tab == QUIRKS_CHAR_TAB && CONFIG_GET(flag/roundstart_traits))
-		var/temp_quirk_category = href_list["quirk_category"]
-		if(temp_quirk_category == QUIRK_POSITIVE || temp_quirk_category == QUIRK_NEUTRAL || temp_quirk_category == QUIRK_NEGATIVE)
-			quirk_category = temp_quirk_category
-			if(is_inline_quirks)
-			else
-				SetQuirks(user)
 
 	else if(href_list["preference"] == "language")
 		switch(href_list["task"])
@@ -412,57 +236,57 @@
 							ghost_others = GHOST_OTHERS_SIMPLE
 
 				if("name")
-					var/new_name = input(user, "Задайте имя вашего персонажа:", "Character Preference")  as text|null
+					var/new_name = input(user, "Р—Р°РґР°Р№С‚Рµ РёРјСЏ РІР°С€РµРіРѕ РїРµСЂСЃРѕРЅР°Р¶Р°:", "Character Preference")  as text|null
 					if(new_name)
 						new_name = reject_bad_name(new_name, allow_numbers = TRUE)
 						if(new_name)
 							real_name = new_name
 						else
-							to_chat(user, "<font color='red'>Invalid name. Your name should be at least 2 and at most [MAX_NAME_LEN] characters long. It may only contain the characters A-Z, a-z, А-Я, а-я, -, ' and .</font>")
+							to_chat(user, "<font color='red'>Invalid name. Your name should be at least 2 and at most [MAX_NAME_LEN] characters long. It may only contain the characters A-Z, a-z, Рђ-РЇ, Р°-СЏ, -, ' and .</font>")
 
 				if("age")
-					var/new_age = tgui_input_number(user, "Задайте возраст вашего персонажа:\n([AGE_MIN]-[AGE_MAX_INPUT])", "Character Preference", null, AGE_MAX_INPUT, AGE_MIN)
+					var/new_age = tgui_input_number(user, "Р—Р°РґР°Р№С‚Рµ РІРѕР·СЂР°СЃС‚ РІР°С€РµРіРѕ РїРµСЂСЃРѕРЅР°Р¶Р°:\n([AGE_MIN]-[AGE_MAX_INPUT])", "Character Preference", null, AGE_MAX_INPUT, AGE_MIN)
 					if(new_age)
 						age = max(min( round(text2num(new_age)), AGE_MAX_INPUT),AGE_MIN)
 
 				if("security_records")
-					var/rec = stripped_multiline_input(usr, "Напишите заметки службы безопасности о вашем персонаже.", "Security Records", html_decode(security_records), MAX_FLAVOR_LEN, TRUE)
+					var/rec = stripped_multiline_input(usr, "РќР°РїРёС€РёС‚Рµ Р·Р°РјРµС‚РєРё СЃР»СѓР¶Р±С‹ Р±РµР·РѕРїР°СЃРЅРѕСЃС‚Рё Рѕ РІР°С€РµРј РїРµСЂСЃРѕРЅР°Р¶Рµ.", "Security Records", html_decode(security_records), MAX_FLAVOR_LEN, TRUE)
 					if(!isnull(rec))
 						security_records = rec
 
 				if("medical_records")
-					var/rec = stripped_multiline_input(usr, "Напишите медицинские заметки о вашем персонаже.", "Medical Records", html_decode(medical_records), MAX_FLAVOR_LEN, TRUE)
+					var/rec = stripped_multiline_input(usr, "РќР°РїРёС€РёС‚Рµ РјРµРґРёС†РёРЅСЃРєРёРµ Р·Р°РјРµС‚РєРё Рѕ РІР°С€РµРј РїРµСЂСЃРѕРЅР°Р¶Рµ.", "Medical Records", html_decode(medical_records), MAX_FLAVOR_LEN, TRUE)
 					if(!isnull(rec))
 						medical_records = rec
 
 				if("flavor_text")
-					var/msg = input(usr, "Задайте внешнее описание вашего персонажа.", "Описание Bнешности Персонажа", features["flavor_text"]) as message|null //Skyrat edit, removed stripped_multiline_input()
+					var/msg = input(usr, "Р—Р°РґР°Р№С‚Рµ РІРЅРµС€РЅРµРµ РѕРїРёСЃР°РЅРёРµ РІР°С€РµРіРѕ РїРµСЂСЃРѕРЅР°Р¶Р°.", "РћРїРёСЃР°РЅРёРµ BРЅРµС€РЅРѕСЃС‚Рё РџРµСЂСЃРѕРЅР°Р¶Р°", features["flavor_text"]) as message|null //Skyrat edit, removed stripped_multiline_input()
 					if(!isnull(msg))
 						features["flavor_text"] = strip_html_simple(msg, MAX_FLAVOR_LEN, TRUE) //Skyrat edit, removed strip_html_simple()
 
 				//SPLURT edit
 				if("naked_flavor_text")
-					var/msg = input(usr, "Задайте описание вашего персонажа без одежды.", "Описание Bнешности Голого Персонажа", features["naked_flavor_text"]) as message|null
+					var/msg = input(usr, "Р—Р°РґР°Р№С‚Рµ РѕРїРёСЃР°РЅРёРµ РІР°С€РµРіРѕ РїРµСЂСЃРѕРЅР°Р¶Р° Р±РµР· РѕРґРµР¶РґС‹.", "РћРїРёСЃР°РЅРёРµ BРЅРµС€РЅРѕСЃС‚Рё Р“РѕР»РѕРіРѕ РџРµСЂСЃРѕРЅР°Р¶Р°", features["naked_flavor_text"]) as message|null
 					if(!isnull(msg))
 						features["naked_flavor_text"] = strip_html_simple(msg, MAX_FLAVOR_LEN, TRUE)
 
 				//SPLURT edit end
 				if("silicon_flavor_text")
-					var/msg = input(usr, "Задайте особые признаки внешности своего синтетического (борга) персонажа!", "Описание Борга", features["silicon_flavor_text"]) as message|null //Skyrat edit, removed stripped_multiline_input()
+					var/msg = input(usr, "Р—Р°РґР°Р№С‚Рµ РѕСЃРѕР±С‹Рµ РїСЂРёР·РЅР°РєРё РІРЅРµС€РЅРѕСЃС‚Рё СЃРІРѕРµРіРѕ СЃРёРЅС‚РµС‚РёС‡РµСЃРєРѕРіРѕ (Р±РѕСЂРіР°) РїРµСЂСЃРѕРЅР°Р¶Р°!", "РћРїРёСЃР°РЅРёРµ Р‘РѕСЂРіР°", features["silicon_flavor_text"]) as message|null //Skyrat edit, removed stripped_multiline_input()
 					if(!isnull(msg))
 						features["silicon_flavor_text"] = strip_html_simple(msg, MAX_FLAVOR_LEN, TRUE) //Skyrat edit, uses strip_html_simple()
 
 				if("custom_species_lore")
-					var/msg = input(usr, "Задайте особую предысторию расы своего персонажа!", "Предыстория Расы Bашего Персонажа", features["custom_species_lore"]) as message|null //Skyrat edit, removed stripped_multiline_input()
+					var/msg = input(usr, "Р—Р°РґР°Р№С‚Рµ РѕСЃРѕР±СѓСЋ РїСЂРµРґС‹СЃС‚РѕСЂРёСЋ СЂР°СЃС‹ СЃРІРѕРµРіРѕ РїРµСЂСЃРѕРЅР°Р¶Р°!", "РџСЂРµРґС‹СЃС‚РѕСЂРёСЏ Р Р°СЃС‹ BР°С€РµРіРѕ РџРµСЂСЃРѕРЅР°Р¶Р°", features["custom_species_lore"]) as message|null //Skyrat edit, removed stripped_multiline_input()
 					if(!isnull(msg))
 						features["custom_species_lore"] = strip_html_simple(msg, MAX_FLAVOR_LEN, TRUE)
-				// BLUEMOON ADD START - пользовательский эмоут смерти
+				// BLUEMOON ADD START - РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРёР№ СЌРјРѕСѓС‚ СЃРјРµСЂС‚Рё
 				if("custom_deathgasp")
-					var/msg = input(usr, "Задайте эмоцию, которая будет проигрываться при смерти вашего персонажа!", "Сообщение О Смерти", features["custom_deathgasp"]) as message|null
+					var/msg = input(usr, "Р—Р°РґР°Р№С‚Рµ СЌРјРѕС†РёСЋ, РєРѕС‚РѕСЂР°СЏ Р±СѓРґРµС‚ РїСЂРѕРёРіСЂС‹РІР°С‚СЊСЃСЏ РїСЂРё СЃРјРµСЂС‚Рё РІР°С€РµРіРѕ РїРµСЂСЃРѕРЅР°Р¶Р°!", "РЎРѕРѕР±С‰РµРЅРёРµ Рћ РЎРјРµСЂС‚Рё", features["custom_deathgasp"]) as message|null
 					if(!isnull(msg))
 						features["custom_deathgasp"] = strip_html_simple(msg, MAX_DEATHGASP_LEN, TRUE)
 				if("custom_deathsound")
-					var/sound_name = tgui_input_list(user, "Выберите звук смерти персонажа!", "Звук Смерти", GLOB.deathgasp_sounds)
+					var/sound_name = tgui_input_list(user, "Р’С‹Р±РµСЂРёС‚Рµ Р·РІСѓРє СЃРјРµСЂС‚Рё РїРµСЂСЃРѕРЅР°Р¶Р°!", "Р—РІСѓРє РЎРјРµСЂС‚Рё", GLOB.deathgasp_sounds)
 					if(sound_name)
 						features["custom_deathsound"] = sound_name
 				if("deathsoundpreview")
@@ -477,19 +301,19 @@
 					var/picked_deathsound_name = features["custom_deathsound"]
 					var/picked_deathsound_path
 					if(picked_deathsound_name)
-						if(picked_deathsound_name == "По умолчанию")
+						if(picked_deathsound_name == "РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ")
 							picked_deathsound_path = pick('sound/voice/deathgasp1.ogg', 'sound/voice/deathgasp2.ogg')
-						if(picked_deathsound_name == "Беззвучный")
+						if(picked_deathsound_name == "Р‘РµР·Р·РІСѓС‡РЅС‹Р№")
 							picked_deathsound_path = 0
 						if(GLOB.deathgasp_sounds[picked_deathsound_name])
 							picked_deathsound_path = GLOB.deathgasp_sounds[picked_deathsound_name]
 					if(picked_deathsound_path)
 						user.playsound_local(user, picked_deathsound_path, 60)
 					else
-						to_chat(user, "<span class='warning'>Вы выбрали беззвучный deathgasp или выбранный вами звук отсутствует!</span>")
+						to_chat(user, "<span class='warning'>Р’С‹ РІС‹Р±СЂР°Р»Рё Р±РµР·Р·РІСѓС‡РЅС‹Р№ deathgasp РёР»Рё РІС‹Р±СЂР°РЅРЅС‹Р№ РІР°РјРё Р·РІСѓРє РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚!</span>")
 				// BLUEMOON ADD END
 				if("ooc_notes")
-					var/msg = stripped_multiline_input(usr, "Установите всегда видимые OOC-заметки, связанные с вашими предпочтениями.", "ООС-Заметки", html_decode(features["ooc_notes"]), MAX_FLAVOR_LEN, TRUE)
+					var/msg = stripped_multiline_input(usr, "РЈСЃС‚Р°РЅРѕРІРёС‚Рµ РІСЃРµРіРґР° РІРёРґРёРјС‹Рµ OOC-Р·Р°РјРµС‚РєРё, СЃРІСЏР·Р°РЅРЅС‹Рµ СЃ РІР°С€РёРјРё РїСЂРµРґРїРѕС‡С‚РµРЅРёСЏРјРё.", "РћРћРЎ-Р—Р°РјРµС‚РєРё", html_decode(features["ooc_notes"]), MAX_FLAVOR_LEN, TRUE)
 					if(!isnull(msg))
 						features["ooc_notes"] = msg
 
@@ -944,7 +768,7 @@
 						invalidate_preview_mannequin()
 
 				if("custom_species")
-					var/new_species = reject_bad_name(input(user, "Выберите особую расу персонажа, если он уникален. Это будет отображаться при осмотре и сканировании здоровья. Не злоупотребляйте этим:", "Character Preference", custom_species) as null|text, TRUE)
+					var/new_species = reject_bad_name(input(user, "Р’С‹Р±РµСЂРёС‚Рµ РѕСЃРѕР±СѓСЋ СЂР°СЃСѓ РїРµСЂСЃРѕРЅР°Р¶Р°, РµСЃР»Рё РѕРЅ СѓРЅРёРєР°Р»РµРЅ. Р­С‚Рѕ Р±СѓРґРµС‚ РѕС‚РѕР±СЂР°Р¶Р°С‚СЊСЃСЏ РїСЂРё РѕСЃРјРѕС‚СЂРµ Рё СЃРєР°РЅРёСЂРѕРІР°РЅРёРё Р·РґРѕСЂРѕРІСЊСЏ. РќРµ Р·Р»РѕСѓРїРѕС‚СЂРµР±Р»СЏР№С‚Рµ СЌС‚РёРј:", "Character Preference", custom_species) as null|text, TRUE)
 					if(new_species)
 						custom_species = new_species
 					else
@@ -1711,9 +1535,9 @@
 				if ("clientfps")
 					var/config_fps = CONFIG_GET(number/fps)
 					var/list/fps_options = list(
-						"0 (синхронизация с сервером: [config_fps])" = 0,
+						"0 (СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёСЏ СЃ СЃРµСЂРІРµСЂРѕРј: [config_fps])" = 0,
 						"60" = 60,
-						"120 (рекомендуется)" = 120,
+						"120 (СЂРµРєРѕРјРµРЅРґСѓРµС‚СЃСЏ)" = 120,
 						"180" = 180,
 						"240" = 240,
 						"300" = 300,
@@ -1726,7 +1550,7 @@
 						if(fps_options[label] == clientfps)
 							current_label = label
 							break
-					var/picked = tgui_input_list(user, "Выберите желаемый FPS. Рекомендуется 120.", "FPS", fps_options, current_label)
+					var/picked = tgui_input_list(user, "Р’С‹Р±РµСЂРёС‚Рµ Р¶РµР»Р°РµРјС‹Р№ FPS. Р РµРєРѕРјРµРЅРґСѓРµС‚СЃСЏ 120.", "FPS", fps_options, current_label)
 					if(!isnull(picked))
 						var/desiredfps = fps_options[picked]
 						clientfps = desiredfps
@@ -1742,7 +1566,7 @@
 				if("toggle_custom_blood_color")
 					custom_blood_color = !custom_blood_color
 				if("blood_color")
-					var/pickedBloodColor = input(user, "Выбирайте цвет крови своего персонажа.", "Character Preference", blood_color) as color|null
+					var/pickedBloodColor = input(user, "Р’С‹Р±РёСЂР°Р№С‚Рµ С†РІРµС‚ РєСЂРѕРІРё СЃРІРѕРµРіРѕ РїРµСЂСЃРѕРЅР°Р¶Р°.", "Character Preference", blood_color) as color|null
 					if(!pickedBloodColor)
 						return
 					if(pickedBloodColor)
@@ -1751,23 +1575,23 @@
 							custom_blood_color = TRUE
 				///
 				if("pda_style")
-					var/pickedPDAStyle = tgui_input_list(user, "Выбирайте стиль своего КПК.", "Character Preference", GLOB.pda_styles, pda_style)
+					var/pickedPDAStyle = tgui_input_list(user, "Р’С‹Р±РёСЂР°Р№С‚Рµ СЃС‚РёР»СЊ СЃРІРѕРµРіРѕ РљРџРљ.", "Character Preference", GLOB.pda_styles, pda_style)
 					if(pickedPDAStyle)
 						pda_style = pickedPDAStyle
 				if("pda_color")
-					var/pickedPDAColor = input(user, "Выбирайте цвет интерфейса своего КПК.", "Character Preference", pda_color) as color|null
+					var/pickedPDAColor = input(user, "Р’С‹Р±РёСЂР°Р№С‚Рµ С†РІРµС‚ РёРЅС‚РµСЂС„РµР№СЃР° СЃРІРѕРµРіРѕ РљРџРљ.", "Character Preference", pda_color) as color|null
 					if(pickedPDAColor)
 						pda_color = pickedPDAColor
 				if("pda_skin")
-					var/pickedPDASkin = tgui_input_list(user, "Выбирайте модель своего КПК.", "Character Preference", GLOB.pda_reskins, pda_skin)
+					var/pickedPDASkin = tgui_input_list(user, "Р’С‹Р±РёСЂР°Р№С‚Рµ РјРѕРґРµР»СЊ СЃРІРѕРµРіРѕ РљРџРљ.", "Character Preference", GLOB.pda_reskins, pda_skin)
 					if(pickedPDASkin)
 						pda_skin = pickedPDASkin
 				if("pda_ringtone")
-					var/pickedPDARingtone = reject_bad_name(input(user, "Выбирайте рингтон своего КПК.", "Character Preference", pda_ringtone) as null|text, TRUE)
+					var/pickedPDARingtone = reject_bad_name(input(user, "Р’С‹Р±РёСЂР°Р№С‚Рµ СЂРёРЅРіС‚РѕРЅ СЃРІРѕРµРіРѕ РљРџРљ.", "Character Preference", pda_ringtone) as null|text, TRUE)
 					if(pickedPDARingtone)
 						pda_ringtone = pickedPDARingtone
 				if("silicon_lawset")
-					var/picked_lawset = tgui_input_list(user, "Выбирайте предпочитаемый список законов", "Silicon preference", list("None") + CONFIG_GET(keyed_list/choosable_laws), silicon_lawset)
+					var/picked_lawset = tgui_input_list(user, "Р’С‹Р±РёСЂР°Р№С‚Рµ РїСЂРµРґРїРѕС‡РёС‚Р°РµРјС‹Р№ СЃРїРёСЃРѕРє Р·Р°РєРѕРЅРѕРІ", "Silicon preference", list("None") + CONFIG_GET(keyed_list/choosable_laws), silicon_lawset)
 					if(picked_lawset)
 						if(picked_lawset == "None")
 							picked_lawset = null
@@ -1817,29 +1641,29 @@
 					fuzzy = (fuzzy + 1) % SCALED_MODES_COUNT
 					invalidate_preview_mannequin()
 
-				//BLUEMOON ADD выбор веса персонажа, замена квирков на вес
+				//BLUEMOON ADD РІС‹Р±РѕСЂ РІРµСЃР° РїРµСЂСЃРѕРЅР°Р¶Р°, Р·Р°РјРµРЅР° РєРІРёСЂРєРѕРІ РЅР° РІРµСЃ
 				if("body_weight")
-					if(all_quirks.Find("Пожиратель"))
-						tgui_alert(user, "Квирк Пожиратель несовместим с любым весом кроме стандартного", "Ugh, you cant", list("Ok", "Understood"))
+					if(all_quirks.Find("РџРѕР¶РёСЂР°С‚РµР»СЊ"))
+						tgui_alert(user, "РљРІРёСЂРє РџРѕР¶РёСЂР°С‚РµР»СЊ РЅРµСЃРѕРІРјРµСЃС‚РёРј СЃ Р»СЋР±С‹Рј РІРµСЃРѕРј РєСЂРѕРјРµ СЃС‚Р°РЅРґР°СЂС‚РЅРѕРіРѕ", "Ugh, you cant", list("Ok", "Understood"))
 					else
-						var/new_body_weight = tgui_input_list(user, "Выберите вес персонажа!", "Character Preference", GLOB.mob_sizes)
+						var/new_body_weight = tgui_input_list(user, "Р’С‹Р±РµСЂРёС‚Рµ РІРµСЃ РїРµСЂСЃРѕРЅР°Р¶Р°!", "Character Preference", GLOB.mob_sizes)
 						if(new_body_weight)
 							if(tgui_alert(user, "[GLOB.mob_sizes[new_body_weight]]", "Confirm your choice", list("Good", "Nevermind")) == "Good")
 								var/quirk_balance_check = GetQuirkBalance() - mob_size_name_to_quirk_cost(new_body_weight) + mob_size_name_to_quirk_cost(body_weight)
 								if(quirk_balance_check >= 0)
 									body_weight = new_body_weight
 								else
-									tgui_alert(user, "для взятия данного веса нужно ещё [abs(quirk_balance_check)] очков квирков", "Ugh, you cant", list("Ok", "Understood"))
+									tgui_alert(user, "РґР»СЏ РІР·СЏС‚РёСЏ РґР°РЅРЅРѕРіРѕ РІРµСЃР° РЅСѓР¶РЅРѕ РµС‰С‘ [abs(quirk_balance_check)] РѕС‡РєРѕРІ РєРІРёСЂРєРѕРІ", "Ugh, you cant", list("Ok", "Understood"))
 
-				// Нормализируемый размер (размер при нормализации)
+				// РќРѕСЂРјР°Р»РёР·РёСЂСѓРµРјС‹Р№ СЂР°Р·РјРµСЂ (СЂР°Р·РјРµСЂ РїСЂРё РЅРѕСЂРјР°Р»РёР·Р°С†РёРё)
 				if("normalized_size")
-					var/max_size = 	min(CONFIG_GET(number/body_size_max), 1.2)	// Магическая цифра (предел MOB_SIZE_HUMAN по proc/adjust_mobsize)
-					var/min_size =	max(CONFIG_GET(number/body_size_min), 0.81)	// Магическая цифра (предел MOB_SIZE_HUMAN по proc/adjust_mobsize)
+					var/max_size = 	min(CONFIG_GET(number/body_size_max), 1.2)	// РњР°РіРёС‡РµСЃРєР°СЏ С†РёС„СЂР° (РїСЂРµРґРµР» MOB_SIZE_HUMAN РїРѕ proc/adjust_mobsize)
+					var/min_size =	max(CONFIG_GET(number/body_size_min), 0.81)	// РњР°РіРёС‡РµСЃРєР°СЏ С†РёС„СЂР° (РїСЂРµРґРµР» MOB_SIZE_HUMAN РїРѕ proc/adjust_mobsize)
 					var/new_normialzed_size = input(user, "Choose your desired normalized size: ([min_size * 100]-[max_size * 100]%)\nUsed with normalizer stuff", "Character Preference", features["normalized_size"]*100) as num|null
 					if(new_normialzed_size)
 						features["normalized_size"] = clamp(new_normialzed_size * 0.01, min_size, max_size)
 
-				// Выбор смеха
+				// Р’С‹Р±РѕСЂ СЃРјРµС…Р°
 				if("laugh")
 					var/select_laugh = tgui_input_list(user, "Choose your desired laugh", "Character Preference", GLOB.mob_laughs)
 					if(select_laugh)
@@ -2012,10 +1836,10 @@
 									if(entry[1] == limb_value)
 										L.Cut(i, i + 1)
 
-				// BLUEMOON ADD START - кнопка для удаления всех маркингов на персонаже
+				// BLUEMOON ADD START - РєРЅРѕРїРєР° РґР»СЏ СѓРґР°Р»РµРЅРёСЏ РІСЃРµС… РјР°СЂРєРёРЅРіРѕРІ РЅР° РїРµСЂСЃРѕРЅР°Р¶Рµ
 				if("markings_remove")
-					var/are_you_sure_about_that = tgui_alert(user, "Это действие удалит все татуировки с персонажа. Вы уверены, что хотите сделать это?", "Удаление всех маркингов", list("Да", "Нет"))
-					if(are_you_sure_about_that == "Да")
+					var/are_you_sure_about_that = tgui_alert(user, "Р­С‚Рѕ РґРµР№СЃС‚РІРёРµ СѓРґР°Р»РёС‚ РІСЃРµ С‚Р°С‚СѓРёСЂРѕРІРєРё СЃ РїРµСЂСЃРѕРЅР°Р¶Р°. Р’С‹ СѓРІРµСЂРµРЅС‹, С‡С‚Рѕ С…РѕС‚РёС‚Рµ СЃРґРµР»Р°С‚СЊ СЌС‚Рѕ?", "РЈРґР°Р»РµРЅРёРµ РІСЃРµС… РјР°СЂРєРёРЅРіРѕРІ", list("Р”Р°", "РќРµС‚"))
+					if(are_you_sure_about_that == "Р”Р°")
 						clearlist(features["mam_body_markings"])
 				// BLUEMOON ADD END
 				if("marking_color_specific")
@@ -2232,9 +2056,9 @@
 							nonconpref = "Yes"
 					if(isliving(user?.mind?.current))
 						var/mob/living/C = user.mind.current
-						message_admins("[user.ckey]/[C.real_name] [ADMIN_FLW(C)][C.stat == DEAD ? " (DEAD)" : ""] меняет Non-Con c [nonconpref_old] на [nonconpref].")
-						log_admin("[user.ckey]/[C.real_name][C.stat == DEAD ? " (DEAD)" : ""] меняет Non-Con c [nonconpref_old] на [nonconpref].")
-						C.balloon_alert_to_viewers("Меняет Non-Con c [nonconpref_old] на [nonconpref].")
+						message_admins("[user.ckey]/[C.real_name] [ADMIN_FLW(C)][C.stat == DEAD ? " (DEAD)" : ""] РјРµРЅСЏРµС‚ Non-Con c [nonconpref_old] РЅР° [nonconpref].")
+						log_admin("[user.ckey]/[C.real_name][C.stat == DEAD ? " (DEAD)" : ""] РјРµРЅСЏРµС‚ Non-Con c [nonconpref_old] РЅР° [nonconpref].")
+						C.balloon_alert_to_viewers("РњРµРЅСЏРµС‚ Non-Con c [nonconpref_old] РЅР° [nonconpref].")
 				if("vore_pref")
 					switch(vorepref)
 						if("Yes")
@@ -2469,7 +2293,7 @@
 				if("verb_consent") // Skyrat - ERP Mechanic Addition
 					toggles ^= VERB_CONSENT // Skyrat - ERP Mechanic Addition
 
-				if("ranged_verb_consent") // BLUEMOON ADD интеракты с расстояния
+				if("ranged_verb_consent") // BLUEMOON ADD РёРЅС‚РµСЂР°РєС‚С‹ СЃ СЂР°СЃСЃС‚РѕСЏРЅРёСЏ
 					toggles ^= RANGED_VERBS_CONSENT // BLUEMOON ADD END
 
 				if("lewd_verb_sounds") // Skyrat - ERP Mechanic Addition
@@ -2633,14 +2457,14 @@
 
 				if ("preferred_chaos_level")
 					var/chaos_level = tgui_input_number(user, \
-										"Выбирайте число в зависимости от своих предпочтений \
-										к стилю игры.\n От предпочтений к Хаосу зависит режим Динамика, \
-										который будет выбран. \n\
-										0. - ничего не ожидайте от меня. Я убегу при первой же возможности. \n\
-										1. - предпочитаю спокойную игру, но могу ввязаться в неприятности, если потребуется. \n\
-										2. - не против Хаоса и неожиданных ситуаций, готов рисковать ради интереса. \n\
-										3. - СЛАВА ХАОСУ НЕДЕЛИМОМУ. Готов к любым безумствам и опасностям.",\
-										"Предпочитаемый Уровень Хаоса", 2, 3, 0, round_value = TRUE)
+										"Р’С‹Р±РёСЂР°Р№С‚Рµ С‡РёСЃР»Рѕ РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ СЃРІРѕРёС… РїСЂРµРґРїРѕС‡С‚РµРЅРёР№ \
+										Рє СЃС‚РёР»СЋ РёРіСЂС‹.\n РћС‚ РїСЂРµРґРїРѕС‡С‚РµРЅРёР№ Рє РҐР°РѕСЃСѓ Р·Р°РІРёСЃРёС‚ СЂРµР¶РёРј Р”РёРЅР°РјРёРєР°, \
+										РєРѕС‚РѕСЂС‹Р№ Р±СѓРґРµС‚ РІС‹Р±СЂР°РЅ. \n\
+										0. - РЅРёС‡РµРіРѕ РЅРµ РѕР¶РёРґР°Р№С‚Рµ РѕС‚ РјРµРЅСЏ. РЇ СѓР±РµРіСѓ РїСЂРё РїРµСЂРІРѕР№ Р¶Рµ РІРѕР·РјРѕР¶РЅРѕСЃС‚Рё. \n\
+										1. - РїСЂРµРґРїРѕС‡РёС‚Р°СЋ СЃРїРѕРєРѕР№РЅСѓСЋ РёРіСЂСѓ, РЅРѕ РјРѕРіСѓ РІРІСЏР·Р°С‚СЊСЃСЏ РІ РЅРµРїСЂРёСЏС‚РЅРѕСЃС‚Рё, РµСЃР»Рё РїРѕС‚СЂРµР±СѓРµС‚СЃСЏ. \n\
+										2. - РЅРµ РїСЂРѕС‚РёРІ РҐР°РѕСЃР° Рё РЅРµРѕР¶РёРґР°РЅРЅС‹С… СЃРёС‚СѓР°С†РёР№, РіРѕС‚РѕРІ СЂРёСЃРєРѕРІР°С‚СЊ СЂР°РґРё РёРЅС‚РµСЂРµСЃР°. \n\
+										3. - РЎР›РђР’Рђ РҐРђРћРЎРЈ РќР•Р”Р•Р›РРњРћРњРЈ. Р“РѕС‚РѕРІ Рє Р»СЋР±С‹Рј Р±РµР·СѓРјСЃС‚РІР°Рј Рё РѕРїР°СЃРЅРѕСЃС‚СЏРј.",\
+										"РџСЂРµРґРїРѕС‡РёС‚Р°РµРјС‹Р№ РЈСЂРѕРІРµРЅСЊ РҐР°РѕСЃР°", 2, 3, 0, round_value = TRUE)
 
 					if(isnum(chaos_level))
 						preferred_chaos_level = chaos_level
@@ -2698,10 +2522,10 @@
 					var/new_dir = text2num(href_list["dir"])
 					if(new_dir in GLOB.cardinals)
 						preview_direction = new_dir
-						// Если есть закэшированная иконка для этого направления — используем мгновенно
+						// Р•СЃР»Рё РµСЃС‚СЊ Р·Р°РєСЌС€РёСЂРѕРІР°РЅРЅР°СЏ РёРєРѕРЅРєР° РґР»СЏ СЌС‚РѕРіРѕ РЅР°РїСЂР°РІР»РµРЅРёСЏ вЂ” РёСЃРїРѕР»СЊР·СѓРµРј РјРіРЅРѕРІРµРЅРЅРѕ
 						if(LAZYACCESS(preview_dir_cache, "[new_dir]"))
 							preview_icon64 = preview_dir_cache["[new_dir]"]
-							// В TGUI превью обновляется через character_setup_ui.update_preview() → ByondUi map
+							// Р’ TGUI РїСЂРµРІСЊСЋ РѕР±РЅРѕРІР»СЏРµС‚СЃСЏ С‡РµСЂРµР· character_setup_ui.update_preview() в†’ ByondUi map
 							parent?.character_setup?.update_preview()
 							skip_preview = TRUE
 						else
@@ -2717,7 +2541,7 @@
 				if("preview_reference")
 					preview_show_reference = !preview_show_reference
 					if(preview_show_reference && !LAZYLEN(preview_reference_cache))
-						// Кэша нет — запускаем генерацию, ShowChoices вызовется по завершению
+						// РљСЌС€Р° РЅРµС‚ вЂ” Р·Р°РїСѓСЃРєР°РµРј РіРµРЅРµСЂР°С†РёСЋ, ShowChoices РІС‹Р·РѕРІРµС‚СЃСЏ РїРѕ Р·Р°РІРµСЂС€РµРЅРёСЋ
 						update_preview_icon()
 					skip_preview = TRUE
 
@@ -2850,12 +2674,12 @@
 		if(href_list["clear_loadout"])
 			loadout_data["SAVE_[loadout_slot]"] = list()
 			save_preferences(silent = TRUE)
-		// BLUEMOON ADD - переключатель лодаута
+		// BLUEMOON ADD - РїРµСЂРµРєР»СЋС‡Р°С‚РµР»СЊ Р»РѕРґР°СѓС‚Р°
 		if(href_list["toggle_loadout_enabled"])
 			loadout_enabled = !loadout_enabled
 			save_preferences(silent = TRUE)
 		// BLUEMOON ADD END
-		// Лодаут сайдбар
+		// Р›РѕРґР°СѓС‚ СЃР°Р№РґР±Р°СЂ
 		if(href_list["switch_to_loadout_tab"])
 			character_settings_tab = LOADOUT_CHAR_TAB
 		if(href_list["sidebar_remove_gear"])
@@ -2886,10 +2710,10 @@
 			var/toggle = text2num(href_list["toggle_gear"])
 			if(!toggle && has_loadout_gear(loadout_slot, "[G.type]"))//toggling off and the item effectively is in chosen gear)
 				var/gear = has_loadout_gear(loadout_slot, "[G.type]")
-				// BLUEMOON EDIT START - выбор вещей из лодаута как family heirloom
+				// BLUEMOON EDIT START - РІС‹Р±РѕСЂ РІРµС‰РµР№ РёР· Р»РѕРґР°СѓС‚Р° РєР°Рє family heirloom
 				if (gear[LOADOUT_IS_HEIRLOOM])
 					gear[LOADOUT_IS_HEIRLOOM] = FALSE
-				// BLUEMOON EDIT END - выбор вещей из лодаута как family heirloom
+				// BLUEMOON EDIT END - РІС‹Р±РѕСЂ РІРµС‰РµР№ РёР· Р»РѕРґР°СѓС‚Р° РєР°Рє family heirloom
 				remove_gear_from_loadout(loadout_slot, "[G.type]")
 			else if(toggle && !(has_loadout_gear(loadout_slot, "[G.type]")))
 				if(!is_loadout_slot_available(G.category))
@@ -2989,28 +2813,28 @@
 				var/new_description = stripped_input(user, "Enter new description for item. Maximum 500 characters.", "Loadout Item Redescribing", null, 500)
 				if(new_description)
 					user_gear[LOADOUT_CUSTOM_DESCRIPTION] = new_description
-			// BLUEMOON ADD START - выбор вещей из лодаута как family heirloom
+			// BLUEMOON ADD START - РІС‹Р±РѕСЂ РІРµС‰РµР№ РёР· Р»РѕРґР°СѓС‚Р° РєР°Рє family heirloom
 			if(href_list["loadout_addheirloom"])
-				// Выбран ли предмет среди категории неприемлемых для реликвии?
+				// Р’С‹Р±СЂР°РЅ Р»Рё РїСЂРµРґРјРµС‚ СЃСЂРµРґРё РєР°С‚РµРіРѕСЂРёРё РЅРµРїСЂРёРµРјР»РµРјС‹С… РґР»СЏ СЂРµР»РёРєРІРёРё?
 				var/typepath = user_gear[LOADOUT_ITEM]
-				// FIX: Проверяем существование типа перед созданием
+				// FIX: РџСЂРѕРІРµСЂСЏРµРј СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёРµ С‚РёРїР° РїРµСЂРµРґ СЃРѕР·РґР°РЅРёРµРј
 				var/resolved_path = text2path(typepath)
 				if(!ispath(resolved_path, /datum/gear))
-					to_chat(user, "<font color='red'>Предмет лоадаута <b>[typepath]</b> повреждён. Удалите его из лоадаута через вкладку Errors.</font>")
+					to_chat(user, "<font color='red'>РџСЂРµРґРјРµС‚ Р»РѕР°РґР°СѓС‚Р° <b>[typepath]</b> РїРѕРІСЂРµР¶РґС‘РЅ. РЈРґР°Р»РёС‚Рµ РµРіРѕ РёР· Р»РѕР°РґР°СѓС‚Р° С‡РµСЂРµР· РІРєР»Р°РґРєСѓ Errors.</font>")
 					return TRUE
 				var/forbidden = FALSE
 				var/datum/gear/temp_gear = new resolved_path()
 				if (ispath_in_list(temp_gear.path, LOADOUT_IS_DISALLOWED_HEIRLOOM))
 					forbidden = TRUE
-				qdel(temp_gear) // На всякий случай, чтобы не засирало память лишними датумами
-				// Выбран ли какой-либо другой предмет как семейная реликвия, и если да, то какой?
+				qdel(temp_gear) // РќР° РІСЃСЏРєРёР№ СЃР»СѓС‡Р°Р№, С‡С‚РѕР±С‹ РЅРµ Р·Р°СЃРёСЂР°Р»Рѕ РїР°РјСЏС‚СЊ Р»РёС€РЅРёРјРё РґР°С‚СѓРјР°РјРё
+				// Р’С‹Р±СЂР°РЅ Р»Рё РєР°РєРѕР№-Р»РёР±Рѕ РґСЂСѓРіРѕР№ РїСЂРµРґРјРµС‚ РєР°Рє СЃРµРјРµР№РЅР°СЏ СЂРµР»РёРєРІРёСЏ, Рё РµСЃР»Рё РґР°, С‚Рѕ РєР°РєРѕР№?
 				var/existing = find_gear_with_property(loadout_slot, LOADOUT_IS_HEIRLOOM, TRUE)
 				if(!existing && !forbidden)
 					user_gear[LOADOUT_IS_HEIRLOOM] = TRUE
 				else if(existing)
-					to_chat(user, "<font color='red'>У вас уже выбрана ваша семейная реликвия!</font>")
+					to_chat(user, "<font color='red'>РЈ РІР°СЃ СѓР¶Рµ РІС‹Р±СЂР°РЅР° РІР°С€Р° СЃРµРјРµР№РЅР°СЏ СЂРµР»РёРєРІРёСЏ!</font>")
 				else if(forbidden)
-					to_chat(user, "<font color ='red'>Это не подойдёт в качестве семейной реликвии!</font>")
+					to_chat(user, "<font color ='red'>Р­С‚Рѕ РЅРµ РїРѕРґРѕР№РґС‘С‚ РІ РєР°С‡РµСЃС‚РІРµ СЃРµРјРµР№РЅРѕР№ СЂРµР»РёРєРІРёРё!</font>")
 			if(href_list["loadout_removeheirloom"])
 				user_gear[LOADOUT_IS_HEIRLOOM] = FALSE
 			// BLUEMOON ADD END
@@ -3022,19 +2846,19 @@
 					user_gear["loadout_custom_tagname"] = new_tagname
 			if(href_list["loadout_examtooltip"])
 				var/defaultinput = (islist(user_gear["loadout_examtooltip"])) ? user_gear["loadout_examtooltip"][1] : null
-				var/examtooltip_usrinput = stripped_input(user, "Это описание предмета будет видно при осмотре персонажа, носящего предмет. Cancel - очистить.", "Дополнительное описание", defaultinput, MAX_MESSAGE_LEN)
+				var/examtooltip_usrinput = stripped_input(user, "Р­С‚Рѕ РѕРїРёСЃР°РЅРёРµ РїСЂРµРґРјРµС‚Р° Р±СѓРґРµС‚ РІРёРґРЅРѕ РїСЂРё РѕСЃРјРѕС‚СЂРµ РїРµСЂСЃРѕРЅР°Р¶Р°, РЅРѕСЃСЏС‰РµРіРѕ РїСЂРµРґРјРµС‚. Cancel - РѕС‡РёСЃС‚РёС‚СЊ.", "Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕРµ РѕРїРёСЃР°РЅРёРµ", defaultinput, MAX_MESSAGE_LEN)
 				if(examtooltip_usrinput)
 					user_gear["loadout_examtooltip"] = list(examtooltip_usrinput, TRUE)
-					examtooltip_usrinput = alert(usr, "Оставлять описание даже после снятия предмета с персонажа?", "Постоянное описание", "Да", "Нет")
-					if(examtooltip_usrinput == "Да")
+					examtooltip_usrinput = alert(usr, "РћСЃС‚Р°РІР»СЏС‚СЊ РѕРїРёСЃР°РЅРёРµ РґР°Р¶Рµ РїРѕСЃР»Рµ СЃРЅСЏС‚РёСЏ РїСЂРµРґРјРµС‚Р° СЃ РїРµСЂСЃРѕРЅР°Р¶Р°?", "РџРѕСЃС‚РѕСЏРЅРЅРѕРµ РѕРїРёСЃР°РЅРёРµ", "Р”Р°", "РќРµС‚")
+					if(examtooltip_usrinput == "Р”Р°")
 						user_gear["loadout_examtooltip"][2] = FALSE
 				else
 					user_gear -= "loadout_examtooltip"
 
-	// Обновляем TGUI (инкрементально если известен hint — иначе полное обновление)
+	// РћР±РЅРѕРІР»СЏРµРј TGUI (РёРЅРєСЂРµРјРµРЅС‚Р°Р»СЊРЅРѕ РµСЃР»Рё РёР·РІРµСЃС‚РµРЅ hint вЂ” РёРЅР°С‡Рµ РїРѕР»РЅРѕРµ РѕР±РЅРѕРІР»РµРЅРёРµ)
 	if(preview_change_hint && !skip_preview)
 		update_preview_icon()
-	SStgui.update_user_uis(user)
+	SStgui.update_user_uis(user, /datum/character_setup_ui)
 	return TRUE
 
 
@@ -3074,8 +2898,8 @@
 			if(features[link_id] == headshot_link)
 				return
 
-			to_chat(user, span_notice("Если картинка не отображается в игре должным образом, убедитесь, что это прямая ссылка на изображение, которая правильно открывается в обычном браузере."))
-			to_chat(user, span_notice("Имейте в виду, что размер фотографии будет уменьшен до 256x256 пикселей, поэтому чем квадратнее фотография, тем лучше она будет выглядеть."))
+			to_chat(user, span_notice("Р•СЃР»Рё РєР°СЂС‚РёРЅРєР° РЅРµ РѕС‚РѕР±СЂР°Р¶Р°РµС‚СЃСЏ РІ РёРіСЂРµ РґРѕР»Р¶РЅС‹Рј РѕР±СЂР°Р·РѕРј, СѓР±РµРґРёС‚РµСЃСЊ, С‡С‚Рѕ СЌС‚Рѕ РїСЂСЏРјР°СЏ СЃСЃС‹Р»РєР° РЅР° РёР·РѕР±СЂР°Р¶РµРЅРёРµ, РєРѕС‚РѕСЂР°СЏ РїСЂР°РІРёР»СЊРЅРѕ РѕС‚РєСЂС‹РІР°РµС‚СЃСЏ РІ РѕР±С‹С‡РЅРѕРј Р±СЂР°СѓР·РµСЂРµ."))
+			to_chat(user, span_notice("РРјРµР№С‚Рµ РІ РІРёРґСѓ, С‡С‚Рѕ СЂР°Р·РјРµСЂ С„РѕС‚РѕРіСЂР°С„РёРё Р±СѓРґРµС‚ СѓРјРµРЅСЊС€РµРЅ РґРѕ 256x256 РїРёРєСЃРµР»РµР№, РїРѕСЌС‚РѕРјСѓ С‡РµРј РєРІР°РґСЂР°С‚РЅРµРµ С„РѕС‚РѕРіСЂР°С„РёСЏ, С‚РµРј Р»СѓС‡С€Рµ РѕРЅР° Р±СѓРґРµС‚ РІС‹РіР»СЏРґРµС‚СЊ."))
 
 			features[link_id] = headshot_link
 

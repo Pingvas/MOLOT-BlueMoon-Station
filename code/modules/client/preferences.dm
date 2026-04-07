@@ -334,9 +334,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	//Quirk list
 	var/list/all_quirks = list()
 
-	//Quirk category currently selected
-	var/quirk_category = QUIRK_POSITIVE // defaults to positive, the first tab!
-
 	//Job preferences 2.0 - indexed by job title , no key or value implies never
 	var/list/job_preferences = list()
 
@@ -490,13 +487,14 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/preferred_chaos_level = 2
 	var/auto_capitalize_enabled = FALSE
 
+	// DEPRECATED: HTML char menu themes — не используются в TGUI, оставлены для compat savefile
 	var/charcreation_theme = "modern"
 
 	/// Modern character creator: button shape preset (persisted).
 	/// Supported values: "rect", "soft", "round".
 	var/modern_button_shape = "round"
 
-	/// Modern custom theme (player-configurable palette).
+	// DEPRECATED: HTML custom theme colors — не используются в TGUI, оставлены для compat savefile
 	var/modern_custom_enabled = FALSE
 	var/modern_custom_bg_primary = "121212"
 	var/modern_custom_bg_secondary = "1c1c1c"
@@ -508,26 +506,15 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/modern_custom_button_text = "0b1c2f"
 	var/modern_custom_border_color = "2f2f2f"
 	var/modern_custom_accent_color = "4da3ff"
-	/// 0 = none, 1 = subtle stripes
+	/// 0 = none, 1 = subtle stripes // DEPRECATED
 	var/modern_custom_bg_pattern = 0
-	/// UI-only state (not persisted)
-	var/tmp/modern_custom_editor_open = FALSE
-	/// UI-only state (not persisted): collapse the top-right theme picker
-	var/tmp/modern_theme_picker_collapsed = TRUE /// UI tweak
-	/// UI-only state (not persisted): play a one-shot collapse/expand animation on next render
-	var/tmp/modern_theme_picker_animate = FALSE
-	/// UI-only state (not persisted): open/close the quick settings popover (WIP)
-	var/tmp/modern_theme_settings_open = FALSE
+	// DEPRECATED: HTML-only UI state vars
+	// var/tmp/modern_custom_editor_open, modern_theme_picker_collapsed, etc. — удалены
+
 	/// UI state: collapse empty character slots in the top slot list (persisted in preferences)
 	var/collapse_empty_character_slots = FALSE
 
-	var/tmp/cached_palette_css = null
-	var/tmp/cached_palette_css_key = null
-	var/tmp/loadout_sheet_sent = FALSE
-	var/tmp/list/antag_days_remaining = null
-	var/tmp/list/ui_strings_cache = null
-	var/tmp/ui_strings_lang = -1
-	/// UI decoration level for modern theme: "minimal" (performance), "standard" (current), "enhanced" (gradients)
+	// DEPRECATED: HTML-only decoration level — оставлено для compat savefile
 	var/ui_decoration_level = "enhanced"
 
 	// Splurt extras
@@ -599,201 +586,3 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	save_character()		//let's save this new random character so it doesn't keep generating new ones.
 	menuoptions = list()
 	return
-
-#define SETUP_START_NODE(L)  		  	 		 	 		"<div class='csetup_character_node'><div class='csetup_character_label'>[L]</div><div class='csetup_character_input'>"
-
-#define SETUP_GET_LINK(pref, task, task_type, value) 		"<a href='?_src_=prefs;preference=[pref][task ? ";[task_type]=[task]" : ""]'>[value]</a>"
-#define SETUP_GET_LINK_RANDOM(random_type) 		  	 		"<a href='?_src_=prefs;preference=toggle_random;random_type=[random_type]'>[randomise[random_type] ? "🎲" : "🔒"]</a>"
-#define SETUP_COLOR_BOX(color) 				  	 	 		"<span style='border: 1px solid #161616; background-color: #[color];'>&nbsp;&nbsp;&nbsp;</span>"
-
-#define SETUP_NODE_SWITCH(label, pref, value)		  		"[SETUP_START_NODE(label)][SETUP_GET_LINK(pref, null, null, value)][SETUP_CLOSE_NODE]"
-#define SETUP_NODE_INPUT(label, pref, value)		  		"[SETUP_START_NODE(label)][SETUP_GET_LINK(pref, "input", "task", value)][SETUP_CLOSE_NODE]"
-#define SETUP_NODE_COLOR(label, pref, color, random)  		"[SETUP_START_NODE(label)][SETUP_COLOR_BOX(color)][SETUP_GET_LINK(pref, "input", "task", "Изменить")][random ? "[SETUP_GET_LINK_RANDOM(random)]" : ""][SETUP_CLOSE_NODE]"
-#define SETUP_NODE_RANDOM(label, random)		  	  		"[SETUP_START_NODE(label)][SETUP_GET_LINK_RANDOM(random)][SETUP_CLOSE_NODE]"
-#define SETUP_NODE_INPUT_RANDOM(label, pref, value, random) "[SETUP_START_NODE(label)][SETUP_GET_LINK(pref, "input", "task", value)][SETUP_GET_LINK_RANDOM(random)][SETUP_CLOSE_NODE]"
-#define SETUP_NODE_COLOR_RANDOM(label, pref, color, random) "[SETUP_START_NODE(label)][SETUP_COLOR_BOX(color)][SETUP_GET_LINK(pref, "input", "task", "Изменить")][SETUP_GET_LINK_RANDOM(random)][SETUP_CLOSE_NODE]"
-
-#define SETUP_CLOSE_NODE 	  			  			  		"</div></div>"
-
-#define APPEARANCE_CATEGORY_COLUMN "<td valign='top' width='17%'>"
-#define MAX_MUTANT_ROWS 5
-
-/datum/preferences/proc/T(key, fallback = "")
-	if(ui_strings_lang != modern_ui_language)
-		ui_strings_lang = modern_ui_language
-		ui_strings_cache = list()
-		if(!GLOB.modern_strings || !length(GLOB.modern_strings))
-			init_modern_strings()
-		var/lang = modern_ui_language ? "ru" : "en"
-		for(var/k in GLOB.modern_strings)
-			var/list/entry = GLOB.modern_strings[k]
-			if(!islist(entry))
-				continue
-			ui_strings_cache[k] = entry[lang] || entry["en"] || k
-	if(!key)
-		return fallback
-	return ui_strings_cache[key] || (fallback ? fallback : key)
-
-/// Возвращает палитру для Modern Character Setup (конкретные цвета, без CSS variables).
-/datum/preferences/proc/get_character_setup_palette_modern()
-	var/list/theme_colors = list()
-
-	switch(charcreation_theme)
-		if("modern_custom")
-			// Player-configurable palette (saved in preferences).
-			// The enable toggle controls whether saved custom values are applied.
-			var/use_custom = !!modern_custom_enabled
-			var/bg_primary = use_custom ? modern_custom_bg_primary : initial(modern_custom_bg_primary)
-			var/bg_secondary = use_custom ? modern_custom_bg_secondary : initial(modern_custom_bg_secondary)
-			var/text_primary = use_custom ? modern_custom_text_primary : initial(modern_custom_text_primary)
-			var/text_secondary = use_custom ? modern_custom_text_secondary : initial(modern_custom_text_secondary)
-			var/button_bg = use_custom ? modern_custom_button_bg : initial(modern_custom_button_bg)
-			var/button_hover = use_custom ? modern_custom_button_hover : initial(modern_custom_button_hover)
-			var/button_active = use_custom ? modern_custom_button_active : initial(modern_custom_button_active)
-			var/button_text = use_custom ? modern_custom_button_text : initial(modern_custom_button_text)
-			var/border_color = use_custom ? modern_custom_border_color : initial(modern_custom_border_color)
-			var/accent_color = use_custom ? modern_custom_accent_color : initial(modern_custom_accent_color)
-
-			theme_colors["bg_primary"] = "#[bg_primary]"
-			theme_colors["bg_secondary"] = "#[bg_secondary]"
-			if(use_custom && modern_custom_bg_pattern)
-				theme_colors["bg_pattern"] = "repeating-linear-gradient(90deg, rgba(255,255,255,0.06) 0px, rgba(255,255,255,0.06) 10px, rgba(0,0,0,0.06) 10px, rgba(0,0,0,0.06) 20px)"
-			else
-				theme_colors["bg_pattern"] = "none"
-			theme_colors["text_primary"] = "#[text_primary]"
-			theme_colors["text_secondary"] = "#[text_secondary]"
-			theme_colors["button_bg"] = "#[button_bg]"
-			theme_colors["button_hover"] = "#[button_hover]"
-			theme_colors["button_active"] = "#[button_active]"
-			theme_colors["button_text"] = "#[button_text]"
-			theme_colors["border_color"] = "#[border_color]"
-			theme_colors["accent_color"] = "#[accent_color]"
-
-		if("modern_classic")
-			// PR theme: "classic" (BYOND-ish palette)
-			theme_colors["bg_primary"] = "#272727"
-			theme_colors["bg_secondary"] = "#1a1a1a"
-			theme_colors["bg_pattern"] = "none"
-			theme_colors["text_primary"] = "#ffffff"
-			theme_colors["text_secondary"] = "#c0c0c0"
-			theme_colors["button_bg"] = "#40628a"
-			theme_colors["button_hover"] = "#2f943c"
-			theme_colors["button_active"] = "#2f943c"
-			theme_colors["button_text"] = "#ffffff"
-			theme_colors["border_color"] = "#161616"
-			theme_colors["accent_color"] = "#40628a"
-
-		if("modern_neutral")
-			// PR theme: "neutral"
-			theme_colors["bg_primary"] = "#f2f2f2"
-			theme_colors["bg_secondary"] = "#ffffff"
-			theme_colors["bg_pattern"] = "repeating-linear-gradient(90deg, rgba(255,255,255,0.32) 0px, rgba(255,255,255,0.32) 10px, rgba(0,0,0,0.035) 10px, rgba(0,0,0,0.035) 20px)"
-			theme_colors["text_primary"] = "#222222"
-			theme_colors["text_secondary"] = "#555555"
-			theme_colors["button_bg"] = "#e4e4e4"
-			theme_colors["button_hover"] = "#d9d9d9"
-			theme_colors["button_active"] = "#e0e7ff"
-			theme_colors["button_text"] = "#1f2b4d"
-			theme_colors["border_color"] = "#cccccc"
-			theme_colors["accent_color"] = "#6a8cff"
-
-		if("modern_purple")
-			theme_colors["bg_primary"] = "#251a33"
-			theme_colors["bg_secondary"] = "#2f2141"
-			theme_colors["bg_pattern"] = "none"
-			theme_colors["text_primary"] = "#f7f1ff"
-			theme_colors["text_secondary"] = "#e1d1f5"
-			theme_colors["button_bg"] = "#36244b"
-			theme_colors["button_hover"] = "#422b5e"
-			theme_colors["button_active"] = "#c19bff"
-			theme_colors["button_text"] = "#1a0b2f"
-			theme_colors["border_color"] = "#4a3562"
-			theme_colors["accent_color"] = "#c19bff"
-
-		if("modern_green")
-			theme_colors["bg_primary"] = "#12261a"
-			theme_colors["bg_secondary"] = "#193322"
-			theme_colors["bg_pattern"] = "none"
-			theme_colors["text_primary"] = "#effff6"
-			theme_colors["text_secondary"] = "#cdefdc"
-			theme_colors["button_bg"] = "#1f3e2a"
-			theme_colors["button_hover"] = "#275036"
-			theme_colors["button_active"] = "#8bffb1"
-			theme_colors["button_text"] = "#062014"
-			theme_colors["border_color"] = "#2a4f37"
-			theme_colors["accent_color"] = "#8bffb1"
-
-		else
-			// PR theme: "dark" (default)
-			theme_colors["bg_primary"] = "#121212"
-			theme_colors["bg_secondary"] = "#1c1c1c"
-			theme_colors["bg_pattern"] = "none"
-			theme_colors["text_primary"] = "#e6e6e6"
-			theme_colors["text_secondary"] = "#a8a8a8"
-			theme_colors["button_bg"] = "#1f1f1f"
-			theme_colors["button_hover"] = "#2a2a2a"
-			theme_colors["button_active"] = "#4da3ff"
-			theme_colors["button_text"] = "#0b1c2f"
-			theme_colors["border_color"] = "#2f2f2f"
-			theme_colors["accent_color"] = "#4da3ff"
-
-	return theme_colors
-
-/datum/preferences/proc/reset_modern_custom_theme()
-	modern_custom_bg_primary = initial(modern_custom_bg_primary)
-	modern_custom_bg_secondary = initial(modern_custom_bg_secondary)
-	modern_custom_text_primary = initial(modern_custom_text_primary)
-	modern_custom_text_secondary = initial(modern_custom_text_secondary)
-	modern_custom_button_bg = initial(modern_custom_button_bg)
-	modern_custom_button_hover = initial(modern_custom_button_hover)
-	modern_custom_button_active = initial(modern_custom_button_active)
-	modern_custom_button_text = initial(modern_custom_button_text)
-	modern_custom_border_color = initial(modern_custom_border_color)
-	modern_custom_accent_color = initial(modern_custom_accent_color)
-	modern_custom_bg_pattern = initial(modern_custom_bg_pattern)
-
-/datum/preferences/proc/set_modern_custom_color(color_key, raw_value)
-	if(isnull(raw_value))
-		return FALSE
-	var/value = "[raw_value]"
-	value = replacetext(value, "#", "")
-	// normalize short forms like FFF -> FFFFFF
-	if(length(value) == 3)
-		value = "[copytext(value,1,2)][copytext(value,1,2)][copytext(value,2,3)][copytext(value,2,3)][copytext(value,3,4)][copytext(value,3,4)]"
-	value = sanitize_hexcolor(value, 6, FALSE, null)
-	if(!value)
-		return FALSE
-	color_key = "[color_key]"
-	switch(color_key)
-		if("bg_primary")
-			modern_custom_bg_primary = value
-			return TRUE
-		if("bg_secondary")
-			modern_custom_bg_secondary = value
-			return TRUE
-		if("text_primary")
-			modern_custom_text_primary = value
-			return TRUE
-		if("text_secondary")
-			modern_custom_text_secondary = value
-			return TRUE
-		if("button_bg")
-			modern_custom_button_bg = value
-			return TRUE
-		if("button_hover")
-			modern_custom_button_hover = value
-			return TRUE
-		if("button_active")
-			modern_custom_button_active = value
-			return TRUE
-		if("button_text")
-			modern_custom_button_text = value
-			return TRUE
-		if("border_color")
-			modern_custom_border_color = value
-			return TRUE
-		if("accent_color")
-			modern_custom_accent_color = value
-			return TRUE
-	return FALSE
-
