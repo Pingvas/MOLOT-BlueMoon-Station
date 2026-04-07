@@ -275,35 +275,10 @@ datum/preferences/proc/ShowChoices(mob/user, skip_preview_update = FALSE)
 			dat += "<input type='range' class='csetup-zoom-slider' min='100' max='200' step='10' value='[preview_zoom]' onchange=\"window.location.href='?_src_=prefs;preference=preview_zoom;level='+this.value\">"
 			dat += "<a class='csetup-zoom-btn[preview_show_reference ? " linkOn" : ""]' href='?_src_=prefs;preference=preview_reference'>[T("preview_reference")]</a>"
 			dat += "</div>"
-			// Preview area: side-by-side when reference is on
-			var/has_reference = preview_show_reference && LAZYACCESS(preview_reference_cache, "[preview_direction]")
-			var/body_size_pct = round(features["body_size"] * 100)
-			if(has_reference)
-				dat += "<div class='csetup-preview-compare'>"
-				// Reference (100%) on the left
-				dat += "<div class='csetup-preview-half'>"
-				dat += "<div class='csetup-preview-inner' style='transform: scale([zoom_scale]); transform-origin: bottom center;'>"
-				dat += preview_reference_cache["[preview_direction]"]
-				dat += "</div>"
-				dat += "<div class='csetup-size-label'>100%</div>"
-				dat += "</div>"
-				// Character (actual size) on the right
-				dat += "<div class='csetup-preview-half'>"
-				dat += "<div class='csetup-preview-inner' style='transform: scale([zoom_scale]); transform-origin: bottom center;'>"
-				if(preview_icon64)
-					dat += preview_icon64
-				dat += "</div>"
-				dat += "<div class='csetup-size-label'>[body_size_pct]%</div>"
-				dat += "</div>"
-				dat += "</div>"
-			else
-				dat += "<div class='csetup-preview-img'>"
-				dat += "<div class='csetup-preview-inner' style='transform: scale([zoom_scale]); transform-origin: bottom center;'>"
-				if(preview_icon64)
-					dat += preview_icon64
-				dat += "</div>"
-				dat += "<div class='csetup-size-label'>[body_size_pct]%</div>"
-				dat += "</div>"
+			// Preview area — wrapped in span#char_preview for targeted updates
+			dat += "<span id='char_preview'>"
+			dat += build_preview_html()
+			dat += "</span>"
 
 			// ── Slot panel ──
 			if(path)
@@ -820,7 +795,15 @@ datum/preferences/proc/ShowChoices(mob/user, skip_preview_update = FALSE)
 
 							dat += "<b>[T("body_size")]:</b> <a href='?_src_=prefs;preference=body_size;task=input'>[features["body_size"]*100]%</a><br>"
 							dat += "<b>[T("normalized_size")]:</b> <a href='?_src_=prefs;preference=normalized_size;task=input'>[features["normalized_size"]*100]%</a><br>"
-							var/fuzzy_display = (fuzzy == SCALED_FUZZY) ? fuzzy_label : sharp_label
+							var/parts_label = T("parts")
+							var/fuzzy_display
+							switch(fuzzy)
+								if(SCALED_SHARP)
+									fuzzy_display = sharp_label
+								if(SCALED_FUZZY)
+									fuzzy_display = fuzzy_label
+								if(SCALED_PARTS)
+									fuzzy_display = parts_label
 							dat += "<b>[T("scaled_appearance")]:</b> <a href='?_src_=prefs;preference=toggle_fuzzy;task=input'>[fuzzy_display]</a><br>"
 							dat += "<b>[T("weight")]:</b> <a href='?_src_=prefs;preference=body_weight;task=input'>[all_quirks.Find("Пожиратель") ? NAME_WEIGHT_NORMAL : body_weight]</a><br>" //BLUEMOON ADD вес персонажей
 
@@ -1981,10 +1964,52 @@ datum/preferences/proc/ShowChoices(mob/user, skip_preview_update = FALSE)
 	if(loadout_sheet)
 		popup.add_stylesheet(loadout_sheet)
 		popup.add_stylesheet("preferences_modern", 'html/browser/preferences_modern.css')
-		popup.add_script("prefs_state", 'html/browser/prefs_state.js')
+	popup.add_script("prefs_state", 'html/browser/prefs_state.js')
 	popup.set_content(dat.Join())
 	popup.open(FALSE)
 	onclose(user, "preferences_window", src)
+
+/// Builds just the preview image HTML (for use in both full ShowChoices and targeted updates)
+/datum/preferences/proc/build_preview_html()
+	var/list/preview_dat = list()
+	var/zoom_scale = preview_zoom * 0.01
+	var/has_reference = preview_show_reference && LAZYACCESS(preview_reference_cache, "[preview_direction]")
+	var/body_size_pct = round(features["body_size"] * 100)
+	if(has_reference)
+		preview_dat += "<div class='csetup-preview-compare'>"
+		// Reference (100%) on the left
+		preview_dat += "<div class='csetup-preview-half'>"
+		preview_dat += "<div class='csetup-preview-inner' style='transform: scale([zoom_scale]); transform-origin: bottom center;'>"
+		preview_dat += preview_reference_cache["[preview_direction]"]
+		preview_dat += "</div>"
+		preview_dat += "<div class='csetup-size-label'>100%</div>"
+		preview_dat += "</div>"
+		// Character (actual size) on the right
+		preview_dat += "<div class='csetup-preview-half'>"
+		preview_dat += "<div class='csetup-preview-inner' style='transform: scale([zoom_scale]); transform-origin: bottom center;'>"
+		if(preview_icon64)
+			preview_dat += preview_icon64
+		preview_dat += "</div>"
+		preview_dat += "<div class='csetup-size-label'>[body_size_pct]%</div>"
+		preview_dat += "</div>"
+		preview_dat += "</div>"
+	else
+		preview_dat += "<div class='csetup-preview-img'>"
+		preview_dat += "<div class='csetup-preview-inner' style='transform: scale([zoom_scale]); transform-origin: bottom center;'>"
+		if(preview_icon64)
+			preview_dat += preview_icon64
+		preview_dat += "</div>"
+		preview_dat += "<div class='csetup-size-label'>[body_size_pct]%</div>"
+		preview_dat += "</div>"
+	return preview_dat.Join()
+
+/// Updates only the preview image in the browser, without rebuilding the entire ShowChoices HTML.
+/// Uses JS function update_char_preview() injected via prefs_state.js or inline script.
+/datum/preferences/proc/update_preview_html_only(mob/user)
+	if(!user?.client)
+		return
+	var/preview_html = build_preview_html()
+	user << output(preview_html, "preferences_browser.browser:update_char_preview")
 
 /datum/preferences/proc/cycle_character_creation_modern_accent()
 	if(!findtext(charcreation_theme, "modern"))

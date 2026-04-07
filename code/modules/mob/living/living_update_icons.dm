@@ -8,6 +8,9 @@
 		if(SCALED_FUZZY)
 			appearance_flags &= ~PIXEL_SCALE
 			ADD_KEEP_TOGETHER(src, SCALED_APPEARANCE_TRAIT)
+		if(SCALED_PARTS) // WIP: тестовый режим, не доработан
+			appearance_flags &= ~PIXEL_SCALE
+			ADD_KEEP_TOGETHER(src, SCALED_APPEARANCE_TRAIT)
 //BLUEMOON ADD END - SCALED APPEARANCE
 	var/matrix/ntransform = matrix(transform) //aka transform.Copy()
 	var/final_pixel_y = pixel_y
@@ -25,13 +28,23 @@
 					setDir(pick(NORTH, SOUTH)) //So you fall on your side rather than your face or ass
 
 	if(resize != RESIZE_DEFAULT_SIZE)
-		changed++
-		ntransform.Scale(resize)
-		if(lying && rotate_on_lying)
-			ntransform.Translate(lying == 90 ? 16*(resize-1) : -(16*(resize-1)), 0) //Makes sure you stand on the tile no matter the size - sand
+		if(fuzzy == SCALED_PARTS) // WIP: тестовый режим, не доработан
+			// Per-part mode: don't scale the mob matrix, track scale for overlay application
+			current_body_scale *= resize
+			resize = RESIZE_DEFAULT_SIZE
+			// Rebuild all overlays with new per-part scale
+			if(iscarbon(src))
+				var/mob/living/carbon/C = src
+				C.regenerate_icons()
 		else
-			ntransform.Translate(0, 16*(resize-1)) //Makes sure you stand on the tile no matter the size - sand
-		resize = RESIZE_DEFAULT_SIZE
+			changed++
+			ntransform.Scale(resize)
+			current_body_scale *= resize
+			if(lying && rotate_on_lying)
+				ntransform.Translate(lying == 90 ? 16*(resize-1) : -(16*(resize-1)), 0) //Makes sure you stand on the tile no matter the size - sand
+			else
+				ntransform.Translate(0, 16*(resize-1)) //Makes sure you stand on the tile no matter the size - sand
+			resize = RESIZE_DEFAULT_SIZE
 
 	if(changed)
 		if(do_animate)

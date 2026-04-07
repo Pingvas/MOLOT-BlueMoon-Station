@@ -23,5 +23,8 @@
 // Scaled appearance modes
 #define SCALED_SHARP     0
 #define SCALED_FUZZY     1
+#define SCALED_PARTS     2 // WIP / тестовый режим, не доработан
+
+#define SCALED_MODES_COUNT 3
 
 #define SCALED_APPEARANCE_TRAIT "scaled_appearance"

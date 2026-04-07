@@ -263,6 +263,7 @@
 	"scaled_appearance"      = list("ru" = "Режим масштабирования",				"en" = "Scaling Mode"),
 	"fuzzy"                  = list("ru" = "Размытый",							"en" = "Fuzzy"),
 	"sharp"                  = list("ru" = "Резкий",							"en" = "Sharp"),
+	"parts"                  = list("ru" = "По частям (тест)",				"en" = "Per-Part (WIP)"),
 	"weight"                 = list("ru" = "Вес",								"en" = "Weight"),
 
 	// Eyes
