@@ -1,14 +1,39 @@
 /mob/living/carbon
 	var/list/overlays_standing[TOTAL_LAYERS]
+	/// Tracks the actually-added (possibly scaled) overlays for correct removal in per-part mode
+	var/list/overlays_applied[TOTAL_LAYERS]
 
 /mob/living/carbon/proc/apply_overlay(cache_index)
 	if((. = overlays_standing[cache_index]))
+		if(fuzzy == SCALED_PARTS && current_body_scale != 1)
+			. = scale_overlays_for_parts(., current_body_scale)
+		overlays_applied[cache_index] = .
 		add_overlay(.)
 
+/// Scales overlay(s) for per-part scaling mode. Accepts single appearance or list. WIP: тестовый режим, не доработан.
+/mob/living/carbon/proc/scale_overlays_for_parts(overlays_data, scale)
+	if(islist(overlays_data))
+		var/list/result = list()
+		for(var/entry in overlays_data)
+			result += scale_single_overlay(entry, scale)
+		return result
+	return scale_single_overlay(overlays_data, scale)
+
+/// Scales a single overlay appearance for per-part mode: applies transform and adjusts offsets.
+/mob/living/carbon/proc/scale_single_overlay(mutable_appearance/original, scale)
+	var/mutable_appearance/scaled = new(original)
+	scaled.pixel_x = round(original.pixel_x * scale)
+	scaled.pixel_y = round(original.pixel_y * scale + 16 * (scale - 1))
+	var/matrix/M = matrix(original.transform)
+	M.Scale(scale)
+	scaled.transform = M
+	return scaled
+
 /mob/living/carbon/proc/remove_overlay(cache_index)
-	var/I = overlays_standing[cache_index]
+	var/I = overlays_applied[cache_index]
 	if(I)
 		cut_overlay(I)
+		overlays_applied[cache_index] = null
 		overlays_standing[cache_index] = null
 
 /mob/living/carbon/regenerate_icons()

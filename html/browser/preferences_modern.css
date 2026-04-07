@@ -1686,6 +1686,7 @@ body {
 /* Canvas preview image — replaces MAP element */
 .csetup-root.csetup-theme-modern .csetup-preview-img,
 .csetup-root.csetup-theme-classic .csetup-preview-img {
+	position: relative;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -1705,6 +1706,93 @@ body {
 	width: 100%;
 	height: 100%;
 	object-fit: contain;
+}
+
+/* Preview inner wrapper for zoom transform (avoids conflict with fuzzy inline transform on img) */
+/* align-items: flex-end — привязка к низу, чтобы transform-origin: bottom center
+   на fuzzy img и zoom wrapper давали одинаковый якорь */
+.csetup-root .csetup-preview-inner {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: flex-end;
+	justify-content: center;
+}
+
+/* Side-by-side comparison mode */
+.csetup-root.csetup-theme-modern .csetup-preview-compare,
+.csetup-root.csetup-theme-classic .csetup-preview-compare {
+	display: flex;
+	width: 320px;
+	height: 320px;
+	min-height: 320px;
+	flex-shrink: 0;
+	background: var(--csetup-bg, #121212);
+	border-bottom: 1px solid var(--csetup-border, #2f2f2f);
+	overflow: hidden;
+}
+.csetup-root .csetup-preview-half {
+	position: relative;
+	flex: 1 1 0;
+	overflow: hidden;
+	display: flex;
+	align-items: flex-end;
+	justify-content: center;
+}
+.csetup-root .csetup-preview-half + .csetup-preview-half {
+	border-left: 1px solid var(--csetup-border, #2f2f2f);
+}
+/* width:100% без height — img сохраняет квадратный aspect ratio (64x64),
+   flex-end прижимает к низу. transform-origin: bottom center на fuzzy img
+   теперь ссылается на реальный низ картинки, а не на низ растянутого элемента */
+.csetup-root .csetup-preview-half img {
+	image-rendering: pixelated;
+	image-rendering: crisp-edges;
+	width: 100%;
+}
+
+/* Size label overlay */
+.csetup-root .csetup-size-label {
+	position: absolute;
+	bottom: 4px;
+	right: 6px;
+	font-size: 11px;
+	color: rgba(255, 255, 255, 0.6);
+	background: rgba(0, 0, 0, 0.4);
+	padding: 1px 5px;
+	border-radius: 3px;
+	pointer-events: none;
+	z-index: 2;
+}
+
+/* Zoom toolbar */
+.csetup-root.csetup-theme-modern .csetup-zoom-bar,
+.csetup-root.csetup-theme-classic .csetup-zoom-bar {
+	display: flex;
+	gap: 4px;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	padding: 2px 4px;
+}
+.csetup-root .csetup-zoom-label {
+	font-size: 10px;
+	color: rgba(255, 255, 255, 0.5);
+	min-width: 30px;
+	text-align: center;
+}
+.csetup-root .csetup-zoom-slider {
+	flex: 1;
+	height: 14px;
+	cursor: pointer;
+	accent-color: var(--csetup-accent, #4a9eed);
+}
+.csetup-root.csetup-theme-modern a.csetup-zoom-btn,
+.csetup-root.csetup-theme-classic a.csetup-zoom-btn {
+	padding: 3px 6px !important;
+	font-size: 10px !important;
+	text-align: center;
+	white-space: nowrap;
 }
 
 .csetup-root.csetup-theme-modern .csetup-dir-bar,

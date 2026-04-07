@@ -1,6 +1,7 @@
 /datum/preferences/Topic(href, href_list, hsrc)			//yeah, gotta do this I guess..
 	. = ..()
 	if(href_list["close"])
+		release_preview_mannequin()
 		var/client/C = usr.client
 		if(C)
 			C.clear_character_previews()
@@ -373,12 +374,16 @@
 					age = rand(AGE_MIN, AGE_MAX)
 				if("hair")
 					hair_color = random_short_color()
+					preview_change_hint = PREVIEW_HINT_HAIR
 				if("hair_style")
 					hair_style = random_hair_style(gender)
+					preview_change_hint = PREVIEW_HINT_HAIR
 				if("facial")
 					facial_hair_color = random_short_color()
+					preview_change_hint = PREVIEW_HINT_HAIR
 				if("facial_hair_style")
 					facial_hair_style = random_facial_hair_style(gender)
+					preview_change_hint = PREVIEW_HINT_HAIR
 				/*
 				if("underwear")
 					underwear = random_underwear(gender)
@@ -394,15 +399,18 @@
 					var/random_eye_color = random_eye_color()
 					left_eye_color = random_eye_color
 					right_eye_color = random_eye_color
+					preview_change_hint = PREVIEW_HINT_BODY
 				if("s_tone")
 					skin_tone = random_skin_tone()
 					use_custom_skin_tone = null
+					preview_change_hint = PREVIEW_HINT_BODY
 				if("bag")
 					backbag = pick(GLOB.backbaglist)
 				if("suit")
 					jumpsuit_style = pick(GLOB.jumpsuitlist)
 				if("all")
 					random_character()
+					invalidate_preview_mannequin()
 
 		if("input")
 
@@ -555,12 +563,14 @@
 					var/new_hair = input(user, "Choose your character's hair colour:", "Character Preference","#"+hair_color) as color|null
 					if(new_hair)
 						hair_color = sanitize_hexcolor(new_hair, 6)
+						preview_change_hint = PREVIEW_HINT_HAIR
 
 				if("hair_style")
 					var/new_hair_style
 					new_hair_style = tgui_input_list(user, "Choose your character's hair style:", "Character Preference", GLOB.hair_styles_list)
 					if(new_hair_style)
 						hair_style = new_hair_style
+						preview_change_hint = PREVIEW_HINT_HAIR
 
 				if("open_hair_picker")
 					var/datum/tgui_hair_style_picker/picker = new(user, "hair")
@@ -569,20 +579,24 @@
 
 				if("next_hair_style")
 					hair_style = next_list_item(hair_style, GLOB.hair_styles_list)
+					preview_change_hint = PREVIEW_HINT_HAIR
 
 				if("previous_hair_style")
 					hair_style = previous_list_item(hair_style, GLOB.hair_styles_list)
+					preview_change_hint = PREVIEW_HINT_HAIR
 
 				if("facial")
 					var/new_facial = input(user, "Choose your character's facial-hair colour:", "Character Preference","#"+facial_hair_color) as color|null
 					if(new_facial)
 						facial_hair_color = sanitize_hexcolor(new_facial, 6)
+						preview_change_hint = PREVIEW_HINT_HAIR
 
 				if("facial_hair_style")
 					var/new_facial_hair_style
 					new_facial_hair_style = tgui_input_list(user, "Choose your character's facial-hair style:", "Character Preference", GLOB.facial_hair_styles_list)
 					if(new_facial_hair_style)
 						facial_hair_style = new_facial_hair_style
+						preview_change_hint = PREVIEW_HINT_HAIR
 
 				if("open_facial_hair_picker")
 					var/datum/tgui_hair_style_picker/picker = new(user, "facial_hair")
@@ -591,20 +605,24 @@
 
 				if("next_facehair_style")
 					facial_hair_style = next_list_item(facial_hair_style, GLOB.facial_hair_styles_list)
+					preview_change_hint = PREVIEW_HINT_HAIR
 
 				if("previous_facehair_style")
 					facial_hair_style = previous_list_item(facial_hair_style, GLOB.facial_hair_styles_list)
+					preview_change_hint = PREVIEW_HINT_HAIR
 
 				if("grad_color")
 					var/new_grad_color = input(user, "Choose your character's gradient colour:", "Character Preference","#"+grad_color) as color|null
 					if(new_grad_color)
 						grad_color = sanitize_hexcolor(new_grad_color, 6)
+						preview_change_hint = PREVIEW_HINT_HAIR
 
 				if("grad_style")
 					var/new_grad_style
 					new_grad_style = tgui_input_list(user, "Choose your character's hair gradient style:", "Character Preference", GLOB.hair_gradients_list)
 					if(new_grad_style)
 						grad_style = new_grad_style
+						preview_change_hint = PREVIEW_HINT_HAIR
 
 				if("open_gradient_picker")
 					var/datum/tgui_hair_style_picker/picker = new(user, "gradient")
@@ -613,18 +631,22 @@
 
 				if("next_grad_style")
 					grad_style = next_list_item(grad_style, GLOB.hair_gradients_list)
+					preview_change_hint = PREVIEW_HINT_HAIR
 
 				if("previous_grad_style")
 					grad_style = previous_list_item(grad_style, GLOB.hair_gradients_list)
+					preview_change_hint = PREVIEW_HINT_HAIR
 
 				// BLUEMOON ADD START - <_AND_>_FOR_CHARACTER_REDACTOR
 
 				// HORNS
 				if("next_horns_style")
 					features["horns"] = next_list_item(features["horns"], GLOB.horns_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				if("previous_horns_style")
 					features["horns"] = previous_list_item(features["horns"], GLOB.horns_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				// MEAT TYPE
 				if("next_meat_type_style")
@@ -636,163 +658,209 @@
 				// IPC ANTENNA
 				if("next_ipc_antenna_style")
 					features["ipc_antenna"] = next_list_item(features["ipc_antenna"], GLOB.ipc_antennas_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				if("previous_ipc_antenna_style")
 					features["ipc_antenna"] = previous_list_item(features["ipc_antenna"], GLOB.ipc_antennas_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				// IPC SCREENS
 				if("next_ipc_screen_style")
 					features["ipc_screen"] = next_list_item(features["ipc_screen"], GLOB.ipc_screens_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				if("previous_ipc_screen_style")
 					features["ipc_screen"] = previous_list_item(features["ipc_screen"], GLOB.ipc_screens_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				// XENO DORSALS
 				if("next_xenodorsal_style")
 					features["xenodorsal"] = next_list_item(features["xenodorsal"], GLOB.xeno_dorsal_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				if("previous_xenodorsal_style")
 					features["xenodorsal"] = previous_list_item(features["xenodorsal"], GLOB.xeno_dorsal_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				// XENO TAILS
 				if("next_xenotail_style")
 					features["xenotail"] = next_list_item(features["xenotail"], GLOB.xeno_tail_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				if("previous_xenotail_style")
 					features["xenotail"] = previous_list_item(features["xenotail"], GLOB.xeno_tail_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				// XENO HEADS
 				if("next_xenohead_style")
 					features["xenohead"] = next_list_item(features["xenohead"], GLOB.xeno_head_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				if("previous_xenohead_style")
 					features["xenohead"] = previous_list_item(features["xenohead"], GLOB.xeno_head_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				// ARACHNIDS MANDIBLES
 				if("next_arachnid_mandibles_style")
 					features["arachnid_mandibles"] = next_list_item(features["arachnid_mandibles"], GLOB.arachnid_mandibles_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				if("previous_arachnid_mandibles_style")
 					features["arachnid_mandibles"] = previous_list_item(features["arachnid_mandibles"], GLOB.arachnid_mandibles_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				// ARACHINDS SPHINNERET
 				if("next_arachnid_spinneret_style")
 					features["arachnid_spinneret"] = next_list_item(features["arachnid_spinneret"], GLOB.arachnid_spinneret_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				if("previous_arachnid_spinneret_style")
 					features["arachnid_spinneret"] = previous_list_item(features["arachnid_spinneret"], GLOB.arachnid_spinneret_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				// ARACHNIDS LEGS
 				if("next_arachnid_legs_style")
 					features["arachnid_legs"] = next_list_item(features["arachnid_legs"], GLOB.arachnid_legs_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				if("previous_arachnid_legs_style")
 					features["arachnid_legs"] = previous_list_item(features["arachnid_legs"], GLOB.arachnid_legs_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				// WINGS
 				if("next_wings_style")
 					features["wings"] = next_list_item(features["wings"], GLOB.wings_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				if("previous_wings_style")
 					features["wings"] = previous_list_item(features["wings"], GLOB.wings_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				// TAUR BODY
 				if("next_taur_style")
 					features["taur"] = next_list_item(features["taur"], GLOB.taur_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				if("previous_taur_style")
 					features["taur"] = previous_list_item(features["taur"], GLOB.taur_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				// INSECT FLUFF (NECK AND SPINE)
 				if("next_insect_fluff_style")
 					features["insect_fluff"] = next_list_item(features["insect_fluff"], GLOB.insect_fluffs_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				if("previous_insect_fluff_style")
 					features["insect_fluff"] = previous_list_item(features["insect_fluff"], GLOB.insect_fluffs_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				// INSECT WINGS
 				if("next_insect_wings_style")
 					features["insect_wings"] = next_list_item(features["insect_wings"], GLOB.insect_wings_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				if("previous_insect_wings_style")
 					features["insect_wings"] = previous_list_item(features["insect_wings"], GLOB.insect_wings_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				// DECO WINGS
 				if("next_deco_wings_style")
 					features["deco_wings"] = next_list_item(features["deco_wings"], GLOB.deco_wings_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				if("previous_deco_wings_style")
 					features["deco_wings"] = previous_list_item(features["deco_wings"], GLOB.deco_wings_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				// LEGS
 				if("next_legs_style")
 					features["legs"] = next_list_item(features["legs"], GLOB.legs_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				if("previous_legs_style")
 					features["legs"] = previous_list_item(features["legs"], GLOB.legs_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				// MAMMAL SNOUTS
 				if("next_mam_snouts_style")
 					features["mam_snouts"] = next_list_item(features["mam_snouts"], GLOB.mam_snouts_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				if("previous_mam_snouts_style")
 					features["mam_snouts"] = previous_list_item(features["mam_snouts"], GLOB.mam_snouts_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				// EARS
 				if("next_ears_style")
 					features["ears"] = next_list_item(features["ears"], GLOB.ears_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				if("previous_ears_style")
 					features["ears"] = previous_list_item(features["ears"], GLOB.ears_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				// MAMMAL EARS
 				if("next_mam_ears_style")
 					features["mam_ears"] = next_list_item(features["mam_ears"], GLOB.mam_ears_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				if("previous_mam_ears_style")
 					features["mam_ears"] = previous_list_item(features["mam_ears"], GLOB.mam_ears_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				// LIZARDS SPINES
 				if("next_spines_style")
 					features["spines"] = next_list_item(features["spines"], GLOB.spines_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				if("previous_spines_style")
 					features["spines"] = previous_list_item(features["spines"], GLOB.spines_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				// LIZARDS FRILLS
 				if("next_frills_style")
 					features["frills"] = next_list_item(features["frills"], GLOB.frills_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				if("previous_frills_style")
 					features["frills"] = previous_list_item(features["frills"], GLOB.frills_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				// LIZARDS SNOUTS
 				if("next_snout_style")
 					features["snout"] = next_list_item(features["snout"], GLOB.snouts_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				if("previous_snout_style")
 					features["snout"] = previous_list_item(features["snout"], GLOB.snouts_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				// HUMAN TAILS
 				if("next_tail_human_style")
 					features["tail_human"] = next_list_item(features["tail_human"], GLOB.tails_list_human)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				if("previous_tail_human_style")
 					features["tail_human"] = previous_list_item(features["tail_human"], GLOB.tails_list_human)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				// LIZARDS TAILS
 				if("next_tail_lizard_style")
 					features["tail_lizard"] = next_list_item(features["tail_lizard"], GLOB.tails_list_lizard)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				if("previous_tail_lizard_style")
 					features["tail_lizard"] = previous_list_item(features["tail_lizard"], GLOB.tails_list_lizard)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				// MAMMAL TAILS
 				if("next_mam_tail_style")
 					features["mam_tail"] = next_list_item(features["mam_tail"], GLOB.mam_tails_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 
 				if("previous_mam_tail_style")
 					features["mam_tail"] = previous_list_item(features["mam_tail"], GLOB.mam_tails_list)
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 				// BLUEMOON ADD END
 
 				if("cycle_bg")
@@ -858,25 +926,30 @@
 					if(new_eyes)
 						left_eye_color = sanitize_hexcolor(new_eyes, 6)
 						right_eye_color = sanitize_hexcolor(new_eyes, 6)
+						preview_change_hint = PREVIEW_HINT_BODY
 
 				if("eye_left")
 					var/new_eyes = input(user, "Choose your character's left eye colour:", "Character Preference","#"+left_eye_color) as color|null
 					if(new_eyes)
 						left_eye_color = sanitize_hexcolor(new_eyes, 6)
+						preview_change_hint = PREVIEW_HINT_BODY
 
 				if("eye_right")
 					var/new_eyes = input(user, "Choose your character's right eye colour:", "Character Preference","#"+right_eye_color) as color|null
 					if(new_eyes)
 						right_eye_color = sanitize_hexcolor(new_eyes, 6)
+						preview_change_hint = PREVIEW_HINT_BODY
 
 				if("eye_type")
 					var/new_eye_type = tgui_input_list(user, "Choose your character's eye type.", "Character Preference", GLOB.eye_types)
 					if(new_eye_type)
 						eye_type = new_eye_type
+						preview_change_hint = PREVIEW_HINT_BODY
 
 				if("toggle_split_eyes")
 					split_eye_colors = !split_eye_colors
 					right_eye_color = left_eye_color
+					preview_change_hint = PREVIEW_HINT_BODY
 
 				if("species")
 					var/result = tgui_input_list(user, "Select a species", "Species Selection", GLOB.roundstart_race_names)
@@ -907,6 +980,7 @@
 
 						//switch to the type of eyes the species uses
 						eye_type = pref_species.eye_type
+						invalidate_preview_mannequin()
 
 				if("custom_species")
 					var/new_species = reject_bad_name(input(user, "Выберите особую расу персонажа, если он уникален. Это будет отображаться при осмотре и сканировании здоровья. Не злоупотребляйте этим:", "Character Preference", custom_species) as null|text, TRUE)
@@ -921,8 +995,10 @@
 						var/temp_hsv = RGBtoHSV(new_mutantcolor)
 						if(new_mutantcolor == "#000000" && features["mcolor"] != pref_species.default_color) //SPLURT EDIT
 							features["mcolor"] = pref_species.default_color
+							preview_change_hint = PREVIEW_HINT_BODY
 						else if((MUTCOLORS_PARTSONLY in pref_species.species_traits) || ReadHSV(temp_hsv)[3] >= ReadHSV(MINIMUM_MUTANT_COLOR)[3] || !CONFIG_GET(flag/character_color_limits)) // mutantcolors must be bright, but only if they affect the skin //SPLURT EDIT
 							features["mcolor"] = sanitize_hexcolor(new_mutantcolor, 6)
+							preview_change_hint = PREVIEW_HINT_BODY
 						else
 							to_chat(user, "<span class='danger'>Invalid color. Your color is not bright enough.</span>")
 
@@ -932,8 +1008,10 @@
 						var/temp_hsv = RGBtoHSV(new_mutantcolor)
 						if(new_mutantcolor == "#000000" && features["mcolor2"] != pref_species.default_color) //SPLURT EDIT
 							features["mcolor2"] = pref_species.default_color
+							preview_change_hint = PREVIEW_HINT_BODY
 						else if((MUTCOLORS_PARTSONLY in pref_species.species_traits) || ReadHSV(temp_hsv)[3] >= ReadHSV(MINIMUM_MUTANT_COLOR)[3] || !CONFIG_GET(flag/character_color_limits)) // mutantcolors must be bright, but only if they affect the skin //SPLURT EDIT
 							features["mcolor2"] = sanitize_hexcolor(new_mutantcolor, 6)
+							preview_change_hint = PREVIEW_HINT_BODY
 						else
 							to_chat(user, "<span class='danger'>Invalid color. Your color is not bright enough.</span>")
 
@@ -943,8 +1021,10 @@
 						var/temp_hsv = RGBtoHSV(new_mutantcolor)
 						if(new_mutantcolor == "#000000" && features["mcolor3"] != pref_species.default_color) //SPLURT EDIT
 							features["mcolor3"] = pref_species.default_color
+							preview_change_hint = PREVIEW_HINT_BODY
 						else if((MUTCOLORS_PARTSONLY in pref_species.species_traits) || ReadHSV(temp_hsv)[3] >= ReadHSV(MINIMUM_MUTANT_COLOR)[3] || !CONFIG_GET(flag/character_color_limits)) // mutantcolors must be bright, but only if they affect the skin //SPLURT EDIT
 							features["mcolor3"] = sanitize_hexcolor(new_mutantcolor, 6)
+							preview_change_hint = PREVIEW_HINT_BODY
 						else
 							to_chat(user, "<span class='danger'>Invalid color. Your color is not bright enough.</span>")
 
@@ -956,6 +1036,7 @@
 
 				if("has_neckfire")
 					features["neckfire"] = !features["neckfire"]
+					preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
 				if("has_neckfire_color")
 					var/new_neckfire_color = input(user, "Choose your fire's color:", "Character Preference", "#"+features["neckfire_color"]) as color|null
 					if(new_neckfire_color)
@@ -1763,14 +1844,17 @@
 						else
 							features["body_model"] = chosengender
 					gender = chosengender
+					invalidate_preview_mannequin()
 
 				if("body_size")
 					var/new_body_size = input(user, "Choose your desired sprite size: ([CONFIG_GET(number/body_size_min)*100]-[CONFIG_GET(number/body_size_max)*100]%)\nWarning: This may make your character look distorted. Additionally, any size affects speed and max health", "Character Preference", features["body_size"]*100) as num|null
 					if(new_body_size)
 						features["body_size"] = clamp(new_body_size * 0.01, CONFIG_GET(number/body_size_min), CONFIG_GET(number/body_size_max))
+						invalidate_preview_mannequin()
 
 				if("toggle_fuzzy")
-					fuzzy = !fuzzy
+					fuzzy = (fuzzy + 1) % SCALED_MODES_COUNT
+					invalidate_preview_mannequin()
 
 				//BLUEMOON ADD выбор веса персонажа, замена квирков на вес
 				if("body_weight")
@@ -2246,6 +2330,7 @@
 
 				if("body_model")
 					features["body_model"] = features["body_model"] == MALE ? FEMALE : MALE
+					invalidate_preview_mannequin()
 
 				if("hotkeys")
 					hotkeys = !hotkeys
@@ -2628,8 +2713,10 @@
 				if("load")
 					load_preferences()
 					load_character()
+					invalidate_preview_mannequin()
 
 				if("changeslot")
+					invalidate_preview_mannequin()
 					if(char_queue)
 						deltimer(char_queue) // Do not dare.
 					if(!load_character(text2num(href_list["num"])))
@@ -2652,7 +2739,28 @@
 					var/new_dir = text2num(href_list["dir"])
 					if(new_dir in GLOB.cardinals)
 						preview_direction = new_dir
+						// Если есть закэшированная иконка для этого направления — используем мгновенно
+						if(LAZYACCESS(preview_dir_cache, "[new_dir]"))
+							preview_icon64 = preview_dir_cache["[new_dir]"]
+							// Targeted update — не пересоздаём 2500+ строк HTML ради смены направления
+							update_preview_html_only(user)
+							skip_preview = TRUE
+						else
+							update_preview_icon()
+							skip_preview = TRUE
+
+				if("preview_zoom")
+					var/new_zoom = text2num(href_list["level"])
+					if(isnum(new_zoom))
+						preview_zoom = clamp(round(new_zoom, 10), 100, 200)
+					skip_preview = TRUE
+
+				if("preview_reference")
+					preview_show_reference = !preview_show_reference
+					if(preview_show_reference && !LAZYLEN(preview_reference_cache))
+						// Кэша нет — запускаем генерацию, ShowChoices вызовется по завершению
 						update_preview_icon()
+					skip_preview = TRUE
 
 				if("character_tab")
 					skip_preview = TRUE
@@ -2849,10 +2957,11 @@
 			if(!thing_to_remove)
 				return
 			var/list/sanitize_current_slot = loadout_data["SAVE_[loadout_slot]"]
-			for(var/list/entry in sanitize_current_slot)
-				if(entry["loadout_item"] == thing_to_remove)
-					sanitize_current_slot.Remove(list(entry))
-					break
+			if(islist(sanitize_current_slot))
+				for(var/list/entry in sanitize_current_slot)
+					if(entry["loadout_item"] == thing_to_remove)
+						sanitize_current_slot.Remove(list(entry))
+						break
 
 		if(href_list["loadout_color"] || href_list["loadout_color_polychromic"] || href_list["loadout_color_HSV"] || href_list["loadout_rename"] || href_list["loadout_redescribe"] || href_list["loadout_addheirloom"] || href_list["loadout_removeheirloom"] || href_list["loadout_tagname"] || href_list["loadout_examtooltip"])
 
@@ -2964,7 +3073,14 @@
 				else
 					user_gear -= "loadout_examtooltip"
 
-	ShowChoices(user, skip_preview_update = skip_preview)
+	// Оптимизация: если изменение влияет ТОЛЬКО на внешность (есть preview_change_hint),
+	// вызываем ShowChoices с skip_preview=TRUE (HTML обновится, но без дорогой генерации превью),
+	// а превью обновляем отдельно через инкрементальный update_preview_icon().
+	if(preview_change_hint && !skip_preview)
+		update_preview_icon()
+		ShowChoices(user, skip_preview_update = TRUE)
+	else
+		ShowChoices(user, skip_preview_update = skip_preview)
 	return TRUE
 
 

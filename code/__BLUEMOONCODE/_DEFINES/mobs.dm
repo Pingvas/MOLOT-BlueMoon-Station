@@ -19,3 +19,12 @@
 //#define COST_WEIGHT_NORMAL 0 //PLACEHOLDER на случай если кто-то чего-то придумает с этим
 #define COST_WEIGHT_HEAVY 1
 #define COST_WEIGHT_HEAVY_SUPER 2
+
+// Scaled appearance modes
+#define SCALED_SHARP     0
+#define SCALED_FUZZY     1
+#define SCALED_PARTS     2 // WIP / тестовый режим, не доработан
+
+#define SCALED_MODES_COUNT 3
+
+#define SCALED_APPEARANCE_TRAIT "scaled_appearance"

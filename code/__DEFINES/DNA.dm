@@ -211,3 +211,9 @@
 #define PREVIEW_PREF_LOADOUT "Loadout"
 #define PREVIEW_PREF_NAKED "Naked"
 #define PREVIEW_PREF_NAKED_AROUSED "Naked - Aroused"
+
+/// Подсказки для инкрементального обновления превью (preview_change_hint).
+/// Вместо полного regenerate_icons() вызывается только нужный update_*().
+#define PREVIEW_HINT_HAIR "hair"
+#define PREVIEW_HINT_BODY "body"
+#define PREVIEW_HINT_MUTANT_BODYPARTS "mutant_bodyparts"

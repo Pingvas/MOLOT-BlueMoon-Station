@@ -2,10 +2,18 @@ import { useBackend, useLocalState } from '../backend';
 import { Box, Button, Input, Section, Stack } from '../components';
 import { PixelArtImage } from '../components';
 import { Window } from '../layouts';
+import { debounce } from 'common/timer';
 
 const PAGE_SIZE = 24;
 const ICON_SIZE = 64; // px – displayed size (32px native scaled 2x via CSS)
 const COLS = 6;       // icons per row
+
+// Module-level debounced navigate to avoid re-creating on every render.
+// Stores the latest act() reference and calls it after 300ms of inactivity.
+let _debouncedNavigateAct: ((action: string, payload: object) => void) | null = null;
+const debouncedNavigate = debounce((page: number, search: string) => {
+  _debouncedNavigateAct?.('navigate', { page, search });
+}, 300);
 
 interface HairStylePickerData {
   pick_type: 'hair' | 'facial_hair' | 'gradient';
@@ -45,6 +53,9 @@ export const HairStylePicker = (props, context) => {
     Math.ceil((filtered_names || []).length / PAGE_SIZE),
   );
 
+  // Keep module-level debounce in sync with current act() reference
+  _debouncedNavigateAct = act;
+
   const navigate = (page: number, search: string) => {
     const clampedPage = Math.max(0, Math.min(page, effectiveTotalPages - 1));
     setLocalPage(clampedPage);
@@ -54,7 +65,8 @@ export const HairStylePicker = (props, context) => {
   const onSearchChange = (_, value: string) => {
     setLocalSearch(value);
     setLocalPage(0);
-    navigate(0, value);
+    // Debounce server call — local state updates instantly for responsive UI
+    debouncedNavigate(0, value);
   };
 
   const onSelect = (style: string) => {

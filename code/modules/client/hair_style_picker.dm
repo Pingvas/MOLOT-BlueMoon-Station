@@ -14,6 +14,14 @@
 	var/preview_icon64 = null
 	var/preview_generating = FALSE
 	var/preview_pending = FALSE
+	var/last_preview_time = 0
+	var/preview_timer_id = null
+	/// Cached mannequin — held for the lifetime of the picker to avoid copy_to on every click
+	var/mob/living/carbon/human/dummy/cached_mannequin
+	var/mannequin_initialized = FALSE
+	var/dummy_slot_key
+	/// Кэш плоской иконки манекена БЕЗ hair layer — для быстрой композиции при переборе причёсок.
+	var/icon/cached_base_icon = null
 
 	// Статический кэш base64 иконок по типу.
 	var/static/list/hair_icon_cache = null
@@ -27,6 +35,7 @@
 		holder = user.client
 	prefs = holder.prefs
 	pick_type = type
+	dummy_slot_key = "hair_picker_[REF(src)]"
 	rebuild_filtered(search_text)
 	load_page_icons()
 	INVOKE_ASYNC(src, PROC_REF(_preload_remaining_icons)) // фоновый прогрев оставшихся страниц
@@ -37,6 +46,16 @@
 	if(!ui)
 		ui = new(user, src, "HairStylePicker", pick_type == "hair" ? "Выбор Причёски" : pick_type == "facial_hair" ? "Выбор Стиля Бороды" : "Выбор Цветового Перехода")
 		ui.open()
+
+/datum/tgui_hair_style_picker/Destroy()
+	if(preview_timer_id)
+		deltimer(preview_timer_id)
+		preview_timer_id = null
+	if(cached_mannequin)
+		unset_busy_human_dummy(dummy_slot_key)
+		cached_mannequin = null
+	cached_base_icon = null
+	return ..()
 
 /datum/tgui_hair_style_picker/ui_close(mob/user)
 	qdel(src)
@@ -62,8 +81,8 @@
 			data["current_style"] = prefs.facial_hair_style
 		if("gradient")
 			data["current_style"] = prefs.grad_style
-	data["filtered_names"] = filtered_names.Copy()
-	data["loaded_icons"] = current_icons.Copy()
+	data["filtered_names"] = filtered_names
+	data["loaded_icons"] = current_icons
 	data["preview_icon64"] = preview_icon64
 	return data
 
@@ -180,19 +199,86 @@
 	if(preview_generating)
 		preview_pending = TRUE
 		return
+	// Throttle: максимум ~3 превью в секунду (3 тика = 0.3с)
+	// С кэшированной базой каждый рендер быстрый, можно снизить throttle
+	var/time_since_last = world.time - last_preview_time
+	if(time_since_last < 3)
+		if(!preview_timer_id)
+			preview_timer_id = addtimer(CALLBACK(src, PROC_REF(_throttled_preview)), 3 - time_since_last, TIMER_UNIQUE | TIMER_OVERRIDE | TIMER_STOPPABLE)
+		return
+	last_preview_time = world.time
+	INVOKE_ASYNC(src, PROC_REF(_do_refresh_preview))
+
+/datum/tgui_hair_style_picker/proc/_throttled_preview()
+	preview_timer_id = null
+	if(QDELETED(src))
+		return
+	last_preview_time = world.time
 	INVOKE_ASYNC(src, PROC_REF(_do_refresh_preview))
 
 /datum/tgui_hair_style_picker/proc/_do_refresh_preview()
 	preview_generating = TRUE
 	preview_pending = FALSE
-	var/species_id = prefs.pref_species ? prefs.pref_species.id : "null"
-	var/cache_key = "hairpick_[prefs.hair_style]_[prefs.hair_color]_[prefs.grad_style]_[prefs.facial_hair_style]_[prefs.facial_hair_color]_[prefs.skin_tone]_[species_id]"
-	var/dummy_slot = "hair_picker_preview_[REF(src)]"
-	var/icon/I = get_flat_human_icon(cache_key, null, prefs, dummy_slot, list(SOUTH), null, TRUE)
+	// Первый вызов — полная инициализация манекена (copy_to + regenerate_icons)
+	// Последующие — только обновляем изменившееся поле (hair/facial/grad) + update_hair()
+	if(!mannequin_initialized || QDELETED(cached_mannequin))
+		cached_mannequin = generate_or_wait_for_human_dummy(dummy_slot_key)
+		if(!cached_mannequin || QDELETED(src))
+			preview_generating = FALSE
+			return
+		prefs.copy_to(cached_mannequin, initial_spawn = TRUE)
+		cached_mannequin.regenerate_icons()
+		mannequin_initialized = TRUE
+		// Кэшируем базовую иконку БЕЗ hair layer — для быстрой композиции в дальнейшем
+		cached_mannequin.remove_overlay(HAIR_LAYER)
+		cached_base_icon = getFlatIcon(cached_mannequin, defdir = SOUTH, no_anim = TRUE)
+		cached_mannequin.update_hair() // вернуть hair overlay
+	else
+		// Инкрементальное обновление — только изменившееся поле + пересборка hair-оверлеев
+		switch(pick_type)
+			if("hair")
+				cached_mannequin.hair_style = prefs.hair_style
+			if("facial_hair")
+				cached_mannequin.facial_hair_style = prefs.facial_hair_style
+			if("gradient")
+				cached_mannequin.grad_style = prefs.grad_style
+		cached_mannequin.update_hair()
 	if(QDELETED(src))
 		return
+	// Если есть кэш базовой иконки — композиция вместо дорогого getFlatIcon()
+	var/icon/I
+	if(cached_base_icon)
+		I = icon(cached_base_icon) // копия кэшированной базы
+		// Берём hair-оверлеи с манекена и блендим поверх базы
+		var/overlays_data = cached_mannequin.overlays_standing[HAIR_LAYER]
+		if(overlays_data)
+			var/list/overlay_list
+			if(islist(overlays_data))
+				overlay_list = overlays_data
+			else
+				overlay_list = list(overlays_data)
+			for(var/mutable_appearance/MA in overlay_list)
+				if(!MA.icon || !MA.icon_state)
+					continue
+				var/icon/hair_part = icon(MA.icon, MA.icon_state, SOUTH, 1)
+				if(MA.color)
+					hair_part.Blend(MA.color, ICON_MULTIPLY)
+				if(MA.alpha < 255)
+					hair_part.Blend(rgb(255, 255, 255, MA.alpha), ICON_MULTIPLY)
+				I.Blend(hair_part, ICON_OVERLAY, MA.pixel_x, MA.pixel_y)
+	else
+		// Fallback — полный getFlatIcon() если кэш не создан
+		I = getFlatIcon(cached_mannequin, defdir = SOUTH, no_anim = TRUE)
+	if(QDELETED(src))
+		return
+	// Request cancellation: если пришёл новый запрос, пропускаем дорогой icon2html() —
+	// текущий результат всё равно устареет, а icon2html() не бесплатен
+	if(preview_pending)
+		preview_generating = FALSE
+		refresh_preview_icon()
+		return
 	if(I)
-		preview_icon64 = icon2html(I, holder, sourceonly = TRUE) // asset URL, не base64
+		preview_icon64 = icon2html(I, holder, sourceonly = TRUE)
 	else
 		preview_icon64 = null
 	preview_generating = FALSE

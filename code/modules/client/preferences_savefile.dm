@@ -1475,6 +1475,12 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 			else
 				loadout_data[save_key] = list()
 
+	// Ensure SAVE_X keys exist even when loadout data wasn't loaded from text (old savefile format)
+	for(var/ensure_idx = 1, ensure_idx <= MAXIMUM_LOADOUT_SAVES, ensure_idx++)
+		var/ensure_key = "SAVE_[ensure_idx]"
+		if(!islist(loadout_data[ensure_key]))
+			loadout_data[ensure_key] = list()
+
 	//let's remember their last used slot, i'm sure "oops i brought the wrong stuff" will be an issue now
 	S["loadout_slot"] >> loadout_slot
 	// BLUEMOON ADD - загрузка переключателя лодаута
@@ -1503,7 +1509,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	nameless = sanitize_integer(nameless, 0, 1, initial(nameless))
 	be_random_name = sanitize_integer(be_random_name, 0, 1, initial(be_random_name))
 	be_random_body = sanitize_integer(be_random_body, 0, 1, initial(be_random_body))
-	features["fuzzy"] = sanitize_integer(features["fuzzy"], 0, 1, initial(features["fuzzy"]))
+	features["fuzzy"] = sanitize_integer(features["fuzzy"], 0, SCALED_MODES_COUNT - 1, initial(features["fuzzy"]))
 
 	hair_style = sanitize_inlist(hair_style, GLOB.hair_styles_list)
 	facial_hair_style = sanitize_inlist(facial_hair_style, GLOB.facial_hair_styles_list)
@@ -2193,7 +2199,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	directory_erptag		= sanitize_inlist(directory_erptag, GLOB.char_directory_erptags, initial(directory_erptag))
 	directory_gendertag		= sanitize_inlist(directory_gendertag, GLOB.char_directory_gendertags, initial(directory_gendertag))
 	directory_ad			= strip_html_simple(directory_ad, MAX_FLAVOR_LEN)
-	fuzzy 					= sanitize_integer(fuzzy, 0, 1, initial(fuzzy))
+	fuzzy 					= sanitize_integer(fuzzy, 0, SCALED_MODES_COUNT - 1, initial(fuzzy))
 	custom_blood_color 		= sanitize_integer(custom_blood_color, 0, 1, initial(custom_blood_color))
 	blood_color 			= sanitize_hexcolor(blood_color, 6, 1, initial(blood_color))
 

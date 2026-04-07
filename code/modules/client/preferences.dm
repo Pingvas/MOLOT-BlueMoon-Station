@@ -297,7 +297,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 "meat_type" = "Mammalian",
 "body_model" = MALE,
 "body_size" = RESIZE_DEFAULT_SIZE,
-"fuzzy" = FALSE,
+"fuzzy" = SCALED_SHARP,
 "color_scheme" = OLD_CHARACTER_COLORING,
 "neckfire" = FALSE,
 "neckfire_color" = "ffffff",
@@ -406,6 +406,23 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	// Guard flag — TRUE пока ассинхронная генерация работает.
 	var/preview_generating = FALSE
 	var/tmp/pending_preview_update = FALSE
+	/// Кэш иконок превью по направлениям (dir -> html string). Сбрасывается при изменении внешности.
+	var/tmp/list/preview_dir_cache
+	/// Зум превью в процентах (100-200, шаг 10) — session-only, не сохраняется.
+	var/tmp/preview_zoom = 100
+	/// Показывать эталонный манекен (100% размер) за спрайтом для сравнения.
+	var/tmp/preview_show_reference = FALSE
+	/// Кэш иконок эталонного манекена (dir -> html string).
+	var/tmp/list/preview_reference_cache
+
+	/// Персистентный манекен для превью — не пересоздаётся каждый раз.
+	var/tmp/mob/living/carbon/human/dummy/preview_mannequin
+	/// TRUE если манекен уже инициализирован (copy_to вызван). Сбрасывается при смене species/gender/etc.
+	var/tmp/preview_mannequin_initialized = FALSE
+	/// Подсказка для инкрементального обновления — какие слои обновлять вместо полного regenerate_icons().
+	/// Устанавливается обработчиками настроек перед вызовом update_preview_icon().
+	/// null = полная пересборка.
+	var/tmp/preview_change_hint
 
 	var/no_tetris_storage = FALSE
 
@@ -516,7 +533,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	// Splurt extras
 	var/unholypref = "No" //Goin 2 hell fo dis one
 	var/list/gfluid_blacklist = list() //Stuff you don't want people to cum into you
-	var/fuzzy = FALSE //Fuzzy scaling
+	var/fuzzy = SCALED_SHARP //Scaled appearance mode: 0=Sharp, 1=Fuzzy
 
 	// BlueMoon extras
 	var/body_weight = NAME_WEIGHT_NORMAL
