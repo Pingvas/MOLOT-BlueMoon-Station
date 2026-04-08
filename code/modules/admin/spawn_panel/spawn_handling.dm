@@ -122,11 +122,21 @@
 				if(where == WHERE_MOB_HAND && isliving(user) && isitem(O))
 					var/mob/living/L = user
 					var/obj/item/I = O
-					L.put_in_hands(I)
+					L.put_in_hands(I, forced = TRUE)
+					if(iscyborg(L))
+						var/mob/living/silicon/robot/R = L
+						if(R.module)
+							R.module.add_module(I, TRUE, TRUE)
+							R.activate_module(I)
 				else if(where == WHERE_TARGETED_MOB_HAND && target_mob && isliving(target_mob) && isitem(O))
 					var/mob/living/LT = target_mob
 					var/obj/item/IT = O
-					LT.put_in_hands(IT)
+					LT.put_in_hands(IT, forced = TRUE)
+					if(iscyborg(LT))
+						var/mob/living/silicon/robot/RT = LT
+						if(RT.module)
+							RT.module.add_module(IT, TRUE, TRUE)
+							RT.activate_module(IT)
 				else if(where == WHERE_TELEPORT_BELOW_MOB)
 					do_teleport(O, get_turf(user), channel = TELEPORT_CHANNEL_FREE, no_effects = TRUE)
 					do_sparks(5, FALSE, get_turf(O))

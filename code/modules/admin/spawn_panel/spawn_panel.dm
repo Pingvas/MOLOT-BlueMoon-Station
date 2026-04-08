@@ -89,6 +89,8 @@
 			selected_atom = params["newObj"]
 			selected_icon = null
 			atom_name = null
+			if(!selected_atom && precise_mode == PRECISE_MODE_TARGET)
+				toggle_precise_mode(PRECISE_MODE_OFF, ui.user)
 			if(selected_atom)
 				var/path = text2path(selected_atom)
 				if(path)
@@ -106,6 +108,8 @@
 		if("update-settings")
 			if(!isnull(params["where_target_type"]))
 				where_target_type = params["where_target_type"]
+				if(precise_mode != PRECISE_MODE_OFF && !(where_target_type in list(WHERE_TARGETED_LOCATION, WHERE_TARGETED_LOCATION_POD, WHERE_TARGETED_MOB_HAND)))
+					toggle_precise_mode(PRECISE_MODE_OFF, ui.user)
 			if(!isnull(params["atom_amount"]))
 				atom_amount = clamp(text2num(params["atom_amount"]) || 1, 1, ADMIN_SPAWN_CAP)
 			if(!isnull(params["atom_name"]))
@@ -164,7 +168,7 @@
 	return FALSE
 
 /datum/spawnpanel/proc/toggle_precise_mode(new_mode, mob/user = owner)
-	if(!selected_atom && new_mode != PRECISE_MODE_OFF)
+	if(!selected_atom && new_mode == PRECISE_MODE_TARGET)
 		to_chat(user, span_warning("SpawnPanel: select an atom first."))
 		return
 	if(!user?.client)
