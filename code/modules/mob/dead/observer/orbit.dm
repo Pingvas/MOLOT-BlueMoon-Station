@@ -48,6 +48,12 @@
 			update_static_data(owner, ui)
 			. = TRUE
 		// BLUEMOON ADD END
+		// BLUEMOON ADD START - перемещение призрака по z-уровню
+		if ("zmove")
+			var/direction = params["dir"] == "up" ? UP : DOWN
+			owner.zMove(direction, TRUE)
+			. = TRUE
+		// BLUEMOON ADD END
 
 /datum/orbit_menu/ui_data(mob/user)
 	var/list/data = list()
