@@ -130,8 +130,8 @@
 				if(where == WHERE_MOB_HAND && isliving(user) && isitem(O))
 					var/mob/living/L = user
 					var/obj/item/I = O
-					L.put_in_hands(I, forced = TRUE)
-					if(iscyborg(L))
+					var/placed = L.put_in_hands(I, forced = TRUE)
+					if(placed && iscyborg(L))
 						var/mob/living/silicon/robot/R = L
 						if(R.module)
 							R.module.add_module(I, TRUE, TRUE)
@@ -139,8 +139,8 @@
 				else if(where == WHERE_TARGETED_MOB_HAND && target_mob && isliving(target_mob) && isitem(O))
 					var/mob/living/LT = target_mob
 					var/obj/item/IT = O
-					LT.put_in_hands(IT, forced = TRUE)
-					if(iscyborg(LT))
+					var/placed_t = LT.put_in_hands(IT, forced = TRUE)
+					if(placed_t && iscyborg(LT))
 						var/mob/living/silicon/robot/RT = LT
 						if(RT.module)
 							RT.module.add_module(IT, TRUE, TRUE)
