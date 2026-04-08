@@ -8,6 +8,7 @@
 #define WHERE_TARGETED_LOCATION      "Таргетная локация"
 #define WHERE_TARGETED_LOCATION_POD  "Таргетная локация дроп-подом"
 #define WHERE_TARGETED_MOB_HAND      "В руках/лапах выбранного существа"
+#define WHERE_TARGETED_MOB_BAG       "В сумке выбранного существа"
 
 // Precise mode states
 #define PRECISE_MODE_OFF    "Off"
@@ -108,7 +109,7 @@
 		if("update-settings")
 			if(!isnull(params["where_target_type"]))
 				where_target_type = params["where_target_type"]
-				if(precise_mode != PRECISE_MODE_OFF && !(where_target_type in list(WHERE_TARGETED_LOCATION, WHERE_TARGETED_LOCATION_POD, WHERE_TARGETED_MOB_HAND)))
+				if(precise_mode != PRECISE_MODE_OFF && !(where_target_type in list(WHERE_TARGETED_LOCATION, WHERE_TARGETED_LOCATION_POD, WHERE_TARGETED_MOB_HAND, WHERE_TARGETED_MOB_BAG)))
 					toggle_precise_mode(PRECISE_MODE_OFF, ui.user)
 			if(!isnull(params["atom_amount"]))
 				atom_amount = clamp(text2num(params["atom_amount"]) || 1, 1, ADMIN_SPAWN_CAP)
@@ -210,7 +211,7 @@
 				"offsetZ" = 0,
 				"offset_type" = OFFSET_RELATIVE,
 			)
-			if(where_target_type == WHERE_TARGETED_MOB_HAND)
+			if(where_target_type == WHERE_TARGETED_MOB_HAND || where_target_type == WHERE_TARGETED_MOB_BAG)
 				spawn_params["targetMob"] = ismob(target) ? target : null
 			else
 				spawn_params["targetTurf"] = get_turf(target)

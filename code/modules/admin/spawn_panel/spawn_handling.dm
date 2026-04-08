@@ -94,6 +94,14 @@
 		target_mob = hand_target
 		target = get_turf(hand_target)
 
+	else if(where == WHERE_TARGETED_MOB_BAG)
+		var/mob/bag_target = spawn_params["targetMob"]
+		if(!bag_target || !isliving(bag_target))
+			to_chat(user, span_warning("SpawnPanel: No valid targeted mob."))
+			return
+		target_mob = bag_target
+		target = get_turf(bag_target)
+
 	if(!target)
 		target = get_turf(user)
 
@@ -137,6 +145,16 @@
 						if(RT.module)
 							RT.module.add_module(IT, TRUE, TRUE)
 							RT.activate_module(IT)
+				else if(where == WHERE_TARGETED_MOB_BAG && target_mob && isitem(O))
+					var/obj/item/IB = O
+					var/inserted = FALSE
+					if(ishuman(target_mob))
+						var/mob/living/carbon/human/H = target_mob
+						if(H.back)
+							inserted = SEND_SIGNAL(H.back, COMSIG_TRY_STORAGE_INSERT, IB, null, TRUE, TRUE)
+					if(!inserted)
+						if(!SEND_SIGNAL(target_mob, COMSIG_TRY_STORAGE_INSERT, IB, null, TRUE, TRUE))
+							IB.forceMove(get_turf(target_mob))
 				else if(where == WHERE_TELEPORT_BELOW_MOB)
 					do_teleport(O, get_turf(user), channel = TELEPORT_CHANNEL_FREE, no_effects = TRUE)
 					do_sparks(5, FALSE, get_turf(O))
