@@ -174,6 +174,7 @@
 	aiPDA.owner = name
 	aiPDA.ownjob = "AI"
 	aiPDA.name = name + " (" + aiPDA.ownjob + ")"
+	aiPDA.update_id_imprint(name, "AI")
 
 	aiMulti = new(src)
 	radio = new /obj/item/radio/headset/silicon/ai(src)
@@ -992,6 +993,7 @@
 	if(aiPDA)
 		aiPDA.owner = newname
 		aiPDA.name = newname + " (" + aiPDA.ownjob + ")"
+		aiPDA.update_id_imprint(newname, aiPDA.saved_job)
 
 
 /mob/living/silicon/ai/proc/add_malf_picker()

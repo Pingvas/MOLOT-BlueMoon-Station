@@ -36,6 +36,7 @@
 		aiPDA.owner = real_name
 		aiPDA.ownjob = "Cyborg"
 		aiPDA.name = real_name + " ([aiPDA.ownjob])"
+		aiPDA.update_id_imprint(real_name, "Cyborg")
 
 	previous_health = health
 
@@ -954,6 +955,7 @@
 	if(aiPDA && !shell)
 		aiPDA.owner = newname
 		aiPDA.name = newname + " (" + aiPDA.ownjob + ")"
+		aiPDA.update_id_imprint(newname, aiPDA.saved_job)
 	custom_name = newname
 
 

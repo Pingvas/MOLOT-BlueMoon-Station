@@ -493,7 +493,7 @@
 			continue
 		. += P
 
-// ---- AI PDA messaging (legacy Browser UI) ----
+// ---- AI PDA messaging ----
 
 /mob/living/silicon/ai/proc/cmd_send_pdamesg(mob/user)
 	var/list/plist = list()
@@ -511,17 +511,22 @@
 	var/c = input(user, "Выберите PDA") as null|anything in sort_list(plist)
 	if(!c)
 		return
-	var/selected = plist[c]
+	var/obj/item/modular_computer/pda/selected = plist[c]
 
-	if(aicamera.stored.len)
-		var/add_photo = input(user, "Хотите приложить фото?", "Фотография", "Нет") as null|anything in list("Да", "Нет")
-		if(add_photo == "Да")
-			var/datum/picture/Pic = aicamera.selectpicture(user)
-			aiPDA.picture = Pic
+	var/message = tgui_input_text(user, "Введите сообщение", "PDA сообщение", max_length = 1024, encode = FALSE)
+	if(!message)
+		return
 
 	if(incapacitated())
 		return
-	aiPDA.create_message(src, selected)
+
+	var/datum/computer_file/program/messenger/ai_messenger = locate() in aiPDA.stored_files
+	var/datum/computer_file/program/messenger/target_messenger = locate() in selected.stored_files
+	if(!ai_messenger || !target_messenger)
+		to_chat(user, span_notice("Мессенджер недоступен."))
+		return
+
+	ai_messenger.send_message(user, message, list(target_messenger))
 
 /mob/living/silicon/ai/verb/cmd_toggle_pda_receiver()
 	set category = "AI Commands"
@@ -549,13 +554,15 @@
 	if(incapacitated())
 		return
 	if(!isnull(aiPDA))
-		var/zoom_head = user.client?.legacy_zoom_head("pda_log") || ""
-		var/HTML = "<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'><title>AI PDA Message Log</title>[zoom_head]</head><body>[aiPDA.tnote]</body></html>"
-		user << browse(HTML, "window=log;size=400x444;border=1;can_resize=1;can_close=1;can_minimize=0")
+		var/datum/computer_file/program/messenger/ai_messenger = locate() in aiPDA.stored_files
+		if(!ai_messenger)
+			to_chat(user, span_notice("Мессенджер недоступен."))
+			return
+		ai_messenger.ui_interact(user)
 	else
 		to_chat(user, "У вас нет PDA. Вам следует сделать донос о проблеме.")
 
-// ---- Borg PDA messaging (legacy Browser UI) ----
+// ---- Borg PDA messaging ----
 
 /mob/living/silicon/robot/proc/cmd_send_pdamesg(mob/user)
 	var/list/plist = list()
@@ -573,24 +580,31 @@
 	var/c = input(user, "Выберите PDA") as null|anything in sort_list(plist)
 	if(!c)
 		return
-	var/selected = plist[c]
+	var/obj/item/modular_computer/pda/selected = plist[c]
 
-	if(aicamera.stored.len)
-		var/add_photo = input(user, "Хотите приложить фото?", "Фотография", "Нет") as null|anything in list("Да", "Нет")
-		if(add_photo == "Да")
-			var/datum/picture/Pic = aicamera.selectpicture(user)
-			aiPDA.picture = Pic
+	var/message = tgui_input_text(user, "Введите сообщение", "PDA сообщение", max_length = 1024, encode = FALSE)
+	if(!message)
+		return
 
 	if(incapacitated())
 		return
-	aiPDA.create_message(src, selected)
+
+	var/datum/computer_file/program/messenger/borg_messenger = locate() in aiPDA.stored_files
+	var/datum/computer_file/program/messenger/target_messenger = locate() in selected.stored_files
+	if(!borg_messenger || !target_messenger)
+		to_chat(user, span_notice("Мессенджер недоступен."))
+		return
+
+	borg_messenger.send_message(user, message, list(target_messenger))
 
 /mob/living/silicon/robot/proc/cmd_show_message_log(mob/user)
 	if(incapacitated())
 		return
 	if(!isnull(aiPDA))
-		var/zoom_head = user.client?.legacy_zoom_head("pda_log") || ""
-		var/HTML = "<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'><title>AI PDA Message Log</title>[zoom_head]</head><body>[aiPDA.tnote]</body></html>"
-		user << browse(HTML, "window=log;size=400x444;border=1;can_resize=1;can_close=1;can_minimize=0")
+		var/datum/computer_file/program/messenger/borg_messenger = locate() in aiPDA.stored_files
+		if(!borg_messenger)
+			to_chat(user, span_notice("Мессенджер недоступен."))
+			return
+		borg_messenger.ui_interact(user)
 	else
 		to_chat(user, "У вас нет PDA. Вам следует сделать донос о проблеме.")

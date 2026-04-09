@@ -112,7 +112,7 @@
 	name = "Syndicate Captain"
 	jobtype = /datum/job/captain
 
-	//belt = /obj/item/modular_computer/pda/syndicate/no_deto
+	belt = /obj/item/modular_computer/pda/syndicate/no_deto
 
 	glasses = /obj/item/clothing/glasses/hud/security/sunglasses
 	ears = /obj/item/radio/headset/heads/captain/alt
