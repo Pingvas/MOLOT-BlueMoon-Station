@@ -189,6 +189,7 @@
 #include "code\__DEFINES\_flags\return_values.dm"
 #include "code\__DEFINES\_flags\shields.dm"
 #include "code\__DEFINES\admin\keybindings.dm"
+#include "code\__DEFINES\admin\spawn_panel.dm"
 #include "code\__DEFINES\ai\ai.dm"
 #include "code\__DEFINES\ai\ai_blackboard.dm"
 #include "code\__DEFINES\ai\carp.dm"
