@@ -205,20 +205,6 @@ export const Orbit = (props, context) => {
               <Button
                 inline
                 color="transparent"
-                tooltip="Переместиться на уровень вверх"
-                tooltipPosition="bottom-start"
-                icon="arrow-up"
-                onClick={() => act("zmove", { dir: "up" })} />
-              <Button
-                inline
-                color="transparent"
-                tooltip="Переместиться на уровень вниз"
-                tooltipPosition="bottom-start"
-                icon="arrow-down"
-                onClick={() => act("zmove", { dir: "down" })} />
-              <Button
-                inline
-                color="transparent"
                 tooltip="Refresh"
                 tooltipPosition="bottom-start"
                 icon="sync-alt"
