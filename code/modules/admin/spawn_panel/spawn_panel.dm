@@ -4,6 +4,7 @@
 	var/selected_icon = null // base64 of current atom icon, generated on selection
 	var/atom_amount = 1
 	var/atom_name = null
+	var/atom_desc = null
 	var/atom_dir = 2
 	var/list/offset
 	var/offset_type = OFFSET_RELATIVE
@@ -52,6 +53,7 @@
 		"where_target_type" = where_target_type,
 		"atom_amount" = atom_amount,
 		"atom_name" = atom_name,
+		"atom_desc" = atom_desc,
 		"atom_dir" = atom_dir,
 		"offset" = list(offset["X"], offset["Y"], offset["Z"]),
 		"offset_type" = offset_type,
@@ -69,6 +71,7 @@
 			selected_atom = params["newObj"]
 			selected_icon = null
 			atom_name = null
+			atom_desc = null
 			if(!selected_atom && precise_mode == PRECISE_MODE_TARGET)
 				toggle_precise_mode(PRECISE_MODE_OFF, ui.user)
 			if(selected_atom)
@@ -94,6 +97,8 @@
 				atom_amount = clamp(text2num(params["atom_amount"]) || 1, 1, ADMIN_SPAWN_CAP)
 			if(!isnull(params["atom_name"]))
 				atom_name = sanitize(params["atom_name"]) || null
+			if(!isnull(params["atom_desc"]))
+				atom_desc = sanitize(params["atom_desc"]) || null
 			if(!isnull(params["atom_dir"]))
 				atom_dir = text2num(params["atom_dir"])
 			if(!isnull(params["offset"]))
@@ -116,6 +121,8 @@
 				atom_amount = clamp(text2num(params["atom_amount"]) || 1, 1, ADMIN_SPAWN_CAP)
 			if(!isnull(params["atom_name"]))
 				atom_name = sanitize(params["atom_name"]) || null
+			if(!isnull(params["atom_desc"]))
+				atom_desc = sanitize(params["atom_desc"]) || null
 			if(!isnull(params["atom_dir"]))
 				atom_dir = text2num(params["atom_dir"])
 			if(!isnull(params["offset"]))
@@ -130,6 +137,7 @@
 				"type" = use_atom,
 				"amount" = atom_amount,
 				"atom_name" = atom_name,
+				"atom_desc" = atom_desc,
 				"atom_dir" = atom_dir,
 				"where" = where_target_type,
 				"offsetX" = offset["X"],
@@ -183,6 +191,7 @@
 				"type" = selected_atom,
 				"amount" = atom_amount,
 				"atom_name" = atom_name,
+				"atom_desc" = atom_desc,
 				"atom_dir" = atom_dir,
 				"where" = where_target_type,
 				"offsetX" = 0,

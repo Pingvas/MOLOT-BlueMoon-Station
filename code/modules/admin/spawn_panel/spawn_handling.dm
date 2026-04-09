@@ -12,6 +12,7 @@
 
 	var/amount = clamp(spawn_params["amount"] || 1, 1, ADMIN_SPAWN_CAP)
 	var/obj_name = spawn_params["atom_name"] ? sanitize(spawn_params["atom_name"]) : null
+	var/obj_desc = spawn_params["atom_desc"] ? sanitize(spawn_params["atom_desc"]) : null
 	var/obj_dir = text2num(spawn_params["atom_dir"])
 	if(obj_dir && !(obj_dir in list(1, 2, 4, 8, 5, 6, 9, 10)))
 		obj_dir = null
@@ -127,6 +128,8 @@
 					if(ismob(O))
 						var/mob/M = O
 						M.real_name = obj_name
+				if(obj_desc)
+					O.desc = obj_desc
 				if(where == WHERE_MOB_HAND && isliving(user) && isitem(O))
 					var/mob/living/L = user
 					var/obj/item/I = O
