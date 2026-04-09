@@ -127,7 +127,8 @@ export const CharacterDirectory = (props, context) => {
                     />
                   </LabeledList.Item>
                   <LabeledList.Item label="Изнасилование">
-                    <Tooltip content={personalNonconInherited ? 'Значение из настроек персонажа. Кликните, чтобы задать переопределение для библиотеки.' : 'Переопределено в библиотеке. Кликните, чтобы изменить или сбросить наследование.'} >
+                    <Tooltip content={personalNonconInherited ? 'Значение из настроек персонажа. Кликните, чтобы задать переопределение для библиотеки.' : 'Переопределено в библиотеке. Кликните, чтобы изменить или сбросить наследование.'}>
+
                       <PrefTagButton
                         value={personalNonconTag}
                         inherited={personalNonconInherited}
