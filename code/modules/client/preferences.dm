@@ -35,7 +35,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/directory_tag = "Unset" //Sorting tag to use in character directory
 	var/directory_erptag = "Unset"	//ditto, but for non-vore scenes
 	var/directory_gendertag = "Unset"	//Gender tag for character directory
-	var/directory_ad = ""		//Advertisement stuff to show in character directory.
+	var/directory_ad = ""		// Char directory ERP tag
+	var/directory_noncon = null	// Char directory Non-con tag
 
 	//Cooldowns for saving/loading. These are four are all separate due to loading code calling these one after another
 	COOLDOWN_DECLARE(saveprefcooldown)
@@ -5770,7 +5771,10 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 							hornyantagspref = "No"
 						if("No")
 							hornyantagspref = "Yes"
-//				if("stomppref") // What the fuck is this?
+				if("directory_erptag")
+					var/new_erp_pos = tgui_input_list(user, "Выберите ERP позицию персонажа для библиотеки", "ERP Позиция", GLOB.char_directory_erptags)
+					if(new_erp_pos)
+						directory_erptag = new_erp_pos
 //					stomppref = !stomppref
 				//Skyrat edit - *someone* offered me actual money for this shit
 				if("extremepref") //i hate myself for doing this
