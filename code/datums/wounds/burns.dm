@@ -629,8 +629,6 @@
 
 // BLUEMOON ADD START - обработка лечения для синтетических конечностей (ПРОВОДКА + НАНОГЕЛЬ)
 /datum/wound/burn/proc/treat_synthetic(obj/item/I, mob/user)
-	if(!check_armor_for_treatment(I, user))
-		return
 
 	// Основной метод: кабели для внешней проводки
 	if(istype(I, /obj/item/stack/cable_coil))

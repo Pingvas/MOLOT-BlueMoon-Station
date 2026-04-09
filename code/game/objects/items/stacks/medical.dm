@@ -74,9 +74,23 @@
 
 			if(!length(damaged_limbs))
 				if(carbon_patient.getBruteLoss_nonProsthetic() > 0 || carbon_patient.getFireLoss_nonProsthetic() > 0)
-					// Забытое пояснение
-					if(was_armored)
-						patient.balloon_alert(user, "[ru_parse_zone(original_zone)] закрыта [armor_is_spacesuit ? "скафандром" : "бронёй"]!")
+					if(ishuman(patient))
+						var/mob/living/carbon/human/H_bl = patient
+						var/list/blocked_suit_bl = list()
+						var/list/blocked_armor_bl = list()
+						for(var/obj/item/bodypart/bl_limb as anything in H_bl.bodyparts)
+							if(!bl_limb.get_damage() && !has_treatable_wounds_on(bl_limb))
+								continue
+							var/obj/item/clothing/bl_cover = get_bodypart_protecting_clothing_by_coverage(H_bl, bl_limb)
+							if(bl_cover && (bl_cover.clothing_flags & THICKMATERIAL))
+								if(istype(bl_cover, /obj/item/clothing/suit/space))
+									blocked_suit_bl += ru_parse_zone(bl_limb.body_zone)
+								else
+									blocked_armor_bl += ru_parse_zone(bl_limb.body_zone)
+						if(length(blocked_suit_bl))
+							patient.balloon_alert(user, "[blocked_suit_bl.Join(", ")] закрыт[length(blocked_suit_bl) > 1 ? "ы" : "а"] скафандром!")
+						else if(length(blocked_armor_bl))
+							patient.balloon_alert(user, "[blocked_armor_bl.Join(", ")] закрыт[length(blocked_armor_bl) > 1 ? "ы" : "а"] бронёй!")
 					return FALSE
 				patient.balloon_alert(user, "полностью здоров[patient.ru_a()]")
 				return FALSE
@@ -189,9 +203,9 @@
 						else
 							blocked_armor += ru_parse_zone(limb.body_zone)
 				if(length(blocked_spacesuit))
-					patient.balloon_alert(user, "[blocked_spacesuit.Join(", ")] [length(blocked_spacesuit) > 1 ? "закрыты" : "закрыт"] скафандром!")
+					patient.balloon_alert(user, "[blocked_spacesuit.Join(", ")] [length(blocked_spacesuit) > 1 ? "закрыты" : "закрыта"] скафандром!")
 				else if(length(blocked_armor))
-					patient.balloon_alert(user, "[blocked_armor.Join(", ")] [length(blocked_armor) > 1 ? "закрыты" : "закрыт"] бронёй!")
+					patient.balloon_alert(user, "[blocked_armor.Join(", ")] [length(blocked_armor) > 1 ? "закрыты" : "закрыта"] бронёй!")
 			return
 		patient.balloon_alert(user, "полностью вылечен[patient.ru_a()]")
 		return
@@ -220,7 +234,7 @@
 			var/obj/item/clothing/covering = get_bodypart_protecting_clothing_by_coverage(H, BP)
 			if(covering && (covering.clothing_flags & THICKMATERIAL) && istype(covering, /obj/item/clothing/suit/space))
 				if(!silent)
-					patient.balloon_alert(user, "[ru_parse_zone(healed_zone)] закрыт скафандром!")
+					patient.balloon_alert(user, "[ru_parse_zone(healed_zone)] закрыта скафандром!")
 				return FALSE
 		return patient.can_inject(user, !silent, healed_zone, TRUE)
 	return patient.can_inject(user, !silent, healed_zone)
