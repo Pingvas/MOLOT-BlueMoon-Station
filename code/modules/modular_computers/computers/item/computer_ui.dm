@@ -13,6 +13,10 @@
 			ui.close()
 		return
 
+	if(honkvirus_amount > 0)
+		honkvirus_amount--
+		playsound(src, 'sound/items/bikehorn.ogg', 30, TRUE)
+
 	// if(HAS_TRAIT(user, TRAIT_CHUNKYFINGERS))
 	// 	to_chat(user, span_warning("Your fingers are too big to use this right now!"))
 	// 	return
@@ -32,10 +36,10 @@
 
 	// We are still here, that means there is no program loaded. Load the BIOS/ROM/OS/whatever you want to call it.
 	// This screen simply lists available programs and user may select them.
-	var/obj/item/computer_hardware/hard_drive/hard_drive = all_components[MC_HDD]
-	if(!hard_drive || !hard_drive.stored_files || !hard_drive.stored_files.len)
+	var/list/files = get_all_files()
+	if(!length(files))
 		to_chat(user, span_danger("\The [src] beeps three times, it's screen displaying a \"DISK ERROR\" warning."))
-		return // No HDD, No HDD files list or no stored files. Something is very broken.
+		return // No HDD/stored files. Something is very broken.
 
 	ui = SStgui.try_update_ui(user, src, ui)
 	if (!ui)
@@ -78,8 +82,8 @@
 		data["removable_media"] += "secondary RFID card"
 
 	data["programs"] = list()
-	var/obj/item/computer_hardware/hard_drive/hard_drive = all_components[MC_HDD]
-	for(var/datum/computer_file/program/P in hard_drive.stored_files)
+	var/list/all_files = get_all_files()
+	for(var/datum/computer_file/program/P in all_files)
 		var/running = FALSE
 		if(P in idle_threads)
 			running = TRUE
@@ -98,7 +102,6 @@
 	if(.)
 		return
 
-	var/obj/item/computer_hardware/hard_drive/hard_drive = all_components[MC_HDD]
 	switch(action)
 		if("PC_exit")
 			kill_program()
@@ -108,7 +111,7 @@
 			return TRUE
 		if("PC_minimize")
 			var/mob/user = usr
-			if(!active_program || !all_components[MC_CPU])
+			if(!active_program)
 				return
 
 			idle_threads.Add(active_program)
@@ -121,10 +124,8 @@
 
 		if("PC_killprogram")
 			var/prog = params["name"]
-			var/datum/computer_file/program/P = null
+			var/datum/computer_file/program/P = find_file_by_name(prog)
 			var/mob/user = usr
-			if(hard_drive)
-				P = hard_drive.find_file_by_name(prog)
 
 			if(!istype(P) || P.program_state == PROGRAM_STATE_KILLED)
 				return
@@ -134,10 +135,8 @@
 
 		if("PC_runprogram")
 			var/prog = params["name"]
-			var/datum/computer_file/program/P = null
+			var/datum/computer_file/program/P = find_file_by_name(prog)
 			var/mob/user = usr
-			if(hard_drive)
-				P = hard_drive.find_file_by_name(prog)
 
 			if(!P || !istype(P)) // Program not found or it's not executable program.
 				to_chat(user, span_danger("\The [src]'s screen shows \"I/O ERROR - Unable to run program\" warning."))
@@ -158,8 +157,9 @@
 				return
 
 			var/obj/item/computer_hardware/processor_unit/PU = all_components[MC_CPU]
+			var/max_idle = PU ? PU.max_idle_programs : max_idle_programs
 
-			if(idle_threads.len > PU.max_idle_programs)
+			if(idle_threads.len > max_idle)
 				to_chat(user, span_danger("\The [src] displays a \"Maximal CPU load reached. Unable to run another program.\" error."))
 				return
 

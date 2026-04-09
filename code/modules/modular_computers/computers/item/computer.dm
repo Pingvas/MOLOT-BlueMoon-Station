@@ -53,6 +53,44 @@
 	var/comp_light_luminosity = 3 //The brightness of that light
 	var/comp_light_color //The color of that light
 
+	// === PDA/Direct storage support ===
+	// These vars allow PDA-type devices to store files directly on the computer
+	// without requiring hardware components (hard_drive, processor, etc.)
+
+	/// Direct file storage for PDA-type devices. Tablets use hard_drive hardware instead.
+	var/list/datum/computer_file/stored_files = list()
+	/// Maximum file storage capacity (used by PDAs)
+	var/max_capacity = 128
+	/// Maximum number of idle background programs
+	var/max_idle_programs = 2
+	/// Programs to install on Initialize (subtype-specific)
+	var/list/datum/computer_file/starting_programs = list()
+	/// Default programs installed on all devices of this type
+	var/static/list/datum/computer_file/default_programs = list(
+		/datum/computer_file/program/computerconfig,
+		/datum/computer_file/program/ntnetdownload,
+		/datum/computer_file/program/filemanager,
+	)
+
+	/// The icon file used for PDA overlays (id_overlay, light_overlay, etc.)
+	var/overlays_icon
+	/// Owner's displayed name (set when ID is inserted or by outfit code)
+	var/saved_identification
+	/// Owner's displayed job title
+	var/saved_job
+	/// The ID card stored directly in the computer (used by PDAs instead of card_slot hardware)
+	var/obj/item/card/id/stored_id
+	/// Inserted computer disk (virus carts, etc.)
+	var/obj/item/computer_disk/inserted_disk
+	/// Inserted pAI card
+	var/obj/item/paicard/inserted_pai
+	/// Whether this device has extended signal range
+	var/long_ranged = FALSE
+	/// Amount of paper stored in the device
+	var/stored_paper = 10
+	/// Remaining honk virus ticks
+	var/honkvirus_amount = 0
+
 
 /obj/item/modular_computer/Initialize(mapload)
 	. = ..()
@@ -63,6 +101,7 @@
 	idle_threads = list()
 	if(looping_sound)
 		soundloop = new(src, enabled)
+	install_default_programs()
 	update_appearance()
 
 /obj/item/modular_computer/Destroy()
@@ -181,8 +220,8 @@
 		return FALSE
 	obj_flags |= EMAGGED //Mostly for consistancy purposes; the programs will do their own emag handling
 	var/newemag = FALSE
-	var/obj/item/computer_hardware/hard_drive/drive = all_components[MC_HDD]
-	for(var/datum/computer_file/program/app in drive.stored_files)
+	var/list/all_files = get_all_files()
+	for(var/datum/computer_file/program/app in all_files)
 		if(!istype(app))
 			continue
 		if(app.run_emag())
@@ -240,7 +279,7 @@
 	if(recharger)
 		recharger.enabled = 1
 
-	if(all_components[MC_CPU] && use_power()) // use_power() checks if the PC is powered
+	if((all_components[MC_CPU] || length(stored_files)) && use_power()) // use_power() checks if the PC is powered. PDAs with stored_files don't need a CPU.
 		if(issynth)
 			to_chat(user, span_notice("You send an activation signal to \the [src], turning it on."))
 		else
@@ -520,6 +559,81 @@
 		id.attackby(W, user) // If we do, try and put that attacking object in
 		return
 	..()
+
+// =====================
+// Direct storage procs (used by PDA-type devices that don't use hard_drive hardware)
+// =====================
+
+/// Stores a file directly on the computer (bypasses hard_drive). Used by PDAs.
+/obj/item/modular_computer/proc/store_file(datum/computer_file/file_storing)
+	if(!file_storing)
+		return FALSE
+	stored_files += file_storing
+	if(istype(file_storing, /datum/computer_file/program))
+		var/datum/computer_file/program/prog = file_storing
+		prog.computer = src
+		prog.on_install()
+	SEND_SIGNAL(src, COMSIG_MODULAR_COMPUTER_FILE_STORE, file_storing)
+	SEND_SIGNAL(file_storing, COMSIG_COMPUTER_FILE_STORE, src)
+	return TRUE
+
+/// Removes a file from direct storage.
+/obj/item/modular_computer/proc/remove_file(datum/computer_file/file_removing)
+	if(!file_removing)
+		return FALSE
+	stored_files -= file_removing
+	SEND_SIGNAL(src, COMSIG_MODULAR_COMPUTER_FILE_DELETE, file_removing)
+	SEND_SIGNAL(file_removing, COMSIG_COMPUTER_FILE_DELETE)
+	return TRUE
+
+/// Installs default programs. Override in subtypes (e.g. PDA) for custom behavior.
+/obj/item/modular_computer/proc/install_default_programs()
+	return
+
+/// Returns the list of all program files on this computer (checks both direct storage and hard_drive).
+/obj/item/modular_computer/proc/get_all_files()
+	if(length(stored_files))
+		return stored_files
+	var/obj/item/computer_hardware/hard_drive/hard_drive = all_components[MC_HDD]
+	if(hard_drive)
+		return hard_drive.stored_files
+	return list()
+
+/// Finds a file by name across all storage.
+/obj/item/modular_computer/proc/find_file_by_name(filename)
+	for(var/datum/computer_file/file in get_all_files())
+		if(file.filename == filename)
+			return file
+	return null
+
+/// Finds a file by UID across all storage.
+/obj/item/modular_computer/proc/find_file_by_uid(uid)
+	for(var/datum/computer_file/file in get_all_files())
+		if(file.uid == uid)
+			return file
+	return null
+
+/// Plays a ringtone sound and shows balloon alerts.
+/obj/item/modular_computer/proc/ring(ringtone, list/balloon_alertees)
+	if(!ringtone)
+		return
+	playsound(src, 'sound/machines/twobeep_high.ogg', 50, TRUE)
+	for(var/mob/target as anything in balloon_alertees)
+		if(target)
+			target.balloon_alert(target, ringtone)
+
+/// Plays a sound to indicate a message was sent.
+/obj/item/modular_computer/proc/send_sound()
+	playsound(src, 'sound/machines/twobeep_high.ogg', 50, TRUE)
+
+/// Sets identification and job on this device (used when ID is scanned).
+/obj/item/modular_computer/proc/update_id_imprint(new_name, new_job)
+	saved_identification = new_name
+	saved_job = new_job
+	if(new_name || new_job)
+		SEND_SIGNAL(src, COMSIG_MODULAR_PDA_IMPRINT_UPDATED, new_name, new_job)
+	else
+		SEND_SIGNAL(src, COMSIG_MODULAR_PDA_IMPRINT_RESET)
 
 // Used by processor to relay qdel() to machinery type.
 /obj/item/modular_computer/proc/relay_qdel()

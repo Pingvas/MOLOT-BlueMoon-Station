@@ -2,19 +2,19 @@
 	name = "Generic Virus PDA cart"
 	var/charges = 5
 
-/obj/item/cartridge/virus/proc/send_virus(obj/item/pda/target, mob/living/U)
+/obj/item/cartridge/virus/proc/send_virus(obj/item/modular_computer/pda/target, mob/living/U)
 	return
 
 /obj/item/cartridge/virus/message_header()
 	return "<b>[charges] viral files left.</b><HR>"
 
-/obj/item/cartridge/virus/message_special(obj/item/pda/target)
-	if (!istype(loc, /obj/item/pda))
+/obj/item/cartridge/virus/message_special(target)
+	if (!istype(loc, /obj/item/modular_computer/pda))
 		return ""  //Sanity check, this shouldn't be possible.
 	return " (<a href='byond://?src=[REF(loc)];choice=cart;special=virus;target=[REF(target)]'>*Send Virus*</a>)"
 
 /obj/item/cartridge/virus/special(mob/living/user, list/params)
-	var/obj/item/pda/P = locate(params["target"])//Leaving it alone in case it may do something useful, I guess.
+	var/P = locate(params["target"])
 	send_virus(P,user)
 
 /obj/item/cartridge/virus/clown
@@ -23,7 +23,7 @@
 	desc = "A data cartridge for portable microcomputers. It smells vaguely of bananas."
 	access = CART_CLOWN
 
-/obj/item/cartridge/virus/clown/send_virus(obj/item/pda/target, mob/living/U)
+/obj/item/cartridge/virus/clown/send_virus(obj/item/modular_computer/pda/target, mob/living/U)
 	if(charges <= 0)
 		to_chat(U, "<span class='notice'>Out of charges.</span>")
 		return
@@ -39,7 +39,7 @@
 	icon_state = "cart-mi"
 	access = CART_MIME
 
-/obj/item/cartridge/virus/mime/send_virus(obj/item/pda/target, mob/living/U)
+/obj/item/cartridge/virus/mime/send_virus(obj/item/modular_computer/pda/target, mob/living/U)
 	if(charges <= 0)
 		to_chat(U, "<span class='notice'>Out of charges.</span>")
 		return
@@ -57,7 +57,7 @@
 	remote_door_id = "smindicate" //Make sure this matches the syndicate shuttle's shield/door id!!	//don't ask about the name, testing.
 	charges = 4
 
-/obj/item/cartridge/virus/syndicate/send_virus(obj/item/pda/target, mob/living/U)
+/obj/item/cartridge/virus/syndicate/send_virus(obj/item/modular_computer/pda/target, mob/living/U)
 	if(charges <= 0)
 		to_chat(U, "<span class='notice'>Out of charges.</span>")
 		return
@@ -87,7 +87,7 @@
 	icon_state = "cart-f"
 	var/telecrystals = 0
 
-/obj/item/cartridge/virus/frame/send_virus(obj/item/pda/target, mob/living/U)
+/obj/item/cartridge/virus/frame/send_virus(obj/item/modular_computer/pda/target, mob/living/U)
 	if(charges <= 0)
 		to_chat(U, "<span class='notice'>Out of charges.</span>")
 		return

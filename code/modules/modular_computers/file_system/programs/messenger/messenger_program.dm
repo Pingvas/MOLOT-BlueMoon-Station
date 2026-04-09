@@ -1,0 +1,653 @@
+/// Maximum PDA message length
+#define MAX_PDA_MESSAGE_LEN 1024
+/// Format of message timestamps
+#define PDA_MESSAGE_TIMESTAMP_FORMAT "hh:mm"
+
+/datum/computer_file/program/messenger
+	filename = "nt_messenger"
+	filedesc = "Direct Messenger"
+	category = PROGRAM_CATEGORY_DEVICE
+	program_icon_state = "text"
+	extended_desc = "This program allows old-school communication with other modular devices."
+	size = 0
+	undeletable = TRUE
+	usage_flags = PROGRAM_PDA
+	ui_header = "ntnrc_idle.gif"
+	tgui_id = "NtosMessenger"
+	program_icon = "comment-alt"
+	alert_able = TRUE
+
+	/// Whether the user is invisible to the message list.
+	var/invisible = FALSE
+	/// Cooldown to prevent spam
+	COOLDOWN_DECLARE(last_text)
+	/// Cooldown for everyone messages
+	COOLDOWN_DECLARE(last_text_everyone)
+	/// Whether this is a mime PDA (emoji only)
+	var/mime_mode = FALSE
+	/// Whether this app can send messages to all.
+	var/spam_mode = FALSE
+
+	/// Associative list of chats: chatref -> pda_chat
+	var/list/saved_chats = list()
+	/// Whose chatlogs we currently have open. Null = contacts list.
+	var/viewing_messages_of = null
+
+	/// The current ringtone
+	var/ringtone = MESSENGER_RINGTONE_DEFAULT
+	/// Whether sorting by job
+	var/sort_by_job = TRUE
+	/// Whether sending and receiving messages
+	var/sending_and_receiving = TRUE
+	/// Selected photo for sending
+	var/selected_image = null
+	/// Whether sending a virus
+	var/sending_virus = FALSE
+
+	detomatix_resistance = 0
+
+/datum/computer_file/program/messenger/on_install()
+	. = ..()
+	RegisterSignal(computer, COMSIG_MODULAR_COMPUTER_FILE_STORE, PROC_REF(check_new_photo))
+	RegisterSignal(computer, COMSIG_MODULAR_COMPUTER_FILE_DELETE, PROC_REF(check_photo_removed))
+	RegisterSignal(computer, COMSIG_MODULAR_PDA_IMPRINT_UPDATED, PROC_REF(on_imprint_added))
+	RegisterSignal(computer, COMSIG_MODULAR_PDA_IMPRINT_RESET, PROC_REF(on_imprint_reset))
+
+/datum/computer_file/program/messenger/proc/check_new_photo(sender, datum/computer_file/storing_file)
+	SIGNAL_HANDLER
+	return
+
+/datum/computer_file/program/messenger/proc/check_photo_removed(sender, datum/computer_file/photo_removed)
+	SIGNAL_HANDLER
+	return
+
+/datum/computer_file/program/messenger/proc/on_imprint_added(sender)
+	SIGNAL_HANDLER
+	add_messenger(src)
+
+/datum/computer_file/program/messenger/proc/on_imprint_reset(sender)
+	SIGNAL_HANDLER
+	remove_messenger(src)
+	saved_chats = list()
+	selected_image = null
+	viewing_messages_of = null
+
+/datum/computer_file/program/messenger/Destroy(force)
+	if(!QDELETED(computer))
+		UnregisterSignal(computer, list(
+			COMSIG_MODULAR_COMPUTER_FILE_STORE,
+			COMSIG_MODULAR_COMPUTER_FILE_DELETE,
+			COMSIG_MODULAR_PDA_IMPRINT_UPDATED,
+			COMSIG_MODULAR_PDA_IMPRINT_RESET,
+		))
+	remove_messenger(src)
+	return ..()
+
+/// Gets the list of available messengers
+/datum/computer_file/program/messenger/proc/get_messengers()
+	var/list/dictionary = list()
+
+	var/list/messengers_sorted = sort_by_job ? GLOB.pda_messengers_by_job : GLOB.pda_messengers_by_name
+
+	for(var/datum/computer_file/program/messenger/messenger as anything in messengers_sorted)
+		if(!istype(messenger) || !istype(messenger.computer))
+			continue
+		if(messenger == src || messenger.invisible)
+			continue
+
+		var/list/data = list()
+		data["name"] = messenger.computer.saved_identification
+		data["job"] = messenger.computer.saved_job
+		data["ref"] = REF(messenger)
+
+		dictionary[data["ref"]] = data
+
+	return dictionary
+
+/// Checks if the person can send an everyone message
+/datum/computer_file/program/messenger/proc/can_send_everyone_message()
+	return COOLDOWN_FINISHED(src, last_text) && COOLDOWN_FINISHED(src, last_text_everyone)
+
+/// Set the ringtone if possible. Also handles encoding.
+/datum/computer_file/program/messenger/proc/set_ringtone(new_ringtone, mob/user)
+	new_ringtone = trim(html_encode(new_ringtone), MESSENGER_RINGTONE_MAX_LENGTH)
+	if(!new_ringtone)
+		return FALSE
+
+	if(SEND_SIGNAL(computer, COMSIG_TABLET_CHANGE_ID, user, new_ringtone) & COMPONENT_STOP_RINGTONE_CHANGE)
+		return FALSE
+
+	ringtone = new_ringtone
+	return TRUE
+
+/datum/computer_file/program/messenger/ui_state(mob/user)
+	if(issilicon(user))
+		return GLOB.deep_inventory_state
+	return GLOB.default_state
+
+/datum/computer_file/program/messenger/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
+	. = ..()
+	switch(action)
+		if("PDA_ringSet")
+			var/mob/living/user = usr
+			var/new_ringtone = tgui_input_text(user, "Enter a new ringtone", "Ringtone", ringtone, max_length = MAX_MESSAGE_LEN, encode = FALSE)
+			if(!new_ringtone)
+				return FALSE
+			return set_ringtone(new_ringtone, user)
+
+		if("PDA_toggleAlerts")
+			alert_silenced = !alert_silenced
+			return TRUE
+
+		if("PDA_toggleSendingAndReceiving")
+			sending_and_receiving = !sending_and_receiving
+			return TRUE
+
+		if("PDA_viewMessages")
+			if(viewing_messages_of in saved_chats)
+				var/datum/pda_chat/chat = saved_chats[viewing_messages_of]
+				chat.unread_messages = 0
+
+			viewing_messages_of = params["ref"]
+
+			if(viewing_messages_of in saved_chats)
+				var/datum/pda_chat/chat = saved_chats[viewing_messages_of]
+				chat.visible_in_recents = TRUE
+
+			selected_image = null
+			return TRUE
+
+		if("PDA_closeMessages")
+			var/target = params["ref"]
+
+			if(!(target in saved_chats))
+				return FALSE
+
+			var/datum/pda_chat/chat = saved_chats[target]
+			chat.visible_in_recents = FALSE
+			if(viewing_messages_of == target)
+				viewing_messages_of = null
+			return TRUE
+
+		if("PDA_clearMessages")
+			var/chat_ref = params["ref"]
+
+			if(chat_ref in saved_chats)
+				saved_chats.Remove(chat_ref)
+			else if(isnull(chat_ref))
+				saved_chats = list()
+
+			viewing_messages_of = null
+			return TRUE
+
+		if("PDA_changeSortStyle")
+			sort_by_job = !sort_by_job
+			return TRUE
+
+		if("PDA_sendEveryone")
+			if(!sending_and_receiving)
+				to_chat(usr, span_notice("ERROR: This device has sending disabled."))
+				return FALSE
+
+			if(!spam_mode)
+				to_chat(usr, span_notice("ERROR: This device does not have mass-messaging perms."))
+				return FALSE
+
+			if(!can_send_everyone_message())
+				return FALSE
+
+			return send_message_to_all(usr, params["message"])
+
+		if("PDA_saveMessageDraft")
+			var/target_chat_ref = params["ref"]
+			var/message_draft = params["message"]
+
+			if(!(target_chat_ref in saved_chats))
+				return FALSE
+
+			var/datum/pda_chat/chat = saved_chats[target_chat_ref]
+			chat.message_draft = message_draft
+			return TRUE
+
+		if("PDA_clearUnreads")
+			var/target_chat_ref = params["ref"]
+
+			if(!(target_chat_ref in saved_chats))
+				return FALSE
+
+			var/datum/pda_chat/chat = saved_chats[target_chat_ref]
+			chat.unread_messages = 0
+			return TRUE
+
+		if("PDA_sendMessage")
+			if(!sending_and_receiving)
+				to_chat(usr, span_notice("ERROR: This device has sending disabled."))
+				return FALSE
+
+			var/target_ref = params["ref"]
+			var/target = null
+
+			if(target_ref in saved_chats)
+				target = saved_chats[target_ref]
+			else if(target_ref in GLOB.pda_messengers)
+				target = GLOB.pda_messengers[target_ref]
+			else
+				return FALSE
+
+			if(sending_virus)
+				var/obj/item/computer_disk/virus/disk = computer.inserted_disk
+				if(!istype(disk))
+					return FALSE
+
+				var/datum/computer_file/program/messenger/target_messenger = null
+
+				if(istype(target, /datum/pda_chat))
+					var/datum/pda_chat/target_chat = target
+					target_messenger = target_chat.recipient?.resolve()
+					if(!istype(target_messenger))
+						to_chat(usr, span_notice("ERROR: Recipient no longer exists."))
+						return FALSE
+				else if(istype(target, /datum/computer_file/program/messenger))
+					target_messenger = target
+
+				return disk.send_virus(computer, target_messenger.computer, usr, params["message"])
+
+			return send_message(usr, params["message"], list(target))
+
+		if("PDA_clearPhoto")
+			selected_image = null
+			return TRUE
+
+		if("PDA_toggleVirus")
+			sending_virus = !sending_virus
+			return TRUE
+
+/datum/computer_file/program/messenger/ui_static_data(mob/user)
+	var/list/static_data = list()
+	static_data["can_spam"] = spam_mode
+	static_data["is_silicon"] = issilicon(user)
+	static_data["remote_silicon"] = (isAI(user) || iscyborg(user)) && !istype(computer, /obj/item/modular_computer/pda/silicon)
+	static_data["alert_able"] = alert_able
+	return static_data
+
+/datum/computer_file/program/messenger/ui_data(mob/user)
+	var/list/data = list()
+
+	var/list/chats_data = list()
+	for(var/chat_ref in saved_chats)
+		var/datum/pda_chat/chat = saved_chats[chat_ref]
+		var/list/chat_data = chat.get_ui_data(user)
+		chats_data[chat_ref] = chat_data
+
+	var/list/messengers = get_messengers()
+
+	data["owner"] = ((REF(src) in GLOB.pda_messengers) ? list(
+			"name" = computer.saved_identification,
+			"job" = computer.saved_job,
+			"ref" = REF(src)
+		) : null)
+	data["saved_chats"] = chats_data
+	data["messengers"] = messengers
+	data["sort_by_job"] = sort_by_job
+	data["alert_silenced"] = alert_silenced
+	data["sending_and_receiving"] = sending_and_receiving
+	data["open_chat"] = viewing_messages_of
+
+	data["stored_photos"] = list()
+	data["selected_photo_path"] = null
+	data["on_spam_cooldown"] = !can_send_everyone_message()
+
+	var/obj/item/computer_disk/virus/disk = computer.inserted_disk
+	if(istype(disk))
+		data["virus_attach"] = TRUE
+		data["sending_virus"] = sending_virus
+	return data
+
+/datum/computer_file/program/messenger/ui_assets(mob/user)
+	return ..()
+
+//////////////////////
+// MESSAGE HANDLING //
+//////////////////////
+
+/// Brings up the quick reply prompt from chat
+/datum/computer_file/program/messenger/proc/quick_reply_prompt(mob/living/user, datum/pda_chat/chat)
+	if(!istype(chat))
+		return
+	var/datum/computer_file/program/messenger/target = chat.recipient?.resolve()
+	if(!istype(target) || !istype(target.computer))
+		to_chat(user, span_notice("ERROR: Recipient no longer exists."))
+		chat.recipient = null
+		chat.can_reply = FALSE
+		return
+	var/target_name = target.computer.saved_identification
+	var/input_message = tgui_input_text(user, "Enter [mime_mode ? "emojis":"a message"].", "NT Messaging[target_name ? " ([target_name])" : ""]", max_length = MAX_MESSAGE_LEN, encode = FALSE)
+	send_message(user, input_message, list(chat))
+
+/// Helper that sends a message to everyone
+/datum/computer_file/program/messenger/proc/send_message_to_all(mob/living/user, message)
+	var/list/datum/pda_chat/chats = list()
+	var/list/messenger_targets = list()
+
+	for(var/mc in get_messengers())
+		messenger_targets += mc
+
+	for(var/chatref in saved_chats)
+		var/datum/pda_chat/chat = saved_chats[chatref]
+		if(!(chat.recipient?.reference in messenger_targets))
+			continue
+		messenger_targets -= chat.recipient.reference
+		chats += chat
+
+	for(var/missing_messenger in messenger_targets)
+		var/datum/pda_chat/new_chat = create_chat(missing_messenger)
+		chats += new_chat
+
+	if(send_message(user, message, chats, everyone = TRUE))
+		COOLDOWN_START(src, last_text_everyone, 2 MINUTES)
+
+/// Creates a chat and adds it to saved_chats. Returns the new chat.
+/datum/computer_file/program/messenger/proc/create_chat(recipient_ref, name, job)
+	var/datum/computer_file/program/messenger/recipient = null
+
+	if(isnull(name) && isnull(job))
+		if(!(recipient_ref in GLOB.pda_messengers))
+			return null
+		recipient = GLOB.pda_messengers[recipient_ref]
+
+	var/datum/pda_chat/new_chat = new(recipient)
+
+	// Fake user (automated or forged message)
+	if(!istype(recipient))
+		new_chat.cached_name = name
+		new_chat.cached_job = job
+		new_chat.can_reply = FALSE
+
+	saved_chats[REF(new_chat)] = new_chat
+	return new_chat
+
+/// Gets the chat by the recipient
+/datum/computer_file/program/messenger/proc/find_chat_by_recipient(recipient, fake_user = FALSE)
+	for(var/chat_ref in saved_chats)
+		var/datum/pda_chat/chat = saved_chats[chat_ref]
+		if(fake_user && chat.cached_name == recipient)
+			return chat
+		else if(chat.recipient?.reference == recipient)
+			return chat
+	return null
+
+/// Sanitizes a PDA message
+/datum/computer_file/program/messenger/proc/sanitize_pda_message(message, mob/sender)
+	message = sanitize(trim(message, MAX_PDA_MESSAGE_LEN))
+
+	if(mime_mode)
+		message = emoji_sanitize(message)
+
+	return emoji_parse(message)
+
+/// Sends a message to targets via PDA
+/datum/computer_file/program/messenger/proc/send_message(atom/source, message, list/targets, everyone = FALSE)
+	var/mob/living/sender
+	if(isliving(source))
+		sender = source
+	message = sanitize_pda_message(message, sender)
+	if(!message)
+		return FALSE
+
+	// Filter targets
+	var/list/datum/computer_file/program/messenger/target_messengers = list()
+	var/list/datum/pda_chat/target_chats = list()
+
+	var/should_alert = length(targets) == 1 && sender
+
+	for(var/target in targets)
+		var/datum/pda_chat/target_chat = null
+		var/datum/computer_file/program/messenger/target_messenger = null
+
+		if(istype(target, /datum/pda_chat))
+			target_chat = target
+
+			if(!target_chat.can_reply)
+				if(should_alert)
+					to_chat(sender, span_notice("ERROR: Recipient has receiving disabled."))
+				continue
+
+			target_messenger = target_chat.recipient?.resolve()
+
+			if(!istype(target_messenger))
+				if(should_alert)
+					to_chat(sender, span_notice("ERROR: Recipient no longer exists."))
+				target_chat.can_reply = FALSE
+				target_chat.recipient = null
+				continue
+
+			if(!target_messenger.sending_and_receiving)
+				if(should_alert)
+					to_chat(sender, span_notice("ERROR: Recipient has receiving disabled."))
+				continue
+
+		else if(istype(target, /datum/computer_file/program/messenger))
+			target_messenger = target
+
+			if(!target_messenger.sending_and_receiving)
+				if(should_alert)
+					to_chat(sender, span_notice("ERROR: Recipient has receiving disabled."))
+				continue
+
+			target_chat = find_chat_by_recipient(REF(target))
+
+			if(!istype(target_chat))
+				target_chat = create_chat(REF(target))
+
+		else
+			continue
+
+		target_chats += target_chat
+		target_messengers += target_messenger
+
+	if(!send_message_signal(source, message, target_messengers, null, everyone))
+		return FALSE
+
+	// Log in our chat
+	var/datum/pda_message/message_datum = new(message, TRUE, STATION_TIME_TIMESTAMP(PDA_MESSAGE_TIMESTAMP_FORMAT, world.time), null, everyone)
+	for(var/datum/pda_chat/target_chat as anything in target_chats)
+		target_chat.add_message(message_datum, show_in_recents = !everyone)
+		target_chat.unread_messages = 0
+
+	// Switch chat screen after sending
+	if(!everyone)
+		viewing_messages_of = REF(target_chats[1])
+
+	return TRUE
+
+/// Sends a rigged message that explodes when the recipient tries to reply
+/datum/computer_file/program/messenger/proc/send_rigged_message(mob/sender, message, list/datum/computer_file/program/messenger/targets, fake_name, fake_job)
+	message = sanitize_pda_message(message, sender)
+	if(!message)
+		return FALSE
+	return send_message_signal(sender, message, targets, null, FALSE, TRUE, fake_name, fake_job)
+
+/datum/computer_file/program/messenger/proc/send_message_signal(atom/source, message, list/datum/computer_file/program/messenger/targets, photo_path = null, everyone = FALSE, rigged = FALSE, fake_name = null, fake_job = null)
+	var/mob/sender
+	if(ismob(source))
+		sender = source
+		if(!sender.canUseTopic(computer, BE_CLOSE, check_resting = TRUE))
+			return FALSE
+
+	if(!COOLDOWN_FINISHED(src, last_text))
+		return FALSE
+
+	if(!length(targets))
+		return FALSE
+
+	// Check for jammers
+	if(is_within_radio_jammer_range(computer) && !rigged)
+		if(sender)
+			to_chat(sender, span_notice("ERROR: Network unavailable, please try again later."))
+		if(alert_able && !alert_silenced)
+			playsound(computer, 'sound/machines/terminal_error.ogg', 15, TRUE)
+		return FALSE
+
+	// Build the signal
+	var/list/stringified_targets = list()
+	for(var/datum/computer_file/program/messenger/messenger as anything in targets)
+		stringified_targets += get_messenger_name(messenger)
+
+	var/datum/signal/subspace/messaging/tablet_message/signal = new(computer, list(
+		"ref" = REF(src),
+		"message" = message,
+		"targets" = targets,
+		"rigged" = rigged,
+		"everyone" = everyone,
+		"photo" = photo_path,
+		"automated" = FALSE,
+	))
+	if(rigged)
+		signal.data["fakename"] = fake_name
+		signal.data["fakejob"] = fake_job
+		signal.server_type = /obj/machinery/telecomms/hub
+		signal.data["reject"] = FALSE
+
+	signal.send_to_receivers()
+
+	// If it didn't reach
+	if(!signal.data["done"])
+		if(sender)
+			to_chat(sender, span_notice("ERROR: Server is not responding."))
+		if(alert_able && !alert_silenced)
+			playsound(computer, 'sound/machines/terminal_error.ogg', 15, TRUE)
+		return FALSE
+
+	var/shell_addendum = ""
+
+	// Log in the talk log
+	source.log_talk(message, LOG_PDA, tag="[shell_addendum][rigged ? "Rigged" : ""] PDA: [computer.saved_identification] to [signal.format_target()]")
+	if(rigged)
+		var/log_text = "[key_name(sender)] sent a rigged PDA message (Name: [fake_name]. Job: [fake_job]) to [english_list(stringified_targets)] [sender.mind?.special_role ? "" : "(SENT BY NON-ANTAG)"]"
+		log_game(log_text)
+		message_admins(log_text)
+
+	// Show to ghosts
+	var/ghost_message = span_notice("[span_name(signal.format_sender())] [rigged ? "(as [span_name(fake_name)]) Rigged " : ""]PDA Message --> [span_name("[signal.format_target()]")]: \"[signal.format_message()]\"")
+	var/list/message_listeners = GLOB.dead_mob_list + GLOB.current_observers_list
+	for(var/mob/listener as anything in message_listeners)
+		if(!(get_chat_toggles(listener) & CHAT_GHOSTPDA))
+			continue
+		to_chat(listener, "[FOLLOW_LINK(listener, source)] [ghost_message]")
+
+	if(sender)
+		to_chat(sender, span_info("PDA message sent to [signal.format_target()]: \"[message]\""))
+
+	if(alert_able && !alert_silenced)
+		computer.send_sound()
+
+	COOLDOWN_START(src, last_text, 1 SECONDS)
+
+	SEND_SIGNAL(computer, COMSIG_MODULAR_PDA_MESSAGE_SENT, source, signal)
+
+	selected_image = null
+	return TRUE
+
+/datum/computer_file/program/messenger/proc/receive_message(datum/signal/subspace/messaging/tablet_message/signal)
+	var/datum/pda_chat/chat = null
+
+	var/is_rigged = signal.data["rigged"]
+	var/is_automated = signal.data["automated"]
+	var/is_fake_user = is_rigged || is_automated || isnull(signal.data["ref"])
+	var/fake_name = is_fake_user ? signal.data["fakename"] : null
+	var/fake_job = is_fake_user ? signal.data["fakejob"] : null
+
+	var/sender_ref = signal.data["ref"]
+
+	// Don't create a new chat for rigged messages
+	if(!is_rigged)
+		var/datum/pda_message/message = new(signal.data["message"], FALSE, STATION_TIME_TIMESTAMP(PDA_MESSAGE_TIMESTAMP_FORMAT, world.time), signal.data["photo"], signal.data["everyone"])
+
+		chat = find_chat_by_recipient(is_fake_user ? fake_name : sender_ref, is_fake_user)
+		if(!istype(chat))
+			chat = create_chat(!is_fake_user ? sender_ref : null, fake_name, fake_job)
+		chat.add_message(message)
+		chat.unread_messages++
+
+		// Update view if currently viewing sender's chat
+		if(!isnull(viewing_messages_of) && viewing_messages_of == sender_ref)
+			viewing_messages_of = REF(chat)
+
+	var/list/mob/living/receivers = list()
+	if(computer.inserted_pai && computer.inserted_pai.pai)
+		receivers += computer.inserted_pai.pai
+	if(computer.loc && isliving(computer.loc))
+		receivers += computer.loc
+
+	var/datum/computer_file/program/messenger/sender_messenger = chat?.recipient?.resolve()
+
+	var/sender_title = is_fake_user ? STRINGIFY_PDA_TARGET(fake_name, fake_job) : get_messenger_name(sender_messenger)
+	var/sender_name = is_fake_user ? fake_name : sender_messenger?.computer?.saved_identification
+
+	SEND_SIGNAL(computer, COMSIG_MODULAR_PDA_MESSAGE_RECEIVED, signal, fake_job || sender_messenger?.computer?.saved_job, sender_name)
+
+	for(var/mob/living/messaged_mob as anything in receivers)
+		if(messaged_mob.stat >= UNCONSCIOUS)
+			continue
+		if(!messaged_mob.is_literate())
+			continue
+		var/reply_href = signal.data["rigged"] ? "explode" : "message"
+		var/reply
+		if(is_automated)
+			reply = "\[Automated Message\]"
+		else
+			reply = "(<a href='byond://?src=[REF(src)];choice=[reply_href];skiprefresh=1;target=[REF(chat)]'>Reply</a>)"
+
+		if(isAI(messaged_mob))
+			sender_title = "<a href='byond://?src=[REF(messaged_mob)];track=[html_encode(sender_name)]'>[sender_title]</a>"
+
+		var/inbound_message = "[signal.format_message()]"
+
+		to_chat(messaged_mob, span_info("[icon2html(computer, messaged_mob)] <b>PDA message from [sender_title], </b>\"[inbound_message]\" [reply]"))
+
+		SEND_SIGNAL(computer, COMSIG_COMPUTER_RECEIVED_MESSAGE, sender_title, inbound_message)
+
+	if(alert_able && (!alert_silenced || is_rigged))
+		computer.ring(ringtone, receivers)
+
+	SStgui.update_uis(computer)
+
+
+/// Topic handler for reply links in chat
+/datum/computer_file/program/messenger/Topic(href, href_list)
+	..()
+
+	if(QDELETED(src))
+		return
+	if(!usr.canUseTopic(computer, BE_CLOSE, no_tk = TRUE, check_resting = TRUE))
+		return
+
+	// Ensure computer is on
+	if(!computer.enabled)
+		computer.turn_on(usr)
+		if(!computer.enabled)
+			return
+
+	var/target_href = href_list["target"]
+
+	switch(href_list["choice"])
+		if("message")
+			if(!(target_href in saved_chats))
+				return
+			quick_reply_prompt(usr, saved_chats[target_href])
+
+		if("explode")
+			if(!HAS_TRAIT(computer, TRAIT_PDA_CAN_EXPLODE))
+				return
+			var/obj/item/modular_computer/pda/comp = computer
+			if(istype(comp))
+				comp.explode(usr, from_message_menu = TRUE)
+
+/datum/computer_file/program/messenger/proc/compare_name(datum/computer_file/program/messenger/rhs)
+	return sorttext(rhs.computer?.saved_identification, computer?.saved_identification)
+
+/datum/computer_file/program/messenger/proc/compare_job(datum/computer_file/program/messenger/rhs)
+	return sorttext(rhs.computer?.saved_job, computer?.saved_job)
+
+#undef PDA_MESSAGE_TIMESTAMP_FORMAT
+#undef MAX_PDA_MESSAGE_LEN

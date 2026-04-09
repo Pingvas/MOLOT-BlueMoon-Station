@@ -61,7 +61,7 @@
 				// Активируем наклейку
 				if(wrap(id_card, my_owner, silent = TRUE, force = TRUE))
 					// Обновляем ПДА
-					var/obj/item/pda/PDA = locate(/obj/item/pda) in my_owner.contents
+					var/obj/item/modular_computer/pda/PDA = locate(/obj/item/modular_computer/pda) in my_owner.contents
 					if(istype(PDA))
 						PDA.ownjob = id_card.get_assignment_name()
 						PDA.update_label()

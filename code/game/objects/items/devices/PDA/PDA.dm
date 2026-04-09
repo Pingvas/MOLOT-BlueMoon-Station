@@ -1,6 +1,6 @@
 //The advanced pea-green monochrome lcd of tomorrow.
 
-GLOBAL_LIST_EMPTY(PDAs)
+// GLOB.PDAs moved to code/_globalvars/lists/objects.dm
 
 // Ассоциативный список рингтонов и их звуковых файлов
 GLOBAL_LIST_INIT(pda_ringtones, list(
@@ -1414,10 +1414,17 @@ GLOBAL_LIST_INIT(pda_ringtone_list, list(
 /proc/get_viewable_pdas()
 	. = list()
 	// Returns a list of PDAs which can be viewed from another PDA/message monitor.
-	for(var/obj/item/pda/P in GLOB.PDAs)
-		if(!P.owner || P.toff || P.hidden)
-			continue
-		. += P
+	for(var/obj/item/P in GLOB.PDAs)
+		if(istype(P, /obj/item/modular_computer/pda))
+			var/obj/item/modular_computer/pda/MP = P
+			if(!MP.owner || MP.toff || MP.hidden)
+				continue
+			. += MP
+		else if(istype(P, /obj/item/pda))
+			var/obj/item/pda/LP = P
+			if(!LP.owner || LP.toff || LP.hidden)
+				continue
+			. += LP
 
 //borg pda stuff
 /mob/living/silicon/robot/proc/cmd_send_pdamesg(mob/user)

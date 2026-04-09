@@ -43,6 +43,8 @@
 	var/alert_silenced = FALSE
 	/// Whether to highlight our program in the main screen. Intended for alerts, but loosely available for any need to notify of changed conditions. Think Windows task bar highlighting. Available even if alerts are muted.
 	var/alert_pending = FALSE
+	/// How resistant this program is to the detomatix virus. Higher = harder to bomb.
+	var/detomatix_resistance = 0
 
 /datum/computer_file/program/New(obj/item/modular_computer/comp = null)
 	..()
@@ -52,6 +54,10 @@
 /datum/computer_file/program/Destroy()
 	computer = null
 	. = ..()
+
+/// Called when the program is installed on a computer (via store_file). Override for setup logic.
+/datum/computer_file/program/proc/on_install()
+	return
 
 /datum/computer_file/program/clone()
 	var/datum/computer_file/program/temp = ..()

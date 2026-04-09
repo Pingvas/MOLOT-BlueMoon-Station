@@ -74,7 +74,7 @@
 	jobtype = /datum/job/cmo
 
 	id = /obj/item/card/id/silver
-	belt = /obj/item/pda/heads/cmo
+	belt = /obj/item/modular_computer/pda/heads/cmo
 	l_pocket = /obj/item/pinpointer/crew
 	ears = /obj/item/radio/headset/heads/cmo
 	glasses = /obj/item/clothing/glasses/hud/health/sunglasses
@@ -98,7 +98,7 @@
 	name = "Syndicate Chief Medical Officer"
 	jobtype = /datum/job/cmo
 
-	//belt = /obj/item/pda/syndicate/no_deto
+	//belt = /obj/item/modular_computer/pda/syndicate/no_deto
 
 	l_pocket = /obj/item/pinpointer/crew
 	ears = /obj/item/radio/headset/heads/cmo

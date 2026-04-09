@@ -43,7 +43,7 @@
 	name = "Peacekeeper"
 	jobtype = /datum/job/peacekeeper
 
-	belt = /obj/item/pda/security
+	belt = /obj/item/modular_computer/pda/security
 	ears = /obj/item/radio/headset/headset_sec/alt
 	glasses = /obj/item/clothing/glasses/hud/security/sunglasses
 	uniform = /obj/item/clothing/under/rank/security/officer/peacekeeper
@@ -68,7 +68,7 @@
 	name = "Syndicate Peacekeeper"
 	jobtype = /datum/job/peacekeeper
 
-	//belt = /obj/item/pda/syndicate/no_deto
+	//belt = /obj/item/modular_computer/pda/syndicate/no_deto
 
 	ears = /obj/item/radio/headset/headset_sec/alt
 	glasses = /obj/item/clothing/glasses/hud/security/sunglasses
@@ -92,7 +92,7 @@
 /datum/outfit/plasmaman/peacekeeper
 	name = "Peacekeeper Plasmaman"
 
-	belt = /obj/item/pda/security
+	belt = /obj/item/modular_computer/pda/security
 	ears = /obj/item/radio/headset/headset_sec/alt
 	glasses = /obj/item/clothing/glasses/hud/security/sunglasses
 	head = /obj/item/clothing/head/helmet/space/plasmaman/security
