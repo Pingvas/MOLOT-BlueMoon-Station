@@ -14931,6 +14931,10 @@
 	c_tag = "Bridge East";
 	dir = 8
 	},
+/obj/structure/safe/spare_id{
+	pixel_x = 0;
+	pixel_y = 33
+	},
 /turf/open/floor/mineral/plastitanium,
 /area/command/bridge)
 "aVs" = (
@@ -20834,7 +20838,6 @@
 	dir = 1
 	},
 /obj/structure/dresser,
-/obj/item/card/id/captains_spare,
 /turf/open/floor/carpet,
 /area/command/heads_quarters/captain)
 "bmA" = (
@@ -51866,12 +51869,9 @@
 	spawnwithmagazine = 0;
 	pin = /obj/item/firing_pin/implant/mindshield
 	},
-/obj/item/gun/energy/laser/carbine{
-	pin = /obj/item/firing_pin/implant/mindshield
-	},
-/obj/item/gun/energy/laser/carbine{
-	pin = /obj/item/firing_pin/implant/mindshield
-	},
+/obj/item/gun/energy/modular_laser_rifle/carbine,
+/obj/item/gun/energy/modular_laser_rifle/carbine,
+/obj/item/gun/energy/modular_laser_rifle/carbine,
 /obj/item/storage/firstaid,
 /obj/item/storage/firstaid/brute,
 /obj/item/storage/firstaid/toxin,
@@ -54243,8 +54243,7 @@
 /turf/open/floor/mineral/plastitanium,
 /area/service/bar)
 "joJ" = (
-/obj/machinery/suit_storage_unit/open,
-/obj/item/mod/control/pre_equipped/corporate,
+/obj/machinery/suit_storage_unit/corporate,
 /turf/open/floor/mineral/plastitanium,
 /area/command/heads_quarters/ntr)
 "joX" = (
@@ -55911,6 +55910,20 @@
 /obj/machinery/atmospherics/pipe/simple/scrubbers/hidden/layer3,
 /turf/open/floor/mineral/plastitanium,
 /area/commons/storage/tools)
+"kwd" = (
+/obj/effect/turf_decal/tile/red{
+	dir = 1
+	},
+/obj/effect/turf_decal/tile/red{
+	dir = 4
+	},
+/obj/effect/turf_decal/tile/red{
+	dir = 8
+	},
+/obj/effect/turf_decal/tile/red,
+/obj/machinery/computer/brig_assistant_console,
+/turf/open/floor/mineral/plastitanium,
+/area/hallway/primary/fore)
 "kwz" = (
 /obj/machinery/atmospherics/pipe/manifold/scrubbers/hidden/layer3,
 /obj/machinery/atmospherics/pipe/manifold/supply/hidden/layer1,
@@ -103749,7 +103762,7 @@ vyK
 amI
 amS
 alv
-aqE
+kwd
 anS
 aoy
 apj

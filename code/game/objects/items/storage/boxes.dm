@@ -210,23 +210,25 @@
 /obj/item/storage/box/survival/centcom
 	name = "Extended-Capacity Survival Box"
 	icon_state = "ghostcostuming"
-	mask_type = /obj/item/clothing/mask/gas/sechailer
+	mask_type = /obj/item/clothing/mask/gas/sechailer/swat
 	internal_type = /obj/item/tank/internals/emergency_oxygen/double
 	medipen_type = /obj/item/reagent_containers/hypospray/medipen/atropine
 
 /obj/item/storage/box/survival/centcom/ComponentInitialize()
 	. = ..()
 	var/datum/component/storage/STR = GetComponent(/datum/component/storage)
-	STR.max_items = 9
+	STR.max_items = 10
+	STR.storage_flags = STORAGE_FLAGS_LEGACY_DEFAULT
 
 /obj/item/storage/box/survival/centcom/PopulateContents()
 	..() // we want the regular stuff too
 	new /obj/item/crowbar/power(src)
 	new /obj/item/melee/classic_baton/telescopic/centcom(src)
-	new /obj/item/radio/off(src)
+	new /obj/item/inducer/syndicate(src)
 	new /obj/item/extinguisher/mini(src)
 	new /obj/item/flashlight/flare(src)
 	new /obj/item/hypospray/mkii/CMO/combat/synthflesh(src)
+	new /obj/item/pinpointer/nuke(src)
 
 /obj/item/storage/box/survival/centcom_max/PopulateContents()
 	..() // we want the regular stuff too
@@ -302,7 +304,7 @@
 /obj/item/storage/box/ammo
 	name = "box of ammo"
 	desc = "Contains some extra ammo"
-	var/ammo = /obj/item/ammo_box/magazine/smgm9mm/ap
+	var/ammo = /obj/item/ammo_box/magazine/smgm9mm
 
 /obj/item/storage/box/ammo/smgap
 	name = "box of SMG ammo"
@@ -326,7 +328,7 @@
 
 /obj/item/storage/box/ammo/PopulateContents()
 	..()
-	for(var/i in 1 to 5)
+	for(var/i in 1 to 7)
 		new ammo(src)
 
 /obj/item/storage/box/seclooking
