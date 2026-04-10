@@ -4,7 +4,7 @@
 	trait_type = STATION_TRAIT_NEUTRAL
 	weight = 2
 	show_in_report = TRUE
-	report_message = "Корпорация Нанотрейзен поздравляет Сотрудника с днём рождения"
+	report_message = "Пакт поздравляет Сотрудника с днём рождения"
 	trait_to_give = STATION_TRAIT_BIRTHDAY
 	blacklist = list(/datum/station_trait/announcement_intern, /datum/station_trait/announcement_medbot) //Переопределение диктора скрывает имя именинника в сообщении.
 	/// Ссылка на именинника
@@ -52,8 +52,8 @@
 		return FALSE
 
 /datum/station_trait/birthday/proc/announce_birthday()
-	report_message = "Нанотрейзен поздравляет [birthday_person ? birthday_person_name : "Сотрудника"] с днём рождения!"
-	priority_announce("С днём рождения, [birthday_person ? birthday_person_name : "Сотрудник"]! Нанотрейзен желает тебе счастливого [birthday_person ? thtotext(birthday_person.age + 1) : "255-го"] дня рождения.")
+	report_message = "Пакт поздравляет [birthday_person ? birthday_person_name : "Сотрудника"] с днём рождения!"
+	priority_announce("С днём рождения, [birthday_person ? birthday_person_name : "Сотрудник"]! Пакт желает тебе счастливого [birthday_person ? thtotext(birthday_person.age + 1) : "255-го"] дня рождения.")
 	if(birthday_person)
 		playsound(birthday_person, 'sound/items/party_horn.ogg', 80)
 		SEND_SIGNAL(birthday_person, COMSIG_ADD_MOOD_EVENT, "birthday", /datum/mood_event/birthday)
