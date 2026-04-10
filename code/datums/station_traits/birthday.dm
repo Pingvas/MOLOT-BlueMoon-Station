@@ -59,6 +59,20 @@
 		SEND_SIGNAL(birthday_person, COMSIG_ADD_MOOD_EVENT, "birthday", /datum/mood_event/birthday)
 		birthday_person = null
 
+/// Переназначить именинника в любой момент раунда.
+/datum/station_trait/birthday/proc/reassign_birthday(mob/living/carbon/human/new_person)
+	ADD_TRAIT(SSstation, STATION_TRAIT_BIRTHDAY, STATION_TRAIT)
+
+	// Снимаем трейт со старого именинника
+	if(birthday_person && HAS_TRAIT(birthday_person, TRAIT_BIRTHDAY_BOY))
+		REMOVE_TRAIT(birthday_person, TRAIT_BIRTHDAY_BOY, REF(src))
+
+	birthday_person = new_person
+	birthday_person_name = new_person.real_name
+	ADD_TRAIT(birthday_person, TRAIT_BIRTHDAY_BOY, REF(src))
+
+	announce_birthday()
+
 /datum/station_trait/birthday/proc/on_job_after_spawn(datum/source, datum/job/job, mob/living/spawned_mob, client/player_client)
 	SIGNAL_HANDLER
 
@@ -91,7 +105,58 @@
 	resistance_flags = FLAMMABLE
 	w_class = WEIGHT_CLASS_TINY
 	icon = 'icons/obj/bureaucracy.dmi'
-	icon_state = "paperslip"
+	icon_state = "paperbiscuit_paper"
 
 /obj/item/birthday_invite/proc/setup_card(birthday_name)
 	desc = "Открытка, сообщающая что сегодня день рождения у [birthday_name]."
+
+/// Админ-верб
+/client/proc/cmd_admin_set_birthday_person()
+	set category = "Admin.Events"
+	set name = "Set Birthday Person"
+
+	if(!check_rights(R_ADMIN))
+		return
+
+	var/datum/station_trait/birthday/birthday_trait
+	for(var/datum/station_trait/birthday/trait in SSstation.station_traits)
+		birthday_trait = trait
+		break
+
+	if(!birthday_trait)
+		SSstation.setup_trait(/datum/station_trait/birthday)
+		for(var/datum/station_trait/birthday/trait in SSstation.station_traits)
+			birthday_trait = trait
+			break
+		if(!birthday_trait)
+			to_chat(usr, span_warning("Не удалось создать трейт 'День Рождения'."))
+			return
+
+	var/list/crew_options = list()
+	for(var/mob/living/carbon/human/H in GLOB.human_list)
+		if(!H.mind || !H.job || !H.client)
+			continue
+		var/label = "[H.real_name] ([H.mind.key]) — [H.job]"
+		crew_options[label] = H
+
+	if(!length(crew_options))
+		to_chat(usr, span_warning("Нет живых членов экипажа с игроком."))
+		return
+
+	var/chosen_label = tgui_input_list(usr, "Выберите именинника:", "Назначить именинника", crew_options)
+	if(isnull(chosen_label))
+		return
+
+	var/mob/living/carbon/human/chosen = crew_options[chosen_label]
+	if(!chosen || !chosen.client)
+		to_chat(usr, span_warning("Игрок уже недоступен."))
+		return
+
+	birthday_trait.birthday_override_ckey = chosen.mind.key
+	birthday_trait.reassign_birthday(chosen)
+
+	to_chat(usr, span_notice("Именинником назначен: [chosen.real_name] ([chosen.mind.key])."))
+
+	var/msg = "[key_name(usr)] назначил(а) именинником: [chosen.real_name] ([chosen.mind.key])"
+	log_admin(msg)
+	message_admins(msg)
