@@ -998,6 +998,7 @@
 #include "code\datums\skills\modifiers\organs.dm"
 #include "code\datums\station_traits\_station_trait.dm"
 #include "code\datums\station_traits\admin_panel.dm"
+#include "code\datums\station_traits\birthday.dm"
 #include "code\datums\station_traits\negative_traits.dm"
 #include "code\datums\station_traits\neutral_traits.dm"
 #include "code\datums\station_traits\positive_traits.dm"
