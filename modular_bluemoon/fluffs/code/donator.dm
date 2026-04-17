@@ -2281,3 +2281,12 @@
 	slot = ITEM_SLOT_NECK
 	path = /obj/item/clothing/neck/tie/eclipse_cape
 	ckeywhitelist = list("shizalrp", "krasler101")
+
+/datum/gear/donator/bm/justice
+	name = "Backpack of justice"
+	slot = ITEM_SLOT_BACK
+	path = /obj/item/storage/backpack/satchel/justice
+	category = LOADOUT_CATEGORY_DONATOR
+	subcategory = LOADOUT_SUBCATEGORIES_DON01
+	donator_group_id = DONATOR_GROUP_TIER_1
+	cost = 2
