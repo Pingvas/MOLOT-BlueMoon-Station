@@ -21,6 +21,7 @@ export type CategoryItem = {
   selected: boolean;
   can_name: boolean;
   can_color: boolean;
+  can_description: boolean;
 };
 
 export type SelectedItem = {
@@ -347,6 +348,18 @@ const LoadoutItemRow = (
                     tooltip="Переименовать"
                     onClick={() =>
                       act('loadout_rename', { name: item.path })
+                    }
+                  />
+                </Stack.Item>
+              )}
+              {!!item.can_description && (
+                <Stack.Item>
+                  <Button
+                    compact
+                    icon="align-left"
+                    tooltip="Изменить описание"
+                    onClick={() =>
+                      act('loadout_redescribe', { name: item.path })
                     }
                   />
                 </Stack.Item>

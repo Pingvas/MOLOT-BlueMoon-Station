@@ -12,6 +12,7 @@ import {
   Tooltip,
 } from '../../../components';
 import { AntagRoleInfo, CharacterSetupData } from '../types';
+import { textOrFallback } from '../utils';
 
 // toggles bitflags
 const SOUND_MIDI = 1 << 1;
@@ -385,7 +386,7 @@ export const GamePrefsTab = (_props, context) => {
                 </Stack.Item>
                 <Stack.Item>
                   <Button
-                    content={be_victim || 'По умолч.'}
+                    content={textOrFallback(be_victim, 'По умолч.')}
                     icon="crosshairs"
                     tooltip="Предпочитать быть жертвой антагониста"
                     onClick={() => act('set_be_victim')}
@@ -464,7 +465,7 @@ export const GamePrefsTab = (_props, context) => {
                                 width: '80px',
                                 height: '80px',
                                 margin: '0 auto 4px',
-                                borderRadius: '50%',
+                                borderRadius: '8px',
                                 border: `3px solid ${borderColor}`,
                                 overflow: 'hidden',
                                 display: 'flex',
@@ -480,8 +481,9 @@ export const GamePrefsTab = (_props, context) => {
                                   as="img"
                                   src={role.icon_b64}
                                   style={{
-                                    width: '74px',
-                                    height: '74px',
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'contain',
                                     imageRendering: 'pixelated',
                                   }}
                                 />

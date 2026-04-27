@@ -1,4 +1,4 @@
-import { useBackend } from '../../../backend';
+import { useBackend, useLocalState } from '../../../backend';
 import {
   Box,
   Button,
@@ -34,7 +34,14 @@ export const KeybindingsTab = (_props, context) => {
   } = data as any as KeybindingsData;
 
   const categories = Object.keys(keybinding_categories);
-  const selectedCategory = (data as any).kb_category || categories[0] || '';
+  const [selectedCategoryState, setSelectedCategory] = useLocalState(
+    context,
+    'keybindings_category',
+    categories[0] || '',
+  );
+  const selectedCategory = categories.includes(selectedCategoryState)
+    ? selectedCategoryState
+    : categories[0] || '';
 
   const currentBindings = keybinding_categories[selectedCategory] || [];
 
@@ -66,7 +73,7 @@ export const KeybindingsTab = (_props, context) => {
             <Tabs.Tab
               key={cat}
               selected={cat === selectedCategory}
-              onClick={() => act('select_kb_category', { category: cat })}
+              onClick={() => setSelectedCategory(cat)}
             >
               {cat}
             </Tabs.Tab>

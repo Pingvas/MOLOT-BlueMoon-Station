@@ -10,6 +10,7 @@ import {
   Stack,
 } from '../../../components';
 import { CharacterSetupData, LanguageInfo } from '../types';
+import { resolveOptionValue, sanitizeStringOptions, textOrFallback } from '../utils';
 
 export const SpeechTab = (_props, context) => {
   const { act, data } = useBackend<CharacterSetupData>(context);
@@ -37,6 +38,8 @@ export const SpeechTab = (_props, context) => {
   );
   const isAtLimit =
     max_languages !== -1 && selectedLangs.length >= max_languages;
+  const barkOptions = sanitizeStringOptions(bark_list || []);
+  const selectedBark = resolveOptionValue(bark_id, barkOptions);
 
   return (
     <Stack vertical>
@@ -46,14 +49,14 @@ export const SpeechTab = (_props, context) => {
           <LabeledList>
             <LabeledList.Item label="Глагол речи">
               <Button
-                content={speech_verb || 'Default'}
+                content={textOrFallback(speech_verb, 'Default')}
                 icon="comment"
                 onClick={() => act('set_speech_verb')}
               />
             </LabeledList.Item>
             <LabeledList.Item label="Язык">
               <Button
-                content={custom_tongue || 'обычный'}
+                content={textOrFallback(custom_tongue, 'обычный')}
                 onClick={() => act('set_custom_tongue')}
               />
             </LabeledList.Item>
@@ -61,7 +64,7 @@ export const SpeechTab = (_props, context) => {
               <Stack inline>
                 <Stack.Item>
                   <Button
-                    content={custom_laugh || 'По умолч.'}
+                    content={textOrFallback(custom_laugh, 'По умолч.')}
                     onClick={() => act('set_custom_laugh')}
                   />
                 </Stack.Item>
@@ -100,8 +103,8 @@ export const SpeechTab = (_props, context) => {
               <Stack inline>
                 <Stack.Item grow>
                   <Dropdown
-                    selected={bark_id}
-                    options={bark_list || []}
+                    selected={selectedBark}
+                    options={barkOptions}
                     onSelected={(value) => act('set_bark_sound', {
                       bark: value,
                     })}

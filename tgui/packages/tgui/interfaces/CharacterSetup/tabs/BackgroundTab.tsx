@@ -1,6 +1,7 @@
 import { useBackend } from '../../../backend';
 import { Box, Button, LabeledList, Section, Stack } from '../../../components';
 import { CharacterSetupData } from '../types';
+import { textOrFallback } from '../utils';
 
 export const BackgroundTab = (_props, context) => {
   const { act, data } = useBackend<CharacterSetupData>(context);
@@ -135,14 +136,14 @@ export const BackgroundTab = (_props, context) => {
           <LabeledList>
             <LabeledList.Item label="Предсмертный хрип">
               <Button
-                content={data.custom_deathgasp || 'По умолч.'}
+                content={textOrFallback(data.custom_deathgasp, 'По умолч.')}
                 icon="pen"
                 onClick={() => act('set_custom_deathgasp')}
               />
             </LabeledList.Item>
             <LabeledList.Item label="Звук смерти">
               <Button
-                content={data.custom_deathsound || 'По умолч.'}
+                content={textOrFallback(data.custom_deathsound, 'По умолч.')}
                 icon="music"
                 onClick={() => act('set_custom_deathsound')}
               />

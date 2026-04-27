@@ -422,6 +422,9 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	/// Устанавливается обработчиками настроек перед вызовом update_preview_icon().
 	/// null = полная пересборка.
 	var/tmp/preview_change_hint
+	/// Последний применённый режим превью (Job/Loadout/Naked/Naked-Aroused).
+	/// Нужен, чтобы при смене режима принудительно запускать полную пересборку манекена.
+	var/tmp/preview_applied_pref = null
 
 	var/no_tetris_storage = FALSE
 
@@ -514,7 +517,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	// var/tmp/modern_custom_editor_open, modern_theme_picker_collapsed, etc. — удалены
 
 	/// UI state: collapse empty character slots in the top slot list (persisted in preferences)
-	var/collapse_empty_character_slots = FALSE
+	var/collapse_empty_character_slots = TRUE
 
 	// DEPRECATED: HTML-only decoration level — оставлено для compat savefile
 	var/ui_decoration_level = "enhanced"

@@ -12,6 +12,7 @@ import {
   Stack,
 } from '../../../components';
 import { CharacterSetupData } from '../types';
+import { textOrFallback } from '../utils';
 
 export const GeneralTab = (_props, context) => {
   const { act, data } = useBackend<CharacterSetupData>(context);
@@ -46,25 +47,25 @@ export const GeneralTab = (_props, context) => {
                   <Button
                     compact
                     selected={data.gender === 'male'}
-                    content="М"
+                    content="Мужской"
                     onClick={() => act('set_gender', { gender: 'male' })}
                   />
                   <Button
                     compact
                     selected={data.gender === 'female'}
-                    content="Ж"
+                    content="Женский"
                     onClick={() => act('set_gender', { gender: 'female' })}
                   />
                   <Button
                     compact
                     selected={data.gender === 'plural'}
-                    content="Мн."
+                    content="Множественный"
                     onClick={() => act('set_gender', { gender: 'plural' })}
                   />
                   <Button
                     compact
                     selected={data.gender === 'neuter'}
-                    content="Ср."
+                    content="Средний"
                     onClick={() => act('set_gender', { gender: 'neuter' })}
                   />
                 </LabeledList.Item>
@@ -82,14 +83,14 @@ export const GeneralTab = (_props, context) => {
             {/* Right column */}
             <Flex.Item basis="50%" grow={1} pl={1}>
               <LabeledList>
-                <LabeledList.Item label="Случ. имя">
+                <LabeledList.Item label="Случайное имя">
                   <Button.Checkbox
                     checked={data.be_random_name}
                     content={data.be_random_name ? 'Да' : 'Нет'}
                     onClick={() => act('toggle_random_name')}
                   />
                 </LabeledList.Item>
-                <LabeledList.Item label="Случ. тело">
+                <LabeledList.Item label="Случайное тело">
                   <Button.Checkbox
                     checked={data.be_random_body}
                     content={data.be_random_body ? 'Да' : 'Нет'}
@@ -137,52 +138,7 @@ export const GeneralTab = (_props, context) => {
         </Section>
       </Stack.Item>
 
-      {/* Row 2: Occupation + Quirks */}
-      <Stack.Item>
-        <Flex>
-          <Flex.Item grow={1} basis="50%" pr={0.5}>
-            <Section title="Работа">
-              <Button
-                fluid
-                icon="briefcase"
-                content="Настроить должности"
-                onClick={() => act('set_character_tab', { tab: 7 })}
-              />
-              <Box mt={1}>
-                <LabeledList>
-                  <LabeledList.Item label="Отдел СБ">
-                    <Button
-                      compact
-                      content={data.prefered_security_department || 'Random'}
-                      onClick={() => act('set_security_dept')}
-                    />
-                  </LabeledList.Item>
-                </LabeledList>
-              </Box>
-            </Section>
-          </Flex.Item>
-          {!!data.roundstart_traits && (
-            <Flex.Item grow={1} basis="50%" pl={0.5}>
-              <Section
-                title="Особенности"
-                buttons={
-                  <Box inline bold color="label">
-                    Баланс: {data.quirk_balance ?? 0}
-                  </Box>
-                }>
-                <Button
-                  fluid
-                  icon="star"
-                  content="Настроить особенности"
-                  onClick={() => act('set_character_tab', { tab: 6 })}
-                />
-              </Section>
-            </Flex.Item>
-          )}
-        </Flex>
-      </Stack.Item>
-
-      {/* Row 3: Special Names + PDA + Silicon */}
+      {/* Row 2: Special Names + PDA + Silicon */}
       <Stack.Item>
         <Flex>
           <Flex.Item grow={1} basis="50%" pr={0.5}>
@@ -203,21 +159,21 @@ export const GeneralTab = (_props, context) => {
                 <LabeledList.Item label="Стиль">
                   <Button
                     compact
-                    content={data.pda_style || 'По умолч.'}
+                    content={textOrFallback(data.pda_style, 'По умолч.')}
                     onClick={() => act('set_pda_style')}
                   />
                 </LabeledList.Item>
                 <LabeledList.Item label="Скин">
                   <Button
                     compact
-                    content={data.pda_skin || 'По умолч.'}
+                    content={textOrFallback(data.pda_skin, 'По умолч.')}
                     onClick={() => act('set_pda_skin')}
                   />
                 </LabeledList.Item>
                 <LabeledList.Item label="Рингтон">
                   <Button
                     compact
-                    content={data.pda_ringtone || 'По умолч.'}
+                    content={textOrFallback(data.pda_ringtone, 'По умолч.')}
                     onClick={() => act('set_pda_ringtone')}
                   />
                 </LabeledList.Item>
@@ -228,7 +184,7 @@ export const GeneralTab = (_props, context) => {
                 <LabeledList.Item label="ИИ Ядро">
                   <Button
                     compact
-                    content={data.preferred_ai_core_display || 'По умолч.'}
+                    content={textOrFallback(data.preferred_ai_core_display, 'По умолч.')}
                     onClick={() => act('set_ai_core_display')}
                   />
                 </LabeledList.Item>
@@ -236,7 +192,7 @@ export const GeneralTab = (_props, context) => {
                   <LabeledList.Item label="Законы">
                     <Button
                       compact
-                      content={data.silicon_lawset || 'По умолч.'}
+                      content={textOrFallback(data.silicon_lawset, 'По умолч.')}
                       onClick={() => act('set_silicon_lawset')}
                     />
                   </LabeledList.Item>

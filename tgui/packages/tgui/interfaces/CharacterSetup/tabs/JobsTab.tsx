@@ -1,25 +1,25 @@
-import { useBackend } from '../../../backend';
+import { useBackend, useLocalState } from '../../../backend';
 import {
   Box,
   Button,
   Dropdown,
+  Input,
   Section,
   Stack,
   Tooltip,
 } from '../../../components';
 import { CharacterSetupData, JobInfo } from '../types';
+import { sanitizeStringOptions, textOrFallback } from '../utils';
 
-// Job priority levels matching DM defines
+// MARK: Constants
 const JP_LOW = 1;
 const JP_MEDIUM = 2;
 const JP_HIGH = 3;
 
-// Jobless role defines
 const BEOVERFLOW = 1;
 const BERANDOMJOB = 2;
 const RETURNTOLOBBY = 3;
 
-// Department display order and colors
 const DEPARTMENT_ORDER = [
   'Command',
   'Security',
@@ -34,31 +34,105 @@ const DEPARTMENT_ORDER = [
 ];
 
 const DEPARTMENT_COLORS: Record<string, string> = {
-  Command: '#4466cc',
-  Security: '#cc4444',
-  Engineering: '#cc8833',
-  Science: '#9944cc',
-  Medical: '#44aaaa',
-  Supply: '#aa8844',
-  Service: '#44aa44',
-  Silicon: '#cc66aa',
-  Law: '#888888',
-  Other: '#666666',
+  Command: '#4f73d8',
+  Security: '#ca4f4f',
+  Engineering: '#cf9550',
+  Science: '#9f63c9',
+  Medical: '#56b0b0',
+  Supply: '#b88c4e',
+  Service: '#59ab66',
+  Silicon: '#b865a0',
+  Law: '#8e8e8e',
+  Other: '#6f6f6f',
 };
 
 const DEPARTMENT_LABELS: Record<string, string> = {
   Command: 'Командование',
-  Security: 'Служба безопасности',
-  Engineering: 'Инженерный отдел',
-  Science: 'Научный отдел',
-  Medical: 'Медицинский отдел',
-  Supply: 'Отдел снабжения',
-  Service: 'Сервисный отдел',
+  Security: 'Безопасность',
+  Engineering: 'Инженерия',
+  Science: 'Наука',
+  Medical: 'Медицина',
+  Supply: 'Снабжение',
+  Service: 'Сервис',
   Silicon: 'Силикон',
-  Law: 'Юридический',
+  Law: 'Юриспруденция',
   Other: 'Прочее',
 };
 
+// MARK: Types
+type JobCardData = {
+  job: JobInfo;
+  isLocked: boolean;
+  lockReason: string;
+};
+
+type JobColumns = [string[], string[], string[]];
+
+// MARK: Helpers
+const normalizeText = (text: string) => String(text || '').toLowerCase();
+
+const getJobLockReason = (
+  title: string,
+  bannedSet: Set<string>,
+  blockedSet: Set<string>,
+  jobDaysLeft: Record<string, number>,
+  jobExpLeft: Record<string, number>,
+): string => {
+  if (bannedSet.has(title)) {
+    return 'Есть бан на эту должность';
+  }
+
+  if (blockedSet.has(title)) {
+    return 'Недоступно для выбранного вида';
+  }
+
+  const daysLeft = jobDaysLeft[title];
+  if (daysLeft) {
+    return `Нужно ${daysLeft} дн. на сервере`;
+  }
+
+  const expLeft = jobExpLeft[title];
+  if (expLeft) {
+    return `Нужно ${expLeft} ч. наигранного времени`;
+  }
+
+  return '';
+};
+
+const getLevelAccent = (level: number, isLocked: boolean): string => {
+  if (isLocked) {
+    return 'rgba(120,120,120,0.12)';
+  }
+
+  switch (level) {
+    case JP_HIGH:
+      return 'rgba(66, 170, 96, 0.18)';
+    case JP_MEDIUM:
+      return 'rgba(210, 173, 70, 0.18)';
+    case JP_LOW:
+      return 'rgba(190, 93, 93, 0.18)';
+    default:
+      return 'rgba(255,255,255,0.02)';
+  }
+};
+
+const splitDepartmentsIntoColumns = (
+  departments: string[],
+  jobsByDept: Record<string, JobCardData[]>,
+): JobColumns => {
+  const columns: JobColumns = [[], [], []];
+  const loads = [0, 0, 0];
+
+  for (const dept of departments) {
+    const nextColumn = loads.indexOf(Math.min(...loads));
+    columns[nextColumn].push(dept);
+    loads[nextColumn] += jobsByDept[dept]?.length || 0;
+  }
+
+  return columns;
+};
+
+// MARK: Root
 export const JobsTab = (_props, context) => {
   const { act, data } = useBackend<CharacterSetupData>(context);
   const {
@@ -73,302 +147,409 @@ export const JobsTab = (_props, context) => {
     overflow_role = 'Assistant',
   } = data;
 
+  const [search, setSearch] = useLocalState(context, 'jobs_search', '');
+  const [hideLocked, setHideLocked] = useLocalState(context, 'jobs_hide_locked', false);
+
   const bannedSet = new Set(job_bans);
   const blockedSet = new Set(job_species_blocked);
+  const searchText = normalizeText(search).trim();
 
-  // Group jobs by department from jobs_info
-  const jobsByDept: Record<string, JobInfo[]> = {};
+  const jobsByDept: Record<string, JobCardData[]> = {};
   for (const job of jobs_info) {
+    const lockReason = getJobLockReason(
+      job.title,
+      bannedSet,
+      blockedSet,
+      job_days_left,
+      job_exp_left,
+    );
+
+    const isLocked = lockReason.length > 0;
+    if (hideLocked && isLocked) {
+      continue;
+    }
+
+    const matchesSearch = !searchText
+      || normalizeText(job.title).includes(searchText)
+      || (job.alt_titles || []).some((alt) => normalizeText(alt).includes(searchText));
+
+    if (!matchesSearch) {
+      continue;
+    }
+
     if (!jobsByDept[job.department]) {
       jobsByDept[job.department] = [];
     }
-    jobsByDept[job.department].push(job);
+
+    jobsByDept[job.department].push({
+      job,
+      isLocked,
+      lockReason,
+    });
   }
 
-  // Filter and order departments
-  const departments = DEPARTMENT_ORDER.filter(
-    (dept) => jobsByDept[dept] && jobsByDept[dept].length > 0,
-  );
+  for (const deptName in jobsByDept) {
+    jobsByDept[deptName].sort((a, b) => a.job.display_order - b.job.display_order);
+  }
+
+  const departments = DEPARTMENT_ORDER.filter((dept) => (jobsByDept[dept] || []).length > 0);
+  const columns = splitDepartmentsIntoColumns(departments, jobsByDept);
+
+  const selectedLow = Object.values(job_preferences).filter((level) => level === JP_LOW).length;
+  const selectedMedium = Object.values(job_preferences).filter((level) => level === JP_MEDIUM).length;
+  const selectedHigh = Object.values(job_preferences).filter((level) => level === JP_HIGH).length;
 
   return (
-    <Stack vertical>
-      {/* Jobless role + reset */}
+    <Stack vertical fill>
+      {/* MARK: Control Panel */}
       <Stack.Item>
-        <Section title="Общие настройки">
-          <Stack align="center">
-            <Stack.Item grow>
-              <Box inline bold mr={1}>
-                Если ни одна работа не доступна:
-              </Box>
-              <Button
-                selected={joblessrole === RETURNTOLOBBY}
-                content="Вернуться в лобби"
-                onClick={() =>
-                  act('set_jobless_role', { role: RETURNTOLOBBY })
-                }
-              />
-              <Button
-                selected={joblessrole === BEOVERFLOW}
-                content={overflow_role}
-                onClick={() =>
-                  act('set_jobless_role', { role: BEOVERFLOW })
-                }
-              />
-              <Button
-                selected={joblessrole === BERANDOMJOB}
-                content="Случайная работа"
-                onClick={() =>
-                  act('set_jobless_role', { role: BERANDOMJOB })
-                }
-              />
-            </Stack.Item>
+        <Section title="Настройки должностей">
+          <Stack vertical>
             <Stack.Item>
-              <Button
-                icon="undo"
-                content="Сбросить всё"
-                color="red"
-                onClick={() => act('reset_jobs')}
-              />
+              <Box color="label" mb={0.5}>
+                Если ни одна выбранная должность не доступна:
+              </Box>
+              <Stack>
+                <Stack.Item>
+                  <Button
+                    selected={joblessrole === RETURNTOLOBBY}
+                    content="Вернуться в лобби"
+                    onClick={() => act('set_jobless_role', { role: RETURNTOLOBBY })}
+                  />
+                </Stack.Item>
+                <Stack.Item>
+                  <Button
+                    selected={joblessrole === BEOVERFLOW}
+                    content={textOrFallback(overflow_role, 'Assistant')}
+                    onClick={() => act('set_jobless_role', { role: BEOVERFLOW })}
+                  />
+                </Stack.Item>
+                <Stack.Item>
+                  <Button
+                    selected={joblessrole === BERANDOMJOB}
+                    icon="dice"
+                    content="Случайная работа"
+                    onClick={() => act('set_jobless_role', { role: BERANDOMJOB })}
+                  />
+                </Stack.Item>
+                <Stack.Item grow />
+                <Stack.Item>
+                  <Button
+                    icon="undo"
+                    content="Сбросить все приоритеты"
+                    color="red"
+                    onClick={() => act('reset_jobs')}
+                  />
+                </Stack.Item>
+              </Stack>
+            </Stack.Item>
+
+            <Stack.Item>
+              <Stack>
+                <Stack.Item grow>
+                  <Input
+                    fluid
+                    placeholder="Поиск по должностям и альтернативным названиям"
+                    value={search}
+                    onInput={(e, value) => setSearch(String(value || ''))}
+                  />
+                </Stack.Item>
+                <Stack.Item>
+                  <Button
+                    icon={hideLocked ? 'eye' : 'eye-slash'}
+                    content={hideLocked ? 'Показывать заблокированные' : 'Скрывать заблокированные'}
+                    selected={hideLocked}
+                    onClick={() => setHideLocked(!hideLocked)}
+                  />
+                </Stack.Item>
+              </Stack>
+            </Stack.Item>
+
+            <Stack.Item>
+              <Stack align="center">
+                <Stack.Item>
+                  <Box color="label">Высокий: {selectedHigh}</Box>
+                </Stack.Item>
+                <Stack.Item>
+                  <Box color="label">Средний: {selectedMedium}</Box>
+                </Stack.Item>
+                <Stack.Item>
+                  <Box color="label">Низкий: {selectedLow}</Box>
+                </Stack.Item>
+                <Stack.Item grow />
+                <Stack.Item>
+                  <Box color="label">3 колонки, отделы сбалансированы по количеству должностей</Box>
+                </Stack.Item>
+              </Stack>
             </Stack.Item>
           </Stack>
         </Section>
       </Stack.Item>
 
-      {/* Department sections */}
-      {departments.map((dept) => {
-        const deptJobs = (jobsByDept[dept] || [])
-          .sort((a, b) => a.display_order - b.display_order);
-
-        if (deptJobs.length === 0) {
-          return null;
-        }
-
-        return (
-          <Stack.Item key={dept}>
-            <Section
-              title={
-                <Box
-                  inline
-                  style={{
-                    borderBottom: `2px solid ${DEPARTMENT_COLORS[dept] || '#666'}`,
-                    paddingBottom: '2px',
-                  }}>
-                  {DEPARTMENT_LABELS[dept] || dept}
-                </Box>
-              }>
-              <Stack vertical>
-                {deptJobs.map((job) => {
-                  const isBanned = bannedSet.has(job.title);
-                  const isBlocked = blockedSet.has(job.title);
-                  const daysLeft = job_days_left[job.title];
-                  const expLeft = job_exp_left[job.title];
-                  const isLocked = isBanned || isBlocked || !!daysLeft || !!expLeft;
-                  const currentLevel = job_preferences[job.title] || 0;
-                  const isOverflow = job.title === overflow_role;
-
-                  let lockReason = '';
-                  if (isBanned) {
-                    lockReason = 'Забанено';
-                  } else if (isBlocked) {
-                    lockReason = 'Недоступно для вашего вида';
-                  } else if (daysLeft) {
-                    lockReason = `Нужно ${daysLeft} дн. на сервере`;
-                  } else if (expLeft) {
-                    lockReason = `Нужно ${expLeft} ч. наигранного`;
-                  }
-
-                  return (
-                    <Stack.Item key={job.title}>
-                      <JobRow
-                        job={job}
-                        level={currentLevel}
-                        isLocked={isLocked}
-                        lockReason={lockReason}
-                        isOverflow={isOverflow}
-                        deptColor={DEPARTMENT_COLORS[dept] || '#666'}
-                        altTitle={alt_titles_preferences[job.title]}
-                        onSetLevel={(level) =>
+      {/* MARK: Departments Grid */}
+      <Stack.Item grow>
+        {!departments.length ? (
+          <Section fill>
+            <Box color="label" italic>
+              Ничего не найдено по текущему фильтру.
+            </Box>
+          </Section>
+        ) : (
+          <Stack fill align="stretch">
+            {columns.map((columnDepartments, columnIndex) => (
+              <Stack.Item key={`jobs-column-${columnIndex}`} grow basis={0}>
+                <Stack vertical>
+                  {columnDepartments.map((department) => (
+                    <Stack.Item key={department}>
+                      <DepartmentSection
+                        department={department}
+                        jobs={jobsByDept[department] || []}
+                        overflowRole={overflow_role}
+                        jobPreferences={job_preferences}
+                        altTitles={alt_titles_preferences}
+                        onSetLevel={(jobTitle, level) =>
                           act('set_job_priority', {
-                            job_title: job.title,
+                            job_title: jobTitle,
                             level,
                           })
                         }
-                        onSetAltTitle={(title) =>
+                        onSetAltTitle={(jobTitle, altTitle) =>
                           act('set_alt_title', {
-                            job_title: job.title,
-                            alt_title: title,
+                            job_title: jobTitle,
+                            alt_title: altTitle,
                           })
                         }
                       />
                     </Stack.Item>
-                  );
-                })}
-              </Stack>
-            </Section>
-          </Stack.Item>
-        );
-      })}
+                  ))}
+                </Stack>
+              </Stack.Item>
+            ))}
+          </Stack>
+        )}
+      </Stack.Item>
     </Stack>
   );
 };
 
-// Individual job row
-type JobRowProps = {
-  job: JobInfo;
-  level: number;
-  isLocked: boolean;
-  lockReason: string;
-  isOverflow: boolean;
-  deptColor: string;
-  altTitle?: string;
-  onSetLevel: (level: number) => void;
-  onSetAltTitle: (title: string) => void;
-};
-
-const JobRow = (props: JobRowProps) => {
+// MARK: Department Section
+const DepartmentSection = (props: {
+  department: string;
+  jobs: JobCardData[];
+  overflowRole: string;
+  jobPreferences: Record<string, number>;
+  altTitles: Record<string, string>;
+  onSetLevel: (jobTitle: string, level: number) => void;
+  onSetAltTitle: (jobTitle: string, altTitle: string) => void;
+}) => {
   const {
-    job,
-    level,
-    isLocked,
-    lockReason,
-    isOverflow,
-    deptColor,
-    altTitle,
+    department,
+    jobs,
+    overflowRole,
+    jobPreferences,
+    altTitles,
     onSetLevel,
     onSetAltTitle,
   } = props;
 
-  const displayTitle = altTitle || job.title;
-  const hasAltTitles = job.alt_titles && job.alt_titles.length > 0;
+  const deptColor = DEPARTMENT_COLORS[department] || '#6f6f6f';
+  const deptLabel = DEPARTMENT_LABELS[department] || department;
+
+  return (
+    <Section
+      title={
+        <Box
+          inline
+          style={{
+            borderBottom: `2px solid ${deptColor}`,
+            paddingBottom: '2px',
+          }}>
+          {deptLabel} ({jobs.length})
+        </Box>
+      }>
+      <Stack vertical>
+        {jobs.map(({ job, isLocked, lockReason }) => (
+          <Stack.Item key={job.title}>
+            <JobCard
+              job={job}
+              level={jobPreferences[job.title] || 0}
+              altTitle={altTitles[job.title]}
+              isLocked={isLocked}
+              lockReason={lockReason}
+              isOverflow={job.title === overflowRole}
+              deptColor={deptColor}
+              onSetLevel={(level) => onSetLevel(job.title, level)}
+              onSetAltTitle={(title) => onSetAltTitle(job.title, title)}
+            />
+          </Stack.Item>
+        ))}
+      </Stack>
+    </Section>
+  );
+};
+
+// MARK: Job Card
+const JobCard = (props: {
+  job: JobInfo;
+  level: number;
+  altTitle?: string;
+  isLocked: boolean;
+  lockReason: string;
+  isOverflow: boolean;
+  deptColor: string;
+  onSetLevel: (level: number) => void;
+  onSetAltTitle: (title: string) => void;
+}) => {
+  const {
+    job,
+    level,
+    altTitle,
+    isLocked,
+    lockReason,
+    isOverflow,
+    deptColor,
+    onSetLevel,
+    onSetAltTitle,
+  } = props;
+
+  const hasAltTitles = !!job.alt_titles?.length;
+  const altTitleOptions = sanitizeStringOptions([job.title, ...(job.alt_titles || [])]);
+  const selectedAltTitle = textOrFallback(altTitle, textOrFallback(job.title, 'Unknown Job'));
 
   return (
     <Box
       style={{
-        padding: '4px 6px',
-        marginBottom: '2px',
-        background: level > 0 ? 'rgba(255,255,255,0.05)' : 'transparent',
-        borderLeft: `3px solid ${job.is_head ? deptColor : 'transparent'}`,
-        borderRadius: '2px',
+        padding: '6px',
+        borderRadius: '4px',
+        borderLeft: `3px solid ${job.is_head ? deptColor : 'rgba(255,255,255,0.08)'}`,
+        background: getLevelAccent(level, isLocked),
       }}>
-      <Stack align="center">
-        {/* Job title */}
-        <Stack.Item grow>
-          <Box
-            inline
-            bold={job.is_head}
-            color={isLocked ? 'label' : 'default'}
-            style={job.is_head ? { color: deptColor } : undefined}>
-            {displayTitle}
-            {altTitle && (
-              <Box inline color="label" ml={1} fontSize="11px">
-                ({job.title})
+      <Stack vertical>
+        <Stack.Item>
+          <Stack align="center">
+            <Stack.Item grow>
+              <Box
+                bold={job.is_head}
+                color={isLocked ? 'label' : 'default'}
+                style={job.is_head && !isLocked ? { color: deptColor } : undefined}>
+                {selectedAltTitle}
               </Box>
-            )}
-          </Box>
-          {isLocked && (
+              {altTitle && altTitle !== job.title && (
+                <Box color="label" fontSize="11px">
+                  Базовая должность: {job.title}
+                </Box>
+              )}
+            </Stack.Item>
+
+            <Stack.Item>
+              {isLocked ? (
+                <Tooltip content={lockReason || 'Недоступно'}>
+                  <Button compact icon="lock" color="transparent" disabled />
+                </Tooltip>
+              ) : (
+                <PrioritySelector
+                  level={level}
+                  isOverflow={isOverflow}
+                  onSetLevel={onSetLevel}
+                />
+              )}
+            </Stack.Item>
+          </Stack>
+        </Stack.Item>
+
+        {isLocked && (
+          <Stack.Item>
             <Box color="bad" fontSize="11px">
               {lockReason}
             </Box>
-          )}
-        </Stack.Item>
-
-        {/* Alt title selector */}
-        {hasAltTitles && !isLocked && (
-          <Stack.Item>
-            <Dropdown
-              width="140px"
-              selected={altTitle || job.title}
-              options={[job.title, ...job.alt_titles]}
-              onSelected={(val) => onSetAltTitle(val)}
-            />
           </Stack.Item>
         )}
 
-        {/* Priority buttons */}
-        <Stack.Item>
-          {isLocked ? (
-            <Box inline color="label" fontSize="12px">
-              <Tooltip content={lockReason}>
-                <Button
-                  icon="lock"
-                  color="transparent"
-                  disabled
-                />
-              </Tooltip>
-            </Box>
-          ) : isOverflow ? (
-            // Overflow role: only toggle on/off
-            <Button
-              selected={level === JP_LOW}
-              content={level === JP_LOW ? 'Да' : 'Нет'}
-              color={level === JP_LOW ? 'green' : undefined}
-              onClick={() => onSetLevel(level === JP_LOW ? 0 : JP_LOW)}
+        {hasAltTitles && !isLocked && (
+          <Stack.Item>
+            <Dropdown
+              width="100%"
+              selected={selectedAltTitle}
+              options={altTitleOptions}
+              onSelected={(value) => onSetAltTitle(value)}
             />
-          ) : (
-            // Normal job: Off / Low / Medium / High
-            <Stack>
-              <Stack.Item>
-                <PriorityButton
-                  label="Выкл"
-                  active={level === 0}
-                  color={undefined}
-                  onClick={() => onSetLevel(0)}
-                />
-              </Stack.Item>
-              <Stack.Item>
-                <PriorityButton
-                  label="Низ"
-                  active={level === JP_LOW}
-                  color="red"
-                  onClick={() => onSetLevel(JP_LOW)}
-                />
-              </Stack.Item>
-              <Stack.Item>
-                <PriorityButton
-                  label="Сред"
-                  active={level === JP_MEDIUM}
-                  color="yellow"
-                  onClick={() => onSetLevel(JP_MEDIUM)}
-                />
-              </Stack.Item>
-              <Stack.Item>
-                <PriorityButton
-                  label="Выс"
-                  active={level === JP_HIGH}
-                  color="green"
-                  onClick={() => onSetLevel(JP_HIGH)}
-                />
-              </Stack.Item>
-            </Stack>
-          )}
-        </Stack.Item>
+          </Stack.Item>
+        )}
       </Stack>
     </Box>
   );
 };
 
-// Priority button — small circle/pill style
-type PriorityButtonProps = {
-  label: string;
-  active: boolean;
-  color?: string;
-  onClick: () => void;
-};
+// MARK: Priority Controls
+const PrioritySelector = (props: {
+  level: number;
+  isOverflow: boolean;
+  onSetLevel: (level: number) => void;
+}) => {
+  const { level, isOverflow, onSetLevel } = props;
 
-const PriorityButton = (props: PriorityButtonProps) => {
-  const { label, active, color, onClick } = props;
+  if (isOverflow) {
+    const enabled = level === JP_LOW;
+    return (
+      <Stack>
+        <Stack.Item>
+          <Button
+            compact
+            selected={!enabled}
+            content="Выкл"
+            onClick={() => onSetLevel(0)}
+          />
+        </Stack.Item>
+        <Stack.Item>
+          <Button
+            compact
+            selected={enabled}
+            color={enabled ? 'green' : undefined}
+            content="Исп."
+            onClick={() => onSetLevel(JP_LOW)}
+          />
+        </Stack.Item>
+      </Stack>
+    );
+  }
 
   return (
-    <Button
-      compact
-      selected={active}
-      color={active ? color : undefined}
-      content={label}
-      onClick={onClick}
-      style={{
-        minWidth: '40px',
-        textAlign: 'center',
-      }}
-    />
+    <Stack>
+      <Stack.Item>
+        <Button
+          compact
+          selected={level === 0}
+          content="Выкл"
+          onClick={() => onSetLevel(0)}
+        />
+      </Stack.Item>
+      <Stack.Item>
+        <Button
+          compact
+          selected={level === JP_LOW}
+          color={level === JP_LOW ? 'red' : undefined}
+          content="Низ"
+          onClick={() => onSetLevel(JP_LOW)}
+        />
+      </Stack.Item>
+      <Stack.Item>
+        <Button
+          compact
+          selected={level === JP_MEDIUM}
+          color={level === JP_MEDIUM ? 'yellow' : undefined}
+          content="Сред"
+          onClick={() => onSetLevel(JP_MEDIUM)}
+        />
+      </Stack.Item>
+      <Stack.Item>
+        <Button
+          compact
+          selected={level === JP_HIGH}
+          color={level === JP_HIGH ? 'green' : undefined}
+          content="Выс"
+          onClick={() => onSetLevel(JP_HIGH)}
+        />
+      </Stack.Item>
+    </Stack>
   );
 };

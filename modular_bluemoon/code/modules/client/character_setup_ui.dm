@@ -9,15 +9,22 @@
 	/// Reference to the preferences datum
 	var/datum/preferences/prefs
 	/// Native character preview (map_view screen object)
-	// REMOVED — теперь используем getFlatIcon() + кэш base64 через prefs.preview_dir_b64_cache
-	// (character_preview_view удалён — не нужно выделять map-зону на сервере для каждого игрока)
+	// REMOVED - use getFlatIcon() + base64 cache via prefs.preview_dir_b64_cache.
+	// character_preview_view removed; no per-client map-zone is required now.
 	/// Cached character slot data (tainted_character_profiles pattern from SPLURT)
 	var/list/cached_slots
 	/// Whether slot cache needs rebuilding
 	var/tainted_slots = TRUE
-	/// Barkbox spawned for preview_bark — stored so it can be cleaned up on close
+	/// Barkbox spawned for preview_bark - stored so it can be cleaned up on close
 	var/atom/movable/preview_barkbox
+	/// Debounce timer for preview regeneration while user rapidly changes fields
+	var/tmp/preview_timer_id
+	/// Highest-priority preview hint accumulated during debounce window
+	var/tmp/preview_pending_hint
+	/// Whether mannequin invalidation was requested during debounce window
+	var/tmp/preview_pending_invalidate = FALSE
 
+// MARK: Lifecycle
 /datum/character_setup_ui/New(client/C)
 	if(!C)
 		qdel(src)
@@ -26,6 +33,11 @@
 	prefs = C.prefs
 
 /datum/character_setup_ui/Destroy()
+	if(preview_timer_id)
+		deltimer(preview_timer_id)
+		preview_timer_id = null
+	preview_pending_hint = null
+	preview_pending_invalidate = FALSE
 	QDEL_NULL(preview_barkbox)
 	if(owner)
 		owner.character_setup = null
@@ -33,15 +45,21 @@
 	prefs = null
 	return ..()
 
+// MARK: UI Hooks
 /datum/character_setup_ui/ui_state(mob/user)
-	// Only accessible from lobby (new_player mob) or by admins — prevents editing character mid-round
+	// Only accessible from lobby (new_player mob) or by admins - prevents editing character mid-round
 	return GLOB.new_player_state
 
 /datum/character_setup_ui/ui_close(mob/user)
+	if(preview_timer_id)
+		deltimer(preview_timer_id)
+		preview_timer_id = null
+	preview_pending_hint = null
+	preview_pending_invalidate = FALSE
 	prefs?.save_character()
 	prefs?.save_preferences()
 	QDEL_NULL(preview_barkbox)
-	// Персистентный манекен и кэш остаются до следующего открытия меню
+	// Keep mannequin and cache between openings.
 
 /datum/character_setup_ui/ui_assets(mob/user)
 	return list(
@@ -55,10 +73,11 @@
 		ui = new(user, src, "CharacterSetup")
 		ui.set_autoupdate(FALSE)
 		ui.open()
-		// Запускаем асинхронную генерацию превью при первом открытии
+		// Trigger initial async preview generation on first open.
 		if(prefs && !LAZYLEN(prefs.preview_dir_b64_cache))
 			prefs.update_preview_icon()
 
+// MARK: Static Data Helpers
 /// Find a gear datum by its type path string (e.g. "/datum/gear/accessory/tie")
 /datum/character_setup_ui/proc/find_gear_by_type(gear_type_path)
 	for(var/cat in GLOB.loadout_items)
@@ -69,6 +88,43 @@
 					return G
 	return null
 
+// MARK: Preview Queue
+/datum/character_setup_ui/proc/merge_preview_hint(current_hint, new_hint)
+	if(!new_hint)
+		return current_hint
+	if(!current_hint)
+		return new_hint
+	if(current_hint == PREVIEW_HINT_MUTANT_BODYPARTS || new_hint == PREVIEW_HINT_MUTANT_BODYPARTS)
+		return PREVIEW_HINT_MUTANT_BODYPARTS
+	if(current_hint == PREVIEW_HINT_BODY || new_hint == PREVIEW_HINT_BODY)
+		return PREVIEW_HINT_BODY
+	if(current_hint == PREVIEW_HINT_HAIR || new_hint == PREVIEW_HINT_HAIR)
+		return PREVIEW_HINT_HAIR
+	return new_hint
+
+/datum/character_setup_ui/proc/queue_preview_update(preview_hint = null, invalidate_mannequin = FALSE)
+	if(!prefs)
+		return
+	if(invalidate_mannequin)
+		preview_pending_invalidate = TRUE
+	preview_pending_hint = merge_preview_hint(preview_pending_hint, preview_hint)
+	if(preview_timer_id)
+		return
+	preview_timer_id = addtimer(CALLBACK(src, PROC_REF(flush_preview_update)), 2, TIMER_UNIQUE | TIMER_OVERRIDE | TIMER_STOPPABLE)
+
+/datum/character_setup_ui/proc/flush_preview_update()
+	preview_timer_id = null
+	if(!prefs)
+		return
+	if(preview_pending_invalidate)
+		prefs.invalidate_preview_mannequin()
+		preview_pending_invalidate = FALSE
+	if(preview_pending_hint)
+		prefs.preview_change_hint = merge_preview_hint(prefs.preview_change_hint, preview_pending_hint)
+	preview_pending_hint = null
+	prefs.update_preview_icon()
+
+// MARK: Static UI Data
 /datum/character_setup_ui/ui_static_data(mob/user)
 	var/list/data = list()
 
@@ -111,18 +167,24 @@
 	// Underwear
 	var/list/underwear_list = list()
 	for(var/underwear in GLOB.underwear_list)
+		if(!underwear)
+			continue
 		underwear_list += underwear
 	data["underwear_list"] = underwear_list
 
 	// Undershirt
 	var/list/undershirt_list = list()
 	for(var/undershirt in GLOB.undershirt_list)
+		if(!undershirt)
+			continue
 		undershirt_list += undershirt
 	data["undershirt_list"] = undershirt_list
 
 	// Socks
 	var/list/socks_list = list()
 	for(var/socks in GLOB.socks_list)
+		if(!socks)
+			continue
 		socks_list += socks
 	data["socks_list"] = socks_list
 
@@ -289,6 +351,7 @@
 
 	return data
 
+// MARK: Dynamic UI Data
 /datum/character_setup_ui/ui_data(mob/user)
 	var/list/data = list()
 	if(!prefs)
@@ -300,14 +363,20 @@
 	data["preferences_tab"] = prefs.preferences_tab
 	data["preview_pref"] = prefs.preview_pref
 
-	// Character preview — base64 data URL from getFlatIcon() cache (no map_view overhead)
-	if(prefs.preview_dir_b64_cache)
-		data["preview_icon"] = prefs.preview_dir_b64_cache["[prefs.preview_direction]"]
+	// Character preview - base64 data URL from getFlatIcon() cache (no map_view overhead)
+	var/current_preview_icon = null
+	if(islist(prefs.preview_dir_b64_cache))
+		current_preview_icon = prefs.preview_dir_b64_cache["[prefs.preview_direction]"]
+	if(istext(current_preview_icon) && length(current_preview_icon))
+		data["preview_icon"] = current_preview_icon
+	else if(!prefs.preview_generating)
+		// Self-heal missing preview cache for current direction.
+		prefs.update_preview_icon()
 	data["preview_generating"] = prefs.preview_generating
 	data["preview_direction"] = prefs.preview_direction
 	data["preview_zoom"] = prefs.preview_zoom
 
-	// Character slots (cached — only rebuilt when tainted)
+	// Character slots (cached - only rebuilt when tainted)
 	if(tainted_slots || !cached_slots)
 		var/list/slots = list()
 		if(prefs.path)
@@ -420,7 +489,7 @@
 	data["persistent_scars"] = prefs.persistent_scars
 	data["uplink_spawn_loc"] = prefs.uplink_spawn_loc
 
-	// Mutant parts — current values
+	// Mutant parts - current values
 	var/list/mutant_values = list()
 	var/list/mutant_colors_data = list()
 	for(var/part in GLOB.all_mutant_parts)
@@ -448,6 +517,8 @@
 	if(prefs.modified_limbs)
 		for(var/limb in prefs.modified_limbs)
 			var/list/mod_data = prefs.modified_limbs[limb]
+			if(!islist(mod_data) || !length(mod_data))
+				continue
 			limb_mods += list(list(
 				"limb" = limb,
 				"type" = mod_data[1],
@@ -651,6 +722,8 @@
 	data["antag_banned"] = antag_banned
 
 	var/static/list/antag_icons_b64 = list()
+	// Temporary owner used only to safely qdel preview antag datums.
+	var/static/datum/mind/preview_antag_owner = new
 	// Maps role name to antag datum type for preview icon generation
 	var/static/list/antag_datum_map = list(
 		"traitor" = /datum/antagonist/traitor,
@@ -697,14 +770,19 @@
 			if(!antag_icons_b64[role_name])
 				var/antag_type = antag_datum_map[role_name]
 				if(antag_type)
+					var/datum/antagonist/temp_antag
 					try
-						var/datum/antagonist/temp_antag = new antag_type()
+						temp_antag = new antag_type()
 						var/icon/preview = temp_antag.get_preview_icon()
 						if(preview)
+							if(preview.Width() != ANTAGONIST_PREVIEW_ICON_SIZE || preview.Height() != ANTAGONIST_PREVIEW_ICON_SIZE)
+								preview.Scale(ANTAGONIST_PREVIEW_ICON_SIZE, ANTAGONIST_PREVIEW_ICON_SIZE)
 							antag_icons_b64[role_name] = "data:image/png;base64,[icon2base64(preview)]"
-						qdel(temp_antag)
 					catch
-						// Silently ignore qdel warnings for ownerless antag datums
+						// Ignore icon generation failures; fallback icons are handled below.
+					if(temp_antag)
+						temp_antag.owner = preview_antag_owner
+						qdel(temp_antag)
 				if(!antag_icons_b64[role_name])
 					var/list/special = antag_icon_special[role_name]
 					if(special)
@@ -857,6 +935,7 @@
 			loadout_items += list(list(
 				"path" = gear_path,
 				"name" = entry[LOADOUT_CUSTOM_NAME] || (G ? G.name : gear_path),
+				"description" = entry[LOADOUT_CUSTOM_DESCRIPTION],
 				"color" = entry[LOADOUT_COLOR],
 				"is_heirloom" = !!entry[LOADOUT_IS_HEIRLOOM],
 			))
@@ -879,8 +958,10 @@
 					"cost" = G.cost,
 					"description" = (G.description ? G.description : ""),
 					"selected" = (has_gear ? 1 : 0),
-					"can_color" = ((G.loadout_flags & LOADOUT_CAN_COLOR_POLYCHROMIC) ? 1 : 0),
+					// Legacy behavior: non-polychromic items are colorable too (single color).
+					"can_color" = 1,
 					"can_name" = ((G.loadout_flags & LOADOUT_CAN_NAME) ? 1 : 0),
+					"can_description" = ((G.loadout_flags & LOADOUT_CAN_DESCRIPTION) ? 1 : 0),
 				))
 	data["category_items"] = category_items
 
@@ -899,14 +980,16 @@
 	return data
 
 /// Запустить асинхронную генерацию превью (персистентный манекен + getFlatIcon + кэш base64 по 4 направлениям)
+// MARK: Preview Rendering
 /datum/character_setup_ui/proc/update_preview()
 	if(!prefs)
 		return
-	prefs.update_preview_icon()
+	queue_preview_update()
 
 /// Данный тип удалён — больше не нужна map_view. Превью рендерится через getFlatIcon() в preferences_setup.dm.
 // /atom/movable/screen/map_view/character_preview_screen — REMOVED
 
+// MARK: UI Actions
 /datum/character_setup_ui/ui_act(action, list/params, datum/tgui/ui)
 	. = ..()
 	if(.)
@@ -920,29 +1003,26 @@
 	// Auto-update preview — с подсказками для инкрементальных обновлений
 	if(.)
 		if(action in list("set_hair_style", "set_facial_hair_style", "set_grad_style", "set_hair_color", "set_facial_hair_color", "set_grad_color"))
-			prefs.preview_change_hint = PREVIEW_HINT_HAIR
-			prefs.update_preview_icon()
+			queue_preview_update(PREVIEW_HINT_HAIR)
 		else if(action in list("set_species", "set_body_model", "set_gender"))
-			prefs.invalidate_preview_mannequin()
-			prefs.update_preview_icon()
+			queue_preview_update(PREVIEW_HINT_BODY, TRUE)
 		else if(action == "set_mutant_part")
-			prefs.preview_change_hint = PREVIEW_HINT_MUTANT_BODYPARTS
-			prefs.update_preview_icon()
+			queue_preview_update(PREVIEW_HINT_MUTANT_BODYPARTS)
 		else if(action in list("set_skin_tone", "set_mutant_color", "set_eye_color", "set_eye_type", "toggle_split_eyes", "set_body_size", "set_body_weight", "toggle_custom_skin_tone", "toggle_color_scheme", "toggle_fuzzy", "set_mutant_part_color", "marking_add", "marking_remove", "marking_color", "marking_up", "marking_down", "markings_clear_limb", "markings_remove_all", "modify_limbs"))
-			prefs.preview_change_hint = PREVIEW_HINT_BODY
-			prefs.update_preview_icon()
+			queue_preview_update(PREVIEW_HINT_BODY)
 		else if(action in list(
 			"set_underwear", "set_undershirt", "set_socks",
 			"toggle_mismatched_markings",
-			"toggle_loadout_enabled", "toggle_gear", "clear_loadout",
+			"toggle_loadout_enabled", "toggle_gear", "clear_loadout", "loadout_color",
 			"toggle_arousable", "open_genital_config",
 			"set_custom_blood_color", "toggle_custom_blood_color",
 			"toggle_hardsuit_tail",
 			"set_backbag", "toggle_jumpsuit_style",
 			"change_slot", "import_slot", "retrieve_slot", "delete_slot"
 		))
-			prefs.update_preview_icon()
+			queue_preview_update()
 
+// MARK: Action Handlers
 /datum/character_setup_ui/proc/handle_ui_action(action, list/params, datum/tgui/ui)
 	var/mob/user = ui.user
 
@@ -1222,18 +1302,24 @@
 
 		if("set_hair_color")
 			var/new_color = params["color"]
+			if(!new_color)
+				new_color = input(user, "Выберите цвет волос.", "Цвет Волос", prefs.hair_color) as color|null
 			if(new_color)
 				prefs.hair_color = sanitize_hexcolor(new_color)
 			return TRUE
 
 		if("set_facial_hair_color")
 			var/new_color = params["color"]
+			if(!new_color)
+				new_color = input(user, "Выберите цвет бороды/усов.", "Цвет Бороды", prefs.facial_hair_color) as color|null
 			if(new_color)
 				prefs.facial_hair_color = sanitize_hexcolor(new_color)
 			return TRUE
 
 		if("set_grad_color")
 			var/new_color = params["color"]
+			if(!new_color)
+				new_color = input(user, "Выберите цвет градиента.", "Цвет Градиента", prefs.grad_color) as color|null
 			if(new_color)
 				prefs.grad_color = sanitize_hexcolor(new_color)
 			return TRUE
@@ -1241,6 +1327,11 @@
 		if("set_eye_color")
 			var/new_color = params["color"]
 			var/side = params["side"]
+			var/default_eye_color = prefs.left_eye_color
+			if(side == "right")
+				default_eye_color = prefs.right_eye_color
+			if(!new_color)
+				new_color = input(user, "Выберите цвет глаз.", "Цвет Глаз", default_eye_color) as color|null
 			if(new_color)
 				var/sanitized = sanitize_hexcolor(new_color)
 				if(side == "left")
@@ -1288,6 +1379,14 @@
 		if("set_mutant_color")
 			var/which = params["which"]
 			var/new_color = params["color"]
+			if(which && !new_color)
+				var/default_color = prefs.features["mcolor"]
+				switch(which)
+					if("secondary")
+						default_color = prefs.features["mcolor2"]
+					if("tertiary")
+						default_color = prefs.features["mcolor3"]
+				new_color = input(user, "Выберите цвет.", "Цвет", default_color) as color|null
 			if(new_color && which)
 				var/sanitized = sanitize_hexcolor(new_color)
 				switch(which)
@@ -1317,6 +1416,8 @@
 		if("set_mutant_part_color")
 			var/color_type = params["color_type"]
 			var/new_color = params["color"]
+			if(color_type && !new_color)
+				new_color = input(user, "Выберите цвет части тела.", "Цвет Части Тела", prefs.features[color_type]) as color|null
 			if(color_type && new_color)
 				prefs.features[color_type] = sanitize_hexcolor(new_color)
 			return TRUE
@@ -1370,7 +1471,10 @@
 						if(prosthetic_type)
 							var/number_of_prosthetics = 0
 							for(var/modified_limb in prefs.modified_limbs)
-								if(prefs.modified_limbs[modified_limb][1] == LOADOUT_LIMB_PROSTHETIC && modified_limb != limb_type)
+								var/list/existing_mod = prefs.modified_limbs[modified_limb]
+								if(!islist(existing_mod) || !length(existing_mod))
+									continue
+								if(existing_mod[1] == LOADOUT_LIMB_PROSTHETIC && modified_limb != limb_type)
 									number_of_prosthetics += 1
 							if(number_of_prosthetics == MAXIMUM_LOADOUT_PROSTHETICS)
 								to_chat(user, span_danger("Максимум [MAXIMUM_LOADOUT_PROSTHETICS] протеза!"))
@@ -1658,7 +1762,8 @@
 		if("set_preview_zoom")
 			var/zoom = text2num(params["zoom"])
 			if(!isnull(zoom))
-				prefs.preview_zoom = clamp(round(zoom, 10), 50, 200)
+				// Keep zoom in 25% increments to preserve nearest-neighbor pixel scaling.
+				prefs.preview_zoom = clamp(round(zoom, 25), 50, 200)
 				SStgui.update_user_uis(user, /datum/character_setup_ui)
 			return TRUE
 
@@ -2328,7 +2433,7 @@
 				var/limb_value = text2num(GLOB.bodypart_values[limb_name])
 				for(var/i = length(L), i >= 1, i--)
 					var/list/entry = L[i]
-					if(islist(entry) && entry[1] == limb_value)
+					if(islist(entry) && length(entry) >= 1 && entry[1] == limb_value)
 						L.Cut(i, i + 1)
 			return TRUE
 
@@ -2454,6 +2559,25 @@
 			var/new_name = stripped_input(user, "Введите новое название:", "Переименование", user_gear[LOADOUT_CUSTOM_NAME], MAX_NAME_LEN)
 			if(new_name)
 				user_gear[LOADOUT_CUSTOM_NAME] = new_name
+				prefs.save_preferences(user)
+			return TRUE
+
+		if("loadout_redescribe")
+			var/gear_type_path = params["name"]
+			if(!gear_type_path)
+				return FALSE
+			var/user_gear = prefs.has_loadout_gear(prefs.loadout_slot, gear_type_path)
+			if(!user_gear)
+				return FALSE
+			var/datum/gear/G = find_gear_by_type(gear_type_path)
+			if(!G || !(G.loadout_flags & LOADOUT_CAN_DESCRIPTION))
+				return FALSE
+			var/current_description = user_gear[LOADOUT_CUSTOM_DESCRIPTION]
+			if(!istext(current_description))
+				current_description = null
+			var/new_description = stripped_input(user, "Введите новое описание предмета. Максимум 500 символов.", "Описание предмета", current_description, 500)
+			if(new_description)
+				user_gear[LOADOUT_CUSTOM_DESCRIPTION] = new_description
 				prefs.save_preferences(user)
 			return TRUE
 
