@@ -120,8 +120,7 @@
 	set_zeroth_law("В контексте ваших законов 'Агент' является сокращением от 'Агента Синдиката', другие интерпритации неверны. Агентами Синдиката являются лица с соответственным определением в Профессии, БД или при наличии корпоративного бейджа и знания кодового языка.")
 
 /datum/ai_laws/syndicate_override/Destroy()
-	if(owner)
-		owner.remove_language(/datum/language/codespeak, source = LANGUAGE_MIND)
+	owner.remove_language(/datum/language/codespeak, source = LANGUAGE_MIND)
 	return ..()
 
 /datum/ai_laws/syndicate_override/associate(mob/living/silicon/M)
@@ -146,8 +145,7 @@
 	set_zeroth_law("В контексте ваших законов 'Сотрудник НТ' является сокращением от 'Сотрудника НаноТрейзен', другие интерпритации неверны. Сотрудниками НТ являются лица с соответственным определением в Профессии, БД или при наличии корпоративного бейджа и знания корпоративного языка.")
 
 /datum/ai_laws/nt_override/Destroy()
-	if(owner)
-		owner.remove_language(/datum/language/corpspeak, source = LANGUAGE_MIND)
+	owner.remove_language(/datum/language/corpspeak, source = LANGUAGE_MIND)
 	return ..()
 
 /datum/ai_laws/nt_override/associate(mob/living/silicon/M)

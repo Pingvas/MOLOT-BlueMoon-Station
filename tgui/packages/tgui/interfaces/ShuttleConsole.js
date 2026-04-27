@@ -86,7 +86,6 @@ export const ShuttleConsoleContent = (props, context) => {
     docked_location,
     timer_str,
     locations = [],
-    pod_depart_locked,
   } = data;
   return (
     <Section>
@@ -156,16 +155,11 @@ export const ShuttleConsoleContent = (props, context) => {
                 })} />)}
           </LabeledList.Item>
         </LabeledList>
-        {!!pod_depart_locked && (
-          <Box color="bad" mb={1} textAlign="center" fontSize="12px">
-            Security lock: Code Red alert required.
-          </Box>
-        )}
         <Button
           fluid
           content="Depart"
           disabled={!getLocationNameById(locations, destination)
-            || locked || authorization_required || !!pod_depart_locked}
+            || locked || authorization_required}
           icon="arrow-up"
           textAlign="center"
           onClick={() => act('move', {

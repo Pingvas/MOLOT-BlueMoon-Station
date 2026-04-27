@@ -28,9 +28,7 @@ GLOBAL_LIST_EMPTY(roundstart_stowaway)
 		"Migrant",
 		"Proshmandovka",
 		"Refugee",
-		"Tunnel Warrior",
-		"Savage",
-		"Outcast",
+		"Tunnel Warrior"
 		)
 
 /datum/job/stowaway/get_roundstart_spawn_point()

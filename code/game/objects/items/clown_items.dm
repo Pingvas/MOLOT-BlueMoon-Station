@@ -117,8 +117,7 @@
 			SEND_SIGNAL(target, COMSIG_COMPONENT_CLEAN_ACT, CLEAN_MEDIUM)
 			target.wash_cream()
 			target.wash_cum()
-			if(affected)
-				affected.writtentext = ""
+			affected.writtentext = ""
 			if(try_to_clean_genitals)
 				for(var/obj/item/organ/genital/G in H.internal_organs)
 					if(G.writtentext && G.is_exposed() && G.zone == user.zone_selected)

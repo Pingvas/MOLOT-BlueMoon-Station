@@ -56,9 +56,7 @@
 
 
 /obj/item/inducer/proc/recharge(atom/movable/A, mob/user)
-	if(!istype(A))	// Проверка на принадлежность к типу atom/movable, чтобы игра не искала батарейки в стенах
-		return FALSE
-	if(user.loc == A)
+	if(!isturf(A) && user.loc == A)
 		return FALSE
 	if(istype(A, /obj/item/gun/energy) && gun_charger != TRUE)
 		to_chat(user, span_warning("ОШИБКА: невозможно соединиться с устройством."))

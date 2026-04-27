@@ -48,16 +48,15 @@
 		switch(effect)
 			if(SHOCK_SOMEONE)
 				var/list/shock_mobs = list()
-				for(var/mob/living/creature in viewers(5, src))
+				for(var/mob/living/creature in viewers(get_turf(src), 5))
 					shock_mobs += creature
 				if(length(shock_mobs))
-					var/mob/living/living_target = pick(shock_mobs)
-					// Same order of magnitude as /datum/powernet/get_electrocute_damage (avail is in watts)
-					var/shock_damage = clamp(20 + round(excess / 25000), 20, 195) + rand(-5, 5)
+					var/mob/living/living_target = shock_mobs
+					var/shock_damage = excess/99.5
 					do_sparks(n = 3, c = FALSE, source = living_target)
-					living_target.electrocute_act(shock_damage, src)
+					living_target.electrocute_act(shock_damage, "electrical arc")
 					playsound(get_turf(living_target), 'sound/magic/LightningShock.ogg', 75, TRUE)
-					src.Beam(living_target, icon_state = "lightning[rand(1, 12)]", icon = 'icons/effects/beam.dmi', time = 5)
+					Beam(living_target, icon_state = "lightning[rand(1, 12)]", icon = 'icons/effects/beam.dmi', time = 5)
 					energy_fail(2)
 			if(MAKE_SPARKS)
 				do_sparks(n = 3, c = FALSE, source = src)

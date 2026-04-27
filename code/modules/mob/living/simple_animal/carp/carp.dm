@@ -2,7 +2,7 @@
 
 /mob/living/simple_animal/hostile/carp
 	name = "space carp"
-	desc = "Свирепое, клыконосное существо, напоминающее рыбу."
+	desc = "A ferocious, fang-bearing creature that resembles a fish."
 	icon_state = "carp"
 	icon_living = "carp"
 	icon_dead = "carp_dead"
@@ -11,10 +11,10 @@
 	speak_chance = 0
 	turns_per_move = 5
 	butcher_results = list(/obj/item/reagent_containers/food/snacks/carpmeat = 2)
-	response_help_continuous = "гладит"
-	response_help_simple = "погладил"
-	response_disarm_continuous = "мягко отталкивает в сторону"
-	response_disarm_simple = "мягко толкает в сторону"
+	response_help_continuous = "pets"
+	response_help_simple = "pet"
+	response_disarm_continuous = "gently pushes aside"
+	response_disarm_simple = "gently push aside"
 	emote_taunt = list("gnashes")
 	taunt_chance = 30
 	speed = 0
@@ -25,10 +25,10 @@
 	obj_damage = 50
 	melee_damage_lower = 15
 	melee_damage_upper = 25
-	attack_verb_continuous = "кусает"
-	attack_verb_simple = "укусил"
+	attack_verb_continuous = "bites"
+	attack_verb_simple = "bite"
 	attack_sound = 'sound/weapons/bite.ogg'
-	speak_emote = list("скрежещет острыми зубами")
+	speak_emote = list("gnashes")
 	//Space carp aren't affected by cold.
 	atmos_requirements = list("min_oxy" = 0, "max_oxy" = 0, "min_tox" = 0, "max_tox" = 0, "min_co2" = 0, "max_co2" = 0, "min_n2" = 0, "max_n2" = 0)
 	minbodytemp = 0
@@ -69,21 +69,7 @@
 	if(regen_amount && regen_cooldown < world.time)
 		heal_overall_damage(regen_amount)
 
-/// Hostile AI uses walk_to(); that fights [/datum/component/shuttle_cling] drift on transit and leaves carps stuck in a line.
-/mob/living/simple_animal/hostile/carp/MoveToTarget(list/possible_targets)
-	stop_automated_movement = TRUE
-	if(istype(loc, /turf/open/space/transit))
-		walk(src, 0)
-		return TRUE
-	return ..()
-
 /mob/living/simple_animal/hostile/carp/AttackingTarget()
-	if(istype(target, /obj/machinery/portable_atmospherics/canister) || istype(target, /obj/machinery/atmospherics/pipe))
-		if(prob(99))
-			to_chat(src, span_warning("[target] выглядит отвратительно на вкус!"))
-		else
-			to_chat(src, span_userdanger("ФУ, НЕВКУСНО!!!"))
-		return
 	. = ..()
 	if(. && ishuman(target))
 		var/mob/living/carbon/human/H = target
@@ -99,7 +85,7 @@
 /mob/living/simple_animal/hostile/carp/megacarp
 	icon = 'icons/mob/broadMobs.dmi'
 	name = "Mega Space Carp"
-	desc = "Свирепое, клыконосное существо, напоминающее акулу. Оно кажется особенно сильно разозлённым..."
+	desc = "A ferocious, fang bearing creature that resembles a shark. This one seems especially ticked off."
 	icon_state = "megacarp"
 	icon_living = "megacarp"
 	icon_dead = "megacarp_dead"
@@ -126,22 +112,13 @@
 	maxHealth += rand(40,60)
 	move_to_delay = rand(3,7)
 
-/// For [/datum/shuttle_event/simple_spawner/carp/friendly] — drifts with hyperspace, does not hunt the crew.
-/mob/living/simple_animal/hostile/carp/shuttle_passive
-	name = "peaceful space carp"
-	desc = "Плывёт в гиперпространственном потоке рядом с шаттлом и не проявляет к экипажу агрессии."
-	AIStatus = AI_OFF
-	gold_core_spawnable = NO_SPAWN
-	environment_smash = ENVIRONMENT_SMASH_NONE
-
 /mob/living/simple_animal/hostile/carp/cayenne
 	name = "Cayenne"
 	real_name = "Cayenne"
-	desc = "Неудачный эксперимент Триглава по использованию технологии космических карпов в военных целях. Теперь оно служит как всеми любимый маскот."
+	desc = "A failed Syndicate experiment in weaponized space carp technology, it now serves as a lovable mascot."
 	gender = FEMALE
 	speak_emote = list("squeaks")
 	AIStatus = AI_OFF
-	attack_verb_simple = "укусила"
 	gold_core_spawnable = NO_SPAWN
 	faction = list(ROLE_INTEQ)
 	/// Keeping track of the nuke disk for the functionality of storing it.
@@ -173,7 +150,7 @@
 /mob/living/simple_animal/hostile/carp/cayenne/examine(mob/user)
 	. = ..()
 	if(disky)
-		. += span_notice("Минуту... Это что, [disky] в [ru_ego()] пасти?")
+		. += span_notice("Wait... is that [disky] in [ru_ego()] mouth?")
 
 /mob/living/simple_animal/hostile/carp/cayenne/AttackingTarget(atom/attacked_target)
 	if(istype(attacked_target, /obj/item/disk/nuclear))
@@ -182,14 +159,14 @@
 			return
 		potential_disky.forceMove(src)
 		disky = potential_disky
-		to_chat(src, span_nicegreen("ДА!! Вам удалось подобрать [disky] (Кликните в пустое место, чтобы положить)."))
+		to_chat(src, span_nicegreen("YES!! You manage to pick up [disky]. (Click anywhere to place it back down.)"))
 		update_icon()
 		if(!disky.fake)
 			client.give_award(/datum/award/achievement/misc/cayenne_disk, src)
 		return
 	if(disky)
 		if(isopenturf(attacked_target))
-			to_chat(src, span_notice("Вы положили [disky] на [attacked_target]"))
+			to_chat(src, span_notice("You place [disky] on [attacked_target]"))
 			disky.forceMove(attacked_target.drop_location())
 			disky = null
 			update_icon()

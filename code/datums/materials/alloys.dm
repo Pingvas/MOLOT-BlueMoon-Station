@@ -88,16 +88,6 @@
 	categories = list(MAT_CATEGORY_RIGID=TRUE, MAT_CATEGORY_BASE_RECIPES=TRUE, MAT_CATEGORY_ITEM_MATERIAL=TRUE)
 	composition = list(/datum/material/glass=1, /datum/material/plasma=0.5)
 
-/datum/material/alloy/plasmaglass/on_applied_turf(turf/T, amount, material_flags)
-	. = ..()
-	if(istype(T, /turf/closed/wall/material))
-		T.pass_flags_self |= PASSGLASS
-
-/datum/material/alloy/plasmaglass/on_removed_turf(turf/T, amount, material_flags)
-	if(istype(T, /turf/closed/wall/material))
-		T.pass_flags_self &= ~PASSGLASS
-	return ..()
-
 /** Titaniumglass
  *
  * An alloy of glass and titanium.
@@ -114,16 +104,6 @@
 	value_per_unit = 0.04
 	categories = list(MAT_CATEGORY_RIGID=TRUE, MAT_CATEGORY_BASE_RECIPES=TRUE, MAT_CATEGORY_ITEM_MATERIAL=TRUE)
 	composition = list(/datum/material/glass=1, /datum/material/titanium=0.5)
-
-/datum/material/alloy/titaniumglass/on_applied_turf(turf/T, amount, material_flags)
-	. = ..()
-	if(istype(T, /turf/closed/wall/material))
-		T.pass_flags_self |= PASSGLASS
-
-/datum/material/alloy/titaniumglass/on_removed_turf(turf/T, amount, material_flags)
-	if(istype(T, /turf/closed/wall/material))
-		T.pass_flags_self &= ~PASSGLASS
-	return ..()
 
 /** Plastitanium Glass
  *
@@ -142,16 +122,6 @@
 	value_per_unit = 0.125
 	categories = list(MAT_CATEGORY_RIGID=TRUE, MAT_CATEGORY_BASE_RECIPES=TRUE, MAT_CATEGORY_ITEM_MATERIAL=TRUE)
 	composition = list(/datum/material/glass=1, /datum/material/alloy/plastitanium=0.5)
-
-/datum/material/alloy/plastitaniumglass/on_applied_turf(turf/T, amount, material_flags)
-	. = ..()
-	if(istype(T, /turf/closed/wall/material))
-		T.pass_flags_self |= PASSGLASS
-
-/datum/material/alloy/plastitaniumglass/on_removed_turf(turf/T, amount, material_flags)
-	if(istype(T, /turf/closed/wall/material))
-		T.pass_flags_self &= ~PASSGLASS
-	return ..()
 
 /** Alien Alloy
  *

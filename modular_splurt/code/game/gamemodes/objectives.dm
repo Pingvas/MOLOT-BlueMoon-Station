@@ -2,19 +2,7 @@
 	name = "rescue prisoner"
 
 /datum/objective/rescue_prisoner/find_target(dupe_search_range, blacklist)
-	// Микрочистка списка
-	var/list/weakref_to_clean = list()
-	for(var/datum/weakref/weak_target in GLOB.roundstart_prisoners)
-		if(!weak_target.resolve())
-			weakref_to_clean += weak_target
-
-	GLOB.roundstart_prisoners -= weakref_to_clean
-
-	if(!length(GLOB.roundstart_prisoners))
-		qdel(src)
-		return FALSE
-	var/datum/weakref/weak_target = pick(GLOB.roundstart_prisoners)
-	var/mob/living/rescue_target = weak_target.resolve()
+	var/mob/living/rescue_target = pick(GLOB.roundstart_prisoners)
 	if(!rescue_target)
 		qdel(src)
 		return FALSE

@@ -13,8 +13,8 @@
 	outfit = /datum/outfit/job/bouncer
 	plasma_outfit = /datum/outfit/plasmaman/bar
 
-	access = list(ACCESS_HYDROPONICS, ACCESS_BAR, ACCESS_KITCHEN, ACCESS_MORGUE, ACCESS_WEAPONS, ACCESS_MINERAL_STOREROOM, ACCESS_PRODUCTION_SERVICE)
-	minimal_access = list(ACCESS_BAR, ACCESS_MINERAL_STOREROOM, ACCESS_PRODUCTION_SERVICE)
+	access = list(ACCESS_HYDROPONICS, ACCESS_BAR, ACCESS_KITCHEN, ACCESS_MORGUE, ACCESS_WEAPONS, ACCESS_MINERAL_STOREROOM)
+	minimal_access = list(ACCESS_BAR, ACCESS_MINERAL_STOREROOM)
 	paycheck = PAYCHECK_EASY
 	paycheck_department = ACCOUNT_SRV
 	bounty_types = CIV_JOB_DRINK
@@ -35,8 +35,8 @@
 		"Doorwoman",
 		"Hired Muscle",
 		"Public Defender",
-		"Service Guard",
-		"Slapper",
+		"Sevice Guard",
+		"Slapper"
 		)
 
 /////////////////////////////

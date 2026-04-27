@@ -1,10 +1,29 @@
+// Spawn location where-targets - must match TGUI constants.ts strings
+#define WHERE_FLOOR_BELOW_MOB        "Под существом"
+#define WHERE_SUPPLY_BELOW_MOB       "Под существом дроп-подом"
+#define WHERE_TELEPORT_BELOW_MOB     "Под существом телепортацией"
+#define WHERE_MOB_HAND               "В ваших руках/лапах"
+#define WHERE_MARKED_OBJECT          "На маркированном объекте"
+#define WHERE_IN_MARKED_OBJECT       "В маркированном объекте"
+#define WHERE_TARGETED_LOCATION      "Таргетная локация"
+#define WHERE_TARGETED_LOCATION_POD  "Таргетная локация дроп-подом"
+#define WHERE_TARGETED_MOB_HAND      "В руках/лапах выбранного существа"
+
+// Precise mode states
+#define PRECISE_MODE_OFF    "Off"
+#define PRECISE_MODE_TARGET "Target"
+#define PRECISE_MODE_COPY   "Copy"
+
+// Offset types
+#define OFFSET_ABSOLUTE "Absolute offset"
+#define OFFSET_RELATIVE "Relative offset"
+
 /datum/spawnpanel
 	var/where_target_type = WHERE_FLOOR_BELOW_MOB
 	var/selected_atom = null
 	var/selected_icon = null // base64 of current atom icon, generated on selection
 	var/atom_amount = 1
 	var/atom_name = null
-	var/atom_desc = null
 	var/atom_dir = 2
 	var/list/offset
 	var/offset_type = OFFSET_RELATIVE
@@ -53,7 +72,6 @@
 		"where_target_type" = where_target_type,
 		"atom_amount" = atom_amount,
 		"atom_name" = atom_name,
-		"atom_desc" = atom_desc,
 		"atom_dir" = atom_dir,
 		"offset" = list(offset["X"], offset["Y"], offset["Z"]),
 		"offset_type" = offset_type,
@@ -71,9 +89,6 @@
 			selected_atom = params["newObj"]
 			selected_icon = null
 			atom_name = null
-			atom_desc = null
-			if(!selected_atom && precise_mode == PRECISE_MODE_TARGET)
-				toggle_precise_mode(PRECISE_MODE_OFF, ui.user)
 			if(selected_atom)
 				var/path = text2path(selected_atom)
 				if(path)
@@ -91,14 +106,10 @@
 		if("update-settings")
 			if(!isnull(params["where_target_type"]))
 				where_target_type = params["where_target_type"]
-				if(precise_mode != PRECISE_MODE_OFF && !(where_target_type in list(WHERE_TARGETED_LOCATION, WHERE_TARGETED_LOCATION_POD, WHERE_TARGETED_MOB_HAND, WHERE_TARGETED_MOB_BAG)))
-					toggle_precise_mode(PRECISE_MODE_OFF, ui.user)
 			if(!isnull(params["atom_amount"]))
 				atom_amount = clamp(text2num(params["atom_amount"]) || 1, 1, ADMIN_SPAWN_CAP)
 			if(!isnull(params["atom_name"]))
 				atom_name = sanitize(params["atom_name"]) || null
-			if(!isnull(params["atom_desc"]))
-				atom_desc = sanitize(params["atom_desc"]) || null
 			if(!isnull(params["atom_dir"]))
 				atom_dir = text2num(params["atom_dir"])
 			if(!isnull(params["offset"]))
@@ -121,8 +132,6 @@
 				atom_amount = clamp(text2num(params["atom_amount"]) || 1, 1, ADMIN_SPAWN_CAP)
 			if(!isnull(params["atom_name"]))
 				atom_name = sanitize(params["atom_name"]) || null
-			if(!isnull(params["atom_desc"]))
-				atom_desc = sanitize(params["atom_desc"]) || null
 			if(!isnull(params["atom_dir"]))
 				atom_dir = text2num(params["atom_dir"])
 			if(!isnull(params["offset"]))
@@ -137,7 +146,6 @@
 				"type" = use_atom,
 				"amount" = atom_amount,
 				"atom_name" = atom_name,
-				"atom_desc" = atom_desc,
 				"atom_dir" = atom_dir,
 				"where" = where_target_type,
 				"offsetX" = offset["X"],
@@ -156,7 +164,7 @@
 	return FALSE
 
 /datum/spawnpanel/proc/toggle_precise_mode(new_mode, mob/user = owner)
-	if(!selected_atom && new_mode == PRECISE_MODE_TARGET)
+	if(!selected_atom && new_mode != PRECISE_MODE_OFF)
 		to_chat(user, span_warning("SpawnPanel: select an atom first."))
 		return
 	if(!user?.client)
@@ -191,7 +199,6 @@
 				"type" = selected_atom,
 				"amount" = atom_amount,
 				"atom_name" = atom_name,
-				"atom_desc" = atom_desc,
 				"atom_dir" = atom_dir,
 				"where" = where_target_type,
 				"offsetX" = 0,
@@ -199,7 +206,7 @@
 				"offsetZ" = 0,
 				"offset_type" = OFFSET_RELATIVE,
 			)
-			if(where_target_type == WHERE_TARGETED_MOB_HAND || where_target_type == WHERE_TARGETED_MOB_BAG)
+			if(where_target_type == WHERE_TARGETED_MOB_HAND)
 				spawn_params["targetMob"] = ismob(target) ? target : null
 			else
 				spawn_params["targetTurf"] = get_turf(target)

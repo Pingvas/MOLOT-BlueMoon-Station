@@ -671,10 +671,11 @@
 
 /obj/effect/spawner/lootdrop/techstorage/command
 	name = "secure command circuit board spawner"
-	lootcount = 2
+	lootcount = 3
 	loot = list(
 				/obj/item/circuitboard/computer/crew,
-				/obj/item/circuitboard/computer/communications
+				/obj/item/circuitboard/computer/communications,
+				/obj/item/circuitboard/computer/card
 				)
 
 /obj/effect/spawner/lootdrop/techstorage/RnD_secure

@@ -437,7 +437,7 @@
 /obj/effect/turf_decal/tile/blue{
 	dir = 8
 	},
-/obj/machinery/modular_computer/console/preset/id{
+/obj/machinery/computer/card/minor/cmo{
 	dir = 4
 	},
 /obj/machinery/computer/security/telescreen/cmo{
@@ -6480,7 +6480,7 @@
 	dir = 1
 	},
 /obj/machinery/atmospherics/components/unary/vent_scrubber/on/layer3,
-/obj/machinery/modular_computer/console/preset/id,
+/obj/machinery/computer/card,
 /obj/machinery/camera/autoname,
 /turf/open/floor/plasteel,
 /area/security/checkpoint/customs)
@@ -10804,7 +10804,7 @@
 /turf/open/floor/engine,
 /area/science/xenobiology)
 "dvb" = (
-/obj/machinery/modular_computer/console/preset/id,
+/obj/machinery/computer/card/minor/qm,
 /obj/effect/turf_decal/trimline/brown/filled/line{
 	dir = 5
 	},
@@ -13045,6 +13045,7 @@
 	},
 /turf/open/floor/plasteel{
 	dir = 8;
+	icon_plating = "floor";
 	icon_state = "floor_whole_alt"
 	},
 /area/tcommsat/server)
@@ -16957,7 +16958,7 @@
 /turf/open/floor/carpet,
 /area/command/heads_quarters/captain)
 "flY" = (
-/obj/machinery/modular_computer/console/preset/id{
+/obj/machinery/computer/card{
 	dir = 8
 	},
 /obj/machinery/atmospherics/pipe/simple/scrubbers/hidden/layer3,
@@ -19185,7 +19186,7 @@
 	},
 /obj/effect/decal/cleanable/dirt,
 /obj/effect/decal/cleanable/dirt,
-/obj/item/coin/pokerchip/green,
+/obj/item/coin/green,
 /turf/open/floor/plasteel/grimy,
 /area/maintenance/central/brothel)
 "fZz" = (
@@ -24624,7 +24625,7 @@
 	pixel_x = 6;
 	pixel_y = 11
 	},
-/obj/item/coin/pokerchip/black,
+/obj/item/coin/black,
 /turf/open/floor/plasteel/grimy,
 /area/maintenance/central/brothel)
 "hIW" = (
@@ -31498,7 +31499,7 @@
 /turf/open/floor/plasteel,
 /area/security/brig)
 "jSZ" = (
-/obj/machinery/modular_computer/console/preset/id,
+/obj/machinery/computer/card,
 /turf/open/floor/wood,
 /area/command/heads_quarters/hop)
 "jTd" = (
@@ -41084,7 +41085,7 @@
 /turf/closed/wall,
 /area/maintenance/central/porn)
 "mYm" = (
-/obj/machinery/modular_computer/console/preset/id,
+/obj/machinery/computer/card/minor/ce,
 /obj/machinery/newscaster{
 	pixel_y = 34
 	},
@@ -52417,7 +52418,7 @@
 	pixel_x = 4;
 	pixel_y = 5
 	},
-/obj/item/coin/pokerchip/blue,
+/obj/item/coin/blue,
 /turf/open/floor/plasteel/grimy,
 /area/maintenance/central/brothel)
 "qwU" = (
@@ -62342,6 +62343,7 @@
 /obj/machinery/door/firedoor,
 /turf/open/floor/plasteel{
 	dir = 8;
+	icon_plating = "floor";
 	icon_state = "floor_whole_alt"
 	},
 /area/tcommsat/computer)
@@ -75924,7 +75926,7 @@
 	},
 /area/service/hydroponics)
 "xZE" = (
-/obj/machinery/modular_computer/console/preset/id{
+/obj/machinery/computer/card/minor/rd{
 	dir = 1
 	},
 /turf/open/floor/plasteel/checker,

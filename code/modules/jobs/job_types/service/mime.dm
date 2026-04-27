@@ -20,8 +20,8 @@
 	outfit = /datum/outfit/job/mime
 	plasma_outfit = /datum/outfit/plasmaman/mime
 
-	access = list(ACCESS_THEATRE, ACCESS_MINERAL_STOREROOM, ACCESS_PRODUCTION_SERVICE)
-	minimal_access = list(ACCESS_THEATRE, ACCESS_MINERAL_STOREROOM, ACCESS_PRODUCTION_SERVICE)
+	access = list(ACCESS_THEATRE)
+	minimal_access = list(ACCESS_THEATRE)
 	paycheck = PAYCHECK_MINIMAL
 	paycheck_department = ACCOUNT_SRV
 

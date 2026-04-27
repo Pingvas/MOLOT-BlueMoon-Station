@@ -70,9 +70,6 @@
 /datum/antagonist/ert/security/green
 	outfit = /datum/outfit/ert/security/green
 
-/datum/antagonist/ert/security/mopp
-	outfit = /datum/outfit/ert/security/mopp
-
 /datum/antagonist/ert/security/amber
 	outfit = /datum/outfit/ert/security/alert
 
@@ -86,9 +83,6 @@
 
 /datum/antagonist/ert/engineer/green
 	outfit = /datum/outfit/ert/engineer/green
-
-/datum/antagonist/ert/engineer/mopp
-	outfit = /datum/outfit/ert/engineer/mopp
 
 /datum/antagonist/ert/engineer/amber
 	outfit = /datum/outfit/ert/engineer/alert
@@ -104,9 +98,6 @@
 /datum/antagonist/ert/medic/green
 	outfit = /datum/outfit/ert/medic/green
 
-/datum/antagonist/ert/medic/mopp
-	outfit = /datum/outfit/ert/medic/mopp
-
 /datum/antagonist/ert/medic/amber
 	outfit = /datum/outfit/ert/medic/alert
 
@@ -118,14 +109,11 @@
 	outfit = /datum/outfit/ert/commander
 	leader = TRUE // BLUEMOON CHANGE enabling greet "if" condition for ERT leaders
 
-/datum/antagonist/ert/commander/green
-	outfit = /datum/outfit/ert/commander/green
-
-/datum/antagonist/ert/commander/mopp
-	outfit = /datum/outfit/ert/commander/mopp
-
 /datum/antagonist/ert/commander/amber
 	outfit = /datum/outfit/ert/commander/alert
+
+/datum/antagonist/ert/commander/green
+	outfit = /datum/outfit/ert/commander/green
 
 /datum/antagonist/ert/commander/red
 	outfit = /datum/outfit/ert/commander/alert/red

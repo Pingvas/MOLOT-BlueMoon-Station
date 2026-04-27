@@ -4,7 +4,6 @@
 	id = "weaponry"
 	display_name = "Weapon Development Technology"
 	description = "Our researchers have found new to weaponize just about everything now."
-	informing_radio_channels = list(RADIO_CHANNEL_SECURITY)
 	prereq_ids = list("sec_basic", "engineering") // BLUEMOON ADD sec_basic for order consistency
 	design_ids = list("pin_testing", "tele_shield", "lasercarbine")
 	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 7500)
@@ -13,7 +12,6 @@
 	id = "adv_weaponry"
 	display_name = "Advanced Weapon Development Technology"
 	description = "Our weapons are breaking the rules of reality by now."
-	informing_radio_channels = list(RADIO_CHANNEL_SECURITY)
 	prereq_ids = list("adv_engi", "weaponry")
 	design_ids = list("pin_loyalty", "laser_shield", "bullet_shield", "sec_shellclip")
 	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 9500)
@@ -22,7 +20,6 @@
 	id = "electronic_weapons"
 	display_name = "Electric Weapons"
 	description = "Weapons using electric technology"
-	informing_radio_channels = list(RADIO_CHANNEL_SECURITY)
 	prereq_ids = list("weaponry", "adv_power"  , "emp_basic")
 	design_ids = list("stunrevolver", "stunshell",  "ioncarbine")
 	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 3500)
@@ -31,7 +28,6 @@
 	id = "radioactive_weapons"
 	display_name = "Radioactive Weaponry"
 	description = "Weapons using radioactive technology."
-	informing_radio_channels = list(RADIO_CHANNEL_SECURITY)
 	prereq_ids = list("adv_engi", "adv_weaponry")
 	design_ids = list("nuclear_gun")
 	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 2500)
@@ -40,7 +36,6 @@
 	id = "magnetic_weapons"
 	display_name = "Magnetic Weapons"
 	description = "Weapons using magnetic technology"
-	informing_radio_channels = list(RADIO_CHANNEL_SECURITY)
 	prereq_ids = list("weaponry", "adv_weaponry", "emp_adv")
 	design_ids = list("magrifle", "magpistol", "mag_magrifle", "mag_magrifle_nl", "mag_magpistol", "mag_magpistol_nl")
 	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 2500)
@@ -49,7 +44,6 @@
 	id = "medical_weapons"
 	display_name = "Medical Weaponry"
 	description = "Weapons using medical technology."
-	informing_radio_channels = list(RADIO_CHANNEL_MEDICAL)
 	prereq_ids = list("adv_biotech", "adv_weaponry")
 	design_ids = list("rapidsyringe", "shotgundartcryostatis","smartdartrepeater")
 	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 2000)
@@ -58,7 +52,6 @@
 	id = "beam_weapons"
 	display_name = "Beam Weaponry"
 	description = "Various basic beam weapons"
-	informing_radio_channels = list(RADIO_CHANNEL_SECURITY)
 	prereq_ids = list("adv_weaponry")
 	design_ids = list("temp_gun", "xray_laser")
 	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 2500)
@@ -67,7 +60,6 @@
 	id = "adv_beam_weapons"
 	display_name = "Advanced Beam Weaponry"
 	description = "Various advanced beam weapons"
-	informing_radio_channels = list(RADIO_CHANNEL_SECURITY)
 	prereq_ids = list("beam_weapons")
 	design_ids = list("beamrifle")
 	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 3250) // Sniper
@@ -76,7 +68,6 @@
 	id = "explosive_weapons"
 	display_name = "Explosive & Pyrotechnical Weaponry"
 	description = "If the light stuff just won't do it."
-	informing_radio_channels = list(RADIO_CHANNEL_SCIENCE, RADIO_CHANNEL_MEDICAL)
 	prereq_ids = list("adv_weaponry")
 	design_ids = list("large_Grenade", "pyro_Grenade", "adv_Grenade")
 	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 2750)
@@ -85,7 +76,6 @@
 	id = "ballistic_weapons"
 	display_name = "Ballistic Weaponry"
 	description = "This isn't research.. This is reverse-engineering!"
-	informing_radio_channels = list(RADIO_CHANNEL_SECURITY)
 	prereq_ids = list("weaponry")
 	design_ids = list("mag_oldsmg", "mag_oldsmg_ap", "mag_oldsmg_ic", "mag_oldsmg_rubber", "mag_oldsmg_tx")
 	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 2750)
@@ -94,7 +84,6 @@
 	id = "exotic_ammo"
 	display_name = "Exotic Ammunition"
 	description = "They won't know what hit em."
-	informing_radio_channels = list(RADIO_CHANNEL_SECURITY)
 	prereq_ids = list("weaponry", "ballistic_weapons")
 	design_ids = list("techshotshell", "c38_hotshot", "c38_iceblox")
 	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 3500)
@@ -103,7 +92,6 @@
 	id = "gravity_gun"
 	display_name = "One-point Bluespace-gravitational Manipulator"
 	description = "Fancy wording for gravity gun."
-	informing_radio_channels = list(RADIO_CHANNEL_SCIENCE)
 	prereq_ids = list("adv_weaponry", "adv_bluespace")
 	design_ids = list("gravitygun", "mech_gravcatapult")
 	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 2500)
@@ -112,7 +100,6 @@
 	id = "mil_beam_weapons"
 	display_name = "Military Beam Weaponry"
 	description = "Military oriented Laser weapon system"
-	informing_radio_channels = list(RADIO_CHANNEL_SECURITY)
 	prereq_ids = list("beam_weapons")
 	design_ids = list("immolator")
 	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 15000) // Immolator

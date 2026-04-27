@@ -28,8 +28,9 @@
 
 	// Damaged printer causes the resulting paper to be somewhat harder to read.
 	if(damage > damage_malfunction)
-		text_to_print = stars(text_to_print, 100-malfunction_probability)
-	P.add_raw_text(text_to_print)
+		P.default_raw_text = stars(text_to_print, 100-malfunction_probability)
+	else
+		P.default_raw_text = text_to_print
 	if(paper_title)
 		P.name = paper_title
 	P.update_appearance()

@@ -129,7 +129,6 @@ GLOBAL_LIST_INIT(pp_implants, init_pp_implants())
 
 /datum/player_panel/ui_data(mob/user)
 	. = list()
-	.["has_live_client"] = !!targetMob.client
 	.["mob_name"] = targetMob.real_name
 	// .["current_permissions"] = user.client?.holder?.rank.rights
 	.["mob_type"] = targetMob.type
@@ -142,31 +141,23 @@ GLOBAL_LIST_INIT(pp_implants, init_pp_implants())
 		.["is_slept"] = L.admin_sleeping
 		.["mob_scale"] = mobSize
 
-	var/resolved_ckey = resolve_mob_ban_ckey(targetMob)
 	if(targetMob.client)
 		targetClient = targetMob.client
 		.["client_ckey"] = targetClient.ckey
 		.["client_muted"] = targetClient.prefs.muted
 		.["client_rank"] = targetClient.holder ? targetClient.holder.rank : "Player"
-	else
-		targetClient = null
-		.["client_ckey"] = resolved_ckey
-		.["client_muted"] = null
-		.["client_rank"] = null
 
-	if(resolved_ckey)
 		if (!roleStatus)
 			updateJobbanStatus()
 		.["roles"] = roleStatus
 		.["antag_ban_reason"] = antagBanReason
 		.["active_role_ban_count"] = activeRoleBans
+
 	else
+		targetClient = null
 		roleStatus = null
 		antagBanReason = null
-		activeRoleBans = null
-		.["roles"] = null
-		.["antag_ban_reason"] = null
-		.["active_role_ban_count"] = null
+		.["client_ckey"] = null
 
 	// Active martial art
 	var/mob/living/carbon/pp_carbon = targetMob
@@ -438,17 +429,14 @@ GLOBAL_LIST_INIT(pp_implants, init_pp_implants())
 			admin.holder.newBan(targetMob)
 
 		if ("sticky_ban")
-			var/tckey = resolve_mob_ban_ckey(targetMob)
-			if(!tckey)
-				to_chat(usr, "<span class='warning'>Cannot resolve ckey for sticky ban.</span>")
-				return
-			var/list/ban_settings = list("ckey" = tckey)
+			var/list/ban_settings = list()
+			if(targetMob.client)
+				ban_settings["ckey"] = targetMob.ckey
 			admin.holder.stickyban("add", ban_settings)
 
 		if ("notes")
-			var/note_ckey = resolve_mob_ban_ckey(targetMob)
-			if(note_ckey)
-				browse_messages(target_ckey = note_ckey)
+			if (targetMob.client)
+				browse_messages(target_ckey = targetMob.ckey)
 
 		if ("logs")
 			var/source = LOGSRC_MOB
@@ -458,7 +446,7 @@ GLOBAL_LIST_INIT(pp_implants, init_pp_implants())
 			show_individual_logging_panel(targetMob, source)
 
 		if ("job_ban")
-			if(resolve_mob_ban_ckey(targetMob))
+			if(targetMob.client)
 				process_banlist(params["selected_role"], params["is_category"], params["want_to_ban"])
 
 		if ("mute")
@@ -790,7 +778,7 @@ GLOBAL_LIST_INIT(pp_implants, init_pp_implants())
 		to_chat(usr, "Jobs subsystem not initialized yet!")
 		return
 
-	var/mob/M = targetMob
+	var/mob/M = targetClient.mob
 	var/list/jobs_to_set = list() // All the roles relating to the clicked button
 
 	if (is_category)
@@ -816,9 +804,9 @@ GLOBAL_LIST_INIT(pp_implants, init_pp_implants())
 
 	if (jobs_to_set_trimmed.len) // At least one role to get banned / unbanned
 		if (want_to_ban)
-			usr.client.holder.Jobban(M, jobs_to_set_trimmed)
+			usr.client.holder.Jobban(targetClient.mob, jobs_to_set_trimmed)
 		else
-			usr.client.holder.UnJobban(M, jobs_to_set_trimmed)
+			usr.client.holder.UnJobban(targetClient.mob, jobs_to_set_trimmed)
 
 	updateJobbanStatus() // Update TGUI data to reflect new ban statuses
 

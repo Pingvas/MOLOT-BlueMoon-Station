@@ -700,11 +700,7 @@
 
 /// Removes a single language.
 /atom/movable/proc/remove_language(language, language_flags = ALL, source = LANGUAGE_ALL)
-	if(QDELING(src))
-		return
-	if(!language_holder)
-		return
-	return language_holder.remove_language(language, language_flags, source)
+	return get_language_holder().remove_language(language, language_flags, source)
 
 /// Removes every language and sets omnitongue false.
 /atom/movable/proc/remove_all_languages(source = LANGUAGE_ALL, remove_omnitongue = FALSE)

@@ -11,14 +11,13 @@
 	alt_titles = list(
 		"Medical Intern", //Стажер выше, для удобства
 		"Interdyne Specialist", //Триглав выше, для удобства
+		"Syndicate Medical Techinician", //Синди выше, для удобства
 		"Coroner",
 		"Healing Fleshlight",
 		"Medi-Slut",
 		"Medi-Stud",
 		"Medical Examiner",
 		"Medical Secretary",
-		"Medical Resident",
-		"Medical Technician",
 		"Medtech",
 		"Nurse",
 		"Oral Doctor",
@@ -26,18 +25,17 @@
 		"Physician",
 		"Psychiatrist",
 		"Surgeon",
-		"Field Surgeon",
 		"Therapist",
 		"Trophologist",
-		"Xenosurgeon",
+		"Xenosurgeon"
 		)
 
 	outfit = /datum/outfit/job/doctor
 	departments = DEPARTMENT_BITFLAG_MEDICAL
 	plasma_outfit = /datum/outfit/plasmaman/medical
 
-	access = list(ACCESS_MEDICAL, ACCESS_MORGUE, ACCESS_SURGERY, ACCESS_CHEMISTRY, ACCESS_GENETICS, ACCESS_CLONING, ACCESS_VIROLOGY, ACCESS_MINERAL_STOREROOM, ACCESS_PRODUCTION_MEDICAL)
-	minimal_access = list(ACCESS_MEDICAL, ACCESS_MORGUE, ACCESS_SURGERY, ACCESS_CLONING, ACCESS_MINERAL_STOREROOM, ACCESS_PRODUCTION_MEDICAL)
+	access = list(ACCESS_MEDICAL, ACCESS_MORGUE, ACCESS_SURGERY, ACCESS_CHEMISTRY, ACCESS_GENETICS, ACCESS_CLONING, ACCESS_VIROLOGY, ACCESS_MINERAL_STOREROOM)
+	minimal_access = list(ACCESS_MEDICAL, ACCESS_MORGUE, ACCESS_SURGERY, ACCESS_CLONING, ACCESS_MINERAL_STOREROOM)
 	paycheck = PAYCHECK_MEDIUM
 	paycheck_department = ACCOUNT_MED
 	bounty_types = CIV_JOB_MED

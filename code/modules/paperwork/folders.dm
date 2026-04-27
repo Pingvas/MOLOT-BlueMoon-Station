@@ -16,7 +16,6 @@
 	))
 	/// Do we hide the contents on examine?
 	var/contents_hidden = FALSE
-	var/max_contents = 30
 
 /obj/item/folder/suicide_act(mob/living/user)
 	user.visible_message(span_suicide("[user] begins filing an imaginary death warrant! It looks like [user.p_theyre()] trying to commit suicide!"))
@@ -33,19 +32,22 @@
 		important_thing.forceMove(drop_location()) //don't destroy round critical content such as objective documents.
 	return ..()
 
+/obj/item/folder/examine()
+	. = ..()
+	if(length(contents) && !contents_hidden)
+		. += span_notice("<b>Right-click</b> to remove [contents[1]].")
+
 /obj/item/folder/proc/rename(mob/user, obj/item/writing_instrument)
-	. = FALSE
 	if(!user.can_write(writing_instrument))
 		return
 
-	var/inputvalue = tgui_input_text(user, "What would you like to label the [src]?", "Labelling", max_length = MAX_NAME_LEN)
+	var/inputvalue = tgui_input_text(user, "What would you like to label the folder?", "Folder Labelling", max_length = MAX_NAME_LEN)
 
 	if(!inputvalue)
 		return
 
 	if(user.canUseTopic(src))
-		name = "[initial(name)] - '[inputvalue]'"
-		return TRUE
+		name = "folder[(inputvalue ? " - '[inputvalue]'" : null)]"
 
 /obj/item/folder/proc/remove_item(obj/item/Item, mob/user)
 	if(istype(Item))
@@ -59,20 +61,17 @@
 	if(contents.len)
 		. += "folder_paper"
 
-/obj/item/folder/attackby(obj/item/I, mob/user, params)
-	if(burn_paper_product_attackby_check(I, user))
+/obj/item/folder/attackby(obj/item/weapon, mob/user, params)
+	if(burn_paper_product_attackby_check(weapon, user))
 		return
-	if(is_type_in_typecache(I, folder_insertables))
-		if(LAZYLEN(contents) >= max_contents)
-			user.balloon_alert(user, "Нет места")
-			return
+	if(is_type_in_typecache(weapon, folder_insertables))
 		//Add paper, photo or documents into the folder
-		if(!user.transferItemToLoc(I, src))
+		if(!user.transferItemToLoc(weapon, src))
 			return
-		to_chat(user, span_notice("You put [I] into [src]."))
+		to_chat(user, span_notice("You put [weapon] into [src]."))
 		update_appearance()
-	else if(istype(I, /obj/item/pen))
-		rename(user, I)
+	else if(istype(weapon, /obj/item/pen))
+		rename(user, weapon)
 
 /obj/item/folder/attack_self(mob/user)
 	add_fingerprint(usr)

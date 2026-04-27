@@ -31,12 +31,12 @@ export const BluespaceTap = (props, context) => {
       <Window.Content scrollable>
         {!!emagged && (
           <NoticeBox danger={1}>
-            Safety protocols disabled — nether breach chance rises with input level
+            Safety Protocols disabled
           </NoticeBox>
         )}
-        {!emagged && !!(inputLevel > safeLevels) && (
-          <NoticeBox warning>
-            High power load (no dimensional breach risk while safety protocols are active)
+        {!!(inputLevel > safeLevels) && (
+          <NoticeBox danger={1}>
+            High Power, Instability likely
           </NoticeBox>
         )}
         <Collapsible

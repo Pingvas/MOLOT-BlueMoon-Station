@@ -24,7 +24,7 @@ export const VariableMenu = (props, context) => {
 
   return (
     <Section
-      title="Переменные схемы"
+      title="Variable Options"
       {...rest}
       fill
       height="100%"
@@ -70,7 +70,7 @@ export const VariableMenu = (props, context) => {
             <Stack vertical fill>
               <Stack.Item>
                 <Input
-                  placeholder="Имя переменной"
+                  placeholder="Name"
                   fluid
                   onInput={(e, nameVal) => setName(nameVal)}
                 />
@@ -84,14 +84,14 @@ export const VariableMenu = (props, context) => {
               </Stack.Item>
               <Stack.Item grow={1}>
                 <Button
-                  content="Добавить переменную"
+                  content="Add Variable"
                   onClick={(e) => onAddVariable(name, type, e)}
                   fluid
                 />
               </Stack.Item>
               <Stack.Item>
                 <Button
-                  content="Сеттер"
+                  content="Add Setter"
                   fluid
                   icon="plus"
                   onClick={handleAddSetter}
@@ -99,7 +99,7 @@ export const VariableMenu = (props, context) => {
               </Stack.Item>
               <Stack.Item>
                 <Button
-                  content="Геттер"
+                  content="Add Getter"
                   fluid
                   icon="plus"
                   onClick={handleAddGetter}

@@ -4,7 +4,6 @@
 	id = "robotics"
 	display_name = "Basic Robotics Research"
 	description = "Programmable machines that make our lives lazier."
-	informing_radio_channels = list(RADIO_CHANNEL_SCIENCE)
 	prereq_ids = list("base")
 	design_ids = list("paicard", "drone_shell")
 	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 2000)
@@ -14,7 +13,6 @@
 	starting_node = TRUE
 	display_name = "Man Machine Interface"
 	description = "A slightly Frankensteinian device that allows human brains to interface natively with software APIs."
-	informing_radio_channels = list(RADIO_CHANNEL_SCIENCE)
 	design_ids = list("mmi")
 
 /datum/techweb_node/cyborg
@@ -22,7 +20,6 @@
 	starting_node = TRUE
 	display_name = "Cyborg Construction"
 	description = "Sapient robots with preloaded tool modules and programmable laws."
-	informing_radio_channels = list(RADIO_CHANNEL_SCIENCE)
 	design_ids = list(/*"robocontrol", */"sflash", "borg_suit", "borg_head", "borg_chest", "borg_r_arm", "borg_l_arm", "borg_r_leg", "borg_l_leg", /*"borgupload",*/ /*BlueMoon edit*/
 	"cyborgrecharger", "borg_upgrade_restart", "borg_upgrade_rename")
 
@@ -30,7 +27,6 @@
 	id = "adv_robotics"
 	display_name = "Advanced Robotics Research"
 	description = "It can even do the dishes!"
-	informing_radio_channels = list(RADIO_CHANNEL_SCIENCE)
 	prereq_ids = list("robotics")
 	design_ids = list("borg_upgrade_diamonddrill", "borg_upgrade_advancedmop", "borg_upgrade_advcutter", "nanogel", "robotic_pr")
 	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 3000)
@@ -39,7 +35,6 @@
 	id = "neural_programming"
 	display_name = "Neural Programming"
 	description = "Study into networks of processing units that mimic our brains."
-	informing_radio_channels = list(RADIO_CHANNEL_SCIENCE, RADIO_CHANNEL_MEDICAL)
 	prereq_ids = list("biotech", "datatheory")
 	design_ids = list("Implanter", "implantcase", "impant_radio", "implant_chem", "implant_tracking", "locator", "c38_trac", "implant_gfluid", "implant_slave", "implant_hide_backpack")
 	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 2500)
@@ -48,7 +43,6 @@
 	id = "posibrain"
 	display_name = "Positronic Brain"
 	description = "Applied usage of neural technology allowing for autonomous AI units based on special metallic cubes with conductive and processing circuits."
-	informing_radio_channels = list(RADIO_CHANNEL_SCIENCE)
 	prereq_ids = list("neural_programming")
 	design_ids = list("mmi_posi")
 	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 2500)
@@ -57,7 +51,6 @@
 	id = "cyborg_upg_util"
 	display_name = "Cyborg Upgrades: Utility"
 	description = "Utility upgrades for cyborgs."
-	informing_radio_channels = list(RADIO_CHANNEL_SCIENCE)
 	prereq_ids = list("engineering", "robotics")
 	design_ids = list("borg_upgrade_lavaproof", "borg_upgrade_thrusters", "borg_upgrade_selfrepair", "borg_upgrade_expand", "borg_upgrade_rped", "borg_upgrade_broomer")
 	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 2000)
@@ -66,7 +59,6 @@
 	id = "cyborg_upg_med"
 	display_name = "Cyborg Upgrades: Medical"
 	description = "Medical upgrades for cyborgs."
-	informing_radio_channels = list(RADIO_CHANNEL_SCIENCE)
 	prereq_ids = list("adv_biotech", "robotics")
 	design_ids = list("borg_upgrade_advhealth", "borg_upgrade_piercinghypospray", "borg_upgrade_highstrengthsynthesiser", "borg_upgrade_expandedsynthesiser", "borg_upgrade_pinpointer", "borg_upgrade_surgicalprocessor")
 	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 2000)
@@ -75,7 +67,6 @@
 	id = "cyborg_upg_combat"
 	display_name = "Cyborg Upgrades: Combat"
 	description = "Military grade upgrades for cyborgs."
-	informing_radio_channels = list(RADIO_CHANNEL_SCIENCE)
 	prereq_ids = list("adv_robotics", "adv_engi" , "weaponry")
 	design_ids = list("borg_upgrade_vtec", "borg_upgrade_disablercooler")
 	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 5000)
@@ -84,7 +75,6 @@
 	id = "ai"
 	display_name = "Artificial Intelligence"
 	description = "AI unit research."
-	informing_radio_channels = list(RADIO_CHANNEL_SCIENCE)
 	prereq_ids = list("robotics", "posibrain")
 	design_ids = list("aifixer", "aicore", "safeguard_module", "onehuman_module", "protectstation_module", "quarantine_module", "oxygen_module", "freeform_module",
 	"reset_module", "purge_module", "remove_module", "freeformcore_module", "asimov_module", "asimovpp_module", "gentleman_module", "maintain_module", "drone_module", "hippocratic_module", "robocop_module",
@@ -98,7 +88,6 @@
 	id = "cyborg_upg_jukebox"
 	display_name = "Cyborg Upgrades: Jukebox"
 	description = "Позволяет киборгам транслировать музыку, используя внутренние аудиосистемы."
-	informing_radio_channels = list(RADIO_CHANNEL_SCIENCE)
 	prereq_ids = list("adv_biotech", "robotics")
 	design_ids = list("borg_upgrade_jukebox")
 	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 5000)
@@ -111,7 +100,6 @@
 	id = "link_ai"
 	display_name = "Advanced AI connectivity"
 	description = "Technologies related to neural interfaces"
-	informing_radio_channels = list(RADIO_CHANNEL_SCIENCE, RADIO_CHANNEL_MEDICAL)
 	prereq_ids = list("ai", "combat_cyber_implants")
 	design_ids = list("ai_link_implant")
 	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 7500)

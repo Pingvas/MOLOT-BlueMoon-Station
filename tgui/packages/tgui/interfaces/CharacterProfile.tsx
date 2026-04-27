@@ -154,34 +154,19 @@ const CharacterProfileImageElement = (props, context) => {
     (safeSelectedHeadshot + 1) % headshot_links.length
   );
 
-  const currentLink = headshot_links[safeSelectedHeadshot];
-  const isVideo = typeof currentLink === 'string' && /\.(webm|mp4)$/i.test(currentLink);
-  const mediaStyle = {
-    width: '256px',
-    height: '256px',
-    'max-width': '256px',
-    'max-height': '256px',
-    'object-fit': 'contain',
-  };
-
   if (headshot_links.length) { return (
     <Section title="Арт персонажа" pb="12" textAlign="center">
       <Box mb={1}>
-        {isVideo ? (
-          <video
-            src={currentLink as string}
-            autoPlay
-            loop
-            muted
-            playsInline
-            style={mediaStyle}
-          />
-        ) : (
-          <img
-            src={currentLink as string}
-            style={mediaStyle}
-          />
-        )}
+        <img
+          src={headshot_links[safeSelectedHeadshot]}
+          style={{
+            width: '256px',
+            height: '256px',
+            'max-width': '256px',
+            'max-height': '256px',
+            'object-fit': 'contain',
+          }}
+        />
       </Box>
       {headshot_links.length > 1 ? (
         <Box>

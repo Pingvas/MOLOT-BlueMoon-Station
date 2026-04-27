@@ -24,12 +24,6 @@ export const BluespaceArtillery = (props, context) => {
     powernet_power,
     power_suck_cap,
   } = data;
-
-  const maxCap = Math.max(1, Number(max_capacitor_charge) || 0);
-  const targetCap = Math.min(maxCap, Math.max(0, Number(target_capacitor_charge) || 0));
-  const capCharge = Math.max(0, Number(capacitor_charge) || 0);
-  const powerStep = 1e6;
-
   const canFire = connected && unlocked && target && status === 'SYSTEM READY';
   return (
     <Window
@@ -85,29 +79,25 @@ export const BluespaceArtillery = (props, context) => {
             >
               <LabeledList>
                 <LabeledList.Item label="Capacitor Charge">
-                  {formatPower(capCharge)}
+                  {formatPower(capacitor_charge)}
                 </LabeledList.Item>
                 <LabeledList.Item label="Powernet">
-                  {formatPower(powernet_power !== null ? Number(powernet_power) : null)}
-                  {' '}(suck cap:{' '}
-                  {formatPower(power_suck_cap !== null ? Number(power_suck_cap) : null)})
+                  {formatPower(powernet_power)} (suck cap: {formatPower(power_suck_cap)})
                 </LabeledList.Item>
-                <LabeledList.Item label="Target charge">
+                <LabeledList.Item label="Target charge (MW)">
                   <Slider
-                    value={targetCap}
-                    fillValue={Math.min(capCharge, maxCap)}
+                    value={target_capacitor_charge}
+                    fillValue={capacitor_charge}
                     minValue={0}
-                    maxValue={maxCap}
-                    step={powerStep}
+                    maxValue={max_capacitor_charge}
+                    step={1e6}
                     stepPixelSize={2}
-                    suppressFlicker={500}
                     format={(value) => formatPower(value)}
-                    onChange={(e, value) => {
-                      const v = Math.round(Number(value) / powerStep) * powerStep;
+                    onChange={(e, value) =>
                       act('capacitor_target_change', {
-                        capacitor_target: Math.min(maxCap, Math.max(0, v)),
-                      });
-                    }}
+                        capacitor_target: value,
+                      })
+                    }
                   />
                 </LabeledList.Item>
               </LabeledList>

@@ -4,7 +4,6 @@
 	id = "alientech"
 	display_name = "Alien Technology"
 	description = "Things used by the greys."
-	informing_radio_channels = list(RADIO_CHANNEL_ENGINEERING, RADIO_CHANNEL_SCIENCE)
 	prereq_ids = list("biotech","engineering")
 	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 5000)
 	hidden = TRUE
@@ -24,7 +23,6 @@
 	id = "alien_bio"
 	display_name = "Alien Biological Tools"
 	description = "Advanced biological tools."
-	informing_radio_channels = list(RADIO_CHANNEL_MEDICAL, RADIO_CHANNEL_SCIENCE)
 	prereq_ids = list("alientech", "advance_surgerytools")
 	design_ids = list("alien_scalpel", "alien_hemostat", "alien_retractor", "alien_saw", "alien_drill", "alien_cautery", "ayyplantgenes", "noreactsyringe", "surgery_revival")
 	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 5000)
@@ -33,7 +31,6 @@
 	id = "alien_engi"
 	display_name = "Advanced Engineering Tools" // BLUEMOON CHANGE
 	description = "Reverse engineered alien tools." // BLUEMOON CHANGE
-	informing_radio_channels = list(RADIO_CHANNEL_ENGINEERING, RADIO_CHANNEL_SCIENCE)
 	prereq_ids = list("alientech", "exp_tools")
 	design_ids = list("alien_wrench", "alien_wirecutters", "alien_screwdriver", "alien_crowbar", "alien_welder", "alien_multitool")
 	research_costs = list(TECHWEB_POINT_TYPE_GENERIC = 5000)

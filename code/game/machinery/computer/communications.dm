@@ -622,8 +622,7 @@
 				else if(syndicate)
 					data["canMakeAnnouncement"] = TRUE
 
-				var/obj/docking_port/mobile/emergency/emergency_shuttle = SSshuttle.emergency
-				if (emergency_shuttle && emergency_shuttle.mode != SHUTTLE_IDLE && emergency_shuttle.mode != SHUTTLE_RECALL)
+				if (SSshuttle.emergency.mode != SHUTTLE_IDLE && SSshuttle.emergency.mode != SHUTTLE_RECALL)
 					data["shuttleCalled"] = TRUE
 					data["shuttleRecallable"] = SSshuttle.canRecall() || syndicate
 
@@ -732,8 +731,7 @@
 	if (!authenticated_as_non_silicon_captain(user))
 		return FALSE
 
-	var/obj/docking_port/mobile/emergency/emergency_shuttle = SSshuttle.emergency
-	if (emergency_shuttle && emergency_shuttle.mode != SHUTTLE_RECALL && emergency_shuttle.mode != SHUTTLE_IDLE)
+	if (SSshuttle.emergency.mode != SHUTTLE_RECALL && SSshuttle.emergency.mode != SHUTTLE_IDLE)
 		return "The shuttle is already in transit."
 	if (SSshuttle.shuttle_purchased == SHUTTLEPURCHASE_PURCHASED)
 		return "A replacement shuttle has already been purchased."
@@ -799,7 +797,7 @@
 	ertemplate.opendoors = prefs["open_armory"]["value"] == "Yes" ? TRUE : FALSE
 	priority_announce("Внимание, [station_name()]. Мы формируем [ertemplate.polldesc] для отправки на станцию. Ожидайте.", "Инициализирован протокол ОБР", 'modular_bluemoon/sound/ert/ert_send.ogg') //BlueMoon sound
 
-	var/list/mob/candidates = pollGhostCandidates("Do you wish to be considered for [ertemplate.polldesc]?", "Deathsquad", null, minimum_required = ertemplate.teamsize, poll_header = "[ertemplate.polldesc]", poll_alert_pic = /obj/item/card/id/centcom)
+	var/list/mob/candidates = pollGhostCandidates("Do you wish to be considered for [ertemplate.polldesc]?", "Deathsquad", null, minimum_required = ertemplate.teamsize)
 	var/teamSpawned = FALSE
 
 	if(candidates.len > 0)

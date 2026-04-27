@@ -33,8 +33,6 @@
 	ammo_x_offset = 2
 	var/shaded_charge = FALSE //if this gun uses a stateful charge bar for more detail
 	var/selfcharge = EGUN_NO_SELFCHARGE // EGUN_SELFCHARGE if true, EGUN_SELFCHARGE_BORG drains the cyborg's cell to recharge its own
-	/// How much cell charge is restored each time self-charge ticks (after charge_delay process ticks).
-	var/selfcharge_amount = 100
 	var/charge_tick = 0
 	var/charge_delay = 4
 	var/use_cyborg_cell = FALSE //whether the gun drains the cyborg user's cell instead, not to be confused with EGUN_SELFCHARGE_BORG
@@ -108,9 +106,9 @@
 			if(!iscyborg(owner))
 				return
 			var/mob/living/silicon/robot/R = owner
-			if(!R.cell?.use(selfcharge_amount))
+			if(!R.cell?.use(100))
 				return
-		cell.give(selfcharge_amount)
+		cell.give(100)
 		if(!chambered) //if empty chamber we try to charge a new shot
 			recharge_newshot(TRUE)
 		update_appearance()

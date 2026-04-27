@@ -93,8 +93,7 @@
 	if(mood_events.len)
 		for(var/i in mood_events)
 			var/datum/mood_event/event = mood_events[i]
-			if(event?.description)
-				msg += event.description
+			msg += event.description
 	else
 		msg += "<span class='nicegreen'>Мне не на что сейчас реагировать.<span>\n"
 	to_chat(user || parent, examine_block(msg))

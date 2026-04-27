@@ -16,14 +16,13 @@ SUBSYSTEM_DEF(title_bm)
 	var/current_sfw_image
 	var/current_nsfw_image
 
-/// Перечитывает BM_LOBBY_HTML_FILE с диска и пересылает свежий HTML всем игрокам в лобби.
+/// Перечитывает lobby_html.txt с диска и пересылает свежий HTML всем игрокам в лобби.
 /// Возвращает количество обновлённых клиентов.
 /datum/controller/subsystem/title_bm/proc/reload_lobby_html()
 	if(fexists(BM_LOBBY_HTML_FILE))
 		lobby_html = _parse_lobby_html(file2text(BM_LOBBY_HTML_FILE))
 	else
-		lobby_html = ""
-		log_game("[name]: файл лобби [BM_LOBBY_HTML_FILE] не найден — используется запасная преамбула из кода.")
+		lobby_html = _parse_lobby_html(file2text('config/bluemoon/lobby_html.txt'))
 	var/refreshed = 0
 	for(var/mob/dead/new_player/player as anything in GLOB.new_player_list)
 		if(!player.client)
@@ -45,8 +44,7 @@ SUBSYSTEM_DEF(title_bm)
 	if(fexists(BM_LOBBY_HTML_FILE))
 		lobby_html = _parse_lobby_html(file2text(BM_LOBBY_HTML_FILE))
 	else
-		lobby_html = ""
-		log_game("[name]: файл лобби [BM_LOBBY_HTML_FILE] не найден — используется запасная преамбула из кода.")
+		lobby_html = _parse_lobby_html(file2text('config/bluemoon/lobby_html.txt'))
 
 	_load_title_images()
 

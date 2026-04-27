@@ -13,7 +13,7 @@
 	if(!..())
 		return FALSE
 	var/obj/item/organ/eyes/E = target.getorganslot(ORGAN_SLOT_EYES)
-	if(!E)
+	if(!E && (E.organ_flags & ORGAN_FAILING))
 		return FALSE
 	return TRUE
 

@@ -36,7 +36,7 @@
 
 	// Убираем возможность класть предметы на стол и в инвентарь
 	I.item_flags |= ABSTRACT
-	I.w_class = WEIGHT_CLASS_HUGE
+	w_class = WEIGHT_CLASS_HUGE
 
 	items_list += I
 	// ayy only dropped signal for performance, we can't possibly have shitcode that doesn't call it when removing items from a mob, right?
@@ -49,12 +49,10 @@
 	if(I in items_list)
 		if(I in contents)		//already in us somehow? i probably shouldn't catch this so it's easier to spot bugs but eh..
 			return
-		I.visible_message(span_notice("[I] snaps back into [src]!"))
+		I.visible_message("<span class='notice'>[I] snaps back into [src]!</span>")
+		I.forceMove(src)
 		if(I == holder)
-			Retract()
-		else
-			I.forceMove(src)
-			RetractPLaySound()
+			holder = null
 
 /obj/item/organ/cyberimp/arm/proc/SetSlotFromZone()
 	switch(zone)
@@ -101,19 +99,21 @@
 		// give the owner an idea about why his implant is glitching
 		Retract()
 
-/obj/item/organ/cyberimp/arm/proc/Retract(silent = FALSE)
+/obj/item/organ/cyberimp/arm/proc/Retract()
 	if(!holder || (holder in src))
 		return
 
+	owner.visible_message("<span class='notice'>[owner] retracts [holder] back into [owner.ru_ego()] [zone == BODY_ZONE_R_ARM ? "right" : "left"] arm.</span>",
+		"<span class='notice'>[holder] snaps back into your [zone == BODY_ZONE_R_ARM ? "right" : "left"] arm.</span>",
+		"<span class='italics'>You hear a short mechanical noise.</span>")
+
 	owner.transferItemToLoc(holder, src, TRUE)
 	holder = null
-	if(!silent)
-		RetractPLaySound()
-	return TRUE
+	RetractPLaySound()
 
 // If it is necessary to process sounds in a special way
 /obj/item/organ/cyberimp/arm/proc/RetractPLaySound()
-	playsound(get_turf(owner), 'sound/mecha/mechmove03.ogg', 30, 1)
+	playsound(get_turf(owner), 'sound/mecha/mechmove03.ogg', 50, 1)
 
 /obj/item/organ/cyberimp/arm/proc/Extend(obj/item/item)
 	if(!(item in src))
@@ -142,15 +142,19 @@
 	// Activate the hand that now holds our item.
 	owner.swap_hand(result)//... or the 1st hand if the index gets lost somehow
 
+	owner.visible_message(span_notice("[owner] extends [holder] from [owner.ru_ego()] [zone == BODY_ZONE_R_ARM ? "right" : "left"] arm."),
+		span_notice("You extend [holder] from your [zone == BODY_ZONE_R_ARM ? "right" : "left"] arm."),
+		span_notice("You hear a short mechanical noise."))
 	ExtendPlaySound(item)
 	return TRUE
 
 // If it is necessary to process sounds in a special way
 /obj/item/organ/cyberimp/arm/proc/ExtendPlaySound(obj/item/I)
-	playsound(get_turf(owner), 'sound/mecha/mechmove03.ogg', 30, 1)
+	playsound(get_turf(owner), 'sound/mecha/mechmove03.ogg', 50, 1)
 
 /obj/item/organ/cyberimp/arm/ui_action_click(mob/user, actiontype)
-	if(!is_operational(FALSE))
+	if(crit_fail || (organ_flags & ORGAN_FAILING) || (!holder && !contents.len))
+		to_chat(owner, "<span class='warning'>The implant doesn't respond. It seems to be broken...</span>")
 		return
 
 	if(!holder || (holder in src))
@@ -168,13 +172,6 @@
 	else
 		Retract()
 
-/obj/item/organ/cyberimp/arm/proc/is_operational(silent = TRUE)
-	if(crit_fail || (organ_flags & ORGAN_FAILING) || (!holder && !contents.len))
-		if(!silent)
-			to_chat(owner, span_warning("The implant doesn't respond. It seems to be broken..."))
-		return FALSE
-	return TRUE
-
 /obj/item/organ/cyberimp/arm/medibeam
 	name = "integrated medical beamgun"
 	desc = "A cybernetic implant that allows the user to project a healing beam from their hand."
@@ -187,18 +184,8 @@
 /obj/item/organ/cyberimp/arm/toolset
 	name = "integrated toolset implant"
 	desc = "A stripped-down version of the engineering cyborg toolset, designed to be installed on subject's arm. Contains all necessary tools."
-	contents = newlist(/obj/item/screwdriver/cyborg,
-						/obj/item/crowbar/cyborg,
-						/obj/item/wrench/cyborg,
-						/obj/item/wirecutters/cyborg,
-						/obj/item/weldingtool/largetank/cyborg,
-						/obj/item/multitool/cyborg)
-
-/obj/item/organ/cyberimp/arm/toolset/Retract(silent)
-	var/obj/item/weldingtool/weldingtool = holder
-	. = ..()
-	if(. && istype(weldingtool) && weldingtool.welding)
-		weldingtool.switched_off(owner)
+	contents = newlist(/obj/item/screwdriver/cyborg, /obj/item/wrench/cyborg, /obj/item/weldingtool/largetank/cyborg,
+		/obj/item/crowbar/cyborg, /obj/item/wirecutters/cyborg, /obj/item/multitool/cyborg)
 
 /obj/item/organ/cyberimp/arm/toolset/emag_act()
 	. = ..()
@@ -207,20 +194,13 @@
 	log_admin("[key_name(usr)] emagged [src] at [AREACOORD(src)]")
 	obj_flags |= EMAGGED
 	to_chat(usr, "<span class='notice'>You unlock [src]'s integrated knife!</span>")
-	add_item(new /obj/item/kitchen/knife/combat/cyborg)
+	items_list += new /obj/item/kitchen/knife/combat/cyborg(src)
 	return TRUE
 
 /obj/item/organ/cyberimp/arm/surgery
 	name = "surgical toolset implant"
 	desc = "A set of surgical tools hidden behind a concealed panel on the user's arm."
-	contents = newlist(/obj/item/surgical_drapes,
-						/obj/item/scalpel/augment,
-						/obj/item/hemostat/augment,
-						/obj/item/retractor/augment,
-						/obj/item/circular_saw/augment,
-						/obj/item/cautery/augment,
-						/obj/item/blood_filter/augment,
-						/obj/item/surgicaldrill/augment)
+	contents = newlist(/obj/item/surgical_drapes, /obj/item/scalpel/augment, /obj/item/hemostat/augment, /obj/item/retractor/augment, /obj/item/cautery/augment, /obj/item/circular_saw/augment, /obj/item/blood_filter/augment, /obj/item/surgicaldrill/augment)
 
 /obj/item/organ/cyberimp/arm/surgery/emag_act()
 	. = ..()
@@ -229,7 +209,7 @@
 	log_admin("[key_name(usr)] emagged [src] at [AREACOORD(src)]")
 	obj_flags |= EMAGGED
 	to_chat(usr, "<span class='notice'>You unlock [src]'s integrated knife!</span>")
-	add_item(new /obj/item/kitchen/knife/combat/cyborg)
+	items_list += new /obj/item/kitchen/knife/combat/cyborg(src)
 	return TRUE
 
 /obj/item/organ/cyberimp/arm/janitor
@@ -244,8 +224,8 @@
 	log_admin("[key_name(usr)] emagged [src] at [AREACOORD(src)]")
 	obj_flags |= EMAGGED
 	to_chat(usr, "<span class='notice'>You unlock [src]'s integrated deluxe cleaning supplies!</span>")
-	add_item(new /obj/item/soap/syndie) //We add not replace.
-	add_item(new /obj/item/reagent_containers/spray/cyborg_lube)
+	items_list += new /obj/item/soap/syndie(src) //We add not replace.
+	items_list += new /obj/item/reagent_containers/spray/cyborg_lube(src)
 	return TRUE
 
 /obj/item/organ/cyberimp/arm/service
@@ -260,7 +240,7 @@
 	log_admin("[key_name(usr)] emagged [src] at [AREACOORD(src)]")
 	obj_flags |= EMAGGED
 	to_chat(usr, "<span class='notice'>You unlock [src]'s integrated real knife!</span>")
-	add_item(new /obj/item/kitchen/knife/combat/cyborg)
+	items_list += new /obj/item/kitchen/knife/combat/cyborg(src)
 	return TRUE
 
 ///////////////
@@ -346,8 +326,8 @@
 	log_admin("[key_name(usr)] emagged [src] at [AREACOORD(src)]")
 	obj_flags |= EMAGGED
 	to_chat(usr, "<span class='notice'>You unlock [src]'s high-power flash!</span>")
-	var/obj/item/assembly/flash/armimplant/F = new
-	add_item(F)
+	var/obj/item/assembly/flash/armimplant/F = new(src)
+	items_list += F
 	F.I = src
 
 /////////////////

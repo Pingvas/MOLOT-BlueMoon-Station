@@ -9,10 +9,14 @@
 	max_equip = 6
 	nominalphrase = "sound/mecha/nominal_russian.ogg"
 
-/obj/vehicle/sealed/mecha/combat/durand/tu802/generate_actions()
+obj/vehicle/sealed/mecha/combat/durand/tu802/generate_actions()
 	. = ..()
 	initialize_passenger_action_type(/datum/action/vehicle/sealed/mecha/mech_smoke)
 	initialize_passenger_action_type(/datum/action/vehicle/sealed/mecha/russian/mech_zoom)
+
+/obj/vehicle/sealed/mecha/combat/durand/tu802/Initialize(mapload)
+	. = ..()
+
 
 /obj/vehicle/sealed/mecha/combat/durand/tu802/Initialize(mapload)
 	. = ..()
@@ -22,11 +26,11 @@
 	ME.attach(src)
 	ME = new /obj/item/mecha_parts/mecha_equipment/weapon/ballistic/missile_rack(src)
 	ME.attach(src)
-	ME = new /obj/item/mecha_parts/mecha_equipment/anticcw_armor_booster(src)
+	ME = new /obj/item/mecha_parts/mecha_equipment/anticcw_armor_booster
 	ME.attach(src)
-	ME = new /obj/item/mecha_parts/mecha_equipment/antiproj_armor_booster(src)
+	ME = new /obj/item/mecha_parts/mecha_equipment/antiproj_armor_booster
 	ME.attach(src)
-	ME = new /obj/item/mecha_parts/mecha_equipment/tesla_energy_relay(src)
+	ME = new /obj/item/mecha_parts/mecha_equipment/tesla_energy_relay
 	ME.attach(src)
 	max_ammo()
 
@@ -49,7 +53,10 @@
 	ME.detachable = FALSE
 	max_equip++
 	ME.attach(src)
-	ME = new /obj/item/mecha_parts/mecha_equipment/weapon/ballistic/lmg(src)
+
+/obj/vehicle/sealed/mecha/combat/savannah_ivanov/loaded/Initialize(mapload)
+	. = ..()
+	var/obj/item/mecha_parts/mecha_equipment/ME = new /obj/item/mecha_parts/mecha_equipment/weapon/ballistic/lmg(src)
 	ME.attach(src)
 	ME = new /obj/item/mecha_parts/mecha_equipment/weapon/ballistic/missile_rack(src)
 	ME.attach(src)
@@ -81,17 +88,17 @@
 	var/obj/item/mecha_parts/mecha_equipment/ME = new /obj/item/mecha_parts/mecha_equipment/thrusters/ion(src)
 	ME.detachable = FALSE
 	ME.attach(src)
-	ME = new /obj/item/mecha_parts/mecha_equipment/weapon/energy/tesla(src)
+	ME = new /obj/item/mecha_parts/mecha_equipment/weapon/energy/tesla
 	ME.detachable = FALSE
 	ME.attach(src)
-	ME = new /obj/item/mecha_parts/mecha_equipment/weapon/ballistic/lmg(src)
+	ME = new /obj/item/mecha_parts/mecha_equipment/weapon/ballistic/lmg
 	ME.detachable = FALSE
 	ME.attach(src)
-	ME = new /obj/item/mecha_parts/mecha_equipment/anticcw_armor_booster(src)
+	ME = new /obj/item/mecha_parts/mecha_equipment/anticcw_armor_booster
 	ME.attach(src)
-	ME = new /obj/item/mecha_parts/mecha_equipment/antiproj_armor_booster(src)
+	ME = new /obj/item/mecha_parts/mecha_equipment/antiproj_armor_booster
 	ME.attach(src)
-	ME = new /obj/item/mecha_parts/mecha_equipment/tesla_energy_relay(src)
+	ME = new /obj/item/mecha_parts/mecha_equipment/tesla_energy_relay
 	ME.attach(src)
 	max_ammo()
 

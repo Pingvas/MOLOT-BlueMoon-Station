@@ -12,7 +12,6 @@
 	icon_state = "miner"
 	density = FALSE
 	resistance_flags = INDESTRUCTIBLE|ACID_PROOF|FIRE_PROOF
-	use_power = IDLE_POWER_USE
 	var/spawn_id = null
 	var/spawn_temp = T20C
 	var/spawn_mol = MOLES_CELLSTANDARD * 10
@@ -72,22 +71,16 @@
 /obj/machinery/atmospherics/miner/proc/set_active(setting)
 	if(active != setting)
 		active = setting
-	else
-		active = !setting
-	update_icon()
+		update_icon()
 
 /obj/machinery/atmospherics/miner/proc/set_broken(setting)
 	if(broken != setting)
 		broken = setting
-	update_icon()
+		update_icon()
 
 /obj/machinery/atmospherics/miner/proc/update_power()
 	if(!active)
 		active_power_usage = idle_power_usage
-	if(powered() && !active)
-		set_active(active)
-	else if (!powered() && active)
-		set_active(!active)
 	var/turf/T = get_turf(src)
 	var/datum/gas_mixture/G = T.return_air()
 	var/P = G.return_pressure()
@@ -119,10 +112,6 @@
 	cut_overlays()
 	if(broken)
 		add_overlay("broken")
-	else if(!active)
-		var/mutable_appearance/off_overlay = mutable_appearance(icon, "off")
-		off_overlay.color = "#FF0000"
-		add_overlay(off_overlay)
 	else if(active)
 		var/mutable_appearance/on_overlay = mutable_appearance(icon, "on")
 		on_overlay.color = overlay_color
@@ -170,7 +159,7 @@
 
 /obj/machinery/atmospherics/miner/toxins
 	name = "\improper Plasma Gas Miner"
-	overlay_color = "#1cf7ff"
+	overlay_color = "#FF0000"
 	spawn_id = GAS_PLASMA
 
 /obj/machinery/atmospherics/miner/carbon_dioxide

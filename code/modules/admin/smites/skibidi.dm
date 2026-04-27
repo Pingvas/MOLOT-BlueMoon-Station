@@ -63,7 +63,7 @@
 	if(!head)
 		return
 
-	var/list/head_overlays = head.get_limb_icon(dropped = TRUE)
+	var/list/head_overlays = head.get_limb_icon(dropped = FALSE)
 	var/mutable_appearance/i_am_an_appearance_trust_me
 	switch(dir)
 		if(SOUTH)

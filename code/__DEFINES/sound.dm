@@ -227,7 +227,6 @@
 #define ANNOUNCER_XENO "xeno"
 #define ANNOUNCER_IROD "irod"
 #define ANNOUNCER_LAMBDA "lambda"
-#define ANNOUNCER_MUTANTS "mutants"
 
 
 /// Global list of all of our announcer keys.

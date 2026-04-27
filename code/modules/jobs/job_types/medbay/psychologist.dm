@@ -13,6 +13,7 @@
 	exp_type = EXP_TYPE_CREW
 
 	alt_titles = list(
+		"Syndicate Psychiatrist", //Синди выше, для удобства
 		"Counsellor",
 		"Hypnosis Expert",
 		"Hypnotherapist",
@@ -31,8 +32,8 @@
 
 	outfit = /datum/outfit/job/doctor/psychologist
 
-	access = list(ACCESS_MEDICAL, ACCESS_MORGUE, ACCESS_CLONING, ACCESS_MINERAL_STOREROOM, ACCESS_PSYCH, ACCESS_PRODUCTION_MEDICAL)
-	minimal_access = list(ACCESS_MEDICAL, ACCESS_MORGUE, ACCESS_CLONING, ACCESS_MINERAL_STOREROOM, ACCESS_PSYCH, ACCESS_PRODUCTION_MEDICAL)
+	access = list(ACCESS_MEDICAL, ACCESS_MORGUE, ACCESS_CLONING, ACCESS_MINERAL_STOREROOM, ACCESS_PSYCH)
+	minimal_access = list(ACCESS_MEDICAL, ACCESS_MORGUE, ACCESS_CLONING, ACCESS_MINERAL_STOREROOM, ACCESS_PSYCH)
 
 	display_order = JOB_DISPLAY_ORDER_PSYCH
 

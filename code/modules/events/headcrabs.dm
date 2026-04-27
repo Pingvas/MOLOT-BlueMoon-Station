@@ -22,8 +22,7 @@
 /datum/round_event/headcrabs/start()
 	var/list/availableareas = list()
 	for(var/area/maintenance/A in world)
-		for(var/turf/T in A)
-			availableareas += T
+		availableareas += A
 	for(var/turf/X in GLOB.xeno_spawn)
 		availableareas += X
 	var/list/spawn_types = list()
@@ -53,7 +52,7 @@
 	var/num = rand(2,max_number)
 
 	while(availableareas.len > 0 && num > 0)
-		var/turf/T = pick(availableareas)
+		var/turf/open/floor/T = pick(availableareas)
 		availableareas.Remove(T)
 		num--
 		var/spawn_type = pick(spawn_types)

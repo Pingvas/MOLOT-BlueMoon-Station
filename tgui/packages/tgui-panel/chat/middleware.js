@@ -91,7 +91,6 @@ const applySettings = (settings) => {
     settings.highlightColor,
     settings.matchWord,
     settings.matchCase);
-  chatRenderer.setHighlightSound(settings.highlightSoundEnabled);
 
   chatRenderer.setChatClasses(
     settings.chatStyle,

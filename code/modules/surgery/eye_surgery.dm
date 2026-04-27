@@ -14,9 +14,8 @@
 		return .
 
 	var/obj/item/organ/eyes/E = target.getorganslot(ORGAN_SLOT_EYES)
-	if(!E)
+	if(!E && (E.organ_flags & ORGAN_FAILING))
 		return FALSE
-	return TRUE
 
 //fix eyes
 /datum/surgery_step/fix_eyes

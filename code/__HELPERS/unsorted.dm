@@ -1600,11 +1600,7 @@ GLOBAL_DATUM_INIT(dview_mob, /mob/dview, new)
 
 /proc/generate_items_inside(list/items_list, where_to)
 	for(var/each_item in items_list)
-		var/count = items_list[each_item]
-		if(isnum(count))
-			for(var/i in 1 to count)
-				new each_item(where_to)
-		else
+		for(var/i in 1 to items_list[each_item])
 			new each_item(where_to)
 
 //Checks to see if either the victim has a garlic necklace or garlic in their blood

@@ -554,8 +554,7 @@
 		/obj/item/stack/rods,
 		/obj/item/stack/tile/plasteel,
 		/obj/item/grenade/chem_grenade/metalfoam,
-		/obj/item/grenade/chem_grenade/smart_metal_foam,
-		/obj/item/inducer
+		/obj/item/grenade/chem_grenade/smart_metal_foam
 		))
 
 /obj/item/storage/belt/grenade

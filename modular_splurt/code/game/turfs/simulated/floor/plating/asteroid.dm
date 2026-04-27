@@ -5,9 +5,10 @@
 	icon = 'modular_splurt/icons/turf/floors.dmi'
 	baseturfs = /turf/open/floor/plating/asteroid/layenia
 	icon_state = "layenia"
-	base_icon_state = "layenia"
+	icon_plating = "layenia"
 	initial_gas_mix = FROZEN_ATMOS
 	slowdown = 1
+	environment_type = "layenia"
 	flags_1 = NONE
 	heat_capacity = INFINITY //Makes it so no matter the heat, it will not burn out.
 	planetary_atmos = TRUE
@@ -24,7 +25,7 @@
 	. = ..()
 	icon_state = initial(icon_state)
 	if(prob(floor_variance))
-		icon_state = "[base_icon_state][rand(0,4)]"
+		icon_state = "[environment_type][rand(0,4)]"
 	set_layenia_light(src)
 
 /turf/open/floor/plating/asteroid/layenia/garden

@@ -248,10 +248,8 @@
 				SSshuttle.requestlist += SO
 			else
 				SSshuttle.shoppinglist += SO
-				if(self_paid && account)
+				if(self_paid)
 					say("Order processed. The price will be charged to [account.account_holder]'s bank account on delivery.")
-				else if(self_paid)
-					say("Order processed. Bank account could not be verified; charge may fail on delivery.")
 			if(requestonly && message_cooldown < world.time)
 				radio.talk_into(src, "Был запрошен новый заказ.", RADIO_CHANNEL_SUPPLY)
 				message_cooldown = world.time + 30 SECONDS

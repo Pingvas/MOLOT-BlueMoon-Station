@@ -142,14 +142,6 @@
 	if (tr_flags & TR_DEFAULTMSG)
 		to_chat(O, "<B>You are now a monkey.</B>")
 
-	if(tr_flags & TR_KEEPITEMS)
-		for(var/obj/item/C in O.loc)
-			if(C.anchored)
-				continue
-			O.equip_to_appropriate_slot(C)
-
-	transfer_trait_datums(O)
-
 	for(var/A in loc.vars)
 		if(loc.vars[A] == src)
 			loc.vars[A] = O
@@ -283,8 +275,8 @@
 			I.Insert(O, 1)
 
 
-	var/obj/item/bodypart/chest/torso = O.get_bodypart(BODY_ZONE_CHEST)
-	if(cavity_object && torso)
+	var/obj/item/bodypart/chest/torso = get_bodypart(BODY_ZONE_CHEST)
+	if(cavity_object)
 		torso.cavity_item = cavity_object //cavity item is given to the new chest
 		cavity_object.forceMove(O)
 
@@ -311,8 +303,6 @@
 	O.a_intent = INTENT_HELP
 	if (tr_flags & TR_DEFAULTMSG)
 		to_chat(O, "<B>You are now a human.</B>")
-
-	transfer_trait_datums(O)
 
 	transfer_observers_to(O)
 

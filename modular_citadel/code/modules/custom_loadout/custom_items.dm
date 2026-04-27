@@ -629,51 +629,33 @@
 	mob_overlay_icon = 'icons/mob/clothing/custom_w.dmi'
 	mutantrace_variation = NONE
 
-// Poker chips: /obj/item/coin/Initialize overwrites icon_state to economy.dmi sprites; restore custom art after ..()
-/obj/item/coin/pokerchip
-	name = "poker chip"
-	desc = "A poker chip."
-	icon = 'icons/obj/custom.dmi'
-	custom_materials = list()
-	material_flags = NONE
-	value = 0
-	var/chip_icon = "c_red"
-
-/obj/item/coin/pokerchip/Initialize(mapload)
-	. = ..()
-	icon = 'icons/obj/custom.dmi'
-	icon_state = chip_icon
-	item_state = chip_icon
-
-/obj/item/coin/pokerchip/play_coin_flip_animation()
-	return
-
-/obj/item/coin/pokerchip/apply_coin_flip_icon_state()
-	icon_state = chip_icon
-	item_state = chip_icon
-
-/obj/item/coin/pokerchip/coin_flip_hear_message()
-	return "<span class='hear'>You hear plastic clattering.</span>"
-
-/obj/item/coin/pokerchip/red
+/obj/item/coin/red
 	name = "red pokerchip"
 	desc = "A red pokerchip."
-	chip_icon = "c_red"
+	icon_state = "c_red"
+	item_state = "c_red"
+	icon = 'icons/obj/custom.dmi'
 
-/obj/item/coin/pokerchip/blue
+/obj/item/coin/blue
 	name = "blue pokerchip"
 	desc = "A blue pokerchip."
-	chip_icon = "c_blue"
+	icon_state = "c_nlue"
+	item_state = "c_blue"
+	icon = 'icons/obj/custom.dmi'
 
-/obj/item/coin/pokerchip/green
+/obj/item/coin/green
 	name = "green pokerchip"
 	desc = "A green pokerchip."
-	chip_icon = "c_green"
+	icon_state = "c_green"
+	item_state = "c_green"
+	icon = 'icons/obj/custom.dmi'
 
-/obj/item/coin/pokerchip/black
+/obj/item/coin/black
 	name = "black pokerchip"
 	desc = "A black pokerchip."
-	chip_icon = "c_black"
+	icon_state = "c_black"
+	item_state = "c_black"
+	icon = 'icons/obj/custom.dmi'
 
 /obj/item/storage/box/pockerchips
 	name = "tray of pocker chips"
@@ -682,22 +664,15 @@
 	icon = 'icons/obj/custom.dmi'
 	illustration=null
 
-/obj/item/storage/box/pockerchips/ComponentInitialize()
-	. = ..()
-	var/datum/component/storage/STR = GetComponent(/datum/component/storage)
-	STR.max_items = 50
-	STR.max_combined_w_class = WEIGHT_CLASS_TINY * 50
-	STR.can_hold = typecacheof(/obj/item/coin/pokerchip)
-
-/obj/item/storage/box/pockerchips/PopulateContents()
+/obj/item/storage/box/pokerchips/PopulateContents()
 	for(var/i in 1 to 5)
-		new /obj/item/coin/pokerchip/red(src)
+		new /obj/item/coin/red(src)
 	for(var/i in 1 to 10)
-		new /obj/item/coin/pokerchip/blue(src)
+		new /obj/item/coin/blue(src)
 	for(var/i in 1 to 15)
-		new /obj/item/coin/pokerchip/black(src)
+		new /obj/item/coin/black(src)
 	for(var/i in 1 to 20)
-		new /obj/item/coin/pokerchip/green(src)
+		new /obj/item/coin/green(src)
 
 //Bluemood ADD
 
@@ -708,31 +683,6 @@
 	icon = 'icons/obj/clothing/hats.dmi'
 	mob_overlay_icon = 'icons/mob/clothing/head.dmi'
 	mutantrace_variation = STYLE_MUZZLE
-	actions_types = list(/datum/action/item_action/toggle)
-	can_toggle = TRUE
-	mutantrace_variation = STYLE_MUZZLE
-	flags_inv = HIDEEARS | HIDEHAIR | HIDEHAIR
-	flags_cover = NONE
-	visor_flags_inv = NONE
-	visor_flags_cover = NONE
-
-/obj/item/clothing/head/assu_helmet/bp_helmet/attack_self(mob/user)
-	if(can_toggle && !user.incapacitated())
-		if(world.time > cooldown + toggle_cooldown)
-			cooldown = world.time
-			up = !up
-			flags_inv ^= visor_flags_inv
-			flags_cover ^= visor_flags_cover
-			icon_state = "[replacetext("[icon_state]", "_up", "")][up ? "_up" : ""]"
-			to_chat(user, "[up ? alt_toggle_message : toggle_message] \the [src]")
-
-			user.update_inv_head()
-			if(iscarbon(user))
-				var/mob/living/carbon/C = user
-				C.head_update(src, forced = 1)
-
-			if(active_sound)
-				if(up)
-					playsound(src.loc, "[active_sound]", 100, 0, 4)
+	flags_inv = HIDEEARS | HIDESNOUT | HIDEHAIR
 
 //Bluemood End

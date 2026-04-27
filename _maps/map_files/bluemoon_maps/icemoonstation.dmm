@@ -1036,7 +1036,7 @@
 	dir = 1
 	},
 /obj/effect/turf_decal/tile/blue,
-/obj/machinery/modular_computer/console/preset/id,
+/obj/machinery/computer/card/minor/cmo,
 /obj/effect/turf_decal/bot/yellow,
 /turf/open/floor/plasteel/white,
 /area/command/heads_quarters/cmo)
@@ -3650,16 +3650,15 @@
 /turf/open/floor/catwalk_floor/iron,
 /area/tcommsat/computer)
 "aLa" = (
+/obj/effect/mob_spawn/human/lavaland_syndicate{
+	dir = 8;
+	faction = list("Syndicate")
+	},
 /obj/machinery/button/door/directional/south{
 	name = "privacy shutters";
 	id = "glacierdorm3"
 	},
 /obj/effect/turf_decal/bot/yellow,
-/obj/effect/mob_spawn/human/lavaland_syndicate/shaft{
-	dir = 8;
-	mob_name = "a Syndicate 'Glacier' Combatant";
-	short_desc = "Вы Специалист по обеспечению безопасности Синдиката, работающий на Аванпосту Айсмуна и изучающий аномальное поле Системы Синих Лун. Вы второй по главенству оперативник после Специалиста Прослушки на Глейсире."
-	},
 /turf/open/floor/plasteel/grimy,
 /area/ruin/icemoon/unpowered/glacier/dormitories)
 "aLc" = (
@@ -14026,6 +14025,7 @@
 /obj/effect/turf_decal/trimline/blue/filled/line,
 /obj/machinery/door/window/northleft{
 	name = "First-Aid Supplies";
+	red_alert_access = 1;
 	req_access_txt = "5"
 	},
 /turf/open/floor/plasteel/white/textured/edge{
@@ -19065,7 +19065,7 @@
 	},
 /area/ruin/icemoon/unpowered/glacier/cafeteria)
 "dtW" = (
-/obj/machinery/modular_computer/console/preset/id{
+/obj/machinery/computer/card/minor/rd{
 	dir = 1
 	},
 /obj/effect/turf_decal/bot/yellow,
@@ -36889,6 +36889,9 @@
 	dir = 4
 	},
 /area/science/lab)
+"gIL" = (
+/turf/open/indestructible/hoteltile,
+/area/icemoon/surface/outdoors)
 "gIV" = (
 /obj/structure/girder,
 /turf/open/floor/plating/snowed/smoothed/icemoon,
@@ -45861,7 +45864,7 @@
 /turf/open/openspace,
 /area/icemoon/surface/outdoors)
 "ioD" = (
-/obj/machinery/modular_computer/console/preset/id{
+/obj/machinery/computer/card{
 	dir = 4
 	},
 /obj/effect/turf_decal/siding/wood{
@@ -48771,17 +48774,15 @@
 /turf/open/floor/plasteel/smooth/edge,
 /area/hallway/primary/fore)
 "iPj" = (
+/obj/effect/mob_spawn/human/lavaland_syndicate{
+	dir = 8;
+	faction = list("Syndicate")
+	},
 /obj/machinery/button/door/directional/south{
 	name = "privacy shutters";
 	id = "glacierdorm1"
 	},
 /obj/effect/turf_decal/bot/yellow,
-/obj/effect/mob_spawn/human/lavaland_syndicate{
-	dir = 8;
-	mob_name = "a Syndicate 'Glacier' Researcher";
-	name = "DS-1 Glacier Specialist";
-	short_desc = "Вы Научный Специалист Синдиката, работающий на Аванпосту Айсмуна и изучающий аномальное поле Системы Синих Лун."
-	},
 /turf/open/floor/plasteel/grimy,
 /area/ruin/icemoon/unpowered/glacier/dormitories)
 "iPk" = (
@@ -53414,6 +53415,7 @@
 /obj/effect/turf_decal/trimline/blue/filled/line,
 /obj/machinery/door/window/northleft{
 	name = "First-Aid Supplies";
+	red_alert_access = 1;
 	req_access_txt = "5"
 	},
 /turf/open/floor/plasteel/white/textured/edge{
@@ -66444,10 +66446,8 @@
 /area/commons/fitness/pool)
 "lUN" = (
 /obj/effect/turf_decal/bot/yellow,
-/obj/effect/mob_spawn/human/lavaland_syndicate/offcomm{
-	dir = 4;
-	mob_name = "a Syndicate 'Glacier' Leader";
-	short_desc = "Вы Офицер Коммуникаций, работающий на Аванпосту Айсмуна и руководящий объектом. Обеспечьте функционирование вверенного вам аванпоста. Проводите отчётную деятельность."
+/obj/effect/mob_spawn/human/lavaland_syndicate/comms{
+	dir = 4
 	},
 /turf/open/floor/plasteel/grimy,
 /area/ruin/icemoon/unpowered/glacier/dormitories)
@@ -69932,6 +69932,12 @@
 	color = "#ff1616"
 	},
 /turf/open/floor/plating/snowed/smoothed/icemoon,
+/area/icemoon/surface/outdoors)
+"mBR" = (
+/obj/structure/railing{
+	dir = 4
+	},
+/turf/open/indestructible/hoteltile,
 /area/icemoon/surface/outdoors)
 "mBT" = (
 /obj/machinery/atmospherics/pipe/manifold/scrubbers/hidden/layer3{
@@ -81558,8 +81564,7 @@
 	},
 /obj/machinery/firealarm/directional/north,
 /mob/living/simple_animal/pet/cat/kitten{
-	faction = list("neutral", "Syndicate");
-	name = "Murder Mittens"
+	faction = list("neutral", "Syndicate")
 	},
 /turf/open/floor/wood/wood_large,
 /area/ruin/icemoon/unpowered/glacier/dormitories)
@@ -102750,17 +102755,14 @@
 /turf/open/floor/plating,
 /area/tcommsat/lounge)
 "sFQ" = (
+/obj/effect/mob_spawn/human/lavaland_syndicate{
+	dir = 4
+	},
 /obj/machinery/button/door/directional/south{
 	name = "privacy shutters";
 	id = "glacierdorm2"
 	},
 /obj/effect/turf_decal/bot/yellow,
-/obj/effect/mob_spawn/human/lavaland_syndicate{
-	dir = 4;
-	mob_name = "a Syndicate 'Glacier' Researcher";
-	name = "DS-1 Glacier Specialist";
-	short_desc = "Вы Научный Специалист Синдиката, работающий на Аванпосту Айсмуна и изучающий аномальное поле Системы Синих Лун."
-	},
 /turf/open/floor/plasteel/grimy,
 /area/ruin/icemoon/unpowered/glacier/dormitories)
 "sFW" = (
@@ -119690,7 +119692,7 @@
 /turf/open/floor/plasteel/smooth/small,
 /area/service/sauna)
 "vGT" = (
-/obj/machinery/modular_computer/console/preset/id,
+/obj/machinery/computer/card/minor/hos,
 /turf/open/floor/carpet/red,
 /area/command/heads_quarters/hos)
 "vGV" = (
@@ -123087,7 +123089,7 @@
 /turf/open/floor/plasteel/textured,
 /area/engineering/storage/tech)
 "wmM" = (
-/obj/machinery/modular_computer/console/preset/id,
+/obj/machinery/computer/card/minor/ce,
 /obj/machinery/requests_console{
 	announcementConsole = 1;
 	department = "Chief Engineer's Desk";
@@ -123707,8 +123709,7 @@
 	dir = 4
 	},
 /mob/living/simple_animal/pet/cat/kitten{
-	faction = list("neutral", "Syndicate");
-	name = "Bayonet"
+	faction = list("neutral", "Syndicate")
 	},
 /turf/open/floor/plasteel/dark,
 /area/ruin/icemoon/unpowered/glacier/cafeteria)
@@ -124946,7 +124947,7 @@
 /turf/open/floor/plating/snowed/smoothed/icemoon,
 /area/icemoon/surface/outdoors)
 "wFy" = (
-/obj/machinery/modular_computer/console/preset/id,
+/obj/machinery/computer/card/minor/qm,
 /obj/effect/turf_decal/trimline/brown/filled/line{
 	dir = 5
 	},
@@ -184856,12 +184857,12 @@ ejG
 ejG
 ejG
 ejG
-nfd
-nfd
-nfd
-nfd
-nfd
-nfd
+ejG
+ejG
+ejG
+ejG
+ejG
+ejG
 ejG
 ejG
 ejG
@@ -185113,12 +185114,12 @@ ejG
 ejG
 ejG
 ejG
-nfd
-cTV
-cTV
-cTV
-cTV
-nfd
+ejG
+ejG
+ejG
+ejG
+ejG
+ejG
 ejG
 ejG
 ejG
@@ -185370,12 +185371,12 @@ ejG
 ejG
 ejG
 ejG
-nfd
-cTV
-cTV
-cTV
-cTV
-nfd
+ejG
+ejG
+ejG
+ejG
+ejG
+ejG
 ejG
 ejG
 ejG
@@ -185627,12 +185628,12 @@ ejG
 ejG
 ejG
 ejG
-nfd
-cTV
-cTV
-cTV
-cTV
-nfd
+ejG
+ejG
+ejG
+ejG
+ejG
+ejG
 ejG
 ejG
 ejG
@@ -185884,12 +185885,12 @@ ejG
 ejG
 ejG
 ejG
-nfd
-cTV
-cTV
-cTV
-cTV
-nfd
+ejG
+ejG
+ejG
+ejG
+ejG
+ejG
 ejG
 ejG
 ejG
@@ -186141,12 +186142,12 @@ ejG
 ejG
 ejG
 ejG
-nfd
-nfd
-nfd
-nfd
-nfd
-nfd
+ejG
+ejG
+ejG
+ejG
+ejG
+ejG
 ejG
 ejG
 ejG
@@ -186651,11 +186652,11 @@ ejG
 ejG
 ejG
 ejG
-nfd
-nfd
-nfd
-nfd
-nfd
+ejG
+ejG
+ejG
+ejG
+ejG
 ejG
 ejG
 ejG
@@ -186908,11 +186909,11 @@ ejG
 ejG
 ejG
 ejG
-nfd
-cTV
-cTV
-cTV
-nfd
+ejG
+ejG
+ejG
+ejG
+ejG
 ejG
 ejG
 ejG
@@ -187165,11 +187166,11 @@ ejG
 ejG
 ejG
 ejG
-nfd
-cTV
-cTV
-cTV
-nfd
+ejG
+ejG
+ejG
+ejG
+ejG
 ejG
 ejG
 ejG
@@ -187422,11 +187423,11 @@ ejG
 ejG
 ejG
 ejG
-nfd
-cTV
-cTV
-cTV
-nfd
+ejG
+ejG
+ejG
+ejG
+ejG
 ejG
 ejG
 ejG
@@ -187679,11 +187680,11 @@ ejG
 ejG
 ejG
 ejG
-nfd
-nfd
-nfd
-nfd
-nfd
+ejG
+ejG
+ejG
+ejG
+ejG
 ejG
 ejG
 ejG
@@ -250392,12 +250393,12 @@ ssT
 ssT
 ssT
 ssT
-nfd
-nfd
-nfd
-fYv
-fYv
-fYv
+ssT
+ssT
+ssT
+tjB
+tjB
+tjB
 tjB
 gAV
 ioO
@@ -250649,12 +250650,12 @@ ssT
 ssT
 ssT
 ssT
-nfd
-cTV
-cTV
-cTV
-cTV
-fYv
+ssT
+ssT
+ssT
+ssT
+ssT
+tjB
 tjB
 tjB
 gAV
@@ -250906,12 +250907,12 @@ ssT
 ssT
 ssT
 ssT
-fYv
 uya
 uya
 uya
 uya
-fYv
+uya
+tjB
 tjB
 tjB
 gAV
@@ -251163,12 +251164,12 @@ ssT
 ssT
 ssT
 ssT
-fYv
 uya
 uya
 uya
 uya
-fYv
+uya
+tjB
 tjB
 tjB
 tjB
@@ -251420,12 +251421,12 @@ ssT
 ssT
 ssT
 ssT
-fYv
 uya
 uya
 uya
 uya
-fYv
+uya
+tjB
 tjB
 tjB
 tjB
@@ -251677,12 +251678,12 @@ ssT
 ssT
 ssT
 ssT
-nfd
-nfd
-nfd
-nfd
-fYv
-fYv
+ssT
+ssT
+ssT
+ssT
+tjB
+tjB
 tjB
 tjB
 tjB
@@ -252187,11 +252188,11 @@ ssT
 ssT
 ssT
 ssT
-nfd
-nfd
-nfd
-nfd
-nfd
+ssT
+ssT
+ssT
+ssT
+ssT
 ssT
 ssT
 ssT
@@ -252444,11 +252445,11 @@ ssT
 ssT
 ssT
 ssT
-nfd
+ssT
 uya
 uya
 uya
-nfd
+ssT
 ssT
 ssT
 ssT
@@ -252701,11 +252702,11 @@ ssT
 ssT
 ssT
 ssT
-nfd
+ssT
 uya
 uya
 uya
-nfd
+ssT
 ssT
 ssT
 ssT
@@ -252958,11 +252959,11 @@ ssT
 ssT
 ssT
 ssT
-nfd
+ssT
 uya
 uya
 uya
-nfd
+ssT
 ssT
 ssT
 ssT
@@ -253215,11 +253216,11 @@ ssT
 ssT
 ssT
 ssT
-nfd
-nfd
-nfd
-nfd
-nfd
+ssT
+ssT
+ssT
+ssT
+ssT
 ssT
 ssT
 ssT
@@ -316186,9 +316187,9 @@ qzZ
 vyK
 mRe
 cnT
-nyR
+mBR
 txy
-nyR
+mBR
 lab
 uya
 usj
@@ -316443,9 +316444,9 @@ wHp
 roj
 wHp
 fxg
-uya
-uya
-uya
+gIL
+gIL
+gIL
 lab
 uya
 rJN
@@ -316700,9 +316701,9 @@ orR
 cFH
 tLg
 wmW
-uya
-uya
-uya
+gIL
+gIL
+gIL
 lab
 uya
 tKu
@@ -316957,9 +316958,9 @@ nvV
 tcs
 nvV
 fxg
-uya
-uya
-uya
+gIL
+gIL
+gIL
 lab
 uya
 tKu
@@ -317981,9 +317982,9 @@ fYv
 fYv
 fYv
 fYv
-uya
-uya
-uya
+gIL
+gIL
+gIL
 fYv
 fYv
 fYv
@@ -318238,9 +318239,9 @@ hhV
 fYv
 fYv
 fYv
-uya
-uya
-uya
+gIL
+gIL
+gIL
 fYv
 fYv
 lab
@@ -318495,9 +318496,9 @@ hhV
 hhV
 fYv
 fYv
-uya
-uya
-uya
+gIL
+gIL
+gIL
 fYv
 fYv
 fYv

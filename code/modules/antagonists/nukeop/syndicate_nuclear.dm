@@ -468,7 +468,7 @@
 	/obj/item/kitchen/knife/combat/survival)
 
 	uplink_type = /obj/item/syndicate_uplink
-	tc = 60
+	tc = 120
 
 /datum/outfit/syndicate/lone/post_equip(mob/living/carbon/human/H, visualsOnly, client/preference_source)
 	. = ..()
@@ -479,10 +479,6 @@
 	W.update_label()
 	W.update_appearance()
 	H.sec_hud_set_ID()
-
-/datum/outfit/syndicate/lone/extended
-	name = "Lone Operative (Extended)"
-	tc = 120
 
 /datum/outfit/syndicate/syndiesquad
 	name = "Syndicate Special Forces"

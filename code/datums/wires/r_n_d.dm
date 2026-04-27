@@ -2,15 +2,14 @@
 	holder_type = /obj/machinery/rnd
 	randomize = TRUE
 	req_knowledge = JOB_SKILL_EXPERT
-	visibility_trait = TRAIT_KNOW_ENGI_WIRES
+
+/datum/wires/rnd/New(atom/holder)
 	wires = list(
 		WIRE_HACK, WIRE_DISABLE,
 		WIRE_SHOCK
 	)
-
-/datum/wires/rnd/New(atom/holder)
-	add_duds(7)
-	return ..()
+	add_duds(5)
+	..()
 
 /datum/wires/rnd/interactable(mob/user)
 	var/obj/machinery/rnd/R = holder
@@ -39,10 +38,3 @@
 			R.hacked = !mend
 		if(WIRE_DISABLE)
 			R.disabled = !mend
-
-/datum/wires/rnd/production
-	holder_type = /obj/machinery/rnd/production
-	wires = list(
-		WIRE_DISABLE,
-		WIRE_SHOCK
-	)

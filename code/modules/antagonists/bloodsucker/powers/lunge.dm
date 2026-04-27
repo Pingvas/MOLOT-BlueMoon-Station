@@ -2,7 +2,7 @@
 
 /datum/action/cooldown/bloodsucker/lunge
 	name = "Predatory Lunge"
-	desc = "Приготовьтесь схватить свою жертву."
+	desc = "Prepare the strenght to grapple your prey."
 	button_icon_state = "power_lunge"
 	bloodcost = 20
 	cooldown_time = 70

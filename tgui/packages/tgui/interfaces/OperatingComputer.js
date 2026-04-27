@@ -158,12 +158,6 @@ const PatientStateView = (props, context) => {
           </LabeledList>
         </Section>
       ))}
-      {patient && patient.special_condition ? (
-      <Section title="Особенности пациента" preserveWhitespace>
-        {patient.special_condition}
-      </Section>
-      ) : ""
-      }
     </Fragment>
   );
 };

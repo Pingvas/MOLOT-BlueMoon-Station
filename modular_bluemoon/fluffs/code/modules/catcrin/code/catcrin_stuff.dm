@@ -465,11 +465,11 @@
 	icon = 'modular_bluemoon/fluffs/code/modules/catcrin/icons/weapons/icons/hwal.dmi'
 	lefthand_file = 'modular_bluemoon/fluffs/code/modules/catcrin/icons/weapons/hands/guns_left.dmi'
 	righthand_file = 'modular_bluemoon/fluffs/code/modules/catcrin/icons/weapons/hands/guns_right.dmi'
-	pickup_sound = 'modular_bluemoon/fluffs/code/modules/catcrin/sounds/weapons/H-Wal-2572/DisablerGrab.ogg'
 	ammo_x_offset = 0
-	shaded_charge = 1
-	shot_type_overlay = FALSE
 	ammo_type = list(/obj/item/ammo_casing/energy/disabler/hwal2572, /obj/item/ammo_casing/energy/electrode/security/hwal2572 = FALSE)
+	pickup_sound = 'modular_bluemoon/fluffs/code/modules/catcrin/sounds/weapons/H-Wal-2572/DisablerGrab.ogg'
+	shot_type_overlay = FALSE
+	can_flashlight = 1
 
 /obj/item/ammo_casing/energy/disabler/hwal2572
 	fire_sound = 'modular_bluemoon/fluffs/code/modules/catcrin/sounds/weapons/H-Wal-2572/DisablerOni.ogg'
@@ -718,7 +718,6 @@
 	icon = 'modular_bluemoon/fluffs/code/modules/catcrin/icons/mob/icons/accessories.dmi'
 	icon_state = "banner_catcrin"
 	desc = "Banner of Catcrin Empire"
-	inspiration_available = FALSE
 
 /obj/item/sign/flag/catcrin
 	name = "folded flag of the Catcrin Empire"
@@ -810,6 +809,7 @@
 	slot = ITEM_SLOT_BACKPACK
 	path = /obj/item/clothing/head/helmet/sec/mark45_ce
 	ckeywhitelist = list("silverfoxpaws")
+	subcategory = LOADOUT_SUBCATEGORIES_DON03
 	restricted_desc = "Head of Security, Warden, Detective, Security Officer, Brig Physician, Peacekeeper, Blueshield."
 	restricted_roles = list("Head of Security", "Warden", "Detective", "Security Officer", "Brig Physician", "Peacekeeper", "Blueshield")
 
@@ -818,6 +818,7 @@
 	slot = ITEM_SLOT_BACKPACK
 	path = /obj/item/clothing/suit/armor/mark45_armor_ce
 	ckeywhitelist = list("silverfoxpaws")
+	subcategory = LOADOUT_SUBCATEGORIES_DON03
 	restricted_desc = "Head of Security, Warden, Detective, Security Officer, Brig Physician, Peacekeeper, Blueshield."
 	restricted_roles = list("Head of Security", "Warden", "Detective", "Security Officer", "Brig Physician", "Peacekeeper", "Blueshield")
 

@@ -191,9 +191,7 @@
 /obj/structure/window{
 	dir = 8
 	},
-/mob/living/simple_animal/pet/gondola{
-	playable_by_ghost = 0
-	},
+/mob/living/simple_animal/pet/gondola,
 /obj/structure/flora/junglebush,
 /turf/open/floor/grass/grass0,
 /area/hilbertshotel)

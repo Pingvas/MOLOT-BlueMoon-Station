@@ -29,5 +29,4 @@
 		ANNOUNCER_BSA = 'sound/announcer/classic/artillery.ogg',
 		ANNOUNCER_XENO = 'sound/announcer/classic/xeno.ogg',
 		ANNOUNCER_IROD = 'sound/announcer/classic/irod.ogg',
-		ANNOUNCER_MUTANTS = 'sound/announcer/medibot/hazdet.ogg',
 		ANNOUNCER_LAMBDA = 'sound/announcer/classic/lambda.ogg')

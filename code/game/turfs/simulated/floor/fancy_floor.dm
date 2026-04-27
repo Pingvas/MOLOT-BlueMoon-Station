@@ -49,8 +49,8 @@
 
 /turf/open/floor/wood/remove_tile(mob/user, silent = FALSE, make_tile = TRUE, forced = FALSE)
 	if(broken || burnt)
-		broken = FALSE
-		burnt = FALSE
+		broken = 0
+		burnt = 0
 		if(user && !silent)
 			to_chat(user, "<span class='notice'>You remove the broken planks.</span>")
 	else

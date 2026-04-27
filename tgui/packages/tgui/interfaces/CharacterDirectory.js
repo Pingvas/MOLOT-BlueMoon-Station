@@ -56,9 +56,11 @@ export const CharacterDirectory = (props, context) => {
     personalTag,
     personalErpTag,
     personalNonconTag,
-    personalNonconInherited,
+    personalUnholyTag,
+    personalExtremeTag,
+    personalExtremeHarmTag,
+    personalHornyAntagsTag,
     personalGenderTag,
-    personalGenderAuto,
     prefsOnly,
   } = data;
 
@@ -107,7 +109,7 @@ export const CharacterDirectory = (props, context) => {
                   <LabeledList.Item label="Пол">
                     <Button
                       fluid
-                      content={personalGenderTag !== 'Unset' ? personalGenderTag : `↑ ${personalGenderAuto}`}
+                      content={personalGenderTag}
                       onClick={() => act('setGenderTag', { overwrite_prefs: overwritePrefs })}
                     />
                   </LabeledList.Item>
@@ -127,14 +129,34 @@ export const CharacterDirectory = (props, context) => {
                     />
                   </LabeledList.Item>
                   <LabeledList.Item label="Изнасилование">
-                    <Tooltip content={personalNonconInherited ? 'Значение из настроек персонажа. Кликните, чтобы задать переопределение для библиотеки.' : 'Переопределено в библиотеке. Кликните, чтобы изменить или сбросить наследование.'}>
-
-                      <PrefTagButton
-                        value={personalNonconTag}
-                        inherited={personalNonconInherited}
-                        onClick={() => act('setNonconTag')}
-                      />
-                    </Tooltip>
+                    <PrefTagButton
+                      value={personalNonconTag}
+                      onClick={() => act('setNonconTag')}
+                    />
+                  </LabeledList.Item>
+                  <LabeledList.Item label="Грязный секс">
+                    <PrefTagButton
+                      value={personalUnholyTag}
+                      onClick={() => act('setUnholyTag')}
+                    />
+                  </LabeledList.Item>
+                  <LabeledList.Item label="Жестокий секс">
+                    <PrefTagButton
+                      value={personalExtremeTag}
+                      onClick={() => act('setExtremeTag')}
+                    />
+                  </LabeledList.Item>
+                  <LabeledList.Item label="Очень жестокий секс">
+                    <PrefTagButton
+                      value={personalExtremeHarmTag}
+                      onClick={() => act('setExtremeHarmTag')}
+                    />
+                  </LabeledList.Item>
+                  <LabeledList.Item label="Хорни антаги">
+                    <PrefTagButton
+                      value={personalHornyAntagsTag}
+                      onClick={() => act('setHornyAntagsTag')}
+                    />
                   </LabeledList.Item>
                 </LabeledList>
               </Section>
@@ -148,12 +170,12 @@ export const CharacterDirectory = (props, context) => {
 };
 
 const PrefTagButton = (props) => {
-  const { value, inherited, onClick } = props;
+  const { value, onClick } = props;
   const color = value === 'Yes' ? 'green' : value === 'Ask' ? 'blue' : value === 'No' ? 'red' : 'grey';
   return (
     <Button
       fluid
-      content={inherited ? `↑ ${value || 'Не задано'}` : (value || 'Не задано')}
+      content={value || 'Не задано'}
       color={color}
       onClick={onClick}
     />
@@ -178,13 +200,6 @@ const ViewCharacter = (props, context) => {
   const headshots = (overlay.headshot_links || []).filter(link => link && link.length);
   const [selectedHeadshot, setSelectedHeadshot] = useLocalState(context, 'viewHeadshot', 0);
   const safeIdx = headshots.length > 0 ? selectedHeadshot % headshots.length : 0;
-  const currentLink = headshots[safeIdx];
-  const isVideo = typeof currentLink === 'string' && /\.(webm|mp4)$/i.test(currentLink);
-  const mediaStyle = {
-    'max-width': '256px',
-    'max-height': '256px',
-    'object-fit': 'contain',
-  };
 
   return (
     <Section
@@ -193,21 +208,14 @@ const ViewCharacter = (props, context) => {
       {headshots.length > 0 && (
         <Section level={2} title="Арт" textAlign="center">
           <Box mb={1}>
-            {isVideo ? (
-              <video
-                src={currentLink}
-                autoPlay
-                loop
-                muted
-                playsInline
-                style={mediaStyle}
-              />
-            ) : (
-              <img
-                src={currentLink}
-                style={mediaStyle}
-              />
-            )}
+            <img
+              src={headshots[safeIdx]}
+              style={{
+                'max-width': '256px',
+                'max-height': '256px',
+                'object-fit': 'contain',
+              }}
+            />
           </Box>
           {headshots.length > 1 && (
             <Box>

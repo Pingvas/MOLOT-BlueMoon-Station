@@ -39,10 +39,6 @@
 			stored_ammo += new ammo_type(src)
 	update_icon()
 
-/obj/item/ammo_box/examine(mob/user)
-	. = ..()
-	. += span_notice("There [stored_ammo.len == 1 ? "is" : "are"] [stored_ammo.len] shell\s left!")
-
 /obj/item/ammo_box/proc/get_round(keep = 0)
 	if (!stored_ammo.len)
 		return null
@@ -118,6 +114,7 @@
 
 /obj/item/ammo_box/update_icon()
 	. = ..()
+	desc = "[initial(desc)] There [stored_ammo.len == 1 ? "is" : "are"] [stored_ammo.len] shell\s left!"
 	if(length(bullet_cost))
 		var/temp_materials = custom_materials.Copy()
 		for (var/material in bullet_cost)

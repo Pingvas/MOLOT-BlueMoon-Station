@@ -282,7 +282,7 @@
 	if(!owner)
 		return
 	if(!(src in owner.internal_organs))
-		INVOKE_ASYNC(src, PROC_REF(Remove), FALSE)
+		INVOKE_ASYNC(src,PROC_REF(Remove),owner)
 	if(owner.mob_biotypes && MOB_MINERAL && MOB_UNDEAD)//We are already dead inside
 		. = ..()
 		STOP_PROCESSING(SSobj, src)

@@ -32,7 +32,6 @@ export const CreateObjectSettings = (props: any, context: any) => {
     selected_object,
     selected_icon,
     atom_name,
-    atom_desc,
     atom_amount = 1,
     atom_dir = 2,
     offset = [0, 0, 0],
@@ -58,7 +57,6 @@ export const CreateObjectSettings = (props: any, context: any) => {
       where_target_type,
       atom_amount,
       atom_name,
-      atom_desc,
       atom_dir,
       offset: [ox, oy, oz],
       offset_type,
@@ -253,7 +251,6 @@ export const CreateObjectSettings = (props: any, context: any) => {
                   where_target_type,
                   atom_amount,
                   atom_name,
-                  atom_desc,
                   atom_dir,
                   offset: [ox, oy, oz],
                   offset_type,
@@ -356,7 +353,7 @@ export const CreateObjectSettings = (props: any, context: any) => {
         </Stack.Item>
       </Stack>
 
-      {/* ─── Name + Desc + Location row ─── */}
+      {/* ─── Name + Location row ─── */}
       <Stack spacing={1} align="center">
         <Stack.Item grow={1}>
           <Input
@@ -365,15 +362,6 @@ export const CreateObjectSettings = (props: any, context: any) => {
             fluid
             onChange={(_e: any, val: string) => send({ atom_name: val || null })}
             onEnter={(_e: any, val: string) => send({ atom_name: val || null })}
-          />
-        </Stack.Item>
-        <Stack.Item grow={1}>
-          <Input
-            placeholder="Desc override..."
-            value={atom_desc ?? ''}
-            fluid
-            onChange={(_e: any, val: string) => send({ atom_desc: val || null })}
-            onEnter={(_e: any, val: string) => send({ atom_desc: val || null })}
           />
         </Stack.Item>
         <Stack.Item>

@@ -7,11 +7,13 @@
 	baseturfs = /turf/open/floor/plating/asteroid
 	icon = 'icons/turf/floors.dmi'
 	icon_state = "asteroid"
-	base_icon_state = "asteroid"
+	icon_plating = "asteroid"
 	footstep = FOOTSTEP_SAND
 	barefootstep = FOOTSTEP_SAND
 	clawfootstep = FOOTSTEP_SAND
 	heavyfootstep = FOOTSTEP_GENERIC_HEAVY
+	/// Environment type for the turf
+	var/environment_type = "asteroid"
 	/// Base turf type to be created by the tunnel
 	var/turf_type = /turf/open/floor/plating/asteroid
 	/// Probability floor has a different icon state
@@ -21,6 +23,8 @@
 	var/obj/item/stack/dig_result = /obj/item/stack/ore/glass/basalt
 	/// Whether the turf has been dug or not
 	var/dug = FALSE
+	/// Whether to change the turf's icon_state to "[base_icon_state]_dug" when its dugged up
+	postdig_icon_change = TRUE
 
 // /turf/open/floor/plating/asteroid/setup_broken_states()
 // 	return list("asteroid_dug")
@@ -30,7 +34,7 @@
 	. = ..()
 	name = proper_name
 	if(prob(floor_variance))
-		icon_state = "[base_icon_state][rand(0,12)]"
+		icon_state = "[environment_type][rand(0,12)]"
 
 /// Drops itemstack when dug and changes icon
 /turf/open/floor/plating/asteroid/proc/getDug()
@@ -41,7 +45,9 @@
 	new dig_result(src, 5)
 	/* if(prob(worm_chance))
 		new /obj/item/food/bait/worm(src) */
-	icon_state = "[base_icon_state]_dug"
+	if(postdig_icon_change)
+		icon_plating = "[environment_type]_dug"
+		icon_state = "[environment_type]_dug"
 
 /// If the user can dig the turf
 /turf/open/floor/plating/asteroid/proc/can_dig(mob/user)
@@ -54,10 +60,9 @@
 /turf/open/floor/plating/asteroid/proc/refill_dug()
 	dug = FALSE
 	broken = FALSE
-	icon_state = base_icon_state
+	icon_state = "[environment_type]"
 	if(prob(floor_variance))
-		icon_state = "[base_icon_state][rand(0,12)]"
-	update_appearance()
+		icon_state = "[environment_type][rand(0,12)]"
 
 /turf/open/floor/plating/asteroid/try_replace_tile(obj/item/stack/tile/T, mob/user, params)
 	return
@@ -112,7 +117,8 @@ GLOBAL_LIST_EMPTY(dug_up_basalt)
 	baseturfs = /turf/open/floor/plating/asteroid/basalt
 	icon = 'icons/turf/floors.dmi'
 	icon_state = "basalt"
-	base_icon_state = "basalt"
+	icon_plating = "basalt"
+	environment_type = "basalt"
 	floor_variance = 15
 	dig_result = /obj/item/stack/ore/glass/basalt
 
@@ -174,9 +180,10 @@ GLOBAL_LIST_EMPTY(dug_up_basalt)
 	icon = 'icons/turf/snow.dmi'
 	baseturfs = /turf/open/floor/plating/asteroid/snow
 	icon_state = "snow"
-	base_icon_state = "snow"
+	icon_plating = "snow"
 	initial_gas_mix = FROZEN_ATMOS
 	slowdown = 2
+	environment_type = "snow"
 	flags_1 = NONE
 	planetary_atmos = TRUE
 	burnt_states = list("snow_dug")
@@ -213,7 +220,7 @@ GLOBAL_LIST_EMPTY(dug_up_basalt)
 	initial_gas_mix = "n2=82;plasma=24;TEMP=120"
 	floor_variance = 0
 	icon_state = "snow-ice"
-	base_icon_state = "snow-ice"
+	environment_type = "snow-ice"
 	footstep = FOOTSTEP_FLOOR
 	barefootstep = FOOTSTEP_HARD_BAREFOOT
 	clawfootstep = FOOTSTEP_HARD_CLAW

@@ -20,7 +20,6 @@
 		"Syndicate Advisor", //Синди выше, для удобства
 		"Syndicate Representative", //Синди выше, для удобства
 		"Syndicate Whore", //Синди выше, для удобства
-		"Syndicate Slut",
 		"Commissar",
 		"Judge",
 		"Magistrate",
@@ -28,7 +27,6 @@
 		"NanoTrasen Consultant",
 		"NanoTrasen Diplomat",
 		"NanoTrasen Whore",
-		"NanoTrasen Slut",
 		"Netorare",
 		"Political Officer",
 		"Revizor"
@@ -36,8 +34,8 @@
 
 	outfit = /datum/outfit/job/ntr
 	plasma_outfit = /datum/outfit/plasmaman/bar
-	access = list(ACCESS_SECURITY, ACCESS_SEC_DOORS, ACCESS_BRIG, ACCESS_RESEARCH,  ACCESS_COURT, ACCESS_MAINT_TUNNELS, ACCESS_MORGUE, ACCESS_MEDICAL, ACCESS_WEAPONS, ACCESS_ENTER_GENPOP, ACCESS_LEAVE_GENPOP, ACCESS_MINERAL_STOREROOM, ACCESS_CARGO, ACCESS_HEADS, ACCESS_MAILSORTING, ACCESS_ENGINE, ACCESS_HOS, ACCESS_CE, ACCESS_HOP, ACCESS_CMO, ACCESS_QM, ACCESS_RD, ACCESS_CAPTAIN, ACCESS_BLUESHIELD, ACCESS_LAWYER, ACCESS_BAR, ACCESS_JANITOR, ACCESS_KITCHEN, ACCESS_HYDROPONICS, ACCESS_KEYCARD_AUTH, ACCESS_PRODUCTION_SECURITY)
-	minimal_access = list(ACCESS_SECURITY, ACCESS_SEC_DOORS, ACCESS_BRIG, ACCESS_RESEARCH,  ACCESS_COURT, ACCESS_MAINT_TUNNELS, ACCESS_MORGUE, ACCESS_MEDICAL, ACCESS_WEAPONS, ACCESS_ENTER_GENPOP, ACCESS_LEAVE_GENPOP, ACCESS_MINERAL_STOREROOM, ACCESS_CARGO, ACCESS_HEADS, ACCESS_MAILSORTING, ACCESS_ENGINE, ACCESS_HOS, ACCESS_CE, ACCESS_HOP, ACCESS_CMO, ACCESS_QM, ACCESS_RD, ACCESS_CAPTAIN, ACCESS_BLUESHIELD, ACCESS_LAWYER, ACCESS_BAR, ACCESS_JANITOR, ACCESS_KITCHEN, ACCESS_HYDROPONICS, ACCESS_PRODUCTION_SECURITY)
+	access = list(ACCESS_SECURITY, ACCESS_SEC_DOORS, ACCESS_BRIG, ACCESS_RESEARCH,  ACCESS_COURT, ACCESS_MAINT_TUNNELS, ACCESS_MORGUE, ACCESS_MEDICAL, ACCESS_WEAPONS, ACCESS_ENTER_GENPOP, ACCESS_LEAVE_GENPOP, ACCESS_MINERAL_STOREROOM, ACCESS_CARGO, ACCESS_HEADS, ACCESS_MAILSORTING, ACCESS_ENGINE, ACCESS_HOS, ACCESS_CE, ACCESS_HOP, ACCESS_CMO, ACCESS_QM, ACCESS_RD, ACCESS_CAPTAIN, ACCESS_BLUESHIELD, ACCESS_LAWYER, ACCESS_BAR, ACCESS_JANITOR, ACCESS_KITCHEN, ACCESS_HYDROPONICS, ACCESS_KEYCARD_AUTH)
+	minimal_access = list(ACCESS_SECURITY, ACCESS_SEC_DOORS, ACCESS_BRIG, ACCESS_RESEARCH,  ACCESS_COURT, ACCESS_MAINT_TUNNELS, ACCESS_MORGUE, ACCESS_MEDICAL, ACCESS_WEAPONS, ACCESS_ENTER_GENPOP, ACCESS_LEAVE_GENPOP, ACCESS_MINERAL_STOREROOM, ACCESS_CARGO, ACCESS_HEADS, ACCESS_MAILSORTING, ACCESS_ENGINE, ACCESS_HOS, ACCESS_CE, ACCESS_HOP, ACCESS_CMO, ACCESS_QM, ACCESS_RD, ACCESS_CAPTAIN, ACCESS_BLUESHIELD, ACCESS_LAWYER, ACCESS_BAR, ACCESS_JANITOR, ACCESS_KITCHEN, ACCESS_HYDROPONICS)
 	paycheck = PAYCHECK_COMMAND
 	paycheck_department = ACCOUNT_SEC
 
@@ -111,8 +109,7 @@
 	suit = /obj/item/clothing/suit/armor/ntr
 	head = /obj/item/clothing/head/beret/sec/ntr
 	shoes = /obj/item/clothing/shoes/laceup/ntr
-	l_pocket = /obj/item/pen/fourcolor/ntr
-	r_pocket = /obj/item/folder/biscuit/confidential/spare_id_safe_code
+	r_pocket = /obj/item/pen/fourcolor/ntr
 
 	backpack = /obj/item/storage/backpack/captain/ntr //BLUEMOON add
 	satchel = /obj/item/storage/backpack/satchel/cap/ntr //BLUEMOON add
@@ -141,6 +138,7 @@
 	suit = /obj/item/clothing/suit/armor/ntr
 	head = /obj/item/clothing/head/beret/sec/ntr
 	shoes = /obj/item/clothing/shoes/laceup/ntr
+	l_pocket = /obj/item/melee/classic_baton/telescopic
 
 	backpack = /obj/item/storage/backpack/duffelbag/syndie
 	satchel = /obj/item/storage/backpack/duffelbag/syndie
@@ -149,8 +147,9 @@
 	pda_slot = ITEM_SLOT_BELT
 	accessory = list(/obj/item/clothing/accessory/permit/special/representative)
 
-	backpack_contents = list(/obj/item/gun/energy/e_gun=1, /obj/item/stamp/law=1, /obj/item/pen/fourcolor/ntr, /obj/item/melee/classic_baton/telescopic, /obj/item/syndicate_uplink=1)
+	backpack_contents = list(/obj/item/gun/energy/e_gun=1, /obj/item/stamp/law=1, /obj/item/syndicate_uplink=1, /obj/item/pen/fourcolor/ntr)
 
 /datum/outfit/job/ntr/post_equip(mob/living/carbon/human/H, visualsOnly = FALSE, client/preference_source)
 	..()
+
 	H.typing_indicator_state = /obj/effect/overlay/typing_indicator/additional/law

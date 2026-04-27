@@ -42,7 +42,6 @@
 	if(victim)
 		victim.forceMove(drop_location())
 		victim = null
-	if(spear)
-		spear.forceMove(drop_location())
-		spear = null
+	spear.forceMove(drop_location())
+	spear = null
 	qdel(src)

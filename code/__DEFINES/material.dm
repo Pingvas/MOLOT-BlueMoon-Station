@@ -1,1 +1,0 @@
-#define DEFAULT_REMOTE_MATERIALS list(/datum/material/iron,/datum/material/glass,/datum/material/silver,/datum/material/gold,/datum/material/diamond,/datum/material/uranium,/datum/material/plasma,/datum/material/bananium,/datum/material/bluespace,/datum/material/titanium,/datum/material/plastic,)

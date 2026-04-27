@@ -29,7 +29,3 @@
 /obj/item/ammo_casing/c45/kitchengun
 	desc = "A .45 bullet casing. It has a small sponge attached to it."
 	projectile_type = /obj/item/projectile/bullet/c45_cleaning
-
-/obj/item/ammo_casing/c45/kitchengun/inteq
-	desc = "A .45 bullet casing. It has a small InteQ logo attached to it."
-	projectile_type = /obj/item/projectile/bullet/c45_cleaning

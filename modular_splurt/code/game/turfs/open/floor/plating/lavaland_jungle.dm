@@ -3,7 +3,6 @@
 	desc = "You can't tell if this is real grass or just cheap plastic imitation."
 	icon = 'modular_splurt/icons/turf/smooth/_smooth.dmi'
 	icon_state = "grass"
-	base_icon_state = "grass"
 	flags_1 = NONE
 	bullet_bounce_sound = null
 	footstep = FOOTSTEP_GRASS
@@ -32,7 +31,6 @@
 	name = "grass patch"
 	desc = "Lush jungle grass."
 	icon_state = "grass"
-	base_icon_state = "grass"
 	footstep = FOOTSTEP_GRASS
 	barefootstep = FOOTSTEP_GRASS
 	clawfootstep = FOOTSTEP_GRASS
@@ -46,7 +44,6 @@
 	name = "dirt"
 	desc = "Upon closer examination, it's still dirt."
 	icon_state = "dirt"
-	base_icon_state = "dirt"
 	footstep = FOOTSTEP_SAND
 	barefootstep = FOOTSTEP_SAND
 	clawfootstep = FOOTSTEP_SAND
@@ -72,7 +69,6 @@
 	baseturfs = /turf/open/lava/smooth/lava_land_surface
 	icon = 'modular_splurt/icons/turf/water.dmi'
 	icon_state = "shallow"
-	base_icon_state = "shallow"
 	color = "#648363"
 	slowdown = 3
 

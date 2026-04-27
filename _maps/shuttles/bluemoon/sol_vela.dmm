@@ -3543,7 +3543,7 @@
 /obj/machinery/camera/autoname{
 	dir = 4
 	},
-/obj/machinery/modular_computer/console/preset/id{
+/obj/machinery/computer/card{
 	dir = 4;
 	icon_state = "computer-right"
 	},

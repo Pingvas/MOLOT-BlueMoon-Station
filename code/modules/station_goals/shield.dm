@@ -1,6 +1,4 @@
 GLOBAL_LIST_EMPTY(meteor_satellites) // BLUEMOON ADD - список всех противометеоритных спутников
-/// Только для вызова get_coverage() в UI, когда цель станции не выбрана (не в station_goals).
-GLOBAL_DATUM_INIT(shield_goal_coverage_dummy, /datum/station_goal/station_shield, new)
 
 //Station Shield
 // A chain of satellites encircles the station
@@ -85,12 +83,12 @@ GLOBAL_DATUM_INIT(shield_goal_coverage_dummy, /datum/station_goal/station_shield
 		))
 	data["notice"] = notice
 
-	if(locate(/obj/machinery/satellite/meteor_shield) in GLOB.machines)
+
+	var/datum/station_goal/station_shield/G = locate() in SSticker.mode.station_goals
+	if(G)
 		data["meteor_shield"] = 1
-		var/datum/station_goal/station_shield/G = SSticker.mode && locate() in SSticker.mode.station_goals
-		var/datum/station_goal/station_shield/coverage_src = G || GLOB.shield_goal_coverage_dummy
-		data["meteor_shield_coverage"] = coverage_src.get_coverage()
-		data["meteor_shield_coverage_max"] = coverage_src.coverage_goal
+		data["meteor_shield_coverage"] = G.get_coverage()
+		data["meteor_shield_coverage_max"] = G.coverage_goal
 	return data
 
 
