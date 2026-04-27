@@ -944,7 +944,7 @@
 	name = "P320 kit"
 	slot = ITEM_SLOT_BACKPACK
 	path = /obj/item/modkit/p320_kit
-	ckeywhitelist = list("pingvas", "ty4kahahebe")
+	ckeywhitelist = list("ty4kahahebe", "pingvas", "xaeshkavd")
 
 /datum/gear/donator/bm/M9_tempest_kit
 	name = "M-9 Tempest kit"
@@ -1318,7 +1318,6 @@
 	slot = ITEM_SLOT_BACKPACK
 	path = /obj/item/storage/box/hahun_eidolon
 	ckeywhitelist = list("dolbajob", "enigma418")
-	cost = 0
 
 /datum/gear/donator/bm/hahun_medvest
 	name = "Rescue task force vest"
@@ -1427,14 +1426,12 @@
 	slot = ITEM_SLOT_BACKPACK
 	path = /obj/item/modkit/fluff_praxil_seven_kit
 	ckeywhitelist = list("enigma418", "dolbajob")
-	cost = 0
 
 /datum/gear/donator/bm/m_9922
 	name = "M-9922 Kit"
 	slot = ITEM_SLOT_BACKPACK
 	path = /obj/item/storage/box/fluff_m_9922_kit
 	ckeywhitelist = list("enigma418", "dolbajob")
-	cost = 0
 
 /datum/gear/donator/bm/dark_montur
 	name = "Dark Montur"
@@ -1920,7 +1917,6 @@
 	slot = ITEM_SLOT_BACKPACK
 	path = /obj/item/modkit/invis_belt
 	ckeywhitelist = list("herobrine998", "nyaaaa")
-	cost = 0
 
 /datum/gear/donator/bm/verdant_suit
 	name = "Verdant Tactical Suit"
@@ -2181,6 +2177,12 @@
 	path = /obj/item/clothing/neck/cloak/ftu
 	ckeywhitelist = list("fanlexa", "kosep", "dragoncora")
 
+/datum/gear/donator/bm/binary_cloak
+	name = "Binary Cloak"
+	slot = ITEM_SLOT_NECK
+	path = /obj/item/clothing/neck/cloak/binary/alt
+	ckeywhitelist = list("homandos")
+
 /datum/gear/donator/bm/pedantcape
 	name = "Corvus Pendant"
 	slot = ITEM_SLOT_BACKPACK
@@ -2253,7 +2255,7 @@
 	name = "Armolex Box"
 	slot = ITEM_SLOT_BACKPACK
 	path = /obj/item/storage/box/donator/bm/armolex_box
-	ckeywhitelist = list("xaeshkavd", "sosnovskii", "hellsinggc")
+	ckeywhitelist = list("xaeshkavd", "sosnovskii", "hellsinggc", "ty4kahahebe", "herobrine998")
 
 /datum/gear/donator/bm/jason_mask
 	name = "Jason Mask"
@@ -2362,4 +2364,3 @@
 	slot = ITEM_SLOT_BACKPACK
 	path = /obj/item/modkit/invis_belt
 	ckeywhitelist = list("angrylaska")
-	cost = 0
