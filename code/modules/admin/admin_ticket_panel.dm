@@ -58,6 +58,7 @@
 	.["opened_ago_text"] = DisplayTimeText(world.time - AH.opened_at)
 	.["closed_at_text"] = AH.closed_at ? GAMETIMESTAMP("hh:mm:ss", AH.closed_at) : null
 	.["closed_ago_text"] = AH.closed_at ? DisplayTimeText(world.time - AH.closed_at) : null
+	.["close_reason"] = AH.close_reason
 	.["initiator_ckey"] = AH.initiator_ckey
 	.["initiator_key_name"] = AH.initiator_key_name
 	.["has_initiator"] = !isnull(AH.initiator)
@@ -89,6 +90,18 @@
 			if(!selected_ticket || selected_ticket.state != AHELP_ACTIVE)
 				return TRUE
 			usr.client.cmd_ahelp_reply(selected_ticket.initiator)
+			. = TRUE
+
+		if("send_reply")
+			if(!selected_ticket || selected_ticket.state != AHELP_ACTIVE || !selected_ticket.initiator)
+				return TRUE
+			var/message = params["message"]
+			if(!istext(message))
+				return TRUE
+			message = trim(message)
+			if(!message)
+				return TRUE
+			usr.client.cmd_admin_pm(selected_ticket.initiator, message)
 			. = TRUE
 
 		if("close")
@@ -160,6 +173,29 @@
 			if(!selected_ticket || !selected_ticket.initiator)
 				return TRUE
 			usr.client.holder.show_player_panel(selected_ticket.initiator.mob)
+			. = TRUE
+
+		if("follow")
+			if(!selected_ticket || !selected_ticket.initiator || !selected_ticket.initiator.mob)
+				return TRUE
+			if(!isobserver(usr) && !usr.client.admin_ghost())
+				return TRUE
+			var/mob/dead/observer/observer = usr.client.mob
+			if(!istype(observer))
+				return TRUE
+			observer.ManualFollow(selected_ticket.initiator.mob)
+			. = TRUE
+
+		if("logs")
+			if(!selected_ticket || !selected_ticket.initiator || !selected_ticket.initiator.mob)
+				return TRUE
+			show_individual_logging_panel(selected_ticket.initiator.mob)
+			. = TRUE
+
+		if("ban_panel")
+			if(!selected_ticket)
+				return TRUE
+			usr.client.holder.DB_ban_panel(selected_ticket.initiator_ckey)
 			. = TRUE
 
 	SStgui.update_uis(src)

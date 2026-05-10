@@ -153,6 +153,7 @@ GLOBAL_DATUM_INIT(ahelp_tickets, /datum/admin_help_tickets, new)
 
 	var/opened_at
 	var/closed_at
+	var/close_reason
 
 	var/client/initiator	//semi-misnomer, it's the person who ahelped/was bwoinked
 	var/initiator_ckey
@@ -322,6 +323,7 @@ GLOBAL_DATUM_INIT(ahelp_tickets, /datum/admin_help_tickets, new)
 			SSblackbox.record_feedback("tally", "ahelp_stats", -1, "resolved")
 	state = AHELP_ACTIVE
 	closed_at = null
+	close_reason = null
 	if(initiator)
 		initiator.current_ticket = src
 
@@ -351,6 +353,8 @@ GLOBAL_DATUM_INIT(ahelp_tickets, /datum/admin_help_tickets, new)
 		return
 	RemoveActive()
 	state = AHELP_CLOSED
+	if(!close_reason)
+		close_reason = "Закрыто"
 	GLOB.ahelp_tickets.ListInsert(src)
 	to_chat(initiator, examine_block("<center><span class='adminhelp'>Ваш тикет был закрыт со стороны [usr?.client?.holder?.fakekey? usr.client.holder.fakekey : "администратора"].</span></center>"))
 	AddInteraction("<font color='#f87171'><u>Закрыто админом</u> [key_name].</font>")
@@ -368,6 +372,8 @@ GLOBAL_DATUM_INIT(ahelp_tickets, /datum/admin_help_tickets, new)
 		return
 	RemoveActive()
 	state = AHELP_RESOLVED
+	if(!close_reason)
+		close_reason = "Решено"
 	GLOB.ahelp_tickets.ListInsert(src)
 
 	addtimer(CALLBACK(initiator, TYPE_PROC_REF(/client, giveadminhelpverb)), 50)
@@ -400,6 +406,7 @@ GLOBAL_DATUM_INIT(ahelp_tickets, /datum/admin_help_tickets, new)
 		to_chat(initiator, examine_block(rejecttext))
 
 	SSblackbox.record_feedback("tally", "ahelp_stats", 1, "rejected")
+	close_reason = "Отклонено"
 	var/msg = "Тикет [TicketHref("#[id]")] отклонён админом [key_name]"
 	message_admins(msg, islog = FALSE, prefix = "AHELP")
 	log_admin_private(msg)
@@ -426,6 +433,7 @@ GLOBAL_DATUM_INIT(ahelp_tickets, /datum/admin_help_tickets, new)
 	SEND_SOUND(initiator, sound('modular_bluemoon/kovac_shitcode/sound/misc/ic_issue.ogg'))
 
 	SSblackbox.record_feedback("tally", "ahelp_stats", 1, "IC")
+	close_reason = "IC Issue"
 	msg = "Тикет [TicketHref("#[id]")] отмечен как IC админом [key_name]"
 	message_admins(msg, islog = FALSE, prefix = "AHELP")
 	log_admin_private(msg)
@@ -452,6 +460,7 @@ GLOBAL_DATUM_INIT(ahelp_tickets, /datum/admin_help_tickets, new)
 	SEND_SOUND(initiator, sound('modular_bluemoon/kovac_shitcode/sound/misc/skill_issue.ogg'))
 
 	SSblackbox.record_feedback("tally", "ahelp_stats", 1, "SI")
+	close_reason = "Skill Issue"
 	msg = "Тикет [TicketHref("#[id]")] был отмечен как Skill Issue админом [key_name]"
 	message_admins(msg, islog = FALSE, prefix = "AHELP")
 	log_admin_private(msg)

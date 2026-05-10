@@ -5,6 +5,7 @@ import {
   Divider,
   Flex,
   Icon,
+  Input,
   NoticeBox,
   Section,
   Stack,
@@ -57,7 +58,7 @@ export const AdminTicketPanel = (props, context) => {
     >
       <Window.Content>
         <Flex height="100%">
-          <Flex.Item width="340px" shrink={0}>
+          <Flex.Item width="230px" shrink={0}>
             <Stack vertical fill>
               <Stack.Item>
                 <Section fitted>
@@ -71,7 +72,7 @@ export const AdminTicketPanel = (props, context) => {
                       }
                       onClick={() => setTab(1)}
                     >
-                      Активные
+                      Актив.
                     </Tabs.Tab>
                     <Tabs.Tab
                       selected={tab === 2}
@@ -81,7 +82,7 @@ export const AdminTicketPanel = (props, context) => {
                       }
                       onClick={() => setTab(2)}
                     >
-                      Закрытые
+                      Закр.
                     </Tabs.Tab>
                     <Tabs.Tab
                       selected={tab === 3}
@@ -92,21 +93,24 @@ export const AdminTicketPanel = (props, context) => {
                       }
                       onClick={() => setTab(3)}
                     >
-                      Решённые
+                      Реш.
                     </Tabs.Tab>
                   </Tabs>
                 </Section>
               </Stack.Item>
               <Stack.Item grow>
                 <Section
+                  title="Тикеты"
                   fill
                   scrollable
                   buttons={
-                    <Button
-                      icon="sync"
-                      tooltip="Обновить"
-                      onClick={() => act('refresh')}
-                    />
+                    <Flex align="center">
+                      <Button
+                        icon="sync"
+                        tooltip="Обновить"
+                        onClick={() => act('refresh')}
+                      />
+                    </Flex>
                   }
                 >
                   {filteredTickets.length === 0 && (
@@ -178,7 +182,7 @@ const TicketListItem = (props) => {
         <Flex.Item grow={1} mr={1}>
           <Box
             bold
-            fontSize="13px"
+            fontSize="12px"
             style={{
               overflow: 'hidden',
               textOverflow: 'ellipsis',
@@ -188,8 +192,8 @@ const TicketListItem = (props) => {
             #{ticket.id} — {ticket.initiator_key_name}
           </Box>
           <Box
-            fontSize="11px"
-            color="gray"
+            fontSize="10px"
+            color="#cbd5e1"
             style={{
               overflow: 'hidden',
               textOverflow: 'ellipsis',
@@ -201,9 +205,9 @@ const TicketListItem = (props) => {
         </Flex.Item>
         <Flex.Item shrink={0}>
           <Box
-            fontSize="10px"
-            px={1}
-            py={0.3}
+            fontSize="9px"
+            px={0.8}
+            py={0.2}
             style={{
               backgroundColor: color,
               color: '#fff',
@@ -219,53 +223,77 @@ const TicketListItem = (props) => {
   );
 };
 
-const TicketDetailPanel = (props) => {
+const TicketDetailPanel = (props, context) => {
   const { ticket, act } = props;
+  const [replyMessage, setReplyMessage] = useLocalState(
+    context,
+    'replyMessage',
+    ''
+  );
   const isActive = ticket.state === 1;
   const color = STATE_COLORS[ticket.state] || '#94a3b8';
+  const canReply = isActive && ticket.has_initiator;
+
+  const sendReply = () => {
+    const message = replyMessage.trim();
+    if (!message || !canReply) {
+      return;
+    }
+    act('send_reply', { message });
+    setReplyMessage('');
+  };
 
   return (
     <Stack vertical fill>
       <Stack.Item>
         <Section
-          title={
-            <Box>
-              <Icon
-                name={STATE_ICONS[ticket.state]}
-                color={color}
-                mr={1}
-              />
-              Тикет #{ticket.id}
-            </Box>
-          }
-          buttons={
-            <Box>
-              <Button
-                icon="sync"
-                tooltip="Обновить"
-                mr={0.5}
-                onClick={() => act('refresh')}
-              />
-              <Button
-                icon="pen"
-                tooltip="Переименовать"
-                mr={0.5}
-                onClick={() => act('retitle')}
-              />
-              {!isActive && (
-                <Button
-                  icon="door-open"
-                  tooltip="Переоткрыть"
-                  color="violet"
-                  onClick={() => act('reopen')}
-                />
-              )}
-            </Box>
-          }
-        >
+  title={
+    <Flex align="center" justify="space-between" width="100%">
+      <Flex.Item>
+        <Icon
+          name={STATE_ICONS[ticket.state]}
+          color={color}
+          mr={1}
+        />
+        Тикет #{ticket.id}
+      </Flex.Item>
+      <Flex.Item shrink={0}>
+        <Button
+          icon="sync"
+          tooltip="Обновить"
+          mr={0.5}
+          onClick={() => act('refresh')}
+        />
+        <Button
+          icon="pen"
+          tooltip="Переименовать"
+          onClick={() => act('retitle')}
+        />
+        {!isActive && (
+          <Button
+            icon="door-open"
+            tooltip="Переоткрыть"
+            color="violet"
+            onClick={() => act('reopen')}
+          />
+        )}
+      </Flex.Item>
+    </Flex>
+  }
+    >
           <Flex align="center" justify="space-between" mb={1}>
             <Flex.Item>
-              <Box fontSize="14px" bold>
+              <Box
+                fontSize="16px"
+                bold
+                color="white"
+                px={1}
+                py={0.3}
+                style={{
+                  backgroundColor: 'rgba(255,255,255,0.08)',
+                  borderRadius: '4px',
+                }}
+              >
                 {ticket.name}
               </Box>
             </Flex.Item>
@@ -307,11 +335,16 @@ const TicketDetailPanel = (props) => {
               </Box>
             </Flex.Item>
             {ticket.closed_at && (
-              <Flex.Item>
+              <Flex.Item mr={3}>
                 <b>Закрыт:</b> {ticket.closed_at_text || '—'}{' '}
                 <Box as="span" color="label">
                   ({ticket.closed_ago_text || '—'} назад)
                 </Box>
+              </Flex.Item>
+            )}
+            {ticket.close_reason && (
+              <Flex.Item>
+                <b>Причина закрытия:</b> {ticket.close_reason}
               </Flex.Item>
             )}
           </Flex>
@@ -331,7 +364,7 @@ const TicketDetailPanel = (props) => {
                     mb={0.5}
                     onClick={() => act('reply')}
                   >
-                    Ответить
+                    Открыть окно ответа
                   </Button>
                   <Button
                     icon="hand-paper"
@@ -344,10 +377,39 @@ const TicketDetailPanel = (props) => {
                   </Button>
                   <Button
                     icon="user"
+                    mr={0.5}
                     mb={0.5}
                     onClick={() => act('player_panel')}
                   >
                     Панель игрока
+                  </Button>
+                  <Button
+                    icon="eye"
+                    color="teal"
+                    mr={0.5}
+                    mb={0.5}
+                    disabled={!ticket.has_initiator}
+                    onClick={() => act('follow')}
+                  >
+                    FLW
+                  </Button>
+                  <Button
+                    icon="clipboard-list"
+                    mr={0.5}
+                    mb={0.5}
+                    disabled={!ticket.has_initiator}
+                    onClick={() => act('logs')}
+                  >
+                    Логи
+                  </Button>
+                  <Button
+                    icon="gavel"
+                    color="red"
+                    mr={0.5}
+                    mb={0.5}
+                    onClick={() => act('ban_panel')}
+                  >
+                    Баны
                   </Button>
                 </Flex>
               </Flex.Item>
@@ -421,11 +483,13 @@ const TicketDetailPanel = (props) => {
           fill
           scrollable
           buttons={
-            <Button
-              icon="sync"
-              tooltip="Обновить"
-              onClick={() => act('refresh')}
-            />
+            <Flex align="center">
+              <Button
+                icon="sync"
+                tooltip="Обновить"
+                onClick={() => act('refresh')}
+              />
+            </Flex>
           }>
           {(!ticket.interactions || ticket.interactions.length === 0) && (
             <NoticeBox info>Нет сообщений.</NoticeBox>
@@ -448,6 +512,38 @@ const TicketDetailPanel = (props) => {
           ))}
         </Section>
       </Stack.Item>
+      {isActive && (
+        <Stack.Item>
+          <Section title={'Ответить ' + (ticket.initiator_ckey || 'ckey')}>
+            <Flex>
+              <Flex.Item grow>
+                <Input
+                  fluid
+                  disabled={!canReply}
+                  placeholder={
+                    canReply
+                      ? 'Введите сообщение...'
+                      : 'Игрок отключён, ответ невозможен'
+                  }
+                  value={replyMessage}
+                  onInput={(e, value) => setReplyMessage(value)}
+                  onEnter={sendReply}
+                />
+              </Flex.Item>
+              <Flex.Item ml={1}>
+                <Button
+                  icon="paper-plane"
+                  color="blue"
+                  disabled={!canReply || !replyMessage.trim()}
+                  onClick={sendReply}
+                >
+                  Отправить
+                </Button>
+              </Flex.Item>
+            </Flex>
+          </Section>
+        </Stack.Item>
+      )}
     </Stack>
   );
 };
