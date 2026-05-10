@@ -16,14 +16,13 @@ SUBSYSTEM_DEF(tetris_weekly_rewards)
 	var/list/granting_ckeys = list()
 	var/current_cycle_started = 0
 	var/leaderboard_reset_done = FALSE
-	var/reset_index = 1
 
 /datum/controller/subsystem/tetris_weekly_rewards/Initialize()
 	. = ..()
 	load_state()
 	load_progress()
 	if(!next_reset_realtime)
-		next_reset_realtime = world.realtime + TETRIS_WEEKLY_REWARD_INTERVAL
+		next_reset_realtime = next_monday_midnight()
 		save_state()
 	if(length(current_entries))
 		processing_rewards = TRUE
@@ -63,7 +62,6 @@ SUBSYSTEM_DEF(tetris_weekly_rewards)
 	paid_ckeys = islist(data["paid_ckeys"]) ? data["paid_ckeys"] : list()
 	granting_ckeys = islist(data["granting_ckeys"]) ? data["granting_ckeys"] : list()
 	leaderboard_reset_done = data["leaderboard_reset_done"] ? TRUE : FALSE
-	reset_index = max(1, json_number(data["reset_index"]) || 1)
 
 /datum/controller/subsystem/tetris_weekly_rewards/proc/json_number(value)
 	return isnum(value) ? value : text2num(value)
@@ -76,7 +74,6 @@ SUBSYSTEM_DEF(tetris_weekly_rewards)
 	data["paid_ckeys"] = paid_ckeys
 	data["granting_ckeys"] = granting_ckeys
 	data["leaderboard_reset_done"] = leaderboard_reset_done
-	data["reset_index"] = reset_index
 	fdel(TETRIS_WEEKLY_REWARD_PROGRESS_FILE)
 	WRITE_FILE(file(TETRIS_WEEKLY_REWARD_PROGRESS_FILE), json_encode(data))
 
@@ -88,7 +85,6 @@ SUBSYSTEM_DEF(tetris_weekly_rewards)
 	granting_ckeys = list()
 	processing_rewards = FALSE
 	leaderboard_reset_done = FALSE
-	reset_index = 1
 	fdel(TETRIS_WEEKLY_REWARD_PROGRESS_FILE)
 
 /datum/controller/subsystem/tetris_weekly_rewards/proc/begin_reward_cycle()
@@ -103,7 +99,6 @@ SUBSYSTEM_DEF(tetris_weekly_rewards)
 	current_index = 1
 	current_cycle_started = world.realtime
 	leaderboard_reset_done = FALSE
-	reset_index = 1
 	processing_rewards = TRUE
 	save_progress()
 	continue_reward_cycle()
@@ -184,18 +179,19 @@ SUBSYSTEM_DEF(tetris_weekly_rewards)
 		return FALSE
 	var/datum/preferences/P = ctx["prefs"]
 	if(!granting_ckeys[key])
-		granting_ckeys[key] = list("old_balance" = P.metadollars, "new_balance" = max(0, round(P.metadollars + amount)), "amount" = amount)
+		granting_ckeys[key] = list("old_balance" = P.metadollars, "amount" = amount, "reward_saved" = FALSE)
 		save_progress()
 	else
 		var/list/granting_data = granting_ckeys[key]
-		var/expected_new_balance = json_number(granting_data["new_balance"]) || 0
-		if(P.metadollars >= expected_new_balance)
+		if(granting_data["reward_saved"])
 			bm_tgs_finish_prefs_edit(ctx, FALSE)
 			return TRUE
 	P.metadollars = max(0, round(P.metadollars + amount))
 	if(!bm_tgs_finish_prefs_edit(ctx, TRUE))
 		log_admin("Tetris weekly rewards: failed to save preferences for [key], reward [amount] M$ will retry.")
 		return FALSE
+	var/list/granting_data = granting_ckeys[key]
+	granting_data["reward_saved"] = TRUE
 	var/client/C = GLOB.directory[key]
 	if(C?.mob)
 		to_chat(C.mob, span_purple("Вы получили [amount] М$ за недельный рейтинг тетриса."))
@@ -207,25 +203,14 @@ SUBSYSTEM_DEF(tetris_weekly_rewards)
 /datum/controller/subsystem/tetris_weekly_rewards/proc/reset_tetris_leaderboard()
 	if(!SSdbcore.Connect())
 		return FALSE
-	while(reset_index <= length(current_entries))
-		var/list/entry = current_entries[reset_index]
-		var/key = ckey(entry["ckey"])
-		var/score = json_number(entry["score"]) || 0
-		if(!key || score <= 0)
-			reset_index++
-			continue
-		var/datum/db_query/Q = SSdbcore.NewQuery(
-			"DELETE FROM [format_table_name("achievements")] WHERE ckey = :ckey AND achievement_key = :achievement_key AND value = :value",
-			list("ckey" = key, "achievement_key" = TETRIS_SCORE, "value" = score)
-		)
-		if(!Q.warn_execute())
-			qdel(Q)
-			return FALSE
+	var/datum/db_query/Q = SSdbcore.NewQuery(
+		"DELETE FROM [format_table_name("achievements")] WHERE achievement_key = :achievement_key",
+		list("achievement_key" = TETRIS_SCORE)
+	)
+	if(!Q.warn_execute())
 		qdel(Q)
-		reset_index++
-		save_progress()
-		if(MC_TICK_CHECK)
-			return FALSE
+		return FALSE
+	qdel(Q)
 	var/datum/award/score/highscore/tetris/S = SSachievements.scores[/datum/award/score/highscore/tetris]
 	if(S)
 		S.high_scores = list()
@@ -238,12 +223,18 @@ SUBSYSTEM_DEF(tetris_weekly_rewards)
 	return TRUE
 
 /datum/controller/subsystem/tetris_weekly_rewards/proc/advance_next_reset()
-	if(!next_reset_realtime)
-		next_reset_realtime = world.realtime + TETRIS_WEEKLY_REWARD_INTERVAL
-	else
-		while(next_reset_realtime <= world.realtime)
-			next_reset_realtime += TETRIS_WEEKLY_REWARD_INTERVAL
+	next_reset_realtime = next_monday_midnight()
 	save_state()
+
+/datum/controller/subsystem/tetris_weekly_rewards/proc/next_monday_midnight()
+	var/realtime_seconds = round(world.realtime / 10)
+	var/days_since_epoch = round(realtime_seconds / 86400)
+	var/dow = (days_since_epoch + 5) % 7
+	var/days_until_monday = (7 - dow) % 7
+	if(days_until_monday == 0)
+		days_until_monday = 7
+	var/next_monday_seconds = (days_since_epoch + days_until_monday) * 86400
+	return next_monday_seconds * 10
 
 #undef TETRIS_WEEKLY_REWARD_INTERVAL
 #undef TETRIS_WEEKLY_REWARD_CHECK_INTERVAL
