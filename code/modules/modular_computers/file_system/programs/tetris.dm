@@ -145,6 +145,16 @@
 			if(!del_score)
 				return FALSE
 			return del_score.admin_delete_record(usr, ckey(params["ckey"]))
+		if("forceReset")
+			if(!check_rights_for(usr?.client, R_ADMIN))
+				return FALSE
+			if(SStetris_weekly_rewards.processing_rewards)
+				to_chat(usr, span_warning("Сброс уже выполняется, подождите."))
+				return FALSE
+			log_admin("[key_name(usr)] принудительно запустил недельный сброс рейтинга тетриса.")
+			message_admins("[key_name_admin(usr)] принудительно запустил недельный сброс рейтинга тетриса.")
+			SStetris_weekly_rewards.begin_reward_cycle()
+			return TRUE
 
 #undef NTOS_TETRIS_SCORE_HIGH
 #undef NTOS_TETRIS_SCORE_MAX
