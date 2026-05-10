@@ -32,6 +32,8 @@
 	/// Защита от дурочков с href
 	var/game_active = FALSE
 	var/mob/active_game_player = null
+	/// Время старта игры
+	var/game_start_time = 0
 
 /datum/computer_file/program/tetris/ui_close(mob/user)
 	. = ..()
@@ -84,6 +86,7 @@
 				return FALSE
 			game_active = TRUE
 			active_game_player = usr
+			game_start_time = world.time
 			return TRUE
 		if("sfx")
 			if(!computer)
@@ -113,6 +116,15 @@
 			game_active = FALSE
 			active_game_player = null
 			var/temp_score = clamp(text2num(params["score"]) || 0, 0, NTOS_TETRIS_SCORE_MAX)
+			var/game_duration = max(0, world.time - game_start_time)
+			game_start_time = 0
+
+			// Простая антифиддер защита. Пидорки что лезят в код чтобы накрутить счет - сосите хуй
+			if(game_duration < 1 MINUTES && temp_score > 30000)
+				log_admin("[key_name(usr)] отправил подозрительный счёт [temp_score] в тетрисе за [game_duration/10]с — отклонено.")
+				message_admins("[ADMIN_LOOKUPFLW(usr)] пытался накрутить счёт в планшетном тетрисе: [temp_score] очков за [game_duration/10]с.")
+				return FALSE
+
 			if(temp_score > high_score)
 				high_score = temp_score
 
