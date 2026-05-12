@@ -64,10 +64,10 @@ SUBSYSTEM_DEF(who)
 			"text" = "[fake_key ? fake_key : client.key] ([round(client.avgping, 1)]ms)",
 			"ckey_color" = "white"
 		)
-		base_data["total_players"] += list(list(client.key = list(client_payload.Copy())))
+		base_data["total_players"] += list(list(fake_key ? fake_key : client.key = list(client_payload.Copy())))
 		if(fake_key)
 			client_payload["text"] += " (HIDDEN '[client.key]')"
-			player_stealthed_additional["total_players"] += list(list(client.key = list(client_payload)))
+			player_stealthed_additional["total_players"] += list(list(fake_key = list(client_payload)))
 		else
 			player_additional["total_players"] += list(list(client.key = list(client_payload)))
 
@@ -210,6 +210,7 @@ SUBSYSTEM_DEF(who)
 				admin_stealthed_additional["total_admins"] += list(list("[client.key] ([rank])" = list(admin_payload)))
 				admin_payload["special_color"] = WHO_COLOR_HIDDEN_ADMIN
 				admin_payload["special_text"] += " (HIDDEN AS '[client.holder?.fakekey]')"
+				base_data["total_admins"] += list(list("[client.key] ([rank])" = list(admin_payload.Copy())))
 			else
 				admin_additional["total_admins"] += list(list("[client.key] ([rank])" = list(admin_payload)))
 				base_data["total_admins"] += list(list("[client.key] ([rank])" = list(admin_payload.Copy())))
