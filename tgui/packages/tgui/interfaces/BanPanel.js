@@ -673,7 +673,7 @@ const BanEntry = (props) => {
             </Box>
             <Box fontSize="11px" color="#e2e8f0"
               style={{ fontStyle: 'italic', wordBreak: 'break-word' }}>
-              &​ldquo;{ban.reason}&​rdquo;
+              {"\u201C"}{ban.reason}{"\u201D"}
             </Box>
           </Flex.Item>
           <Flex.Item shrink={0}>
