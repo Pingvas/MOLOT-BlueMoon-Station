@@ -3073,40 +3073,38 @@ function draw_tickets() {
 	var scroller = document.scrollingElement || document.documentElement || document.body;
 	var savedScroll = scroller ? scroller.scrollTop : 0;
 	statcontent.textContent = "";
-	if (!State.tickets || !State.tickets.length) {
-		if (scroller) scroller.scrollTop = savedScroll;
-		return;
-	}
 
 	var open = 0, inProgress = 0, closed = 0;
 	var activeRows = [];
 	var closedRows = [];
 	var headerRows = [];
 	var seenKeys = {};
-	for (var i = 0; i < State.tickets.length; i++) {
-		var t = State.tickets[i];
-		var meta = t[3];
-		var key = _ticketKey(t);
-		if (key) seenKeys[key] = true;
-		if (meta && meta.state != null) {
-			if (meta.state === AHELP_ACTIVE) {
-				if (meta.handler) inProgress++; else open++;
-				activeRows.push(t);
-			} else {
+	if (State.tickets && State.tickets.length) {
+		for (var i = 0; i < State.tickets.length; i++) {
+			var t = State.tickets[i];
+			var meta = t[3];
+			var key = _ticketKey(t);
+			if (key) seenKeys[key] = true;
+			if (meta && meta.state != null) {
+				if (meta.state === AHELP_ACTIVE) {
+					if (meta.handler) inProgress++; else open++;
+					activeRows.push(t);
+				} else {
+					closed++;
+					closedRows.push(t);
+				}
+				continue;
+			}
+			// Header rows or legacy entries without metadata — preserve original behavior.
+			var labelText = ("" + (t[0] || "")).toLowerCase();
+			if (labelText.indexOf("ticket") !== -1 || labelText.indexOf("communications") !== -1 || labelText.indexOf("disconnected") !== -1) {
+				headerRows.push(t);
+			} else if (labelText.indexOf("close") !== -1 || labelText.indexOf("resolve") !== -1 || labelText.indexOf("закр") !== -1) {
 				closed++;
 				closedRows.push(t);
+			} else {
+				activeRows.push(t);
 			}
-			continue;
-		}
-		// Header rows or legacy entries without metadata — preserve original behavior.
-		var labelText = ("" + (t[0] || "")).toLowerCase();
-		if (labelText.indexOf("ticket") !== -1 || labelText.indexOf("communications") !== -1 || labelText.indexOf("disconnected") !== -1) {
-			headerRows.push(t);
-		} else if (labelText.indexOf("close") !== -1 || labelText.indexOf("resolve") !== -1 || labelText.indexOf("закр") !== -1) {
-			closed++;
-			closedRows.push(t);
-		} else {
-			activeRows.push(t);
 		}
 	}
 	_pruneExpandedState(seenKeys);
@@ -3129,7 +3127,7 @@ function draw_tickets() {
 	summary.appendChild(summaryClosed);
 	statcontent.appendChild(summary);
 
-	if (!State.tickets.length) {
+	if (!State.tickets || !State.tickets.length) {
 		if (scroller) scroller.scrollTop = savedScroll;
 		return;
 	}
@@ -3820,9 +3818,10 @@ function remove_admin_tabs() {
 }
 
 function add_admin_tabs(ht) {
-	State.hrefToken = ht;
+	State.hrefToken = decodeURIComponent(ht);
 	addPermanentTab("MC");
 	addPermanentTab("Tickets");
+	if (!_settingsActive && State.currentTab === "Tickets") draw_tickets();
 }
 
 function create_listedturf(TN) {

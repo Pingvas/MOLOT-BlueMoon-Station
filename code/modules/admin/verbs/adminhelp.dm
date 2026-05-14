@@ -514,8 +514,10 @@ GLOBAL_DATUM_INIT(ahelp_tickets, /datum/admin_help_tickets, new)
 	TicketPanel()	//we have to be here to do this
 
 //Forwarded action from admin/Topic
-/datum/admin_help/proc/Action(action)
+/datum/admin_help/proc/Action(action, silent_panel = FALSE)
 	testing("Ahelp action: [action]")
+	if(silent_panel)
+		suppress_ticket_panel = TRUE
 	switch(action)
 		if("ticket")
 			TicketPanel()
