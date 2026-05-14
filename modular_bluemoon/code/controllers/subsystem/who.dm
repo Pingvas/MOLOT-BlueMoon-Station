@@ -48,7 +48,7 @@ SUBSYSTEM_DEF(who)
 	admin_sorted_additional["player_additional"] = list("flags" = R_ADMIN, "data" = player_additional)
 
 	var/list/player_stealthed_additional = list()
-	admin_sorted_additional["player_stealthed_additional"] = list("flags" = R_STEALTH, "data" = player_stealthed_additional)
+	admin_sorted_additional["player_stealthed_additional"] = list("flags" = R_ADMIN, "data" = player_stealthed_additional)
 
 	var/list/counted_additional = list(
 		"lobby" = 0,
@@ -182,7 +182,7 @@ SUBSYSTEM_DEF(who)
 	admin_sorted_additional["admin_additional"] = list("flags" = R_ADMIN, "data" = admin_additional)
 
 	var/list/admin_stealthed_additional = list()
-	admin_sorted_additional["admin_stealthed_additional"] = list("flags" = R_STEALTH, "data" = admin_stealthed_additional)
+	admin_sorted_additional["admin_stealthed_additional"] = list("flags" = R_ADMIN, "data" = admin_stealthed_additional)
 
 	var/list/listings = list(
 		"Management" = list(R_PERMISSIONS, list(), "purple"),
