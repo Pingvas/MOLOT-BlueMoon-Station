@@ -245,9 +245,10 @@ SUBSYSTEM_DEF(ticker)
 				if(SSvote.mode && (SSvote.mode == "roundtype" || SSvote.mode == "dynamic" || SSvote.mode == "mode tiers"))
 					SSvote.result()
 					SSpersistence.SaveSavedVotes()
-					for(var/client/C in SSvote.voting)
-						C << browse(null, "window=vote;can_close=0")
-					SSvote.reset()
+					if(!SSvote.mode)
+						for(var/client/C in SSvote.voting)
+							C << browse(null, "window=vote;can_close=0")
+						SSvote.reset()
 				SEND_SIGNAL(src, COMSIG_TICKER_ENTER_SETTING_UP)
 				current_state = GAME_STATE_SETTING_UP
 				Master.SetRunLevel(RUNLEVEL_SETUP)
@@ -800,6 +801,9 @@ SUBSYSTEM_DEF(ticker)
 		'sound/roundend/gandon.ogg',
 		'sound/roundend/approachingbaystation.ogg'\
 		)
+
+	if(SSmetadollars?.metadollar_burn_round_notice)
+		to_chat(world, span_boldannounce("[SSmetadollars.metadollar_burn_round_notice]"))
 
 	SEND_SOUND(world, sound(round_end_sound))
 	text2file(login_music, "data/last_round_lobby_music.txt")

@@ -1273,6 +1273,28 @@
 		var/mob/unbuckle_me_now = i
 		unbuckle_mob(unbuckle_me_now, FALSE)
 
+/mob/living/silicon/robot/proc/camera_remove(drop_assembly = FALSE)
+	if(QDELETED(builtInCamera))
+		return
+
+	if(drop_assembly)
+		var/cyborg_turf_loc = get_turf(src)
+		new /obj/item/wallframe/camera (cyborg_turf_loc)
+		new /obj/item/stack/cable_coil(cyborg_turf_loc, 2)
+	QDEL_NULL(builtInCamera)
+
+/mob/living/silicon/robot/proc/camera_restore()
+	if(!QDELETED(builtInCamera) || scrambledcodes)
+		return
+
+	builtInCamera = new (src)
+	builtInCamera.c_tag = real_name
+	builtInCamera.network = list("ss13")
+	builtInCamera.internal_light = FALSE
+
+	if(wires?.is_cut(WIRE_CAMERA))
+		builtInCamera.toggle_cam(src, 0)
+
 /mob/living/silicon/robot/proc/TryConnectToAI(mob/living/silicon/ai/connect_to)
 	set_connected_ai(connect_to || select_active_ai_with_fewest_borgs(z))
 	if(connected_ai)
@@ -1367,19 +1389,35 @@
 	if(program)
 		program.force_full_update()
 
-/mob/living/silicon/robot/get_tooltip_data()
-	var/t_He = ru_who(TRUE)
-	var/t_is = p_are()
-	. = list()
-	var/borg_type = module ? module : "Default"
-//This isn't even used normally, but if that ever changes, just uncomment this
-/*	var/obj/item/borg_chameleon/chameleon = locate() in src
+/// Проверка на инженерную маскировку
+/mob/living/silicon/robot/proc/chameleon_module()
+	var/obj/item/borg_chameleon/chameleon = locate() in src
 	if(!chameleon)
 		chameleon = locate() in src.module
 	if(chameleon?.active)
-		borg_type = "Engineering"
-*/
-	. += "[t_He] [t_is] a [borg_type] unit"
+		return TRUE
+	else
+		return FALSE
+
+/// Проверка на модуль антагролей
+/mob/living/silicon/robot/proc/check_allegiance()
+	if(chameleon_module())
+		return
+
+	if(module.type in GLOB.syndicate_cyborg_modules)
+		return " синдикатовского производства"
+	if(module.type in GLOB.inteq_cyborg_modules)
+		return " принадлежности InteQ"
+	if(module.type in GLOB.spider_cyborg_modules)
+		return " Паучьего Клана"
+
+/mob/living/silicon/robot/get_tooltip_data()
+	. = list()
+	var/borg_type = module ? module.name : "стандартный"
+	if(chameleon_module())
+		borg_type = "инженерный"
+
+	. += "Это [vocabulary_to_ru(GLOB.borgmodule_ru_adjective, borg_type)] киборг[check_allegiance()]"
 	if(activity)
 		. += activity
 	SEND_SIGNAL(src, COMSIG_PARENT_EXAMINE, usr, .)

@@ -659,7 +659,7 @@ Traitors and the like can also be revived with the previous role mostly intact.
 	log_admin("[key_name(src)] has changed the Central Command name to: [input]")
 
 /client/proc/cmd_admin_delete(atom/A as obj|mob|turf in world)
-	set category = "Admin"
+	set category = "Admin.Game"
 	set name = "Delete"
 
 	if(!check_rights(R_SPAWN|R_DEBUG))
@@ -790,7 +790,7 @@ Traitors and the like can also be revived with the previous role mostly intact.
 	SSblackbox.record_feedback("nested tally", "admin_toggle", 1, list("Change View Range", "[view]")) //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
 /client/proc/admin_call_shuttle()
-	set category = "Admin.Events"
+	set category = "Admin.Shuttles"
 	set name = "Call Shuttle"
 
 	if(EMERGENCY_AT_LEAST_DOCKED)
@@ -810,7 +810,7 @@ Traitors and the like can also be revived with the previous role mostly intact.
 	return
 
 /client/proc/admin_cancel_shuttle()
-	set category = "Admin.Events"
+	set category = "Admin.Shuttles"
 	set name = "Cancel Shuttle"
 	if(!check_rights(0))
 		return
@@ -942,7 +942,7 @@ Traitors and the like can also be revived with the previous role mostly intact.
 	if(!level)
 		return
 	var/secret_variant_override = null
-	if(level in list("violet", "amber", "red"))
+	if(level in list("violet", "amber", "red", "delta"))
 		var/choice = tgui_alert(usr, "Иконка и музыка на коммуникационных консолях:", "Set Security Level", list("Обычные", "Секретные", "Случайно (90% обычные)"))
 		if(!choice)
 			return
@@ -956,14 +956,14 @@ Traitors and the like can also be revived with the previous role mostly intact.
 	set_security_level(level, secret_variant_override)
 
 	var/extra_log = ""
-	if(level in list("violet", "amber", "red"))
+	if(level in list("violet", "amber", "red", "delta"))
 		extra_log = isnull(secret_variant_override) ? " (вариант: случайный)" : (secret_variant_override ? " (вариант: секретный)" : " (вариант: обычный)")
 	log_admin("[key_name(usr)] changed the security level to [level][extra_log]")
 	message_admins("[key_name_admin(usr)] changed the security level to [level][extra_log]")
 	SSblackbox.record_feedback("tally", "admin_verb", 1, "Set Security Level [capitalize(level)]") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
 /client/proc/admin_hostile_environment()
-	set category = "Admin.Events"
+	set category = "Admin.Shuttles"
 	set name = "Hostile Environment"
 
 	if(!check_rights(R_ADMIN))
@@ -1313,7 +1313,7 @@ Traitors and the like can also be revived with the previous role mostly intact.
 
 
 /client/proc/show_tip()
-	set category = "Admin"
+	set category = "Admin.Events"
 	set name = "Show Tip"
 	set desc = "Sends a tip (that you specify) to all players. After all \
 		you're the experienced player here."
@@ -1341,7 +1341,7 @@ Traitors and the like can also be revived with the previous role mostly intact.
 
 /client/proc/modify_goals()
 	set name = "Station Goals"
-	set category = "Debug.6) Tweak"
+	set category = "Admin.Shuttles"
 
 	if(!check_rights(R_ADMIN))
 		return

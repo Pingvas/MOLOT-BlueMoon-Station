@@ -592,22 +592,21 @@
 /atom/proc/get_examine_string(mob/user, thats = FALSE)
 	return "[icon2html(src, user)] [thats? "That's ":""][get_examine_name(user)]"
 
-/atom/proc/examine(mob/user)
+/atom/proc/examine(mob/user, silent = FALSE)
 	. = list("[get_examine_string(user, TRUE)].[desc ? "<hr>" : null]")
 
 	if(desc)
 		. += desc
 
-	. += "<hr>"
 	if(custom_materials)
 		var/list/materials_list = list()
 		for(var/i in custom_materials)
 			var/datum/material/M = i
-			materials_list += material_to_ru_genitive(M.name)
+			materials_list += vocabulary_to_ru(GLOB.mat_ru_genitive, M.name)
 		. += "<u>Сделано из [english_list(materials_list)]</u>."
 	if(reagents)
-		. += "<hr>"
 		if(reagents.reagents_holder_flags & TRANSPARENT)
+			. += "<hr>"
 			. += "<b>Внутри находится:</b>"
 			if(length(reagents.reagent_list))
 				if(user.can_see_reagents()) //Show each individual reagent
@@ -634,7 +633,7 @@
 				. += "[R.volume] u [R.name]"
 			. += span_engradio("Температура: [round(reagents.chem_temp, 1)] K ([round(reagents.chem_temp-T0C, 1)] &deg;C)")
 			. += span_radio("pH: [round(reagents.pH, 0.01)]")
-			. += "<hr>"
+		. += "<hr>"
 
 	SEND_SIGNAL(src, COMSIG_PARENT_EXAMINE, user, .)
 
@@ -1587,7 +1586,18 @@
 	var/screentips_enabled = user.client.prefs.screentip_pref
 	if(screentips_enabled == SCREENTIP_PREFERENCE_DISABLED || (flags_1 & NO_SCREENTIPS_1))
 		active_hud.screentip_text.maptext = ""
+		active_hud.last_screentip_atom = null
+		active_hud.last_screentip_held = null
 		return
+
+	// Dedup repeat hovers — same atom with same held item produces an identical
+	// maptext, so skip the 8 build_context calls and signal sends. Held item
+	// transitions and atom changes both invalidate the cache.
+	var/obj/item/held_item = user.get_active_held_item()
+	if(active_hud.last_screentip_atom == src && active_hud.last_screentip_held == held_item)
+		return
+	active_hud.last_screentip_atom = src
+	active_hud.last_screentip_held = held_item
 
 	active_hud.screentip_text.maptext_y = 10 // 10px lines us up with the action buttons top left corner
 	var/lmb_rmb_line = ""
@@ -1606,8 +1616,6 @@
 				auxiliary_name = "\[[collar.tagname]\]"
 
 	if ((isliving(user) || isovermind(user) || isaicamera(user)) && (user.client.prefs.screentip_pref != SCREENTIP_PREFERENCE_NO_CONTEXT))
-		var/obj/item/held_item = user.get_active_held_item()
-
 		if (flags_1 & HAS_CONTEXTUAL_SCREENTIPS_1 || held_item?.item_flags & ITEM_HAS_CONTEXTUAL_SCREENTIPS)
 			var/list/context = list()
 

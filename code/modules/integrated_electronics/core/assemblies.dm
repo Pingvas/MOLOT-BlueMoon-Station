@@ -46,6 +46,10 @@
 	var/ie_tgui_pulse_output_ref = null
 	var/ie_tgui_pulse_input_ref = null
 	var/datum/weakref/ie_tgui_pulse_chip_weak
+	/// Last coarse diagnostic HUD state from compute_diagnostic_hud_process_key; skips redundant health/cell updates in process().
+	var/last_diag_process_key = ""
+	/// Cached "[icon]-[icon_state]-[dir]" so sync_diagnostic_hud_offsets avoids allocating /icon every diag call.
+	var/diag_hud_offset_key = ""
 
 	hud_possible = list(DIAG_STAT_HUD, DIAG_BATT_HUD, DIAG_TRACK_HUD, DIAG_CIRCUIT_HUD) //diagnostic hud overlays
 	max_integrity = 50
@@ -124,6 +128,7 @@
 	diag_hud_set_circuitcell()
 	diag_hud_set_circuitstat()
 	diag_hud_set_circuittracking()
+	last_diag_process_key = compute_diagnostic_hud_process_key()
 
 	access_card = new /obj/item/card/id(src)
 
@@ -131,6 +136,12 @@
 	STOP_PROCESSING(SScircuit, src)
 	for(var/datum/atom_hud/data/diagnostic/diag_hud in GLOB.all_huds)
 		diag_hud.remove_from_hud(src)
+	// Kill light datum/lighting work before qdel'ing many contents; clear wiring from chips first pass.
+	set_light(0)
+	for(var/obj/item/integrated_circuit/ic as anything in assembly_components.Copy())
+		qdel(ic)
+	assembly_components.Cut()
+	QDEL_NULL(battery)
 	QDEL_NULL(access_card)
 	return ..()
 
@@ -138,9 +149,40 @@
 	handle_idle_power()
 	check_pulling()
 
-	//updates diagnostic hud
-	diag_hud_set_circuithealth()
-	diag_hud_set_circuitcell()
+	// Diagnostic HUD: only when turf visibility or coarse health/battery buckets change (see compute_diagnostic_hud_process_key).
+	var/next_diag_key = compute_diagnostic_hud_process_key()
+	if(next_diag_key != last_diag_process_key)
+		last_diag_process_key = next_diag_key
+		diag_hud_set_circuithealth()
+		diag_hud_set_circuitcell()
+
+/// Coarse key for whether health/cell diagnostic overlays need a refresh this SS tick.
+/obj/item/electronic_assembly/proc/compute_diagnostic_hud_process_key()
+	if(!isturf(loc))
+		return "off"
+	var/mh = max(max_integrity, 1)
+	var/h = RoundDiagBar(obj_integrity / mh)
+	if(!battery)
+		return "[h]-nobatt"
+	var/mc = max(battery.maxcharge, 1)
+	return "[h]-[RoundDiagBar(battery.charge / mc)]"
+
+/// Sets pixel_y on diagnostic HUD holders when assembly icon appearance changes; avoids per-call /icon allocations in diag_hud_set_circuit* procs.
+/obj/item/electronic_assembly/proc/sync_diagnostic_hud_offsets()
+	if(!hud_list)
+		return
+	var/key = "[icon]-[icon_state]-[dir]"
+	if(key == diag_hud_offset_key)
+		return
+	diag_hud_offset_key = key
+	if(!icon)
+		return
+	var/icon/I = icon(icon, icon_state, dir)
+	var/offset = I.Height() - world.icon_size
+	for(var/hud_id in list(DIAG_CIRCUIT_HUD, DIAG_BATT_HUD, DIAG_STAT_HUD, DIAG_TRACK_HUD))
+		var/image/holder = hud_list[hud_id]
+		if(istype(holder))
+			holder.pixel_y = offset
 
 /obj/item/electronic_assembly/proc/handle_idle_power()
 
@@ -271,6 +313,7 @@
 	diag_hud_set_circuitcell(TRUE)
 	diag_hud_set_circuitstat(TRUE)
 	diag_hud_set_circuittracking(TRUE)
+	last_diag_process_key = compute_diagnostic_hud_process_key()
 
 /obj/item/electronic_assembly/dropped(mob/user)
 	. = ..()
@@ -279,6 +322,7 @@
 	diag_hud_set_circuitcell()
 	diag_hud_set_circuitstat()
 	diag_hud_set_circuittracking()
+	last_diag_process_key = compute_diagnostic_hud_process_key()
 
 /obj/item/electronic_assembly/proc/rename()
 	var/mob/M = usr
@@ -303,6 +347,7 @@
 		icon_state = initial(icon_state) + "-open"
 	else
 		icon_state = initial(icon_state)
+	diag_hud_offset_key = ""
 	cut_overlays()
 	if(detail_color == COLOR_ASSEMBLY_BLACK) //Black colored overlay looks almost but not exactly like the base sprite, so just cut the overlay and avoid it looking kinda off.
 		return
@@ -331,9 +376,14 @@
 	if(IC.w_class > w_class)
 		to_chat(user, "<span class='warning'>\The [IC] is way too big to fit into \the [src].</span>")
 		return FALSE
-	if(istype(IC, /obj/item/integrated_circuit/manipulation/interacter) && locate(/obj/item/integrated_circuit/manipulation/interacter) in src.assembly_components)
-		to_chat(user, "<span class='warning'>Вы не можете вставить две этих детали в один корпус.</span>")
-		return FALSE
+	if(IC.limit_per_assembly > 0)	// limit_per_assembly is not null and > 0
+		var/already = 0
+		for(var/obj/item/integrated_circuit/C in assembly_components)	// checking all circuits already present
+			if(C.type == IC.type)
+				already++
+				if(already >= IC.limit_per_assembly)
+					to_chat(user, "<span class='warning'>Вы не можете вставить больше [IC.limit_per_assembly] таких плат в один корпус.</span>")
+					return FALSE
 	var/total_part_size = return_total_size()
 	var/total_complexity = return_total_complexity()
 
@@ -532,22 +582,24 @@
 			return ..()
 		var/list/input_selection = list()
 		//Check all the components asking for an input
-		for(var/obj/item/integrated_circuit/input in assembly_components)
-			if((input.demands_object_input && opened) || (input.demands_object_input && input.can_input_object_when_closed))
+		for(var/obj/item/integrated_circuit/C in assembly_components)
+			if((C.demands_object_input && opened) || (C.demands_object_input && C.can_input_object_when_closed))
+				if(!C.can_accept_item(I))
+					continue
 				var/i = 0
 				//Check if there is another component with the same name and append a number for identification
 				for(var/s in input_selection)
 					var/obj/item/integrated_circuit/s_circuit = input_selection[s] //The for-loop iterates the keys of the associative list.
-					if(s_circuit.name == input.name && s_circuit.displayed_name == input.displayed_name && s_circuit != input)
+					if(s_circuit.name == C.name && s_circuit.displayed_name == C.displayed_name && s_circuit != C)
 						i++
-				var/disp_name= "[input.displayed_name] \[[input]\]"
+				var/disp_name= "[C.displayed_name] \[[C]\]"
 				if(i)
 					disp_name += " ([i+1])"
 				//Associative lists prevent me from needing another list and using a Find proc
-				input_selection[disp_name] = input
+				input_selection[disp_name] = C
 
 		var/obj/item/integrated_circuit/choice
-		if(input_selection)
+		if(length(input_selection))
 			if(input_selection.len == 1)
 				choice = input_selection[input_selection[1]]
 			else
@@ -560,6 +612,11 @@
 				choice.additem(I, user)
 		for(var/obj/item/integrated_circuit/input/S in assembly_components)
 			S.attackby_react(I,user,user.a_intent)
+		//	Easiest way to check if item "I" was consumed, or otherwise taken by one of the circuits.
+		//	If a circuit with demand_object_input == TRUE, or something like a scanner takes the items, prevents user from hitting assembly with it.
+		//	I could code something less hacky, but i'm pretty tired of IC logic at this point, and i want it to be as failproof as possible.
+		if(!user.is_holding(I))
+			return TRUE
 		return ..()
 
 
@@ -589,7 +646,7 @@
 	var/obj/item/integrated_circuit/input/choice
 
 
-	if(input_selection)
+	if(length(input_selection))
 		if(input_selection.len ==1)
 			choice = input_selection[input_selection[1]]
 		else
