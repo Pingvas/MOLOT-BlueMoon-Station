@@ -1,4 +1,3 @@
-import { useEffect } from 'inferno';
 import { useBackend, useLocalState } from '../backend';
 import { Box, Button, Flex, Icon, Input, NoticeBox, ProgressBar, Section, Stack } from '../components';
 import { Window } from '../layouts';
@@ -563,6 +562,8 @@ const WireGame = (props, context) => {
   );
 };
 
+let _simonTimer: any = null;
+
 // Simon Says Game
 const SimonGame = (props, context) => {
   const { data, act } = useBackend<ProblemComputerData>(context);
@@ -614,13 +615,16 @@ const SimonGame = (props, context) => {
   const simonColors: Record<number, string> = { 1: '#e74c3c', 2: '#3498db', 3: '#2ecc71', 4: '#f1c40f' };
   const simonNames: Record<number, string> = { 1: 'Красный', 2: 'Синий', 3: 'Зелёный', 4: 'Жёлтый' };
 
-  useEffect(() => {
-    if (phase !== 'showing') return;
-    setShowIndex(-1);
+  if (phase === 'showing' && showIndex === -1 && playerSequence.length === 0) {
+    if (_simonTimer) {
+      clearInterval(_simonTimer);
+      _simonTimer = null;
+    }
     let i = 0;
-    const timer = setInterval(() => {
+    _simonTimer = setInterval(() => {
       if (i >= targetSequence.length) {
-        clearInterval(timer);
+        clearInterval(_simonTimer);
+        _simonTimer = null;
         setShowIndex(-1);
         setPhase('input');
         return;
@@ -628,8 +632,7 @@ const SimonGame = (props, context) => {
       setShowIndex(i);
       i++;
     }, 600);
-    return () => clearInterval(timer);
-  }, [phase, targetSequence.length]);
+  }
 
   return (
     <Section title="Саймон: повтори последовательность" fill buttons={
