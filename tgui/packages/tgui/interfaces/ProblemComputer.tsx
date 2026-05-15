@@ -1,3 +1,4 @@
+import { useEffect } from 'inferno';
 import { useBackend, useLocalState } from '../backend';
 import { Box, Button, Flex, Icon, Input, NoticeBox, ProgressBar, Section, Stack } from '../components';
 import { Window } from '../layouts';
@@ -18,20 +19,15 @@ type ProblemComputerData = {
 
 type GameData = {
   question?: string;
-  gridSize?: number;
   pairs?: WirePair[];
-  tubes?: number[][];
-  tubeSize?: number;
   numColors?: number;
-  sequence?: (string | number)[];
+  sequence?: number[];
   hint?: string;
 };
 
 type WirePair = {
   color: string;
   id: number;
-  start: { x: number; y: number };
-  end: { x: number; y: number };
 };
 
 // Game Definitions
@@ -51,10 +47,10 @@ const GAMES = [
     color: '#e74c3c',
   },
   {
-    id: 'sequence',
-    name: 'Пробирки',
-    icon: 'flask',
-    description: 'Рассортируйте жидкости по пробиркам',
+    id: 'simon',
+    name: 'Саймон',
+    icon: 'brain',
+    description: 'Запомните и повторите последовательность цветов',
     color: '#2ecc71',
   },
   {
@@ -81,27 +77,6 @@ const WIRE_CSS_COLORS: Record<string, string> = {
   purple: '#9b59b6',
   orange: '#e67e22',
   cyan: '#1abc9c',
-};
-
-// Tube liquid colors
-const TUBE_COLORS: Record<number, string> = {
-  1: '#e74c3c',
-  2: '#3498db',
-  3: '#2ecc71',
-  4: '#f1c40f',
-  5: '#9b59b6',
-  6: '#e67e22',
-  7: '#1abc9c',
-};
-
-const TUBE_COLOR_NAMES: Record<number, string> = {
-  1: 'Красный',
-  2: 'Синий',
-  3: 'Зелёный',
-  4: 'Жёлтый',
-  5: 'Фиолетовый',
-  6: 'Оранжевый',
-  7: 'Бирюзовый',
 };
 
 // Shuffle helper
@@ -290,7 +265,7 @@ const GameScreen = (props, context) => {
       <Stack.Item grow>
         {currentGame === 'math' && <MathGame />}
         {currentGame === 'wires' && <WireGame />}
-        {currentGame === 'sequence' && <TubeSortGame />}
+        {currentGame === 'simon' && <SimonGame />}
         {currentGame === 'signal' && <SignalGame />}
       </Stack.Item>
     </Stack>
@@ -588,180 +563,129 @@ const WireGame = (props, context) => {
   );
 };
 
-// Tube Sort Game (replaces DNA Sequence)
-const TubeSortGame = (props, context) => {
+// Simon Says Game
+const SimonGame = (props, context) => {
   const { data, act } = useBackend<ProblemComputerData>(context);
   const gameData = data.gameData;
 
-  const [tubes, setTubes] = useLocalState<number[][] | null>(
+  const [playerSequence, setPlayerSequence] = useLocalState<number[]>(
     context,
-    'tubeSortState',
-    null
+    'simonPlayerSeq',
+    []
   );
-  const [selectedTube, setSelectedTube] = useLocalState<number | null>(
+  const [phase, setPhase] = useLocalState<string>(
     context,
-    'tubeSortSelected',
-    null
+    'simonPhase',
+    'showing'
   );
-  const [moves, setMoves] = useLocalState(context, 'tubeSortMoves', 0);
+  const [showIndex, setShowIndex] = useLocalState<number>(
+    context,
+    'simonShowIndex',
+    -1
+  );
 
-  if (!gameData || !gameData.tubes) {
+  if (!gameData || !gameData.sequence) {
     return <NoticeBox>Загрузка...</NoticeBox>;
   }
 
-  const tubeSize = gameData.tubeSize || 4;
+  const targetSequence: number[] = gameData.sequence;
+  const numColors: number = gameData.numColors || 4;
+  const isComplete = playerSequence.length === targetSequence.length;
 
-  // Initialize local tube state from server data once
-  if (!tubes) {
-    setTubes(gameData.tubes.map((t) => [...t]));
-    return <NoticeBox>Загрузка...</NoticeBox>;
-  }
-
-  // Check if solved: each non-empty tube has all same color
-  const isSolved = tubes.every(
-    (tube) => tube.length === 0 || (tube.length === tubeSize
-      && tube.every((c) => c === tube[0]))
-  );
-
-  const handleTubeClick = (index: number) => {
-    if (selectedTube === null) {
-      // Select a tube (must have at least one element)
-      if (tubes[index].length > 0) {
-        setSelectedTube(index);
-      }
-      return;
-    }
-    if (selectedTube === index) {
-      // Deselect
-      setSelectedTube(null);
-      return;
-    }
-    // Try to pour from selectedTube to index
-    const from = [...tubes[selectedTube]];
-    const to = [...tubes[index]];
-
-    if (from.length === 0) {
-      setSelectedTube(null);
-      return;
-    }
-
-    const pouringColor = from[from.length - 1];
-
-    // Can pour if target is empty or top matches, and target not full
-    if (to.length < tubeSize && (to.length === 0 || to[to.length - 1] === pouringColor)) {
-      // Pour all consecutive same-color from top
-      while (
-        from.length > 0
-        && from[from.length - 1] === pouringColor
-        && to.length < tubeSize
-      ) {
-        to.push(from.pop()!);
-      }
-      const newTubes = [...tubes];
-      newTubes[selectedTube] = from;
-      newTubes[index] = to;
-      setTubes(newTubes);
-      setMoves(moves + 1);
-    }
-    setSelectedTube(null);
+  const handleColorClick = (colorId: number) => {
+    if (phase !== 'input') return;
+    if (playerSequence.length >= targetSequence.length) return;
+    setPlayerSequence([...playerSequence, colorId]);
   };
 
   const handleSubmit = () => {
-    // Send solved state to server
-    act('submit_answer', { answer: isSolved ? 'solved' : 'unsolved' });
-    setTubes(null);
-    setSelectedTube(null);
-    setMoves(0);
+    act('submit_answer', { sequence: playerSequence });
+    setPlayerSequence([]);
+    setPhase('showing');
+    setShowIndex(-1);
   };
 
   const handleReset = () => {
-    setTubes(gameData.tubes.map((t) => [...t]));
-    setSelectedTube(null);
-    setMoves(0);
+    setPlayerSequence([]);
+    setPhase('showing');
+    setShowIndex(-1);
   };
 
-  const tubeWidth = 42;
-  const segmentHeight = 28;
-  const tubeHeight = tubeSize * segmentHeight + 8;
+  const simonColors: Record<number, string> = { 1: '#e74c3c', 2: '#3498db', 3: '#2ecc71', 4: '#f1c40f' };
+  const simonNames: Record<number, string> = { 1: 'Красный', 2: 'Синий', 3: 'Зелёный', 4: 'Жёлтый' };
+
+  useEffect(() => {
+    if (phase !== 'showing') return;
+    setShowIndex(-1);
+    let i = 0;
+    const timer = setInterval(() => {
+      if (i >= targetSequence.length) {
+        clearInterval(timer);
+        setShowIndex(-1);
+        setPhase('input');
+        return;
+      }
+      setShowIndex(i);
+      i++;
+    }, 600);
+    return () => clearInterval(timer);
+  }, [phase, targetSequence.length]);
 
   return (
-    <Section
-      title="Сортировка пробирок"
-      fill
-      buttons={
-        <Box inline color="label">
-          <Icon name="exchange-alt" mr={1} />
-          Ходов: {moves}
-        </Box>
-      }>
+    <Section title="Саймон: повтори последовательность" fill buttons={
+      <Box inline color="label"><Icon name="brain" mr={1} />Шагов: {playerSequence.length}/{targetSequence.length}</Box>
+    }>
       <Stack vertical align="center" fill>
         <Stack.Item>
           <Box color="label" textAlign="center" mb={1}>
-            Переливайте жидкость, чтобы в каждой пробирке был один цвет
+            {phase === 'showing' ? 'Запомните последовательность...' : 'Повторите последовательность!'}
           </Box>
         </Stack.Item>
         <Stack.Item>
-          <Flex wrap="wrap" justify="center">
-            {tubes.map((tube, ti) => (
-              <Flex.Item key={ti} mx="4px" mb="8px">
-                <Box
-                  onClick={() => handleTubeClick(ti)}
-                  style={{
-                    'position': 'relative',
-                    'width': tubeWidth + 'px',
-                    'height': tubeHeight + 'px',
-                    'border': selectedTube === ti
-                      ? '2px solid #fff'
-                      : '2px solid rgba(255,255,255,0.3)',
-                    'border-top': 'none',
-                    'border-radius': '0 0 12px 12px',
-                    'background': 'rgba(0,0,0,0.3)',
-                    'cursor': 'pointer',
-                    'padding-top': selectedTube === ti ? '0' : '4px',
-                    'margin-top': selectedTube === ti ? '-8px' : '0',
-                    'transition': 'margin-top 0.15s ease',
-                  }}>
-                  {/* Tube segments from bottom */}
-                  {Array.from({ length: tubeSize }).map((_, si) => {
-                    const colorId = tube[si];
-                    const isEmpty = colorId === undefined;
-                    const yPos = tubeHeight - 4 - (si + 1) * segmentHeight;
-                    return (
-                      <Box
-                        key={si}
-                        style={{
-                          'position': 'absolute',
-                          'bottom': 4 + si * segmentHeight + 'px',
-                          'left': '3px',
-                          'right': '3px',
-                          'height': segmentHeight - 2 + 'px',
-                          'background': isEmpty
-                            ? 'transparent'
-                            : TUBE_COLORS[colorId] || '#888',
-                          'border-radius': si === 0 ? '0 0 8px 8px' : '2px',
-                          'opacity': isEmpty ? 0 : 0.9,
-                        }}
-                      />
-                    );
-                  })}
-                </Box>
-              </Flex.Item>
-            ))}
+          <Flex justify="center" gap="12px">
+            {[1, 2, 3, 4].map((colorId) => {
+              const isHighlighted = phase === 'showing' && showIndex >= 0
+                && targetSequence[showIndex] === colorId;
+              const isPlayerStep = phase === 'input'
+                && playerSequence.length < targetSequence.length;
+              return (
+                <Flex.Item key={colorId}>
+                  <Box
+                    onClick={() => handleColorClick(colorId)}
+                    style={{
+                      'width': '90px',
+                      'height': '90px',
+                      'border-radius': '12px',
+                      'background': simonColors[colorId],
+                      'cursor': isPlayerStep ? 'pointer' : 'default',
+                      'opacity': isHighlighted ? 1 : 0.5,
+                      'transform': isHighlighted ? 'scale(1.1)' : 'scale(1)',
+                      'transition': 'all 0.2s ease',
+                      'box-shadow': isHighlighted
+                        ? '0 0 20px ' + simonColors[colorId]
+                        : '0 0 5px rgba(0,0,0,0.3)',
+                    }}>
+                    <Box textAlign="center" bold color="white" fontSize={1.1}
+                      style={{ 'line-height': '90px', 'text-shadow': '0 1px 3px rgba(0,0,0,0.5)' }}>
+                      {simonNames[colorId]}
+                    </Box>
+                  </Box>
+                </Flex.Item>
+              );
+            })}
           </Flex>
         </Stack.Item>
-        {isSolved && (
-          <Stack.Item>
-            <NoticeBox info>
-              <Icon name="check-circle" mr={1} />
-              Все пробирки отсортированы!
-            </NoticeBox>
-          </Stack.Item>
-        )}
+        <Stack.Item mt={1}>
+          <Box color="label" textAlign="center">
+            {phase === 'showing' && 'Смотрите внимательно...'}
+            {phase === 'input' && 'Нажимайте кнопки в том же порядке!'}
+          </Box>
+        </Stack.Item>
         <Stack.Item mt={1}>
           <Button
             icon="check-double"
-            color={isSolved ? 'good' : 'default'}
-            disabled={!isSolved}
+            color={isComplete ? 'good' : 'default'}
+            disabled={!isComplete}
             content="Подтвердить"
             onClick={handleSubmit}
           />
