@@ -417,7 +417,40 @@
 	var/volume = 50
 	if(is_hidden)
 		volume = sound_quiet_volume
-	playlewdinteractionsound(user.loc, pick(GLOB.lewd_kiss_sounds), volume, 1, -1)
+	if(!HAS_TRAIT(user, TRAIT_KISS_MIME))
+		if(HAS_TRAIT(user, TRAIT_KISS_HONK))
+			playlewdinteractionsound(user.loc, 'modular_sand/sound/interactions/kiss5.ogg', volume, 1, -1)
+		else
+			playlewdinteractionsound(user.loc, pick(GLOB.lewd_kiss_sounds), volume, 1, -1)
+
+	if(user.a_intent == INTENT_HARM)
+		if(HAS_TRAIT(user, TRAIT_KISS_OF_DEATH))
+			partner.reagents.add_reagent(/datum/reagent/toxin/amanitin , 4)
+			user.reagents.add_reagent(/datum/reagent/toxin/amanitin , 0.5)
+		else if(HAS_TRAIT(user, TRAIT_KISS_CROCIN))
+			partner.reagents.add_reagent(/datum/reagent/drug/aphrodisiac, rand(5, 10))
+		else if(HAS_TRAIT(user, TRAIT_KISS_SPACE_DRUGS))
+			partner.reagents.add_reagent(/datum/reagent/drug/space_drugs, rand(1, 3))
+		else if(HAS_TRAIT(user, TRAIT_KISS_HONK))
+			partner.emote("flip")
+			playsound(partner, 'sound/items/bikehorn.ogg', 50, TRUE)
+		else if(HAS_TRAIT(user, TRAIT_KISS_BLOODSUCKER))
+			if(iscarbon(partner))
+				var/mob/living/carbon/C = partner
+				if(C.blood_volume > 0)
+					C.blood_volume = max(C.blood_volume - 15, 0)
+		else if(HAS_TRAIT(user, TRAIT_KISS_MIME))
+			partner.reagents.add_reagent(/datum/reagent/toxin/mutetoxin, rand(1, 2))
+		else if(HAS_TRAIT(user, TRAIT_KISS_DRAGQUEEN))
+			var/list/drugs = list(
+				/datum/reagent/drug/space_drugs,
+				/datum/reagent/drug/aphrodisiac,
+				/datum/reagent/toxin/mindbreaker,
+				/datum/reagent/drug/krokodil,
+				/datum/reagent/drug/crank,
+				/datum/reagent/drug/methamphetamine
+			)
+			partner.reagents.add_reagent(pick(drugs), 1)
 
 //Own stuff
 /datum/interaction/lewd/oral/selfsuck

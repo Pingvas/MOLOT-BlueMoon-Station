@@ -30,6 +30,42 @@
 	desc = "An incredibly potent tube of lipstick made from the venom of the dreaded Yellow Spotted Space Lizard, as deadly as it is chic. Try not to smear it!"
 	lipstick_trait = TRAIT_KISS_OF_DEATH
 
+/obj/item/lipstick/crocin
+	name = "Kiss of Lust"
+	desc = "Помада в тюбике с кроцином. Делает ваши поцелуи еще более страстными."
+	colour = "#FF69B4"
+	lipstick_trait = TRAIT_KISS_CROCIN
+
+/obj/item/lipstick/space_drugs
+	name = "Kiss of Drugs"
+	desc = "Тюбик губной помады, пропитанный космическими наркотиками. Поцелуи, которые уносят тебя к звёздам."
+	colour = "#00BFFF"
+	lipstick_trait = TRAIT_KISS_SPACE_DRUGS
+
+/obj/item/lipstick/honk
+	name = "Kiss LOL"
+	desc = "Тюбик губной помады клоунского качества. Honk!"
+	colour = "#FFFF00"
+	lipstick_trait = TRAIT_KISS_HONK
+
+/obj/item/lipstick/bloodsucker
+	name = "Kiss of Blood"
+	desc = "Тюбик губной помады, похожий на вампирский, содержит частички крови."
+	colour = "#800000"
+	lipstick_trait = TRAIT_KISS_BLOODSUCKER
+
+/obj/item/lipstick/mime
+	name = "Kiss of Mute"
+	desc = "Тихий тюбик помады. Он говорит о многом без слов."
+	colour = "#808080"
+	lipstick_trait = TRAIT_KISS_MIME
+
+/obj/item/lipstick/dragqueen
+	name = "Kiss of Drag Queen"
+	desc = "Восхитительный тюбик помады, пропитанный... чем-то особенным. Каждый поцелуй — это сюрприз!"
+	colour = "#4B0082"
+	lipstick_trait = TRAIT_KISS_DRAGQUEEN
+
 /obj/item/lipstick/random
 	name = "lipstick"
 	icon_state = "random_lipstick"

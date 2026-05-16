@@ -280,6 +280,42 @@
 	color = COLOR_BLACK
 	kiss_type = /obj/item/projectile/kiss/death
 
+/obj/item/hand_item/kisser/crocin
+	name = "passionate kiss"
+	desc = "Поцелуй, пылающий желанием."
+	color = "#FF69B4"
+	kiss_type = /obj/item/projectile/kiss/crocin
+
+/obj/item/hand_item/kisser/space_drugs
+	name = "trippy kiss"
+	desc = "Поцелуй, который унесет тебя к звездам."
+	color = "#00BFFF"
+	kiss_type = /obj/item/projectile/kiss/space_drugs
+
+/obj/item/hand_item/kisser/honk
+	name = "honking kiss"
+	desc = "HONK!"
+	color = "#FFFF00"
+	kiss_type = /obj/item/projectile/kiss/honk
+
+/obj/item/hand_item/kisser/bloodsucker
+	name = "vampiric kiss"
+	desc = "Поцелуй, вызывающий жажду."
+	color = "#800000"
+	kiss_type = /obj/item/projectile/kiss/bloodsucker
+
+/obj/item/hand_item/kisser/mime
+	name = "silent kiss"
+	desc = "..."
+	color = "#808080"
+	kiss_type = /obj/item/projectile/kiss/mime
+
+/obj/item/hand_item/kisser/dragqueen
+	name = "fabulous kiss"
+	desc = "Поцелуй, окутанный случайностью."
+	color = "#4B0082"
+	kiss_type = /obj/item/projectile/kiss/dragqueen
+
 /obj/item/projectile/kiss
 	name = "kiss"
 	icon = 'icons/mob/animal.dmi'
@@ -369,3 +405,83 @@
 	var/mob/living/carbon/heartbreakee = target
 	var/obj/item/organ/heart/dont_go_breakin_my_heart = heartbreakee.getorganslot(ORGAN_SLOT_HEART)
 	dont_go_breakin_my_heart.applyOrganDamage(15)
+
+/obj/item/projectile/kiss/crocin
+	name = "passionate kiss"
+	color = "#FF69B4"
+
+/obj/item/projectile/kiss/crocin/harmless_on_hit(mob/living/living_target)
+	. = ..()
+	if(iscarbon(living_target))
+		var/mob/living/carbon/C = living_target
+		C.reagents.add_reagent(/datum/reagent/drug/aphrodisiac, rand(1, 5))
+
+/obj/item/projectile/kiss/space_drugs
+	name = "trippy kiss"
+	color = "#00BFFF"
+
+/obj/item/projectile/kiss/space_drugs/harmless_on_hit(mob/living/living_target)
+	. = ..()
+	if(iscarbon(living_target))
+		var/mob/living/carbon/C = living_target
+		C.reagents.add_reagent(/datum/reagent/drug/space_drugs, rand(1, 3))
+
+/obj/item/projectile/kiss/honk
+	name = "honking kiss"
+	color = "#FFFF00"
+
+/obj/item/projectile/kiss/honk/harmless_on_hit(mob/living/living_target)
+	. = ..()
+	living_target.emote("flip")
+	playsound(living_target, 'sound/items/bikehorn.ogg', 50, TRUE)
+
+/obj/item/projectile/kiss/bloodsucker
+	name = "vampiric kiss"
+	color = "#800000"
+
+/obj/item/projectile/kiss/bloodsucker/harmless_on_hit(mob/living/living_target)
+	. = ..()
+	if(iscarbon(living_target))
+		var/mob/living/carbon/C = living_target
+		C.emote("scream")
+		if(prob(50))
+			C.spray_blood(firer ? get_dir(firer, C) : C.dir, rand(1, 2))
+		if(C.blood_volume > 0)
+			C.blood_volume = max(C.blood_volume - 10, 0)
+
+/obj/item/projectile/kiss/mime
+	name = "silent kiss"
+	color = "#808080"
+	hitsound = null
+	hitsound_wall = null
+
+/obj/item/projectile/kiss/mime/harmless_on_hit(mob/living/living_target)
+	if(!suppressed)
+		living_target.visible_message(span_danger("[living_target] is hit by \a [src]."), span_userdanger("You're hit by \a [src]!"), vision_distance=COMBAT_MESSAGE_RANGE)
+	try_fluster(living_target)
+	if(iscarbon(living_target))
+		var/mob/living/carbon/C = living_target
+		C.reagents.add_reagent(/datum/reagent/toxin/mutetoxin, 1)
+
+/obj/item/projectile/kiss/dragqueen
+	name = "fabulous kiss"
+	color = "#4B0082"
+
+/obj/item/projectile/kiss/dragqueen/Initialize(mapload)
+	. = ..()
+	color = pick("#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#FF00FF", "#00FFFF", "#FFA500", "#800080", "#4B0082", "#FF69B4")
+
+/obj/item/projectile/kiss/dragqueen/harmless_on_hit(mob/living/living_target)
+	. = ..()
+	if(iscarbon(living_target))
+		var/mob/living/carbon/C = living_target
+		var/list/drugs = list(
+			/datum/reagent/drug/space_drugs,
+			/datum/reagent/drug/aphrodisiac,
+			/datum/reagent/toxin/mindbreaker,
+			/datum/reagent/drug/krokodil,
+			/datum/reagent/drug/crank,
+			/datum/reagent/drug/methamphetamine,
+			/datum/reagent/consumable/ethanol,
+		)
+		C.reagents.add_reagent(pick(drugs), 1)

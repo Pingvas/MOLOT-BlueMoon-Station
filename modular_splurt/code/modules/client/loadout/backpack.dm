@@ -57,6 +57,32 @@
 	name = "White Lipstick"
 	path = /obj/item/lipstick/white
 
+/datum/gear/backpack/lipstick/crocin
+	name = "Crocin Lipstick"
+	path = /obj/item/lipstick/crocin
+
+/datum/gear/backpack/lipstick/space_drugs
+	name = "Space Drugs Lipstick"
+	path = /obj/item/lipstick/space_drugs
+
+/datum/gear/backpack/lipstick/honk
+	name = "Honk Lipstick"
+	path = /obj/item/lipstick/honk
+	restricted_roles = list("Clown")
+
+/datum/gear/backpack/lipstick/mime
+	name = "Mime Lipstick"
+	path = /obj/item/lipstick/mime
+	restricted_roles = list("Mime")
+
+/datum/gear/backpack/lipstick/bloodsucker
+	name = "Bloodsucker Lipstick"
+	path = /obj/item/lipstick/bloodsucker
+
+/datum/gear/donator/backpack/lipstick/dragqueen
+	name = "Drag Queen Lipstick"
+	path = /obj/item/lipstick/dragqueen
+
 //Nail polish
 /datum/gear/backpack/nailpolish_red
 	name = "Red Nail Polish"

@@ -323,6 +323,18 @@
 
 	if(HAS_TRAIT(user, TRAIT_KISS_OF_DEATH))
 		kiss_type = /obj/item/hand_item/kisser/death
+	else if(HAS_TRAIT(user, TRAIT_KISS_CROCIN))
+		kiss_type = /obj/item/hand_item/kisser/crocin
+	else if(HAS_TRAIT(user, TRAIT_KISS_SPACE_DRUGS))
+		kiss_type = /obj/item/hand_item/kisser/space_drugs
+	else if(HAS_TRAIT(user, TRAIT_KISS_HONK))
+		kiss_type = /obj/item/hand_item/kisser/honk
+	else if(HAS_TRAIT(user, TRAIT_KISS_BLOODSUCKER))
+		kiss_type = /obj/item/hand_item/kisser/bloodsucker
+	else if(HAS_TRAIT(user, TRAIT_KISS_MIME))
+		kiss_type = /obj/item/hand_item/kisser/mime
+	else if(HAS_TRAIT(user, TRAIT_KISS_DRAGQUEEN))
+		kiss_type = /obj/item/hand_item/kisser/dragqueen
 
 	var/obj/item/kiss_blower = new kiss_type(user)
 	if(user.put_in_hands(kiss_blower))
@@ -714,7 +726,7 @@
 			custom_emote = tgui_input_text(user, "Choose an emote to display.", "Custom Emote", null, MAX_MESSAGE_LEN, TRUE, TRUE)
 		else
 			custom_emote = stripped_multiline_input_or_reflect(user, "Choose an emote to display.", "Custom Emote")
-			
+
 		if(custom_emote && !check_invalid(user, custom_emote))
 			message = custom_emote
 	else
