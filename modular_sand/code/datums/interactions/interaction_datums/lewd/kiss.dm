@@ -70,5 +70,9 @@
 			)
 			partner.reagents.add_reagent(pick(drugs), 1)
 
+	if(ishuman(user))
+		var/mob/living/carbon/human/H = user
+		H.use_kiss()
+
 /datum/interaction/lewd/kiss/proc/remove_mime_mute(mob/living/partner, mob/living/user)
 	REMOVE_TRAIT(partner, TRAIT_MUTE, REF(user))

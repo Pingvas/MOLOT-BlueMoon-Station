@@ -10,6 +10,8 @@
 	var/open = FALSE
 	/// A trait that's applied while someone has this lipstick applied, and is removed when the lipstick is removed
 	var/lipstick_trait
+	/// How many times this lipstick can be applied before running out. -1 = infinite
+	var/uses = -1
 
 /obj/item/lipstick/purple
 	name = "purple lipstick"
@@ -41,6 +43,7 @@
 	desc = "Тюбик губной помады, пропитанный космическими наркотиками. Поцелуи, которые уносят тебя к звёздам."
 	colour = "#00BFFF"
 	lipstick_trait = TRAIT_KISS_SPACE_DRUGS
+	uses = 5
 
 /obj/item/lipstick/honk
 	name = "Kiss LOL"
@@ -53,6 +56,7 @@
 	desc = "Тюбик губной помады, похожий на вампирский, содержит частички крови."
 	colour = "#800000"
 	lipstick_trait = TRAIT_KISS_BLOODSUCKER
+	uses = 8
 
 /obj/item/lipstick/mime
 	name = "Kiss of Mute"
@@ -65,6 +69,7 @@
 	desc = "Восхитительный тюбик помады, пропитанный... чем-то особенным. Каждый поцелуй — это сюрприз!"
 	colour = "#4B0082"
 	lipstick_trait = TRAIT_KISS_DRAGQUEEN
+	uses = 5
 
 /obj/item/lipstick/random
 	name = "lipstick"
@@ -104,10 +109,16 @@
 		to_chat(user, span_warning("You need to wipe off the old lipstick first!"))
 		return
 
+	if(uses == 0)
+		to_chat(user, span_warning("Помада закончилась."))
+		return
+
 	if(target == user)
 		user.visible_message(span_notice("[user] does [user.p_their()] lips with \the [src]."), \
 			span_notice("You take a moment to apply \the [src]. Perfect!"))
-		target.update_lips("lipstick", real_colour ? real_colour : colour, lipstick_trait)
+		target.update_lips("lipstick", real_colour ? real_colour : colour, lipstick_trait, uses)
+		if(uses > 0)
+			uses--
 		return
 
 	user.visible_message(span_warning("[user] begins to do [target]'s lips with \the [src]."), \
@@ -116,7 +127,9 @@
 		return
 	user.visible_message(span_notice("[user] does [target]'s lips with \the [src]."), \
 		span_notice("You apply \the [src] on [target]'s lips."))
-	target.update_lips("lipstick", colour, lipstick_trait)
+	target.update_lips("lipstick", colour, lipstick_trait, uses)
+	if(uses > 0)
+		uses--
 
 //you can wipe off lipstick with paper!
 /obj/item/paper/attack(mob/M, mob/user)

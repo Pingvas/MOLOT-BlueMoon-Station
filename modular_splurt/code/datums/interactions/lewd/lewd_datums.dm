@@ -451,6 +451,10 @@
 			)
 			partner.reagents.add_reagent(pick(drugs), 1)
 
+	if(ishuman(user))
+		var/mob/living/carbon/human/H = user
+		H.use_kiss()
+
 //Own stuff
 /datum/interaction/lewd/oral/selfsuck
 	description = "Член. Отсосать самому себе."
