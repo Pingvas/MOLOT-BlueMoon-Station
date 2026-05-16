@@ -128,6 +128,10 @@
 		to_chat(user, span_warning("Помада закончилась."))
 		return
 
+	if(lipstick_trait == TRAIT_KISS_MIME && (!user.mind || user.mind.assigned_role != "Mime"))
+		to_chat(user, span_warning("Вы не знаете как использовать эту помаду. Кажется, она предназначена для мимов."))
+		return
+
 	if(target == user)
 		user.visible_message(span_notice("[user] does [user.p_their()] lips with \the [src]."), \
 			span_notice("You take a moment to apply \the [src]. Perfect!"))
