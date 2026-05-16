@@ -477,11 +477,9 @@
 		var/mob/living/carbon/C = living_target
 		var/list/drugs = list(
 			/datum/reagent/drug/space_drugs,
-			/datum/reagent/drug/aphrodisiac,
 			/datum/reagent/toxin/mindbreaker,
-			/datum/reagent/drug/krokodil,
-			/datum/reagent/drug/crank,
-			/datum/reagent/drug/methamphetamine,
-			/datum/reagent/consumable/ethanol,
+			/datum/reagent/drug/mdma,
+			/datum/reagent/drug/zvezdochka,
+			/datum/reagent/drug/pendosovka
 		)
 		C.reagents.add_reagent(pick(drugs), 1)

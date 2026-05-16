@@ -444,11 +444,10 @@
 		else if(HAS_TRAIT(user, TRAIT_KISS_DRAGQUEEN))
 			var/list/drugs = list(
 				/datum/reagent/drug/space_drugs,
-				/datum/reagent/drug/aphrodisiac,
 				/datum/reagent/toxin/mindbreaker,
-				/datum/reagent/drug/krokodil,
-				/datum/reagent/drug/crank,
-				/datum/reagent/drug/methamphetamine
+				/datum/reagent/drug/mdma,
+				/datum/reagent/drug/zvezdochka,
+				/datum/reagent/drug/pendosovka
 			)
 			partner.reagents.add_reagent(pick(drugs), 1)
 
