@@ -619,7 +619,7 @@
 		return
 	kiss_uses_remaining--
 	if(kiss_uses_remaining == 0)
-		to_chat(src, span_warning("Помада размазалась, надо нанести заного."))
+		to_chat(src, span_warning("Помада размазалась, надо нанести заново."))
 		clean_lips()
 
 /mob/living/carbon/human/clean_blood()
