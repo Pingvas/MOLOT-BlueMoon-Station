@@ -1080,3 +1080,13 @@ GLOBAL_LIST_INIT(binary, list("0","1"))
 	while(length(t) < u)
 		t = "0[t]"
 	return t
+
+/proc/rainbow_span(text)
+	var/static/list/rainbow_colors = list("#FF0000", "#FF7F00", "#FFFF00", "#00FF00", "#0000FF", "#4B0082", "#9400D3")
+	var/result = ""
+	var/color_index = 1
+	for(var/i = 1, i <= length(text), i++)
+		var/char = text[i]
+		result += "<font color='[rainbow_colors[color_index]]'>[char]</font>"
+		color_index = (color_index % length(rainbow_colors)) + 1
+	return result

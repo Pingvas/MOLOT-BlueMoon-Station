@@ -353,7 +353,8 @@
 /obj/item/projectile/kiss/proc/harmless_on_hit(mob/living/living_target)
 	playsound(get_turf(living_target), hitsound, 100, TRUE)
 	if(!suppressed)  // direct
-		living_target.visible_message(span_danger("[living_target] is hit by \a [src]."), span_userdanger("You're hit by \a [src]!"), vision_distance=COMBAT_MESSAGE_RANGE)
+		var/msg = get_random_kiss_message(firer, living_target)
+		living_target.visible_message(span_love("[living_target] [msg]."), span_love("Ты [msg]."), vision_distance=COMBAT_MESSAGE_RANGE)
 
 	/*
 	living_target.add_mob_memory(/datum/memory/kissed, deuteragonist = firer)
@@ -363,6 +364,17 @@
 		kisser.add_mob_memory(/datum/memory/kissed, protagonist = living_target, deuteragonist = firer) */
 
 	try_fluster(living_target)
+
+/proc/get_random_kiss_message(mob/firer, mob/target)
+	var/gender_suffix = (target?.gender == FEMALE) ? "а" : ""
+	var/list/messages = list(
+		"поймал[gender_suffix] воздушный поцелуй от [firer]",
+		"поражён[gender_suffix == "а" ? "а" : ""] воздушным поцелуем от [firer]",
+		"настигнут[gender_suffix] воздушным поцелуем от [firer]",
+		"получил[gender_suffix] воздушный поцелуй от [firer]",
+		"сражён[gender_suffix == "а" ? "а" : ""] воздушным поцелуем от [firer]"
+	)
+	return pick(messages)
 
 /obj/item/projectile/kiss/proc/try_fluster(mob/living/living_target)
 	// people with the social anxiety quirk can get flustered when hit by a kiss
@@ -408,6 +420,10 @@
 	var/mob/living/carbon/heartbreakee = target
 	var/obj/item/organ/heart/dont_go_breakin_my_heart = heartbreakee.getorganslot(ORGAN_SLOT_HEART)
 	dont_go_breakin_my_heart.applyOrganDamage(15)
+	if(!suppressed)
+		to_chat(heartbreakee, span_danger("Утомительно..."))
+		animate(heartbreakee, pixel_y = 6, time = 0.3, easing = BOUNCE_EASING)
+		animate(pixel_y = 0, time = 0.3, easing = BOUNCE_EASING)
 
 /obj/item/projectile/kiss/crocin
 	name = "passionate kiss"
@@ -418,6 +434,12 @@
 	if(iscarbon(living_target))
 		var/mob/living/carbon/C = living_target
 		C.reagents.add_reagent(/datum/reagent/drug/aphrodisiac, rand(1, 5))
+	if(!suppressed)
+		var/list/crocin_msgs = list("Ух~", "Миленько~", "Горячо~")
+		var/special = pick(crocin_msgs)
+		to_chat(living_target, span_reallybig(rainbow_span(special)))
+		animate(living_target, pixel_y = 4, time = 0.2, easing = SINE_EASING)
+		animate(pixel_y = 0, time = 0.2, easing = SINE_EASING)
 
 /obj/item/projectile/kiss/space_drugs
 	name = "trippy kiss"
@@ -428,6 +450,10 @@
 	if(iscarbon(living_target))
 		var/mob/living/carbon/C = living_target
 		C.reagents.add_reagent(/datum/reagent/drug/space_drugs, rand(1, 3))
+	if(!suppressed)
+		to_chat(living_target, rainbow_span("Опьяняюще..."))
+		animate(living_target, pixel_x = rand(-3, 3), pixel_y = rand(-3, 3), time = 0.15, easing = SINE_EASING)
+		animate(pixel_x = 0, pixel_y = 0, time = 0.15, easing = SINE_EASING)
 
 /obj/item/projectile/kiss/honk
 	name = "honking kiss"
@@ -437,6 +463,10 @@
 	. = ..()
 	living_target.emote("flip")
 	playsound(living_target, 'sound/items/bikehorn.ogg', 50, TRUE)
+	if(!suppressed)
+		to_chat(living_target, span_clown("Honk!"))
+		animate(living_target, pixel_y = 10, time = 0.2, easing = BOUNCE_EASING)
+		animate(pixel_y = 0, time = 0.3, easing = BOUNCE_EASING)
 
 /obj/item/projectile/kiss/bloodsucker
 	name = "vampiric kiss"
@@ -451,6 +481,11 @@
 			C.spray_blood(firer ? get_dir(firer, C) : C.dir, rand(1, 2))
 		if(C.blood_volume > 0)
 			C.blood_volume = max(C.blood_volume - 7, 0)
+	if(!suppressed)
+		to_chat(living_target, span_bolddanger("Что-то воротит..."))
+		animate(living_target, pixel_x = 2, time = 0.1, easing = SINE_EASING, flags = ANIMATION_PARALLEL)
+		animate(pixel_x = -2, time = 0.1, easing = SINE_EASING)
+		animate(pixel_x = 0, time = 0.1, easing = SINE_EASING)
 
 /obj/item/projectile/kiss/mime
 	name = "silent kiss"
@@ -459,12 +494,14 @@
 	hitsound_wall = null
 
 /obj/item/projectile/kiss/mime/harmless_on_hit(mob/living/living_target)
-	if(!suppressed)
-		living_target.visible_message(span_danger("[living_target] is hit by \a [src]."), span_userdanger("You're hit by \a [src]!"), vision_distance=COMBAT_MESSAGE_RANGE)
-	try_fluster(living_target)
+	. = ..()
 	if(iscarbon(living_target))
 		var/mob/living/carbon/C = living_target
 		C.reagents.add_reagent(/datum/reagent/toxin/mutetoxin, 1)
+	if(!suppressed)
+		to_chat(living_target, span_notice("..."))
+		animate(living_target, alpha = 150, time = 0.3, easing = SINE_EASING)
+		animate(alpha = 255, time = 0.3, easing = SINE_EASING)
 
 /obj/item/projectile/kiss/dragqueen
 	name = "fabulous kiss"
@@ -486,3 +523,9 @@
 			/datum/reagent/drug/pendosovka
 		)
 		C.reagents.add_reagent(pick(drugs), 1)
+	if(!suppressed)
+		var/list/dq_msgs = list("Что это?..", "Голова кружится...")
+		to_chat(living_target, rainbow_span(pick(dq_msgs)))
+		animate(living_target, pixel_y = 5, time = 0.25, easing = SINE_EASING)
+		animate(pixel_y = -3, time = 0.25, easing = SINE_EASING)
+		animate(pixel_y = 0, time = 0.2, easing = SINE_EASING)
