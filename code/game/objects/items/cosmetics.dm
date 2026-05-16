@@ -135,7 +135,7 @@
 	if(target == user)
 		user.visible_message(span_notice("[user] does [user.p_their()] lips with \the [src]."), \
 			span_notice("You take a moment to apply \the [src]. Perfect!"))
-		target.update_lips("lipstick", real_colour ? real_colour : colour, lipstick_trait, uses)
+		target.update_lips("lipstick", real_colour ? real_colour : colour, lipstick_trait, initial(uses))
 		if(uses > 0)
 			uses--
 		return
@@ -144,9 +144,12 @@
 		span_notice("You begin to apply \the [src] on [target]'s lips..."))
 	if(!do_after(user, 2 SECONDS, target = target))
 		return
+	if(uses == 0)
+		to_chat(user, span_warning("Помада закончилась."))
+		return
 	user.visible_message(span_notice("[user] does [target]'s lips with \the [src]."), \
 		span_notice("You apply \the [src] on [target]'s lips."))
-	target.update_lips("lipstick", colour, lipstick_trait, uses)
+	target.update_lips("lipstick", colour, lipstick_trait, initial(uses))
 	if(uses > 0)
 		uses--
 
