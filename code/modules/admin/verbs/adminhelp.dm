@@ -82,7 +82,7 @@ GLOBAL_DATUM_INIT(ahelp_tickets, /datum/admin_help_tickets, new)
 	for(var/I in active_tickets)
 		var/datum/admin_help/AH = I
 		if(AH.initiator)
-			L[++L.len] = list("#[AH.id]. [AH.initiator_key_name]:", "[AH.statclick.update()]", REF(AH))
+			L[++L.len] = list("#[AH.id]. [AH.initiator_key_name]:", "[AH.statclick.update()]", REF(AH), list("id" = AH.id, "state" = AH.state, "handler" = AH.handler))
 		else
 			++num_disconnected
 	if(num_disconnected)
@@ -188,7 +188,7 @@ GLOBAL_DATUM_INIT(ahelp_tickets, /datum/admin_help_tickets, new)
 	id = ++ticket_counter
 	opened_at = world.time
 
-	name = msg
+	name = length_char(msg) > 27 ? copytext_char(msg, 1, 28) + "..." : msg
 
 	initiator = C
 	initiator_ckey = initiator.ckey
@@ -522,8 +522,10 @@ GLOBAL_DATUM_INIT(ahelp_tickets, /datum/admin_help_tickets, new)
 	TicketPanel()	//we have to be here to do this
 
 //Forwarded action from admin/Topic
-/datum/admin_help/proc/Action(action)
+/datum/admin_help/proc/Action(action, silent_panel = FALSE)
 	testing("Ahelp action: [action]")
+	if(silent_panel)
+		suppress_ticket_panel = TRUE
 	switch(action)
 		if("ticket")
 			TicketPanel()
@@ -564,7 +566,10 @@ GLOBAL_DATUM_INIT(ahelp_tickets, /datum/admin_help_tickets, new)
 	. = ..()
 
 /obj/effect/statclick/ahelp/update()
-	return ..(ahelp_datum.name)
+	var/display_name = ahelp_datum.name
+	if(length_char(display_name) > 30)
+		display_name = copytext_char(display_name, 1, 28) + ".."
+	return ..(display_name)
 
 /obj/effect/statclick/ahelp/Click()
 	ahelp_datum.TicketPanel()
