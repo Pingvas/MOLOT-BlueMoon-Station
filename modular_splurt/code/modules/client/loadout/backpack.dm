@@ -61,10 +61,6 @@
 	name = "Crocin Lipstick"
 	path = /obj/item/lipstick/crocin
 
-/datum/gear/backpack/lipstick/space_drugs
-	name = "Space Drugs Lipstick"
-	path = /obj/item/lipstick/space_drugs
-
 /datum/gear/backpack/lipstick/honk
 	name = "Honk Lipstick"
 	path = /obj/item/lipstick/honk
@@ -74,10 +70,6 @@
 	name = "Mime Lipstick"
 	path = /obj/item/lipstick/mime
 	restricted_roles = list("Mime")
-
-/datum/gear/backpack/lipstick/bloodsucker
-	name = "Bloodsucker Lipstick"
-	path = /obj/item/lipstick/bloodsucker
 
 /datum/gear/donator/backpack/lipstick/dragqueen
 	name = "Drag Queen Lipstick"

@@ -450,7 +450,7 @@
 		if(prob(50))
 			C.spray_blood(firer ? get_dir(firer, C) : C.dir, rand(1, 2))
 		if(C.blood_volume > 0)
-			C.blood_volume = max(C.blood_volume - 10, 0)
+			C.blood_volume = max(C.blood_volume - 7, 0)
 
 /obj/item/projectile/kiss/mime
 	name = "silent kiss"
