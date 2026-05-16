@@ -13,6 +13,13 @@
 	/// How many times this lipstick can be applied before running out. -1 = infinite
 	var/uses = -1
 
+/obj/item/lipstick/add_atom_colour(coloration, colour_priority)
+	. = ..()
+	if(istext(coloration))
+		var/parsed = sanitize_hexcolor(coloration, 6, TRUE)
+		if(parsed)
+			colour = parsed
+
 /obj/item/lipstick/purple
 	name = "purple lipstick"
 	colour = "purple"
@@ -70,6 +77,14 @@
 	colour = "#4B0082"
 	lipstick_trait = TRAIT_KISS_DRAGQUEEN
 	uses = 5
+
+/obj/item/lipstick/loadout
+	name = "lipstick"
+	icon_state = "random_lipstick"
+
+/obj/item/lipstick/loadout/Initialize(mapload)
+	. = ..()
+	icon_state = "lipstick"
 
 /obj/item/lipstick/random
 	name = "lipstick"
