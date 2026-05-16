@@ -437,7 +437,7 @@
 	if(!suppressed)
 		var/list/crocin_msgs = list("Ух~", "Миленько~", "Горячо~")
 		var/special = pick(crocin_msgs)
-		to_chat(living_target, span_reallybig(rainbow_span(special)))
+		to_chat(living_target, span_reallybig(pink_shimmer_span(special)))
 		animate(living_target, pixel_y = 4, time = 0.2, easing = SINE_EASING)
 		animate(pixel_y = 0, time = 0.2, easing = SINE_EASING)
 
