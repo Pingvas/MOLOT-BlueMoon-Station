@@ -347,6 +347,8 @@
 		if(ishuman(user))
 			var/mob/living/carbon/human/H = user
 			H.use_kiss()
+	else if(HAS_TRAIT(user, TRAIT_KISS_HEARTBOOM))
+		kiss_type = /obj/item/hand_item/kisser/heartboom
 
 	var/obj/item/kiss_blower = new kiss_type(user)
 	if(user.put_in_hands(kiss_blower))

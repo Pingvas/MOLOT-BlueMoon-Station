@@ -319,6 +319,12 @@
 	color = "#4B0082"
 	kiss_type = /obj/item/projectile/kiss/dragqueen
 
+/obj/item/hand_item/kisser/heartboom
+	name = "heartboom kiss"
+	desc = "Поцелуй, заставляющий сердце трепетать."
+	color = "#9400D3"
+	kiss_type = /obj/item/projectile/kiss/heartboom
+
 /obj/item/projectile/kiss
 	name = "kiss"
 	icon = 'icons/mob/animal.dmi'
@@ -529,3 +535,37 @@
 		animate(living_target, pixel_y = 5, time = 0.25, easing = SINE_EASING)
 		animate(pixel_y = -3, time = 0.25, easing = SINE_EASING)
 		animate(pixel_y = 0, time = 0.2, easing = SINE_EASING)
+
+/obj/item/projectile/kiss/heartboom
+	name = "heartboom kiss"
+	color = "#9400D3"
+
+/obj/item/projectile/kiss/heartboom/harmless_on_hit(mob/living/living_target)
+	. = ..()
+	if(!suppressed)
+		var/list/heartboom_msgs = list("Сердце сейчас выпрыгнет!", "Что за чувства?..", "Так волнующе...")
+		var/special = pick(heartboom_msgs)
+		to_chat(living_target, span_reallybig(pink_shimmer_span(special)))
+		new /obj/effect/temp_visual/heart(get_turf(living_target))
+		for(var/i in 1 to rand(2, 4))
+			var/obj/effect/decal/cleanable/glitter/purple/G = new(get_turf(living_target))
+			G.pixel_x = rand(-16, 16)
+			G.pixel_y = rand(-16, 16)
+		animate(living_target, pixel_y = 4, time = 0.2, easing = SINE_EASING)
+		animate(pixel_y = 0, time = 0.2, easing = SINE_EASING)
+		var/static/list/heartboom_emotes = list(
+			list("gasp", "Ты чувствуешь как леденеют твои вены и сердце на секунду замирает..."),
+			list("sneeze", "Ты чихаешь от попавших тебе в нос блёсток..."),
+			list("dance", "Жизнь прекрасна! Твои ноги пускаются в пляс!"),
+			list("blush", "Внутри так... тепло..."),
+			list("moan", "Мне так... хорошо..."),
+			list("collapse", "В груди так пусто... что-то исчезло..."),
+			list("realagony", "БОЖЕ! ВНУТРИ ВСЁ ПЫЛАЕТ! ОСТАНОВИТЕ ЭТО!"),
+			list("laugh", "Что-то щекочет тебя"),
+			list("laugh", "Ты не можешь перестать смеяться")
+		)
+		var/list/chosen = pick(heartboom_emotes)
+		var/emote_key = chosen[1]
+		var/emote_msg = chosen[2]
+		to_chat(living_target, span_love("[emote_msg]"))
+		living_target.emote(emote_key)

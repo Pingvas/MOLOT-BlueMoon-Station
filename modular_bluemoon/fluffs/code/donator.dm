@@ -2376,3 +2376,8 @@
 	slot = ITEM_SLOT_NECK
 	path = /obj/item/clothing/neck/cloak/ranger_poncho/primitive_catgirl_leather
 	ckeywhitelist = list("pingvas", "dimofon", "devildeadspace")
+
+/datum/gear/donator/backpack/lipstick/heartboom
+	name = "Heartboom Lipstick"
+	path = /obj/item/lipstick/heartboom
+	ckeywhitelist = list("liesbee")

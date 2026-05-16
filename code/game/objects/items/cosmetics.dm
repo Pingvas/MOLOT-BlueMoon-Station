@@ -98,6 +98,13 @@
 	lipstick_trait = TRAIT_KISS_DRAGQUEEN
 	uses = 5
 
+/obj/item/lipstick/heartboom
+	name = "Kiss of Heartboom"
+	desc = "Тюбик помады, переливающийся фиолетовыми искрами. Заставляет сердце биться чаще... или замереть."
+	colour = "#9400D3"
+	closed_icon_state = "lipstick_heartboom"
+	lipstick_trait = TRAIT_KISS_HEARTBOOM
+
 /obj/item/lipstick/loadout
 	name = "lipstick"
 	closed_icon_state = "random_lipstick"

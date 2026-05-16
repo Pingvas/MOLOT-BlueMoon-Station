@@ -290,6 +290,8 @@
 #define TRAIT_KISS_MIME			"kiss_mime"
 /// Drag queen lipstick
 #define TRAIT_KISS_DRAGQUEEN	"kiss_dragqueen"
+/// Heartboom lipstick
+#define TRAIT_KISS_HEARTBOOM	"kiss_heartboom"
 /// forces update_density to make us not dense
 #define TRAIT_LIVING_NO_DENSITY			"living_no_density"
 /// forces us to not render our overlays
