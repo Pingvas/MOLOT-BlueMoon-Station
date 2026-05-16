@@ -20,6 +20,13 @@
 		if(parsed)
 			colour = parsed
 
+/obj/item/lipstick/examine(mob/user)
+	. = ..()
+	if(uses > 0)
+		. += span_notice("Осталось использований: [uses].")
+	else if(uses == 0)
+		. += span_warning("Помада закончилась.")
+
 /obj/item/lipstick/purple
 	name = "purple lipstick"
 	colour = "purple"
