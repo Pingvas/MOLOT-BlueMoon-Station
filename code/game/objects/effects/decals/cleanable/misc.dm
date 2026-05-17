@@ -303,15 +303,6 @@
 	name = "blue glitter"
 	icon_state = "freon_old"
 
-/obj/effect/decal/cleanable/glitter/purple
-	name = "purple glitter"
-	icon_state = "plasma_old"
-	color = "#9400D3"
-
-/obj/effect/decal/cleanable/glitter/purple/Initialize(mapload)
-	. = ..()
-	QDEL_IN(src, 2 SECONDS)
-
 /obj/effect/decal/cleanable/plasma
 	name = "stabilized plasma"
 	desc = "A puddle of stabilized plasma."

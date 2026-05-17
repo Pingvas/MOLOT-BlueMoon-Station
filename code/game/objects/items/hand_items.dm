@@ -471,8 +471,6 @@
 	playsound(living_target, 'sound/items/bikehorn.ogg', 50, TRUE)
 	if(!suppressed)
 		to_chat(living_target, span_clown("Honk!"))
-		animate(living_target, pixel_y = 10, time = 0.2, easing = BOUNCE_EASING)
-		animate(pixel_y = 0, time = 0.3, easing = BOUNCE_EASING)
 
 /obj/item/projectile/kiss/bloodsucker
 	name = "vampiric kiss"
@@ -547,10 +545,9 @@
 		var/special = pick(heartboom_msgs)
 		to_chat(living_target, span_reallybig(pink_shimmer_span(special)))
 		new /obj/effect/temp_visual/heart(get_turf(living_target))
-		for(var/i in 1 to rand(2, 4))
-			var/obj/effect/decal/cleanable/glitter/purple/G = new(get_turf(living_target))
-			G.pixel_x = rand(-16, 16)
-			G.pixel_y = rand(-16, 16)
+		var/obj/effect/particle_effect/smoke/cigsmoke/puff = new(get_turf(living_target))
+		puff.color = "#9400D3"
+		puff.alpha = 64
 		animate(living_target, pixel_y = 4, time = 0.2, easing = SINE_EASING)
 		animate(pixel_y = 0, time = 0.2, easing = SINE_EASING)
 		var/static/list/heartboom_emotes = list(
