@@ -537,6 +537,7 @@
 /obj/item/projectile/kiss/heartboom
 	name = "heartboom kiss"
 	color = "#9400D3"
+	hitsound = 'modular_bluemoon/fluffs/sound/Pow.ogg'
 
 /obj/item/projectile/kiss/heartboom/harmless_on_hit(mob/living/living_target)
 	. = ..()
@@ -548,6 +549,7 @@
 		var/obj/effect/particle_effect/smoke/cigsmoke/puff = new(get_turf(living_target))
 		puff.color = "#9400D3"
 		puff.alpha = 64
+		puff.lifetime = 1
 		animate(living_target, pixel_y = 4, time = 0.2, easing = SINE_EASING)
 		animate(pixel_y = 0, time = 0.2, easing = SINE_EASING)
 		var/static/list/heartboom_emotes = list(
