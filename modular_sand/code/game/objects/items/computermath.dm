@@ -9,7 +9,6 @@
 
 #define MINIGAME_MATH "math"
 #define MINIGAME_WIRES "wires"
-#define MINIGAME_SIMON "simon"
 #define MINIGAME_SIGNAL "signal"
 
 /obj/item/computermath
@@ -83,7 +82,7 @@
 	switch(action)
 		if("select_game")
 			var/game = params["game"]
-			if(game in list(MINIGAME_MATH, MINIGAME_WIRES, MINIGAME_SIMON, MINIGAME_SIGNAL))
+			if(game in list(MINIGAME_MATH, MINIGAME_WIRES, MINIGAME_SIGNAL))
 				current_game = game
 				current_screen = "game"
 				current_difficulty = params["difficulty"]
@@ -141,8 +140,6 @@
 			generate_math()
 		if(MINIGAME_WIRES)
 			generate_wires()
-		if(MINIGAME_SIMON)
-			generate_simon()
 		if(MINIGAME_SIGNAL)
 			generate_signal()
 
@@ -254,44 +251,55 @@
 // Соединение линий
 /obj/item/computermath/proc/generate_wires()
 	var/num_pairs
+	var/grid_size
 	switch(current_difficulty)
 		if("Easy")
 			num_pairs = 3
+			grid_size = 4
 		if("Medium")
 			num_pairs = 4
+			grid_size = 5
 		if("Hard")
 			num_pairs = 5
+			grid_size = 6
 
 	var/list/colors = list("red", "blue", "green", "yellow", "purple", "orange", "cyan")
 	var/list/pairs = list()
+	var/list/used_positions = list()
 	for(var/i in 1 to num_pairs)
 		var/color = pick_n_take(colors)
+		var/list/pos1 = generate_unique_pos(grid_size, used_positions)
+		used_positions += list(pos1)
+		var/list/pos2 = generate_unique_pos(grid_size, used_positions)
+		used_positions += list(pos2)
 		pairs += list(list(
 			"color" = color,
-			"id" = i
+			"id" = i,
+			"start" = list("x" = pos1[1], "y" = pos1[2]),
+			"end" = list("x" = pos2[1], "y" = pos2[2])
 		))
 
+	game_data["gridSize"] = grid_size
 	game_data["pairs"] = pairs
 	game_solution = list("wire_valid")
 
-// Simon Says: запомни и повтори последовательность цветов
-/obj/item/computermath/proc/generate_simon()
-	var/seq_length
-	switch(current_difficulty)
-		if("Easy")
-			seq_length = 4
-		if("Medium")
-			seq_length = 6
-		if("Hard")
-			seq_length = 8
-
-	var/list/sequence = list()
-	for(var/i in 1 to seq_length)
-		sequence += rand(1, 4)
-
-	game_data["sequence"] = sequence
-	game_data["numColors"] = 4
-	game_solution = sequence
+/obj/item/computermath/proc/generate_unique_pos(grid_size, list/used)
+	var/attempts = 0
+	while(attempts < 100)
+		var/x = rand(0, grid_size - 1)
+		var/y = rand(0, grid_size - 1)
+		var/pos_key = "[x],[y]"
+		var/found = FALSE
+		for(var/list/p in used)
+			var/px = p[1]
+			var/py = p[2]
+			if("[px],[py]" == pos_key)
+				found = TRUE
+				break
+		if(!found)
+			return list(x, y)
+		attempts++
+	return list(0, 0)
 
 // Декод сигнала игра
 /obj/item/computermath/proc/generate_signal()
@@ -395,15 +403,6 @@
 						found = TRUE
 						break
 				if(!found)
-					return FALSE
-			return TRUE
-
-		if(MINIGAME_SIMON)
-			var/list/player_seq = params["sequence"]
-			if(!islist(player_seq) || length(player_seq) != length(game_solution))
-				return FALSE
-			for(var/i in 1 to length(game_solution))
-				if("[player_seq[i]]" != "[game_solution[i]]")
 					return FALSE
 			return TRUE
 

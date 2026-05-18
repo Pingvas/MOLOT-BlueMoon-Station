@@ -18,8 +18,8 @@ type ProblemComputerData = {
 
 type GameData = {
   question?: string;
+  gridSize?: number;
   pairs?: WirePair[];
-  numColors?: number;
   sequence?: number[];
   hint?: string;
 };
@@ -27,6 +27,8 @@ type GameData = {
 type WirePair = {
   color: string;
   id: number;
+  start: { x: number; y: number };
+  end: { x: number; y: number };
 };
 
 // Game Definitions
@@ -44,13 +46,6 @@ const GAMES = [
     icon: 'plug',
     description: 'Соедините пары контактов одного цвета',
     color: '#e74c3c',
-  },
-  {
-    id: 'simon',
-    name: 'Саймон',
-    icon: 'brain',
-    description: 'Запомните и повторите последовательность цветов',
-    color: '#2ecc71',
   },
   {
     id: 'signal',
@@ -264,7 +259,6 @@ const GameScreen = (props, context) => {
       <Stack.Item grow>
         {currentGame === 'math' && <MathGame />}
         {currentGame === 'wires' && <WireGame />}
-        {currentGame === 'simon' && <SimonGame />}
         {currentGame === 'signal' && <SignalGame />}
       </Stack.Item>
     </Stack>
@@ -340,50 +334,33 @@ const MathGame = (props, context) => {
   );
 };
 
+let _wireCache: { key: string; left: number[]; right: number[] } | null = null;
+
 // Wire Connect
 const WireGame = (props, context) => {
   const { data, act } = useBackend<ProblemComputerData>(context);
   const gameData = data.gameData;
 
   const [connections, setConnections] = useLocalState<Record<number, boolean>>(
-    context,
-    'wireConnections',
-    {}
-  );
+    context, 'wireConnections', {});
   const [selectedSide, setSelectedSide] = useLocalState<string | null>(
-    context,
-    'wireSide',
-    null
-  );
+    context, 'wireSide', null);
   const [selectedId, setSelectedId] = useLocalState<number | null>(
-    context,
-    'wireId',
-    null
-  );
-  const [leftOrder, setLeftOrder] = useLocalState<number[] | null>(
-    context,
-    'wireLeftOrder',
-    null
-  );
-  const [rightOrder, setRightOrder] = useLocalState<number[] | null>(
-    context,
-    'wireRightOrder',
-    null
-  );
+    context, 'wireId', null);
 
-  if (!gameData || !gameData.pairs) {
+  if (!gameData || !gameData.pairs || !Array.isArray(gameData.pairs)) {
     return <NoticeBox>Загрузка...</NoticeBox>;
   }
 
   const pairs = gameData.pairs;
+  const pairsKey = pairs.map((p) => p.id + ':' + p.color).join('|');
 
-  // Initialize shuffled orders once
-  if (!leftOrder || leftOrder.length !== pairs.length) {
+  if (!_wireCache || _wireCache.key !== pairsKey) {
     const ids = pairs.map((p) => p.id);
-    setLeftOrder(shuffleArray(ids));
-    setRightOrder(shuffleArray(ids));
-    return <NoticeBox>Загрузка...</NoticeBox>;
+    _wireCache = { key: pairsKey, left: shuffleArray(ids), right: shuffleArray(ids) };
   }
+  const leftOrder = _wireCache.left;
+  const rightOrder = _wireCache.right;
 
   const totalConnected = Object.keys(connections).length;
   const allConnected = totalConnected === pairs.length;
@@ -419,8 +396,7 @@ const WireGame = (props, context) => {
     setConnections({});
     setSelectedSide(null);
     setSelectedId(null);
-    setLeftOrder(null);
-    setRightOrder(null);
+    _wireCache = null;
   };
 
   const handleReset = () => {
@@ -517,7 +493,7 @@ const WireGame = (props, context) => {
                     .filter((p) => connections[p.id])
                     .map((p) => {
                       const li = leftOrder.indexOf(p.id);
-                      const ri = rightOrder!.indexOf(p.id);
+                      const ri = rightOrder.indexOf(p.id);
                       const y1 = li * (nodeH + gap) + nodeH / 2;
                       const y2 = ri * (nodeH + gap) + nodeH / 2;
                       const c = WIRE_CSS_COLORS[p.color] || '#fff';
@@ -537,7 +513,7 @@ const WireGame = (props, context) => {
             </Flex.Item>
             {/* Right column */}
             <Flex.Item>
-              {rightOrder!.map((id) => renderNode(id, 'R', 'left'))}
+              {rightOrder.map((id) => renderNode(id, 'R', 'left'))}
             </Flex.Item>
           </Flex>
         </Stack.Item>
@@ -546,149 +522,6 @@ const WireGame = (props, context) => {
             icon="check-double"
             color={allConnected ? 'good' : 'default'}
             disabled={!allConnected}
-            content="Подтвердить"
-            onClick={handleSubmit}
-          />
-          <Button
-            icon="undo"
-            color="caution"
-            content="Сброс"
-            ml={1}
-            onClick={handleReset}
-          />
-        </Stack.Item>
-      </Stack>
-    </Section>
-  );
-};
-
-let _simonTimer: any = null;
-
-// Simon Says Game
-const SimonGame = (props, context) => {
-  const { data, act } = useBackend<ProblemComputerData>(context);
-  const gameData = data.gameData;
-
-  const [playerSequence, setPlayerSequence] = useLocalState<number[]>(
-    context,
-    'simonPlayerSeq',
-    []
-  );
-  const [phase, setPhase] = useLocalState<string>(
-    context,
-    'simonPhase',
-    'showing'
-  );
-  const [showIndex, setShowIndex] = useLocalState<number>(
-    context,
-    'simonShowIndex',
-    -1
-  );
-
-  if (!gameData || !gameData.sequence) {
-    return <NoticeBox>Загрузка...</NoticeBox>;
-  }
-
-  const targetSequence: number[] = gameData.sequence;
-  const numColors: number = gameData.numColors || 4;
-  const isComplete = playerSequence.length === targetSequence.length;
-
-  const handleColorClick = (colorId: number) => {
-    if (phase !== 'input') return;
-    if (playerSequence.length >= targetSequence.length) return;
-    setPlayerSequence([...playerSequence, colorId]);
-  };
-
-  const handleSubmit = () => {
-    act('submit_answer', { sequence: playerSequence });
-    setPlayerSequence([]);
-    setPhase('showing');
-    setShowIndex(-1);
-  };
-
-  const handleReset = () => {
-    setPlayerSequence([]);
-    setPhase('showing');
-    setShowIndex(-1);
-  };
-
-  const simonColors: Record<number, string> = { 1: '#e74c3c', 2: '#3498db', 3: '#2ecc71', 4: '#f1c40f' };
-  const simonNames: Record<number, string> = { 1: 'Красный', 2: 'Синий', 3: 'Зелёный', 4: 'Жёлтый' };
-
-  if (phase === 'showing' && showIndex === -1 && playerSequence.length === 0) {
-    if (_simonTimer) {
-      clearInterval(_simonTimer);
-      _simonTimer = null;
-    }
-    let i = 0;
-    _simonTimer = setInterval(() => {
-      if (i >= targetSequence.length) {
-        clearInterval(_simonTimer);
-        _simonTimer = null;
-        setShowIndex(-1);
-        setPhase('input');
-        return;
-      }
-      setShowIndex(i);
-      i++;
-    }, 600);
-  }
-
-  return (
-    <Section title="Саймон: повтори последовательность" fill buttons={
-      <Box inline color="label"><Icon name="brain" mr={1} />Шагов: {playerSequence.length}/{targetSequence.length}</Box>
-    }>
-      <Stack vertical align="center" fill>
-        <Stack.Item>
-          <Box color="label" textAlign="center" mb={1}>
-            {phase === 'showing' ? 'Запомните последовательность...' : 'Повторите последовательность!'}
-          </Box>
-        </Stack.Item>
-        <Stack.Item>
-          <Flex justify="center" gap="12px">
-            {[1, 2, 3, 4].map((colorId) => {
-              const isHighlighted = phase === 'showing' && showIndex >= 0
-                && targetSequence[showIndex] === colorId;
-              const isPlayerStep = phase === 'input'
-                && playerSequence.length < targetSequence.length;
-              return (
-                <Flex.Item key={colorId}>
-                  <Box
-                    onClick={() => handleColorClick(colorId)}
-                    style={{
-                      'width': '90px',
-                      'height': '90px',
-                      'border-radius': '12px',
-                      'background': simonColors[colorId],
-                      'cursor': isPlayerStep ? 'pointer' : 'default',
-                      'opacity': isHighlighted ? 1 : 0.5,
-                      'transform': isHighlighted ? 'scale(1.1)' : 'scale(1)',
-                      'transition': 'all 0.2s ease',
-                      'box-shadow': isHighlighted
-                        ? '0 0 20px ' + simonColors[colorId]
-                        : '0 0 5px rgba(0,0,0,0.3)',
-                    }}>
-                    <Box textAlign="center" bold color="white" fontSize={1.1}
-                      style={{ 'line-height': '90px', 'text-shadow': '0 1px 3px rgba(0,0,0,0.5)' }}>
-                      {simonNames[colorId]}
-                    </Box>
-                  </Box>
-                </Flex.Item>
-              );
-            })}
-          </Flex>
-        </Stack.Item>
-        <Stack.Item mt={1}>
-          <Box color="label" textAlign="center">
-            {phase === 'showing' && 'Смотрите внимательно...'}
-            {phase === 'input' && 'Нажимайте кнопки в том же порядке!'}
-          </Box>
-        </Stack.Item>
-        <Stack.Item mt={1}>
-          <Button
-            icon="check-double"
-            color={isComplete ? 'good' : 'default'}
-            disabled={!isComplete}
             content="Подтвердить"
             onClick={handleSubmit}
           />
