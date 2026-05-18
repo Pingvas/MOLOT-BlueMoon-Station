@@ -21,8 +21,8 @@
 		/obj/item/cartridge/curator = 10,
 		/obj/item/cartridge/bartender = 10,
 		// Virus disks
-		/obj/item/computer_disk/virus/clown = 3,
-		/obj/item/computer_disk/virus/mime = 3,
+		/obj/item/cartridge/virus/clown = 3,
+		/obj/item/cartridge/virus/mime = 3,
 		// Command staff cards
 		/obj/item/cartridge/captain = 3,
 		/obj/item/cartridge/quartermaster = 10,

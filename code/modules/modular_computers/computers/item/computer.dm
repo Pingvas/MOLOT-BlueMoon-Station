@@ -80,8 +80,8 @@
 	var/saved_job
 	/// The ID card stored directly in the computer (used by PDAs instead of card_slot hardware)
 	var/obj/item/card/id/stored_id
-	/// Inserted computer disk (virus carts, etc.)
-	var/obj/item/computer_disk/inserted_disk
+	/// Inserted computer disk or cartridge (virus carts, etc.)
+	var/obj/item/inserted_disk
 	/// Inserted pAI card
 	var/obj/item/paicard/inserted_pai
 	/// Whether this device has extended signal range

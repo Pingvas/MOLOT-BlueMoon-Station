@@ -158,7 +158,7 @@
 				/obj/item/clothing/accessory/padding = 5,
 				/obj/item/clothing/accessory/kevlar = 5,
 				/obj/item/clothing/accessory/plastics = 5,
-				/obj/item/computer_disk/virus/detomatix = 2,
+				/obj/item/cartridge/virus/detomatix = 2,
 				/obj/item/multitool/ai_detect = 2,
 				/obj/item/pen/edagger = 3,
 				/obj/item/storage/box/inteq_kit/conversion_kit = 1,

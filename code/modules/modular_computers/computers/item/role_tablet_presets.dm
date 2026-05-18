@@ -260,7 +260,7 @@
 	name = "clown PDA"
 	icon = 'icons/obj/devices/modular_pda.dmi'
 	icon_state = "pda-clown"
-	inserted_disk = /obj/item/computer_disk/virus/clown
+	inserted_disk = /obj/item/cartridge/virus/clown
 	inserted_item = /obj/item/toy/crayon/rainbow
 
 /obj/item/modular_computer/pda/clown/Initialize(mapload)
@@ -289,7 +289,7 @@
 
 /obj/item/modular_computer/pda/clown/proc/AfterSlip(mob/living/carbon/human/M)
 	if(istype(M) && (M.real_name != saved_identification))
-		var/obj/item/computer_disk/virus/clown/cart = inserted_disk
+		var/obj/item/cartridge/virus/clown/cart = inserted_disk
 		if(istype(cart) && cart.charges < 5)
 			cart.charges++
 			playsound(src, 'sound/machines/ping.ogg', 30, TRUE)
@@ -297,7 +297,7 @@
 /obj/item/modular_computer/pda/mime
 	name = "mime PDA"
 	icon_state = "pda-mime"
-	inserted_disk = /obj/item/computer_disk/virus/mime
+	inserted_disk = /obj/item/cartridge/virus/mime
 	inserted_item = /obj/item/toy/crayon/mime
 
 /obj/item/modular_computer/pda/mime/Initialize(mapload)

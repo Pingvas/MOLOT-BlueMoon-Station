@@ -235,7 +235,7 @@
 				return FALSE
 
 			if(sending_virus)
-				var/obj/item/computer_disk/virus/disk = computer.inserted_disk
+				var/obj/item/cartridge/virus/disk = computer.inserted_disk
 				if(!istype(disk))
 					return FALSE
 
@@ -297,7 +297,7 @@
 	data["selected_photo_path"] = null
 	data["on_spam_cooldown"] = !can_send_everyone_message()
 
-	var/obj/item/computer_disk/virus/disk = computer.inserted_disk
+	var/obj/item/cartridge/virus/disk = computer.inserted_disk
 	if(istype(disk))
 		data["virus_attach"] = TRUE
 		data["sending_virus"] = sending_virus

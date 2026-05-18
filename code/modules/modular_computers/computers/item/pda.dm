@@ -175,6 +175,8 @@
 		inserted_pai = null
 	if(A == inserted_item)
 		inserted_item = null
+	if(A == inserted_disk)
+		inserted_disk = null
 	return ..()
 
 /obj/item/modular_computer/pda/AltClick(mob/user)
@@ -185,6 +187,12 @@
 			user.put_in_hands(removed)
 			to_chat(user, "<span class='notice'>Вы извлекли ID-карту из [name].</span>")
 			playsound(src, 'sound/machines/terminal_eject_disc.ogg', 50, TRUE)
+		return TRUE
+	else if(inserted_disk)
+		user.put_in_hands(inserted_disk)
+		to_chat(user, "<span class='notice'>Вы извлекли [inserted_disk] из [name].</span>")
+		inserted_disk = null
+		playsound(src, 'sound/machines/terminal_eject_disc.ogg', 50, TRUE)
 		return TRUE
 	else
 		remove_pen(user)
@@ -280,6 +288,8 @@
 		QDEL_NULL(inserted_item)
 	if(istype(inserted_pai))
 		QDEL_NULL(inserted_pai)
+	if(istype(inserted_disk))
+		QDEL_NULL(inserted_disk)
 	return ..()
 
 /// Legacy compat: update_label syncs owner/ownjob and updates device name.
@@ -445,9 +455,9 @@
 	if(!target_machine.panel_open && !istype(target, /obj/machinery/computer))
 		return ..()
 
-	if(!istype(inserted_disk, /obj/item/computer_disk/virus/clown))
+	if(!istype(inserted_disk, /obj/item/cartridge/virus/clown))
 		return ..()
-	var/obj/item/computer_disk/virus/clown/installed_cartridge = inserted_disk
+	var/obj/item/cartridge/virus/clown/installed_cartridge = inserted_disk
 	if(!installed_cartridge.charges)
 		to_chat(user, span_notice("Out of virus charges."))
 		return ..()
@@ -466,6 +476,9 @@
 		else if(istype(held_item, /obj/item/card/id) && !stored_id)
 			context[SCREENTIP_CONTEXT_LMB] = "Insert ID"
 			. = CONTEXTUAL_SCREENTIP_SET
+		else if((istype(held_item, /obj/item/computer_disk) || istype(held_item, /obj/item/cartridge)) && !inserted_disk)
+			context[SCREENTIP_CONTEXT_LMB] = "Insert disk"
+			. = CONTEXTUAL_SCREENTIP_SET
 		else if(istype(held_item, /obj/item/photo))
 			context[SCREENTIP_CONTEXT_LMB] = "Scan photo"
 			. = CONTEXTUAL_SCREENTIP_SET
@@ -475,6 +488,9 @@
 
 	if(stored_id)
 		context[SCREENTIP_CONTEXT_ALT_LMB] = "Remove ID"
+		. = CONTEXTUAL_SCREENTIP_SET
+	else if(inserted_disk)
+		context[SCREENTIP_CONTEXT_ALT_LMB] = "Remove disk"
 		. = CONTEXTUAL_SCREENTIP_SET
 	else if(inserted_item)
 		context[SCREENTIP_CONTEXT_ALT_LMB] = "Remove [inserted_item]"
@@ -530,6 +546,17 @@
 		var/obj/item/photo/P = tool
 		picture = P.picture
 		to_chat(user, "<span class='notice'>Вы просканировали [tool].</span>")
+		return
+
+	if(istype(tool, /obj/item/computer_disk) || istype(tool, /obj/item/cartridge))
+		if(inserted_disk)
+			to_chat(user, span_warning("В [src] уже установлен диск!"))
+			return
+		if(!user.transferItemToLoc(tool, src))
+			return
+		inserted_disk = tool
+		to_chat(user, span_notice("Вы вставили [tool] в [src]."))
+		playsound(src, 'sound/machines/pda_button/pda_button1.ogg', 50, TRUE)
 		return
 
 	if(is_type_in_list(tool, contained_item))
@@ -602,7 +629,7 @@
 
 	if(current_turf)
 		current_turf.hotspot_expose(700, 125)
-		if(istype(inserted_disk, /obj/item/computer_disk/virus/detomatix))
+		if(istype(inserted_disk, /obj/item/cartridge/virus/detomatix))
 			explosion(src, devastation_range = -1, heavy_impact_range = 1, light_impact_range = 3, flash_range = 4)
 		else
 			explosion(src, devastation_range = -1, heavy_impact_range = -1, light_impact_range = 2, flash_range = 3)
