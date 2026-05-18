@@ -53,9 +53,6 @@
 	stored_research = new /datum/techweb/specialized/autounlocking/autolathe
 	matching_designs = list()
 
-/obj/machinery/autolathe/ComponentInitialize()
-	AddComponent(/datum/component/material_container, SSmaterials.materialtypes_by_category[MAT_CATEGORY_RIGID], 0, TRUE, null, null, CALLBACK(src, PROC_REF(AfterMaterialInsert)))
-
 /obj/machinery/autolathe/Destroy()
 	QDEL_NULL(wires)
 	return ..()
@@ -88,7 +85,7 @@
 		var/datum/material/M = mat_id
 		var/mineral_count = materials.materials[mat_id]
 		var/list/material_data = list(
-			name = material_to_ru_nominative(M.name),
+			name = vocabulary_to_ru(GLOB.mat_ru_nominative, M.name),
 			mineral_amount = mineral_count,
 			matcolour = M.color,
 		)
@@ -398,7 +395,7 @@
 			dat += "[D.materials[i] * coeff] [i]"
 		else
 			var/datum/material/M = i
-			dat += "[D.materials[i] * coeff] [material_to_ru_genitive(M.name)] "
+			dat += "[D.materials[i] * coeff] [vocabulary_to_ru(GLOB.mat_ru_genitive, M.name)] "
 	return dat
 
 /obj/machinery/autolathe/proc/reset(wire)

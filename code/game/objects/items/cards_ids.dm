@@ -122,7 +122,7 @@
 		if(registered_account.account_job)
 			var/datum/bank_account/D = SSeconomy.get_dep_account(registered_account.account_job.paycheck_department)
 			if(D)
-				. += "На балансе [budget_to_ru_genitive(D.account_holder)] находится [D.account_balance] кр."
+				. += "На балансе [vocabulary_to_ru(GLOB.budget_ru_genitive, D.account_holder)] находится [D.account_balance] кр."
 		. += "<span class='info'>Alt-Click по ID, чтобы достать деньги из аккаунта в форме голочипов.</span>"
 		. += "<span class='info'>Вы может добавить кредиты на аккаунт, прижимая голочипы, наличные или монеты к ID.</span>"
 		if(registered_account.account_holder == user.real_name)
@@ -250,6 +250,13 @@
 	if(istype(W, /obj/item/card_sticker))
 		var/obj/item/card_sticker/card_sticker = W
 		card_sticker.wrap(src, user)
+		return
+	//BLUEMOON ADD END
+	//BLUEMOON ADD метадоллары → лобби-счёт (не станционный банк)
+	if(istype(W, /obj/item/stack/metadollar))
+		var/obj/item/stack/metadollar/M = W
+		if(M.deposit_to_lobby_prefs(user, src))
+			playsound(src, 'sound/machines/terminal_success.ogg', 15, 1)
 		return
 	//BLUEMOON ADD END
 
@@ -439,7 +446,7 @@
 		if(registered_account.account_job)
 			var/datum/bank_account/D = SSeconomy.get_dep_account(registered_account.account_job.paycheck_department)
 			if(D)
-				. += "На балансе [budget_to_ru_genitive(D.account_holder)] находится [D.account_balance] кр."
+				. += "На балансе [vocabulary_to_ru(GLOB.budget_ru_genitive, D.account_holder)] находится [D.account_balance] кр."
 		. += "<span class='info'>Alt-Click по ID-карте, чтобы снять деньги с аккаунта в форме голочипов.</span>"
 		. += "<span class='info'>Вы можете внести кредиты на аккаунт, приложив голочипы, наличные или монеты к ID-карте.</span>"
 		if(registered_account.civilian_bounty)
@@ -764,6 +771,40 @@
 	access = get_all_accesses()+get_ert_access("sec")-ACCESS_CHANGE_IDS
 	. = ..()
 
+/obj/item/card/id/ert/hsc
+	name = "\improper HSC Security ID"
+	desc = "Health Safety Control ID card."
+	icon = 'modular_bluemoon/phenyamomota/icon/obj/card.dmi'
+	icon_state = "hsc"
+	registered_name = "Health Safety Control Security"
+	assignment = "Health Safety Control Security"
+	special_assignment = "centcom"
+	var/overlay_state = "idsec"
+
+/obj/item/card/id/ert/hsc/Initialize(mapload)
+	. = ..()
+	update_icon()
+
+/obj/item/card/id/ert/hsc/update_overlays()
+	. = ..()
+	. += mutable_appearance(icon, overlay_state)
+
+/obj/item/card/id/ert/hsc/medic
+	name = "\improper HSC Medical ID"
+	desc = "Health Safety Control ID card."
+	icon_state = "hsc"
+	registered_name = "Health Safety Control Medic"
+	assignment = "Health Safety Control Medic"
+	overlay_state = "idmed"
+
+/obj/item/card/id/ert/hsc/assistant
+	name = "\improper HSC Assistant ID"
+	desc = "Health Safety Control ID card."
+	icon_state = "hsc"
+	registered_name = "Health Safety Control Assistant"
+	assignment = "Health Safety Control Assistant"
+	overlay_state = "idas"
+
 /obj/item/card/id/prisoner
 	name = "prisoner ID card"
 	desc = "Теперь вы - номер, вы - не свободный человек."
@@ -942,7 +983,7 @@
 		if(!B.bank_cards.Find(src))
 			B.bank_cards += src
 		name = "departmental card ([department_name])"
-		desc = "К этой карте привязан [lowertext(budget_to_ru_nominative(department_name))]."
+		desc = "К этой карте привязан [lowertext(vocabulary_to_ru(GLOB.budget_ru_nominative, department_name))]."
 		icon_state = "[lowertext(department_ID)]_budget"
 	SSeconomy.dep_cards += src
 

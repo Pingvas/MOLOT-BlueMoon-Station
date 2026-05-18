@@ -32,9 +32,8 @@
 		return FALSE
 	return TRUE
 
-/datum/atom_hud/data/human/medical/basic/add_to_single_hud(mob/M, mob/living/carbon/H)
-	if(check_sensors(H))
-		..()
+/datum/atom_hud/data/human/medical/basic/should_show_to(mob/M, atom/A)
+	return check_sensors(A)
 
 /datum/atom_hud/data/human/medical/basic/proc/update_suit_sensors(mob/living/carbon/H)
 	check_sensors(H) ? add_to_hud(H) : remove_from_hud(H)
@@ -569,8 +568,7 @@
 	var/image/holder = hud_list[DIAG_CIRCUIT_HUD]
 	if(!icon)
 		return
-	var/icon/I = icon(icon, icon_state, dir)
-	holder.pixel_y = I.Height() - world.icon_size
+	sync_diagnostic_hud_offsets()
 	if((!isturf(loc))||hide) //if not on the ground dont show overlay
 		holder.icon_state = null
 	else
@@ -580,8 +578,7 @@
 	var/image/holder = hud_list[DIAG_BATT_HUD]
 	if(!icon)
 		return
-	var/icon/I = icon(icon, icon_state, dir)
-	holder.pixel_y = I.Height() - world.icon_size
+	sync_diagnostic_hud_offsets()
 	if((!isturf(loc))||hide) //if not on the ground dont show overlay
 		holder.icon_state = null
 	else if(battery)
@@ -594,8 +591,7 @@
 	var/image/holder = hud_list[DIAG_STAT_HUD]
 	if(!icon)
 		return
-	var/icon/I = icon(icon, icon_state, dir)
-	holder.pixel_y = I.Height() - world.icon_size
+	sync_diagnostic_hud_offsets()
 	if((!isturf(loc))||hide) //if not on the ground don't show overlay
 		holder.icon_state = null
 	else if(!battery)
@@ -611,8 +607,7 @@
 	var/image/holder = hud_list[DIAG_TRACK_HUD]
 	if(!icon)
 		return
-	var/icon/I = icon(icon, icon_state, dir)
-	holder.pixel_y = I.Height() - world.icon_size
+	sync_diagnostic_hud_offsets()
 	if((!isturf(loc))||hide) //if not on the ground dont show overlay
 		holder.icon_state = null
 	else if(long_range_circuits)

@@ -218,6 +218,10 @@
 	. = ..()
 	var/datum/component/storage/STR = GetComponent(/datum/component/storage)
 	STR.max_items = 10
+	/// Базовый /datum/component/storage ограничивает по `max_w_class` (только SMALL) и сумме w_class (7×SMALL).
+	/// При спавне `new(..., src)` проверки обходятся; при ручной укладке ломается — нужны лимиты под набор ERT/CentCom.
+	STR.max_w_class = WEIGHT_CLASS_NORMAL
+	STR.max_combined_w_class = WEIGHT_CLASS_NORMAL * 10
 	STR.storage_flags = STORAGE_FLAGS_LEGACY_DEFAULT
 
 /obj/item/storage/box/survival/centcom/PopulateContents()
@@ -317,6 +321,10 @@
 /obj/item/storage/box/ammo/wt
 	name = "box of WT ammo"
 	ammo = /obj/item/ammo_box/magazine/wt550m9
+
+/obj/item/storage/box/ammo/m10mm
+	name = "box of M10mm ammo"
+	ammo = /obj/item/ammo_box/magazine/m10mm
 
 /obj/item/storage/box/ammo/holy
 	name = "box of holy water"
@@ -1597,6 +1605,30 @@
 	new /obj/item/reagent_containers/food/snacks/salad/fruit(src)
 	new /obj/item/reagent_containers/food/snacks/cracker(src)
 	new /obj/item/tank/internals/emergency_oxygen/engi(src)
+
+/obj/item/storage/box/mre/random_safe
+	name = "\improper Nanotrasen MRE Ration Kit"
+	desc = "Упаковка с едой в блюспейс-кармане. При выдаче подбирается случайное меню из линейки NT (1–4)."
+	icon_state = "mre"
+	illustration = null
+	can_expire = FALSE
+
+/// Не заменяем себя через qdel — иначе лодаут/спавн через `new path` без loc даёт QDELETED и предмет пропадает.
+/obj/item/storage/box/mre/random_safe/PopulateContents()
+	var/static/list/ration_types = list(
+		/obj/item/storage/box/mre/menu1/safe,
+		/obj/item/storage/box/mre/menu2/safe,
+		/obj/item/storage/box/mre/menu3,
+		/obj/item/storage/box/mre/menu4/safe,
+	)
+	var/picked = pick(ration_types)
+	var/obj/item/storage/box/mre/phantom = new picked(null)
+	name = phantom.name
+	desc = phantom.desc
+	icon_state = phantom.icon_state
+	for(var/obj/item/I in phantom.contents)
+		I.forceMove(src)
+	qdel(phantom)
 
 //Where do I put this?
 /obj/item/secbat

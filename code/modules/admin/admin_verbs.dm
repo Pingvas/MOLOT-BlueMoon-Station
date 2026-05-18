@@ -84,6 +84,7 @@ GLOBAL_PROTECT(admin_verbs_admin)
 	/client/proc/toggle_AI_interact, /*toggle admin ability to interact with machines as an AI*/
 	/datum/admins/proc/open_shuttlepanel, /* Opens shuttle manipulator UI */
 	/datum/admins/proc/station_traits_panel, /* Opens station traits UI */
+	/client/proc/cmd_admin_set_birthday_person, /* Set birthday person for the birthday station trait */
 	/client/proc/deadchat,
 	/client/proc/toggleprayers,
 	// /client/proc/toggle_prayer_sound,
@@ -105,7 +106,7 @@ GLOBAL_PROTECT(admin_verbs_admin)
 	/client/proc/cmd_admin_set_starlight,	//BLUEMOON ADD dynamic starlight color
 	/client/proc/cmd_admin_toggle_falloff,	//BLUEMOON ADD runtime falloff toggle
 	)
-GLOBAL_LIST_INIT(admin_verbs_ban, list(/client/proc/unban_panel, /client/proc/DB_ban_panel, /client/proc/stickybanpanel))
+GLOBAL_LIST_INIT(admin_verbs_ban, list(/client/proc/DB_ban_panel, /client/proc/stickybanpanel))
 GLOBAL_PROTECT(admin_verbs_ban)
 GLOBAL_LIST_INIT(admin_verbs_sounds, list(/client/proc/play_local_sound, /client/proc/play_sound, /client/proc/manual_play_web_sound, /client/proc/set_round_end_sound))
 GLOBAL_PROTECT(admin_verbs_sounds)
@@ -456,9 +457,15 @@ GLOBAL_PROTECT(admin_verbs_hideable)
 	if(holder && mob)
 		if(mob.invisibility == INVISIBILITY_OBSERVER)
 			mob.invisibility = initial(mob.invisibility)
+			if(isliving(mob))
+				var/mob/living/L = mob
+				L.update_invisimin_data_huds(FALSE)
 			to_chat(mob, "<span class='boldannounce'>Invisimin off. Invisibility reset.</span>", confidential = TRUE)
 		else
 			mob.invisibility = INVISIBILITY_OBSERVER
+			if(isliving(mob))
+				var/mob/living/L = mob
+				L.update_invisimin_data_huds(TRUE)
 			to_chat(mob, "<span class='adminnotice'><b>Invisimin on. You are now as invisible as a ghost.</b></span>", confidential = TRUE)
 
 /client/proc/check_antagonists()
@@ -470,18 +477,6 @@ GLOBAL_PROTECT(admin_verbs_hideable)
 		if(!isobserver(usr) && SSticker.HasRoundStarted())
 			message_admins("[key_name_admin(usr)] checked antagonists.")
 	SSblackbox.record_feedback("tally", "admin_verb", 1, "Check Antagonists") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
-
-/client/proc/unban_panel()
-	set name = "Unbanning Panel"
-	set category = "Admin"
-	if(!check_rights(R_BAN))
-		return
-	if(holder)
-		if(CONFIG_GET(flag/ban_legacy_system))
-			holder.unbanpanel()
-		else
-			holder.DB_ban_panel()
-	SSblackbox.record_feedback("tally", "admin_verb", 1, "Unban Panel") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
 // /client/proc/ban_panel()
 // 	set name = "Banning Panel"

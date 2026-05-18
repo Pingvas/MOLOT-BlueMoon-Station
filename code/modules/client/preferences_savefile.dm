@@ -7,6 +7,11 @@
 //	where you would want the updater procs below to run
 #define SAVEFILE_VERSION_MAX	69
 
+/// Upper bound for character slot indices during savefile migration (loop over S.dir).
+/// Prevents corrupted or garbage directory names (e.g. huge slot numbers) from inflating max_save_slots
+/// and running thousands of load_character/save_character pairs (OOM / DD hangs).
+#define SAVEFILE_MIGRATION_MAX_CHARACTER_SLOT	128
+
 /*
 SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Carn
 	This proc checks if the current directory of the savefile S needs updating
@@ -545,6 +550,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	S["chem_dispenser_use_reagent_color"]>> chem_dispenser_use_reagent_color // BLUEMOON ADD
 	S["chem_dispenser_show_icons"]>> chem_dispenser_show_icons // BLUEMOON ADD
 	S["chem_dispenser_alphabetical_sort"]>> chem_dispenser_alphabetical_sort // BLUEMOON ADD
+	S["ie_classic_circuit_ui"]>> ie_classic_circuit_ui // BLUEMOON ADD
 	S["color_presets_tint"]>> color_presets_tint // BLUEMOON ADD
 	S["color_presets_hsv"]>> color_presets_hsv // BLUEMOON ADD
 	S["color_presets_matrix"]>> color_presets_matrix // BLUEMOON ADD
@@ -742,6 +748,8 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 			var/slotnum = text2num(copytext(slot, 10))
 			if (!slotnum)
 				continue
+			if (slotnum > SAVEFILE_MIGRATION_MAX_CHARACTER_SLOT)
+				continue
 			max_save_slots = max(max_save_slots, slotnum) //so we can still update byond member slots after they lose memeber status
 			default_slot = slotnum
 			if (load_character(null, TRUE)) // this updtates char slots
@@ -872,6 +880,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	WRITE_FILE(S["chem_dispenser_use_reagent_color"], chem_dispenser_use_reagent_color) // BLUEMOON ADD
 	WRITE_FILE(S["chem_dispenser_show_icons"], chem_dispenser_show_icons) // BLUEMOON ADD
 	WRITE_FILE(S["chem_dispenser_alphabetical_sort"], chem_dispenser_alphabetical_sort) // BLUEMOON ADD
+	WRITE_FILE(S["ie_classic_circuit_ui"], ie_classic_circuit_ui) // BLUEMOON ADD
 	WRITE_FILE(S["color_presets_tint"], color_presets_tint) // BLUEMOON ADD
 	WRITE_FILE(S["color_presets_hsv"], color_presets_hsv) // BLUEMOON ADD
 	WRITE_FILE(S["color_presets_matrix"], color_presets_matrix) // BLUEMOON ADD

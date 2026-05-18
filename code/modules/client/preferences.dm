@@ -35,7 +35,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/directory_tag = "Unset" //Sorting tag to use in character directory
 	var/directory_erptag = "Unset"	//ditto, but for non-vore scenes
 	var/directory_gendertag = "Unset"	//Gender tag for character directory
-	var/directory_ad = ""		//Advertisement stuff to show in character directory.
+	var/directory_ad = ""		// Char directory ERP tag
+	var/directory_noncon = null	// Char directory Non-con tag
 
 	//Cooldowns for saving/loading. These are four are all separate due to loading code calling these one after another
 	COOLDOWN_DECLARE(saveprefcooldown)
@@ -131,6 +132,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/chem_dispenser_use_reagent_color = TRUE	// BLUEMOON ADD - show reagent color vs pH color on buttons
 	var/chem_dispenser_show_icons = TRUE		// BLUEMOON ADD - show/hide reagent icons on buttons
 	var/chem_dispenser_alphabetical_sort = TRUE	// BLUEMOON ADD - alphabetical vs declaration order in classic view
+	var/ie_classic_circuit_ui = FALSE			// BLUEMOON ADD - integrated electronics: HTML browser UI vs TGUI
 
 	// BLUEMOON ADD START || Colormate presets
 	// Листы состоят из ключа, типа предмета и листа с именами престов и настройками цвета
@@ -1466,35 +1468,29 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "<h2>[headshots_label]</h2>"
 
 					dat += "<a href='?_src_=prefs;preference=headshot'><b>[set_headshot_1_label]</b></a><br>"
-					if(features["headshot_link"])
-						dat += "<img src='[features["headshot_link"]]' style='border: 1px solid black' width='140px' height='140px'>"
+					dat += headshot_preview_html(features["headshot_link"])
 					dat += "<br><br>"
 
 					dat += "<a href='?_src_=prefs;preference=headshot1'><b>[set_headshot_2_label]</b></a><br>"
-					if(features["headshot_link1"])
-						dat += "<img src='[features["headshot_link1"]]' style='border: 1px solid black' width='140px' height='140px'>"
+					dat += headshot_preview_html(features["headshot_link1"])
 					dat += "<br><br>"
 
 					dat += "<a href='?_src_=prefs;preference=headshot2'><b>[set_headshot_3_label]</b></a><br>"
-					if(features["headshot_link2"])
-						dat += "<img src='[features["headshot_link2"]]' style='border: 1px solid black' width='140px' height='140px'>"
+					dat += headshot_preview_html(features["headshot_link2"])
 					//dat += "<br><br>"
 
 					dat += "<h2>[naked_headshots_label]</h2>"
 
 					dat += "<a href='?_src_=prefs;preference=headshot_naked'><b>[set_naked_headshot_1_label]</b></a><br>"
-					if(features["headshot_naked_link"])
-						dat += "<img src='[features["headshot_naked_link"]]' style='border: 1px solid black' width='140px' height='140px'>"
+					dat += headshot_preview_html(features["headshot_naked_link"])
 					dat += "<br><br>"
 
 					dat += "<a href='?_src_=prefs;preference=headshot_naked1'><b>[set_naked_headshot_2_label]</b></a><br>"
-					if(features["headshot_naked_link1"])
-						dat += "<img src='[features["headshot_naked_link1"]]' style='border: 1px solid black' width='140px' height='140px'>"
+					dat += headshot_preview_html(features["headshot_naked_link1"])
 					dat += "<br><br>"
 
 					dat += "<a href='?_src_=prefs;preference=headshot_naked2'><b>[set_naked_headshot_3_label]</b></a><br>"
-					if(features["headshot_naked_link2"])
-						dat += "<img src='[features["headshot_naked_link2"]]' style='border: 1px solid black' width='140px' height='140px'>"
+					dat += headshot_preview_html(features["headshot_naked_link2"])
 					dat += "<br><br>"
 					// BLUEMOON ADD END
 					dat += "</td></tr></table>"
@@ -3119,6 +3115,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 
 /datum/preferences/proc/SetChoices(mob/user, limit = 17, list/splitJobs = list("Research Director", "Head of Personnel"), widthPerColumn = 295, height = 620) // BLUEMOON CHANGES - splitjob
 	if(!SSjob)
+		return
+	if(!ismob(user) || !user.client?.prefs)
 		return
 
 	//limit - The amount of jobs allowed per column. Defaults to 17 to make it look nice.
@@ -5461,7 +5459,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					if(index && marking_type && features[marking_type])
 						// because linters are just absolutely awful:
 						var/list/L = features[marking_type]
-						L.Cut(index, index + 1)
+						if(index <= length(L))
+							L.Cut(index, index + 1)
 
 				if("marking_add")
 					// add a marking
@@ -5508,6 +5507,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 								var/list/L = features[marking_type]
 								for(var/i = length(L), i >= 1, i--)
 									var/list/entry = L[i]
+									if(!islist(entry))
+										continue
 									if(entry[1] == limb_value)
 										L.Cut(i, i + 1)
 
@@ -5770,7 +5771,10 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 							hornyantagspref = "No"
 						if("No")
 							hornyantagspref = "Yes"
-//				if("stomppref") // What the fuck is this?
+				if("directory_erptag")
+					var/new_erp_pos = tgui_input_list(user, "Выберите ERP позицию персонажа для библиотеки", "ERP Позиция", GLOB.char_directory_erptags)
+					if(new_erp_pos)
+						directory_erptag = new_erp_pos
 //					stomppref = !stomppref
 				//Skyrat edit - *someone* offered me actual money for this shit
 				if("extremepref") //i hate myself for doing this
@@ -6646,11 +6650,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	else
 		pref_species.species_traits -= DIGITIGRADE
 
-	if(DIGITIGRADE in pref_species.species_traits)
-		character.Digitigrade_Leg_Swap(FALSE)
-	else
-		character.Digitigrade_Leg_Swap(TRUE)
-
 	character.dna.features["lust_tolerance"] = lust_tolerance
 	character.dna.features["sexual_potency"] = sexual_potency
 
@@ -6705,6 +6704,11 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					new_limb.icon = file("icons/mob/augmentation/cosmetic_prosthetic/[prosthetic_type].dmi")
 				new_limb.replace_limb(character)
 			qdel(old_part)
+
+	if(DIGITIGRADE in pref_species.species_traits)
+		character.Digitigrade_Leg_Swap(FALSE)
+	else
+		character.Digitigrade_Leg_Swap(TRUE)
 
 	SEND_SIGNAL(character, COMSIG_HUMAN_PREFS_COPIED_TO, src, icon_updates, roundstart_checks)
 
