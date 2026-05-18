@@ -6,12 +6,14 @@
  */
 /obj/item/modular_computer/pda
 	name = "pda"
+	desc = "Портативный микрокомпьютер от Thinktronic Systems, LTD. Функционал определяется препрограммированными ROM картриджами."
 	icon = 'icons/obj/pda_alt.dmi'
 	icon_state = "pda"
 	base_icon_state = "pda"
 	lefthand_file = 'icons/mob/inhands/misc/devices_lefthand.dmi'
 	righthand_file = 'icons/mob/inhands/misc/devices_righthand.dmi'
 	item_state = "electronic"
+	item_flags = NOBLUDGEON
 
 	overlays_icon = 'icons/obj/devices/modular_pda.dmi'
 
@@ -21,7 +23,10 @@
 	max_idle_programs = 2
 	w_class = WEIGHT_CLASS_SMALL
 	slot_flags = ITEM_SLOT_ID | ITEM_SLOT_BELT
+	actions_types = list(/datum/action/item_action/toggle_light/pda)
 	has_light = TRUE //LED flashlight!
+	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 100, ACID = 100)
+	resistance_flags = FIRE_PROOF | ACID_PROOF
 	comp_light_luminosity = 2.3
 	looping_sound = FALSE
 
@@ -43,6 +48,7 @@
 		/obj/item/lipstick,
 		/obj/item/flashlight/pen,
 		/obj/item/reagent_containers/hypospray/medipen,
+		/obj/item/clothing/mask/cigarette,
 	)
 
 	// ---- Legacy compatibility aliases ----
@@ -86,10 +92,39 @@
 	var/obj/item/cartridge/cartridge
 	/// Legacy detonatable flag (used by syndicate virus cart)
 	var/detonatable = TRUE
+	/// Legacy EMP flag — if TRUE, messages get garbled
+	var/emped = FALSE
+	/// Legacy emoji flag — if TRUE, emojis are parsed in messages
+	var/allow_emojis = TRUE
+	/// Legacy mime virus counter
+	var/mimeamt = 0
+	/// Legacy paper scan flag
+	var/notescanned = FALSE
+	/// Legacy anti-spam: last direct message time
+	var/last_text
+	/// Legacy anti-spam: last mass message time
+	var/last_everyone
+	/// Legacy anti-spam: last noise time
+	var/last_noise
+	/// Legacy flashlight power
+	var/f_pow = 0.6
+	/// Legacy flashlight color
+	var/f_col = "#FFCC66"
+	/// Legacy blocked PDA list (owner names)
+	var/list/blocked_pdas
+	/// First-pickup guard for update_style
+	var/equipped = FALSE
 
 /// Legacy stub for old cart.dm UI (dead code)
-/obj/item/modular_computer/pda/proc/msg_input()
-	return null
+/obj/item/modular_computer/pda/proc/msg_input(mob/living/U = usr)
+	var/t = tgui_input_text(U, "Введите сообщение", name)
+	if(!t || toff)
+		return
+	if(!U.canUseTopic(src, BE_CLOSE, FALSE, NO_TK, FALSE))
+		return
+	if(emped)
+		t = Gibberish(t, 100)
+	return t
 
 /obj/item/modular_computer/pda/Initialize(mapload)
 	. = ..()
@@ -103,9 +138,91 @@
 
 /obj/item/modular_computer/pda/equipped(mob/user, slot)
 	. = ..()
-	if(!user.client)
+	if(equipped || !user.client)
 		return
+	equipped = TRUE
 	update_style(user.client)
+
+/obj/item/modular_computer/pda/examine(mob/user)
+	. = ..()
+	. += stored_id ? "<span class='notice'>Alt-click для извлечения ID-карты.</span>" : ""
+	if(inserted_item && (!isturf(loc)))
+		. += "<span class='notice'>Ctrl-click для извлечения [inserted_item].</span>"
+
+/obj/item/modular_computer/pda/suicide_act(mob/living/carbon/user)
+	var/deathMessage = tgui_input_text(user, "Введите предсмертное сообщение", "PDA Suicide")
+	if(!deathMessage)
+		deathMessage = "i ded"
+	user.visible_message("<span class='suicide'>[user] отправляет сообщение Жнецу! Похоже, [user.p_theyre()] пытается покончить с собой!</span>")
+	tnote += "<i><b>&rarr; To The Grim Reaper:</b></i><br>[deathMessage]<br>"
+	return BRUTELOSS
+
+/obj/item/modular_computer/pda/emp_act(severity)
+	. = ..()
+	if(!(. & EMP_PROTECT_CONTENTS))
+		for(var/atom/A in src)
+			A.emp_act(severity)
+	if(!(. & EMP_PROTECT_SELF))
+		emped += 1
+		spawn(2 * severity)
+			emped -= 1
+
+/obj/item/modular_computer/pda/handle_atom_del(atom/A)
+	if(A == stored_id)
+		stored_id = null
+		id = null
+	if(A == inserted_pai)
+		inserted_pai = null
+	if(A == inserted_item)
+		inserted_item = null
+	return ..()
+
+/obj/item/modular_computer/pda/AltClick(mob/user)
+	. = ..()
+	if(stored_id)
+		var/obj/item/card/id/removed = RemoveID()
+		if(removed)
+			user.put_in_hands(removed)
+			to_chat(user, "<span class='notice'>Вы извлекли ID-карту из [name].</span>")
+			playsound(src, 'sound/machines/terminal_eject_disc.ogg', 50, TRUE)
+		return TRUE
+	else
+		remove_pen(user)
+		return TRUE
+
+/obj/item/modular_computer/pda/MouseDrop(mob/over, src_location, over_location)
+	var/mob/M = usr
+	if((M == over) && usr.canUseTopic(src, BE_CLOSE, FALSE, NO_TK, check_resting = FALSE))
+		return attack_self(M)
+	return ..()
+
+/obj/item/modular_computer/pda/attack_self_tk(mob/user)
+	to_chat(user, "<span class='warning'>Сенсорный экран PDA не реагирует на телекинез!</span>")
+	return
+
+/obj/item/modular_computer/pda/verb/verb_toggle_light()
+	set category = "Object"
+	set name = "Toggle Flashlight"
+	set src in usr
+	toggle_light()
+
+/obj/item/modular_computer/pda/verb/verb_remove_id()
+	set category = "Object"
+	set name = "Eject ID"
+	set src in usr
+	if(stored_id)
+		var/obj/item/card/id/removed = RemoveID()
+		if(removed)
+			usr.put_in_hands(removed)
+			to_chat(usr, "<span class='notice'>Вы извлекли ID-карту из [name].</span>")
+	else
+		to_chat(usr, "<span class='warning'>Этот PDA не имеет ID-карты в себе!</span>")
+
+/obj/item/modular_computer/pda/verb/verb_remove_pen()
+	set category = "Object"
+	set name = "Remove Pen"
+	set src in usr
+	remove_pen()
 
 // PDAs don't use hardware battery components — they always have power.
 /obj/item/modular_computer/pda/check_power_override()
@@ -132,6 +249,9 @@
 		var/mob/living/carbon/human/human_wearer = loc
 		if(human_wearer.wear_id == src)
 			human_wearer.sec_hud_set_ID()
+	else if(istype(loc, /obj/item/storage/wallet))
+		var/obj/item/storage/wallet/W = loc
+		W.refreshID()
 	return removed
 
 /obj/item/modular_computer/pda/InsertID(obj/item/inserting_item)
@@ -149,12 +269,17 @@
 		var/mob/living/carbon/human/human_wearer = loc
 		if(human_wearer.wear_id == src)
 			human_wearer.sec_hud_set_ID()
+	else if(istype(loc, /obj/item/storage/wallet))
+		var/obj/item/storage/wallet/W = loc
+		W.refreshID()
 	return TRUE
 
 /obj/item/modular_computer/pda/Destroy()
 	GLOB.PDAs -= src
 	if(istype(inserted_item))
 		QDEL_NULL(inserted_item)
+	if(istype(inserted_pai))
+		QDEL_NULL(inserted_pai)
 	return ..()
 
 /// Legacy compat: update_label syncs owner/ownjob and updates device name.
@@ -183,10 +308,97 @@
 /obj/item/modular_computer/pda/proc/create_message(mob/living/user, obj/item/modular_computer/pda/target)
 	send_message(user, list(target))
 
+/// Legacy compat: send_to_all wraps send_message for mass messaging.
+/obj/item/modular_computer/pda/proc/send_to_all(mob/living/U)
+	if(last_everyone && world.time < last_everyone + 2 MINUTES)
+		to_chat(U, "<span class='warning'>Функция \"Отправить Всем\" всё ещё перезаряжается.")
+		return
+	send_message(U, get_viewable_pdas(), TRUE)
+
+/// Legacy compat: toggle_blocking toggles a PDA owner in the blocked list.
+/obj/item/modular_computer/pda/proc/toggle_blocking(mob/user, target)
+	if(target in blocked_pdas)
+		unblock_pda(user, target)
+	else
+		block_pda(user, target)
+
+/// Legacy compat: block_pda adds an owner to the blocked list.
+/obj/item/modular_computer/pda/proc/block_pda(mob/user, target)
+	to_chat(user, "<span class='notice'>Сообщения [target] заблокированы.</span>")
+	LAZYOR(blocked_pdas, target)
+
+/// Legacy compat: unblock_pda removes an owner from the blocked list.
+/obj/item/modular_computer/pda/proc/unblock_pda(mob/user, target)
+	to_chat(user, "<span class='notice'>Сообщения [target] разблокированы.</span>")
+	LAZYREMOVE(blocked_pdas, target)
+
 /// Legacy compat wrapper for the LED flashlight toggle.
 /obj/item/modular_computer/pda/proc/toggle_light(mob/user)
+	if(fon)
+		fon = FALSE
+		set_light(0)
+	else if(f_lum)
+		fon = TRUE
+		set_light(f_lum, f_pow, f_col)
 	toggle_flashlight()
 	update_icon()
+
+/obj/item/modular_computer/pda/attack(mob/living/carbon/C, mob/living/user)
+	return ..()
+
+/obj/item/modular_computer/pda/afterattack(atom/target, mob/user, proximity)
+	. = ..()
+	if(!proximity)
+		return
+	if(istype(target, /obj/item/paper) && owner)
+		var/obj/item/paper/PP = target
+		if(!PP.default_raw_text)
+			to_chat(user, "<span class='warning'>Невозможно просканировать! Лист пуст.</span>")
+			return
+		notehtml = PP.default_raw_text
+		note = replacetext(notehtml, "<BR>", "\[br\]")
+		note = replacetext(note, "<li>", "\[*\]")
+		note = replacetext(note, "<ul>", "\[list\]")
+		note = replacetext(note, "</ul>", "\[/list\]")
+		note = html_encode(note)
+		notescanned = TRUE
+		to_chat(user, "<span class='notice'>Лист отсканирован. Сохранено в блокнот PDA.</span>")
+
+/// Returns the sound file for a given ringtone name.
+/obj/item/modular_computer/pda/proc/get_ringtone_sound(ringtone)
+	switch(ringtone)
+		if("Beep")
+			return 'sound/machines/twobeep.ogg'
+		if("Boom")
+			return 'sound/effects/explosion1.ogg'
+		if("Honk")
+			return 'sound/items/bikehorn.ogg'
+		if("SKREE")
+			return 'sound/voice/shriek1.ogg'
+		if("Xeno")
+			return 'sound/voice/hiss2.ogg'
+		if("Clown")
+			return 'sound/items/AirHorn2.ogg'
+		if("Bzzt")
+			return 'sound/machines/buzz-sigh.ogg'
+		if("Ding")
+			return 'sound/machines/ding.ogg'
+		if("Chirp")
+			return 'sound/machines/chime.ogg'
+		if("Pew")
+			return 'sound/weapons/laser.ogg'
+		if("Boop")
+			return 'sound/machines/terminal_select.ogg'
+		if("Ping")
+			return 'sound/machines/ping.ogg'
+		if("Synth")
+			return 'sound/misc/interference.ogg'
+		if("Stalker")
+			return 'sound/items/PDA/stalk1.ogg'
+		if("NewQuest")
+			return 'sound/items/PDA/stalk2.ogg'
+		else
+			return 'sound/machines/twobeep.ogg'
 
 /obj/item/modular_computer/pda/install_default_programs()
 	var/list/apps_to_download = list()
@@ -247,16 +459,79 @@
 /obj/item/modular_computer/pda/add_context(atom/source, list/context, obj/item/held_item, mob/user)
 	. = ..()
 
+	if(held_item)
+		if(istype(held_item, /obj/item/paicard) && !inserted_pai)
+			context[SCREENTIP_CONTEXT_LMB] = "Insert pAI"
+			. = CONTEXTUAL_SCREENTIP_SET
+		else if(istype(held_item, /obj/item/card/id) && !stored_id)
+			context[SCREENTIP_CONTEXT_LMB] = "Insert ID"
+			. = CONTEXTUAL_SCREENTIP_SET
+		else if(istype(held_item, /obj/item/photo))
+			context[SCREENTIP_CONTEXT_LMB] = "Scan photo"
+			. = CONTEXTUAL_SCREENTIP_SET
+		else if(is_type_in_list(held_item, contained_item) && !inserted_item)
+			context[SCREENTIP_CONTEXT_LMB] = "Insert [held_item]"
+			. = CONTEXTUAL_SCREENTIP_SET
+
+	if(stored_id)
+		context[SCREENTIP_CONTEXT_ALT_LMB] = "Remove ID"
+		. = CONTEXTUAL_SCREENTIP_SET
+	else if(inserted_item)
+		context[SCREENTIP_CONTEXT_ALT_LMB] = "Remove [inserted_item]"
+		. = CONTEXTUAL_SCREENTIP_SET
+
 	if(inserted_item)
 		context[SCREENTIP_CONTEXT_CTRL_LMB] = "Remove [inserted_item]"
-		. = CONTEXTUAL_SCREENTIP_SET
-	else if(istype(held_item) && is_type_in_list(held_item, contained_item))
-		context[SCREENTIP_CONTEXT_LMB] = "Insert [held_item]"
 		. = CONTEXTUAL_SCREENTIP_SET
 
 	return . || NONE
 
 /obj/item/modular_computer/pda/attackby(obj/item/tool, mob/user, params)
+	if(istype(tool, /obj/item/paicard) && !inserted_pai)
+		if(!user.transferItemToLoc(tool, src))
+			return
+		inserted_pai = tool
+		to_chat(user, "<span class='notice'>Вы установили [tool] в [src].</span>")
+		update_appearance()
+		playsound(src, 'sound/machines/pda_button/pda_button1.ogg', 50, TRUE)
+		return
+
+	if(istype(tool, /obj/item/card/id))
+		var/obj/item/card/id/idcard = tool
+		if(!idcard.registered_name)
+			to_chat(user, "<span class='warning'>[src] отвергает ID-карту!</span>")
+			playsound(src, 'sound/machines/terminal_error.ogg', 15, TRUE)
+			return
+		if(!owner)
+			owner = idcard.registered_name
+			ownjob = idcard.get_assignment_name()
+			update_label()
+			to_chat(user, "<span class='notice'>Карта отсканирована.</span>")
+			playsound(src, 'sound/machines/terminal_success.ogg', 15, TRUE)
+			return
+		else if(user.canUseTopic(src, BE_CLOSE))
+			if(!InsertID(tool))
+				return
+			to_chat(user, "<span class='notice'>Вы вставили ID-карту в слот [src].</span>")
+			playsound(src, 'sound/machines/pda_button/pda_button1.ogg', 50, TRUE)
+		return
+
+	if(istype(tool, /obj/item/stack/metadollar))
+		var/obj/item/stack/metadollar/M = tool
+		if(M.deposit_to_lobby_prefs(user, src))
+			playsound(src, 'sound/machines/terminal_success.ogg', 15, TRUE)
+		return
+
+	if(stored_id && (istype(tool, /obj/item/holochip) || istype(tool, /obj/item/stack/spacecash) || istype(tool, /obj/item/coin)))
+		stored_id.insert_money(tool, user)
+		return
+
+	if(istype(tool, /obj/item/photo))
+		var/obj/item/photo/P = tool
+		picture = P.picture
+		to_chat(user, "<span class='notice'>Вы просканировали [tool].</span>")
+		return
+
 	if(is_type_in_list(tool, contained_item))
 		if(tool.w_class >= WEIGHT_CLASS_SMALL)
 			to_chat(user, span_warning("[tool] is too big to fit in [src]!"))
@@ -526,6 +801,12 @@
 		return
 	var/obj/item/modular_computer/pda/selected = plist[c]
 
+	if(aicamera.stored.len)
+		var/add_photo = input(user, "Хотите приложить фото?", "Фотография", "Нет") as null|anything in list("Да", "Нет")
+		if(add_photo == "Да")
+			var/datum/picture/Pic = aicamera.selectpicture(user)
+			aiPDA.picture = Pic
+
 	var/message = tgui_input_text(user, "Введите сообщение", "PDA сообщение", max_length = 1024, encode = FALSE)
 	if(!message)
 		return
@@ -594,6 +875,12 @@
 	if(!c)
 		return
 	var/obj/item/modular_computer/pda/selected = plist[c]
+
+	if(aicamera.stored.len)
+		var/add_photo = input(user, "Хотите приложить фото?", "Фотография", "Нет") as null|anything in list("Да", "Нет")
+		if(add_photo == "Да")
+			var/datum/picture/Pic = aicamera.selectpicture(user)
+			aiPDA.picture = Pic
 
 	var/message = tgui_input_text(user, "Введите сообщение", "PDA сообщение", max_length = 1024, encode = FALSE)
 	if(!message)
