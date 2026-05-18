@@ -101,6 +101,12 @@
 	id = stored_id
 	GLOB.PDAs += src
 
+/obj/item/modular_computer/pda/equipped(mob/user, slot)
+	. = ..()
+	if(!user.client)
+		return
+	update_style(user.client)
+
 // PDAs don't use hardware battery components — they always have power.
 /obj/item/modular_computer/pda/check_power_override()
 	return TRUE
@@ -328,7 +334,7 @@
 	qdel(src)
 
 /**
- * Applies the client's ringtone prefs to the tablet's messenger app.
+ * Applies the client's ringtone and skin prefs to the PDA.
  */
 /obj/item/modular_computer/pda/proc/update_pda_prefs(client/owner_client)
 	if(!owner_client)
@@ -337,6 +343,13 @@
 	var/new_ringtone = owner_client.prefs?.pda_ringtone
 	if(new_ringtone && (new_ringtone != MESSENGER_RINGTONE_DEFAULT))
 		update_ringtone(new_ringtone)
+
+	var/new_skin = owner_client.prefs?.pda_skin
+	if(new_skin)
+		var/list/skin_data = GLOB.pda_reskins[new_skin]
+		if(skin_data && skin_data["icon"])
+			icon = skin_data["icon"]
+			update_appearance()
 
 /// Sets the ringtone on the messenger program.
 /obj/item/modular_computer/pda/proc/update_ringtone(new_ringtone)
