@@ -461,6 +461,7 @@
 			var/datum/bank_account/D = SSeconomy.get_dep_account(ACCOUNT_CAR)
 			if(D)
 				D.adjust_money(points_awarded)
+	say("Задача решена верно! Начислено [points_awarded] очков.")
 	playsound(src, 'sound/machines/chime.ogg', 30, 1)
 
 // Subtypes
