@@ -96,6 +96,10 @@
 	data["has_light"] = has_light
 	data["light_on"] = light_on
 	data["comp_light_color"] = comp_light_color
+
+	if(istype(inserted_disk, /obj/item/cartridge))
+		data["cartridge_name"] = inserted_disk.name
+		data["has_cartridge"] = TRUE
 	return data
 
 
@@ -173,6 +177,16 @@
 				active_program = P
 				P.alert_pending = FALSE
 				update_appearance()
+			return TRUE
+
+		if("PDA_ejectDisk")
+			var/obj/item/ejected_disk = inserted_disk
+			if(!ejected_disk)
+				return FALSE
+			inserted_disk = null
+			usr.put_in_hands(ejected_disk)
+			to_chat(usr, span_notice("Вы извлекли [ejected_disk] из [src]."))
+			playsound(src, 'sound/machines/terminal_eject_disc.ogg', 50, TRUE)
 			return TRUE
 
 		if("PC_toggle_light")

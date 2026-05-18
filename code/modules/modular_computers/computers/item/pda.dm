@@ -18,7 +18,7 @@
 	overlays_icon = 'icons/obj/devices/modular_pda.dmi'
 
 	icon_state_menu = "menu"
-	max_capacity = 64
+	max_capacity = 32
 	hardware_flag = PROGRAM_PDA
 	max_idle_programs = 2
 	w_class = WEIGHT_CLASS_SMALL
@@ -32,6 +32,8 @@
 
 	///The item currently inserted into the PDA, starts with a pen.
 	var/obj/item/inserted_item = /obj/item/pen
+	///Internal battery cell.
+	var/obj/item/stock_parts/cell/cell
 
 	///Whether the PDA should have 'pda_programs' apps installed on Initialize.
 	var/has_pda_programs = TRUE
@@ -130,6 +132,10 @@
 	. = ..()
 	if(inserted_item)
 		inserted_item = new inserted_item(src)
+	if(cell)
+		cell = new cell(src)
+	else
+		cell = new /obj/item/stock_parts/cell/high(src)
 	// Sync legacy aliases
 	owner = saved_identification
 	ownjob = saved_job
@@ -232,9 +238,8 @@
 	set src in usr
 	remove_pen()
 
-// PDAs don't use hardware battery components — they always have power.
 /obj/item/modular_computer/pda/check_power_override()
-	return TRUE
+	return cell?.charge > 0
 
 // PDAs store the ID directly instead of using card_slot hardware.
 /obj/item/modular_computer/pda/GetAccess()
@@ -290,6 +295,8 @@
 		QDEL_NULL(inserted_pai)
 	if(istype(inserted_disk))
 		QDEL_NULL(inserted_disk)
+	if(istype(cell))
+		QDEL_NULL(cell)
 	return ..()
 
 /// Legacy compat: update_label syncs owner/ownjob and updates device name.

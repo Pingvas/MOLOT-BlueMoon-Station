@@ -297,8 +297,8 @@
 	data["selected_photo_path"] = null
 	data["on_spam_cooldown"] = !can_send_everyone_message()
 
-	var/obj/item/cartridge/virus/disk = computer.inserted_disk
-	if(istype(disk))
+	var/obj/item/disk = computer.inserted_disk
+	if(istype(disk, /obj/item/cartridge/virus))
 		data["virus_attach"] = TRUE
 		data["sending_virus"] = sending_virus
 	return data

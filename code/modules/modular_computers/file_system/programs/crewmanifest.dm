@@ -5,7 +5,7 @@
 	program_icon_state = "id"
 	extended_desc = "Program for viewing and printing the current crew manifest"
 	//transfer_access = ACCESS_HEADS // BLUEMOON EDIT commented
-	requires_ntnet = TRUE
+	requires_ntnet = FALSE
 	size = 4
 	tgui_id = "NtosCrewManifest"
 	program_icon = "clipboard-list"

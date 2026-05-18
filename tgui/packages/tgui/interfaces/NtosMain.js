@@ -13,6 +13,8 @@ export const NtosMain = (props, context) => {
     removable_media = [],
     cardholder,
     login = [],
+    has_cartridge,
+    cartridge_name,
   } = data;
   return (
     <NtosWindow
@@ -59,6 +61,15 @@ export const NtosMain = (props, context) => {
                 Assignment: {login.IDJob}
               </Table.Row>
             </Table>
+          </Section>
+        )}
+        {!!has_cartridge && (
+          <Section title="Cartridge">
+            <Button
+              icon="eject"
+              content={`Eject ${cartridge_name}`}
+              onClick={() => act('PDA_ejectDisk')}
+            />
           </Section>
         )}
         {!!removable_media.length && (

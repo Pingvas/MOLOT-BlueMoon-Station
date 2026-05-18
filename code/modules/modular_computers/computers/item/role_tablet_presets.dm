@@ -10,7 +10,8 @@
 // =====================
 
 /obj/item/modular_computer/pda/heads
-	max_capacity = 128 // double capacity for heads
+	max_capacity = 64
+	cell = /obj/item/stock_parts/cell/super
 	var/static/list/datum/computer_file/head_programs = list(
 		/datum/computer_file/program/crew_manifest,
 		/datum/computer_file/program/robocontrol,
