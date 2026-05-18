@@ -510,13 +510,10 @@
 
 	signal.send_to_receivers()
 
-	// If it didn't reach
+	// If it didn't reach (no telecomms), deliver directly
 	if(!signal.data["done"])
-		if(sender)
-			to_chat(sender, span_notice("ERROR: Server is not responding."))
-		if(alert_able && !alert_silenced)
-			playsound(computer, 'sound/machines/terminal_error.ogg', 15, TRUE)
-		return FALSE
+		signal.broadcast()
+		signal.data["done"] = TRUE
 
 	var/shell_addendum = ""
 
