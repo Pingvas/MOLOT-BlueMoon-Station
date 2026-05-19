@@ -1,5 +1,5 @@
 import { useBackend } from '../backend';
-import { Button, ColorBox, Section, Table } from '../components';
+import { Button, ColorBox, Section, Stack, Table } from '../components';
 import { NtosWindow } from '../layouts';
 
 export const NtosMain = (props, context) => {
@@ -15,7 +15,38 @@ export const NtosMain = (props, context) => {
     login = [],
     has_cartridge,
     cartridge_name,
+    battery_percent,
+    pda_color,
   } = data;
+
+  const batteryBars = (percent) => {
+    if (percent === null || percent === undefined) {
+      return null;
+    }
+    const bars = [];
+    const fillLevel = Math.round(percent / 20);
+    for (let i = 1; i <= 5; i++) {
+      const filled = i <= fillLevel;
+      const h = 8 + i * 3;
+      bars.push(<div key={i} style={{
+        width: '14px',
+        height: h + 'px',
+        marginLeft: '2px',
+        backgroundColor: filled
+          ? percent > 20 ? '#4caf50' : '#f44336'
+          : 'rgba(255,255,255,0.15)',
+        borderRadius: '1px',
+        display: 'inline-block',
+        verticalAlign: 'bottom',
+      }} />);
+    }
+    return (
+      <div style={{ display: 'inline-flex', alignItems: 'flex-end', height: '22px' }}>
+        {bars}
+      </div>
+    );
+  };
+
   return (
     <NtosWindow
       title={device_theme === 'syndicate'
@@ -25,6 +56,23 @@ export const NtosMain = (props, context) => {
       width={400}
       height={500}>
       <NtosWindow.Content overflow="auto">
+        {pda_color && (
+          <div style={{
+            height: '3px',
+            backgroundColor: pda_color,
+            marginBottom: '4px',
+            borderRadius: '0 0 2px 2px',
+          }} />
+        )}
+        {battery_percent !== null && battery_percent !== undefined && (
+          <div style={{
+            textAlign: 'right',
+            padding: '4px 8px 0 0',
+            opacity: 0.8,
+          }}>
+            {batteryBars(battery_percent)}
+          </div>
+        )}
         {!!has_light && (
           <Section>
             <Button

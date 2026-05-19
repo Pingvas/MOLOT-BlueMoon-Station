@@ -96,6 +96,8 @@
 	data["has_light"] = has_light
 	data["light_on"] = light_on
 	data["comp_light_color"] = comp_light_color
+	data["pda_color"] = pda_color
+	data["battery_percent"] = get_battery_percent()
 
 	if(istype(inserted_disk, /obj/item/cartridge))
 		data["cartridge_name"] = inserted_disk.name

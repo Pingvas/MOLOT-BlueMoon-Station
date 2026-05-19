@@ -7,7 +7,7 @@
 	ui_header = "borg_mon.gif"
 	program_icon_state = "generic"
 	extended_desc = "This program allows access to standard security camera networks."
-	requires_ntnet = TRUE
+	requires_ntnet = FALSE
 	transfer_access = ACCESS_SECURITY
 	usage_flags = PROGRAM_CONSOLE | PROGRAM_LAPTOP
 	size = 5

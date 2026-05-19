@@ -20,9 +20,14 @@
 
 /obj/item/modular_computer/pda/heads/Initialize(mapload)
 	. = ..()
+	var/obj/item/computer_hardware/hard_drive/hdd = all_components[MC_HDD]
 	for(var/programs in head_programs)
 		var/datum/computer_file/program/program_type = new programs
-		store_file(program_type)
+		program_type.computer = src
+		if(hdd)
+			hdd.store_file(program_type)
+		else
+			store_file(program_type)
 
 /obj/item/modular_computer/pda/heads/captain
 	name = "captain PDA"
@@ -32,7 +37,7 @@
 /obj/item/modular_computer/pda/heads/captain/Initialize(mapload)
 	. = ..()
 	RegisterSignal(src, COMSIG_TABLET_CHECK_DETONATE, PROC_REF(tab_no_detonate))
-	for(var/datum/computer_file/program/messenger/messenger_app in stored_files)
+	for(var/datum/computer_file/program/messenger/messenger_app in get_all_files())
 		messenger_app.spam_mode = TRUE
 
 /obj/item/modular_computer/pda/heads/captain/proc/tab_no_detonate()
@@ -241,7 +246,7 @@
 
 /obj/item/modular_computer/pda/lawyer/Initialize(mapload)
 	. = ..()
-	for(var/datum/computer_file/program/messenger/messenger_app in stored_files)
+	for(var/datum/computer_file/program/messenger/messenger_app in get_all_files())
 		messenger_app.spam_mode = TRUE
 
 /obj/item/modular_computer/pda/botanist
@@ -303,7 +308,7 @@
 
 /obj/item/modular_computer/pda/mime/Initialize(mapload)
 	. = ..()
-	for(var/datum/computer_file/program/messenger/msg in stored_files)
+	for(var/datum/computer_file/program/messenger/msg in get_all_files())
 		msg.mime_mode = TRUE
 		msg.alert_silenced = TRUE
 
@@ -324,6 +329,7 @@
 
 /obj/item/modular_computer/pda/assistant
 	name = "assistant PDA"
+	max_capacity = 32
 
 /obj/item/modular_computer/pda/lieutenant
 	name = "nanotrasen representative PDA"
@@ -338,7 +344,7 @@
 
 /obj/item/modular_computer/pda/syndicate/Initialize(mapload)
 	. = ..()
-	var/datum/computer_file/program/messenger/msg = locate() in stored_files
+	var/datum/computer_file/program/messenger/msg = locate() in get_all_files()
 	if(msg)
 		msg.invisible = TRUE
 

@@ -90,6 +90,8 @@
 	var/stored_paper = 10
 	/// Remaining honk virus ticks
 	var/honkvirus_amount = 0
+	/// User's preferred PDA color (from preferences), passed to TGUI
+	var/pda_color
 
 
 /obj/item/modular_computer/Initialize(mapload)
@@ -243,7 +245,10 @@
 	. += get_modular_computer_parts_examine(user)
 
 /obj/item/modular_computer/update_icon_state()
-	icon_state = enabled ? icon_state_powered : icon_state_unpowered
+	if(enabled && icon_state_powered)
+		icon_state = icon_state_powered
+	else if(!enabled && icon_state_unpowered)
+		icon_state = icon_state_unpowered
 	return ..()
 
 /obj/item/modular_computer/update_overlays()
@@ -279,7 +284,7 @@
 	if(recharger)
 		recharger.enabled = 1
 
-	if((all_components[MC_CPU] || length(stored_files)) && use_power()) // use_power() checks if the PC is powered. PDAs with stored_files don't need a CPU.
+	if((all_components[MC_CPU] || all_components[MC_HDD] || length(stored_files)) && use_power()) // use_power() checks if the PC is powered. PDAs with HDD/stored_files don't need a CPU.
 		if(issynth)
 			to_chat(user, span_notice("You send an activation signal to \the [src], turning it on."))
 		else
@@ -364,26 +369,17 @@
 	var/obj/item/computer_hardware/battery/battery_module = all_components[MC_CELL]
 	var/obj/item/computer_hardware/recharger/recharger = all_components[MC_CHARGE]
 
-	if(battery_module && battery_module.battery)
-		switch(battery_module.battery.percent())
-			if(80 to 200) // 100 should be maximal but just in case..
-				data["PC_batteryicon"] = "batt_100.gif"
-			if(60 to 80)
-				data["PC_batteryicon"] = "batt_80.gif"
-			if(40 to 60)
-				data["PC_batteryicon"] = "batt_60.gif"
-			if(20 to 40)
-				data["PC_batteryicon"] = "batt_40.gif"
-			if(5 to 20)
-				data["PC_batteryicon"] = "batt_20.gif"
-			else
-				data["PC_batteryicon"] = "batt_5.gif"
-		data["PC_batterypercent"] = "[round(battery_module.battery.percent())]%"
+	var/battery_percent = get_battery_percent()
+	if(!isnull(battery_percent))
+		data["PC_batterypercent"] = "[round(battery_percent)]%"
+		data["PC_showbatteryicon"] = 1
+		data["PC_batteryicon"] = "batt_100.gif" // Legacy, replaced by TGUI bars
+	else if(battery_module)
+		data["PC_batterypercent"] = "N/C"
 		data["PC_showbatteryicon"] = 1
 	else
-		data["PC_batteryicon"] = "batt_5.gif"
 		data["PC_batterypercent"] = "N/C"
-		data["PC_showbatteryicon"] = battery_module ? 1 : 0
+		data["PC_showbatteryicon"] = 0
 
 	if(recharger && recharger.enabled && recharger.check_functionality() && recharger.use_power(0))
 		data["PC_apclinkicon"] = "charging.gif"
@@ -590,13 +586,13 @@
 /obj/item/modular_computer/proc/install_default_programs()
 	return
 
-/// Returns the list of all program files on this computer (checks both direct storage and hard_drive).
+/// Returns the list of all program files on this computer (checks hard_drive first, then direct storage).
 /obj/item/modular_computer/proc/get_all_files()
-	if(length(stored_files))
-		return stored_files
 	var/obj/item/computer_hardware/hard_drive/hard_drive = all_components[MC_HDD]
 	if(hard_drive)
 		return hard_drive.stored_files
+	if(length(stored_files))
+		return stored_files
 	return list()
 
 /// Finds a file by name across all storage.
@@ -634,6 +630,13 @@
 		SEND_SIGNAL(src, COMSIG_MODULAR_PDA_IMPRINT_UPDATED, new_name, new_job)
 	else
 		SEND_SIGNAL(src, COMSIG_MODULAR_PDA_IMPRINT_RESET)
+
+/// Returns battery charge percentage (0-100), or null if no battery.
+/obj/item/modular_computer/proc/get_battery_percent()
+	var/obj/item/computer_hardware/battery/battery_module = all_components[MC_CELL]
+	if(battery_module?.battery)
+		return battery_module.battery.percent()
+	return null
 
 // Used by processor to relay qdel() to machinery type.
 /obj/item/modular_computer/proc/relay_qdel()

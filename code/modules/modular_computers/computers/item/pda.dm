@@ -18,9 +18,10 @@
 	overlays_icon = 'icons/obj/devices/modular_pda.dmi'
 
 	icon_state_menu = "menu"
-	max_capacity = 32
 	hardware_flag = PROGRAM_PDA
 	max_idle_programs = 2
+	/// HDD capacity for this PDA type (32 for assistant, 64 for others)
+	var/hdd_capacity = 64
 	w_class = WEIGHT_CLASS_SMALL
 	slot_flags = ITEM_SLOT_ID | ITEM_SLOT_BELT
 	actions_types = list(/datum/action/item_action/toggle_light/pda)
@@ -129,6 +130,10 @@
 	return t
 
 /obj/item/modular_computer/pda/Initialize(mapload)
+	// Create HDD before parent init so install_default_programs can use it
+	var/obj/item/computer_hardware/hard_drive/hdd = new(src)
+	hdd.max_capacity = hdd_capacity
+	install_component(hdd)
 	. = ..()
 	if(inserted_item)
 		inserted_item = new inserted_item(src)
@@ -240,6 +245,14 @@
 
 /obj/item/modular_computer/pda/check_power_override()
 	return cell?.charge > 0
+
+/obj/item/modular_computer/pda/get_battery_percent()
+	if(cell)
+		return cell.percent()
+	return null
+
+/obj/item/modular_computer/pda/get_cell()
+	return cell
 
 // PDAs store the ID directly instead of using card_slot hardware.
 /obj/item/modular_computer/pda/GetAccess()
@@ -423,9 +436,14 @@
 		apps_to_download += default_programs + pda_programs
 	apps_to_download += starting_programs
 
+	var/obj/item/computer_hardware/hard_drive/hdd = all_components[MC_HDD]
 	for(var/programs in apps_to_download)
 		var/datum/computer_file/program/program_type = new programs
-		store_file(program_type)
+		program_type.computer = src
+		if(hdd)
+			hdd.store_file(program_type)
+		else
+			store_file(program_type)
 
 /obj/item/modular_computer/pda/update_overlays()
 	. = ..()
@@ -589,7 +607,7 @@
 ///Finds how hard it is to send a virus to this tablet, checking all programs downloaded.
 /obj/item/modular_computer/pda/proc/get_detomatix_difficulty()
 	var/detomatix_difficulty
-	for(var/datum/computer_file/program/downloaded_apps in stored_files)
+	for(var/datum/computer_file/program/downloaded_apps in get_all_files())
 		detomatix_difficulty += downloaded_apps.detomatix_resistance
 	return detomatix_difficulty
 
@@ -660,11 +678,17 @@
 			icon = skin_data["icon"]
 			update_appearance()
 
+	var/new_color = owner_client.prefs?.pda_color
+	if(new_color)
+		pda_color = new_color
+
 /// Sets the ringtone on the messenger program.
 /obj/item/modular_computer/pda/proc/update_ringtone(new_ringtone)
 	if(!istext(new_ringtone))
 		return
-	var/datum/computer_file/program/messenger/messenger_app = locate() in stored_files
+	var/obj/item/computer_hardware/hard_drive/hdd = all_components[MC_HDD]
+	var/list/search_files = hdd ? hdd.stored_files : stored_files
+	var/datum/computer_file/program/messenger/messenger_app = locate() in search_files
 	if(messenger_app)
 		messenger_app.ringtone = new_ringtone
 
@@ -684,7 +708,7 @@
 
 /obj/item/modular_computer/pda/nukeops/Initialize(mapload)
 	. = ..()
-	var/datum/computer_file/program/messenger/msg = locate() in stored_files
+	var/datum/computer_file/program/messenger/msg = locate() in get_all_files()
 	if(msg)
 		msg.invisible = TRUE
 
@@ -848,8 +872,8 @@
 	if(incapacitated())
 		return
 
-	var/datum/computer_file/program/messenger/ai_messenger = locate() in aiPDA.stored_files
-	var/datum/computer_file/program/messenger/target_messenger = locate() in selected.stored_files
+	var/datum/computer_file/program/messenger/ai_messenger = locate() in aiPDA.get_all_files()
+	var/datum/computer_file/program/messenger/target_messenger = locate() in selected.get_all_files()
 	if(!ai_messenger || !target_messenger)
 		to_chat(user, span_notice("Мессенджер недоступен."))
 		return
@@ -882,7 +906,7 @@
 	if(incapacitated())
 		return
 	if(!isnull(aiPDA))
-		var/datum/computer_file/program/messenger/ai_messenger = locate() in aiPDA.stored_files
+		var/datum/computer_file/program/messenger/ai_messenger = locate() in aiPDA.get_all_files()
 		if(!ai_messenger)
 			to_chat(user, span_notice("Мессенджер недоступен."))
 			return
@@ -923,8 +947,8 @@
 	if(incapacitated())
 		return
 
-	var/datum/computer_file/program/messenger/borg_messenger = locate() in aiPDA.stored_files
-	var/datum/computer_file/program/messenger/target_messenger = locate() in selected.stored_files
+	var/datum/computer_file/program/messenger/borg_messenger = locate() in aiPDA.get_all_files()
+	var/datum/computer_file/program/messenger/target_messenger = locate() in selected.get_all_files()
 	if(!borg_messenger || !target_messenger)
 		to_chat(user, span_notice("Мессенджер недоступен."))
 		return
@@ -935,7 +959,7 @@
 	if(incapacitated())
 		return
 	if(!isnull(aiPDA))
-		var/datum/computer_file/program/messenger/borg_messenger = locate() in aiPDA.stored_files
+		var/datum/computer_file/program/messenger/borg_messenger = locate() in aiPDA.get_all_files()
 		if(!borg_messenger)
 			to_chat(user, span_notice("Мессенджер недоступен."))
 			return

@@ -6,7 +6,7 @@
 	unsendable = TRUE
 	undeletable = TRUE
 	size = 4
-	requires_ntnet = TRUE
+	requires_ntnet = FALSE
 	requires_ntnet_feature = NTNET_SOFTWAREDOWNLOAD
 	available_on_ntnet = FALSE
 	ui_header = "downloader_finished.gif"
@@ -109,6 +109,8 @@
 			download_netspeed = NTNETSPEED_HIGHSIGNAL
 		if(3)
 			download_netspeed = NTNETSPEED_ETHERNET
+		else
+			download_netspeed = NTNETSPEED_HIGHSIGNAL
 	download_completion += download_netspeed
 
 /datum/computer_file/program/ntnetdownload/ui_act(action, params)
@@ -151,8 +153,14 @@
 		data["downloadcompletion"] = round(download_completion, 0.1)
 
 	var/obj/item/computer_hardware/hard_drive/hard_drive = my_computer.all_components[MC_HDD]
-	data["disk_size"] = hard_drive.max_capacity
-	data["disk_used"] = hard_drive.used_capacity
+	if(hard_drive)
+		data["disk_size"] = hard_drive.max_capacity
+		data["disk_used"] = hard_drive.used_capacity
+	else
+		data["disk_size"] = my_computer.max_capacity
+		data["disk_used"] = 0
+		for(var/datum/computer_file/F in my_computer.stored_files)
+			data["disk_used"] += F.size
 	data["emagged"] = emagged
 
 	var/list/repo = antag_repo | main_repo
@@ -162,13 +170,18 @@
 		var/datum/computer_file/program/P = I
 		if(!(P.category in program_categories))
 			program_categories.Add(P.category)
+		var/installed = FALSE
+		if(hard_drive)
+			installed = !!hard_drive.find_file_by_name(P.filename)
+		else
+			installed = !!my_computer.find_file_by_name(P.filename)
 		data["programs"] += list(list(
 			"icon" = P.program_icon,
 			"filename" = P.filename,
 			"filedesc" = P.filedesc,
 			"fileinfo" = P.extended_desc,
 			"category" = P.category,
-			"installed" = !!hard_drive.find_file_by_name(P.filename),
+			"installed" = installed,
 			"compatible" = check_compatibility(P),
 			"size" = P.size,
 			"access" = emagged && P.available_on_syndinet ? TRUE : P.can_run(user,transfer = 1, access = access),
