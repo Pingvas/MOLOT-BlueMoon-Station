@@ -966,3 +966,7 @@
 		borg_messenger.ui_interact(user)
 	else
 		to_chat(user, "У вас нет PDA. Вам следует сделать донос о проблеме.")
+
+/obj/item/modular_computer/pda/hotelstaff
+	name = "hotel staff PDA"
+	inserted_item = /obj/item/pen/fountain

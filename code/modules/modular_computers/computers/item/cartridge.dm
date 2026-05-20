@@ -337,3 +337,13 @@
 	telecrystals = 0
 	hidden_uplink.locked = FALSE
 	hidden_uplink.active = TRUE
+
+/obj/item/cartridge/hotelstaff
+	name = "\improper Twin Nexus cartridge"
+	desc = "The customer is always right! Except for when they're not."
+	icon_state = "cart-bar"
+	access = CART_BARTENDER
+
+/obj/item/cartridge/cmo/Initialize(mapload)
+	access |= CART_CHEMISTRY
+	. = ..()
