@@ -96,6 +96,8 @@
 	data["has_light"] = has_light
 	data["light_on"] = light_on
 	data["comp_light_color"] = comp_light_color
+	if(isnull(pda_color) && istype(user?.client?.prefs))
+		pda_color = user.client.prefs.pda_color
 	data["pda_color"] = pda_color
 	data["battery_percent"] = get_battery_percent()
 

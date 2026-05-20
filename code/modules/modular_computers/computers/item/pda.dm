@@ -17,7 +17,7 @@
 
 	overlays_icon = 'icons/obj/devices/modular_pda.dmi'
 
-	icon_state_menu = "menu"
+	icon_state_menu = null
 	hardware_flag = PROGRAM_PDA
 	max_idle_programs = 2
 	/// HDD capacity for this PDA type (32 for assistant, 64 for others)
@@ -715,7 +715,7 @@
 /obj/item/modular_computer/pda/syndicate_contract_uplink
 	name = "contractor tablet"
 	icon_state = "pda-syndicate"
-	icon_state_menu = "menu"
+	icon_state_menu = null
 	device_theme = PDA_THEME_SYNDICATE
 	comp_light_luminosity = 6.3
 	has_pda_programs = FALSE
