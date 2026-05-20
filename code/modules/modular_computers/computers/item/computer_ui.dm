@@ -99,6 +99,7 @@
 	if(isnull(pda_color) && istype(user?.client?.prefs))
 		pda_color = user.client.prefs.pda_color
 	data["pda_color"] = pda_color
+	data["pda_style"] = user?.client?.prefs?.pda_style || "Monospaced"
 	data["battery_percent"] = get_battery_percent()
 
 	if(istype(inserted_disk, /obj/item/cartridge))
@@ -239,6 +240,16 @@
 					if(!cardholder)
 						return
 					cardholder.try_eject(user)
+		if("set_pda_color")
+			var/mob/user = usr
+			var/new_color = params["color"]
+			if(!new_color || !user?.client?.prefs)
+				return
+			user.client.prefs.pda_color = new_color
+			user.client.prefs.save_preferences()
+			pda_color = new_color
+			return TRUE
+
 		else
 			return
 

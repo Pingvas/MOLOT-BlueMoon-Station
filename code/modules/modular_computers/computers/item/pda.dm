@@ -18,6 +18,7 @@
 	overlays_icon = 'icons/obj/devices/modular_pda.dmi'
 
 	icon_state_menu = null
+	display_overlays = FALSE
 	hardware_flag = PROGRAM_PDA
 	max_hardware_size = 1
 	max_bays = 1
