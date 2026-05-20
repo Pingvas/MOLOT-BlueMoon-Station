@@ -132,6 +132,7 @@
 			return
 		var/datum/data_pda_msg/M = new(tablet_signal.format_target(), tablet_signal.format_sender(), tablet_signal.format_message())
 		pda_msgs += M
+		trim_pda_msgs()
 		tablet_signal.data["reject"] = FALSE
 		// pass along
 		if(!relay_information(tablet_signal, /obj/machinery/telecomms/hub))
@@ -147,15 +148,18 @@
 	pda_msgs += M
 	signal.logged = M
 
-	// Prevent unbounded memory growth
-	if(length(pda_msgs) > 500)
-		var/trim_count = length(pda_msgs) - 400
-		pda_msgs.Cut(1, trim_count + 1)
-		pda_msgs_trimmed += trim_count
+	trim_pda_msgs()
 
 	// pass it along to either the hub or the broadcaster
 	if(!relay_information(signal, /obj/machinery/telecomms/hub))
 		relay_information(signal, /obj/machinery/telecomms/broadcaster)
+
+/// Trims pda_msgs list to prevent unbounded memory growth
+/obj/machinery/telecomms/message_server/proc/trim_pda_msgs()
+	if(length(pda_msgs) > 500)
+		var/trim_count = length(pda_msgs) - 400
+		pda_msgs.Cut(1, trim_count + 1)
+		pda_msgs_trimmed += trim_count
 
 /obj/machinery/telecomms/message_server/update_icon_state()
 	if((machine_stat & (BROKEN|NOPOWER)))

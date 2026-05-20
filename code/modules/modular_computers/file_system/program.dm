@@ -67,6 +67,7 @@
 	temp.requires_ntnet = requires_ntnet
 	temp.requires_ntnet_feature = requires_ntnet_feature
 	temp.usage_flags = usage_flags
+	temp.detomatix_resistance = detomatix_resistance
 	return temp
 
 // Relays icon update to the computer.

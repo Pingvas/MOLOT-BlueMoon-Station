@@ -441,7 +441,7 @@ GLOBAL_LIST_INIT(pda_ringtone_list, list(
 				var/count = 0
 
 				if (!toff)
-					for (var/obj/item/pda/P in sortNames(get_viewable_pdas()))
+					for (var/obj/item/P in sortNames(get_viewable_pdas()))
 						if (P == src)
 							continue
 						if(P.owner in blocked_pdas)

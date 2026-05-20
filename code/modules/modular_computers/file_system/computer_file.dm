@@ -22,6 +22,7 @@
 	if(holder.holder && holder.holder.active_program == src)
 		holder.holder.kill_program(forced = TRUE)
 	holder = null
+	disk_host = null
 	return ..()
 
 // Returns independent copy of this file.

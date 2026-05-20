@@ -193,6 +193,10 @@
 	name = real_name
 	if(!QDELETED(builtInCamera))
 		builtInCamera.c_tag = real_name	//update the camera name too
+	if(aiPDA && !shell)
+		aiPDA.owner = real_name
+		aiPDA.name = real_name + " (" + aiPDA.ownjob + ")"
+		aiPDA.update_id_imprint(real_name, aiPDA.saved_job)
 
 /mob/living/silicon/robot/proc/get_standard_name()
 	return "[(designation ? "[designation] " : "")][mmi.braintype]-[ident]"

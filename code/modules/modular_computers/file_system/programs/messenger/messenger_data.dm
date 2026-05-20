@@ -1,11 +1,10 @@
 /// Registers an NTMessenger instance to the list of pda_messengers.
 /proc/add_messenger(datum/computer_file/program/messenger/messenger)
+	if(!istype(messenger))
+		return
 	var/obj/item/modular_computer/messenger_device = messenger.computer
 	// Don't register PDAs without names
 	if(!messenger_device?.saved_identification || !messenger_device.saved_job)
-		return
-
-	if(!istype(messenger))
 		return
 
 	var/messenger_ref = REF(messenger)

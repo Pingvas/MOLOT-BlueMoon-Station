@@ -68,7 +68,7 @@
 /datum/computer_file/program/messenger/proc/on_imprint_reset(sender)
 	SIGNAL_HANDLER
 	remove_messenger(src)
-	saved_chats = list()
+	QDEL_LIST_ASSOC_VAL(saved_chats)
 	selected_image = null
 	viewing_messages_of = null
 
@@ -81,6 +81,7 @@
 			COMSIG_MODULAR_PDA_IMPRINT_RESET,
 		))
 	remove_messenger(src)
+	QDEL_LIST_ASSOC_VAL(saved_chats)
 	return ..()
 
 /// Gets the list of available messengers
@@ -250,6 +251,9 @@
 				else if(istype(target, /datum/computer_file/program/messenger))
 					target_messenger = target
 
+				if(!istype(target_messenger?.computer))
+					to_chat(usr, span_notice("ERROR: Invalid target."))
+					return FALSE
 				return disk.send_virus(computer, target_messenger.computer, usr, params["message"])
 
 			return send_message(usr, params["message"], list(target))
