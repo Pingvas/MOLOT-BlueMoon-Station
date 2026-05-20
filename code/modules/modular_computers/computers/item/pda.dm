@@ -47,6 +47,7 @@
 		/datum/computer_file/program/messenger,
 		/datum/computer_file/program/notepad,
 		/datum/computer_file/program/crew_manifest,
+		/datum/computer_file/program/banking,
 	)
 	///List of items that can be stored in a PDA
 	var/static/list/contained_item = list(
