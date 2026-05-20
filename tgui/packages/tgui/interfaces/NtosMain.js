@@ -15,6 +15,7 @@ export const NtosMain = (props, context) => {
     has_cartridge,
     cartridge_name,
     battery_percent,
+    available_themes = [],
   } = data;
 
   return (
@@ -141,22 +142,39 @@ export const NtosMain = (props, context) => {
           </Stack.Item>
 
           {/* Bottom bar */}
-          {!!has_light && (
-            <Stack.Item>
-              <div style={{
-                borderTop: '1px solid rgba(255,255,255,0.08)',
-                padding: '8px 14px',
-              }}>
+          <Stack.Item>
+            <div style={{
+              borderTop: '1px solid rgba(255,255,255,0.08)',
+              padding: '6px 10px',
+              display: 'flex',
+              gap: '6px',
+              alignItems: 'center',
+            }}>
+              {!!has_light && (
                 <Button
                   icon="lightbulb"
                   selected={light_on}
                   color="transparent"
                   onClick={() => act('PC_toggle_light')}>
-                  Flashlight: {light_on ? 'ON' : 'OFF'}
+                  {light_on ? 'ON' : 'OFF'}
                 </Button>
-              </div>
-            </Stack.Item>
-          )}
+              )}
+              <Button
+                icon="palette"
+                color="transparent"
+                style={{ marginLeft: 'auto' }}
+                onClick={() => {
+                  const idx = available_themes.findIndex(
+                    t => t.id === device_theme);
+                  const next = available_themes[
+                    (idx + 1) % available_themes.length];
+                  act('set_theme', { theme: next.id });
+                }}>
+                Theme: {available_themes.find(
+                  t => t.id === device_theme)?.name || device_theme}
+              </Button>
+            </div>
+          </Stack.Item>
         </Stack>
       </NtosWindow.Content>
     </NtosWindow>

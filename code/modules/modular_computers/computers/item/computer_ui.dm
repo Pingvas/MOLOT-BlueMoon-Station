@@ -100,7 +100,12 @@
 		pda_color = user.client.prefs.pda_color
 	data["pda_color"] = pda_color
 	data["pda_style"] = user?.client?.prefs?.pda_style || "Monospaced"
+	if(user?.client?.prefs?.pda_theme)
+		device_theme = user.client.prefs.pda_theme
 	data["battery_percent"] = get_battery_percent()
+	data["available_themes"] = list()
+	for(var/theme_name in GLOB.pda_name_to_theme)
+		data["available_themes"] += list(list("name" = theme_name, "id" = GLOB.pda_name_to_theme[theme_name]))
 
 	if(istype(inserted_disk, /obj/item/cartridge))
 		data["cartridge_name"] = inserted_disk.name
@@ -240,6 +245,16 @@
 					if(!cardholder)
 						return
 					cardholder.try_eject(user)
+		if("set_theme")
+			var/mob/user = usr
+			var/new_theme = params["theme"]
+			if(!new_theme || !user?.client?.prefs)
+				return
+			device_theme = new_theme
+			user.client.prefs.pda_theme = new_theme
+			user.client.prefs.save_preferences()
+			return TRUE
+
 		if("set_pda_color")
 			var/mob/user = usr
 			var/new_color = params["color"]

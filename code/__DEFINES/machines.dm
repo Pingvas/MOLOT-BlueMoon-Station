@@ -108,7 +108,7 @@
 //PDA Themes
 #define PDA_THEME_NTOS "ntos"
 #define PDA_THEME_DARK_MODE "ntos_darkmode"
-#define PDA_THEME_RETRO "ntOS95"
+#define PDA_THEME_RETRO "retro"
 #define PDA_THEME_SYNTH "ntos_synth"
 #define PDA_THEME_TERMINAL "ntos_terminal"
 #define PDA_THEME_SYNDICATE "syndicate"
