@@ -208,6 +208,43 @@
 			status_signal.data["picture_state"] = data1
 	frequency.post_signal(src, status_signal)
 
+/// Returns list of program typepaths granted by this cartridge's access flags.
+/obj/item/cartridge/proc/get_programs()
+	var/list/programs = list()
+	if(access & CART_MANIFEST)
+		programs += /datum/computer_file/program/crew_manifest
+	if(access & CART_ENGINE)
+		programs += /datum/computer_file/program/power_monitor
+		programs += /datum/computer_file/program/supermatter_monitor
+	if(access & CART_ATMOS)
+		programs += /datum/computer_file/program/atmosscan
+	if(access & CART_MEDICAL)
+		programs += /datum/computer_file/program/radar/lifeline
+	if(access & CART_SECURITY)
+		programs += /datum/computer_file/program/secureye
+	if(access & CART_QUARTERMASTER)
+		programs += /datum/computer_file/program/budgetorders
+		programs += /datum/computer_file/program/shipping
+	if(access & CART_NEWSCASTER)
+		programs += /datum/computer_file/program/chatclient
+	if(access & CART_DRONEPHONE)
+		programs += /datum/computer_file/program/robocontrol
+	if(access & CART_STATUS_DISPLAY)
+		programs += /datum/computer_file/program/statusdisplay
+	if(access & CART_REAGENT_SCANNER)
+		programs += /datum/computer_file/program/reagentscanner
+	if(access & CART_REMOTE_DOOR)
+		programs += /datum/computer_file/program/remotedoor
+	if(access & CART_JANITOR)
+		programs += /datum/computer_file/program/custodiallocator
+	if(access & CART_HYDROPONICS)
+		programs += /datum/computer_file/program/hydroponics
+	if(access & CART_BARTENDER)
+		programs += /datum/computer_file/program/bartender
+	if(access & CART_CHEMISTRY)
+		programs += /datum/computer_file/program/chemisty
+	return programs
+
 // ---- Virus cartridges ----
 
 /obj/item/cartridge/virus

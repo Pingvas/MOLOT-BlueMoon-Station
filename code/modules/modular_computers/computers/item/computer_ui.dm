@@ -187,6 +187,10 @@
 			var/obj/item/ejected_disk = inserted_disk
 			if(!ejected_disk)
 				return FALSE
+			if(istype(ejected_disk, /obj/item/cartridge))
+				var/obj/item/modular_computer/pda/pda = src
+				if(istype(pda))
+					pda.uninstall_cartridge_programs()
 			inserted_disk = null
 			usr.put_in_hands(ejected_disk)
 			to_chat(usr, span_notice("Вы извлекли [ejected_disk] из [src]."))

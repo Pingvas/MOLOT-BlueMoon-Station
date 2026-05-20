@@ -19,9 +19,13 @@
 
 	icon_state_menu = null
 	hardware_flag = PROGRAM_PDA
+	max_hardware_size = 1
+	max_bays = 1
 	max_idle_programs = 2
 	/// HDD capacity for this PDA type (32 for assistant, 64 for others)
 	var/hdd_capacity = 64
+	/// Programs installed by the currently inserted cartridge (typepaths for removal on eject)
+	var/list/cartridge_programs = list()
 	w_class = WEIGHT_CLASS_SMALL
 	slot_flags = ITEM_SLOT_ID | ITEM_SLOT_BELT
 	actions_types = list(/datum/action/item_action/toggle_light/pda)
@@ -134,6 +138,9 @@
 	var/obj/item/computer_hardware/hard_drive/hdd = new(src)
 	hdd.max_capacity = hdd_capacity
 	install_component(hdd)
+	// Install network card for NTNet access
+	var/obj/item/computer_hardware/network_card/netcard = new(src)
+	install_component(netcard)
 	. = ..()
 	if(inserted_item)
 		inserted_item = new inserted_item(src)
@@ -187,6 +194,8 @@
 	if(A == inserted_item)
 		inserted_item = null
 	if(A == inserted_disk)
+		if(istype(inserted_disk, /obj/item/cartridge))
+			uninstall_cartridge_programs()
 		inserted_disk = null
 	return ..()
 
@@ -200,6 +209,8 @@
 			playsound(src, 'sound/machines/terminal_eject_disc.ogg', 50, TRUE)
 		return TRUE
 	else if(inserted_disk)
+		if(istype(inserted_disk, /obj/item/cartridge))
+			uninstall_cartridge_programs()
 		user.put_in_hands(inserted_disk)
 		to_chat(user, "<span class='notice'>Вы извлекли [inserted_disk] из [name].</span>")
 		inserted_disk = null
@@ -243,8 +254,12 @@
 	set src in usr
 	remove_pen()
 
-/obj/item/modular_computer/pda/check_power_override()
-	return cell?.charge > 0
+/obj/item/modular_computer/pda/use_power(amount = 0)
+	if(cell)
+		if(cell.use(amount * GLOB.CELLRATE))
+			return TRUE
+		cell.use(min(amount * GLOB.CELLRATE, cell.charge))
+	return FALSE
 
 /obj/item/modular_computer/pda/get_battery_percent()
 	if(cell)
@@ -582,6 +597,8 @@
 		inserted_disk = tool
 		to_chat(user, span_notice("Вы вставили [tool] в [src]."))
 		playsound(src, 'sound/machines/pda_button/pda_button1.ogg', 50, TRUE)
+		if(istype(tool, /obj/item/cartridge))
+			install_cartridge_programs(tool)
 		return
 
 	if(is_type_in_list(tool, contained_item))
@@ -681,6 +698,31 @@
 	var/new_color = owner_client.prefs?.pda_color
 	if(new_color)
 		pda_color = new_color
+
+/// Installs programs from the given cartridge into this PDA.
+/obj/item/modular_computer/pda/proc/install_cartridge_programs(obj/item/cartridge/C)
+	if(!istype(C))
+		return
+	for(var/prog_type in C.get_programs())
+		var/datum/computer_file/program/P = new prog_type
+		P.computer = src
+		store_file(P)
+		cartridge_programs += P
+
+/// Removes all programs that were installed by the current cartridge.
+/obj/item/modular_computer/pda/proc/uninstall_cartridge_programs()
+	for(var/datum/computer_file/program/P in cartridge_programs)
+		if(P in stored_files)
+			stored_files -= P
+		var/obj/item/computer_hardware/hard_drive/hdd = all_components[MC_HDD]
+		if(hdd && (P in hdd.stored_files))
+			hdd.stored_files -= P
+		if(P in idle_threads)
+			idle_threads -= P
+		if(active_program == P)
+			active_program = null
+		qdel(P)
+	cartridge_programs.Cut()
 
 /// Sets the ringtone on the messenger program.
 /obj/item/modular_computer/pda/proc/update_ringtone(new_ringtone)
