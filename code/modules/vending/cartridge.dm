@@ -18,7 +18,6 @@
 					/obj/item/cartridge/detective = 10,
 					/obj/item/cartridge/lawyer = 10,
 					/obj/item/cartridge/curator = 10,
-					/obj/item/cartridge/bartender = 10,
 
 					// Virus cards
 					/obj/item/cartridge/virus/clown = 3,
