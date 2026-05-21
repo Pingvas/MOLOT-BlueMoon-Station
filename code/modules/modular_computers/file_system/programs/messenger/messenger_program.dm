@@ -3,46 +3,41 @@
 /// Format of message timestamps
 #define PDA_MESSAGE_TIMESTAMP_FORMAT "hh:mm"
 
-/// Cached global list of all emoji icon state names
-var/global/list/cached_emoji_list
-/// Cached global dict of emoji name -> base64 PNG data
-var/global/list/cached_emoji_base64
-
 /// Returns cached list of emoji names, initializing on first call
 /proc/get_emoji_list()
-	if(!length(cached_emoji_list))
-		cached_emoji_list = list()
-		cached_emoji_base64 = list()
+	if(!length(GLOB.cached_emoji_list))
+		GLOB.cached_emoji_list = list()
+		GLOB.cached_emoji_base64 = list()
 		var/datum/asset/spritesheet/sheet = get_asset_datum(/datum/asset/spritesheet/chat)
 		for(var/sprite_name in sheet.sprites)
 			if(findtextEx(sprite_name, "emoji-") == 1)
 				var/emoji_name = copytext(sprite_name, 7)
 				if(emoji_name != "")
-					cached_emoji_list |= emoji_name
-		if(!length(cached_emoji_list))
-			cached_emoji_list = list("smile", "grin", "laughing", "wink", "frown", "angry", "cry", "heart", "ok", "thumbup")
-		else if(length(cached_emoji_list) > 200)
-			cached_emoji_list = cached_emoji_list.Copy(1, 200)
-		for(var/emoji_name in cached_emoji_list)
+					GLOB.cached_emoji_list |= emoji_name
+		if(!length(GLOB.cached_emoji_list))
+			GLOB.cached_emoji_list = list("smile", "grin", "laughing", "wink", "frown", "angry", "cry", "heart", "ok", "thumbup")
+		else if(length(GLOB.cached_emoji_list) > 200)
+			GLOB.cached_emoji_list = GLOB.cached_emoji_list.Copy(1, 200)
+		for(var/emoji_name in GLOB.cached_emoji_list)
 			var/icon/emoji_icon = icon('icons/emoji.dmi', emoji_name)
 			if(!length(icon_states(emoji_icon)))
 				emoji_icon = icon('icons/emoji_32.dmi', emoji_name)
 			if(length(icon_states(emoji_icon)))
-				cached_emoji_base64[emoji_name] = icon2base64(emoji_icon)
-	return cached_emoji_list
+				GLOB.cached_emoji_base64[emoji_name] = icon2base64(emoji_icon)
+	return GLOB.cached_emoji_list
 
 /// Returns cached base64 dict of emoji icons
 /proc/get_emoji_base64()
-	if(!length(cached_emoji_base64))
+	if(!length(GLOB.cached_emoji_base64))
 		get_emoji_list()
-	return cached_emoji_base64
+	return GLOB.cached_emoji_base64
 
 /proc/parse_emoji_message(message)
 	. = message
-	if(!length(cached_emoji_list))
+	if(!length(GLOB.cached_emoji_list))
 		get_emoji_list()
-	for(var/emoji_name in cached_emoji_list)
-		var/base64 = cached_emoji_base64[emoji_name]
+	for(var/emoji_name in GLOB.cached_emoji_list)
+		var/base64 = GLOB.cached_emoji_base64[emoji_name]
 		if(base64)
 			. = replacetext(., ":[emoji_name]:", "<img class='emoji-inline' src='data:image/png;base64,[base64]' alt=':[emoji_name]:' />")
 	return .

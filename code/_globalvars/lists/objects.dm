@@ -54,6 +54,11 @@ GLOBAL_LIST_EMPTY_TYPED(pda_messengers_by_job, /datum/computer_file/program/mess
 /// All messengers sorted by name
 GLOBAL_LIST_EMPTY_TYPED(pda_messengers_by_name, /datum/computer_file/program/messenger)
 
+/// Cached global list of all emoji icon state names
+GLOBAL_LIST_EMPTY(cached_emoji_list)
+/// Cached global dict of emoji name -> base64 PNG data
+GLOBAL_LIST_EMPTY(cached_emoji_base64)
+
 GLOBAL_LIST_EMPTY(mechas_list)				        //list of all mechs. Used by hostile mobs target tracking.
 GLOBAL_LIST_EMPTY(shuttle_caller_list)  		    //list of all communication consoles and AIs, for automatic shuttle calls when there are none.
 GLOBAL_LIST_EMPTY(machines)					        //NOTE: this is a list of ALL machines now. The processing machines list is SSmachine.processing !
