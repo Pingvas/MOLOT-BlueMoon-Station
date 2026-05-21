@@ -106,9 +106,12 @@ const ContactsScreen = (props, context) => {
     is_silicon,
     virus_attach,
     sending_virus,
+    ringtone_list = [],
+    current_ringtone,
   } = data;
 
   const [searchUser, setSearchUser] = useLocalState(context, 'searchUser', '');
+  const [showRingtone, setShowRingtone] = useLocalState(context, 'showRingtone', false);
 
   const sortByUnreads = (array) =>
     [...array].sort((a, b) => b.unread_messages - a.unread_messages);
@@ -161,6 +164,7 @@ const ContactsScreen = (props, context) => {
     );
 
   return (
+    <>
     <Stack fill vertical>
       <Stack.Item>
         <Section>
@@ -193,8 +197,8 @@ const ContactsScreen = (props, context) => {
               />
               <Button
                 icon="bell"
-                content="Set Ringtone"
-                onClick={() => act('PDA_ringSet')}
+                content={`Ringtone: ${current_ringtone || 'beep'}`}
+                onClick={() => setShowRingtone(!showRingtone)}
               />
               <Button
                 icon="sort"
@@ -270,6 +274,47 @@ const ContactsScreen = (props, context) => {
         </Stack.Item>
       )}
       </Stack>
+      {showRingtone && (
+        <Box style={{
+          position: 'fixed',
+          top: '120px',
+          left: '10px',
+          zIndex: 9999,
+          background: '#1a1a1a',
+          border: '1px solid rgba(255,255,255,0.3)',
+          borderRadius: '4px',
+          padding: '4px',
+          maxHeight: '200px',
+          overflowY: 'auto',
+          minWidth: '140px',
+        }}>
+          {ringtone_list.map((ringtone) => (
+            <Button
+              key={ringtone}
+              fluid
+              color="transparent"
+              content={ringtone}
+              selected={ringtone === current_ringtone}
+              onClick={() => {
+                act('PDA_ringSetPreset', { ringtone: ringtone });
+                setShowRingtone(false);
+              }}
+            />
+          ))}
+          <Divider />
+          <Button
+            fluid
+            color="transparent"
+            icon="edit"
+            content="Custom..."
+            onClick={() => {
+              act('PDA_ringSet');
+              setShowRingtone(false);
+            }}
+          />
+        </Box>
+      )}
+    </>
   );
 };
 
@@ -333,7 +378,7 @@ const SendToAllSection = (props, context) => {
 };
 
 const ChatScreen = (props, context) => {
-  const { act } = useBackend(context);
+  const { act, data } = useBackend(context);
   const {
     canReply,
     messages,
@@ -343,8 +388,13 @@ const ChatScreen = (props, context) => {
     unreads,
   } = props;
 
+  const { emoji_list } = data;
+  const rawList = Array.isArray(emoji_list) ? emoji_list : Object.values(emoji_list || {});
+  const uniqueEmojis = [...new Set(rawList)].slice(0, 100);
+
   const [message, setMessage] = useLocalState(context, 'chatMessage', '');
   const [canSend, setCanSend] = useLocalState(context, 'canSend', true);
+  const [showEmoji, setShowEmoji] = useLocalState(context, 'showEmoji', false);
 
   const handleSendMessage = () => {
     if (message === '') {
@@ -358,6 +408,11 @@ const ChatScreen = (props, context) => {
     setMessage('');
     setCanSend(false);
     setTimeout(() => setCanSend(true), 1000);
+  };
+
+  const handleEmojiClick = (emoji) => {
+    setMessage(message + ' :' + emoji + ': ');
+    setShowEmoji(false);
   };
 
   const filteredMessages = [];
@@ -413,6 +468,13 @@ const ChatScreen = (props, context) => {
         )}
         <Stack.Item>
           <Button
+            tooltip="Emoji"
+            icon="smile"
+            onClick={() => setShowEmoji(!showEmoji)}
+          />
+        </Stack.Item>
+        <Stack.Item>
+          <Button
             tooltip="Send"
             icon="arrow-right"
             onClick={handleSendMessage}
@@ -444,6 +506,7 @@ const ChatScreen = (props, context) => {
   }
 
   return (
+    <>
     <Stack vertical fill>
       <Section>
         <Button
@@ -489,6 +552,40 @@ const ChatScreen = (props, context) => {
 
       <Stack.Item>{sendingBar}</Stack.Item>
     </Stack>
+    {showEmoji && (
+      <Box style={{
+        position: 'fixed',
+        bottom: '50px',
+        left: '10px',
+        zIndex: 9999,
+        background: '#1a1a1a',
+        border: '1px solid rgba(255,255,255,0.3)',
+        borderRadius: '4px',
+        padding: '4px',
+        maxHeight: '180px',
+        maxWidth: '280px',
+        overflowY: 'auto',
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '2px',
+      }}>
+        {uniqueEmojis.map((emoji) => (
+          <Button
+            key={emoji}
+            color="transparent"
+            tooltip={emoji}
+            style={{
+              padding: '2px 4px',
+              fontSize: '11px',
+              minWidth: 'auto',
+            }}
+            onClick={() => handleEmojiClick(emoji)}>
+            :{emoji}:
+          </Button>
+        ))}
+      </Box>
+    )}
+    </>
   );
 };
 

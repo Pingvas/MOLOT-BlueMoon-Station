@@ -141,6 +141,12 @@
 				return FALSE
 			return set_ringtone(new_ringtone, user)
 
+		if("PDA_ringSetPreset")
+			var/new_ringtone = params["ringtone"]
+			if(!new_ringtone || !(new_ringtone in GLOB.pda_ringtone_list))
+				return FALSE
+			return set_ringtone(new_ringtone, usr)
+
 		if("PDA_toggleAlerts")
 			alert_silenced = !alert_silenced
 			return TRUE
@@ -277,6 +283,7 @@
 	static_data["is_silicon"] = issilicon(user)
 	static_data["remote_silicon"] = (isAI(user) || iscyborg(user)) && !istype(computer, /obj/item/modular_computer/pda/silicon)
 	static_data["alert_able"] = alert_able
+	static_data["emoji_list"] = icon_states(icon('icons/emoji.dmi')) + icon_states(icon('icons/emoji_32.dmi'))
 	return static_data
 
 /datum/computer_file/program/messenger/ui_data(mob/user)
@@ -305,6 +312,8 @@
 	data["stored_photos"] = list()
 	data["selected_photo_path"] = null
 	data["on_spam_cooldown"] = !can_send_everyone_message()
+	data["ringtone_list"] = GLOB.pda_ringtone_list
+	data["current_ringtone"] = ringtone
 
 	var/obj/item/disk = computer.inserted_disk
 	if(istype(disk, /obj/item/cartridge/virus))
