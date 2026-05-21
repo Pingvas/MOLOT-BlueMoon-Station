@@ -553,31 +553,61 @@ const ChatScreen = (props, context) => {
 
       <Stack.Item>{sendingBar}</Stack.Item>
     </Stack>
-    {showEmoji && (
-      <Box style={{
-        position: 'fixed',
-        bottom: '50px',
-        left: '10px',
-        zIndex: 9999,
-        background: '#1a1a1a',
-        border: '1px solid rgba(255,255,255,0.3)',
-        borderRadius: '4px',
-        padding: '4px',
-        maxHeight: '180px',
-        overflowY: 'auto',
-        minWidth: '140px',
-      }}>
-        {uniqueEmojis.map((emoji) => (
-          <Button
-            key={emoji}
-            fluid
-            color="transparent"
-            content={':' + emoji + ':'}
-            onClick={() => handleEmojiClick(emoji)}
-          />
-        ))}
-      </Box>
-    )}
+    {showEmoji && (() => {
+        const EMOJIS_PER_ROW = 15;
+        const rows = [];
+        for (let i = 0; i < uniqueEmojis.length; i += EMOJIS_PER_ROW) {
+          rows.push(uniqueEmojis.slice(i, i + EMOJIS_PER_ROW));
+        }
+        return (
+          <Box style={{
+            position: 'fixed',
+            bottom: '50px',
+            left: '10px',
+            zIndex: 9999,
+            background: '#1a1a1a',
+            border: '1px solid rgba(255,255,255,0.3)',
+            borderRadius: '4px',
+            padding: '4px',
+            maxHeight: '180px',
+            overflowY: 'auto',
+          }}>
+            {rows.map((row, rowIdx) => (
+              <Stack key={rowIdx} mb={0.5}>
+                {row.map((emoji) => {
+                  const b64 = base64Map[emoji];
+                  return (
+                    <Stack.Item key={emoji}>
+                      <Button
+                        color="transparent"
+                        tooltip={emoji}
+                        style={{
+                          padding: '1px 3px',
+                          fontSize: '11px',
+                          minWidth: '28px',
+                          width: '28px',
+                          height: '28px',
+                          textAlign: 'center',
+                        }}
+                        onClick={() => handleEmojiClick(emoji)}>
+                        {b64 ? (
+                          <img
+                            src={'data:image/png;base64,' + b64}
+                            alt={':' + emoji + ':'}
+                            style={{ width: '16px', height: '16px', verticalAlign: 'middle' }}
+                          />
+                        ) : (
+                          ':' + emoji + ':'
+                        )}
+                      </Button>
+                    </Stack.Item>
+                  );
+                })}
+              </Stack>
+            ))}
+          </Box>
+        );
+      })()}
     </>
   );
 };

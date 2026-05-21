@@ -10,7 +10,7 @@ var/global/list/cached_emoji_base64
 
 /// Returns cached list of emoji names, initializing on first call
 /proc/get_emoji_list()
-	if(!cached_emoji_list)
+	if(!length(cached_emoji_list))
 		cached_emoji_list = list()
 		cached_emoji_base64 = list()
 		var/datum/asset/spritesheet/sheet = get_asset_datum(/datum/asset/spritesheet/chat)
@@ -33,7 +33,7 @@ var/global/list/cached_emoji_base64
 
 /// Returns cached base64 dict of emoji icons
 /proc/get_emoji_base64()
-	if(!cached_emoji_base64)
+	if(!length(cached_emoji_base64))
 		get_emoji_list()
 	return cached_emoji_base64
 
