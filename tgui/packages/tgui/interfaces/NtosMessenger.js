@@ -3,7 +3,6 @@ import { useBackend, useLocalState } from '../backend';
 import {
   Box,
   Button,
-  Dimmer,
   Divider,
   Icon,
   Input,
@@ -161,8 +160,6 @@ const ContactsScreen = (props, context) => {
       openChatsArray.filter((chat) => !chat.visible).map(chatToButton),
     );
 
-  const noId = !owner && !is_silicon;
-
   return (
     <Stack fill vertical>
       <Stack.Item>
@@ -272,8 +269,7 @@ const ContactsScreen = (props, context) => {
           <SendToAllSection />
         </Stack.Item>
       )}
-      {noId && <NoIDDimmer />}
-    </Stack>
+      </Stack>
   );
 };
 
@@ -333,21 +329,6 @@ const SendToAllSection = (props, context) => {
         />
       </Section>
     </>
-  );
-};
-
-const NoIDDimmer = () => {
-  return (
-    <Dimmer>
-      <Stack align="baseline" vertical>
-        <Stack ml={-2}>
-          <Icon color="red" name="address-card" size={10} />
-        </Stack>
-        <Stack.Item fontSize="18px">
-          Please imprint an ID to continue.
-        </Stack.Item>
-      </Stack>
-    </Dimmer>
   );
 };
 

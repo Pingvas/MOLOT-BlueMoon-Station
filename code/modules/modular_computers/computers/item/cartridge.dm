@@ -6,15 +6,12 @@
 #define CART_CLOWN				(1<<5)
 #define CART_MIME				(1<<6)
 #define CART_JANITOR			(1<<7)
-#define CART_REAGENT_SCANNER	(1<<8)
 #define CART_NEWSCASTER			(1<<9)
 #define CART_REMOTE_DOOR		(1<<10)
 #define CART_STATUS_DISPLAY		(1<<11)
 #define CART_QUARTERMASTER		(1<<12)
 #define CART_HYDROPONICS		(1<<13)
 #define CART_DRONEPHONE			(1<<14)
-#define CART_BARTENDER			(1<<15)
-#define CART_CHEMISTRY			(1<<16)
 
 
 /obj/item/cartridge
@@ -66,12 +63,6 @@
 	access = CART_MEDICAL | CART_MANIFEST
 	bot_access_flags = MED_BOT
 
-/obj/item/cartridge/chemistry
-	name = "\improper ChemWhiz cartridge"
-	icon_state = "cart-chem"
-	access = CART_REAGENT_SCANNER | CART_CHEMISTRY | CART_MANIFEST
-	bot_access_flags = MED_BOT
-
 /obj/item/cartridge/security
 	name = "\improper R.O.B.U.S.T. cartridge"
 	icon_state = "cart-s"
@@ -119,7 +110,7 @@
 	name = "\improper Signal Ace 2 cartridge"
 	desc = "Полноценен со встроенным радиосигналером!"
 	icon_state = "cart-tox"
-	access = CART_REAGENT_SCANNER | CART_ATMOS | CART_MANIFEST
+	access = CART_ATMOS | CART_MANIFEST
 
 /obj/item/cartridge/signal/Initialize(mapload)
 	. = ..()
@@ -158,13 +149,13 @@
 /obj/item/cartridge/cmo
 	name = "\improper Med-U DELUXE cartridge"
 	icon_state = "cart-cmo"
-	access = CART_MANIFEST | CART_STATUS_DISPLAY | CART_REAGENT_SCANNER | CART_MEDICAL
+	access = CART_MANIFEST | CART_STATUS_DISPLAY | CART_MEDICAL
 	bot_access_flags = MED_BOT
 
 /obj/item/cartridge/rd
 	name = "\improper Signal Ace DELUXE cartridge"
 	icon_state = "cart-rd"
-	access = CART_MANIFEST | CART_STATUS_DISPLAY | CART_REAGENT_SCANNER | CART_ATMOS | CART_DRONEPHONE
+	access = CART_MANIFEST | CART_STATUS_DISPLAY | CART_ATMOS | CART_DRONEPHONE
 	bot_access_flags = FLOOR_BOT | CLEAN_BOT | MED_BOT | FIRE_BOT
 
 /obj/item/cartridge/rd/Initialize(mapload)
@@ -175,19 +166,13 @@
 	name = "\improper Value-PAK cartridge"
 	desc = "Теперь полезнее на 350%!"
 	icon_state = "cart-c"
-	access = ~(CART_CLOWN | CART_MIME | CART_REMOTE_DOOR)
+	access = CART_MANIFEST | CART_ENGINE | CART_ATMOS | CART_MEDICAL | CART_SECURITY | CART_JANITOR | CART_NEWSCASTER | CART_REMOTE_DOOR | CART_STATUS_DISPLAY | CART_QUARTERMASTER | CART_HYDROPONICS | CART_DRONEPHONE
 	bot_access_flags = SEC_BOT | MULE_BOT | FLOOR_BOT | CLEAN_BOT | MED_BOT | FIRE_BOT
 	spam_enabled = 1
 
 /obj/item/cartridge/captain/Initialize(mapload)
 	. = ..()
 	radio = new(src)
-
-/obj/item/cartridge/bartender
-	name = "\improper B.O.O.Z.E cartridge"
-	desc = "Теперь с 12%-м содержанием спирта!"
-	icon_state = "cart-bar"
-	access = CART_BARTENDER | CART_MANIFEST
 
 /obj/item/cartridge/chaplain
 	name = "holy cartridge"
@@ -231,18 +216,12 @@
 		programs += /datum/computer_file/program/robocontrol
 	if(access & CART_STATUS_DISPLAY)
 		programs += /datum/computer_file/program/statusdisplay
-	if(access & CART_REAGENT_SCANNER)
-		programs += /datum/computer_file/program/reagentscanner
 	if(access & CART_REMOTE_DOOR)
 		programs += /datum/computer_file/program/remotedoor
 	if(access & CART_JANITOR)
 		programs += /datum/computer_file/program/custodiallocator
 	if(access & CART_HYDROPONICS)
 		programs += /datum/computer_file/program/hydroponics
-	if(access & CART_BARTENDER)
-		programs += /datum/computer_file/program/bartender
-	if(access & CART_CHEMISTRY)
-		programs += /datum/computer_file/program/chemisty
 	return programs
 
 // ---- Virus cartridges ----
@@ -379,8 +358,7 @@
 	name = "\improper Twin Nexus cartridge"
 	desc = "The customer is always right! Except for when they're not."
 	icon_state = "cart-bar"
-	access = CART_BARTENDER
+	access = CART_MANIFEST
 
 /obj/item/cartridge/cmo/Initialize(mapload)
-	access |= CART_CHEMISTRY
 	. = ..()

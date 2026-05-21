@@ -73,6 +73,21 @@
 				IDName = stored_name,
 				IDJob = stored_title,
 			)
+	// PDA stores ID directly, not via card_slot hardware
+	if(istype(src, /obj/item/modular_computer/pda))
+		var/obj/item/modular_computer/pda/pda = src
+		if(pda.stored_id)
+			var/stored_name = pda.stored_id.registered_name
+			var/stored_title = pda.stored_id.get_assignment_name()
+			if(!stored_name)
+				stored_name = "Unknown"
+			if(!stored_title)
+				stored_title = "Unknown"
+			data["login"] = list(
+				IDName = stored_name,
+				IDJob = stored_title,
+			)
+			data["cardholder"] = TRUE
 
 	data["removable_media"] = list()
 	if(all_components[MC_SDD])
@@ -106,6 +121,9 @@
 	data["available_themes"] = list()
 	for(var/theme_name in GLOB.pda_name_to_theme)
 		data["available_themes"] += list(list("name" = theme_name, "id" = GLOB.pda_name_to_theme[theme_name]))
+
+	data["security_level"] = NUM2SECLEVEL(GLOB.security_level)
+	data["security_level_color"] = get_security_level_color()
 
 	if(istype(inserted_disk, /obj/item/cartridge))
 		data["cartridge_name"] = inserted_disk.name
@@ -272,3 +290,28 @@
 	if(physical)
 		return physical
 	return src
+
+/// Returns a hex color string for the current station security level.
+/obj/item/modular_computer/proc/get_security_level_color()
+	switch(GLOB.security_level)
+		if(SEC_LEVEL_GREEN)
+			return "#b2ff59"
+		if(SEC_LEVEL_BLUE)
+			return "#99ccff"
+		if(SEC_LEVEL_ORANGE)
+			return "#fc7d15"
+		if(SEC_LEVEL_VIOLET)
+			return "#a059fe"
+		if(SEC_LEVEL_AMBER)
+			return "#ffae42"
+		if(SEC_LEVEL_RED)
+			return "#ff3f34"
+		if(SEC_LEVEL_LAMBDA)
+			return "#ffae42"
+		if(SEC_LEVEL_GAMMA)
+			return "#7f7f7f"
+		if(SEC_LEVEL_EPSILON)
+			return "#ffffff"
+		if(SEC_LEVEL_DELTA)
+			return "#aa00ff"
+	return "#ffffff"

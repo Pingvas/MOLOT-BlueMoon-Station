@@ -16,6 +16,8 @@ export const NtosMain = (props, context) => {
     cartridge_name,
     battery_percent,
     available_themes = [],
+    security_level,
+    security_level_color,
   } = data;
 
   return (
@@ -26,38 +28,27 @@ export const NtosMain = (props, context) => {
       height={560}>
       <NtosWindow.Content>
         <Stack vertical fill>
-          {/* ID card */}
+          {/* ID Details */}
           {!!cardholder && login.IDName && (
             <Stack.Item>
-              <div style={{
-                margin: '8px 10px 0 10px',
-                padding: '8px 12px',
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.08)',
-                borderRadius: '6px',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}>
-                <span style={{ fontSize: '13px' }}>
-                  <span style={{ color: 'rgba(255,255,255,0.5)' }}>ID </span>
-                  <b>{login.IDName}</b>
-                  {login.IDJob && (
-                    <span style={{
-                      color: 'rgba(255,255,255,0.35)',
-                      marginLeft: '6px',
-                    }}>
-                      {login.IDJob}
+              <Section
+                title="Details"
+                style={{ margin: '8px 10px 0 10px' }}>
+                <div style={{ fontSize: '12px', lineHeight: '1.6' }}>
+                  <div>
+                    <span style={{ color: 'rgba(255,255,255,0.5)' }}>
+                      ID Name:{' '}
                     </span>
-                  )}
-                </span>
-                <Button
-                  icon="eject"
-                  color="transparent"
-                  onClick={() => act('PC_Eject_Disk', { name: 'ID' })}>
-                  Eject
-                </Button>
-              </div>
+                    <b>{login.IDName}</b>
+                  </div>
+                  <div>
+                    <span style={{ color: 'rgba(255,255,255,0.5)' }}>
+                      Assignment:{' '}
+                    </span>
+                    <b>{login.IDJob || 'None'}</b>
+                  </div>
+                </div>
+              </Section>
             </Stack.Item>
           )}
 
@@ -125,6 +116,19 @@ export const NtosMain = (props, context) => {
                       onClick={() =>
                         act('PC_runprogram', { name: program.name })}>
                       {program.desc}
+                      {program.name === 'nt_messenger' && security_level && (
+                        <span
+                          title={security_level.toUpperCase()}
+                          style={{
+                            display: 'inline-block',
+                            width: '8px',
+                            height: '8px',
+                            borderRadius: '50%',
+                            backgroundColor: security_level_color,
+                            marginLeft: '6px',
+                            verticalAlign: 'middle',
+                          }} />
+                      )}
                       {!!program.running && (
                         <span style={{
                           marginLeft: '8px',

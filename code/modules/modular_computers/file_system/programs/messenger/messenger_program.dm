@@ -53,6 +53,11 @@
 	RegisterSignal(computer, COMSIG_MODULAR_PDA_IMPRINT_UPDATED, PROC_REF(on_imprint_added))
 	RegisterSignal(computer, COMSIG_MODULAR_PDA_IMPRINT_RESET, PROC_REF(on_imprint_reset))
 
+/datum/computer_file/program/messenger/run_program(mob/living/user)
+	. = ..()
+	if(.)
+		add_messenger(src)
+
 /datum/computer_file/program/messenger/proc/check_new_photo(sender, datum/computer_file/storing_file)
 	SIGNAL_HANDLER
 	return
