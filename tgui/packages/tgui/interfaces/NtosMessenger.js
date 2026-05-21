@@ -154,7 +154,7 @@ const ContactsScreen = (props, context) => {
   const messengerButtons = Object.entries(messengers || {})
     .filter(
       ([ref, messenger]) =>
-        openChatsArray.every((chat) => chat.recipient.ref !== ref)
+        openChatsArray.filter(c => c.visible).every((chat) => chat.recipient.ref !== ref)
         && searchMessengerByName(messenger),
     )
     .map(([_, messenger]) => messenger)
@@ -388,9 +388,10 @@ const ChatScreen = (props, context) => {
     unreads,
   } = props;
 
-  const { emoji_list } = data;
+  const { emoji_list, emoji_base64 } = data;
   const rawList = Array.isArray(emoji_list) ? emoji_list : Object.values(emoji_list || {});
   const uniqueEmojis = [...new Set(rawList)].slice(0, 100);
+  const base64Map = emoji_base64 || {};
 
   const [message, setMessage] = useLocalState(context, 'chatMessage', '');
   const [canSend, setCanSend] = useLocalState(context, 'canSend', true);
@@ -563,25 +564,17 @@ const ChatScreen = (props, context) => {
         borderRadius: '4px',
         padding: '4px',
         maxHeight: '180px',
-        maxWidth: '280px',
         overflowY: 'auto',
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: '2px',
+        minWidth: '140px',
       }}>
         {uniqueEmojis.map((emoji) => (
           <Button
             key={emoji}
+            fluid
             color="transparent"
-            tooltip={emoji}
-            style={{
-              padding: '2px 4px',
-              fontSize: '11px',
-              minWidth: 'auto',
-            }}
-            onClick={() => handleEmojiClick(emoji)}>
-            :{emoji}:
-          </Button>
+            content={':' + emoji + ':'}
+            onClick={() => handleEmojiClick(emoji)}
+          />
         ))}
       </Box>
     )}

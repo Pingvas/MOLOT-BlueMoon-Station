@@ -3,6 +3,50 @@
 /// Format of message timestamps
 #define PDA_MESSAGE_TIMESTAMP_FORMAT "hh:mm"
 
+/// Cached global list of all emoji icon state names
+var/global/list/cached_emoji_list
+/// Cached global dict of emoji name -> base64 PNG data
+var/global/list/cached_emoji_base64
+
+/// Returns cached list of emoji names, initializing on first call
+/proc/get_emoji_list()
+	if(!cached_emoji_list)
+		cached_emoji_list = list()
+		cached_emoji_base64 = list()
+		var/datum/asset/spritesheet/sheet = get_asset_datum(/datum/asset/spritesheet/chat)
+		for(var/sprite_name in sheet.sprites)
+			if(findtextEx(sprite_name, "emoji-") == 1)
+				var/emoji_name = copytext(sprite_name, 7)
+				if(emoji_name != "")
+					cached_emoji_list |= emoji_name
+		if(!length(cached_emoji_list))
+			cached_emoji_list = list("smile", "grin", "laughing", "wink", "frown", "angry", "cry", "heart", "ok", "thumbup")
+		else if(length(cached_emoji_list) > 200)
+			cached_emoji_list = cached_emoji_list.Copy(1, 200)
+		for(var/emoji_name in cached_emoji_list)
+			var/icon/emoji_icon = icon('icons/emoji.dmi', emoji_name)
+			if(!length(icon_states(emoji_icon)))
+				emoji_icon = icon('icons/emoji_32.dmi', emoji_name)
+			if(length(icon_states(emoji_icon)))
+				cached_emoji_base64[emoji_name] = icon2base64(emoji_icon)
+	return cached_emoji_list
+
+/// Returns cached base64 dict of emoji icons
+/proc/get_emoji_base64()
+	if(!cached_emoji_base64)
+		get_emoji_list()
+	return cached_emoji_base64
+
+/proc/parse_emoji_message(message)
+	. = message
+	if(!length(cached_emoji_list))
+		get_emoji_list()
+	for(var/emoji_name in cached_emoji_list)
+		var/base64 = cached_emoji_base64[emoji_name]
+		if(base64)
+			. = replacetext(., ":[emoji_name]:", "<img class='emoji-inline' src='data:image/png;base64,[base64]' alt=':[emoji_name]:' />")
+	return .
+
 /datum/computer_file/program/messenger
 	filename = "nt_messenger"
 	filedesc = "Direct Messenger"
@@ -52,6 +96,7 @@
 	RegisterSignal(computer, COMSIG_MODULAR_COMPUTER_FILE_DELETE, PROC_REF(check_photo_removed))
 	RegisterSignal(computer, COMSIG_MODULAR_PDA_IMPRINT_UPDATED, PROC_REF(on_imprint_added))
 	RegisterSignal(computer, COMSIG_MODULAR_PDA_IMPRINT_RESET, PROC_REF(on_imprint_reset))
+	add_messenger(src)
 
 /datum/computer_file/program/messenger/run_program(mob/living/user)
 	. = ..()
@@ -92,21 +137,32 @@
 /// Gets the list of available messengers
 /datum/computer_file/program/messenger/proc/get_messengers()
 	var/list/dictionary = list()
+	var/list/unsorted = list()
 
-	var/list/messengers_sorted = sort_by_job ? GLOB.pda_messengers_by_job : GLOB.pda_messengers_by_name
-
-	for(var/datum/computer_file/program/messenger/messenger as anything in messengers_sorted)
-		if(!istype(messenger) || !istype(messenger.computer))
+	for(var/obj/item/modular_computer/pda/pda_device in GLOB.PDAs)
+		if(pda_device == computer)
 			continue
-		if(messenger == src || messenger.invisible)
+		if(pda_device.toff || pda_device.hidden)
+			continue
+		if(!pda_device.saved_identification && !pda_device.saved_job)
+			continue
+		var/datum/computer_file/program/messenger/messenger = locate() in pda_device.get_all_files()
+		if(!istype(messenger) || messenger.invisible)
 			continue
 
 		var/list/data = list()
-		data["name"] = messenger.computer.saved_identification
-		data["job"] = messenger.computer.saved_job
+		data["name"] = pda_device.saved_identification || "Unknown"
+		data["job"] = pda_device.saved_job || "Unknown"
 		data["ref"] = REF(messenger)
+		unsorted += list(data)
 
-		dictionary[data["ref"]] = data
+	if(sort_by_job)
+		sortTim(unsorted, /proc/cmp_list_data_job)
+	else
+		sortTim(unsorted, /proc/cmp_list_data_name)
+
+	for(var/list/entry in unsorted)
+		dictionary[entry["ref"]] = entry
 
 	return dictionary
 
@@ -124,6 +180,12 @@
 		return FALSE
 
 	ringtone = new_ringtone
+
+	// Update character preferences if possible
+	if(user?.client?.prefs)
+		user.client.prefs.pda_ringtone = new_ringtone
+		user.client.prefs.save_preferences()
+
 	return TRUE
 
 /datum/computer_file/program/messenger/ui_state(mob/user)
@@ -244,7 +306,15 @@
 			else if(target_ref in GLOB.pda_messengers)
 				target = GLOB.pda_messengers[target_ref]
 			else
-				return FALSE
+				// Fallback: search all PDAs for the messenger
+				for(var/obj/item/modular_computer/pda/pda_device in GLOB.PDAs)
+					var/datum/computer_file/program/messenger/messenger = locate() in pda_device.get_all_files()
+					if(istype(messenger) && REF(messenger) == target_ref)
+						target = messenger
+						add_messenger(messenger)
+						break
+				if(!target)
+					return FALSE
 
 			if(sending_virus)
 				var/obj/item/cartridge/virus/disk = computer.inserted_disk
@@ -283,7 +353,6 @@
 	static_data["is_silicon"] = issilicon(user)
 	static_data["remote_silicon"] = (isAI(user) || iscyborg(user)) && !istype(computer, /obj/item/modular_computer/pda/silicon)
 	static_data["alert_able"] = alert_able
-	static_data["emoji_list"] = icon_states(icon('icons/emoji.dmi')) + icon_states(icon('icons/emoji_32.dmi'))
 	return static_data
 
 /datum/computer_file/program/messenger/ui_data(mob/user)
@@ -314,6 +383,8 @@
 	data["on_spam_cooldown"] = !can_send_everyone_message()
 	data["ringtone_list"] = GLOB.pda_ringtone_list
 	data["current_ringtone"] = ringtone
+	data["emoji_list"] = get_emoji_list()
+	data["emoji_base64"] = get_emoji_base64()
 
 	var/obj/item/disk = computer.inserted_disk
 	if(istype(disk, /obj/item/cartridge/virus))
@@ -401,7 +472,7 @@
 	if(mime_mode)
 		message = emoji_sanitize(message)
 
-	return emoji_parse(message)
+	return parse_emoji_message(message)
 
 /// Sends a message to targets via PDA
 /datum/computer_file/program/messenger/proc/send_message(atom/source, message, list/targets, everyone = FALSE)
@@ -659,10 +730,21 @@
 				comp.explode(usr, from_message_menu = TRUE)
 
 /datum/computer_file/program/messenger/proc/compare_name(datum/computer_file/program/messenger/rhs)
-	return sorttext(rhs.computer?.saved_identification, computer?.saved_identification)
+	return sorttext(rhs.computer?.saved_identification || "", computer?.saved_identification || "")
 
 /datum/computer_file/program/messenger/proc/compare_job(datum/computer_file/program/messenger/rhs)
-	return sorttext(rhs.computer?.saved_job, computer?.saved_job)
+	return sorttext(rhs.computer?.saved_job || "", computer?.saved_job || "")
+
+/// Sort by job then name for messenger contact lists
+/proc/cmp_list_data_job(list/a, list/b)
+	var/job_cmp = sorttext(b["job"], a["job"])
+	if(job_cmp != 0)
+		return job_cmp
+	return sorttext(b["name"], a["name"])
+
+/// Sort by name for messenger contact lists
+/proc/cmp_list_data_name(list/a, list/b)
+	return sorttext(b["name"], a["name"])
 
 #undef PDA_MESSAGE_TIMESTAMP_FORMAT
 #undef MAX_PDA_MESSAGE_LEN

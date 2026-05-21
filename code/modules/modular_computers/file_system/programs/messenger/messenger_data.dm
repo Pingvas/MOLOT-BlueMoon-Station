@@ -3,8 +3,7 @@
 	if(!istype(messenger))
 		return
 	var/obj/item/modular_computer/messenger_device = messenger.computer
-	// Don't register PDAs without names
-	if(!messenger_device?.saved_identification || !messenger_device.saved_job)
+	if(!istype(messenger_device))
 		return
 
 	var/messenger_ref = REF(messenger)

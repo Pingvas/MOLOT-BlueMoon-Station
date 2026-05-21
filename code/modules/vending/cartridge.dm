@@ -15,7 +15,6 @@
 					/obj/item/cartridge/signal/toxins = 10,
 					/obj/item/cartridge/roboticist = 10,
 					/obj/item/cartridge/atmos = 10,
-					/obj/item/cartridge/chemistry = 10,
 					/obj/item/cartridge/detective = 10,
 					/obj/item/cartridge/lawyer = 10,
 					/obj/item/cartridge/curator = 10,

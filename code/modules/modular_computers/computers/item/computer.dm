@@ -613,7 +613,8 @@
 /obj/item/modular_computer/proc/ring(ringtone, list/balloon_alertees)
 	if(!ringtone)
 		return
-	playsound(src, 'sound/machines/twobeep_high.ogg', 50, TRUE)
+	var/sound_file = GLOB.pda_ringtones[ringtone] || 'sound/machines/twobeep_high.ogg'
+	playsound(src, sound_file, 50, TRUE)
 	for(var/mob/target as anything in balloon_alertees)
 		if(target)
 			target.balloon_alert(target, ringtone)
