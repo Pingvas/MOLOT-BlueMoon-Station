@@ -91,8 +91,6 @@
 	var/default_cartridge
 	/// Legacy note text (raw text, used by map objects)
 	var/note
-	/// Legacy background color (used by map objects)
-	var/background_color
 	/// Legacy UI mode number (used by old cart.dm Browser/Topic UI — dead code)
 	var/mode = 0
 	/// Legacy honk virus counter (used by clown virus cart)
@@ -125,6 +123,12 @@
 	var/list/blocked_pdas
 	/// First-pickup guard for update_style
 	var/equipped = FALSE
+
+// Override to sync legacy owner/ownjob aliases with saved_identification/saved_job.
+/obj/item/modular_computer/pda/update_id_imprint(new_name, new_job)
+	. = ..()
+	owner = new_name
+	ownjob = new_job
 
 /// Legacy stub for old cart.dm UI (dead code)
 /obj/item/modular_computer/pda/proc/msg_input(mob/living/U = usr)
@@ -476,7 +480,6 @@
 	. = ..()
 	if(new_alert)
 		. += mutable_appearance(overlays_icon, "alert")
-		new_alert = FALSE
 	if(stored_id)
 		. += mutable_appearance(overlays_icon, "id_overlay")
 	if(inserted_item)
@@ -490,6 +493,9 @@
 			. += mutable_appearance(overlays_icon, "pai_overlay_off")
 
 /obj/item/modular_computer/pda/interact(mob/user)
+	if(new_alert)
+		new_alert = FALSE
+		update_appearance()
 	. = ..()
 	if(HAS_TRAIT(src, TRAIT_PDA_MESSAGE_MENU_RIGGED))
 		explode(user, from_message_menu = TRUE)
@@ -719,11 +725,17 @@
 	if(new_color)
 		pda_color = new_color
 
+	var/new_theme = owner_client.prefs?.pda_theme
+	if(new_theme)
+		device_theme = new_theme
+
 /// Installs programs from the given cartridge into this PDA.
 /obj/item/modular_computer/pda/proc/install_cartridge_programs(obj/item/cartridge/C)
 	if(!istype(C))
 		return
 	for(var/prog_type in C.get_programs())
+		if(locate(prog_type) in get_all_files())
+			continue
 		var/datum/computer_file/program/P = new prog_type
 		P.computer = src
 		store_file(P)

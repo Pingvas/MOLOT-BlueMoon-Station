@@ -3,6 +3,7 @@
 	S["pda_color"] >> pda_color
 	S["pda_skin"] >> pda_skin
 	S["pda_ringtone"] >> pda_ringtone
+	S["pda_theme"] >> pda_theme
 
 	S["silicon_lawset"] >> silicon_lawset
 	S["body_weight"] >> body_weight
@@ -13,6 +14,7 @@
 	pda_color = sanitize_hexcolor(pda_color, 6, 1, initial(pda_color))
 	pda_skin = sanitize_inlist(pda_skin, GLOB.pda_reskins, PDA_SKIN_ALT)
 	pda_ringtone = sanitize_inlist(pda_ringtone, GLOB.pda_ringtone_list, "beep")
+	pda_theme = sanitize_inlist(pda_theme, GLOB.pda_name_to_theme, PDA_THEME_NTOS)
 
 	silicon_lawset = sanitize_inlist(silicon_lawset, CONFIG_GET(keyed_list/choosable_laws), null)
 	body_weight = sanitize_inlist(body_weight, GLOB.mob_sizes, NAME_WEIGHT_NORMAL)
@@ -24,6 +26,7 @@
 	WRITE_FILE(S["pda_color"], pda_color)
 	WRITE_FILE(S["pda_skin"], pda_skin)
 	WRITE_FILE(S["pda_ringtone"], pda_ringtone)
+	WRITE_FILE(S["pda_theme"], pda_theme)
 
 	WRITE_FILE(S["silicon_lawset"], silicon_lawset)
 	WRITE_FILE(S["body_weight"], body_weight)
@@ -31,7 +34,7 @@
 	WRITE_FILE(S["custom_laugh"], custom_laugh)
 
 /obj/item/modular_computer/pda/proc/update_style(client/C)
-	// Legacy compat — uses the new PDA prefs system for theme and ringtone
+	// pda_color, update_ringtone(), skin_data, pda_style, device_theme все передаются через update_pda_prefs()
 	update_pda_prefs(C)
 
 /datum/preferences

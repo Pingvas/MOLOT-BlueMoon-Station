@@ -115,8 +115,6 @@
 		pda_color = user.client.prefs.pda_color
 	data["pda_color"] = pda_color
 	data["pda_style"] = user?.client?.prefs?.pda_style || "Monospaced"
-	if(user?.client?.prefs?.pda_theme)
-		device_theme = user.client.prefs.pda_theme
 	data["battery_percent"] = get_battery_percent()
 	data["available_themes"] = list()
 	for(var/theme_name in GLOB.pda_name_to_theme)
