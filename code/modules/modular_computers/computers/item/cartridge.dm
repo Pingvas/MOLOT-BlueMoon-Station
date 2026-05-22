@@ -11,18 +11,6 @@
 
 	var/obj/item/integrated_signaler/radio = null
 	var/access = 0
-	var/remote_door_id = ""
-	var/bot_access_flags = 0
-	var/spam_enabled = 0
-	var/obj/item/modular_computer/pda/host_pda = null
-
-/obj/item/cartridge/Destroy()
-	host_pda = null
-	return ..()
-
-/obj/item/cartridge/Initialize(mapload)
-	host_pda = loc
-	return ..()
 
 /obj/item/cartridge/civil
 	name = "\improper Civil cartridge"
@@ -33,45 +21,38 @@
 	name = "\improper Power-ON cartridge"
 	icon_state = "cart-e"
 	access = CART_ENGINE | CART_DRONEPHONE | CART_MANIFEST
-	bot_access_flags = FLOOR_BOT
 
 /obj/item/cartridge/atmos
 	name = "\improper BreatheDeep cartridge"
 	icon_state = "cart-a"
 	access = CART_ATMOS | CART_DRONEPHONE | CART_MANIFEST
-	bot_access_flags = FLOOR_BOT | FIRE_BOT
 
 /obj/item/cartridge/medical
 	name = "\improper Med-U cartridge"
 	icon_state = "cart-m"
 	access = CART_MEDICAL | CART_MANIFEST
-	bot_access_flags = MED_BOT
 
 /obj/item/cartridge/security
 	name = "\improper R.O.B.U.S.T. cartridge"
 	icon_state = "cart-s"
 	access = CART_SECURITY | CART_MANIFEST
-	bot_access_flags = SEC_BOT
 
 /obj/item/cartridge/detective
 	name = "\improper D.E.T.E.C.T. cartridge"
 	icon_state = "cart-eye"
 	access = CART_SECURITY | CART_MEDICAL | CART_MANIFEST
-	bot_access_flags = SEC_BOT
 
 /obj/item/cartridge/janitor
 	name = "\improper CustodiPRO cartridge"
 	desc = "Ультимативен в решениях очисток помещений."
 	icon_state = "cart-j"
 	access = CART_JANITOR | CART_DRONEPHONE | CART_MANIFEST
-	bot_access_flags = CLEAN_BOT
 
 /obj/item/cartridge/lawyer
 	name = "\improper S.P.A.M. cartridge"
 	desc = "Представляем вам картридж программы Station Public Announcement Messenger, с уникальной функцией вещания сообщениями, спроектировано для агентов внутренних дел Nanotrasen для рекламы их нужных и важных услуг."
 	icon_state = "cart-law"
 	access = CART_SECURITY | CART_MANIFEST
-	spam_enabled = 1
 
 /obj/item/cartridge/curator
 	name = "\improper Lib-Tweet cartridge"
@@ -82,7 +63,6 @@
 	name = "\improper B.O.O.P. Remote Control cartridge"
 	desc = "Снабжен тяжеловесным интерлинком связи с ботами и дронами!"
 	icon_state = "cart-robo"
-	bot_access_flags = FLOOR_BOT | CLEAN_BOT | MED_BOT | FIRE_BOT | SEC_BOT | MULE_BOT
 	access = CART_DRONEPHONE | CART_MANIFEST
 
 /obj/item/cartridge/signal
@@ -106,7 +86,6 @@
 	desc = "Идеален для квартирмейстера тут и там!"
 	icon_state = "cart-q"
 	access = CART_QUARTERMASTER | CART_MANIFEST
-	bot_access_flags = MULE_BOT
 
 /obj/item/cartridge/head
 	name = "\improper Easy-Record DELUXE cartridge"
@@ -117,31 +96,26 @@
 	name = "\improper HumanResources9001 cartridge"
 	icon_state = "cart-h"
 	access = CART_MANIFEST | CART_STATUS_DISPLAY | CART_JANITOR | CART_SECURITY | CART_NEWSCASTER | CART_QUARTERMASTER | CART_DRONEPHONE
-	bot_access_flags = MULE_BOT | CLEAN_BOT
 
 /obj/item/cartridge/hos
 	name = "\improper R.O.B.U.S.T. DELUXE cartridge"
 	icon_state = "cart-hos"
 	access = CART_MANIFEST | CART_STATUS_DISPLAY | CART_SECURITY
-	bot_access_flags = SEC_BOT
 
 /obj/item/cartridge/ce
 	name = "\improper Power-On DELUXE cartridge"
 	icon_state = "cart-ce"
 	access = CART_MANIFEST | CART_STATUS_DISPLAY | CART_ENGINE | CART_ATMOS | CART_DRONEPHONE
-	bot_access_flags = FLOOR_BOT | FIRE_BOT
 
 /obj/item/cartridge/cmo
 	name = "\improper Med-U DELUXE cartridge"
 	icon_state = "cart-cmo"
 	access = CART_MANIFEST | CART_STATUS_DISPLAY | CART_MEDICAL
-	bot_access_flags = MED_BOT
 
 /obj/item/cartridge/rd
 	name = "\improper Signal Ace DELUXE cartridge"
 	icon_state = "cart-rd"
 	access = CART_MANIFEST | CART_STATUS_DISPLAY | CART_ATMOS | CART_DRONEPHONE | CART_SIGNALER
-	bot_access_flags = FLOOR_BOT | CLEAN_BOT | MED_BOT | FIRE_BOT
 
 /obj/item/cartridge/rd/Initialize(mapload)
 	. = ..()
@@ -152,8 +126,6 @@
 	desc = "Теперь полезнее на 350%!"
 	icon_state = "cart-c"
 	access = CART_MANIFEST | CART_ENGINE | CART_ATMOS | CART_MEDICAL | CART_SECURITY | CART_JANITOR | CART_NEWSCASTER | CART_REMOTE_DOOR | CART_STATUS_DISPLAY | CART_QUARTERMASTER | CART_HYDROPONICS | CART_DRONEPHONE | CART_SIGNALER
-	bot_access_flags = SEC_BOT | MULE_BOT | FLOOR_BOT | CLEAN_BOT | MED_BOT | FIRE_BOT
-	spam_enabled = 1
 
 /obj/item/cartridge/captain/Initialize(mapload)
 	. = ..()
@@ -247,8 +219,9 @@
 	. = ..()
 	if(!.)
 		return FALSE
-	var/datum/computer_file/program/messenger/app = locate() in target.stored_files
+	var/datum/computer_file/program/messenger/app = locate() in target.get_all_files()
 	if(!app)
+		to_chat(user, span_notice("ERROR: Target does not have messenger installed."))
 		return FALSE
 	user.show_message(span_notice("Success!"))
 	charges--
@@ -278,8 +251,8 @@
 	if(!fakejob || source != original_host || !user.canUseTopic(source, BE_CLOSE))
 		return
 
-	var/datum/computer_file/program/messenger/app = locate() in source.stored_files
-	var/datum/computer_file/program/messenger/target_app = locate() in target.stored_files
+	var/datum/computer_file/program/messenger/app = locate() in source.get_all_files()
+	var/datum/computer_file/program/messenger/target_app = locate() in target.get_all_files()
 	if(!app || charges <= 0 || !app.send_rigged_message(user, message, list(target_app), fakename, fakejob))
 		return FALSE
 	charges--

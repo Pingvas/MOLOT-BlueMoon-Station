@@ -13,16 +13,16 @@ export const NtosStatusDisplay = (props, context) => {
   return (
     <NtosWindow width={400} height={400}>
       <NtosWindow.Content>
-        <Section title="Status Display Control">
-          <Input fluid placeholder="Line 1" onEnter={handleMsg1} />
-          <Input fluid placeholder="Line 2" onEnter={handleMsg2} />
+        <Section title="Управление статус-дисплеем">
+          <Input fluid placeholder="Строка 1" onEnter={handleMsg1} />
+          <Input fluid placeholder="Строка 2" onEnter={handleMsg2} />
         </Section>
-        <Section title="Alert">
+        <Section title="Тревога">
           <Button icon="exclamation-triangle" onClick={handleAlert}>
-            Alert
+            Тревога
           </Button>
           <Button icon="shield-alt" onClick={handleClear}>
-            Clear
+            Сброс
           </Button>
         </Section>
       </NtosWindow.Content>

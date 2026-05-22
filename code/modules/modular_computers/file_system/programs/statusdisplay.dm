@@ -13,6 +13,7 @@
 	transfer_access = null
 	usage_flags = PROGRAM_PDA
 	size = 4
+	available_on_ntnet = FALSE
 	tgui_id = "NtosStatusDisplay"
 	program_icon = "tv"
 

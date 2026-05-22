@@ -7,6 +7,7 @@
 	size = 4
 	tgui_id = "NtosAtmos"
 	program_icon = "thermometer-half"
+	available_on_ntnet = FALSE
 
 /datum/computer_file/program/atmosscan/run_program(mob/living/user)
 	. = ..()

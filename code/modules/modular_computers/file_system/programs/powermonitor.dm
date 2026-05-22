@@ -10,6 +10,7 @@
 	transfer_access = ACCESS_ENGINE
 	usage_flags = PROGRAM_CONSOLE | PROGRAM_PDA
 	requires_ntnet = 0
+	available_on_ntnet = FALSE
 	size = 9
 	tgui_id = "NtosPowerMonitor"
 	program_icon = "plug"

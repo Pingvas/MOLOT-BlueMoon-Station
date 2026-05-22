@@ -8,6 +8,7 @@
 	tgui_id = "NtosSignaler"
 	program_icon = "satellite-dish"
 	usage_flags = PROGRAM_TABLET | PROGRAM_LAPTOP
+	available_on_ntnet = FALSE
 	///What is the saved signal frequency?
 	var/signal_frequency = FREQ_SIGNALER
 	/// What is the saved signal code?

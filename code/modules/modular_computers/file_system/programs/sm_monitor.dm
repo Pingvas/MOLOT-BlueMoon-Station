@@ -11,6 +11,7 @@
 	tgui_id = "NtosSupermatterMonitor"
 	program_icon = "radiation"
 	alert_able = TRUE
+	available_on_ntnet = FALSE
 	var/last_status = SUPERMATTER_INACTIVE
 	var/list/supermatters
 	var/obj/machinery/power/supermatter_crystal/active // Currently selected supermatter crystal.

@@ -9,10 +9,10 @@ export const NtosHydroponics = (props, context) => {
   return (
     <NtosWindow width={500} height={550}>
       <NtosWindow.Content scrollable>
-        <Section title="Hydroponics Monitor">
+        <Section title="Монитор гидропоники">
           {trays.length === 0 && (
             <NoticeBox info>
-              No hydroponics trays found.
+              Гидропонные лотки не найдены.
             </NoticeBox>
           )}
           {trays.map(tray => (
@@ -21,11 +21,11 @@ export const NtosHydroponics = (props, context) => {
               title={tray.name + ' - ' + tray.area}>
               <Table>
                 <Table.Row>
-                  <Table.Cell bold>Plant:</Table.Cell>
+                  <Table.Cell bold>Растение:</Table.Cell>
                   <Table.Cell>{tray.plant}</Table.Cell>
                 </Table.Row>
                 <Table.Row>
-                  <Table.Cell bold>Health:</Table.Cell>
+                  <Table.Cell bold>Здоровье:</Table.Cell>
                   <Table.Cell>
                     <ProgressBar
                       value={tray.health}
@@ -40,25 +40,25 @@ export const NtosHydroponics = (props, context) => {
                   </Table.Cell>
                 </Table.Row>
                 <Table.Row>
-                  <Table.Cell bold>Water:</Table.Cell>
+                  <Table.Cell bold>Вода:</Table.Cell>
                   <Table.Cell>{tray.water}u</Table.Cell>
                 </Table.Row>
                 <Table.Row>
-                  <Table.Cell bold>Nutrients:</Table.Cell>
+                  <Table.Cell bold>Питательные вещества:</Table.Cell>
                   <Table.Cell>{tray.nutri}u</Table.Cell>
                 </Table.Row>
                 <Table.Row>
-                  <Table.Cell bold>Weeds:</Table.Cell>
+                  <Table.Cell bold>Сорняки:</Table.Cell>
                   <Table.Cell>{tray.weed_level}</Table.Cell>
                 </Table.Row>
                 <Table.Row>
-                  <Table.Cell bold>Pests:</Table.Cell>
+                  <Table.Cell bold>Вредители:</Table.Cell>
                   <Table.Cell>{tray.pest_level}</Table.Cell>
                 </Table.Row>
                 <Table.Row>
-                  <Table.Cell bold>Ready to Harvest:</Table.Cell>
+                  <Table.Cell bold>Готово к сбору:</Table.Cell>
                   <Table.Cell>
-                    {tray.harvest ? 'Yes' : 'No'}
+                    {tray.harvest ? 'Да' : 'Нет'}
                   </Table.Cell>
                 </Table.Row>
               </Table>

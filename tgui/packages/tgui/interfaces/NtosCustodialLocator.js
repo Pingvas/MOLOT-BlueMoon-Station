@@ -9,25 +9,25 @@ export const NtosCustodialLocator = (props, context) => {
   return (
     <NtosWindow width={400} height={500}>
       <NtosWindow.Content scrollable>
-        <Section title="Custodial Locator">
+        <Section title="Локатор уборщика">
           {items.length === 0 && (
             <NoticeBox info>
-              No janitorial equipment found.
+              Уборочное оборудование не найдено.
             </NoticeBox>
           )}
           {items.length > 0 && (
             <Table>
               <Table.Row header>
-                <Table.Cell>Item</Table.Cell>
-                <Table.Cell>Location</Table.Cell>
-                <Table.Cell collapsing>Type</Table.Cell>
+                <Table.Cell>Предмет</Table.Cell>
+                <Table.Cell>Местоположение</Table.Cell>
+                <Table.Cell collapsing>Тип</Table.Cell>
               </Table.Row>
               {items.map(item => (
                 <Table.Row key={item.name + item.area}>
                   <Table.Cell>{item.name}</Table.Cell>
                   <Table.Cell>{item.area}</Table.Cell>
                   <Table.Cell collapsing>
-                    {item.type === 'bucket' ? 'Bucket' : 'Bot'}
+                    {item.type === 'bucket' ? 'Ведро' : 'Бот'}
                   </Table.Cell>
                 </Table.Row>
               ))}

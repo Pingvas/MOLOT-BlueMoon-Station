@@ -15,6 +15,7 @@
 	size = 4
 	tgui_id = "NtosRemoteDoor"
 	program_icon = "door-open"
+	available_on_ntnet = FALSE
 
 /datum/computer_file/program/remotedoor/ui_data(mob/user)
 	var/list/data = get_header_data()

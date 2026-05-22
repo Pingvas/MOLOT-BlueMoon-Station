@@ -13,6 +13,7 @@
 	size = 5
 	tgui_id = "NtosSecurEye"
 	program_icon = "eye"
+	available_on_ntnet = FALSE
 
 	var/list/network = list("ss13")
 	var/obj/machinery/camera/active_camera

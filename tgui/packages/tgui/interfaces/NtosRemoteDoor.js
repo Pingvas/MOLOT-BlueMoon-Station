@@ -9,10 +9,10 @@ export const NtosRemoteDoor = (props, context) => {
   return (
     <NtosWindow width={350} height={450}>
       <NtosWindow.Content scrollable>
-        <Section title="Remote Door Control">
+        <Section title="Удаленное управление дверями">
           {doors.length === 0 && (
             <NoticeBox info>
-              No accessible airlocks nearby.
+              Нет доступных шлюзов поблизости.
             </NoticeBox>
           )}
           {doors.map(door => (

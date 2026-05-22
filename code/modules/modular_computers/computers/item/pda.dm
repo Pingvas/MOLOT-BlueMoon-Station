@@ -87,18 +87,12 @@
 	var/datum/picture/picture
 	/// Legacy HTML note text (used by camera.dm when holding PDA up to camera)
 	var/notehtml = ""
-	/// Legacy cartridge var (unused, exists for map-compat)
-	var/default_cartridge
+
 	/// Legacy note text (raw text, used by map objects)
 	var/note
 	/// Legacy UI mode number (used by old cart.dm Browser/Topic UI — dead code)
 	var/mode = 0
-	/// Legacy honk virus counter (used by clown virus cart)
-	var/honkamt = 0
-	/// Legacy ringtone text (used by mime virus cart)
-	var/ttone = "beep"
-	/// Legacy cartridge reference (used by syndicate virus cart for access checks)
-	var/obj/item/cartridge/cartridge
+
 	/// Legacy detonatable flag (used by syndicate virus cart)
 	var/detonatable = TRUE
 	/// Legacy EMP flag — if TRUE, messages get garbled
@@ -724,6 +718,10 @@
 	var/new_color = owner_client.prefs?.pda_color
 	if(new_color)
 		pda_color = new_color
+
+	var/new_theme = owner_client.prefs?.pda_theme
+	if(new_theme)
+		device_theme = new_theme
 
 	var/new_theme = owner_client.prefs?.pda_theme
 	if(new_theme)

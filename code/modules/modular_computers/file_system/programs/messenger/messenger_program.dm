@@ -314,6 +314,7 @@
 			if(sending_virus)
 				var/obj/item/cartridge/virus/disk = computer.inserted_disk
 				if(!istype(disk))
+					to_chat(usr, span_notice("ERROR: No virus cartridge installed."))
 					return FALSE
 
 				var/datum/computer_file/program/messenger/target_messenger = null

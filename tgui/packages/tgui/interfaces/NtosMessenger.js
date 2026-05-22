@@ -79,13 +79,13 @@ const AccessDeniedScreen = (props, context) => {
         top="30%"
         fontSize="30px"
         textAlign="center">
-        ERROR: CONNECTION REFUSED
+        ОШИБКА: СОЕДИНЕНИЕ ОТКЛОНЕНО
       </NoticeBox>
       <Stack vertical position="relative" top="35%" textAlign="left">
         <Section>
-          <Box>Message from host:</Box>
-          <Box>- Remote access of this application has been restricted.</Box>
-          <Box>- Contact your Administrator for further assistance.</Box>
+          <Box>Сообщение от хоста:</Box>
+          <Box>- Удалённый доступ к этому приложению ограничен.</Box>
+          <Box>- Обратитесь к администратору за помощью.</Box>
         </Section>
       </Stack>
     </Stack>
@@ -174,7 +174,7 @@ const ContactsScreen = (props, context) => {
               SpaceMessenger V6.5.3
             </Box>
             <Box italic opacity={0.3} mt={1}>
-              Bringing you spy-proof communications since 2467.
+              Шпионо-независимые коммуникации с 2467 года.
             </Box>
             <Divider hidden />
             <Box>
@@ -182,7 +182,7 @@ const ContactsScreen = (props, context) => {
                 icon="bell"
                 disabled={!alert_able}
                 content={
-                  alert_able && !alert_silenced ? 'Ringer: On' : 'Ringer: Off'
+                  alert_able && !alert_silenced ? 'Звонок: Вкл' : 'Звонок: Выкл'
                 }
                 onClick={() => act('PDA_toggleAlerts')}
               />
@@ -190,26 +190,26 @@ const ContactsScreen = (props, context) => {
                 icon="address-card"
                 content={
                   sending_and_receiving
-                    ? 'Send / Receive: On'
-                    : 'Send / Receive: Off'
+                    ? 'Отправка / Приём: Вкл'
+                    : 'Отправка / Приём: Выкл'
                 }
                 onClick={() => act('PDA_toggleSendingAndReceiving')}
               />
               <Button
                 icon="bell"
-                content={`Ringtone: ${current_ringtone || 'beep'}`}
+                content={`Рингтон: ${current_ringtone || 'бип'}`}
                 onClick={() => setShowRingtone(!showRingtone)}
               />
               <Button
                 icon="sort"
-                content={`Sort by: ${sort_by_job ? 'Job' : 'Name'}`}
+                content={`Сортировка: ${sort_by_job ? 'Должность' : 'Имя'}`}
                 onClick={() => act('PDA_changeSortStyle')}
               />
               {!!virus_attach && (
                 <Button
                   icon="bug"
                   color="bad"
-                  content={`Attach Virus: ${sending_virus ? 'Yes' : 'No'}`}
+                  content={`Прикрепить вирус: ${sending_virus ? 'Да' : 'Нет'}`}
                   onClick={() => act('PDA_toggleVirus')}
                 />
               )}
@@ -219,11 +219,11 @@ const ContactsScreen = (props, context) => {
           <Stack justify="space-between">
             <Box m={0.5}>
               <Icon name="magnifying-glass" mr={1} />
-              Search For User
+              Поиск пользователя
             </Box>
             <Input
               width="220px"
-              placeholder="Search by name or job..."
+              placeholder="Поиск по имени или должности..."
               value={searchUser}
               onInput={(e, val) => setSearchUser(val)}
             />
@@ -235,7 +235,7 @@ const ContactsScreen = (props, context) => {
           <Stack vertical fill>
             <Section>
               <Icon name="comments" mr={1} />
-              Previous Messages
+              Предыдущие сообщения
             </Section>
             <Section fill scrollable>
               <Stack vertical>{filteredChatButtons}</Stack>
@@ -249,7 +249,7 @@ const ContactsScreen = (props, context) => {
             <Stack>
               <Box m={0.5}>
                 <Icon name="address-card" mr={1} />
-                Detected Messengers
+                Обнаруженные мессенджеры
               </Box>
             </Stack>
           </Section>
@@ -259,7 +259,7 @@ const ContactsScreen = (props, context) => {
                 <Stack align="center" justify="center" fill pl={4}>
                   <Icon color="gray" name="user-slash" size={2} />
                   <Stack.Item fontSize={1.5} ml={3}>
-                    No users found.
+                    Пользователи не найдены.
                   </Stack.Item>
                 </Stack>
               )}
@@ -306,7 +306,7 @@ const ContactsScreen = (props, context) => {
             fluid
             color="transparent"
             icon="edit"
-            content="Custom..."
+            content="Свой..."
             onClick={() => {
               act('PDA_ringSet');
               setShowRingtone(false);
@@ -329,9 +329,7 @@ const ChatButton = (props, context) => {
       fluid
       onClick={() => act('PDA_viewMessages', { ref: chatRef })}>
       {hasUnreads
-        && `[${unreads <= 9 ? unreads : '9+'} unread message${
-          unreads !== 1 ? 's' : ''
-        }]`}{' '}
+        && `[${unreads <= 9 ? unreads : '9+'} непрочитанных]`}{' '}
       {name}
     </Button>
   );
@@ -349,18 +347,18 @@ const SendToAllSection = (props, context) => {
         <Stack justify="space-between">
           <Stack.Item align="center">
             <Icon name="satellite-dish" mr={1} ml={0.5} />
-            Send To All
+            Отправить всем
           </Stack.Item>
           <Stack.Item>
             <Button
               icon="arrow-right"
               disabled={on_spam_cooldown || message === ''}
-              tooltip={on_spam_cooldown && 'Wait before sending more messages!'}
+              tooltip={on_spam_cooldown && 'Подождите перед отправкой новых сообщений!'}
               onClick={() => {
                 act('PDA_sendEveryone', { message: message });
                 setMessage('');
               }}>
-              Send
+              Отправить
             </Button>
           </Stack.Item>
         </Stack>
@@ -369,7 +367,7 @@ const SendToAllSection = (props, context) => {
         <TextArea
           height={6}
           value={message}
-          placeholder="Send message to everyone..."
+          placeholder="Отправить сообщение всем..."
           onInput={(e, val) => setMessage(val)}
         />
       </Section>
@@ -427,7 +425,7 @@ const ChatScreen = (props, context) => {
       filteredMessages.push(
         <Box className="UnreadDivider" m={0} mt={isSwitch ? 3 : 1}>
           <div />
-          <span>Unread Messages</span>
+          <span>Непрочитанные сообщения</span>
           <div />
         </Box>,
       );
@@ -451,7 +449,7 @@ const ChatScreen = (props, context) => {
     sendingBar = (
       <Section fill>
         <Box width="100%" italic color="gray" ml={1}>
-          You cannot reply to this user.
+          Вы не можете ответить этому пользователю.
         </Box>
       </Section>
     );
@@ -461,7 +459,7 @@ const ChatScreen = (props, context) => {
         {!!sendingVirus && (
           <Stack.Item>
             <Button
-              tooltip="ERROR: File signature is unverified."
+              tooltip="ОШИБКА: Подпись файла не подтверждена."
               icon="triangle-exclamation"
               color="red"
             />
@@ -469,14 +467,14 @@ const ChatScreen = (props, context) => {
         )}
         <Stack.Item>
           <Button
-            tooltip="Emoji"
+            tooltip="Эмодзи"
             icon="smile"
             onClick={() => setShowEmoji(!showEmoji)}
           />
         </Stack.Item>
         <Stack.Item>
           <Button
-            tooltip="Send"
+            tooltip="Отправить"
             icon="arrow-right"
             onClick={handleSendMessage}
             disabled={!canSend}
@@ -490,7 +488,7 @@ const ChatScreen = (props, context) => {
         <Stack fill align="center">
           <Stack.Item grow>
             <Input
-              placeholder={`Send message to ${recipient.name}...`}
+              placeholder={`Отправить сообщение ${recipient.name}...`}
               fluid
               autoFocus
               value={message}
@@ -512,19 +510,19 @@ const ChatScreen = (props, context) => {
       <Section>
         <Button
           icon="arrow-left"
-          content="Back"
+          content="Назад"
           onClick={() => act('PDA_viewMessages', { ref: null })}
         />
         {chatRef && (
           <>
             <Button
               icon="box-archive"
-              content="Close chat"
+              content="Закрыть чат"
               onClick={() => act('PDA_closeMessages', { ref: chatRef })}
             />
             <Button.Confirm
               icon="trash-can"
-              content="Delete chat"
+              content="Удалить чат"
               onClick={() => act('PDA_clearMessages', { ref: chatRef })}
             />
           </>
@@ -541,7 +539,7 @@ const ChatScreen = (props, context) => {
             {!!(messages.length > 0 && canReply) && (
               <>
                 <Stack.Item textAlign="center" fontSize={1}>
-                  This is the beginning of your chat with {recipient.name}.
+                  Начало чата с {recipient.name}.
                 </Stack.Item>
                 <Stack.Divider />
               </>
@@ -628,7 +626,7 @@ const ChatMessage = (props) => {
         </Tooltip>
       </Box>
       {!!everyone && (
-        <Box className="NtosChatMessage__everyone">Sent to everyone</Box>
+        <Box className="NtosChatMessage__everyone">Отправлено всем</Box>
       )}
     </Box>
   );
