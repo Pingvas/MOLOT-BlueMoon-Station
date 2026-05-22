@@ -812,6 +812,7 @@
 	has_light = FALSE
 	comp_light_luminosity = 0
 	inserted_item = null
+	cell = null
 	has_pda_programs = FALSE
 	starting_programs = list(
 		/datum/computer_file/program/messenger,
@@ -853,6 +854,23 @@
 	if(silicon_owner?.stat != DEAD)
 		return ..()
 	return FALSE
+
+/obj/item/modular_computer/pda/silicon/use_power(amount = 0)
+	if(!silicon_owner)
+		return FALSE
+	if(iscyborg(silicon_owner))
+		var/mob/living/silicon/robot/robo = silicon_owner
+		if(robo.cell && robo.cell.use(amount * GLOB.CELLRATE))
+			return TRUE
+		return FALSE
+	return TRUE // AI and other silicons don't consume PDA power
+
+/obj/item/modular_computer/pda/silicon/get_battery_percent()
+	if(iscyborg(silicon_owner))
+		var/mob/living/silicon/robot/robo = silicon_owner
+		if(robo.cell)
+			return robo.cell.percent()
+	return null
 
 /obj/item/modular_computer/pda/silicon/get_ntnet_status()
 	if(!silicon_owner)
