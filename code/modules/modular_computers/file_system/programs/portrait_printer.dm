@@ -16,7 +16,7 @@
 	extended_desc = "This program connects to a Spinward Sector community art site for viewing and printing art."
 	//transfer_access = ACCESS_LIBRARY // BLUEMOON EDIT commented
 	usage_flags = PROGRAM_CONSOLE
-	requires_ntnet = FALSE
+	requires_ntnet = TRUE
 	size = 9
 	tgui_id = "NtosPortraitPrinter"
 	program_icon = "paint-brush"

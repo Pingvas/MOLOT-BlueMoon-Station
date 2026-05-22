@@ -6,7 +6,7 @@
 	program_icon_state = "robot"
 	extended_desc = "A remote controller used for giving basic commands to non-sentient robots."
 	transfer_access = null
-	requires_ntnet = FALSE
+	requires_ntnet = TRUE
 	size = 12
 	tgui_id = "NtosRoboControl"
 	program_icon = "robot"

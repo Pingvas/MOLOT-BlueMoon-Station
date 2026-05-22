@@ -5,7 +5,7 @@
 	program_icon_state = "comm_monitor"
 	extended_desc = "This program monitors stationwide NTNet network, provides access to logging systems, and allows for configuration changes"
 	size = 12
-	requires_ntnet = FALSE
+	requires_ntnet = TRUE
 	required_access = ACCESS_NETWORK //NETWORK CONTROL IS A MORE SECURE PROGRAM.
 	available_on_ntnet = TRUE
 	tgui_id = "NtosNetMonitor"

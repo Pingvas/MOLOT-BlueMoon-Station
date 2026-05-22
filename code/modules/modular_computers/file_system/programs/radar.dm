@@ -4,7 +4,7 @@
 	category = PROGRAM_CATEGORY_CREW
 	ui_header = "borg_mon.gif" //DEBUG -- new icon before PR
 	program_icon_state = "radarntos"
-	requires_ntnet = FALSE
+	requires_ntnet = TRUE
 	transfer_access = null
 	available_on_ntnet = FALSE
 	usage_flags = PROGRAM_LAPTOP | PROGRAM_TABLET
@@ -211,9 +211,9 @@
 	filename = "lifeline"
 	filedesc = "Lifeline"
 	extended_desc = "This program allows for tracking of crew members via their suit sensors."
-	requires_ntnet = FALSE
+	requires_ntnet = TRUE
 	transfer_access = ACCESS_MEDICAL
-	available_on_ntnet = TRUE
+	available_on_ntnet = FALSE
 	program_icon = "heartbeat"
 
 /datum/computer_file/program/radar/lifeline/find_atom()
