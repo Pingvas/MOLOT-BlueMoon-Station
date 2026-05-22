@@ -578,18 +578,19 @@
 			to_chat(user, "<span class='warning'>[src] отвергает ID-карту!</span>")
 			playsound(src, 'sound/machines/terminal_error.ogg', 15, TRUE)
 			return
-		if(!owner)
-			owner = idcard.registered_name
-			ownjob = idcard.get_assignment_name()
-			update_label()
-			to_chat(user, "<span class='notice'>Карта отсканирована.</span>")
-			playsound(src, 'sound/machines/terminal_success.ogg', 15, TRUE)
-			return
-		else if(user.canUseTopic(src, BE_CLOSE))
-			if(!InsertID(tool))
-				return
-			to_chat(user, "<span class='notice'>Вы вставили ID-карту в слот [src].</span>")
-			playsound(src, 'sound/machines/pda_button/pda_button1.ogg', 50, TRUE)
+		if(user.canUseTopic(src, BE_CLOSE))
+			if(!stored_id)
+				if(!owner)
+					owner = idcard.registered_name
+					ownjob = idcard.get_assignment_name()
+					update_label()
+					to_chat(user, "<span class='notice'>Карта отсканирована.</span>")
+					playsound(src, 'sound/machines/terminal_success.ogg', 15, TRUE)
+				InsertID(tool)
+				to_chat(user, "<span class='notice'>Вы вставили ID-карту в слот [src].</span>")
+				playsound(src, 'sound/machines/pda_button/pda_button1.ogg', 50, TRUE)
+			else
+				to_chat(user, span_warning("В [src] уже есть ID-карта!"))
 		return
 
 	if(istype(tool, /obj/item/stack/metadollar))
@@ -718,10 +719,6 @@
 	var/new_color = owner_client.prefs?.pda_color
 	if(new_color)
 		pda_color = new_color
-
-	var/new_theme = owner_client.prefs?.pda_theme
-	if(new_theme)
-		device_theme = new_theme
 
 	var/new_theme = owner_client.prefs?.pda_theme
 	if(new_theme)
