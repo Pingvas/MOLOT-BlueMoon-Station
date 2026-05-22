@@ -32,20 +32,20 @@ export const NtosMain = (props, context) => {
           {!!cardholder && login.IDName && (
             <Stack.Item>
               <Section
-                title="Details"
+                title="Данные"
                 style={{ margin: '8px 10px 0 10px' }}>
                 <div style={{ fontSize: '12px', lineHeight: '1.6' }}>
                   <div>
                     <span style={{ color: 'rgba(255,255,255,0.5)' }}>
-                      ID Name:{' '}
+                      Владелец:{' '}
                     </span>
                     <b>{login.IDName}</b>
                   </div>
                   <div>
                     <span style={{ color: 'rgba(255,255,255,0.5)' }}>
-                      Assignment:{' '}
+                      Должность:{' '}
                     </span>
-                    <b>{login.IDJob || 'None'}</b>
+                    <b>{login.IDJob || 'Нет'}</b>
                   </div>
                 </div>
               </Section>
@@ -67,7 +67,7 @@ export const NtosMain = (props, context) => {
               }}>
                 <span style={{ fontSize: '13px' }}>
                   <span style={{ color: 'rgba(255,255,255,0.5)' }}>
-                    Cartridge{' '}
+                    Картридж{' '}
                   </span>
                   <b>{cartridge_name}</b>
                 </span>
@@ -75,7 +75,7 @@ export const NtosMain = (props, context) => {
                   icon="eject"
                   color="transparent"
                   onClick={() => act('PDA_ejectDisk')}>
-                  Eject
+                  Извлечь
                 </Button>
               </div>
             </Stack.Item>
@@ -103,7 +103,7 @@ export const NtosMain = (props, context) => {
           {/* Applications */}
           <Stack.Item grow>
             <Section
-              title="Applications"
+              title="Приложения"
               fill
               style={{ margin: '8px 10px' }}>
               <Stack vertical>
@@ -135,7 +135,7 @@ export const NtosMain = (props, context) => {
                           fontSize: '10px',
                           color: 'rgba(255,255,255,0.4)',
                         }}>
-                          (running)
+                          (запущено)
                         </span>
                       )}
                     </Button>
@@ -160,7 +160,7 @@ export const NtosMain = (props, context) => {
                   selected={light_on}
                   color="transparent"
                   onClick={() => act('PC_toggle_light')}>
-                  {light_on ? 'ON' : 'OFF'}
+                  {light_on ? 'ВКЛ' : 'ВЫКЛ'}
                 </Button>
               )}
               <Button
@@ -174,7 +174,7 @@ export const NtosMain = (props, context) => {
                     (idx + 1) % available_themes.length];
                   act('set_theme', { theme: next.id });
                 }}>
-                Theme: {available_themes.find(
+                Тема: {available_themes.find(
                   t => t.id === device_theme)?.name || device_theme}
               </Button>
             </div>

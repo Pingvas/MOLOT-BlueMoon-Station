@@ -694,6 +694,10 @@
 	if(alert_able && (!alert_silenced || is_rigged))
 		computer.ring(ringtone, receivers)
 
+	if(istype(computer, /obj/item/modular_computer/pda))
+		var/obj/item/modular_computer/pda/pda = computer
+		pda.receive_message(signal)
+
 	SStgui.update_uis(computer)
 
 

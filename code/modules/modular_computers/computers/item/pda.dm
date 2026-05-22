@@ -15,10 +15,10 @@
 	item_state = "electronic"
 	item_flags = NOBLUDGEON
 
-	overlays_icon = 'icons/obj/devices/modular_pda.dmi'
+	overlays_icon = 'icons/obj/pda_alt.dmi'
 
-	icon_state_menu = null
-	display_overlays = FALSE
+	icon_state_menu = "screen_default"
+	show_program_icon = FALSE
 	hardware_flag = PROGRAM_PDA
 	max_hardware_size = 1
 	max_bays = 1
@@ -79,6 +79,8 @@
 	var/tnote
 	/// Legacy flashlight-on flag
 	var/fon = FALSE
+	/// New message alert overlay flag
+	var/new_alert = FALSE
 	/// Legacy flashlight luminosity
 	var/f_lum = 2.3
 	/// Legacy photo datum
@@ -349,7 +351,8 @@
 
 /// Legacy compat: receive_message is a no-op stub (messaging uses programs now).
 /obj/item/modular_computer/pda/proc/receive_message(datum/signal/subspace/pda/signal)
-	return
+	new_alert = TRUE
+	update_appearance()
 
 /// Legacy compat: create_message wraps send_message (used by AI/borg code).
 /obj/item/modular_computer/pda/proc/create_message(mob/living/user, obj/item/modular_computer/pda/target)
@@ -391,6 +394,13 @@
 	update_icon()
 
 /obj/item/modular_computer/pda/attack(mob/living/carbon/C, mob/living/user)
+	if(istype(inserted_disk, /obj/item/cartridge))
+		var/obj/item/cartridge/installed_cartridge = inserted_disk
+		if(installed_cartridge.access & CART_MEDICAL)
+			user.visible_message("<span class='notice'>[user] analyzes [C]'s vitals.</span>", \
+								"<span class='notice'>You analyze [C]'s vitals.</span>")
+			healthscan(user, C, 1, FALSE)
+			return
 	return ..()
 
 /obj/item/modular_computer/pda/afterattack(atom/target, mob/user, proximity)
@@ -464,12 +474,20 @@
 
 /obj/item/modular_computer/pda/update_overlays()
 	. = ..()
+	if(new_alert)
+		. += mutable_appearance(overlays_icon, "alert")
+		new_alert = FALSE
 	if(stored_id)
 		. += mutable_appearance(overlays_icon, "id_overlay")
+	if(inserted_item)
+		. += mutable_appearance(overlays_icon, "insert_overlay")
 	if(light_on)
 		. += mutable_appearance(overlays_icon, "light_overlay")
 	if(inserted_pai)
-		. += mutable_appearance(overlays_icon, "pai_inserted")
+		if(inserted_pai.pai)
+			. += mutable_appearance(overlays_icon, "pai_overlay")
+		else
+			. += mutable_appearance(overlays_icon, "pai_overlay_off")
 
 /obj/item/modular_computer/pda/interact(mob/user)
 	. = ..()
@@ -759,7 +777,7 @@
 /obj/item/modular_computer/pda/syndicate_contract_uplink
 	name = "contractor tablet"
 	icon_state = "pda-syndicate"
-	icon_state_menu = null
+	icon_state_menu = "screen_default"
 	device_theme = PDA_THEME_SYNDICATE
 	comp_light_luminosity = 6.3
 	has_pda_programs = FALSE
