@@ -259,7 +259,10 @@
 		return
 
 	if(enabled)
-		. += (show_program_icon && active_program?.program_icon_state) || icon_state_menu
+		var/mutable_appearance/screen_overlay = mutable_appearance(icon, (show_program_icon && active_program?.program_icon_state) || icon_state_menu)
+		if(pda_color)
+			screen_overlay.color = pda_color
+		. += screen_overlay
 	if(obj_integrity <= integrity_failure * max_integrity)
 		. += "bsod"
 		. += "broken"

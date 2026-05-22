@@ -352,7 +352,7 @@
 	return static_data
 
 /datum/computer_file/program/messenger/ui_data(mob/user)
-	var/list/data = list()
+	var/list/data = get_header_data()
 
 	var/list/chats_data = list()
 	for(var/chat_ref in saved_chats)
@@ -363,8 +363,8 @@
 	var/list/messengers = get_messengers()
 
 	data["owner"] = ((REF(src) in GLOB.pda_messengers) ? list(
-			"name" = computer.saved_identification,
-			"job" = computer.saved_job,
+			"name" = computer.saved_identification || "Unknown",
+			"job" = computer.saved_job || "Unknown",
 			"ref" = REF(src)
 		) : null)
 	data["saved_chats"] = chats_data
@@ -606,7 +606,7 @@
 	var/shell_addendum = ""
 
 	// Log in the talk log
-	source.log_talk(message, LOG_PDA, tag="[shell_addendum][rigged ? "Rigged" : ""] PDA: [computer.saved_identification] to [signal.format_target()]")
+	source.log_talk(message, LOG_PDA, tag="[shell_addendum][rigged ? "Rigged" : ""] PDA: [computer.saved_identification || "Unknown"] to [signal.format_target()]")
 	if(rigged)
 		var/log_text = "[key_name(sender)] sent a rigged PDA message (Name: [fake_name]. Job: [fake_job]) to [english_list(stringified_targets)] [sender.mind?.special_role ? "" : "(SENT BY NON-ANTAG)"]"
 		log_game(log_text)
@@ -616,7 +616,9 @@
 	var/ghost_message = span_notice("[span_name(signal.format_sender())] [rigged ? "(as [span_name(fake_name)]) Rigged " : ""]PDA Message --> [span_name("[signal.format_target()]")]: \"[signal.format_message()]\"")
 	var/list/message_listeners = GLOB.dead_mob_list + GLOB.current_observers_list
 	for(var/mob/listener as anything in message_listeners)
-		if(!(get_chat_toggles(listener) & CHAT_GHOSTPDA))
+		if(!listener.client)
+			continue
+		if(!(get_chat_toggles(listener.client) & CHAT_GHOSTPDA))
 			continue
 		to_chat(listener, "[FOLLOW_LINK(listener, source)] [ghost_message]")
 
@@ -651,6 +653,8 @@
 		chat = find_chat_by_recipient(is_fake_user ? fake_name : sender_ref, is_fake_user)
 		if(!istype(chat))
 			chat = create_chat(!is_fake_user ? sender_ref : null, fake_name, fake_job)
+		if(!chat)
+			return
 		chat.add_message(message)
 		chat.unread_messages++
 
@@ -667,9 +671,9 @@
 	var/datum/computer_file/program/messenger/sender_messenger = chat?.recipient?.resolve()
 
 	var/sender_title = is_fake_user ? STRINGIFY_PDA_TARGET(fake_name, fake_job) : get_messenger_name(sender_messenger)
-	var/sender_name = is_fake_user ? fake_name : sender_messenger?.computer?.saved_identification
+	var/sender_name = is_fake_user ? fake_name : (sender_messenger?.computer?.saved_identification || "Unknown")
 
-	SEND_SIGNAL(computer, COMSIG_MODULAR_PDA_MESSAGE_RECEIVED, signal, fake_job || sender_messenger?.computer?.saved_job, sender_name)
+	SEND_SIGNAL(computer, COMSIG_MODULAR_PDA_MESSAGE_RECEIVED, signal, fake_job || sender_messenger?.computer?.saved_job || "Unknown", sender_name)
 
 	for(var/mob/living/messaged_mob as anything in receivers)
 		if(messaged_mob.stat >= UNCONSCIOUS)

@@ -168,6 +168,8 @@
 
 	for(var/I in repo)
 		var/datum/computer_file/program/P = I
+		if(P.available_on_syndinet && !emagged)
+			continue
 		if(!(P.category in program_categories))
 			program_categories.Add(P.category)
 		var/installed = FALSE
@@ -175,6 +177,37 @@
 			installed = !!hard_drive.find_file_by_name(P.filename)
 		else
 			installed = !!my_computer.find_file_by_name(P.filename)
+		var/restriction = ""
+		if(P.available_on_syndinet)
+			restriction = "Requires SyndiNet access (emagged device)"
+		else if(P.transfer_access)
+			if(islist(P.transfer_access))
+				var/list/access_names = list()
+				for(var/req_access in P.transfer_access)
+					var/desc = get_access_desc(req_access)
+					if(desc)
+						access_names += desc
+				if(length(access_names))
+					var/comma_sep = ", "
+					restriction = "Requires access: [jointext(access_names, comma_sep)]"
+			else
+				var/desc = get_access_desc(P.transfer_access)
+				if(desc)
+					restriction = "Requires access: [desc]"
+		else if(P.required_access)
+			if(islist(P.required_access))
+				var/list/access_names = list()
+				for(var/req_access in P.required_access)
+					var/desc = get_access_desc(req_access)
+					if(desc)
+						access_names += desc
+				if(length(access_names))
+					var/comma_sep = ", "
+					restriction = "Requires access to run: [jointext(access_names, comma_sep)]"
+			else
+				var/desc = get_access_desc(P.required_access)
+				if(desc)
+					restriction = "Requires access to run: [desc]"
 		data["programs"] += list(list(
 			"icon" = P.program_icon,
 			"filename" = P.filename,
@@ -186,6 +219,7 @@
 			"size" = P.size,
 			"access" = emagged && P.available_on_syndinet ? TRUE : P.can_run(user,transfer = 1, access = access),
 			"verifiedsource" = P.available_on_ntnet,
+			"restriction" = restriction,
 		))
 
 	data["categories"] = show_categories & program_categories

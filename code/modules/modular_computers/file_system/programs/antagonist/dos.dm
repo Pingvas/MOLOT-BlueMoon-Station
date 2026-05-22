@@ -3,7 +3,7 @@
 	filedesc = "DoS Traffic Generator"
 	category = PROGRAM_CATEGORY_MISC
 	program_icon_state = "hostile"
-	extended_desc = "This advanced script can perform denial of service attacks against NTNet quantum relays. The system administrator will probably notice this. Multiple devices can run this program together against same relay for increased effect"
+	extended_desc = "This advanced script can perform denial of service attacks against NTNet quantum relays. The system administrator will probably notice this. Multiple devices can run this program together against same relay for increased effect. Requires SyndiNet access (emagged device)."
 	size = 20
 	requires_ntnet = FALSE
 	available_on_ntnet = FALSE

@@ -21,6 +21,6 @@
 			return TRUE
 
 /datum/computer_file/program/notepad/ui_data(mob/user)
-	var/list/data = list()
+	var/list/data = get_header_data()
 	data["note"] = written_note
 	return data

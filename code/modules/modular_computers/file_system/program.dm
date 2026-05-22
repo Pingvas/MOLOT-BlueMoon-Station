@@ -251,6 +251,8 @@
 
 
 /datum/computer_file/program/ui_host()
+	if(!computer)
+		return null
 	if(computer.physical)
 		return computer.physical
 	else

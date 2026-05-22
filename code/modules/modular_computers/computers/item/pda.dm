@@ -165,6 +165,13 @@
 
 /obj/item/modular_computer/pda/examine(mob/user)
 	. = ..()
+	if(owner)
+		. += "<span class='notice'>Владелец: <b>[owner]</b>, [ownjob].</span>"
+	var/battery = get_battery_percent()
+	if(battery != null)
+		. += "<span class='notice'>Заряд батареи: [battery]%.</span>"
+	if(device_theme)
+		. += "<span class='notice'>Тема: [device_theme].</span>"
 	. += stored_id ? "<span class='notice'>Alt-click для извлечения ID-карты.</span>" : ""
 	if(inserted_item && (!isturf(loc)))
 		. += "<span class='notice'>Ctrl-click для извлечения [inserted_item].</span>"
@@ -580,12 +587,10 @@
 			return
 		if(user.canUseTopic(src, BE_CLOSE))
 			if(!stored_id)
-				if(!owner)
+				if(!owner && !saved_identification)
 					owner = idcard.registered_name
 					ownjob = idcard.get_assignment_name()
 					update_label()
-					to_chat(user, "<span class='notice'>Карта отсканирована.</span>")
-					playsound(src, 'sound/machines/terminal_success.ogg', 15, TRUE)
 				InsertID(tool)
 				to_chat(user, "<span class='notice'>Вы вставили ID-карту в слот [src].</span>")
 				playsound(src, 'sound/machines/pda_button/pda_button1.ogg', 50, TRUE)
@@ -650,7 +655,7 @@
 	return detomatix_difficulty
 
 /obj/item/modular_computer/pda/proc/remove_pen(mob/user)
-	if(issilicon(user) || !user.canUseTopic(src, BE_CLOSE, no_tk = TRUE))
+	if(!user || issilicon(user) || !user.canUseTopic(src, BE_CLOSE, no_tk = TRUE))
 		return
 	if(inserted_item)
 		balloon_alert(user, "removed [inserted_item]")
@@ -714,6 +719,7 @@
 		var/list/skin_data = GLOB.pda_reskins[new_skin]
 		if(skin_data && skin_data["icon"])
 			icon = skin_data["icon"]
+			overlays_icon = skin_data["icon"]
 			update_appearance()
 
 	var/new_color = owner_client.prefs?.pda_color
