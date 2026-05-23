@@ -33,10 +33,7 @@
 
 	if(!shell)
 		aiPDA = new/obj/item/modular_computer/pda/silicon(src)
-		aiPDA.owner = real_name
-		aiPDA.ownjob = "Cyborg"
-		aiPDA.name = real_name + " ([aiPDA.ownjob])"
-		aiPDA.update_id_imprint(real_name, "Cyborg")
+		aiPDA.imprint_id(real_name, "Cyborg")
 
 	previous_health = health
 
@@ -194,9 +191,7 @@
 	if(!QDELETED(builtInCamera))
 		builtInCamera.c_tag = real_name	//update the camera name too
 	if(aiPDA && !shell)
-		aiPDA.owner = real_name
-		aiPDA.name = real_name + " (" + aiPDA.ownjob + ")"
-		aiPDA.update_id_imprint(real_name, aiPDA.saved_job)
+		aiPDA.imprint_id(real_name, aiPDA.saved_job)
 
 /mob/living/silicon/robot/proc/get_standard_name()
 	return "[(designation ? "[designation] " : "")][mmi.braintype]-[ident]"
@@ -957,9 +952,7 @@
 	if(!QDELETED(builtInCamera))
 		builtInCamera.c_tag = real_name
 	if(aiPDA && !shell)
-		aiPDA.owner = newname
-		aiPDA.name = newname + " (" + aiPDA.ownjob + ")"
-		aiPDA.update_id_imprint(newname, aiPDA.saved_job)
+		aiPDA.imprint_id(newname, aiPDA.saved_job)
 	custom_name = newname
 
 

@@ -171,10 +171,7 @@
 	add_verb(src, /mob/living/silicon/ai/proc/show_laws_verb)
 
 	aiPDA = new/obj/item/modular_computer/pda/silicon(src)
-	aiPDA.owner = name
-	aiPDA.ownjob = "AI"
-	aiPDA.name = name + " (" + aiPDA.ownjob + ")"
-	aiPDA.update_id_imprint(name, "AI")
+	aiPDA.imprint_id(name, "AI")
 
 	aiMulti = new(src)
 	radio = new /obj/item/radio/headset/silicon/ai(src)
@@ -1045,9 +1042,7 @@
 
 /mob/living/silicon/ai/replace_identification_name(oldname,newname)
 	if(aiPDA)
-		aiPDA.owner = newname
-		aiPDA.name = newname + " (" + aiPDA.ownjob + ")"
-		aiPDA.update_id_imprint(newname, aiPDA.saved_job)
+		aiPDA.imprint_id(newname, aiPDA.saved_job)
 
 
 /mob/living/silicon/ai/proc/add_malf_picker()

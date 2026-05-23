@@ -341,13 +341,13 @@
 
 	var/obj/item/modular_computer/pda/PDA = H.get_item_by_slot(pda_slot)
 	if(istype(PDA))
-		PDA.owner = H.real_name
+		var/new_job = null
 		if(J)
 			if(preference_source && preference_source.prefs && preference_source.prefs.alt_titles_preferences[J.title])
-				PDA.ownjob = preference_source.prefs.alt_titles_preferences[J.title]
+				new_job = preference_source.prefs.alt_titles_preferences[J.title]
 			else
-				PDA.ownjob = J.title
-		PDA.update_label()
+				new_job = J.title
+		PDA.update_label(H.real_name, new_job)
 		if(preference_source)
 			PDA.update_style(preference_source)
 

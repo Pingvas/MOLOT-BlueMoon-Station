@@ -293,7 +293,7 @@
 	var/obj/item/card/id/removed = stored_id
 	stored_id = null
 	id = null
-	update_id_imprint(null, null)
+	update_label(null, null)
 	update_appearance()
 	if(ishuman(loc))
 		var/mob/living/carbon/human/human_wearer = loc
@@ -313,7 +313,7 @@
 	inserting_id.forceMove(src)
 	stored_id = inserting_id
 	id = inserting_id
-	update_id_imprint(inserting_id.registered_name, inserting_id.get_assignment_name())
+	update_label(inserting_id.registered_name, inserting_id.get_assignment_name())
 	update_appearance()
 	if(ishuman(loc))
 		var/mob/living/carbon/human/human_wearer = loc
@@ -338,17 +338,26 @@
 
 /// Legacy compat: update_label syncs owner/ownjob and updates device name.
 /obj/item/modular_computer/pda/proc/update_label(new_name, new_job)
-	if(new_name)
+	if(!isnull(new_name))
 		owner = new_name
 		saved_identification = new_name
-	if(new_job)
+	else if(owner)
+		saved_identification = owner
+
+	if(!isnull(new_job))
 		ownjob = new_job
 		saved_job = new_job
+	else if(ownjob)
+		saved_job = ownjob
+
 	if(owner)
 		name = "[owner]'s PDA ([ownjob])"
 	else
 		name = initial(name)
 	update_id_imprint(saved_identification, saved_job)
+
+/obj/item/modular_computer/pda/proc/imprint_id(new_name, new_job)
+	update_label(new_name, new_job)
 
 /// Legacy compat: send_message is a no-op stub (messaging uses programs now).
 /obj/item/modular_computer/pda/proc/send_message(message, flash = TRUE)
