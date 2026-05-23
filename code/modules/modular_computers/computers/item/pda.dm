@@ -34,7 +34,9 @@
 	armor = list(MELEE = 0, BULLET = 0, LASER = 0, ENERGY = 0, BOMB = 0, BIO = 0, RAD = 0, FIRE = 100, ACID = 100)
 	resistance_flags = FIRE_PROOF | ACID_PROOF
 	comp_light_luminosity = 2.3
+	comp_light_color = "#FFCC66"
 	looping_sound = FALSE
+	long_ranged = TRUE
 
 	///The item currently inserted into the PDA, starts with a pen.
 	var/obj/item/inserted_item = /obj/item/pen
@@ -397,13 +399,7 @@
 	LAZYREMOVE(blocked_pdas, target)
 
 /// Legacy compat wrapper for the LED flashlight toggle.
-/obj/item/modular_computer/pda/proc/toggle_light(mob/user)
-	if(fon)
-		fon = FALSE
-		set_light(0)
-	else if(f_lum)
-		fon = TRUE
-		set_light(f_lum, f_pow, f_col)
+/obj/item/modular_computer/pda/proc/toggle_light()
 	toggle_flashlight()
 	update_icon()
 
@@ -489,7 +485,7 @@
 /obj/item/modular_computer/pda/update_overlays()
 	. = ..()
 	if(new_alert)
-		. += mutable_appearance(overlays_icon, "alert")
+		. += mutable_appearance(overlays_icon, "pda-r")
 	if(stored_id)
 		. += mutable_appearance(overlays_icon, "id_overlay")
 	if(inserted_item)
@@ -739,18 +735,6 @@
 	if(new_theme)
 		device_theme = new_theme
 
-/// Installs programs from the given cartridge into this PDA.
-/obj/item/modular_computer/pda/proc/install_cartridge_programs(obj/item/cartridge/C)
-	if(!istype(C))
-		return
-	for(var/prog_type in C.get_programs())
-		if(locate(prog_type) in get_all_files())
-			continue
-		var/datum/computer_file/program/P = new prog_type
-		P.computer = src
-		store_file(P)
-		cartridge_programs += P
-
 /// Removes all programs that were installed by the current cartridge.
 /obj/item/modular_computer/pda/proc/uninstall_cartridge_programs()
 	for(var/datum/computer_file/program/P in cartridge_programs)
@@ -775,6 +759,66 @@
 	var/datum/computer_file/program/messenger/messenger_app = locate() in search_files
 	if(messenger_app)
 		messenger_app.ringtone = new_ringtone
+
+/obj/item/modular_computer/pda/verb/change_pda_skin()
+	set name = "Change PDA Skin"
+	set category = "Object"
+	set src in view(1)
+
+	do_change_pda_skin(usr)
+
+/obj/item/modular_computer/pda/proc/do_change_pda_skin(mob/user)
+	if(!istype(user))
+		return
+	if(user.incapacitated())
+		return
+	if(owner && user.real_name != owner)
+		to_chat(user, span_warning("You can only change the skin of your own PDA!"))
+		return
+	if(!length(GLOB.pda_reskins))
+		to_chat(user, span_warning("No skins available."))
+		return
+	var/list/skin_names = list()
+	for(var/skin in GLOB.pda_reskins)
+		var/list/skin_data = GLOB.pda_reskins[skin]
+		skin_names[skin_data["name"] || skin] = skin
+	var/selected_name = input(user, "Choose a new PDA skin:", "PDA Skin") as null|anything in sort_list(skin_names)
+	if(!selected_name)
+		return
+	var/selected_skin = skin_names[selected_name]
+	var/list/skin_data = GLOB.pda_reskins[selected_skin]
+	if(!skin_data || !skin_data["icon"])
+		return
+	icon = skin_data["icon"]
+	overlays_icon = skin_data["icon"]
+	update_appearance()
+	playsound(src, 'sound/machines/terminal_success.ogg', 50, TRUE)
+	to_chat(user, span_notice("PDA skin changed to [selected_name]."))
+
+/obj/item/modular_computer/pda/CtrlShiftClick(mob/user)
+	if(!user.Adjacent(src) || user.incapacitated())
+		return
+	do_change_pda_skin(user)
+
+/obj/item/modular_computer/pda/proc/install_cartridge_programs(obj/item/cartridge/C)
+	if(!istype(C))
+		return
+	var/list/installed = list()
+	for(var/prog_type in C.get_programs())
+		if(locate(prog_type) in get_all_files())
+			continue
+		var/datum/computer_file/program/P = new prog_type
+		P.computer = src
+		store_file(P)
+		cartridge_programs += P
+		installed += P.filedesc
+	if(length(installed))
+		var/installed_text = english_list(installed)
+		visible_message(span_notice("Programs installed: [installed_text]"), null, null, 1)
+		if(ismob(loc))
+			var/mob/M = loc
+			to_chat(M, span_notice("[src] installs new programs from the cartridge: [installed_text]"))
+		SStgui.update_uis(src)
 
 /**
  * Nuclear PDA — given to nukies for disk pinpointer.
@@ -880,6 +924,14 @@
 		if(robo.cell)
 			return robo.cell.percent()
 	return null
+
+/obj/item/modular_computer/pda/get_ntnet_status(specific_action = 0)
+	. = ..()
+	if(.)
+		return .
+	if(long_ranged)
+		return SSnetworks.station_network?.check_function(specific_action)
+	return FALSE
 
 /obj/item/modular_computer/pda/silicon/get_ntnet_status()
 	if(!silicon_owner)

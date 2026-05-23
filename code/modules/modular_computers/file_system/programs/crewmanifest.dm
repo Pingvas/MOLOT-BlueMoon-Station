@@ -11,13 +11,10 @@
 	tgui_id = "NtosCrewManifest"
 	program_icon = "clipboard-list"
 
-/datum/computer_file/program/crew_manifest/ui_static_data(mob/user)
-	var/list/data = list()
-	data["manifest"] = GLOB.data_core.get_manifest()
-	return data
-
 /datum/computer_file/program/crew_manifest/ui_data(mob/user)
 	var/list/data = get_header_data()
+
+	data["manifest"] = GLOB.data_core.get_manifest()
 
 	var/obj/item/computer_hardware/printer/printer
 	if(computer)

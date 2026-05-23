@@ -47,7 +47,7 @@
 		var/obj/item/modular_computer/pda/P = A
 		var/PDA_name = initial(P.name)
 		colorlist += PDA_name
-		colorlist[PDA_name] = list(initial(P.icon_state), initial(P.desc))
+		colorlist[PDA_name] = list(initial(P.icon), initial(P.icon_state), initial(P.icon_state_menu), initial(P.desc))
 
 /obj/machinery/pdapainter/Destroy()
 	QDEL_NULL(storedpda)
@@ -118,8 +118,10 @@
 	if(!choice || !storedpda || !in_range(src, user))
 		return
 	var/list/P = colorlist[choice]
-	storedpda.icon_state = P[1]
-	storedpda.desc = P[2]
+	storedpda.icon = P[1]
+	storedpda.icon_state = P[2]
+	storedpda.icon_state_menu = P[3]
+	storedpda.desc = P[4]
 	storedpda.update_icon()
 	ejectpda()
 

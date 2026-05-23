@@ -211,6 +211,13 @@
 	. = ..()
 	if(.)
 		return
+	if(!IsAdminGhost(user))
+		if(istype(src, /obj/item/modular_computer/pda))
+			var/obj/item/modular_computer/pda/pda = src
+			if(pda.owner != user.real_name)
+				return
+		else
+			return
 	if(enabled)
 		ui_interact(user)
 	else if(IsAdminGhost(user))

@@ -7,6 +7,7 @@
 	icon_deny = "cart-deny"
 	//panel_type = "panel6"
 	products = list(
+		/obj/item/modular_computer/pda = 10,
 		// Normal staff cards
 		/obj/item/cartridge/medical = 10,
 		/obj/item/cartridge/engineering = 10,

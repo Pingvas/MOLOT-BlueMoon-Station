@@ -155,13 +155,21 @@ export const NtosMain = (props, context) => {
               alignItems: 'center',
             }}>
               {!!has_light && (
-                <Button
-                  icon="lightbulb"
-                  selected={light_on}
-                  color="transparent"
-                  onClick={() => act('PC_toggle_light')}>
-                  {light_on ? 'ВКЛ' : 'ВЫКЛ'}
-                </Button>
+                <>
+                  <Button
+                    icon="lightbulb"
+                    selected={light_on}
+                    color="transparent"
+                    onClick={() => act('PC_toggle_light')}>
+                    {light_on ? 'ВКЛ' : 'ВЫКЛ'}
+                  </Button>
+                  <Button
+                    icon="palette"
+                    color="transparent"
+                    onClick={() => act('PC_light_color')}>
+                    Цвет
+                  </Button>
+                </>
               )}
               <Button
                 icon="palette"

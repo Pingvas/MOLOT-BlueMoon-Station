@@ -18,6 +18,7 @@
 	switch(action)
 		if("UpdateNote")
 			written_note = params["newnote"]
+			SStgui.update_uis(src)
 			return TRUE
 
 /datum/computer_file/program/notepad/ui_data(mob/user)

@@ -392,3 +392,4 @@
 /obj/item/modular_computer/pda/neko
 	name = "neko PDA"
 	icon_state = "pda-neko"
+	icon_state_menu = "screen_neko"

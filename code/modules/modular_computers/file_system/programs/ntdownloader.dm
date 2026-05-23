@@ -136,8 +136,14 @@
 
 	if(!istype(my_computer))
 		return
+	var/list/access = list()
 	var/obj/item/computer_hardware/card_slot/card_slot = computer.all_components[MC_CARD]
-	var/list/access = card_slot?.GetAccess()
+	if(card_slot)
+		access = card_slot.GetAccess()
+	if(!length(access) && istype(computer, /obj/item/modular_computer/pda))
+		var/obj/item/modular_computer/pda/pda = computer
+		if(pda.stored_id)
+			access = pda.stored_id.GetAccess()
 
 	var/list/data = get_header_data()
 

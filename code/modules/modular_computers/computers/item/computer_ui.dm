@@ -268,7 +268,7 @@
 				return
 			device_theme = new_theme
 			user.client.prefs.pda_theme = new_theme
-			user.client.prefs.save_preferences()
+			user.client.prefs.save_character()
 			return TRUE
 
 		if("set_pda_color")
@@ -277,7 +277,7 @@
 			if(!new_color || !user?.client?.prefs)
 				return
 			user.client.prefs.pda_color = new_color
-			user.client.prefs.save_preferences()
+			user.client.prefs.save_character()
 			pda_color = new_color
 			return TRUE
 

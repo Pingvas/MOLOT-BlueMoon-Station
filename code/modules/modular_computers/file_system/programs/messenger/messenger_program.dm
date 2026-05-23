@@ -704,6 +704,7 @@
 		pda.receive_message(signal)
 
 	SStgui.update_uis(computer)
+	SStgui.update_uis(src)
 
 
 /// Topic handler for reply links in chat
