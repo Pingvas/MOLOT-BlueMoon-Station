@@ -137,6 +137,7 @@
 
 	switch(action)
 		if("PC_exit")
+			playsound(src, 'sound/machines/terminal_eject_disc.ogg', 25, TRUE)
 			kill_program()
 			return TRUE
 		if("PC_shutdown")
@@ -164,6 +165,7 @@
 				return
 
 			P.kill_program(forced = TRUE)
+			playsound(src, 'sound/machines/terminal_prompt_deny.ogg', 25, FALSE)
 			to_chat(user, span_notice("Program [P.filename].[P.filetype] with PID [rand(100,999)] has been killed."))
 
 		if("PC_runprogram")
@@ -187,6 +189,7 @@
 				P.alert_pending = FALSE
 				idle_threads.Remove(P)
 				update_appearance()
+				playsound(src, 'sound/machines/terminal_select.ogg', 25, FALSE)
 				return
 
 			var/obj/item/computer_hardware/processor_unit/PU = all_components[MC_CPU]
@@ -203,6 +206,7 @@
 				active_program = P
 				P.alert_pending = FALSE
 				update_appearance()
+				playsound(src, 'sound/machines/terminal_select.ogg', 25, FALSE)
 			return TRUE
 
 		if("PDA_ejectDisk")
@@ -220,7 +224,10 @@
 			return TRUE
 
 		if("PC_toggle_light")
-			return toggle_flashlight()
+			. = toggle_flashlight()
+			if(.)
+				playsound(src, 'sound/machines/terminal_button01.ogg', 25, TRUE)
+			return .
 
 		if("PC_light_color")
 			var/mob/user = usr
@@ -269,6 +276,7 @@
 			device_theme = new_theme
 			user.client.prefs.pda_theme = new_theme
 			user.client.prefs.save_character()
+			playsound(src, 'sound/machines/terminal_prompt_confirm.ogg', 25, FALSE)
 			return TRUE
 
 		if("set_pda_color")
