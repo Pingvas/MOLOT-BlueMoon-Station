@@ -597,11 +597,16 @@
 
 	// If it didn't reach
 	if(!signal.data["done"])
-		if(sender)
-			to_chat(sender, span_notice("ERROR: Server is not responding."))
-		if(alert_able && !alert_silenced)
-			playsound(computer, 'sound/machines/terminal_error.ogg', 15, TRUE)
-		return FALSE
+		if(SSnetworks.ntnet_debug_global_signal)
+			// Debug override: bypass telecomms infrastructure and deliver directly
+			signal.broadcast()
+			signal.mark_done()
+		else
+			if(sender)
+				to_chat(sender, span_notice("ERROR: Server is not responding."))
+			if(alert_able && !alert_silenced)
+				playsound(computer, 'sound/machines/terminal_error.ogg', 15, TRUE)
+			return FALSE
 
 	var/shell_addendum = ""
 

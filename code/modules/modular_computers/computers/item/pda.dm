@@ -756,6 +756,10 @@
 			active_program = null
 		qdel(P)
 	cartridge_programs.Cut()
+	if(istype(inserted_disk, /obj/item/cartridge/lawyer))
+		var/datum/computer_file/program/messenger/messenger_app = locate() in get_all_files()
+		if(messenger_app)
+			messenger_app.spam_mode = FALSE
 
 /// Sets the ringtone on the messenger program.
 /obj/item/modular_computer/pda/proc/update_ringtone(new_ringtone)
@@ -839,6 +843,10 @@
 			var/mob/M = loc
 			to_chat(M, span_notice("[src] installs new programs from the cartridge: [installed_text]"))
 		SStgui.update_uis(src)
+	if(istype(C, /obj/item/cartridge/lawyer))
+		var/datum/computer_file/program/messenger/messenger_app = locate() in get_all_files()
+		if(messenger_app)
+			messenger_app.spam_mode = TRUE
 
 /**
  * Nuclear PDA — given to nukies for disk pinpointer.

@@ -52,7 +52,7 @@
 	name = "\improper S.P.A.M. cartridge"
 	desc = "Представляем вам картридж программы Station Public Announcement Messenger, с уникальной функцией вещания сообщениями, спроектировано для агентов внутренних дел Nanotrasen для рекламы их нужных и важных услуг."
 	icon_state = "cart-law"
-	access = CART_SECURITY | CART_MANIFEST
+	access = CART_MANIFEST
 
 /obj/item/cartridge/curator
 	name = "\improper Lib-Tweet cartridge"
