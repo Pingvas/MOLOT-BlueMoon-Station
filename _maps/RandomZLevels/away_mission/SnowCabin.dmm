@@ -5169,7 +5169,7 @@
 /obj/effect/turf_decal/weather/snow,
 /obj/item/modular_computer/pda/syndicate{
 	pda_color = "#0039A6";
-	default_cartridge = /obj/item/cartridge/virus/clown;
+	inserted_disk = /obj/item/cartridge/virus/clown;
 	desc = "A portable microcomputer by Thinktronic Systems, LTD. Seems like it may have useful information on it.";
 	name = "soviet PDA";
 	note = "<b>TRANSLATED TO GALACTIC COMMON:</b><br>DO NOT GO SOUTH."
