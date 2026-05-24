@@ -245,12 +245,16 @@
 	set category = "Object"
 	set name = "Toggle Flashlight"
 	set src in usr
+	if(!usr.canUseTopic(src, BE_CLOSE, no_tk = TRUE))
+		return
 	toggle_light()
 
 /obj/item/modular_computer/pda/verb/verb_remove_id()
 	set category = "Object"
 	set name = "Eject ID"
 	set src in usr
+	if(!usr.canUseTopic(src, BE_CLOSE, no_tk = TRUE))
+		return
 	if(stored_id)
 		var/obj/item/card/id/removed = RemoveID()
 		if(removed)
@@ -340,13 +344,13 @@
 
 /// Legacy compat: update_label syncs owner/ownjob and updates device name.
 /obj/item/modular_computer/pda/proc/update_label(new_name, new_job)
-	if(!isnull(new_name))
+	if(!isnull(new_name) && new_name != "")
 		owner = new_name
 		saved_identification = new_name
 	else if(owner)
 		saved_identification = owner
 
-	if(!isnull(new_job))
+	if(!isnull(new_job) && new_job != "")
 		ownjob = new_job
 		saved_job = new_job
 	else if(ownjob)
@@ -424,6 +428,7 @@
 			return
 		notehtml = PP.default_raw_text
 		note = replacetext(notehtml, "<BR>", "\[br\]")
+		note = replacetext(note, "<br>", "\[br\]")
 		note = replacetext(note, "<li>", "\[*\]")
 		note = replacetext(note, "<ul>", "\[list\]")
 		note = replacetext(note, "</ul>", "\[/list\]")
@@ -659,7 +664,7 @@
 		detomatix_difficulty += downloaded_apps.detomatix_resistance
 	return detomatix_difficulty
 
-/obj/item/modular_computer/pda/proc/remove_pen(mob/user)
+/obj/item/modular_computer/pda/proc/remove_pen(mob/user = usr)
 	if(!user || issilicon(user) || !user.canUseTopic(src, BE_CLOSE, no_tk = TRUE))
 		return
 	if(inserted_item)
@@ -725,6 +730,8 @@
 		if(skin_data && skin_data["icon"])
 			icon = skin_data["icon"]
 			overlays_icon = skin_data["icon"]
+			if(skin_data["icon_state_menu"])
+				icon_state_menu = skin_data["icon_state_menu"]
 			update_appearance()
 
 	var/new_color = owner_client.prefs?.pda_color
@@ -804,12 +811,25 @@
 	if(!istype(C))
 		return
 	var/list/installed = list()
+	var/obj/item/computer_hardware/hard_drive/hdd = all_components[MC_HDD]
 	for(var/prog_type in C.get_programs())
 		if(locate(prog_type) in get_all_files())
 			continue
 		var/datum/computer_file/program/P = new prog_type
 		P.computer = src
-		store_file(P)
+		if(hdd)
+			if(!hdd.can_store_file(P))
+				qdel(P)
+				continue
+			hdd.store_file(P)
+		else
+			var/used = 0
+			for(var/datum/computer_file/F in stored_files)
+				used += F.size
+			if((used + P.size) > max_capacity)
+				qdel(P)
+				continue
+			store_file(P)
 		cartridge_programs += P
 		installed += P.filedesc
 	if(length(installed))
@@ -837,7 +857,7 @@
 /obj/item/modular_computer/pda/nukeops/Initialize(mapload)
 	. = ..()
 	var/datum/computer_file/program/messenger/msg = locate() in get_all_files()
-	if(msg)
+	if(istype(msg))
 		msg.invisible = TRUE
 
 /obj/item/modular_computer/pda/syndicate_contract_uplink

@@ -17,7 +17,10 @@
 	. = ..()
 	switch(action)
 		if("UpdateNote")
-			written_note = params["newnote"]
+			var/newnote = params["newnote"]
+			if(length(newnote) > 4096)
+				newnote = copytext(newnote, 1, 4097)
+			written_note = newnote
 			SStgui.update_uis(src)
 			return TRUE
 

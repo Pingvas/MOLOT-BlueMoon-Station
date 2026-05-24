@@ -57,8 +57,23 @@
 
 	var/obj/item/computer_hardware/hard_drive/hard_drive = computer.all_components[MC_HDD]
 
-	if(!computer || !hard_drive || !hard_drive.can_store_file(PRG))
-		return FALSE
+	if(hard_drive)
+		if(!hard_drive.can_store_file(PRG))
+			return FALSE
+	else
+		if(!computer)
+			return FALSE
+		var/name = PRG.filename + "." + PRG.filetype
+		for(var/datum/computer_file/file in computer.stored_files)
+			if((file.filename + "." + file.filetype) == name)
+				return FALSE
+		if(computer.stored_files.len >= 999)
+			return FALSE
+		var/used = 0
+		for(var/datum/computer_file/F in computer.stored_files)
+			used += F.size
+		if((used + PRG.size) > computer.max_capacity)
+			return FALSE
 
 	ui_header = "downloader_running.gif"
 
@@ -87,9 +102,13 @@
 		return
 	generate_network_log("Completed download of file [hacked_download ? "**ENCRYPTED**" : "[downloaded_file.filename].[downloaded_file.filetype]"].")
 	var/obj/item/computer_hardware/hard_drive/hard_drive = computer.all_components[MC_HDD]
-	if(!computer || !hard_drive || !hard_drive.store_file(downloaded_file))
-		// The download failed
-		downloaderror = "I/O ERROR - Unable to save file. Check whether you have enough free space on your hard drive and whether your hard drive is properly connected. If the issue persists contact your system administrator for assistance."
+	if(hard_drive)
+		if(!hard_drive.store_file(downloaded_file))
+			downloaderror = "I/O ERROR - Unable to save file. Check whether you have enough free space on your hard drive and whether your hard drive is properly connected. If the issue persists contact your system administrator for assistance."
+	else if(computer)
+		computer.store_file(downloaded_file)
+	else
+		downloaderror = "I/O ERROR - Unable to save file. Storage device unavailable."
 	downloaded_file = null
 	download_completion = FALSE
 	ui_header = "downloader_finished.gif"
@@ -185,7 +204,7 @@
 			installed = !!my_computer.find_file_by_name(P.filename)
 		var/restriction = ""
 		if(P.available_on_syndinet)
-			restriction = "Requires SyndiNet access (emagged device)"
+			restriction = "Требуется доступ к SyndiNet (устройство взломано)"
 		else if(P.transfer_access)
 			if(islist(P.transfer_access))
 				var/list/access_names = list()
@@ -195,11 +214,11 @@
 						access_names += desc
 				if(length(access_names))
 					var/comma_sep = ", "
-					restriction = "Requires access: [jointext(access_names, comma_sep)]"
+					restriction = "Требуется доступ для скачивания: [jointext(access_names, comma_sep)]"
 			else
 				var/desc = get_access_desc(P.transfer_access)
 				if(desc)
-					restriction = "Requires access: [desc]"
+					restriction = "Требуется доступ для скачивания: [desc]"
 		else if(P.required_access)
 			if(islist(P.required_access))
 				var/list/access_names = list()
@@ -209,11 +228,11 @@
 						access_names += desc
 				if(length(access_names))
 					var/comma_sep = ", "
-					restriction = "Requires access to run: [jointext(access_names, comma_sep)]"
+					restriction = "Требуется доступ для запуска: [jointext(access_names, comma_sep)]"
 			else
 				var/desc = get_access_desc(P.required_access)
 				if(desc)
-					restriction = "Requires access to run: [desc]"
+					restriction = "Требуется доступ для запуска: [desc]"
 		data["programs"] += list(list(
 			"icon" = P.program_icon,
 			"filename" = P.filename,

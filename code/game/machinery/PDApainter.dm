@@ -46,6 +46,8 @@
 	for(var/A in typesof(/obj/item/modular_computer/pda) - blocked)
 		var/obj/item/modular_computer/pda/P = A
 		var/PDA_name = initial(P.name)
+		if(colorlist[PDA_name])
+			continue
 		colorlist += PDA_name
 		colorlist[PDA_name] = list(initial(P.icon), initial(P.icon_state), initial(P.icon_state_menu), initial(P.desc))
 

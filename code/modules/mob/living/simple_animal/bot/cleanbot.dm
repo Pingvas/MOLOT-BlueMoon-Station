@@ -423,11 +423,12 @@
 		A.acid_act(75, 10)
 		target = null
 	else if(istype(A, /mob/living/simple_animal/cockroach) || istype(A, /mob/living/simple_animal/mouse))
-		var/mob/living/simple_animal/M = A
-		if(!M || M.stat)
+		var/mob/living/simple_animal/pest = A
+		if(!pest || pest.stat)
+			target = null
 			return
-		visible_message("<span class='danger'>[src] давит [M] своей шваброй!</span>")
-		M.death()
+		visible_message("<span class='danger'>[src] давит [pest] своей шваброй!</span>")
+		pest.death()
 		target = null
 
 	else if(emagged == 2) //Emag functions
