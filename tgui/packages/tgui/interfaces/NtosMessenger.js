@@ -6,6 +6,7 @@ import {
   Divider,
   Icon,
   Input,
+  Modal,
   NoticeBox,
   Section,
   Stack,
@@ -337,7 +338,7 @@ const ChatButton = (props, context) => {
 
 const SendToAllSection = (props, context) => {
   const { data, act } = useBackend(context);
-  const { on_spam_cooldown } = data;
+  const { on_spam_cooldown, has_scanned_photo, admin_photo_url } = data;
 
   const [message, setMessage] = useLocalState(context, 'spamMessage', '');
 
@@ -352,7 +353,7 @@ const SendToAllSection = (props, context) => {
           <Stack.Item>
             <Button
               icon="arrow-right"
-              disabled={on_spam_cooldown || message === ''}
+              disabled={on_spam_cooldown || (message === '' && !has_scanned_photo && !admin_photo_url)}
               tooltip={on_spam_cooldown && 'Подождите перед отправкой новых сообщений!'}
               onClick={() => {
                 act('PDA_sendEveryone', { message: message });
@@ -386,7 +387,7 @@ const ChatScreen = (props, context) => {
     unreads,
   } = props;
 
-  const { emoji_list, emoji_base64 } = data;
+  const { emoji_list, emoji_base64, has_scanned_photo, selected_photo_path, admin_photo_url, is_admin } = data;
   const rawList = Array.isArray(emoji_list) ? emoji_list : Object.values(emoji_list || {});
   const uniqueEmojis = [...new Set(rawList)].slice(0, 100);
   const base64Map = emoji_base64 || {};
@@ -394,9 +395,12 @@ const ChatScreen = (props, context) => {
   const [message, setMessage] = useLocalState(context, 'chatMessage', '');
   const [canSend, setCanSend] = useLocalState(context, 'canSend', true);
   const [showEmoji, setShowEmoji] = useLocalState(context, 'showEmoji', false);
+  const [showAdminUrl, setShowAdminUrl] = useLocalState(context, 'showAdminUrl', false);
+  const [adminUrlInput, setAdminUrlInput] = useLocalState(context, 'adminUrlInput', '');
+  const [previewUrl, setPreviewUrl] = useLocalState(context, 'previewUrl', null);
 
   const handleSendMessage = () => {
-    if (message === '') {
+    if (message === '' && !has_scanned_photo && !admin_photo_url) {
       return;
     }
     const ref = chatRef || recipient.ref;
@@ -438,6 +442,8 @@ const ChatScreen = (props, context) => {
           message={msg.message}
           everyone={msg.everyone}
           timestamp={msg.timestamp}
+          photoPath={msg.photo_path}
+          onPreview={setPreviewUrl}
         />
       </Stack.Item>,
     );
@@ -472,6 +478,26 @@ const ChatScreen = (props, context) => {
             onClick={() => setShowEmoji(!showEmoji)}
           />
         </Stack.Item>
+        {!!has_scanned_photo && (
+          <Stack.Item>
+            <Button
+              tooltip="Фото прикреплено к следующему сообщению"
+              icon="camera"
+              color="green"
+              disabled
+            />
+          </Stack.Item>
+        )}
+        {!!is_admin && (
+          <Stack.Item>
+            <Button
+              tooltip="Установить URL фото"
+              icon="globe"
+              color="blue"
+              onClick={() => setShowAdminUrl(!showAdminUrl)}
+            />
+          </Stack.Item>
+        )}
         <Stack.Item>
           <Button
             tooltip="Отправить"
@@ -485,20 +511,69 @@ const ChatScreen = (props, context) => {
 
     sendingBar = (
       <Section fill>
-        <Stack fill align="center">
-          <Stack.Item grow>
-            <Input
-              placeholder={`Отправить сообщение ${recipient.name}...`}
-              fluid
-              autoFocus
-              value={message}
-              maxLength={1024}
-              onInput={(e, val) => setMessage(val)}
-              onEnter={handleSendMessage}
-              selfClear
-            />
-          </Stack.Item>
-          {buttons}
+        <Stack vertical fill>
+          <Stack fill align="center">
+            <Stack.Item grow>
+              <Input
+                placeholder={`Отправить сообщение ${recipient.name}...`}
+                fluid
+                autoFocus
+                value={message}
+                maxLength={1024}
+                onInput={(e, val) => setMessage(val)}
+                onEnter={handleSendMessage}
+                selfClear
+              />
+            </Stack.Item>
+            {buttons}
+          </Stack>
+          {!!showAdminUrl && (
+            <Stack mt={1} fill align="center">
+              <Stack.Item grow>
+                <Input
+                  placeholder="Введите URL изображения..."
+                  fluid
+                  value={adminUrlInput}
+                  onInput={(e, val) => setAdminUrlInput(val)}
+                  onEnter={() => {
+                    act('PDA_setAdminPhoto', { url: adminUrlInput });
+                    setShowAdminUrl(false);
+                    setAdminUrlInput('');
+                  }}
+                />
+              </Stack.Item>
+              <Stack.Item>
+                <Button
+                  content="Установить"
+                  color="green"
+                  onClick={() => {
+                    act('PDA_setAdminPhoto', { url: adminUrlInput });
+                    setShowAdminUrl(false);
+                    setAdminUrlInput('');
+                  }}
+                />
+              </Stack.Item>
+              <Stack.Item>
+                <Button
+                  content="Очистить"
+                  color="red"
+                  onClick={() => {
+                    act('PDA_clearAdminPhoto');
+                    setShowAdminUrl(false);
+                    setAdminUrlInput('');
+                  }}
+                />
+              </Stack.Item>
+            </Stack>
+          )}
+          {!!admin_photo_url && (
+            <Box mt={1}>
+              <MediaAttachment src={admin_photo_url} maxHeight="80px" onClick={() => setPreviewUrl(admin_photo_url)} />
+              <Box fontSize={0.8} color="blue">
+                URL фото: {admin_photo_url}
+              </Box>
+            </Box>
+          )}
         </Stack>
       </Section>
     );
@@ -606,12 +681,75 @@ const ChatScreen = (props, context) => {
           </Box>
         );
       })()}
+      {!!previewUrl && (
+        <Modal>
+          <Stack vertical align="center">
+            <Stack.Item>
+              <MediaAttachment src={previewUrl} maxHeight="80vh" />
+            </Stack.Item>
+            <Stack.Item>
+              <Button content="Закрыть" onClick={() => setPreviewUrl(null)} />
+            </Stack.Item>
+          </Stack>
+        </Modal>
+      )}
     </>
   );
 };
 
+const MediaAttachment = ({ src, maxHeight = '200px', onClick }) => {
+  if (!src) return null;
+
+  const isVideo = src.endsWith('.webm') || src.endsWith('.mp4');
+
+  if (isVideo) {
+    const videoType = src.endsWith('.mp4') ? 'video/mp4' : 'video/webm';
+    return (
+      <Box>
+        <video
+          controls
+          preload="metadata"
+          style={{
+            maxWidth: '100%',
+            maxHeight,
+            display: 'block',
+            marginTop: '5px',
+          }}
+        >
+          <source src={src} type={videoType} />
+        </video>
+        {!!onClick && (
+          <Button
+            mt={1}
+            icon="external-link-alt"
+            content="Открыть видео"
+            color="blue"
+            onClick={onClick}
+          />
+        )}
+      </Box>
+    );
+  }
+
+  return (
+    <img
+      src={src}
+      alt="Attached media"
+      style={{
+        maxWidth: '100%',
+        maxHeight,
+        cursor: onClick ? 'pointer' : 'default',
+        display: 'block',
+        marginTop: '5px',
+      }}
+      title={onClick ? 'Кликните для открытия полного изображения' : undefined}
+      onClick={onClick}
+    />
+  );
+};
+
 const ChatMessage = (props) => {
-  const { message, everyone, outgoing, timestamp } = props;
+  const { message, everyone, outgoing, timestamp, photoPath, onPreview } = props;
 
   return (
     <Box className={`NtosChatMessage${outgoing ? '_outgoing' : ''}`}>
@@ -625,6 +763,11 @@ const ChatMessage = (props) => {
           />
         </Tooltip>
       </Box>
+      {!!photoPath && (
+        <Box className="NtosChatMessage__photo">
+          <MediaAttachment src={photoPath} maxHeight="120px" onClick={() => onPreview && onPreview(photoPath)} />
+        </Box>
+      )}
       {!!everyone && (
         <Box className="NtosChatMessage__everyone">Отправлено всем</Box>
       )}

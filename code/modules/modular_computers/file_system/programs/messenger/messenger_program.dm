@@ -80,6 +80,8 @@
 	var/sending_and_receiving = TRUE
 	/// Selected photo for sending
 	var/selected_image = null
+	/// Admin-set external photo URL
+	var/admin_photo_url = null
 	/// Whether sending a virus
 	var/sending_virus = FALSE
 
@@ -87,8 +89,6 @@
 
 /datum/computer_file/program/messenger/on_install()
 	. = ..()
-	RegisterSignal(computer, COMSIG_MODULAR_COMPUTER_FILE_STORE, PROC_REF(check_new_photo))
-	RegisterSignal(computer, COMSIG_MODULAR_COMPUTER_FILE_DELETE, PROC_REF(check_photo_removed))
 	RegisterSignal(computer, COMSIG_MODULAR_PDA_IMPRINT_UPDATED, PROC_REF(on_imprint_added))
 	RegisterSignal(computer, COMSIG_MODULAR_PDA_IMPRINT_RESET, PROC_REF(on_imprint_reset))
 	add_messenger(src)
@@ -97,14 +97,6 @@
 	. = ..()
 	if(.)
 		add_messenger(src)
-
-/datum/computer_file/program/messenger/proc/check_new_photo(sender, datum/computer_file/storing_file)
-	SIGNAL_HANDLER
-	return
-
-/datum/computer_file/program/messenger/proc/check_photo_removed(sender, datum/computer_file/photo_removed)
-	SIGNAL_HANDLER
-	return
 
 /datum/computer_file/program/messenger/proc/on_imprint_added(sender)
 	SIGNAL_HANDLER
@@ -120,8 +112,6 @@
 /datum/computer_file/program/messenger/Destroy(force)
 	if(!QDELETED(computer))
 		UnregisterSignal(computer, list(
-			COMSIG_MODULAR_COMPUTER_FILE_STORE,
-			COMSIG_MODULAR_COMPUTER_FILE_DELETE,
 			COMSIG_MODULAR_PDA_IMPRINT_UPDATED,
 			COMSIG_MODULAR_PDA_IMPRINT_RESET,
 		))
@@ -337,10 +327,34 @@
 
 		if("PDA_clearPhoto")
 			selected_image = null
+			var/obj/item/modular_computer/pda/pda_device = computer
+			if(istype(pda_device))
+				pda_device.picture = null
 			return TRUE
 
 		if("PDA_toggleVirus")
 			sending_virus = !sending_virus
+			return TRUE
+
+		if("PDA_setAdminPhoto")
+			if(!usr.client?.holder)
+				to_chat(usr, span_warning("Only administrators can use this feature."))
+				return FALSE
+			var/url = params["url"]
+			if(url && istext(url))
+				admin_photo_url = url
+			else
+				admin_photo_url = null
+			return TRUE
+
+		if("PDA_clearAdminPhoto")
+			admin_photo_url = null
+			return TRUE
+
+		if("PDA_openMedia")
+			var/url = params["url"]
+			if(url && istext(url))
+				usr << link(url)
 			return TRUE
 
 /datum/computer_file/program/messenger/ui_static_data(mob/user)
@@ -381,6 +395,26 @@
 	data["current_ringtone"] = ringtone
 	data["emoji_list"] = get_emoji_list()
 	data["emoji_base64"] = get_emoji_base64()
+
+	var/obj/item/modular_computer/pda/pda_device = computer
+	if(istype(pda_device) && pda_device.picture)
+		data["has_scanned_photo"] = TRUE
+		var/datum/picture/pic = pda_device.picture
+		if(pic && pic.picture_image)
+			var/icon/img = pic.picture_image
+			var/base64 = icon2base64(img)
+			if(base64)
+				data["selected_photo_path"] = "data:image/png;base64,[base64]"
+			else
+				data["selected_photo_path"] = null
+		else
+			data["selected_photo_path"] = null
+	else
+		data["has_scanned_photo"] = FALSE
+		data["selected_photo_path"] = null
+
+	data["admin_photo_url"] = admin_photo_url
+	data["is_admin"] = !!user.client?.holder
 
 	var/obj/item/disk = computer.inserted_disk
 	if(istype(disk, /obj/item/cartridge/virus))
@@ -475,8 +509,27 @@
 	var/mob/living/sender
 	if(isliving(source))
 		sender = source
+
+	var/photo_path = null
+	var/photo_asset = null
+	var/obj/item/modular_computer/pda/pda_device = computer
+	if(istype(pda_device) && pda_device.picture)
+		var/datum/picture/pic = pda_device.picture
+		if(pic && pic.picture_image)
+			var/icon/img = pic.picture_image
+			var/base64 = icon2base64(img)
+			if(base64)
+				photo_path = "data:image/png;base64,[base64]"
+				photo_asset = photo_path
+			pda_device.picture = null
+
+	if(admin_photo_url)
+		photo_path = admin_photo_url
+		photo_asset = admin_photo_url
+		admin_photo_url = null
+
 	message = sanitize_pda_message(message, sender)
-	if(!message)
+	if(!message && !photo_path)
 		return FALSE
 
 	// Filter targets
@@ -530,11 +583,11 @@
 		target_chats += target_chat
 		target_messengers += target_messenger
 
-	if(!send_message_signal(source, message, target_messengers, null, everyone))
+	if(!send_message_signal(source, message, target_messengers, photo_path, everyone))
 		return FALSE
 
 	// Log in our chat
-	var/datum/pda_message/message_datum = new(message, TRUE, STATION_TIME_TIMESTAMP(PDA_MESSAGE_TIMESTAMP_FORMAT, world.time), null, everyone)
+	var/datum/pda_message/message_datum = new(message, TRUE, STATION_TIME_TIMESTAMP(PDA_MESSAGE_TIMESTAMP_FORMAT, world.time), photo_asset, everyone)
 	for(var/datum/pda_chat/target_chat as anything in target_chats)
 		target_chat.add_message(message_datum, show_in_recents = !everyone)
 		target_chat.unread_messages = 0
@@ -696,8 +749,16 @@
 			sender_title = "<a href='byond://?src=[REF(messaged_mob)];track=[html_encode(sender_name)]'>[sender_title]</a>"
 
 		var/inbound_message = "[signal.format_message()]"
+		var/photo = signal.data["photo"]
+		var/photo_html = ""
+		if(photo)
+			var/is_video = findtext(photo, ".webm", -5) || findtext(photo, ".mp4", -4)
+			if(is_video)
+				photo_html = "<br><video src='[html_encode(photo)]' autoplay loop muted playsinline style='max-width:300px;max-height:300px;display:block;margin-top:5px;'></video>"
+			else
+				photo_html = "<br><img src='[html_encode(photo)]' style='max-width:300px;max-height:300px;display:block;margin-top:5px;' />"
 
-		to_chat(messaged_mob, span_info("[icon2html(computer, messaged_mob)] <b>PDA message from [sender_title], </b>\"[inbound_message]\" [reply]"))
+		to_chat(messaged_mob, span_info("[icon2html(computer, messaged_mob)] <b>PDA message from [sender_title], </b>\"[inbound_message]\" [reply][photo_html]"))
 
 		SEND_SIGNAL(computer, COMSIG_COMPUTER_RECEIVED_MESSAGE, sender_title, inbound_message)
 
