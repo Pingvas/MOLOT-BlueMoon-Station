@@ -87,6 +87,8 @@
 	var/f_lum = 2.3
 	/// Legacy photo datum
 	var/datum/picture/picture
+	/// Stores the job-specific icon_state for PDA skins that support it
+	var/job_icon_state
 	/// Legacy HTML note text (used by camera.dm when holding PDA up to camera)
 	var/notehtml = ""
 
@@ -157,6 +159,8 @@
 	ownjob = saved_job
 	id = stored_id
 	GLOB.PDAs += src
+	if(icon == 'icons/obj/pda_alt.dmi' && icon_state != base_icon_state)
+		job_icon_state = icon_state
 
 /obj/item/modular_computer/pda/equipped(mob/user, slot)
 	. = ..()
@@ -733,7 +737,9 @@
 			icon = skin_data["icon"]
 			overlays_icon = skin_data["icon"]
 			icon_state = base_icon_state
-			if(skin_data["icon_state_menu"])
+			if(job_icon_state)
+				icon_state = job_icon_state
+			if("icon_state_menu" in skin_data)
 				icon_state_menu = skin_data["icon_state_menu"]
 			update_appearance()
 
@@ -806,6 +812,8 @@
 	icon = skin_data["icon"]
 	overlays_icon = skin_data["icon"]
 	icon_state = base_icon_state
+	if(job_icon_state)
+		icon_state = job_icon_state
 	if("icon_state_menu" in skin_data)
 		icon_state_menu = skin_data["icon_state_menu"]
 	update_appearance()

@@ -14,7 +14,10 @@
 	pda_color = sanitize_hexcolor(pda_color, 6, 1, initial(pda_color))
 	pda_skin = sanitize_inlist(pda_skin, GLOB.pda_reskins, PDA_SKIN_ALT)
 	pda_ringtone = sanitize_inlist(pda_ringtone, GLOB.pda_ringtone_list, "beep")
-	pda_theme = sanitize_inlist(pda_theme, GLOB.pda_name_to_theme, PDA_THEME_NTOS)
+	var/list/valid_themes = list()
+	for(var/theme_name in GLOB.pda_name_to_theme)
+		valid_themes |= GLOB.pda_name_to_theme[theme_name]
+	pda_theme = sanitize_inlist(pda_theme, valid_themes, PDA_THEME_NTOS)
 
 	silicon_lawset = sanitize_inlist(silicon_lawset, CONFIG_GET(keyed_list/choosable_laws), null)
 	body_weight = sanitize_inlist(body_weight, GLOB.mob_sizes, NAME_WEIGHT_NORMAL)

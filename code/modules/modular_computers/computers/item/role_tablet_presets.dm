@@ -126,6 +126,17 @@
 		/datum/computer_file/program/robocontrol,
 	)
 
+/obj/item/modular_computer/pda/security/brigdoc
+	name = "brig physician PDA"
+	icon_state = "pda-security"
+	inserted_item = /obj/item/pen/red
+	starting_programs = list(
+		/datum/computer_file/program/crew_manifest,
+		/datum/computer_file/program/robocontrol,
+		/datum/computer_file/program/secureye,
+		/datum/computer_file/program/radar/lifeline,
+	)
+
 // =====================
 // Engineering
 // =====================

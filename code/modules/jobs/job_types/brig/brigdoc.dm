@@ -53,7 +53,7 @@
 	name = "Brig Physician"
 	jobtype = /datum/job/brigdoc
 
-	belt = /obj/item/modular_computer/pda/security
+	belt = /obj/item/modular_computer/pda/security/brigdoc
 	ears = /obj/item/radio/headset/headset_brigdoc/alt
 	uniform = /obj/item/clothing/under/syndicate/brigdoc
 	gloves = /obj/item/clothing/gloves/color/latex
