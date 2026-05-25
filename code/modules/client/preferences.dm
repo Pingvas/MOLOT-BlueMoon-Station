@@ -1284,7 +1284,12 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "<b>[pda_style_label]:</b> <a href='?_src_=prefs;task=input;preference=pda_style'>[pda_style]</a><br>"
 					dat += "<b>[pda_reskin_label]:</b> <a href='?_src_=prefs;task=input;preference=pda_skin'>[pda_skin]</a><br>"
 					dat += "<b>[pda_ringtone_label]:</b> <a href='?_src_=prefs;task=input;preference=pda_ringtone'>[pda_ringtone]</a><br>"
-					dat += "<b>PDA Theme:</b> <a href='?_src_=prefs;task=input;preference=pda_theme'>[GLOB.pda_name_to_theme[pda_theme] ? pda_theme : GLOB.pda_name_to_theme[PDA_THEME_NTOS]]</a><br>"
+					var/pda_theme_display_name = "Unknown"
+					for(var/theme_name in GLOB.pda_name_to_theme)
+						if(GLOB.pda_name_to_theme[theme_name] == pda_theme)
+							pda_theme_display_name = theme_name
+							break
+					dat += "<b>PDA Theme:</b> <a href='?_src_=prefs;task=input;preference=pda_theme'>[pda_theme_display_name]</a><br>"
 
 					dat += "<h2>[silicon_preferences_label]</h2>"
 					if(!CONFIG_GET(flag/allow_silicon_choosing_laws))

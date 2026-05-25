@@ -164,6 +164,7 @@
 		return
 	equipped = TRUE
 	update_style(user.client)
+	update_pda_prefs(user.client)
 
 /obj/item/modular_computer/pda/examine(mob/user)
 	. = ..()
@@ -177,6 +178,7 @@
 	. += stored_id ? "<span class='notice'>Alt-click для извлечения ID-карты.</span>" : ""
 	if(inserted_item && (!isturf(loc)))
 		. += "<span class='notice'>Ctrl-click для извлечения [inserted_item].</span>"
+	. += "<span class='notice'>Ctrl-Shift-click для смены скина.</span>"
 
 /obj/item/modular_computer/pda/suicide_act(mob/living/carbon/user)
 	var/deathMessage = tgui_input_text(user, "Введите предсмертное сообщение", "PDA Suicide")
@@ -730,6 +732,7 @@
 		if(skin_data && skin_data["icon"])
 			icon = skin_data["icon"]
 			overlays_icon = skin_data["icon"]
+			icon_state = base_icon_state
 			if(skin_data["icon_state_menu"])
 				icon_state_menu = skin_data["icon_state_menu"]
 			update_appearance()
@@ -802,6 +805,9 @@
 		return
 	icon = skin_data["icon"]
 	overlays_icon = skin_data["icon"]
+	icon_state = base_icon_state
+	if("icon_state_menu" in skin_data)
+		icon_state_menu = skin_data["icon_state_menu"]
 	update_appearance()
 	playsound(src, 'sound/machines/terminal_success.ogg', 50, TRUE)
 	to_chat(user, span_notice("PDA skin changed to [selected_name]."))

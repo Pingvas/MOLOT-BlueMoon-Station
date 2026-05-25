@@ -8,7 +8,7 @@
 
 /mob/living/silicon/pai/var/list/available_software = list(
 															"crew manifest" = 5,
-															"digital messenger" = 5,
+															//"digital messenger" = 5, // PAI uses the new TGUI messenger program on its PDA instead
 															"medical records" = 15,
 															"security records" = 15,
 															//"camera jack" = 10,
@@ -42,8 +42,8 @@
 				left_part = ""
 			if("directives")
 				left_part = directives()
-			if("pdamessage")
-				left_part = pdamessage()
+			//if("pdamessage") // Removed - PAI uses TGUI messenger on its PDA instead
+			//	left_part = pdamessage()
 			if("buy")
 				left_part = downloadSoftware()
 			if("manifest")
@@ -217,18 +217,17 @@
 						return FALSE
 				spawn CheckDNA(M, src)
 
-		if("pdamessage")
-			if(!isnull(pda))
-				if(href_list["toggler"])
-					pda.toff = !pda.toff
-				else if(href_list["ringer"])
-					pda.silent = !pda.silent
-				else if(href_list["target"])
-					if(silent)
-						return alert("Communications circuits remain uninitialized.")
-
-					var/target = locate(href_list["target"])
-					pda.create_message(src, target)
+		//if("pdamessage") // Removed - PAI uses TGUI messenger on its PDA instead
+		//	if(!isnull(pda))
+		//		if(href_list["toggler"])
+		//			pda.toff = !pda.toff
+		//		else if(href_list["ringer"])
+		//			pda.silent = !pda.silent
+		//		else if(href_list["target"])
+		//			if(silent)
+		//				return alert("Communications circuits remain uninitialized.")
+		//			var/target = locate(href_list["target"])
+		//			pda.create_message(src, target)
 
 		// Accessing medical records
 		if("medicalrecord")
@@ -310,8 +309,8 @@
 	// Basic
 	dat += "<b>Basic</b> <br>"
 	for(var/s in software)
-		if(s == "digital messenger")
-			dat += "<a href='byond://?src=[REF(src)];software=pdamessage;sub=0'>Digital Messenger</a> <br>"
+		//if(s == "digital messenger") // Removed - PAI uses TGUI messenger on its PDA instead
+		//	dat += "<a href='byond://?src=[REF(src)];software=pdamessage;sub=0'>Digital Messenger</a> <br>"
 		if(s == "crew manifest")
 			dat += "<a href='byond://?src=[REF(src)];software=manifest;sub=0'>Crew Manifest</a> <br>"
 		if(s == "medical records")

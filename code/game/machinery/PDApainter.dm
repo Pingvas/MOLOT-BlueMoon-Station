@@ -49,7 +49,7 @@
 		if(colorlist[PDA_name])
 			continue
 		colorlist += PDA_name
-		colorlist[PDA_name] = list(initial(P.icon), initial(P.icon_state), initial(P.icon_state_menu), initial(P.desc))
+		colorlist[PDA_name] = list(initial(P.icon_state), initial(P.icon_state_menu), initial(P.desc), initial(P.icon), initial(P.overlays_icon))
 
 /obj/machinery/pdapainter/Destroy()
 	QDEL_NULL(storedpda)
@@ -120,10 +120,13 @@
 	if(!choice || !storedpda || !in_range(src, user))
 		return
 	var/list/P = colorlist[choice]
-	storedpda.icon = P[1]
-	storedpda.icon_state = P[2]
-	storedpda.icon_state_menu = P[3]
-	storedpda.desc = P[4]
+	storedpda.icon_state = P[1]
+	storedpda.base_icon_state = P[1]
+	storedpda.icon_state_menu = P[2]
+	storedpda.desc = P[3]
+	if(length(P) >= 5)
+		storedpda.icon = P[4]
+		storedpda.overlays_icon = P[5]
 	storedpda.update_icon()
 	ejectpda()
 
