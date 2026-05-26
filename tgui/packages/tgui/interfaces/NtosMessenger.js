@@ -568,7 +568,7 @@ const ChatScreen = (props, context) => {
           )}
           {!!admin_photo_url && (
             <Box mt={1}>
-              <MediaAttachment src={admin_photo_url} maxHeight="80px" onClick={() => setPreviewUrl(admin_photo_url)} />
+              <MediaAttachment src={admin_photo_url} maxHeight="320px" maxWidth="320px" onClick={() => setPreviewUrl(admin_photo_url)} />
               <Box fontSize={0.8} color="blue">
                 URL фото: {admin_photo_url}
               </Box>
@@ -697,7 +697,7 @@ const ChatScreen = (props, context) => {
   );
 };
 
-const MediaAttachment = ({ src, maxHeight = '200px', onClick }) => {
+const MediaAttachment = ({ src, maxHeight = '200px', maxWidth = '100%', onClick }) => {
   if (!src) return null;
 
   const isVideo = src.endsWith('.webm') || src.endsWith('.mp4');
@@ -710,7 +710,7 @@ const MediaAttachment = ({ src, maxHeight = '200px', onClick }) => {
           controls
           preload="metadata"
           style={{
-            maxWidth: '100%',
+            maxWidth,
             maxHeight,
             display: 'block',
             marginTop: '5px',
@@ -734,9 +734,9 @@ const MediaAttachment = ({ src, maxHeight = '200px', onClick }) => {
   return (
     <img
       src={src}
-      alt="Attached media"
+      alt="Прикреплённое изображение"
       style={{
-        maxWidth: '100%',
+        maxWidth,
         maxHeight,
         cursor: onClick ? 'pointer' : 'default',
         display: 'block',
@@ -765,7 +765,7 @@ const ChatMessage = (props) => {
       </Box>
       {!!photoPath && (
         <Box className="NtosChatMessage__photo">
-          <MediaAttachment src={photoPath} maxHeight="120px" onClick={() => onPreview && onPreview(photoPath)} />
+          <MediaAttachment src={photoPath} maxHeight="320px" maxWidth="320px" onClick={() => onPreview && onPreview(photoPath)} />
         </Box>
       )}
       {!!everyone && (
