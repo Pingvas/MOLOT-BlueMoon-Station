@@ -26,6 +26,7 @@ import './styles/themes/clockcult.scss';
 import './styles/themes/inteq.scss';
 
 import { perf } from 'common/perf';
+import { setupHotReloading } from 'tgui-dev-server/link/client.cjs';
 
 import { FindBar } from './components/FindBar';
 import { isDragOrResizeActive } from './drag';
@@ -95,6 +96,10 @@ const setupApp = () => {
   setupGlobalEvents();
   setupHotKeys();
   captureExternalLinks();
+
+  if (process.env.NODE_ENV !== 'production') {
+    setupHotReloading();
+  }
 
   // Subscribe for state updates
   store.subscribe(renderAppIfIdle);
