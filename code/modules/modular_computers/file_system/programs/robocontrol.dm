@@ -28,7 +28,7 @@
 	var/obj/item/computer_hardware/card_slot/card_slot = computer ? computer.all_components[MC_CARD] : null
 	data["have_id_slot"] = !!card_slot
 	if(computer)
-		var/obj/item/card/id/id_card = card_slot ? card_slot.stored_card : null
+		var/obj/item/card/id/id_card = computer.GetID()
 		data["has_id"] = !!id_card
 		data["id_owner"] = id_card ? id_card.registered_name : "No Card Inserted."
 		data["access_on_card"] = id_card ? id_card.access : null
@@ -41,7 +41,7 @@
 		if(!Bot.on || Bot.z != zlevel || Bot.remote_disabled) //Only non-emagged bots on the same Z-level are detected!
 			continue
 		else if(computer) //Also, the inserted ID must have access to the bot type
-			var/obj/item/card/id/id_card = card_slot ? card_slot.stored_card : null
+			var/obj/item/card/id/id_card = computer.GetID()
 			if(!id_card && !Bot.bot_core.allowed(current_user))
 				continue
 			else if(id_card && !Bot.bot_core.check_access(id_card))
@@ -68,10 +68,9 @@
 	var/obj/item/computer_hardware/card_slot/card_slot
 	var/obj/item/card/id/id_card
 	if(computer)
-		card_slot = computer.all_components[MC_CARD]
-		if(card_slot)
-			id_card = card_slot.stored_card
-			current_access = id_card ? id_card.access : list()
+		id_card = computer.GetID()
+		if(id_card)
+			current_access = id_card.access
 		else
 			current_access = list()
 
