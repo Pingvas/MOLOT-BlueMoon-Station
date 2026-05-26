@@ -50,11 +50,7 @@
 	var/datum/data/record/securityActive2
 
 	var/obj/machinery/door/hackdoor		// The airlock being hacked
-	var/obj/machinery/camera/hackcamera		// The camera being hacked
 	var/hackprogress = 0				// Possible values: 0 - 100, >= 100 means the hack is complete and will be reset upon next check
-
-	var/heartbeat_sensor = FALSE		// Whether the heartbeat sensor is active
-	var/heartbeat_alert_cooldown = 0	// Cooldown for heartbeat alerts
 
 	var/obj/item/integrated_signaler/signaler // AI's signaller
 
@@ -81,7 +77,7 @@
 	var/radio_short_cooldown = 3 MINUTES
 	var/radio_short_timerid
 
-	mobility_flags = MOBILITY_UI
+	mobility_flags = NONE
 	var/silent = FALSE
 	var/brightness_power = 5
 
@@ -129,8 +125,6 @@
 	pda.ownjob = "pAI Messenger"
 	pda.owner = text("[]", src)
 	pda.name = pda.owner + " (" + pda.ownjob + ")"
-	pda.saved_identification = pda.owner
-	pda.saved_job = pda.ownjob
 
 	possible_chassis = typelist(NAMEOF(src, possible_chassis), list("cat" = TRUE, "mouse" = TRUE, "monkey" = TRUE, "corgi" = FALSE,
 									"fox" = TRUE, "repairbot" = TRUE, "rabbit" = TRUE, "borgi" = TRUE ,
@@ -171,57 +165,24 @@
 		return
 	if(hacking)
 		process_hack()
-	if(heartbeat_sensor)
-		process_heartbeat()
 
 /mob/living/silicon/pai/proc/process_hack()
-	if(!cable || !cable.machine || get_dist(src, cable.machine) > 1)
-		temp = "Джек: соединение потеряно. Взлом отменён."
-		hackprogress = 0
-		hacking = FALSE
-		hackdoor = null
-		hackcamera = null
-		return
-	if(istype(cable.machine, /obj/machinery/door) && cable.machine == hackdoor)
-		hackprogress = clamp(hackprogress + 4, 0, 100)
-		if(screen == "doorjack" && subscreen == 0)
-			paiInterface()
-		if(hackprogress >= 100)
-			hackprogress = 0
-			var/obj/machinery/door/D = cable.machine
-			D.open()
-			hacking = FALSE
-	else if(istype(cable.machine, /obj/machinery/camera) && cable.machine == hackcamera)
-		hackprogress = clamp(hackprogress + 4, 0, 100)
-		if(screen == "camerajack" && subscreen == 0)
-			paiInterface()
-		if(hackprogress >= 100)
-			hackprogress = 0
-			var/obj/machinery/camera/C = cable.machine
-			C.toggle_cam(src, 0)
-			hacking = FALSE
-			temp = "Взлом камеры: камера отключена."
-	else
-		temp = "Джек: соединение потеряно. Взлом отменён."
-		hackprogress = 0
-		hacking = FALSE
-		hackdoor = null
-		hackcamera = null
 
-/mob/living/silicon/pai/proc/process_heartbeat()
-	var/mob/living/M = card.loc
-	var/count = 0
-	while(!isliving(M))
-		if(!M || !M.loc || count >= 6)
-			return
-		M = M.loc
-		count++
-	if(M.stat == DEAD && world.time > heartbeat_alert_cooldown)
-		to_chat(src, "<span class='danger'>Сенсор пульса: ФЛАТЛАЙН у [M.name]!</span>")
-		heartbeat_alert_cooldown = world.time + 30 SECONDS
-	else if(M.health <= 0 && world.time > heartbeat_alert_cooldown)
-		to_chat(src, "<span class='warning'>Сенсор пульса: критическое состояние [M.name]!</span>")
-		heartbeat_alert_cooldown = world.time + 30 SECONDS
+	if(cable && cable.machine && istype(cable.machine, /obj/machinery/door) && cable.machine == hackdoor && get_dist(src, hackdoor) <= 1)
+		hackprogress = clamp(hackprogress + 4, 0, 100)
+	else
+		temp = "Door Jack: Connection to airlock has been lost. Hack aborted."
+		hackprogress = 0
+		hacking = FALSE
+		hackdoor = null
+		return
+	if(screen == "doorjack" && subscreen == 0) // Update our view, if appropriate
+		paiInterface()
+	if(hackprogress >= 100)
+		hackprogress = 0
+		var/obj/machinery/door/D = cable.machine
+		D.open()
+		hacking = FALSE
 
 /mob/living/silicon/pai/make_laws()
 	laws = new /datum/ai_laws/pai()

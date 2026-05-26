@@ -950,17 +950,6 @@
 		return ..()
 	return FALSE
 
-// pAI PDA
-/obj/item/modular_computer/pda/silicon/pai/kill_program(forced = FALSE)
-	if(active_program)
-		active_program.kill_program(forced)
-		active_program = null
-	update_appearance()
-
-// pAI PDA
-/obj/item/modular_computer/pda/silicon/pai/shutdown_computer(loud = 1)
-	return
-
 /obj/item/modular_computer/pda/silicon/use_power(amount = 0)
 	if(!silicon_owner)
 		return FALSE
