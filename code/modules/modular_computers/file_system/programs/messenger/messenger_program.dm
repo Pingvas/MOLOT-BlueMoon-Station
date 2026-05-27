@@ -278,6 +278,20 @@
 			chat.unread_messages = 0
 			return TRUE
 
+		if("PDA_toggleBlock")
+			var/target_chat_ref = params["ref"]
+
+			if(!(target_chat_ref in saved_chats))
+				return FALSE
+
+			var/datum/pda_chat/chat = saved_chats[target_chat_ref]
+			chat.blocked = !chat.blocked
+			if(chat.blocked)
+				to_chat(usr, span_notice("[chat.get_recipient_name()] заблокирован."))
+			else
+				to_chat(usr, span_notice("[chat.get_recipient_name()] разблокирован."))
+			return TRUE
+
 		if("PDA_sendMessage")
 			if(!sending_and_receiving)
 				to_chat(usr, span_notice("ERROR: This device has sending disabled."))
@@ -706,13 +720,20 @@
 
 	// Don't create a new chat for rigged messages
 	if(!is_rigged)
-		var/datum/pda_message/message = new(signal.data["message"], FALSE, STATION_TIME_TIMESTAMP(PDA_MESSAGE_TIMESTAMP_FORMAT, world.time), signal.data["photo"], signal.data["everyone"])
-
 		chat = find_chat_by_recipient(is_fake_user ? fake_name : sender_ref, is_fake_user)
 		if(!istype(chat))
 			chat = create_chat(!is_fake_user ? sender_ref : null, fake_name, fake_job)
 		if(!chat)
 			return
+		if(chat.blocked)
+			if(!is_fake_user)
+				var/datum/computer_file/program/messenger/sender_messenger = GLOB.pda_messengers[sender_ref]
+				if(istype(sender_messenger))
+					var/obj/item/modular_computer/sender_computer = sender_messenger.computer
+					if(istype(sender_computer) && isliving(sender_computer.loc))
+						to_chat(sender_computer.loc, span_warning("Пользователь вас заблокировал."))
+			return
+		var/datum/pda_message/message = new(signal.data["message"], FALSE, STATION_TIME_TIMESTAMP(PDA_MESSAGE_TIMESTAMP_FORMAT, world.time), signal.data["photo"], signal.data["everyone"])
 		chat.add_message(message)
 		chat.unread_messages++
 
@@ -743,7 +764,7 @@
 		if(is_automated)
 			reply = "\[Automated Message\]"
 		else
-			reply = "(<a href='byond://?src=[REF(src)];choice=[reply_href];skiprefresh=1;target=[REF(chat)]'>Reply</a>)"
+			reply = "(<a href='byond://?src=[REF(src)];choice=[reply_href];skiprefresh=1;target=[REF(chat)]'>Ответ</a>) (<a href='byond://?src=[REF(src)];choice=block;skiprefresh=1;target=[REF(chat)]'>Блок</a>)"
 
 		if(isAI(messaged_mob))
 			sender_title = "<a href='byond://?src=[REF(messaged_mob)];track=[html_encode(sender_name)]'>[sender_title]</a>"
@@ -752,9 +773,10 @@
 		var/photo = signal.data["photo"]
 		var/photo_html = ""
 		if(photo)
-			var/is_video = findtext(photo, ".webm", -5) || findtext(photo, ".mp4", -4)
-			if(is_video)
-				photo_html = "<br><video src='[html_encode(photo)]' autoplay loop muted playsinline style='max-width:300px;max-height:300px;display:block;margin-top:5px;'></video>"
+			var/regex/video_regex = new(@"\.(webm|mp4)(\?.*)?$", "i")
+			if(video_regex.Find(photo))
+				var/video_type = findtext(photo, ".mp4") ? "video/mp4" : "video/webm"
+				photo_html = "<br><video autoplay loop controls style='max-width:300px;max-height:300px;display:block;margin-top:5px;'><source src='[html_encode(photo)]' type='[video_type]' /></video>"
 			else
 				photo_html = "<br><img src='[html_encode(photo)]' style='max-width:300px;max-height:300px;display:block;margin-top:5px;' />"
 
@@ -801,6 +823,17 @@
 			var/obj/item/modular_computer/pda/comp = computer
 			if(istype(comp))
 				comp.explode(usr, from_message_menu = TRUE)
+
+		if("block")
+			if(!(target_href in saved_chats))
+				return
+			var/datum/pda_chat/chat = saved_chats[target_href]
+			chat.blocked = !chat.blocked
+			if(chat.blocked)
+				to_chat(usr, span_notice("[chat.get_recipient_name()] заблокирован."))
+			else
+				to_chat(usr, span_notice("[chat.get_recipient_name()] разблокирован."))
+			SStgui.update_uis(computer)
 
 /datum/computer_file/program/messenger/proc/compare_name(datum/computer_file/program/messenger/rhs)
 	return sorttext(rhs.computer?.saved_identification || "", computer?.saved_identification || "")

@@ -57,6 +57,8 @@
 	var/message_draft = ""
 	/// Number of unread messages in this chat
 	var/unread_messages = 0
+	/// Whether messages from this user are blocked
+	var/blocked = FALSE
 
 /datum/pda_chat/New(datum/computer_file/program/messenger/recipient)
 	src.recipient = WEAKREF(recipient)
@@ -90,6 +92,7 @@
 	data["visible"] = visible_in_recents
 	data["can_reply"] = can_reply
 	data["unread_messages"] = unread_messages
+	data["blocked"] = blocked
 
 	return data
 

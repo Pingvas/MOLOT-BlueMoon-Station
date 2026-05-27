@@ -45,6 +45,7 @@ export const NtosMessenger = (props, context) => {
           recipient={openChat ? openChat.recipient : temporaryRecipient}
           unreads={openChat ? openChat.unread_messages : 0}
           chatRef={openChat ? openChat.ref : null}
+          blocked={openChat ? openChat.blocked : false}
         />
       );
     }
@@ -132,6 +133,7 @@ const ContactsScreen = (props, context) => {
       name={`${chat.recipient.name} (${chat.recipient.job})`}
       chatRef={chat.ref}
       unreads={chat.unread_messages}
+      blocked={chat.blocked}
     />
   );
 
@@ -321,17 +323,18 @@ const ContactsScreen = (props, context) => {
 
 const ChatButton = (props, context) => {
   const { act } = useBackend(context);
-  const { unreads, chatRef, name } = props;
+  const { unreads, chatRef, name, blocked } = props;
   const hasUnreads = unreads > 0;
   return (
     <Button
-      icon={hasUnreads && 'envelope'}
+      icon={blocked ? 'lock' : (hasUnreads && 'envelope')}
+      color={blocked ? 'red' : undefined}
       key={chatRef}
       fluid
       onClick={() => act('PDA_viewMessages', { ref: chatRef })}>
-      {hasUnreads
+      {hasUnreads && !blocked
         && `[${unreads <= 9 ? unreads : '9+'} непрочитанных]`}{' '}
-      {name}
+      {blocked ? `[ЗАБЛОКИРОВАН] ` : ''}{name}
     </Button>
   );
 };
@@ -385,6 +388,7 @@ const ChatScreen = (props, context) => {
     chatRef,
     sendingVirus,
     unreads,
+    blocked,
   } = props;
 
   const { emoji_list, emoji_base64, has_scanned_photo, selected_photo_path, admin_photo_url, is_admin } = data;
@@ -456,6 +460,14 @@ const ChatScreen = (props, context) => {
       <Section fill>
         <Box width="100%" italic color="gray" ml={1}>
           Вы не можете ответить этому пользователю.
+        </Box>
+      </Section>
+    );
+  } else if (blocked) {
+    sendingBar = (
+      <Section fill>
+        <Box width="100%" italic color="red" ml={1}>
+          Пользователь заблокирован. Сообщения от него игнорируются.
         </Box>
       </Section>
     );
@@ -600,6 +612,12 @@ const ChatScreen = (props, context) => {
               content="Удалить чат"
               onClick={() => act('PDA_clearMessages', { ref: chatRef })}
             />
+            <Button
+              icon={blocked ? 'unlock' : 'lock'}
+              content={blocked ? 'Разблокировать' : 'Заблокировать'}
+              color={blocked ? 'green' : 'red'}
+              onClick={() => act('PDA_toggleBlock', { ref: chatRef })}
+            />
           </>
         )}
       </Section>
@@ -609,7 +627,7 @@ const ChatScreen = (props, context) => {
           scrollable
           fill
           fitted
-          title={`${recipient.name} (${recipient.job})`}>
+          title={`${blocked ? '[ЗАБЛОКИРОВАН] ' : ''}${recipient.name} (${recipient.job})`}>
           <Stack vertical className="NtosChatLog">
             {!!(messages.length > 0 && canReply) && (
               <>
@@ -700,18 +718,23 @@ const ChatScreen = (props, context) => {
 const MediaAttachment = ({ src, maxHeight = '200px', maxWidth = '100%', onClick }) => {
   if (!src) return null;
 
-  const isVideo = src.endsWith('.webm') || src.endsWith('.mp4');
+  const isVideo = /\.(webm|mp4)(\?.*)?$/i.test(src);
 
   if (isVideo) {
-    const videoType = src.endsWith('.mp4') ? 'video/mp4' : 'video/webm';
+    const videoType = /\.mp4(\?.*)?$/i.test(src) ? 'video/mp4' : 'video/webm';
     return (
       <Box>
         <video
           controls
           preload="metadata"
+          crossOrigin="anonymous"
+          playsInline
           style={{
             maxWidth,
             maxHeight,
+            width: 'auto',
+            height: 'auto',
+            objectFit: 'contain',
             display: 'block',
             marginTop: '5px',
           }}
