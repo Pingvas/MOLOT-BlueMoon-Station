@@ -282,14 +282,7 @@
 
 /obj/item/modular_computer/pda/clown/Initialize(mapload)
 	. = ..()
-	AddComponent(\
-		/datum/component/slippery,\
-		knockdown = 12 SECONDS,\
-		lube_flags = NO_SLIP_WHEN_WALKING,\
-		on_slip_callback = CALLBACK(src, PROC_REF(AfterSlip)),\
-		can_slip_callback = CALLBACK(src, PROC_REF(try_slip)),\
-		slot_whitelist = ITEM_SLOT_ID | ITEM_SLOT_BELT,\
-	)
+	AddComponent(/datum/component/slippery, 12 SECONDS, NO_SLIP_WHEN_WALKING, CALLBACK(src, PROC_REF(AfterSlip)))
 
 /// Returns whether the PDA can slip or not.
 /obj/item/modular_computer/pda/clown/proc/try_slip(mob/living/slipper, mob/living/slippee)

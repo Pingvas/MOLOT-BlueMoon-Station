@@ -2,7 +2,7 @@
 	filename = "ntsoftwarehub"
 	filedesc = "NT Software Hub"
 	program_icon_state = "generic"
-	extended_desc = "This program allows downloads of software from official NT repositories"
+	extended_desc = "Позволяет загружать программное обеспечение из официальных репозиториев NT."
 	unsendable = TRUE
 	undeletable = TRUE
 	size = 4
@@ -272,7 +272,7 @@
 	filename = "syndownloader"
 	filedesc = "Software Download Tool"
 	program_icon_state = "generic"
-	extended_desc = "This program allows downloads of software from shared Syndicate repositories"
+	extended_desc = "Позволяет загружать программное обеспечение из общих репозиториев Синдиката."
 	requires_ntnet = FALSE
 	ui_header = "downloader_finished.gif"
 	tgui_id = "NtosNetDownloader"

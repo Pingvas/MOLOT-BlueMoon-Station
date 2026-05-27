@@ -6,7 +6,7 @@
 	filedesc = "NT Pay"
 	category = PROGRAM_CATEGORY_MISC
 	program_icon_state = "generic"
-	extended_desc = "Nanotrasen Pay — manage your metadollar account, withdraw and deposit M$."
+	extended_desc = "Nanotrasen Pay — управляйте своим метадолларовым счётом, снимайте и пополняйте M$."
 	requires_ntnet = FALSE
 	transfer_access = null
 	usage_flags = PROGRAM_PDA

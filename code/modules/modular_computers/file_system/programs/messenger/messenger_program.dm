@@ -47,7 +47,7 @@
 	filedesc = "Direct Messenger"
 	category = PROGRAM_CATEGORY_DEVICE
 	program_icon_state = "text"
-	extended_desc = "This program allows old-school communication with other modular devices."
+	extended_desc = "Позволяет вести классическую переписку с другими модульными устройствами."
 	size = 0
 	undeletable = TRUE
 	usage_flags = PROGRAM_PDA

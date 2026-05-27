@@ -4,14 +4,13 @@
 	category = PROGRAM_CATEGORY_ENGI
 	ui_header = "smmon_0.gif"
 	program_icon_state = "smmon_0"
-	extended_desc = "Crystal Integrity Monitoring System, connects to specially calibrated supermatter sensors to provide information on the status of supermatter-based engines."
+	extended_desc = "Система мониторинга целостности кристалла. Подключается к специально откалиброванным сенсорам суперматерии для предоставления информации о состоянии двигателей на суперматерии."
 	requires_ntnet = TRUE
 	transfer_access = ACCESS_CONSTRUCTION
 	size = 5
 	tgui_id = "NtosSupermatterMonitor"
 	program_icon = "radiation"
 	alert_able = TRUE
-	available_on_ntnet = FALSE
 	var/last_status = SUPERMATTER_INACTIVE
 	var/list/supermatters
 	var/obj/machinery/power/supermatter_crystal/active // Currently selected supermatter crystal.

@@ -3,7 +3,7 @@
 	filedesc = "Notepad"
 	category = PROGRAM_CATEGORY_DEVICE
 	program_icon_state = "generic"
-	extended_desc = "Jot down your work-safe thoughts and what not."
+	extended_desc = "Записывайте рабочие мысли, заметки и прочее."
 	size = 2
 	tgui_id = "NtosNotepad"
 	program_icon = "book"

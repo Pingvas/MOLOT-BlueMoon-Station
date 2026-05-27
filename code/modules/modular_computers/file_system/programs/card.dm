@@ -12,7 +12,7 @@
 	filedesc = "Plexagon Access Management"
 	category = PROGRAM_CATEGORY_CREW
 	program_icon_state = "id"
-	extended_desc = "Program for programming employee ID cards to access parts of the station."
+	extended_desc = "Утилита для программирования ID-карт сотрудников, предоставляющая доступ к различным частям станции."
 	transfer_access = ACCESS_HEADS
 	requires_ntnet = 0
 	size = 8
