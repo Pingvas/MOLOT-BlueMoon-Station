@@ -11,7 +11,16 @@
     @extend .NtosChatMessage;
     background-color: rgba(255, 255, 255, 0.1);
     text-align: right;
-    float: right;
+    align-self: flex-end;
+  }
+
+  &__photo {
+    max-width: 100%;
+
+    img {
+      max-width: 100%;
+      height: auto;
+    }
   }
 
   &__timestamp {

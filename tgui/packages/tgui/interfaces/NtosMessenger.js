@@ -685,7 +685,7 @@ const ChatScreen = (props, context) => {
         <Modal>
           <Stack vertical align="center">
             <Stack.Item>
-              <MediaAttachment src={previewUrl} maxHeight="80vh" />
+              <MediaAttachment src={previewUrl} maxHeight="80vh" maxWidth="575px" />
             </Stack.Item>
             <Stack.Item>
               <Button content="Закрыть" onClick={() => setPreviewUrl(null)} />
@@ -738,6 +738,9 @@ const MediaAttachment = ({ src, maxHeight = '200px', maxWidth = '100%', onClick 
       style={{
         maxWidth,
         maxHeight,
+        width: 'auto',
+        height: 'auto',
+        objectFit: 'contain',
         cursor: onClick ? 'pointer' : 'default',
         display: 'block',
         marginTop: '5px',
