@@ -8,7 +8,7 @@
 	extended_desc = "Подключается к сенсорам вокруг станции для предоставления информации об электрических системах."
 	ui_header = "power_norm.gif"
 	transfer_access = ACCESS_ENGINE
-	usage_flags = PROGRAM_CONSOLE | PROGRAM_PDA
+	usage_flags = PROGRAM_ALL
 	requires_ntnet = FALSE
 	size = 9
 	tgui_id = "NtosPowerMonitor"

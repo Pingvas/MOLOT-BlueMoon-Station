@@ -277,13 +277,18 @@
 					return
 				if(length(customsender) <= 0 || customsender == "")
 					customsender = "UNKNOWN"
-				//sanitize text!!!
-				var/datum/signal/subspace/pda/signal = new(src, list(
-					"name" = sanitize(customsender),
-					"job" = sanitize(customjob),
+
+				var/datum/computer_file/program/messenger/target_messenger = locate() in customrecepient.get_all_files()
+				if(!istype(target_messenger))
+					message = "NOTICE: No messaging program found on target PDA!"
+					return
+
+				var/datum/signal/subspace/messaging/tablet_message/signal = new(src, list(
 					"message" = sanitize(custommessage),
-					"emojis" = TRUE,
-					"targets" = list("[customrecepient.owner] ([customrecepient.ownjob])")
+					"targets" = list(target_messenger),
+					"automated" = FALSE,
+					"fakename" = sanitize(customsender),
+					"fakejob" = sanitize(customjob),
 				))
 				// this will log the signal and transmit it to the target
 				linkedServer.receive_information(signal, null)
