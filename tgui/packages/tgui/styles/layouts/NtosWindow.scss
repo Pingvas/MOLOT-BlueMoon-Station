@@ -18,30 +18,6 @@
   user-select: none;
 }
 
-.NtosHeader__left {
-  position: absolute;
-  left: 0.5em;
-  top: 0;
-  bottom: 0;
-  display: flex;
-  align-items: center;
-}
-
-.NtosHeader__right {
-  position: absolute;
-  right: 0.5em;
-  top: 0;
-  bottom: 0;
-  display: flex;
-  align-items: center;
-}
-
-.NtosHeader__icon {
-  width: 1.5em;
-  height: 1.5em;
-  vertical-align: middle;
-}
-
 .NtosWindow__content .Layout__content {
   margin-top: 2em;
   font-family: Consolas, monospace;
