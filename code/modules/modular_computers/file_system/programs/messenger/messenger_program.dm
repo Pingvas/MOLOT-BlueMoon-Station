@@ -625,7 +625,7 @@
 	var/mob/sender
 	if(ismob(source))
 		sender = source
-		if(!sender.canUseTopic(computer, BE_CLOSE, check_resting = TRUE))
+		if(!sender.canUseTopic(computer, BE_CLOSE, check_resting = FALSE))
 			return FALSE
 
 	if(!COOLDOWN_FINISHED(src, last_text))
@@ -802,7 +802,7 @@
 
 	if(QDELETED(src))
 		return
-	if(!usr.canUseTopic(computer, BE_CLOSE, no_tk = TRUE, check_resting = TRUE))
+	if(!usr.canUseTopic(computer, BE_CLOSE, no_tk = TRUE, check_resting = FALSE))
 		return
 	if(isobserver(usr))
 		return
