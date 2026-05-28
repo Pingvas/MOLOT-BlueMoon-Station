@@ -384,7 +384,16 @@ const BuyScreen = (props, context) => {
                 <Table.Cell>{cost} ОЗУ</Table.Cell>
                 <Table.Cell>
                   {installed ? (
-                    <Box color="good"><Icon name="check" /> Установлено</Box>
+                    <Box>
+                      <Box color="good" inline mr={1}><Icon name="check" /> Установлено</Box>
+                      <Button
+                        icon="trash"
+                        color="red"
+                        onClick={() => act('uninstall', { uninstall: key })}
+                      >
+                        Удалить
+                      </Button>
+                    </Box>
                   ) : (
                     <Button
                       disabled={!canAfford}

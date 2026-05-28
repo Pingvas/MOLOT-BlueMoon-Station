@@ -397,6 +397,11 @@
 	new_pai.real_name = new_pai.name
 	new_pai.key = user.key
 
+	if(new_pai.pda)
+		new_pai.pda.saved_identification = pai_name
+		new_pai.pda.owner = pai_name
+		new_pai.pda.name = "[pai_name] (pAI Messenger)"
+
 	setPersonality(new_pai)
 
 	SSticker.mode?.update_cult_icons_removed(pai.mind)
@@ -544,6 +549,9 @@
 	.["Cyborg - Security (dog - valesci)"] = -16
 	//Misc
 	.["Cyborg - Misc (dog - blade)"] = -16
+
+/mob/living/silicon/pai/ui_state(mob/user)
+	return GLOB.conscious_state
 
 /mob/living/silicon/pai/ui_interact(mob/user, datum/tgui/ui)
 	ui = SStgui.try_update_ui(user, src, ui)
@@ -750,6 +758,16 @@
 					temp = "Недостаточно ОЗУ."
 			else
 				temp = "Модуль \"[target]\" не найден."
+			return TRUE
+		if("uninstall")
+			var/target = params["uninstall"]
+			if(software.Find(target))
+				var/cost = available_software[target]
+				software.Remove(target)
+				ram += cost
+				temp = "Модуль \"[target]\" удалён."
+			else
+				temp = "Модуль \"[target]\" не установлен."
 			return TRUE
 		if("radio")
 			radio.attack_self(src)

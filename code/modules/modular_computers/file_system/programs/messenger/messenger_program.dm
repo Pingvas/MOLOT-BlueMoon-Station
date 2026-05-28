@@ -180,6 +180,8 @@
 
 /datum/computer_file/program/messenger/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
 	. = ..()
+	if(isobserver(usr))
+		return FALSE
 	switch(action)
 		if("PDA_ringSet")
 			var/mob/living/user = usr
@@ -801,6 +803,8 @@
 	if(QDELETED(src))
 		return
 	if(!usr.canUseTopic(computer, BE_CLOSE, no_tk = TRUE, check_resting = TRUE))
+		return
+	if(isobserver(usr))
 		return
 
 	// Ensure computer is on
