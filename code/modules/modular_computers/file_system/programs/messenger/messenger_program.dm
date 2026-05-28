@@ -116,6 +116,22 @@
 			COMSIG_MODULAR_PDA_IMPRINT_RESET,
 		))
 	remove_messenger(src)
+	for(var/other_ref in GLOB.pda_messengers)
+		var/datum/computer_file/program/messenger/other = GLOB.pda_messengers[other_ref]
+		if(other == src || QDELETED(other))
+			continue
+		var/list/to_remove = list()
+		for(var/chat_ref in other.saved_chats)
+			var/datum/pda_chat/chat = other.saved_chats[chat_ref]
+			var/datum/computer_file/program/messenger/recipient = chat.recipient?.resolve()
+			if(recipient == src)
+				to_remove += chat_ref
+		for(var/chat_ref in to_remove)
+			var/datum/pda_chat/chat = other.saved_chats[chat_ref]
+			other.saved_chats -= chat_ref
+			qdel(chat)
+		if(other.computer)
+			SStgui.update_uis(other.computer)
 	QDEL_LIST_ASSOC_VAL(saved_chats)
 	return ..()
 
