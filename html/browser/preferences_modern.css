@@ -238,6 +238,12 @@ body {
 	background-size: auto;
 }
 
+/* Custom scheme: colors are supplied entirely by inline <style> from DM */
+.csetup-root.csetup-theme-modern.csetup-scheme-custom {
+	background-color: var(--csetup-bg);
+	background-image: none;
+}
+
 /* Accent variants (applied via extra classes on .csetup-root) */
 .csetup-root.csetup-theme-modern.csetup-accent-blue {
 	--csetup-accent: #4da3ff;
@@ -405,10 +411,44 @@ body {
 }
 
 .csetup-root.csetup-theme-modern .csetup-markings .csetup-markings-grid {
-	column-count: 2;
-	column-gap: 8px;
-	column-width: 320px;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
 	margin: 6px 0 0 0;
+}
+
+.csetup-root.csetup-theme-modern .csetup-markings .csetup-marking-section {
+	display: flex;
+	flex-direction: column;
+}
+
+.csetup-root.csetup-theme-modern .csetup-markings .csetup-marking-section-label {
+	font-size: 10px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.8px;
+	color: var(--csetup-accent);
+	padding: 2px 4px 4px 0;
+	margin-bottom: 6px;
+	border-bottom: 1px solid rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.20);
+}
+
+.csetup-root.csetup-theme-modern .csetup-markings .csetup-marking-section-cards {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	align-items: flex-start;
+}
+
+.csetup-root.csetup-theme-modern .csetup-markings .csetup-marking-section-cards .csetup-marking-card {
+	flex: 1 1 280px;
+	min-width: 240px;
+	margin: 0;
+}
+
+.csetup-root.csetup-theme-modern .csetup-markings .csetup-marking-card--head {
+	flex: 0 0 100%;
+	max-width: 100%;
 }
 
 .csetup-root.csetup-theme-modern .csetup-markings h3 {
@@ -440,11 +480,6 @@ body {
 
 /* Cards per limb */
 .csetup-root.csetup-theme-modern .csetup-markings .csetup-marking-card {
-	margin: 0;
-	display: inline-block;
-	width: 100%;
-	break-inside: avoid;
-	margin: 0 0 8px 0;
 	background: var(--csetup-panel);
 	border: 1px solid rgba(255, 255, 255, 0.08);
 	border-radius: 10px;
@@ -1434,60 +1469,66 @@ body {
 	box-shadow: none;
 }
 
-/* Optional utility classes you can use later for custom buttons */
-.csetup-root.csetup-theme-modern .csetup-btn {
-	display: inline-block;
-	padding: 5px 8px;
-	border-radius: 8px;
-	background: var(--csetup-panel-2);
-	border: 1px solid var(--csetup-border);
-	color: var(--csetup-text);
-}
-
-.csetup-root.csetup-theme-modern .csetup-btn--danger {
-	background: rgba(255, 107, 107, 0.12);
-	border-color: rgba(255, 107, 107, 0.28);
-	color: var(--csetup-text);
-}
-
 /*
  * Enhanced UI Decoration (activated via .csetup-decoration-enhanced class on root).
  * Adds gradients, shadows, transforms, and animations.
  * Only applied when the user selects "Enhanced" decoration level.
  */
 .csetup-root.csetup-decoration-enhanced {
-	background-image: radial-gradient(circle at 92% 0%, rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.16), transparent 48%),
-		radial-gradient(circle at 0% 100%, rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.10), transparent 55%);
+	background-image:
+		radial-gradient(circle at 92% 0%, rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.32), transparent 52%),
+		radial-gradient(circle at 8% 90%, rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.18), transparent 60%),
+		radial-gradient(circle at 50% 50%, rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.06), transparent 70%);
 }
 
 .csetup-root.csetup-decoration-enhanced.csetup-scheme-purple {
-	background-image: radial-gradient(circle at 92% 0%, rgba(var(--csetup-accent-rgb, 193, 155, 255), 0.20), transparent 50%),
-		radial-gradient(circle at 0% 100%, rgba(var(--csetup-accent-rgb, 193, 155, 255), 0.12), transparent 56%);
+	background-image:
+		radial-gradient(circle at 92% 0%, rgba(var(--csetup-accent-rgb, 193, 155, 255), 0.36), transparent 54%),
+		radial-gradient(circle at 8% 90%, rgba(var(--csetup-accent-rgb, 193, 155, 255), 0.22), transparent 62%),
+		radial-gradient(circle at 50% 50%, rgba(var(--csetup-accent-rgb, 193, 155, 255), 0.08), transparent 72%);
 }
 
 .csetup-root.csetup-decoration-enhanced.csetup-scheme-green {
-	background-image: radial-gradient(circle at 92% 0%, rgba(var(--csetup-accent-rgb, 139, 255, 177), 0.18), transparent 52%),
-		radial-gradient(circle at 0% 100%, rgba(var(--csetup-accent-rgb, 139, 255, 177), 0.10), transparent 58%);
+	background-image:
+		radial-gradient(circle at 92% 0%, rgba(var(--csetup-accent-rgb, 139, 255, 177), 0.34), transparent 54%),
+		radial-gradient(circle at 8% 90%, rgba(var(--csetup-accent-rgb, 139, 255, 177), 0.20), transparent 62%),
+		radial-gradient(circle at 50% 50%, rgba(var(--csetup-accent-rgb, 139, 255, 177), 0.08), transparent 72%);
 }
 
 .csetup-root.csetup-decoration-enhanced.csetup-scheme-neutral {
-	background-image: repeating-linear-gradient(90deg,
-		rgba(255, 255, 255, 0.32) 0px, rgba(255, 255, 255, 0.32) 10px,
-		rgba(0, 0, 0, 0.035) 10px, rgba(0, 0, 0, 0.035) 20px);
+	background-image:
+		radial-gradient(circle at 92% 0%, rgba(var(--csetup-accent-rgb, 106, 140, 255), 0.28), transparent 52%),
+		radial-gradient(circle at 8% 90%, rgba(var(--csetup-accent-rgb, 106, 140, 255), 0.14), transparent 60%),
+		radial-gradient(circle at 50% 50%, rgba(var(--csetup-accent-rgb, 106, 140, 255), 0.05), transparent 70%);
+}
+
+.csetup-root.csetup-decoration-enhanced.csetup-scheme-custom {
+	background-image:
+		radial-gradient(circle at 92% 0%, rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.30), transparent 54%),
+		radial-gradient(circle at 8% 90%, rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.16), transparent 62%),
+		radial-gradient(circle at 50% 50%, rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.06), transparent 72%);
 }
 
 .csetup-root.csetup-decoration-enhanced hr {
 	background: linear-gradient(90deg, transparent, var(--csetup-border), transparent) !important;
+	height: 1px;
+	border: none;
+	margin: 8px 0;
 }
 
 .csetup-root.csetup-decoration-enhanced a,
 .csetup-root.csetup-decoration-enhanced a:link,
 .csetup-root.csetup-decoration-enhanced a:visited {
-	transition: transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+	transition: transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
 }
 
 .csetup-root.csetup-decoration-enhanced a:hover {
 	transform: translateY(-1px);
+	box-shadow: 0 4px 14px rgba(0, 0, 0, 0.30);
+}
+
+.csetup-root.csetup-decoration-enhanced a.linkOn:hover {
+	box-shadow: 0 0 12px rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.45), 0 4px 14px rgba(0, 0, 0, 0.30);
 }
 
 .csetup-root.csetup-decoration-enhanced a.csetup-dice-btn:hover {
@@ -1612,4 +1653,509 @@ body {
 .csetup-root.csetup-decoration-enhanced .csetup-quirk-row.is-locked::before {
 	background: linear-gradient(180deg, #ff8d8d, #ff3b3b) !important;
 	box-shadow: 0 0 10px rgba(255, 59, 59, 0.35) !important;
+}
+
+/* Enhanced: prettier cards, panels and general polish */
+.csetup-root.csetup-decoration-enhanced h2 {
+	text-shadow: 0 0 18px rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.35);
+}
+
+.csetup-root.csetup-decoration-enhanced .csetup-settings-content {
+	background: linear-gradient(180deg, rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.07), transparent 140px);
+}
+
+.csetup-root.csetup-decoration-enhanced .csetup-settings-sidebar {
+	background: linear-gradient(180deg, var(--csetup-panel), rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.07));
+	box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06), 0 0 20px rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.10), var(--csetup-shadow);
+	border-radius: 10px;
+}
+
+.csetup-root.csetup-decoration-enhanced .csetup-preview-bar {
+	background: linear-gradient(90deg, rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.14), transparent);
+	border-radius: 6px;
+	padding: 3px 6px;
+	margin-bottom: 6px;
+}
+
+.csetup-root.csetup-decoration-enhanced .csetup-preview-btn {
+	transition: transform 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.csetup-root.csetup-decoration-enhanced .csetup-preview-btn:hover {
+	transform: translateY(-1px);
+	box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+
+.csetup-root.csetup-decoration-enhanced .csetup-preview-btn.linkOn {
+	box-shadow: 0 0 0 2px rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.55), 0 0 16px rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.25), 0 4px 14px rgba(0, 0, 0, 0.30);
+}
+
+.csetup-root.csetup-decoration-enhanced .csetup-slot-header {
+	background: linear-gradient(90deg, rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.12), transparent);
+	border-radius: 6px;
+	padding: 4px 8px;
+	margin-bottom: 4px;
+	box-shadow: inset 0 0 0 1px rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.08);
+}
+
+.csetup-root.csetup-decoration-enhanced .csetup-sidebar-toggle-btn {
+	transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35), 0 0 6px rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.15);
+}
+
+.csetup-root.csetup-decoration-enhanced .csetup-sidebar-toggle-btn:hover {
+	transform: scale(1.08);
+	box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45), 0 0 10px rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.25);
+}
+
+.csetup-root.csetup-decoration-enhanced table {
+	border-radius: 8px;
+	overflow: hidden;
+	box-shadow: 0 3px 14px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.06);
+}
+
+.csetup-root.csetup-decoration-enhanced .csetup-marking-card {
+	backdrop-filter: blur(6px);
+	background: linear-gradient(135deg, var(--csetup-panel), rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.06));
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.20), 0 0 0 1px rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.06);
+}
+
+.csetup-root.csetup-decoration-enhanced .csetup-markings .csetup-marking-row {
+	transition: background-color 0.15s ease;
+}
+
+.csetup-root.csetup-decoration-enhanced .theme-selector {
+	box-shadow: 0 2px 12px rgba(0, 0, 0, 0.30), 0 0 0 1px rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.08);
+	transition: max-width 180ms ease, padding 180ms ease;
+}
+
+.csetup-root.csetup-decoration-enhanced .theme-custom-editor {
+	box-shadow: 0 6px 24px rgba(0, 0, 0, 0.40), 0 0 0 1px rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.08);
+	backdrop-filter: blur(6px);
+}
+
+.csetup-root.csetup-decoration-enhanced .theme-settings-panel {
+	box-shadow: 0 6px 24px rgba(0, 0, 0, 0.40), 0 0 0 1px rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.08);
+}
+
+/* Settings layout two column */
+
+.csetup-root.csetup-has-sidebar > center,
+.csetup-root.csetup-has-sidebar > hr {
+	margin-right: 320px;
+}
+
+.csetup-root.csetup-sidebar-collapsed.csetup-has-sidebar > center,
+.csetup-root.csetup-sidebar-collapsed.csetup-has-sidebar > hr {
+	margin-right: 0;
+}
+
+/* Kostili bara ebannie :( */
+.csetup-root.csetup-has-sidebar .theme-container {
+	right: 328px;
+}
+
+.csetup-root.csetup-sidebar-collapsed.csetup-has-sidebar .theme-container {
+	right: 8px;
+}
+
+/* Reserved place */
+.csetup-root.csetup-theme-modern .csetup-settings-wrap,
+.csetup-root.csetup-theme-classic .csetup-settings-wrap {
+	display: block;
+	margin-right: 320px;
+}
+.csetup-root.csetup-sidebar-collapsed.csetup-theme-modern .csetup-settings-wrap,
+.csetup-root.csetup-sidebar-collapsed.csetup-theme-classic .csetup-settings-wrap {
+	margin-right: 0;
+}
+
+.csetup-root.csetup-theme-modern .csetup-settings-content,
+.csetup-root.csetup-theme-classic .csetup-settings-content {
+	display: block;
+}
+
+/* squere 320x320 */
+.csetup-root.csetup-theme-modern .csetup-settings-sidebar,
+.csetup-root.csetup-theme-classic .csetup-settings-sidebar {
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	width: 320px;
+	height: auto;
+	overflow-y: auto;
+	overflow-x: hidden;
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+	background: var(--csetup-bg, #121212);
+	border-left: 1px solid var(--csetup-border, #2f2f2f);
+	z-index: 50;
+	scrollbar-width: thin;
+	scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+
+.csetup-root.csetup-theme-modern .csetup-settings-sidebar::-webkit-scrollbar,
+.csetup-root.csetup-theme-classic .csetup-settings-sidebar::-webkit-scrollbar {
+	width: 5px;
+}
+
+.csetup-root.csetup-theme-modern .csetup-settings-sidebar::-webkit-scrollbar-thumb,
+.csetup-root.csetup-theme-classic .csetup-settings-sidebar::-webkit-scrollbar-thumb {
+	background: rgba(255, 255, 255, 0.15);
+	border-radius: 999px;
+}
+
+/* Collapsed sidebar — fully hidden */
+.csetup-root.csetup-sidebar-collapsed.csetup-theme-modern .csetup-settings-sidebar,
+.csetup-root.csetup-sidebar-collapsed.csetup-theme-classic .csetup-settings-sidebar {
+	display: none;
+}
+
+/* Sidebar toggle button (fixed, sits between content and sidebar) */
+.csetup-root.csetup-theme-modern .csetup-sidebar-toggle-btn,
+.csetup-root.csetup-theme-classic .csetup-sidebar-toggle-btn {
+	position: fixed;
+	right: 320px;
+	top: 50%;
+	transform: translateY(-50%);
+	z-index: 51;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 20px;
+	height: 64px;
+	background: var(--csetup-panel, #1a1a1a);
+	border: 1px solid var(--csetup-border, #2f2f2f);
+	border-right: none;
+	border-radius: 4px 0 0 4px;
+	color: var(--csetup-muted, #888);
+	font-size: 12px;
+	line-height: 1;
+	text-decoration: none;
+	box-sizing: border-box;
+}
+
+.csetup-root.csetup-sidebar-collapsed.csetup-theme-modern .csetup-sidebar-toggle-btn,
+.csetup-root.csetup-sidebar-collapsed.csetup-theme-classic .csetup-sidebar-toggle-btn {
+	right: 0;
+	border-right: 1px solid var(--csetup-border, #2f2f2f);
+	border-left: none;
+	border-radius: 0 4px 4px 0;
+}
+
+.csetup-root.csetup-theme-modern .csetup-sidebar-toggle-btn:hover,
+.csetup-root.csetup-theme-classic .csetup-sidebar-toggle-btn:hover {
+	background: var(--csetup-btn-hover, #3a3a3a);
+	color: var(--csetup-text, #e0e0e0);
+}
+
+/* Canvas preview image — replaces MAP element */
+.csetup-root.csetup-theme-modern .csetup-preview-img,
+.csetup-root.csetup-theme-classic .csetup-preview-img {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 320px;
+	height: 320px;
+	min-height: 320px;
+	flex-shrink: 0;
+	background: var(--csetup-bg, #121212);
+	border-bottom: 1px solid var(--csetup-border, #2f2f2f);
+	overflow: hidden;
+}
+
+.csetup-root.csetup-theme-modern .csetup-preview-img img,
+.csetup-root.csetup-theme-classic .csetup-preview-img img {
+	image-rendering: pixelated;
+	image-rendering: crisp-edges;
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+}
+
+/* Preview inner wrapper for zoom transform (avoids conflict with fuzzy inline transform on img) */
+/* align-items: flex-end — привязка к низу, чтобы transform-origin: bottom center
+   на fuzzy img и zoom wrapper давали одинаковый якорь */
+.csetup-root .csetup-preview-inner {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: flex-end;
+	justify-content: center;
+}
+
+/* Side-by-side comparison mode */
+.csetup-root.csetup-theme-modern .csetup-preview-compare,
+.csetup-root.csetup-theme-classic .csetup-preview-compare {
+	display: flex;
+	width: 320px;
+	height: 320px;
+	min-height: 320px;
+	flex-shrink: 0;
+	background: var(--csetup-bg, #121212);
+	border-bottom: 1px solid var(--csetup-border, #2f2f2f);
+	overflow: hidden;
+}
+.csetup-root .csetup-preview-half {
+	position: relative;
+	flex: 1 1 0;
+	overflow: hidden;
+	display: flex;
+	align-items: flex-end;
+	justify-content: center;
+}
+.csetup-root .csetup-preview-half + .csetup-preview-half {
+	border-left: 1px solid var(--csetup-border, #2f2f2f);
+}
+/* width:100% без height — img сохраняет квадратный aspect ratio (64x64),
+   flex-end прижимает к низу. transform-origin: bottom center на fuzzy img
+   теперь ссылается на реальный низ картинки, а не на низ растянутого элемента */
+.csetup-root .csetup-preview-half img {
+	image-rendering: pixelated;
+	image-rendering: crisp-edges;
+	width: 100%;
+}
+
+/* Size label overlay */
+.csetup-root .csetup-size-label {
+	position: absolute;
+	bottom: 4px;
+	right: 6px;
+	font-size: 11px;
+	color: rgba(255, 255, 255, 0.6);
+	background: rgba(0, 0, 0, 0.4);
+	padding: 1px 5px;
+	border-radius: 3px;
+	pointer-events: none;
+	z-index: 2;
+}
+
+/* Zoom toolbar */
+.csetup-root.csetup-theme-modern .csetup-zoom-bar,
+.csetup-root.csetup-theme-classic .csetup-zoom-bar {
+	display: flex;
+	gap: 4px;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	padding: 2px 4px;
+}
+.csetup-root .csetup-zoom-label {
+	font-size: 10px;
+	color: rgba(255, 255, 255, 0.5);
+	min-width: 30px;
+	text-align: center;
+}
+.csetup-root .csetup-zoom-slider {
+	flex: 1;
+	height: 14px;
+	cursor: pointer;
+	accent-color: var(--csetup-accent, #4a9eed);
+}
+.csetup-root.csetup-theme-modern a.csetup-zoom-btn,
+.csetup-root.csetup-theme-classic a.csetup-zoom-btn {
+	padding: 3px 6px !important;
+	font-size: 10px !important;
+	text-align: center;
+	white-space: nowrap;
+}
+
+.csetup-root.csetup-theme-modern .csetup-dir-bar,
+.csetup-root.csetup-theme-classic .csetup-dir-bar {
+	display: flex;
+	gap: 3px;
+	justify-content: center;
+	flex-shrink: 0;
+}
+
+.csetup-root.csetup-theme-modern a.csetup-dir-btn,
+.csetup-root.csetup-theme-classic a.csetup-dir-btn {
+	flex: 1 1 0;
+	padding: 3px 4px !important;
+	font-size: 11px !important;
+	text-align: center;
+}
+
+.csetup-root.csetup-theme-modern .csetup-preview-bar,
+.csetup-root.csetup-theme-classic .csetup-preview-bar {
+	display: flex;
+	gap: 3px;
+	justify-content: center;
+	flex-shrink: 0;
+}
+
+.csetup-root.csetup-theme-modern a.csetup-preview-btn,
+.csetup-root.csetup-theme-classic a.csetup-preview-btn {
+	flex: 1 1 0;
+	padding: 3px 4px !important;
+	font-size: 10px !important;
+	text-align: center;
+}
+
+/* Char slot panel */
+
+.csetup-root.csetup-theme-modern .csetup-slot-header,
+.csetup-root.csetup-theme-classic .csetup-slot-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 6px;
+	padding: 4px 8px;
+	background: var(--csetup-panel);
+	border-top: 1px solid var(--csetup-border);
+	border-bottom: none;
+}
+
+.csetup-root.csetup-theme-modern .csetup-slot-current-label,
+.csetup-root.csetup-theme-classic .csetup-slot-current-label {
+	font-weight: 700;
+	font-size: 11px;
+	color: var(--csetup-text);
+	flex: 1 1 auto;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.csetup-root.csetup-theme-modern .csetup-slot-controls,
+.csetup-root.csetup-theme-classic .csetup-slot-controls {
+	display: flex;
+	gap: 3px;
+	flex-shrink: 0;
+}
+
+.csetup-root.csetup-theme-modern a.csetup-slot-ctrl-btn,
+.csetup-root.csetup-theme-classic a.csetup-slot-ctrl-btn {
+	padding: 2px 6px !important;
+	font-size: 10px !important;
+	border-radius: 5px !important;
+}
+
+.csetup-root.csetup-theme-modern a.csetup-slot-delete,
+.csetup-root.csetup-theme-classic a.csetup-slot-delete {
+	background: rgba(255, 107, 107, 0.12) !important;
+	border-color: rgba(255, 107, 107, 0.40) !important;
+	color: var(--csetup-danger, #ff6b6b) !important;
+}
+
+.csetup-root.csetup-theme-modern a.csetup-slot-delete:hover,
+.csetup-root.csetup-theme-classic a.csetup-slot-delete:hover {
+	background: rgba(255, 107, 107, 0.22) !important;
+}
+
+.csetup-root.csetup-theme-modern .csetup-slot-panel,
+.csetup-root.csetup-theme-classic .csetup-slot-panel {
+	display: flex;
+	flex-direction: column;
+	flex: 0 0 auto;
+	max-height: 200px;
+	gap: 2px;
+	overflow-y: auto;
+	overflow-x: hidden;
+	padding: 4px 6px;
+	background: var(--csetup-panel);
+	border-top: 1px solid var(--csetup-border);
+	scrollbar-width: thin;
+	scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+
+.csetup-root.csetup-theme-modern .csetup-slot-panel::-webkit-scrollbar,
+.csetup-root.csetup-theme-classic .csetup-slot-panel::-webkit-scrollbar {
+	width: 5px;
+}
+
+.csetup-root.csetup-theme-modern .csetup-slot-panel::-webkit-scrollbar-thumb,
+.csetup-root.csetup-theme-classic .csetup-slot-panel::-webkit-scrollbar-thumb {
+	background: rgba(255, 255, 255, 0.15);
+	border-radius: 999px;
+}
+
+.csetup-root.csetup-theme-modern a.csetup-slot-btn,
+.csetup-root.csetup-theme-classic a.csetup-slot-btn {
+	padding: 3px 8px !important;
+	font-size: 11px !important;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	width: 100%;
+	box-sizing: border-box;
+	flex-shrink: 0;
+	display: block;
+}
+
+.csetup-root.csetup-theme-modern a.csetup-slot-btn.csetup-slot-empty,
+.csetup-root.csetup-theme-classic a.csetup-slot-btn.csetup-slot-empty {
+	opacity: 0.40;
+	font-style: italic;
+	font-weight: normal !important;
+}
+
+.csetup-root.csetup-theme-modern .csetup-slot-panel a.csetup-slot-btn.linkOn,
+.csetup-root.csetup-theme-classic .csetup-slot-panel a.csetup-slot-btn.linkOn {
+	background-color: var(--csetup-btn-active) !important;
+	border-color: rgba(var(--csetup-accent-rgb, 77, 163, 255), 0.55) !important;
+	color: var(--csetup-btn-active-text, #0b1c2f) !important;
+	opacity: 1 !important;
+	font-style: normal !important;
+	font-weight: 700 !important;
+}
+
+/* Management slot offer i t.d. */
+
+.csetup-root.csetup-theme-modern .csetup-mgmt-panel,
+.csetup-root.csetup-theme-classic .csetup-mgmt-panel {
+	flex-shrink: 0;
+	margin-top: auto;
+	padding: 6px 8px;
+	border-top: 1px solid var(--csetup-border);
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.csetup-root.csetup-theme-modern .csetup-mgmt-local,
+.csetup-root.csetup-theme-classic .csetup-mgmt-local {
+	font-size: 10px;
+	color: var(--csetup-muted);
+}
+
+.csetup-root.csetup-theme-modern .csetup-mgmt-btns,
+.csetup-root.csetup-theme-classic .csetup-mgmt-btns {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 3px;
+}
+
+.csetup-root.csetup-theme-modern a.csetup-mgmt-btn,
+.csetup-root.csetup-theme-classic a.csetup-mgmt-btn {
+	font-size: 10px !important;
+	padding: 3px 7px !important;
+}
+
+.csetup-root.csetup-theme-modern a.csetup-mgmt-danger,
+.csetup-root.csetup-theme-classic a.csetup-mgmt-danger {
+	background: rgba(255, 107, 107, 0.12) !important;
+	border-color: rgba(255, 107, 107, 0.40) !important;
+	color: var(--csetup-danger, #ff6b6b) !important;
+}
+
+.csetup-root.csetup-theme-modern a.csetup-mgmt-danger:hover,
+.csetup-root.csetup-theme-classic a.csetup-mgmt-danger:hover {
+	background: rgba(255, 107, 107, 0.22) !important;
+}
+
+.csetup-root.csetup-theme-modern .csetup-mgmt-code,
+.csetup-root.csetup-theme-classic .csetup-mgmt-code {
+	font-size: 11px;
+	color: var(--csetup-text);
+}
+
+.csetup-root.csetup-theme-modern .csetup-mgmt-hint,
+.csetup-root.csetup-theme-classic .csetup-mgmt-hint {
+	font-size: 10px;
+	color: var(--csetup-muted);
+	line-height: 1.3;
 }

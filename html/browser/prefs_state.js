@@ -1,3 +1,9 @@
+// Targeted preview update — called from DM via output() to avoid full ShowChoices rebuild
+function update_char_preview(html) {
+	var el = document.getElementById('char_preview');
+	if (el) el.innerHTML = html;
+}
+
 // Автоскролл
 (function () {
 	'use strict';

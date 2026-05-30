@@ -1580,7 +1580,10 @@ GLOBAL_LIST_INIT(blacklisted_builds, list(
 
 	for(var/index in char_render_holders_copy)
 		var/atom/movable/screen/S = char_render_holders_copy[index]
-		S.vis_contents.Cut()
+		if(!S)
+			continue
+		if(S.vis_contents)
+			S.vis_contents.Cut()
 		S.overlays.Cut()
 		S.underlays.Cut()
 		S.filters = null

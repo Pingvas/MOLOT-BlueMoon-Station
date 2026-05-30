@@ -329,8 +329,7 @@ window "preferences_window"
 		size = 320x1000
 		anchor1 = 75,0
 		anchor2 = 100,100
-		right-click = true
-		saved-params = "zoom;letterbox;zoom-mode"
+		saved-params = ""
 
 window "statwindow"
 	elem "statwindow"

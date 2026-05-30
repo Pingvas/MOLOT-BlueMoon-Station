@@ -29,23 +29,40 @@
 	bark_variance = BARK_VARIANCE_RAND
 	age = rand(AGE_MIN,AGE_MAX)
 
-/datum/preferences/proc/update_preview_icon(current_tab)
-	// Determine what job is marked as 'High' priority, and dress them up as such.
+/datum/preferences/proc/update_preview_icon()
+	if(preview_generating)
+		pending_preview_update = TRUE
+		return
+	preview_generating = TRUE
+	INVOKE_ASYNC(src, PROC_REF(_generate_preview_icon))
+
+/// Вызывается при закрытии меню настроек. Для transient dummy больше не нужно.
+/datum/preferences/proc/release_preview_mannequin()
+	return
+
+/// Сбрасывает флаг обновления превью. Вызывать при "тяжёлых" изменениях.
+/datum/preferences/proc/invalidate_preview_mannequin()
+	preview_change_hint = null
+
+/datum/preferences/proc/_generate_preview_icon()
+	if(QDELETED(src))
+		preview_generating = FALSE
+		return
 	var/datum/job/previewJob = get_highest_job()
 
 	if(previewJob)
 		// Silicons only need a very basic preview since there is no customization for them.
-		if(istype(previewJob,/datum/job/ai))
-			parent.show_character_previews(image('icons/mob/ai.dmi', icon_state = resolve_ai_icon(preferred_ai_core_display), dir = SOUTH))
+		if(istype(previewJob, /datum/job/ai))
+			parent?.show_character_previews(image('icons/mob/ai.dmi', icon_state = resolve_ai_icon(preferred_ai_core_display), dir = SOUTH))
+			preview_generating = FALSE
 			return
-		if(istype(previewJob,/datum/job/cyborg))
-			parent.show_character_previews(image('icons/mob/robots.dmi', icon_state = "robot", dir = SOUTH))
+		if(istype(previewJob, /datum/job/cyborg))
+			parent?.show_character_previews(image('icons/mob/robots.dmi', icon_state = "robot", dir = SOUTH))
+			preview_generating = FALSE
 			return
 
-	// Set up the dummy for its photoshoot
+	// Simple approach: create a fresh dummy every time — stable, no item stacking bugs
 	var/mob/living/carbon/human/dummy/mannequin = generate_or_wait_for_human_dummy(DUMMY_HUMAN_SLOT_PREFERENCES)
-	// Apply the Dummy's preview background first so we properly layer everything else on top of it.
-	mannequin.add_overlay(mutable_appearance('modular_citadel/icons/ui/backgrounds.dmi', bgstate, layer = SPACE_LAYER))
 	copy_to(mannequin, initial_spawn = TRUE)
 
 	switch(preview_pref)
@@ -54,34 +71,39 @@
 				mannequin.job = previewJob.title
 				previewJob.equip(mannequin, TRUE, preference_source = parent)
 		if(PREVIEW_PREF_LOADOUT)
-			SSjob.equip_loadout(parent.mob, mannequin, bypass_prereqs = TRUE, can_drop = FALSE, is_dummy = TRUE)
-			SSjob.post_equip_loadout(parent.mob, mannequin, bypass_prereqs = TRUE, can_drop = FALSE, is_dummy = TRUE)
+			var/mob/preview_src_mob = parent?.mob
+			if(preview_src_mob)
+				SSjob.equip_loadout(preview_src_mob, mannequin, bypass_prereqs = TRUE, can_drop = FALSE, is_dummy = TRUE)
+				SSjob.post_equip_loadout(preview_src_mob, mannequin, bypass_prereqs = TRUE, can_drop = FALSE, is_dummy = TRUE)
 		if(PREVIEW_PREF_NAKED)
-			/*
-			mannequin.hidden_underwear = TRUE
-			mannequin.hidden_undershirt = TRUE
-			mannequin.hidden_socks = TRUE
-			*/
+			pass()
 		if(PREVIEW_PREF_NAKED_AROUSED)
-			/*
-			mannequin.hidden_underwear = TRUE
-			mannequin.hidden_undershirt = TRUE
-			mannequin.hidden_socks = TRUE
-			*/
 			for(var/obj/item/organ/genital/genital in mannequin.internal_organs)
 				if(CHECK_BITFIELD(genital.genital_flags, GENITAL_CAN_AROUSE))
 					genital.set_aroused_state(TRUE, null)
 
 	mannequin.regenerate_icons()
 
-	parent.show_character_previews(new /mutable_appearance(mannequin))
+	// Apply the Dummy's preview background first so we properly layer everything else on top of it.
+	mannequin.add_overlay(mutable_appearance('modular_citadel/icons/ui/backgrounds.dmi', bgstate, layer = SPACE_LAYER))
+
+	parent?.show_character_previews(new /mutable_appearance(mannequin))
 	unset_busy_human_dummy(DUMMY_HUMAN_SLOT_PREFERENCES)
+
+	preview_generating = FALSE
+	var/had_pending = pending_preview_update
+	pending_preview_update = FALSE
+	if(had_pending)
+		update_preview_icon()
 
 /datum/preferences/proc/get_highest_job()
 	var/highest_pref = 0
 	var/datum/job/highest_job
 	for(var/job in job_preferences)
-		if(job_preferences["[job]"] > highest_pref)
-			highest_job = SSjob.GetJob(job)
-			highest_pref = job_preferences["[job]"]
+		var/pref = job_preferences["[job]"]
+		if(pref > highest_pref)
+			var/datum/job/J = SSjob.GetJob(job)
+			if(J)
+				highest_job = J
+				highest_pref = pref
 	return highest_job

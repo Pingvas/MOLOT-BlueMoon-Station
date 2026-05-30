@@ -115,3 +115,9 @@
 #define PREFERENCE_CHARACTER "character"
 /// This preference is account specific.
 #define PREFERENCE_PLAYER "player"
+
+// Appearance subtabs (BlueMoon modern menu)
+#define APPEARANCE_SUBTAB_BODY "body"
+#define APPEARANCE_SUBTAB_HAIR_EYES "hair_eyes"
+#define APPEARANCE_SUBTAB_MUTPARTS "mutant_parts"
+#define APPEARANCE_SUBTAB_INTIMACY "intimacy"

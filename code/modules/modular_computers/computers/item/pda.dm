@@ -751,6 +751,12 @@
 	if(new_theme)
 		device_theme = new_theme
 
+/// Wrapper that applies client PDA prefs (skin, color, theme, ringtone).
+/obj/item/modular_computer/pda/proc/update_style(client/owner_client)
+	if(!owner_client)
+		return
+	update_pda_prefs(owner_client)
+
 /// Removes all programs that were installed by the current cartridge.
 /obj/item/modular_computer/pda/proc/uninstall_cartridge_programs()
 	for(var/datum/computer_file/program/P in cartridge_programs)
@@ -925,6 +931,7 @@
 /obj/item/modular_computer/pda/silicon/cyborg
 	starting_programs = list(
 		/datum/computer_file/program/filemanager,
+		/datum/computer_file/program/ntnetdownload,
 		/datum/computer_file/program/robotact,
 		/datum/computer_file/program/crew_manifest,
 		/datum/computer_file/program/messenger,
@@ -1005,6 +1012,28 @@
 		var/mob/living/silicon/robot/robo = silicon_owner
 		.["light_on"] = robo.lamp_enabled
 		.["comp_light_color"] = robo.lamp_color
+
+/obj/item/modular_computer/pda/silicon/cyborg/proc/get_department_access()
+	if(!iscyborg(silicon_owner))
+		return list()
+	var/mob/living/silicon/robot/robo = silicon_owner
+	if(!robo.module)
+		return list()
+	var/static/list/module_access_map = list(
+		/obj/item/robot_module/engineering = list(ACCESS_ENGINE),
+		/obj/item/robot_module/medical = list(ACCESS_MEDICAL),
+		/obj/item/robot_module/security = list(ACCESS_SECURITY),
+		/obj/item/robot_module/butler = list(ACCESS_JANITOR), // Service/Janitor
+		/obj/item/robot_module/miner = list(ACCESS_MINING),
+		/obj/item/robot_module/cargo = list(ACCESS_CARGO),
+		/obj/item/robot_module/syndicate = list(ACCESS_SYNDICATE),
+		/obj/item/robot_module/syndicate_medical = list(ACCESS_SYNDICATE),
+		/obj/item/robot_module/saboteur = list(ACCESS_SYNDICATE),
+	)
+	for(var/module_type in module_access_map)
+		if(istype(robo.module, module_type))
+			return module_access_map[module_type]
+	return list()
 
 /obj/item/modular_computer/pda/silicon/toggle_flashlight(mob/user)
 	if(!silicon_owner || QDELETED(silicon_owner))
