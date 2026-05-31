@@ -36,7 +36,7 @@
 /obj/item/mod/module/paper_dispenser
 	name = "MOD paper dispenser module"
 	desc = "Простой модуль, разработанный бюрократами Torch Bay. \
-		Выдаёт "тёплые, чистые и хрустящие листы бумаги" на ближайший стол. Обычно."
+		Выдаёт 'тёплые, чистые и хрустящие листы бумаги' на ближайший стол. Обычно."
 	icon_state = "paper_maker"
 	module_type = MODULE_USABLE
 	complexity = 1
