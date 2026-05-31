@@ -19,7 +19,7 @@
   */
 /obj/vehicle/sealed/mecha
 	name = "mecha"
-	desc = "Exosuit"
+	desc = "Экзокостюм"
 	icon = 'icons/mecha/mecha.dmi'
 	resistance_flags = FIRE_PROOF | ACID_PROOF
 	flags_1 = HEAR_1
