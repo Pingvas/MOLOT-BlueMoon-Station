@@ -69,25 +69,24 @@
 	if(ispath(key, /obj/item))
 		var/obj/item/I = key
 		var/item_name = initial(I.name)
-		switch(TRUE)
-			if(istype(key, /obj/item/stack))
-				return "Стоит добавить [item_name]."
-			if(istype(key, /obj/item/circuitboard))
-				return "Стоит установить [item_name]."
-			if(istype(key, /obj/item/stock_parts))
-				return "Стоит установить [item_name]."
-			if(istype(key, /obj/item/mecha_parts/part))
-				return "Стоит установить [item_name]."
-			if(istype(key, /obj/item/clothing))
-				return "Стоит установить [item_name]."
-			if(istype(key, /obj/item/assembly/signaler/anomaly))
-				return "Стоит установить [item_name]."
-			if(istype(key, /obj/item/stack/ore/bluespace_crystal))
-				return "Стоит добавить [item_name]."
-			if(istype(key, /obj/item/bikehorn))
-				return "Стоит подать сигнал [item_name]."
-			else
-				return "Стоит добавить [item_name]."
+		if(istype(key, /obj/item/stack))
+			return "Стоит добавить [item_name]."
+		else if(istype(key, /obj/item/circuitboard))
+			return "Стоит установить [item_name]."
+		else if(istype(key, /obj/item/stock_parts))
+			return "Стоит установить [item_name]."
+		else if(istype(key, /obj/item/mecha_parts/part))
+			return "Стоит установить [item_name]."
+		else if(istype(key, /obj/item/clothing))
+			return "Стоит установить [item_name]."
+		else if(istype(key, /obj/item/assembly/signaler/anomaly))
+			return "Стоит установить [item_name]."
+		else if(istype(key, /obj/item/stack/ore/bluespace_crystal))
+			return "Стоит добавить [item_name]."
+		else if(istype(key, /obj/item/bikehorn))
+			return "Стоит подать сигнал [item_name]."
+		else
+			return "Стоит добавить [item_name]."
 	else if(istext(key))
 		switch(key)
 			if(TOOL_WRENCH)
