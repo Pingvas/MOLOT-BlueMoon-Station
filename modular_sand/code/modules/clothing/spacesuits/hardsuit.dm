@@ -212,7 +212,7 @@
 
 			if(mining_helmet)
 				mining_helmet.name = "Conscript helmet"
-				mining_helmet.desc = "It shines briefly, full of life."
+				mining_helmet.desc = "Он ненадолго светится, полный жизни."
 				mining_helmet.icon = 'modular_sand/icons/obj/clothing/hats.dmi'
 				mining_helmet.icon_state = "commando-helmet"
 				mining_helmet.upgrade_icon(amount = armor_level_h, maxamount = armor_max_h)
@@ -232,10 +232,10 @@
 			hardsuit_type = "-helmet"
 			if(amount)
 				name = "reinforced Conscript helmet"
-				desc = "It glows weakly, signs of uncertainty."
+				desc = "Он слабо светится, признаки неопределённости."
 				hardsuit_type = "2-helmet"
 				if(amount == maxamount)
-					desc = "It glows violently, martyr to chaos."
+					desc = "Он яростно светится, мученик хаоса."
 					hardsuit_type = "3-helmet"
 			icon_state = "commando[hardsuit_type]"
 			if(ishuman(loc))
