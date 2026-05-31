@@ -10,7 +10,7 @@
 	/// Theme name for the MOD.
 	var/name = "standard"
 	/// Description added to the MOD.
-	var/desc = "A civilian class suit by Nakamura Engineering, doesn't offer much other than slightly quicker movement."
+	var/desc = "Гражданский костюм от Nakamura Engineering, не предлагает многого, кроме немного более быстрого передвижения."
 	/// Extended description on examine_more
 	var/extended_desc = "A third-generation, modular civilian class suit by Nakamura Engineering, \
 		this suit is a staple across the galaxy for civilian applications. These suits are oxygenated, \
@@ -98,7 +98,7 @@
 
 /datum/mod_theme/engineering
 	name = "engineering"
-	desc = "An engineer-fit suit with heat and shock resistance. Nakamura Engineering's classic."
+	desc = "Инженерный костюм с термо- и электрозащитой. Классика Nakamura Engineering."
 	extended_desc = "A classic by Nakamura Engineering, and surely their claim to fame. This model is an \
 		improvement upon the first-generation prototype models from before the Void War, boasting an array of features. \
 		The modular flexibility of the base design has been combined with an blast-dampening insulated inner layer and \
@@ -137,7 +137,7 @@
 
 /datum/mod_theme/atmospheric
 	name = "atmospheric"
-	desc = "An atmospheric-resistant suit by Nakamura Engineering, offering extreme heat resistance compared to the engineer suit."
+	desc = "Атмосфероустойчивый костюм от Nakamura Engineering, обеспечивающий крайне высокую термозащиту по сравнению с инженерным."
 	extended_desc = "A modified version of the Nakamura Engineering industrial model. This one has been \
 		augmented with the latest in heat-resistant alloys, paired with a series of advanced heatsinks. \
 		Additionally, the materials used to construct this suit have rendered it extremely hardy against \
@@ -177,7 +177,7 @@
 
 /datum/mod_theme/advanced
 	name = "advanced"
-	desc = "An advanced version of Nakamura Engineering's classic suit, shining with a white, acid and fire resistant polish."
+	desc = "Продвинутая версия классического костюма Nakamura Engineering, сияющая белой кислото- и огнеупорной полировкой."
 	extended_desc = "The flagship version of the Nakamura Engineering industrial model, and their latest product. \
 		Combining all the features of their other industrial model suits inside, with blast resistance almost approaching \
 		some EOD suits, the outside has been coated with a white polish rumored to be a corporate secret. \
@@ -218,7 +218,7 @@
 
 /datum/mod_theme/mining
 	name = "mining"
-	desc = "A high-power Nanotrasen mining suit, supporting more complexity at a bigger drain."
+	desc = "Высокомощный шахтёрский костюм Nanotrasen, поддерживающий больше модулей при большем расходе энергии."
 	extended_desc = "A high-powered Nanotrasen-designed suit, based off the work of Nakamura Engineering. \
 		While initial designs were built for the rigors of asteroid mining, given blast resistance through inbuilt ceramics, \
 		mining teams have since heavily tweaked the suit themselves. Aftermarket armor plating has been added, \
@@ -261,7 +261,7 @@
 
 /datum/mod_theme/medical
 	name = "medical"
-	desc = "A lightweight suit by DeForest Medical Corporation, allows for easier movement."
+	desc = "Лёгкий костюм от DeForest Medical Corporation, обеспечивающий более лёгкое передвижение."
 	extended_desc = "A lightweight suit produced by the DeForest Medical Corporation, based off the work of \
 		Nakamura Engineering. The latest in technology has been employed in this suit to render it immunized against \
 		allergens, airborne toxins, and regular pathogens. The primary asset of this suit is the speed, \
@@ -323,7 +323,7 @@
 
 /datum/mod_theme/rescue
 	name = "rescue"
-	desc = "An advanced version of DeForest Medical Corporation's medical suit, designed for quick rescue of bodies from the most dangerous environments."
+	desc = "Продвинутая версия медицинского костюма DeForest Medical Corporation, предназначенная для быстрого спасения тел из самых опасных условий."
 	extended_desc = "An upgraded, armor-plated version of DeForest Medical Corporation's medical suit, \
 		designed for quick rescue of bodies from the most dangerous environments. The same advanced leg servos \
 		as the base version are seen here, giving paramedics incredible speed, but the same servos are also in the arms. \
@@ -364,7 +364,7 @@
 
 /datum/mod_theme/research
 	name = "research"
-	desc = "A private military EOD suit by Aussec Armory, intended for explosive research. Bulky, but expansive."
+	desc = "Частный военный сапёрный костюм от Aussec Armory, предназначенный для исследования взрывчатки. Громоздкий, но ёмкий."
 	extended_desc = "A private military EOD suit by Aussec Armory, based off the work of Nakamura Engineering. \
 		This suit is intended for explosive research, built incredibly bulky and well-covering. \
 		Featuring an inbuilt chemical scanning array, this suit uses two layers of plastitanium armor, \
@@ -405,7 +405,7 @@
 
 /datum/mod_theme/security
 	name = "security"
-	desc = "An Apadyne Technologies security suit, offering shock protection and quicker speed, at the cost of carrying capacity."
+	desc = "Костюм безопасности от Apadyne Technologies, обеспечивающий защиту от ударов и большую скорость за счёт грузоподъёмности."
 	extended_desc = "An Apadyne Technologies classic, this model of MODsuit has been designed for quick response to \
 		hostile situations. These suits have been layered with plating worthy enough for fires or corrosive environments, \
 		and come with composite cushioning and an advanced honeycomb structure underneath the hull to ensure protection \
@@ -448,7 +448,7 @@
 
 /datum/mod_theme/safeguard
 	name = "safeguard"
-	desc = "An Apadyne Technologies advanced security suit, offering greater speed and fire protection than the standard security model."
+	desc = "Продвинутый костюм безопасности от Apadyne Technologies, обеспечивающий большую скорость и огнезащиту по сравнению со стандартной моделью."
 	extended_desc = "An Apadyne Technologies advanced security suit, and their latest model. This variant has \
 		ditched the presence of a reinforced glass visor entirely, replacing it with a 'blast visor' utilizing a \
 		small camera on the left side to display the outside to the user. The plating on the suit has been \
@@ -488,7 +488,7 @@
 
 /datum/mod_theme/magnate
 	name = "magnate"
-	desc = "A fancy, very protective suit for Nanotrasen's captains. Shock, fire and acid-proof while also having a large capacity and high speed."
+	desc = "Шикарный, очень защитный костюм для капитанов Nanotrasen. Ударо-, огне- и кислотостойкий, при этом имеющий большую ёмкость и высокую скорость."
 	extended_desc = "They say it costs four hundred thousand credits to run this MODsuit... for twelve seconds. \
 		The Magnate suit is designed for protection, comfort, and luxury for Nanotrasen Captains. \
 		The onboard air filters have been preprogrammed with an additional five hundred different fragrances that can \
@@ -532,7 +532,7 @@
 
 /datum/mod_theme/cosmohonk
 	name = "cosmohonk"
-	desc = "A suit by Honk Ltd. Protects against low humor environments. Most of the tech went to lower the power cost."
+	desc = "Костюм от Honk Ltd. Защищает от низкого юмористического окружения. Большая часть технологий пошла на снижение энергопотребления."
 	extended_desc = "The Cosmohonk MODsuit was originally designed for interstellar comedy in low-humor environments. \
 		It utilizes tungsten electro-ceramic casing and chromium bipolars, coated in zirconium-boron paint underneath \
 		a dermatiraelian subspace alloy. Despite the glaringly obvious optronic vacuum drive pedals, \
@@ -571,7 +571,7 @@
 
 /datum/mod_theme/syndicate
 	name = "syndicate"
-	desc = "A suit designed by Gorlex Marauders, offering armor ruled illegal in most of Spinward Stellar."
+	desc = "Костюм, разработанный Gorlex Marauders, с бронёй, запрещённой в большей части Spinward Stellar."
 	extended_desc = "An advanced combat suit adorned in a sinister crimson red color scheme, produced and manufactured \
 		for special mercenary operations. The build is a streamlined layering consisting of shaped Plasteel, \
 		and composite ceramic, while the under suit is lined with a lightweight Kevlar and durathread hybrid weave \
