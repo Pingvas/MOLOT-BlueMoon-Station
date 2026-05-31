@@ -721,9 +721,9 @@ const MediaAttachment = ({ src, maxHeight = '200px', maxWidth = '100%', onClick 
   const isVideo = /\.(webm|mp4)(\?.*)?$/i.test(src) || src.startsWith('data:video/');
 
   if (isVideo) {
-    const videoType = /\.mp4(\?.*)?$/i.test(src) || src.startsWith('data:video/mp4')
-      ? 'video/mp4'
-      : 'video/webm';
+    const videoType = src.startsWith('data:')
+      ? (src.match(/^data:([^;,]+)/)?.[1] || 'video/webm')
+      : (/\.mp4(\?.*)?$/i.test(src) ? 'video/mp4' : 'video/webm');
     return (
       <Box>
         <video
