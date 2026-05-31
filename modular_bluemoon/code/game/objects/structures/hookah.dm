@@ -1,0 +1,298 @@
+#define HOOKAH_MAX_BURN_TIME 3000
+#define HOOKAH_PASSIVE_SOUND_COOLDOWN (15 SECONDS)
+
+// Газ кальяна как water_vapor, но пол не мокнет
+/datum/gas/hookah_vapor
+	id = "hookah_vapor"
+	specific_heat = 40
+	name = "Hookah Steam"
+	gas_overlay = "water_vapor"
+	moles_visible = MOLES_GAS_VISIBLE
+
+// Кальян структура
+/obj/structure/hookah
+	name = "Hookah"
+	desc = "Кальянчик. Можно расслабиться и немного покурить с друзьями."
+	icon = 'modular_bluemoon/icons/obj/structures/phone.dmi'
+	icon_state = "rotary_phone"
+	density = TRUE
+	anchored = FALSE
+	resistance_flags = FIRE_PROOF
+	max_integrity = 150
+	var/lit = FALSE
+	var/burn_time = 0
+	var/obj/item/clothing/mask/hookah_hose/hose = null
+	var/smoke_cycle = 0
+	var/last_burn_sound = 0
+
+/obj/structure/hookah/Initialize(mapload)
+	. = ..()
+	create_reagents(200, OPENCONTAINER)
+
+/obj/structure/hookah/Destroy()
+	if(hose)
+		hose.hookah = null
+		hose.forceMove(get_turf(src))
+		hose = null
+	if(lit)
+		STOP_PROCESSING(SSobj, src)
+	return ..()
+
+/obj/structure/hookah/update_icon_state()
+	if(lit && hose && hose.loc == src)
+		icon_state = "rpb_phone" // Плейсхолдер горит - трубка на месте
+	else if(lit)
+		icon_state = "rotary_phone_ear" // Плейсхолдер  горит - трубка снята
+	else if(hose && hose.loc == src)
+		icon_state = "rotary_phone" // Плейсхолдер  не горит - трубка на месте
+	else
+		icon_state = "rotary_phone_ear" // Плейсхолдер не горит - трубка снята
+
+/obj/structure/hookah/examine(mob/user)
+	. = ..()
+	if(reagents.total_volume)
+		. += span_notice("В колбе [reagents.total_volume] единиц жидкости.")
+	else
+		. += span_notice("Колба пуста.")
+	if(lit)
+		. += span_warning("Угли раскалены и готовы к курению.")
+		. += span_notice("Кликните с другим интентом (Disarm/Grab/Harm), чтобы потушить.")
+	else
+		. += span_notice("Угли не зажжены.")
+	if(hose)
+		if(hose.loc == src)
+			. += span_notice("Шланг свисает с кальяна.")
+		else
+			. += span_notice("Шланг у кого-то в руках.")
+
+/obj/structure/hookah/attackby(obj/item/I, mob/user, params)
+	if(istype(I, /obj/item/clothing/mask/hookah_hose))
+		var/obj/item/clothing/mask/hookah_hose/HH = I
+		if(HH.hookah == src)
+			user.transferItemToLoc(HH, src)
+			HH.hookah = src
+			HH.update_beam()
+			user.visible_message(span_notice("[user] возвращает шланг к [src]."), span_notice("Вы возвращаете шланг к [src]."))
+			playsound(src, 'sound/items/handling/toolbox_pickup.ogg', 20, TRUE)
+			update_icon()
+			return TRUE
+		else
+			balloon_alert(user, "Это не от этого кальяна!")
+			return TRUE
+
+	if(I.tool_behaviour == TOOL_WRENCH)
+		default_unfasten_wrench(user, I)
+		return TRUE
+
+	if(I.tool_behaviour == TOOL_SCREWDRIVER)
+		if(lit)
+			balloon_alert(user, "Сначала потушите!")
+			return TRUE
+		if(reagents.total_volume > 0)
+			balloon_alert(user, "Сначала вылейте содержимое!")
+			return TRUE
+		if(anchored)
+			balloon_alert(user, "Сначала открепите!")
+			return TRUE
+		if(hose && hose.loc != src)
+			balloon_alert(user, "Сначала верните шланг!")
+			return TRUE
+		user.visible_message(span_notice("[user] собирает [src]."), span_notice("Вы собираете [src]."))
+		playsound(src, 'sound/items/ratchet.ogg', 30, TRUE)
+		new /obj/item/hookah(get_turf(src))
+		qdel(src)
+		return TRUE
+
+	if(!lit && I.get_temperature())
+		if(reagents.total_volume <= 0)
+			balloon_alert(user, "Нечего курить!")
+			return TRUE
+		light(user)
+		return TRUE
+
+	if(istype(I, /obj/item/reagent_containers))
+		var/obj/item/reagent_containers/RC = I
+		if(lit)
+			balloon_alert(user, "Сначала потушите!")
+			return TRUE
+		if(reagents.total_volume >= reagents.maximum_volume)
+			balloon_alert(user, "Полная колба!")
+			return TRUE
+		if(!RC.reagents || !RC.reagents.total_volume)
+			balloon_alert(user, "Пустая ёмкость!")
+			return TRUE
+		var/amount = RC.reagents.trans_to(src, RC.amount_per_transfer_from_this)
+		if(amount)
+			user.visible_message(span_notice("[user] наливает что-то в колбу [src]."), span_notice("Вы наливаете жидкость в колбу [src]."))
+			playsound(src, 'sound/effects/bubbles.ogg', 20, TRUE)
+		else
+			balloon_alert(user, "Невозможно залить!")
+		return TRUE
+
+	// Подкинуть углей — продлевает время горения
+	if(istype(I, /obj/item/lighter) || istype(I, /obj/item/match))
+		if(!lit)
+			light(user) // Зажечь
+			return TRUE
+		else
+			// Продлить время горения (макс 2x от базового)
+			if(burn_time < HOOKAH_MAX_BURN_TIME * 2)
+				burn_time = min(burn_time + 600, HOOKAH_MAX_BURN_TIME * 2)
+				user.visible_message(span_notice("[user] поправляет угли [src]."), span_notice("Вы поправляете угли [src]."))
+				playsound(src, 'sound/effects/comfyfire.ogg', 30, TRUE)
+				return TRUE
+			else
+				balloon_alert(user, "Угли и так раскалены!")
+				return TRUE
+
+	return ..()
+
+/obj/structure/hookah/attack_hand(mob/user)
+	. = ..()
+	if(.)
+		return
+
+	if(lit && user.a_intent != INTENT_HELP)
+		user.visible_message(span_notice("[user] тушит угли [src]."), span_notice("Вы тушите угли [src]."))
+		hookah_extinguish()
+		return
+
+	if(!hose)
+		hose = new(src)
+		hose.hookah = src
+		if(!user.put_in_hands(hose))
+			hose.forceMove(get_turf(src))
+		user.visible_message(span_notice("[user] берет шланг от [src]."), span_notice("Вы берете шланг от [src]."))
+		playsound(src, 'sound/items/handling/toolbox_pickup.ogg', 20, TRUE)
+		hose.update_beam()
+		update_icon()
+		return
+
+	// Шланг висит в кальяне — взять его
+	if(hose.loc == src)
+		if(!user.put_in_hands(hose))
+			hose.forceMove(get_turf(src))
+		user.visible_message(span_notice("[user] берет шланг от [src]."), span_notice("Вы берете шланг от [src]."))
+		playsound(src, 'sound/items/handling/toolbox_pickup.ogg', 20, TRUE)
+		hose.update_beam()
+		update_icon()
+		return
+
+	// Шланг уже есть
+	if(hose.loc == user)
+		if(hose.hookah != src)
+			balloon_alert(user, "Это не от этого кальяна!")
+			return
+		user.transferItemToLoc(hose, src)
+		hose.hookah = src
+		hose.update_beam()
+		user.visible_message(span_notice("[user] возвращает шланг к [src]."), span_notice("Вы возвращаете шланг к [src]."))
+		playsound(src, 'sound/items/handling/toolbox_pickup.ogg', 20, TRUE)
+		update_icon()
+		return
+
+	// Шланг лежит на полу рядом
+	if(isturf(hose.loc) && get_dist(hose, src) <= 1)
+		hose.forceMove(src)
+		hose.hookah = src
+		hose.update_beam()
+		user.visible_message(span_notice("[user] возвращает шланг к [src]."), span_notice("Вы возвращаете шланг к [src]."))
+		playsound(src, 'sound/items/handling/toolbox_pickup.ogg', 20, TRUE)
+		update_icon()
+		return
+
+	// Шланг у кого-то другого - передача не поддерживается, просто сообщение
+	if(ismob(hose.loc) && hose.loc != user)
+		balloon_alert(user, "Шланг у кого-то другого!")
+		return
+
+/obj/structure/hookah/proc/light(mob/user)
+	if(lit)
+		return
+	lit = TRUE
+	burn_time = HOOKAH_MAX_BURN_TIME
+	START_PROCESSING(SSobj, src)
+	update_icon()
+	user.visible_message(span_notice("[user] зажигает угли [src]."), span_notice("Вы зажигаете угли [src]."))
+	playsound(src, 'modular_sand/sound/items/lighter/light.ogg', 50, TRUE)
+
+/obj/structure/hookah/proc/hookah_extinguish()
+	if(!lit)
+		return
+	lit = FALSE
+	STOP_PROCESSING(SSobj, src)
+	update_icon()
+	visible_message(span_notice("[src] тухнет."))
+	playsound(src, 'sound/effects/extinguish.ogg', 30, TRUE)
+
+/obj/structure/hookah/process()
+	if(!lit)
+		return
+
+	burn_time--
+	smoke_cycle++
+
+	// Пассивный звук горения
+	if(world.time > last_burn_sound + HOOKAH_PASSIVE_SOUND_COOLDOWN)
+		playsound(src, 'sound/effects/comfyfire.ogg', 10, TRUE, -5)
+		last_burn_sound = world.time
+
+	if(reagents.total_volume > 0)
+		reagents.remove_any(0.08)
+
+	// Дым
+	if(smoke_cycle >= 2)
+		smoke_cycle = 0
+		var/turf/center = get_turf(src)
+		if(reagents.total_volume > 0)
+			var/mixcolor = mix_color_from_reagents(reagents.reagent_list)
+			var/obj/effect/temp_visual/small_smoke/S = new(center)
+			if(mixcolor)
+				S.color = mixcolor
+			S.alpha = 120
+			S.pixel_x = rand(-8, 8)
+			S.pixel_y = rand(0, 8)
+			var/turf/open/pos = center
+			if(istype(pos))
+				pos.atmos_spawn_air("hookah_vapor=10;TEMP=[T20C]")
+		else
+			for(var/i in 1 to 2)
+				var/obj/effect/temp_visual/small_smoke/halfsecond/S = new(center)
+				S.alpha = 50
+				S.pixel_x = rand(-8, 8)
+				S.pixel_y = rand(0, 8)
+
+	if(hose && hose.loc != src && get_dist(hose, src) > 2)
+		var/mob/living/carbon/C = hose.loc
+		if(istype(C))
+			C.dropItemToGround(hose, TRUE)
+			to_chat(C, span_warning("Шланг вырвался из ваших рук!"))
+		hose.hookah = null
+		hose.update_beam()
+		hose = null
+		update_icon()
+		visible_message(span_warning("Шланг отсоединился от кальяна."))
+
+	if(hose && hose.loc != src && get_dist(hose, src) <= 2)
+		var/mob/living/carbon/C = hose.loc
+		if(istype(C) && hose == C.wear_mask && prob(30))
+			var/turf/user_turf = get_turf(C)
+			new /obj/effect/particle_effect/smoke/cigsmoke(user_turf)
+
+	if(hose && hose.loc != src && reagents.total_volume > 0 && get_dist(hose, src) <= 2)
+		var/mob/living/carbon/C = hose.loc
+		if(istype(C) && hose == C.wear_mask)
+			var/fraction = min(REAGENTS_METABOLISM / reagents.total_volume, 1)
+			reagents.reaction(C, INGEST, fraction)
+			reagents.trans_to(C, REAGENTS_METABOLISM)
+
+	if(reagents.total_volume <= 0 && prob(1))
+		var/turf/T = get_turf(src)
+		do_sparks(1, TRUE, T)
+		visible_message(span_warning("Угли [src] трещат от перегрева."))
+
+	if(burn_time <= 0 || (reagents.total_volume <= 0 && prob(3)))
+		hookah_extinguish()
+
+#undef HOOKAH_MAX_BURN_TIME
+#undef HOOKAH_PASSIVE_SOUND_COOLDOWN
