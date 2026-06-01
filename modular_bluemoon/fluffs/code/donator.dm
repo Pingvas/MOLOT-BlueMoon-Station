@@ -2401,7 +2401,7 @@
 	ckeywhitelist = list("dimofon", "pingvas", "devildeadspace", "dimakr")
 
 /datum/gear/donator/bm/sport_abibas_bag
-	name = "PLACEHOLDER Bag"
+	name = "Sport 'ABIBAS' satchel"
 	slot = ITEM_SLOT_BACK
 	path = /obj/item/storage/backpack/satchel/sport_abibas_bag
 	ckeywhitelist = list("ty4kahahebe", "pingvas")
