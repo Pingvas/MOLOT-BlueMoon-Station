@@ -2399,3 +2399,9 @@
 	slot = ITEM_SLOT_BACKPACK
 	path = /obj/item/modkit/scream_knife_kit
 	ckeywhitelist = list("dimofon", "pingvas", "devildeadspace", "dimakr")
+
+/datum/gear/donator/bm/sport_abibas_bag
+	name = "PLACEHOLDER Bag"
+	slot = ITEM_SLOT_BACK
+	path = /obj/item/storage/backpack/satchel/sport_abibas_bag
+	ckeywhitelist = list("ty4kahahebe", "pingvas")
