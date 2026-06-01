@@ -13,8 +13,8 @@
 /obj/structure/hookah
 	name = "Hookah"
 	desc = "Кальянчик. Можно расслабиться и немного покурить с друзьями."
-	icon = 'modular_bluemoon/icons/obj/structures/phone.dmi'
-	icon_state = "rotary_phone"
+	icon = 'modular_bluemoon/icons/obj/hookah.dmi'
+	icon_state = "kalik_truba"
 	density = TRUE
 	anchored = FALSE
 	resistance_flags = FIRE_PROOF
@@ -22,6 +22,7 @@
 	max_integrity = 150
 	var/lit = FALSE
 	var/burn_time = 0
+	var/range = 3
 	var/obj/item/clothing/mask/hookah_hose/hose = null
 	var/smoke_cycle = 0
 	var/last_burn_sound = 0
@@ -29,6 +30,30 @@
 /obj/structure/hookah/Initialize(mapload)
 	. = ..()
 	create_reagents(200, OPENCONTAINER)
+	if(!hose)
+		hose = new(src)
+		hose.hookah = src
+	update_icon()
+
+/obj/structure/hookah/on_reagent_change(changetype)
+	update_icon()
+
+/obj/structure/hookah/update_overlays()
+	. = ..()
+	if(lit)
+		var/mutable_appearance/flame = mutable_appearance(icon, "hookah_fire")
+		flame.appearance_flags = RESET_COLOR
+		. += flame
+		animate(flame, alpha = 180, time = 8, loop = -1, easing = SINE_EASING)
+		animate(alpha = 255, time = 8, loop = -1, easing = SINE_EASING)
+	if(reagents.total_volume > 0)
+		var/liquid_state = lit ? "hookah_liquid_active" : "hookah_liquid"
+		var/mutable_appearance/liquid = mutable_appearance(icon, liquid_state)
+		liquid.color = mix_color_from_reagents(reagents.reagent_list)
+		. += liquid
+		if(lit)
+			animate(liquid, alpha = 160, time = 5, loop = -1, easing = SINE_EASING)
+			animate(alpha = 255, time = 5, loop = -1, easing = SINE_EASING)
 
 /obj/structure/hookah/Destroy()
 	if(hose)
@@ -40,14 +65,10 @@
 	return ..()
 
 /obj/structure/hookah/update_icon_state()
-	if(lit && hose && hose.loc == src)
-		icon_state = "rpb_phone" // Плейсхолдер горит - трубка на месте
-	else if(lit)
-		icon_state = "rotary_phone_ear" // Плейсхолдер  горит - трубка снята
-	else if(hose && hose.loc == src)
-		icon_state = "rotary_phone" // Плейсхолдер  не горит - трубка на месте
+	if(hose && hose.loc == src)
+		icon_state = "kalik_truba"
 	else
-		icon_state = "rotary_phone_ear" // Плейсхолдер не горит - трубка снята
+		icon_state = "kalik"
 
 /obj/structure/hookah/examine(mob/user)
 	. = ..()
@@ -103,6 +124,7 @@
 		if(amount)
 			user.visible_message(span_notice("[user] наливает что-то в колбу [src]."), span_notice("Вы наливаете жидкость в колбу [src]."))
 			playsound(src, 'sound/effects/bubbles.ogg', 20, TRUE)
+			update_icon()
 		else
 			balloon_alert(user, "Невозможно залить!")
 		return TRUE
@@ -133,6 +155,8 @@
 	switch(user.a_intent)
 		// Help - взять/вернуть шланг
 		if(INTENT_HELP)
+			if(!user.CanReach(src))
+				return
 			if(!hose)
 				hose = new(src)
 				hose.hookah = src
@@ -270,7 +294,7 @@
 				S.pixel_x = rand(-8, 8)
 				S.pixel_y = rand(0, 8)
 
-	if(hose && hose.loc != src && get_dist(hose, src) > 2)
+	if(hose && hose.loc != src && get_dist(hose, src) > range)
 		var/mob/living/carbon/C = hose.loc
 		if(istype(C))
 			C.dropItemToGround(hose, TRUE)
@@ -281,13 +305,13 @@
 		update_icon()
 		visible_message(span_warning("Шланг отсоединился от кальяна."))
 
-	if(hose && hose.loc != src && get_dist(hose, src) <= 2)
+	if(hose && hose.loc != src && get_dist(hose, src) <= range)
 		var/mob/living/carbon/C = hose.loc
 		if(istype(C) && hose == C.wear_mask && prob(30))
 			var/turf/user_turf = get_turf(C)
 			new /obj/effect/particle_effect/smoke/cigsmoke(user_turf)
 
-	if(hose && hose.loc != src && reagents.total_volume > 0 && get_dist(hose, src) <= 2)
+	if(hose && hose.loc != src && reagents.total_volume > 0 && get_dist(hose, src) <= range)
 		var/mob/living/carbon/C = hose.loc
 		if(istype(C) && hose == C.wear_mask)
 			var/fraction = min(REAGENTS_METABOLISM / reagents.total_volume, 1)
