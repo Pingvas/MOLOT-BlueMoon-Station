@@ -47,13 +47,9 @@
 		animate(flame, alpha = 180, time = 8, loop = -1, easing = SINE_EASING)
 		animate(alpha = 255, time = 8, loop = -1, easing = SINE_EASING)
 	if(reagents.total_volume > 0)
-		var/liquid_state = lit ? "hookah_liquid_active" : "hookah_liquid"
-		var/mutable_appearance/liquid = mutable_appearance(icon, liquid_state)
+		var/mutable_appearance/liquid = mutable_appearance(icon, lit ? "hookah_liquid_active" : "hookah_liquid")
 		liquid.color = mix_color_from_reagents(reagents.reagent_list)
 		. += liquid
-		if(lit)
-			animate(liquid, alpha = 160, time = 5, loop = -1, easing = SINE_EASING)
-			animate(alpha = 255, time = 5, loop = -1, easing = SINE_EASING)
 
 /obj/structure/hookah/Destroy()
 	if(hose)
