@@ -26,35 +26,43 @@
 	var/obj/item/clothing/mask/hookah_hose/hose = null
 	var/smoke_cycle = 0
 	var/last_burn_sound = 0
+	var/mutable_appearance/flame_overlay
+	var/mutable_appearance/liquid_overlay
 
 /obj/structure/hookah/Initialize(mapload)
 	. = ..()
 	create_reagents(200, OPENCONTAINER)
+	flame_overlay = mutable_appearance(icon, "hookah_fire")
+	flame_overlay.appearance_flags = RESET_COLOR
+	liquid_overlay = mutable_appearance(icon, "hookah_liquid")
 	if(!hose)
 		hose = new(src)
 		hose.hookah = src
 	update_icon()
 
 /obj/structure/hookah/on_reagent_change(changetype)
-	update_icon()
+	refresh_overlays()
 
-/obj/structure/hookah/update_overlays()
+/obj/structure/hookah/update_icon(updates=ALL)
 	. = ..()
+	refresh_overlays()
+
+/obj/structure/hookah/proc/refresh_overlays()
+	cut_overlay(flame_overlay)
+	cut_overlay(liquid_overlay)
 	if(lit)
-		var/mutable_appearance/flame = mutable_appearance(icon, "hookah_fire")
-		flame.appearance_flags = RESET_COLOR
-		. += flame
-		animate(flame, alpha = 180, time = 8, loop = -1, easing = SINE_EASING)
+		add_overlay(flame_overlay)
+		animate(flame_overlay, alpha = 180, time = 8, loop = -1, easing = SINE_EASING)
 		animate(alpha = 255, time = 8, loop = -1, easing = SINE_EASING)
 	if(reagents.total_volume > 0)
-		var/mutable_appearance/liquid = mutable_appearance(icon, lit ? "hookah_liquid_active" : "hookah_liquid")
-		liquid.color = mix_color_from_reagents(reagents.reagent_list)
-		. += liquid
+		liquid_overlay.icon_state = lit ? "hookah_liquid_active" : "hookah_liquid"
+		liquid_overlay.color = mix_color_from_reagents(reagents.reagent_list)
+		add_overlay(liquid_overlay)
 
 /obj/structure/hookah/Destroy()
 	if(hose)
 		hose.hookah = null
-		hose.forceMove(get_turf(src))
+		qdel(hose)
 		hose = null
 	if(lit)
 		STOP_PROCESSING(SSobj, src)
