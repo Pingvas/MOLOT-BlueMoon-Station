@@ -2393,3 +2393,9 @@
 	slot = ITEM_SLOT_OCLOTHING
 	path = /obj/item/clothing/underwear/briefs/h_thin_eslim_tshirt
 	ckeywhitelist = list("hateredsoul")
+
+/datum/gear/donator/bm/scream_knife_kit
+	name = "Scream Knife Kit"
+	slot = ITEM_SLOT_BACKPACK
+	path = /obj/item/modkit/scream_knife_kit
+	ckeywhitelist = list("dimofon", "pingvas", "devildeadspace", "dimakr")
