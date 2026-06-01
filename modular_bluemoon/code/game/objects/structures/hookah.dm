@@ -18,6 +18,7 @@
 	density = TRUE
 	anchored = FALSE
 	resistance_flags = FIRE_PROOF
+	move_resist = MOVE_RESIST_DEFAULT
 	max_integrity = 150
 	var/lit = FALSE
 	var/burn_time = 0
@@ -56,7 +57,6 @@
 		. += span_notice("Колба пуста.")
 	if(lit)
 		. += span_warning("Угли раскалены и готовы к курению.")
-		. += span_notice("Кликните с другим интентом (Disarm/Grab/Harm), чтобы потушить.")
 	else
 		. += span_notice("Угли не зажжены.")
 	if(hose)
@@ -64,6 +64,7 @@
 			. += span_notice("Шланг свисает с кальяна.")
 		else
 			. += span_notice("Шланг у кого-то в руках.")
+	. += span_notice("Интенты: Disarm — потушить | Grab — собрать | Harm — вылить")
 
 /obj/structure/hookah/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/clothing/mask/hookah_hose))
@@ -79,29 +80,6 @@
 		else
 			balloon_alert(user, "Это не от этого кальяна!")
 			return TRUE
-
-	if(I.tool_behaviour == TOOL_WRENCH)
-		default_unfasten_wrench(user, I)
-		return TRUE
-
-	if(I.tool_behaviour == TOOL_SCREWDRIVER)
-		if(lit)
-			balloon_alert(user, "Сначала потушите!")
-			return TRUE
-		if(reagents.total_volume > 0)
-			balloon_alert(user, "Сначала вылейте содержимое!")
-			return TRUE
-		if(anchored)
-			balloon_alert(user, "Сначала открепите!")
-			return TRUE
-		if(hose && hose.loc != src)
-			balloon_alert(user, "Сначала верните шланг!")
-			return TRUE
-		user.visible_message(span_notice("[user] собирает [src]."), span_notice("Вы собираете [src]."))
-		playsound(src, 'sound/items/ratchet.ogg', 30, TRUE)
-		new /obj/item/hookah(get_turf(src))
-		qdel(src)
-		return TRUE
 
 	if(!lit && I.get_temperature())
 		if(reagents.total_volume <= 0)
@@ -129,7 +107,7 @@
 			balloon_alert(user, "Невозможно залить!")
 		return TRUE
 
-	// Подкинуть углей — продлевает время горения
+	// Продлить
 	if(istype(I, /obj/item/lighter) || istype(I, /obj/item/match))
 		if(!lit)
 			light(user) // Зажечь
@@ -152,59 +130,89 @@
 	if(.)
 		return
 
-	if(lit && user.a_intent != INTENT_HELP)
-		user.visible_message(span_notice("[user] тушит угли [src]."), span_notice("Вы тушите угли [src]."))
-		hookah_extinguish()
-		return
+	switch(user.a_intent)
+		// Help - взять/вернуть шланг
+		if(INTENT_HELP)
+			if(!hose)
+				hose = new(src)
+				hose.hookah = src
+				if(!user.put_in_hands(hose))
+					hose.forceMove(get_turf(src))
+				user.visible_message(span_notice("[user] берет шланг от [src]."), span_notice("Вы берете шланг от [src]."))
+				playsound(src, 'sound/items/handling/toolbox_pickup.ogg', 20, TRUE)
+				hose.update_beam()
+				update_icon()
+				return
+			if(hose.loc == src)
+				if(!user.put_in_hands(hose))
+					hose.forceMove(get_turf(src))
+				user.visible_message(span_notice("[user] берет шланг от [src]."), span_notice("Вы берете шланг от [src]."))
+				playsound(src, 'sound/items/handling/toolbox_pickup.ogg', 20, TRUE)
+				hose.update_beam()
+				update_icon()
+				return
+			if(hose.loc == user)
+				if(hose.hookah != src)
+					balloon_alert(user, "Это не от этого кальяна!")
+					return
+				user.transferItemToLoc(hose, src)
+				hose.hookah = src
+				hose.update_beam()
+				user.visible_message(span_notice("[user] возвращает шланг к [src]."), span_notice("Вы возвращаете шланг к [src]."))
+				playsound(src, 'sound/items/handling/toolbox_pickup.ogg', 20, TRUE)
+				update_icon()
+				return
+			if(isturf(hose.loc) && get_dist(hose, src) <= 1)
+				hose.forceMove(src)
+				hose.hookah = src
+				hose.update_beam()
+				user.visible_message(span_notice("[user] возвращает шланг к [src]."), span_notice("Вы возвращаете шланг к [src]."))
+				playsound(src, 'sound/items/handling/toolbox_pickup.ogg', 20, TRUE)
+				update_icon()
+				return
+			if(ismob(hose.loc) && hose.loc != user)
+				balloon_alert(user, "Шланг у кого-то другого!")
+				return
 
-	if(!hose)
-		hose = new(src)
-		hose.hookah = src
-		if(!user.put_in_hands(hose))
-			hose.forceMove(get_turf(src))
-		user.visible_message(span_notice("[user] берет шланг от [src]."), span_notice("Вы берете шланг от [src]."))
-		playsound(src, 'sound/items/handling/toolbox_pickup.ogg', 20, TRUE)
-		hose.update_beam()
-		update_icon()
-		return
-
-	// Шланг висит в кальяне — взять его
-	if(hose.loc == src)
-		if(!user.put_in_hands(hose))
-			hose.forceMove(get_turf(src))
-		user.visible_message(span_notice("[user] берет шланг от [src]."), span_notice("Вы берете шланг от [src]."))
-		playsound(src, 'sound/items/handling/toolbox_pickup.ogg', 20, TRUE)
-		hose.update_beam()
-		update_icon()
-		return
-
-	// Шланг уже есть
-	if(hose.loc == user)
-		if(hose.hookah != src)
-			balloon_alert(user, "Это не от этого кальяна!")
+		// Disarm - потушить угли
+		if(INTENT_DISARM)
+			if(!lit)
+				balloon_alert(user, "Угли и так не горят!")
+				return
+			user.visible_message(span_notice("[user] тушит угли [src]."), span_notice("Вы тушите угли [src]."))
+			hookah_extinguish()
 			return
-		user.transferItemToLoc(hose, src)
-		hose.hookah = src
-		hose.update_beam()
-		user.visible_message(span_notice("[user] возвращает шланг к [src]."), span_notice("Вы возвращаете шланг к [src]."))
-		playsound(src, 'sound/items/handling/toolbox_pickup.ogg', 20, TRUE)
-		update_icon()
-		return
 
-	// Шланг лежит на полу рядом
-	if(isturf(hose.loc) && get_dist(hose, src) <= 1)
-		hose.forceMove(src)
-		hose.hookah = src
-		hose.update_beam()
-		user.visible_message(span_notice("[user] возвращает шланг к [src]."), span_notice("Вы возвращаете шланг к [src]."))
-		playsound(src, 'sound/items/handling/toolbox_pickup.ogg', 20, TRUE)
-		update_icon()
-		return
+		// Grab - собрать в переносной
+		if(INTENT_GRAB)
+			if(lit)
+				balloon_alert(user, "Сначала потушите!")
+				return
+			if(reagents.total_volume > 0)
+				balloon_alert(user, "Сначала вылейте содержимое!")
+				return
+			if(hose && hose.loc != src)
+				balloon_alert(user, "Сначала верните шланг!")
+				return
+			user.visible_message(span_notice("[user] собирает [src]."), span_notice("Вы собираете [src]."))
+			playsound(src, 'sound/items/ratchet.ogg', 30, TRUE)
+			new /obj/item/hookah(get_turf(src))
+			qdel(src)
+			return
 
-	// Шланг у кого-то другого - передача не поддерживается, просто сообщение
-	if(ismob(hose.loc) && hose.loc != user)
-		balloon_alert(user, "Шланг у кого-то другого!")
-		return
+		// Harm - вылить содержимое
+		if(INTENT_HARM)
+			if(reagents.total_volume <= 0)
+				balloon_alert(user, "Колба пуста!")
+				return
+			if(lit)
+				balloon_alert(user, "Сначала потушите!")
+				return
+			user.visible_message(span_warning("[user] выливает содержимое [src]."), span_warning("Вы выливаете содержимое [src]."))
+			reagents.clear_reagents()
+			playsound(src, 'sound/effects/splash.ogg', 30, TRUE)
+			update_icon()
+			return
 
 /obj/structure/hookah/proc/light(mob/user)
 	if(lit)
@@ -214,7 +222,7 @@
 	START_PROCESSING(SSobj, src)
 	update_icon()
 	user.visible_message(span_notice("[user] зажигает угли [src]."), span_notice("Вы зажигаете угли [src]."))
-	playsound(src, 'modular_sand/sound/items/lighter/light.ogg', 50, TRUE)
+	playsound(src, 'modular_bluemoon/sound/items/hookah/ugli.ogg', 90, TRUE)
 
 /obj/structure/hookah/proc/hookah_extinguish()
 	if(!lit)

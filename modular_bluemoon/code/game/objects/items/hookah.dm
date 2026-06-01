@@ -32,6 +32,18 @@
 	transfer_fingerprints_to(H)
 	qdel(src)
 
+/obj/effect/temp_visual/smoke_ring
+	icon = 'icons/effects/atmospherics.dmi'
+	icon_state = "water_vapor"
+	duration = 15
+	alpha = 120
+	pixel_x = -8
+	pixel_y = -8
+
+/obj/effect/temp_visual/smoke_ring/Initialize(mapload)
+	. = ..()
+	animate(src, transform = matrix()*2, alpha = 0, time = duration)
+
 // шланг
 /obj/item/clothing/mask/hookah_hose
 	name = "hookah hose"
@@ -107,10 +119,20 @@
 
 	SEND_SIGNAL(user, COMSIG_ADD_MOOD_EVENT, "hookah", /datum/mood_event/hookah_smoked)
 
+	// Бурление затяг
+	playsound(hookah, 'modular_bluemoon/sound/items/hookah/bubble.ogg', 90, TRUE)
+
+	user.dizziness += 3
+
 	// Дым
 	var/turf/user_turf = get_turf(user)
 	for(var/i in 1 to 2)
 		new /obj/effect/particle_effect/smoke/cigsmoke(user_turf)
+
+	// Кольцо
+	if(prob(40))
+		var/obj/effect/temp_visual/smoke_ring/R = new(user_turf)
+		R.setDir(user.dir)
 
 	// Облако дыма при затяжке у кальяна
 	var/turf/T = get_turf(hookah)
