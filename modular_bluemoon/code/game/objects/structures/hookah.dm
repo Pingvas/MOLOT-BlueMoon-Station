@@ -242,7 +242,7 @@
 	START_PROCESSING(SSobj, src)
 	update_icon()
 	user.visible_message(span_notice("[user] зажигает угли [src]."), span_notice("Вы зажигаете угли [src]."))
-	playsound(src, 'modular_bluemoon/sound/items/hookah/ugli.ogg', 90, TRUE)
+	playsound(src, 'modular_bluemoon/sound/items/hookah/ugli.ogg', 50, TRUE)
 
 /obj/structure/hookah/proc/hookah_extinguish()
 	if(!lit)
@@ -251,7 +251,7 @@
 	STOP_PROCESSING(SSobj, src)
 	update_icon()
 	visible_message(span_notice("[src] тухнет."))
-	playsound(src, 'sound/effects/extinguish.ogg', 30, TRUE)
+	playsound(src, 'modular_bluemoon/sound/items/hookah/fire_phh.ogg', 50, TRUE)
 
 /obj/structure/hookah/process()
 	if(!lit)
