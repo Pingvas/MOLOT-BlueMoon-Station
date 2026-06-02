@@ -33,10 +33,6 @@
 /obj/structure/hookah/Initialize(mapload)
 	. = ..()
 	create_reagents(200, OPENCONTAINER)
-	flame_overlay = mutable_appearance(icon, "hookah_fire")
-	flame_overlay.appearance_flags = RESET_COLOR
-	liquid_overlay = mutable_appearance(icon, "hookah_liquid")
-	liquid_active_overlay = mutable_appearance(icon, "hookah_liquid_active")
 	if(!hose)
 		hose = new(src)
 		hose.hookah = src
@@ -59,18 +55,16 @@
 		add_overlay(new_liquid)
 		liquid_overlay = new_liquid
 		if(lit)
-			add_overlay(liquid_active_overlay)
+			var/mutable_appearance/new_active = mutable_appearance(icon, "hookah_liquid_active")
+			add_overlay(new_active)
+			liquid_active_overlay = new_active
 	if(lit)
-		animate(flame_overlay)
 		var/mutable_appearance/new_flame = mutable_appearance(icon, "hookah_fire")
 		new_flame.appearance_flags = RESET_COLOR
 		add_overlay(new_flame)
-		animate(new_flame, alpha = 180, time = 8, loop = -1, easing = SINE_EASING)
-		animate(alpha = 255, time = 8, loop = -1, easing = SINE_EASING)
 		flame_overlay = new_flame
 
 /obj/structure/hookah/Destroy()
-	animate(flame_overlay)
 	flame_overlay = null
 	liquid_overlay = null
 	liquid_active_overlay = null

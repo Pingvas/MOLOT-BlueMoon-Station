@@ -5,8 +5,6 @@
 	desc = "Компактный кальян. Разверните на ровном месте, чтобы использовать."
 	icon = 'modular_bluemoon/icons/obj/hookah.dmi'
 	icon_state = "kalik_truba"
-	lefthand_file = 'icons/mob/inhands/items_lefthand.dmi'
-	righthand_file = 'icons/mob/inhands/items_righthand.dmi'
 	item_state = "kalik_truba"
 	w_class = WEIGHT_CLASS_NORMAL
 	throwforce = 2
