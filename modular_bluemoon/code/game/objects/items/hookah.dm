@@ -12,6 +12,7 @@
 	throwforce = 2
 	throw_speed = 1
 	throw_range = 4
+	custom_price = 200
 
 /obj/item/hookah/attack_self(mob/user)
 	deploy_hookah(user, get_turf(user))
