@@ -53,9 +53,6 @@
 	cut_overlay(flame_overlay)
 	cut_overlay(liquid_overlay)
 	cut_overlay(liquid_active_overlay)
-	if(lit)
-		animate(flame_overlay)
-		flame_overlay.alpha = 255
 	if(reagents.total_volume > 0)
 		var/mutable_appearance/new_liquid = mutable_appearance(icon, "hookah_liquid")
 		new_liquid.color = mix_color_from_reagents(reagents.reagent_list)
@@ -64,9 +61,13 @@
 		if(lit)
 			add_overlay(liquid_active_overlay)
 	if(lit)
-		add_overlay(flame_overlay)
-		animate(flame_overlay, alpha = 180, time = 8, loop = -1, easing = SINE_EASING)
+		animate(flame_overlay)
+		var/mutable_appearance/new_flame = mutable_appearance(icon, "hookah_fire")
+		new_flame.appearance_flags = RESET_COLOR
+		add_overlay(new_flame)
+		animate(new_flame, alpha = 180, time = 8, loop = -1, easing = SINE_EASING)
 		animate(alpha = 255, time = 8, loop = -1, easing = SINE_EASING)
+		flame_overlay = new_flame
 
 /obj/structure/hookah/Destroy()
 	if(hose)
