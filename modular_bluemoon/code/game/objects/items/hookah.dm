@@ -48,7 +48,6 @@
 	name = "hookah hose"
 	desc = "Гибкий шланг с мундштуком."
 	icon = 'modular_bluemoon/icons/obj/hookah.dmi'
-	mob_overlay_icon = 'modular_bluemoon/icons/obj/hookah.dmi'
 	icon_state = "hookah_hose"
 	item_state = "hookah_hose"
 	w_class = WEIGHT_CLASS_SMALL
