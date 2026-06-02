@@ -70,6 +70,10 @@
 		flame_overlay = new_flame
 
 /obj/structure/hookah/Destroy()
+	animate(flame_overlay)
+	flame_overlay = null
+	liquid_overlay = null
+	liquid_active_overlay = null
 	if(hose)
 		hose.hookah = null
 		qdel(hose)
