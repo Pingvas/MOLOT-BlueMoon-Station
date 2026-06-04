@@ -1,13 +1,33 @@
 #define HOOKAH_MAX_BURN_TIME 3000
 #define HOOKAH_PASSIVE_SOUND_COOLDOWN (15 SECONDS)
+#define GAS_HOOKAH_VAPOR "hookah_vapor"
 
 // Газ кальяна как water_vapor, но пол не мокнет
 /datum/gas/hookah_vapor
-	id = "hookah_vapor"
+	id = GAS_HOOKAH_VAPOR
 	specific_heat = 40
 	name = "Hookah Steam"
 	gas_overlay = "water_vapor"
-	moles_visible = MOLES_GAS_VISIBLE
+	moles_visible = 0.01
+
+// Постепенное развеивание
+/datum/gas_reaction/hookah_vapor_dissipation
+	priority = 0
+	name = "Hookah Vapor Dissipation"
+	id = "hookah_dissipation"
+
+/datum/gas_reaction/hookah_vapor_dissipation/init_reqs()
+	min_requirements = list(GAS_HOOKAH_VAPOR = MINIMUM_MOLE_COUNT)
+
+/datum/gas_reaction/hookah_vapor_dissipation/react(datum/gas_mixture/air, datum/holder)
+	var/turf/open/location = holder
+	if(!istype(location))
+		return NO_REACTION
+	var/current = air.get_moles(GAS_HOOKAH_VAPOR)
+	if(current < MINIMUM_MOLE_COUNT)
+		return NO_REACTION
+	air.adjust_moles(GAS_HOOKAH_VAPOR, -max(current * 0.05, MINIMUM_MOLE_COUNT))
+	return NO_REACTION
 
 // Кальян структура
 /obj/structure/hookah
@@ -22,7 +42,7 @@
 	max_integrity = 150
 	var/lit = FALSE
 	var/burn_time = 0
-	var/range = 3
+	var/range = 2
 	var/obj/item/clothing/mask/hookah_hose/hose = null
 	var/smoke_cycle = 0
 	var/last_burn_sound = 0
@@ -300,7 +320,7 @@
 			S.pixel_y = rand(0, 8)
 			var/turf/open/pos = center
 			if(istype(pos))
-				pos.atmos_spawn_air("hookah_vapor=10;TEMP=[T20C]")
+				pos.atmos_spawn_air("[GAS_HOOKAH_VAPOR]=50;TEMP=[T20C]")
 		else
 			for(var/i in 1 to 2)
 				var/obj/effect/temp_visual/small_smoke/halfsecond/S = new(center)
@@ -313,11 +333,6 @@
 		if(istype(C))
 			C.dropItemToGround(hose, TRUE)
 			to_chat(C, span_warning("Шланг вырвался из ваших рук!"))
-		hose.hookah = null
-		hose.update_beam()
-		hose = null
-		update_icon()
-		visible_message(span_warning("Шланг отсоединился от кальяна."))
 
 	if(hose && hose.loc != src && get_dist(hose, src) <= range)
 		var/mob/living/carbon/C = hose.loc
@@ -342,3 +357,4 @@
 
 #undef HOOKAH_MAX_BURN_TIME
 #undef HOOKAH_PASSIVE_SOUND_COOLDOWN
+#undef GAS_HOOKAH_VAPOR

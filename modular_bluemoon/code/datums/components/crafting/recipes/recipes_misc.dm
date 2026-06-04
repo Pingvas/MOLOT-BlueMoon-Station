@@ -33,7 +33,7 @@
 		/obj/item/stack/cable_coil = 1,
 		/obj/item/reagent_containers/glass/beaker = 1,
 	)
-	tools = list(TOOL_SCREWDRIVER, TOOL_WRENCH)
+	tools = list(TOOL_SCREWDRIVER)
 	time = 60
 	subcategory = CAT_MISCELLANEOUS
 	category = CAT_MISCELLANEOUS

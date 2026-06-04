@@ -78,12 +78,7 @@
 /obj/item/clothing/mask/hookah_hose/dropped(mob/user)
 	. = ..()
 	UnregisterSignal(user, COMSIG_MOVABLE_MOVED)
-	if(hookah && get_dist(src, hookah) > hookah.range)
-		hookah.hose = null
-		hookah.update_icon()
-		hookah = null
-		to_chat(user, span_warning("Шланг отсоединился от кальяна."))
-	else if(hookah)
+	if(hookah)
 		hookah.update_icon()
 
 /obj/item/clothing/mask/hookah_hose/Moved(atom/OldLoc, Dir)
@@ -91,41 +86,29 @@
 	update_beam()
 	if(hookah)
 		hookah.update_icon()
-	if(hookah && !ismob(OldLoc) && get_dist(hookah, src) > hookah.range)
-		if(ismob(loc))
-			var/mob/M = loc
-			M.dropItemToGround(src, TRUE)
-		else
-			hookah.hose = null
-			hookah.update_icon()
-			hookah = null
+	if(hookah && !ismob(OldLoc) && get_dist(hookah, src) > hookah.range && ismob(loc))
+		var/mob/M = loc
+		M.dropItemToGround(src, TRUE)
 
 /obj/item/clothing/mask/hookah_hose/on_enter_storage(obj/item/storage/S)
 	. = ..()
 	if(hookah)
-		hookah.hose = null
 		hookah.update_icon()
-		hookah = null
 
 /obj/item/clothing/mask/hookah_hose/proc/on_mob_move(atom/old_loc, dir)
 	SIGNAL_HANDLER
-	if(hookah && get_dist(hookah, src) > hookah.range)
-		if(ismob(loc))
-			var/mob/M = loc
-			M.dropItemToGround(src, TRUE)
-		else
-			hookah.hose = null
-			hookah.update_icon()
-			hookah = null
+	if(hookah && get_dist(hookah, src) > hookah.range && ismob(loc))
+		var/mob/M = loc
+		M.dropItemToGround(src, TRUE)
 
 /obj/item/clothing/mask/hookah_hose/proc/update_beam()
 	QDEL_NULL(hose_beam)
 	if(!hookah || loc == hookah)
 		return
 	if(ismob(loc))
-		hose_beam = loc.Beam(hookah, icon_state="wire", icon='modular_bluemoon/icons/effects/beam.dmi', time=INFINITY, maxdistance=hookah.range, beam_sleep_time=1)
+		hose_beam = loc.Beam(hookah, icon_state="wire", icon='modular_bluemoon/icons/effects/beam.dmi', time=INFINITY, maxdistance=10, beam_sleep_time=1)
 	else
-		hose_beam = Beam(hookah, icon_state="wire", icon='modular_bluemoon/icons/effects/beam.dmi', time=INFINITY, maxdistance=hookah.range, beam_sleep_time=1)
+		hose_beam = Beam(hookah, icon_state="wire", icon='modular_bluemoon/icons/effects/beam.dmi', time=INFINITY, maxdistance=10, beam_sleep_time=1)
 
 /obj/item/clothing/mask/hookah_hose/attack_self(mob/user)
 	if(!hookah)
