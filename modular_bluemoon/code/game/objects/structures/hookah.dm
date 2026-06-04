@@ -10,6 +10,9 @@
 	gas_overlay = "water_vapor"
 	moles_visible = 0.01
 
+/datum/gas/hookah_vapor/generate_TLV()
+	return new/datum/tlv/no_checks
+
 // Постепенное развеивание
 /datum/gas_reaction/hookah_vapor_dissipation
 	priority = 0
@@ -27,6 +30,8 @@
 	if(current < MINIMUM_MOLE_COUNT)
 		return NO_REACTION
 	air.adjust_moles(GAS_HOOKAH_VAPOR, -max(current * 0.1, MINIMUM_MOLE_COUNT))
+	if(air.get_moles(GAS_HOOKAH_VAPOR) < MINIMUM_MOLE_COUNT)
+		air.set_moles(GAS_HOOKAH_VAPOR, 0)
 	return NO_REACTION
 
 // Кальян структура
