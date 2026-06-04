@@ -26,7 +26,7 @@
 	var/current = air.get_moles(GAS_HOOKAH_VAPOR)
 	if(current < MINIMUM_MOLE_COUNT)
 		return NO_REACTION
-	air.adjust_moles(GAS_HOOKAH_VAPOR, -max(current * 0.05, MINIMUM_MOLE_COUNT))
+	air.adjust_moles(GAS_HOOKAH_VAPOR, -max(current * 0.1, MINIMUM_MOLE_COUNT))
 	return NO_REACTION
 
 // Кальян структура
@@ -52,6 +52,7 @@
 
 /obj/structure/hookah/Initialize(mapload)
 	. = ..()
+	anchored = TRUE
 	create_reagents(200, OPENCONTAINER)
 	if(!hose)
 		hose = new(src)
@@ -302,7 +303,7 @@
 		last_burn_sound = world.time
 
 	if(reagents.total_volume > 0)
-		reagents.remove_any(0.08)
+		reagents.remove_all(0.08)
 		if(!reagents.total_volume)
 			refresh_overlays()
 
@@ -320,7 +321,7 @@
 			S.pixel_y = rand(0, 8)
 			var/turf/open/pos = center
 			if(istype(pos))
-				pos.atmos_spawn_air("[GAS_HOOKAH_VAPOR]=50;TEMP=[T20C]")
+				pos.atmos_spawn_air("[GAS_HOOKAH_VAPOR]=20;TEMP=[T20C]")
 		else
 			for(var/i in 1 to 2)
 				var/obj/effect/temp_visual/small_smoke/halfsecond/S = new(center)
