@@ -127,6 +127,9 @@
 	user.visible_message(span_notice("[user] начинает делать глубокую затяжку..."), span_notice("Вы начинаете делать глубокую затяжку..."))
 	if(!do_after(user, 2 SECONDS, target = user))
 		return
+	if(hookah.reagents.total_volume <= 0)
+		to_chat(user, span_warning("Колба опустела!"))
+		return
 	user.visible_message(span_notice("[user] делает глубокую затяжку."), span_notice("Вы делаете глубокую затяжку."))
 	playsound(user, 'modular_bluemoon/sound/effects/hookah_inhale.ogg', 40, TRUE) // затяжка плейсхолдер
 
