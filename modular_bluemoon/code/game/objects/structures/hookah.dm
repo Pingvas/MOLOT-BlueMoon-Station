@@ -321,7 +321,7 @@
 			S.pixel_y = rand(0, 8)
 			var/turf/open/pos = center
 			if(istype(pos))
-				pos.atmos_spawn_air("[GAS_HOOKAH_VAPOR]=20;TEMP=[T20C]")
+				pos.atmos_spawn_air("[GAS_HOOKAH_VAPOR]=35;TEMP=[T20C]")
 		else
 			for(var/i in 1 to 2)
 				var/obj/effect/temp_visual/small_smoke/halfsecond/S = new(center)
