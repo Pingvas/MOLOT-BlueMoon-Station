@@ -396,7 +396,7 @@
 	var/list/static_data = list()
 	static_data["can_spam"] = spam_mode
 	static_data["is_silicon"] = issilicon(user)
-	static_data["remote_silicon"] = (isAI(user) || iscyborg(user)) && !istype(computer, /obj/item/modular_computer/pda/silicon)
+	static_data["remote_silicon"] = (isAI(user) || iscyborg(user)) && !computer.get_ntnet_status()
 	static_data["alert_able"] = alert_able
 	return static_data
 
