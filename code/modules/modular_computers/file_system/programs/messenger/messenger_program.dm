@@ -193,8 +193,6 @@
 	return TRUE
 
 /datum/computer_file/program/messenger/ui_state(mob/user)
-	if(issilicon(user))
-		return GLOB.deep_inventory_state
 	return GLOB.default_state
 
 /datum/computer_file/program/messenger/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
