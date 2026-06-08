@@ -950,7 +950,7 @@
 
 /obj/item/modular_computer/pda/silicon/turn_on(mob/user, open_ui = FALSE)
 	if(silicon_owner?.stat != DEAD)
-		return ..()
+		return ..(user, open_ui)
 	return FALSE
 
 // pAI PDA

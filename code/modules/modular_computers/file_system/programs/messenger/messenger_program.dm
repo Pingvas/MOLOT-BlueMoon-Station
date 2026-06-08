@@ -832,7 +832,7 @@
 
 	// Ensure computer is on
 	if(!computer.enabled)
-		computer.turn_on(usr)
+		computer.turn_on(usr, FALSE)
 		if(!computer.enabled)
 			return
 
