@@ -41,8 +41,6 @@
 	var/obj/item/computer_hardware/card_slot/card_slot = computer.all_components[MC_CARD]
 	var/obj/item/computer_hardware/printer/printer = computer.all_components[MC_PRINT]
 	var/obj/item/card/id/id_card = computer.GetID()
-	if(!printer)
-		return
 
 	switch(action)
 		if("ejectid")
