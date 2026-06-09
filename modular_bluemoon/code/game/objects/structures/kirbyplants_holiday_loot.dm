@@ -10,9 +10,8 @@ GLOBAL_LIST_INIT(plant_loot_common, list(
 	/obj/item/binoculars = WEIGHT_SECRET,
 	/obj/item/clothing/underwear/briefs/tentacle/female = WEIGHT_SECRET,
 	/obj/item/disk/nuclear/fake = WEIGHT_SECRET,
-	/obj/item/card/emag = WEIGHT_SECRET,
 	/obj/item/restraints/legcuffs/bola/energy = WEIGHT_SECRET,
-	/obj/item/sign/flag/rus = WEIGHT_SECRET,
+	/obj/item/sign/flag/rus = WEIGHT_SECRET, // пасхалко
 	/obj/item/toy/figure/inteq = WEIGHT_SECRET,
 	// WEIGHT_UNCOMMON
 	/obj/item/trash/syndi_cakes = WEIGHT_UNCOMMON,
@@ -63,7 +62,7 @@ GLOBAL_LIST_INIT(plant_loot_winter, list(
 	/obj/item/clothing/head/helmet/space/santahat = WEIGHT_UNCOMMON,
 	/obj/item/reagent_containers/food/drinks/mug/coco = WEIGHT_UNCOMMON,
 	/obj/item/toy/spinningtoy = WEIGHT_UNCOMMON,
-	/obj/item/a_gift = WEIGHT_UNCOMMON,
+	/obj/item/a_gift = WEIGHT_UNCOMMON, // на рассмотрение
 	/obj/item/decoration/garland = WEIGHT_UNCOMMON,
 	/obj/item/decoration/tinsel = WEIGHT_UNCOMMON,
 	/obj/item/reagent_containers/food/drinks/bottle/champagne = WEIGHT_UNCOMMON,
@@ -81,6 +80,7 @@ GLOBAL_LIST_INIT(plant_loot_valentines, list(
 	/obj/item/reagent_containers/spray = WEIGHT_UNCOMMON,
 	/obj/item/clothing/neck/petcollar = WEIGHT_UNCOMMON,
 	/obj/item/lipstick/random = WEIGHT_UNCOMMON,
+	/obj/item/lipstick/crocin = WEIGHT_UNCOMMON,
 	/obj/item/reagent_containers/food/snacks/pie/cream = WEIGHT_UNCOMMON,
 	// WEIGHT_COMMON
 	/obj/item/reagent_containers/food/snacks/candyheart = WEIGHT_COMMON,
@@ -167,7 +167,7 @@ GLOBAL_LIST_INIT(plant_loot_patriotic_ru, list(
 	/obj/item/sign/flag/rus = WEIGHT_UNCOMMON,
 	/obj/item/clothing/head/ushanka = WEIGHT_UNCOMMON,
 	/obj/item/reagent_containers/food/snacks/meat/slab = WEIGHT_UNCOMMON,
-	/obj/item/reagent_containers/food/snacks/cheesewedge = WEIGHT_UNCOMMON,
+	/obj/item/reagent_containers/food/snacks/cheesewedge = WEIGHT_UNCOMMON, // сюда бы еще медведя друна закинуть
 	// WEIGHT_COMMON
 	/obj/item/reagent_containers/food/drinks/bottle/vodka = WEIGHT_COMMON,
 ))
@@ -184,7 +184,7 @@ GLOBAL_LIST_INIT(plant_loot_patriotic_usa, list(
 
 GLOBAL_LIST_INIT(plant_loot_pirate, list(
 	// WEIGHT_SECRET
-	/obj/item/melee/sabre = WEIGHT_SECRET,
+	/obj/item/melee/sabre = WEIGHT_SECRET, // Под вопросом
 	// WEIGHT_UNCOMMON
 	/obj/item/clothing/head/pirate = WEIGHT_UNCOMMON,
 	/obj/item/clothing/glasses/sunglasses = WEIGHT_UNCOMMON,
@@ -247,7 +247,7 @@ GLOBAL_LIST_INIT(plant_loot_birthday, list(
 	/obj/item/reagent_containers/food/snacks/cakeslice/birthday = WEIGHT_UNCOMMON,
 	/obj/item/toy/plush = WEIGHT_UNCOMMON,
 	/obj/item/reagent_containers/food/snacks/cookie = WEIGHT_UNCOMMON,
-	/obj/item/a_gift = WEIGHT_UNCOMMON,
+	/obj/item/a_gift = WEIGHT_UNCOMMON, // под вопросом
 	/obj/item/clothing/head/festive = WEIGHT_UNCOMMON,
 ))
 
