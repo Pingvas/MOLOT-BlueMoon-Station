@@ -180,6 +180,7 @@ GLOBAL_LIST_INIT(plant_loot_patriotic_usa, list(
 	/obj/item/clothing/head/that = WEIGHT_UNCOMMON,
 	/obj/item/toy/spinningtoy = WEIGHT_UNCOMMON,
 	/obj/item/reagent_containers/food/snacks/burger = WEIGHT_UNCOMMON,
+	/obj/item/sign/flag/usa = WEIGHT_UNCOMMON,
 ))
 
 GLOBAL_LIST_INIT(plant_loot_pirate, list(
