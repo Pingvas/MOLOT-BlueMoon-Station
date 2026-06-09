@@ -198,8 +198,6 @@ GLOBAL_LIST_INIT(plant_loot_animal, list(
 	// WEIGHT_UNCOMMON
 	/obj/item/toy/plush/carpplushie = WEIGHT_UNCOMMON,
 	/obj/item/toy/plush/bubbleplush = WEIGHT_UNCOMMON,
-	/obj/item/toy/plush/carpplushie = WEIGHT_UNCOMMON,
-	/obj/item/toy/plush/bubbleplush = WEIGHT_UNCOMMON,
 	/obj/item/clothing/head/kitty = WEIGHT_UNCOMMON,
 	/obj/item/reagent_containers/food/snacks/cube = WEIGHT_UNCOMMON,
 ))
