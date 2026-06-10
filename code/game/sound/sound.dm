@@ -4,7 +4,7 @@
 	if(islist(soundin))
 		CRASH("playsound(): soundin attempted to pass a list! Consider using pick()")
 	if(!soundin)
-		CRASH("playsound(): no soundin passed")
+		return
 	if(vol < SOUND_AUDIBLE_VOLUME_MIN)
 		CRASH("playsound(): volume below SOUND_AUDIBLE_VOLUME_MIN. [vol] < [SOUND_AUDIBLE_VOLUME_MIN]")
 
