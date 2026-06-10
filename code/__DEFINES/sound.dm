@@ -35,6 +35,17 @@
 
 #define MAX_INSTRUMENT_CHANNELS (128 * 6)
 
+/// Это минимальное значение звука для игнора
+#define SOUND_AUDIBLE_VOLUME_MIN 3
+
+/* Рассчет максимальной дистанции для воспроизведения звука */
+#define CALCULATE_MAX_SOUND_AUDIBLE_DISTANCE(volume, max_distance, falloff_distance, falloff_exponent)\
+	floor(((((-(max(max_distance - falloff_distance, 0) ** (1 / falloff_exponent)) / volume) * (SOUND_AUDIBLE_VOLUME_MIN - volume)) ** falloff_exponent) + falloff_distance))
+
+/* Рассчет громкости от расстояния */
+#define CALCULATE_SOUND_VOLUME(volume, distance, max_distance, falloff_distance, falloff_exponent)\
+	((max(distance - falloff_distance, 0) ** (1 / falloff_exponent)) / ((max(max_distance, distance) - falloff_distance) ** (1 / falloff_exponent)) * volume)
+
 ///Default range of a sound.
 #define SOUND_RANGE 17
 #define MEDIUM_RANGE_SOUND_EXTRARANGE -5
@@ -45,7 +56,7 @@
 ///Percentage of sound's range where no falloff is applied
 #define SOUND_DEFAULT_FALLOFF_DISTANCE 1 //For a normal sound this would be 1 tile of no falloff
 ///The default exponent of sound falloff
-#define SOUND_FALLOFF_EXPONENT 7.5
+#define SOUND_FALLOFF_EXPONENT 6
 /// Default distance multiplier for sounds
 #define SOUND_DEFAULT_DISTANCE_MULTIPLIER 2.5
 /// Default range at which sound distance multiplier applies
@@ -151,6 +162,9 @@
 #define EQUIP_SOUND_VOLUME 30
 #define PICKUP_SOUND_VOLUME 15
 #define DROP_SOUND_VOLUME 20
+#define LIQUID_SLOSHING_SOUND_VOLUME 10
+#define HALFWAY_SOUND_VOLUME 50
+#define BLOCK_SOUND_VOLUME 70
 #define YEET_SOUND_VOLUME 90
 
 
@@ -183,6 +197,7 @@
 #define SOUND_ENVIRONMENT_DIZZY 24
 #define SOUND_ENVIRONMENT_PSYCHOTIC 25
 //If we ever make custom ones add them here
+#define SOUND_ENVIROMENT_PHASED list(1.8, 0.5, -1000, -4000, 0, 5, 0.1, 1, -15500, 0.007, 2000, 0.05, 0.25, 1, 1.18, 0.348, -5, 2000, 250, 0, 3, 100, 63)
 
 //"sound areas": easy way of keeping different types of areas consistent.
 #define SOUND_AREA_STANDARD_STATION SOUND_ENVIRONMENT_PARKING_LOT
@@ -854,3 +869,10 @@ GLOBAL_LIST_EMPTY(sfx_datum_by_key)
 #define SFX_DRAWER_CLOSE "drawer_close"
 #define SFX_ROLLING_PIN_ROLLING "rolling_pin_rolling"
 #define SFX_KNIFE_SLICE "knife_slice"
+
+
+// Standard is 44.1khz
+#define MIN_EMOTE_PITCH 40000
+#define MAX_EMOTE_PITCH 48000
+// ~0.6 - 1.4 at 0.12
+#define EMOTE_TTS_PITCH_MULTIPLIER 0.12

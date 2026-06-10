@@ -1,13 +1,5 @@
-/**
-# sound_effect datum
-* use for when you need multiple sound files to play at random in a playsound
-* see var documentation below
-* initialized and added to sfx_datum_by_key in /datum/controller/subsystem/sounds/init_sound_keys()
-*/
 /datum/sound_effect
-	/// sfx key define with which we are associated with, see code\__DEFINES\sound.dm
 	var/key
-	/// list of paths to our files, use the /assoc subtype if your paths are weighted
 	var/list/file_paths
 
 /datum/sound_effect/proc/return_sfx()
@@ -190,6 +182,7 @@
 		'sound/weapons/gun_dry_fire_3.ogg',
 		'sound/weapons/gun_dry_fire_4.ogg'
 	)
+
 /datum/sound_effect/gun_insert_empty_magazine
 	key = SFX_GUN_INSERT_EMPTY_MAGAZINE
 	file_paths = list(
@@ -198,15 +191,17 @@
 		'sound/weapons/gun_magazine_insert_empty_3.ogg',
 		'sound/weapons/gun_magazine_insert_empty_4.ogg'
 	)
+
 /datum/sound_effect/gun_insert_full_magazine
 	key = SFX_GUN_INSERT_FULL_MAGAZINE
 	file_paths = list(
-	'sound/weapons/gun_magazine_insert_full_1.ogg',
-	'sound/weapons/gun_magazine_insert_full_2.ogg',
-	'sound/weapons/gun_magazine_insert_full_3.ogg',
-	'sound/weapons/gun_magazine_insert_full_4.ogg',
-	'sound/weapons/gun_magazine_insert_full_5.ogg'
+		'sound/weapons/gun_magazine_insert_full_1.ogg',
+		'sound/weapons/gun_magazine_insert_full_2.ogg',
+		'sound/weapons/gun_magazine_insert_full_3.ogg',
+		'sound/weapons/gun_magazine_insert_full_4.ogg',
+		'sound/weapons/gun_magazine_insert_full_5.ogg'
 	)
+
 /datum/sound_effect/gun_remove_empty_magazine
 	key = SFX_GUN_REMOVE_EMPTY_MAGAZINE
 	file_paths = list(
@@ -215,6 +210,7 @@
 		'sound/weapons/gun_magazine_remove_empty_3.ogg',
 		'sound/weapons/gun_magazine_remove_empty_4.ogg'
 	)
+
 /datum/sound_effect/gun_slide_lock
 	key = SFX_GUN_SLIDE_LOCK
 	file_paths = list(
@@ -224,6 +220,7 @@
 		'sound/weapons/gun_slide_lock_4.ogg',
 		'sound/weapons/gun_slide_lock_5.ogg'
 	)
+
 /datum/sound_effect/law
 	key = SFX_LAW
 	file_paths = list(
@@ -234,6 +231,7 @@
 		'sound/voice/beepsky/insult.ogg',
 		'sound/voice/beepsky/creep.ogg'
 	)
+
 /datum/sound_effect/honkbot_e
 	key = SFX_HONKBOT_E
 	file_paths = list(
@@ -253,6 +251,7 @@
 		'sound/weapons/flashbang.ogg',
 		'sound/weapons/bladeslice.ogg'
 	)
+
 /datum/sound_effect/goose
 	key = SFX_GOOSE
 	file_paths = list(
@@ -261,6 +260,7 @@
 		'sound/creatures/goose3.ogg',
 		'sound/creatures/goose4.ogg'
 	)
+
 /datum/sound_effect/water_wade
 	key = SFX_WATER_WADE
 	file_paths = list(
@@ -279,6 +279,7 @@
 		'sound/vore/pred/struggle_04.ogg',
 		'sound/vore/pred/struggle_05.ogg'
 	)
+
 /datum/sound_effect/prey_struggle
 	key = SFX_VORE_PREY_STRUGGLE
 	file_paths = list(
@@ -288,6 +289,7 @@
 		'sound/vore/prey/struggle_04.ogg',
 		'sound/vore/prey/struggle_05.ogg'
 	)
+
 /datum/sound_effect/digest_pred
 	key = SFX_VORE_DIGEST_PRED
 	file_paths = list(
@@ -310,6 +312,7 @@
 		'sound/vore/pred/digest_17.ogg',
 		'sound/vore/pred/digest_18.ogg'
 	)
+
 /datum/sound_effect/death_pred
 	key = SFX_VORE_DEATH_PRED
 	file_paths = list(
@@ -324,6 +327,7 @@
 		'sound/vore/pred/death_09.ogg',
 		'sound/vore/pred/death_10.ogg'
 	)
+
 /datum/sound_effect/digest_prey
 	key = SFX_VORE_DIGEST_PREY
 	file_paths = list(
@@ -344,7 +348,9 @@
 		'sound/vore/prey/digest_15.ogg',
 		'sound/vore/prey/digest_16.ogg',
 		'sound/vore/prey/digest_17.ogg',
-		'sound/vore/prey/digest_18.ogg')
+		'sound/vore/prey/digest_18.ogg'
+	)
+
 /datum/sound_effect/death_prey
 	key = SFX_VORE_DEATH_PREY
 	file_paths = list(
@@ -359,6 +365,7 @@
 		'sound/vore/prey/death_09.ogg',
 		'sound/vore/prey/death_10.ogg'
 	)
+
 /datum/sound_effect/hunger_sounds
 	key = SFX_VORE_HUNGER
 	file_paths = list(
@@ -368,24 +375,28 @@
 		'sound/vore/growl4.ogg',
 		'sound/vore/growl5.ogg'
 	)
+
 /datum/sound_effect/clang
 	key = SFX_CLANG
 	file_paths = list(
 		'sound/effects/clang1.ogg',
 		'sound/effects/clang2.ogg'
 	)
+
 /datum/sound_effect/clangsmall
 	key = SFX_CLANGSMALL
 	file_paths = list(
 		'sound/effects/clangsmall1.ogg',
 		'sound/effects/clangsmall2.ogg'
 	)
+
 /datum/sound_effect/slosh
 	key = SFX_SLOSH
 	file_paths = list(
 		'sound/effects/slosh1.ogg',
 		'sound/effects/slosh2.ogg'
 	)
+
 /datum/sound_effect/smcalm
 	key = SFX_SMCALM
 	file_paths = list(
@@ -421,7 +432,8 @@
 		'sound/machines/sm/accent/normal/30.ogg',
 		'sound/machines/sm/accent/normal/31.ogg',
 		'sound/machines/sm/accent/normal/32.ogg',
-		'sound/machines/sm/accent/normal/33.ogg')
+		'sound/machines/sm/accent/normal/33.ogg'
+	)
 
 /datum/sound_effect/smdelam
 	key = SFX_SMDELAM
@@ -458,7 +470,8 @@
 		'sound/machines/sm/accent/delam/30.ogg',
 		'sound/machines/sm/accent/delam/31.ogg',
 		'sound/machines/sm/accent/delam/32.ogg',
-		'sound/machines/sm/accent/delam/33.ogg')
+		'sound/machines/sm/accent/delam/33.ogg'
+	)
 
 /datum/sound_effect/drawer_open
 	key = SFX_DRAWER_OPEN
@@ -466,6 +479,7 @@
 		'modular_sand/sound/misc/drawer_open1.ogg',
 		'modular_sand/sound/misc/drawer_open2.ogg'
 	)
+
 /datum/sound_effect/drawer_close
 	key = SFX_DRAWER_CLOSE
 	file_paths = list(
@@ -480,7 +494,7 @@
 		'sound/items/rolling_pin/rolling_pin_rolling3.ogg',
 		'sound/items/rolling_pin/rolling_pin_rolling4.ogg',
 		'sound/items/rolling_pin/rolling_pin_rolling5.ogg',
-		'sound/items/rolling_pin/rolling_pin_rolling6.ogg',
+		'sound/items/rolling_pin/rolling_pin_rolling6.ogg'
 	)
 
 /datum/sound_effect/knife_slice

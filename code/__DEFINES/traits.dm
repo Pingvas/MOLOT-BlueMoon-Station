@@ -105,6 +105,7 @@
 #define TRAIT_LOOC_MUTE			"looc_mute" //Just like unconsciousness, it disables LOOC salt.
 #define TRAIT_AOOC_MUTE			"aooc_mute" //Same as above but for AOOC.
 #define TRAIT_DEAF				"deaf"
+#define TRAIT_SOUND_DEBUGGED	"sound_debugged"
 #define TRAIT_NEARSIGHT			"nearsighted"
 #define TRAIT_FAT				"fat"
 #define TRAIT_HUSK				"husk"
