@@ -129,7 +129,7 @@
 		if((S.file == 'modular_citadel/sound/voice/awoo.ogg' || S.file == 'modular_splurt/sound/voice/wolfhowl.ogg') && (distance > 0))
 			var/mob/living/carbon/C = src
 			var/datum/quirk/awoo/quirk_target = locate() in C.roundstart_quirks
-			quirk_target.do_awoo()
+			quirk_target?.do_awoo()
 
 	SEND_SOUND(src, S)
 

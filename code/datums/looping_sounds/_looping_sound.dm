@@ -75,10 +75,11 @@
 	if(reserved_channel)
 		sound_channel = null
 		SSsounds.free_sound_channel(reserved_channel)
+		reserved_channel = null
 
 /datum/looping_sound/proc/start_sound_loop()
 	loop_started = TRUE
-	sound_loop()
+	sound_loop(world.time)
 	timer_id = addtimer(CALLBACK(src, PROC_REF(sound_loop), world.time), mid_length, TIMER_CLIENT_TIME | TIMER_STOPPABLE | TIMER_LOOP | TIMER_DELETE_ME, SSsound_loops)
 
 /datum/looping_sound/proc/sound_loop(start_time)

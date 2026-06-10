@@ -59,6 +59,12 @@ SUBSYSTEM_DEF(sounds)
 	init_sound_keys()
 
 	if(RUST_G)
+		for(var/sound_path in all_sounds)
+			var/sound_path_len = length(sound_path)
+			for(var/ext in byond_sound_extensions)
+				if(copytext(sound_path, sound_path_len - length(ext) + 1) == ext)
+					sounds_to_precache += sound_path
+					break
 		precache_sounds()
 
 	return ..()
@@ -167,11 +173,6 @@ SUBSYSTEM_DEF(sounds)
 	sounds_to_precache = null
 
 /datum/controller/subsystem/sounds/proc/cache_sounds(list/paths)
-	var/list/reconstructed = list()
-	reconstructed.len = length(paths)
-	for(var/i in 1 to length(paths))
-		reconstructed[i] = "[paths[i]]"
-
 	var/list/out = rustg_sound_length_list(paths)
 	var/list/successes = out[RUSTG_SOUNDLEN_SUCCESSES]
 	for(var/sound_path in successes)
