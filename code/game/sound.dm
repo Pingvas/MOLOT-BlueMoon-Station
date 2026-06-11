@@ -17,7 +17,7 @@ falloff_distance - Distance at which falloff begins.
 */
 
 /proc/playsound(atom/source, soundin, vol as num, vary, extrarange as num, falloff_exponent = SOUND_FALLOFF_EXPONENT, frequency = null, channel = 0, pressure_affected = TRUE, ignore_walls = TRUE,
-	falloff_distance = SOUND_DEFAULT_FALLOFF_DISTANCE, envwet = -10000, envdry = 0)
+	falloff_distance = SOUND_DEFAULT_FALLOFF_DISTANCE, envwet = -10000, envdry = 0, priority = SOUND_PRIORITY_NORMAL)
 	if(isarea(source))
 		CRASH("playsound(): source is an area")
 
@@ -26,7 +26,6 @@ falloff_distance - Distance at which falloff begins.
 	if(!turf_source)
 		return
 
-	//allocate a channel if necessary now so its the same for everyone
 	channel = channel || SSsounds.random_available_channel()
 
 	var/sound/premade_sound
@@ -35,10 +34,14 @@ falloff_distance - Distance at which falloff begins.
 		premade_sound = soundin
 	else
 		resolved_sound = get_sfx(soundin)
+
 	var/maxdistance = SOUND_RANGE + extrarange
 	var/source_z = turf_source.z
 	var/turf/above_turf = SSmapping.get_turf_above(turf_source)
 	var/turf/below_turf = SSmapping.get_turf_below(turf_source)
+
+	// Кэш звуков давления
+	var/datum/gas_mixture/cached_source_air = pressure_affected ? turf_source.return_air() : null
 
 	var/list/listeners
 	var/list/extra_listeners_1
@@ -66,21 +69,21 @@ falloff_distance - Distance at which falloff begins.
 	for(var/mob/M as anything in listeners)
 		var/dist = get_dist(M, turf_source)
 		if(dist <= maxdistance)
-			M.playsound_local(turf_source, resolved_sound, vol, vary, frequency, falloff_exponent, channel, pressure_affected, premade_sound, maxdistance, falloff_distance, envwet, envdry)
+			M.playsound_local(turf_source, resolved_sound, vol, vary, frequency, falloff_exponent, channel, pressure_affected, premade_sound, maxdistance, falloff_distance, envwet, envdry, null, cached_source_air, priority)
 	for(var/mob/M as anything in extra_listeners_1)
 		var/dist = get_dist(M, turf_source)
 		if(dist <= maxdistance)
-			M.playsound_local(turf_source, resolved_sound, vol, vary, frequency, falloff_exponent, channel, pressure_affected, premade_sound, maxdistance, falloff_distance, envwet, envdry)
+			M.playsound_local(turf_source, resolved_sound, vol, vary, frequency, falloff_exponent, channel, pressure_affected, premade_sound, maxdistance, falloff_distance, envwet, envdry, null, cached_source_air, priority)
 	for(var/mob/M as anything in extra_listeners_2)
 		var/dist = get_dist(M, turf_source)
 		if(dist <= maxdistance)
-			M.playsound_local(turf_source, resolved_sound, vol, vary, frequency, falloff_exponent, channel, pressure_affected, premade_sound, maxdistance, falloff_distance, envwet, envdry)
+			M.playsound_local(turf_source, resolved_sound, vol, vary, frequency, falloff_exponent, channel, pressure_affected, premade_sound, maxdistance, falloff_distance, envwet, envdry, null, cached_source_air, priority)
 	for(var/mob/M as anything in SSmobs.dead_players_by_zlevel[source_z])
 		var/dist = get_dist(M, turf_source)
 		if(dist <= maxdistance)
-			M.playsound_local(turf_source, resolved_sound, vol, vary, frequency, falloff_exponent, channel, pressure_affected, premade_sound, maxdistance, falloff_distance, envwet, envdry)
+			M.playsound_local(turf_source, resolved_sound, vol, vary, frequency, falloff_exponent, channel, pressure_affected, premade_sound, maxdistance, falloff_distance, envwet, envdry, null, cached_source_air, priority)
 
-/*! playsound
+/*! playsound_local
 
 playsound_local is a proc used to play a sound directly on a mob from a specific turf.
 This is called by playsound to send sounds to players, in which case it also gets the max_distance of that sound.
@@ -99,13 +102,12 @@ falloff_distance - Distance at which falloff begins
 */
 
 /mob/proc/playsound_local(turf/turf_source, soundin, vol as num, vary, frequency, falloff_exponent = SOUND_FALLOFF_EXPONENT, channel = 0, pressure_affected = TRUE, sound/S, max_distance,
-	falloff_distance = SOUND_DEFAULT_FALLOFF_DISTANCE, envwet = -10000, envdry = 0, virtual_hearer)
+	falloff_distance = SOUND_DEFAULT_FALLOFF_DISTANCE, envwet = -10000, envdry = 0, virtual_hearer, datum/gas_mixture/cached_source_air, priority = SOUND_PRIORITY_NORMAL, use_reverb = TRUE)
 	if(QDELETED(src))
 		return
 	if(audiovisual_redirect)
 		virtual_hearer = get_turf(src)
-		audiovisual_redirect.playsound_local(turf_source, soundin, vol, vary, frequency, falloff_exponent, channel, pressure_affected, S, max_distance, falloff_distance, max(0, envwet), -10000, virtual_hearer)
-		//No return here, as we want to deliberately support the possibility of shenanigans in which mobs with clients can have active AV redirects to completely different players
+		audiovisual_redirect.playsound_local(turf_source, soundin, vol, vary, frequency, falloff_exponent, channel, pressure_affected, S, max_distance, falloff_distance, max(0, envwet), -10000, virtual_hearer, null, priority, use_reverb)
 	if(!client)
 		return
 
@@ -138,11 +140,11 @@ falloff_distance - Distance at which falloff begins
 		var/turf/T = virtual_hearer || get_turf(src)
 		var/distance = get_dist(T, turf_source)
 
-		// Эффект давления
+		// Pressure affects base volume (atmospheric attenuation)
 		if(pressure_affected)
 			var/pressure_factor = 1
 			var/datum/gas_mixture/hearer_env = T.return_air()
-			var/datum/gas_mixture/source_env = turf_source.return_air()
+			var/datum/gas_mixture/source_env = cached_source_air || turf_source.return_air()
 
 			if(hearer_env && source_env)
 				var/pressure = min(hearer_env.return_pressure(), source_env.return_pressure())
@@ -172,7 +174,7 @@ falloff_distance - Distance at which falloff begins
 		else
 			S.falloff = FALLOFF_SOUNDS
 
-		// Зависимости эффектов к зонам
+		// Зависимость зон к ревербу
 		var/area/source_area = get_area(turf_source)
 		var/area_environment = source_area?.sound_environment
 		if(!isnum(area_environment) || area_environment == SOUND_ENVIRONMENT_NONE)
@@ -183,12 +185,12 @@ falloff_distance - Distance at which falloff begins
 
 		S.environment = area_environment
 
+		// Овверайды к эху зон
 		if(envwet == -10000 && envdry == 0)
 			S.echo = get_sound_environment_echo(area_environment, distance, max_distance)
 		else
 			S.echo = list(envdry, null, envwet, null, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7)
 
-		// It's not the best decision to rely on file path, but most straightforward and reliable.
 		if(HAS_TRAIT(src, TRAIT_AWOO)  && iscarbon(src))
 			if((S.file == 'modular_citadel/sound/voice/awoo.ogg' || S.file == 'modular_splurt/sound/voice/wolfhowl.ogg') && (distance > 0))
 				var/mob/living/carbon/C = src
@@ -223,84 +225,81 @@ falloff_distance - Distance at which falloff begins
 	if(prefs && (prefs.toggles & SOUND_LOBBY))
 		SEND_SOUND(src, sound(SSticker.login_music, repeat = 0, wait = 0, volume = vol, channel = CHANNEL_LOBBYMUSIC))
 
-/// Пресеты это для разных зон.
+/// Echo presets for each sound environment
 /// echo = list(direct, directHF, room, roomHF, obstruction, obstructionLFRatio, occlusion, occlusionLFRatio,
 ///             occlusionRoomRatio, occlusionDirectRatio, exclusion, exclusionLFRatio, outsideVolumeHF,
 ///             dopplerFactor, rolloffFactor, roomRolloffFactor, airAbsorptionFactor, flags)
 GLOBAL_LIST_INIT(sound_environment_echo, list(
-	// SOUND_ENVIRONMENT_NONE / GENERIC — minimal processing
+	// SOUND_ENVIRONMENT_NONE — minimal processing
 	"-1" = list(0, null, -5000, null, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
 	"0"  = list(0, null, -10000, null, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
-	// SOUND_ENVIRONMENT_PADDED_CELL — dead room
+	// SOUND_ENVIRONMENT_PADDED_CELL — глухая комната, почти без реверберации
 	"1"  = list(0, null, -6000, -3000, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
-	// SOUND_ENVIRONMENT_ROOM — small room, short reverb
-	"2"  = list(0, null, -1500, -200, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
-	// SOUND_ENVIRONMENT_BATHROOM — tiles, bright reverb
-	"3"  = list(0, null, -1200, -50, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
-	// SOUND_ENVIRONMENT_LIVINGROOM — soft furniture, warm reverb
-	"4"  = list(0, null, -1800, -500, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
-	// SOUND_ENVIRONMENT_STONEROOM — stone, longer reverb
-	"5"  = list(0, null, -1000, -150, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
-	// SOUND_ENVIRONMENT_AUDITORIUM — large, long reverb
-	"6"  = list(0, null, -800, -300, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
-	// SOUND_ENVIRONMENT_CONCERT_HALL — very long reverb
-	"7"  = list(0, null, -500, -400, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
-	// SOUND_ENVIRONMENT_CAVE — long dark reverb
-	"8"  = list(0, null, -1200, -800, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
-	// SOUND_ENVIRONMENT_ARENA — huge space
-	"9"  = list(0, null, -600, -600, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
-	// SOUND_ENVIRONMENT_HANGAR — industrial echo
-	"10" = list(0, null, -800, -400, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
-	// SOUND_ENVIRONMENT_CARPETED_HALLWAY — soft hallway
-	"11" = list(0, null, -1500, -500, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
-	// SOUND_ENVIRONMENT_HALLWAY — hard hallway
-	"12" = list(0, null, -1200, -200, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
-	// SOUND_ENVIRONMENT_STONE_CORRIDOR — stone corridor
-	"13" = list(0, null, -1000, -400, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
-	// SOUND_ENVIRONMENT_ALLEY — outdoor narrow
-	"14" = list(0, null, -3000, -500, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
-	// SOUND_ENVIRONMENT_FOREST — open natural
-	"15" = list(0, null, -5000, -2000, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
-	// SOUND_ENVIRONMENT_CITY — urban
-	"16" = list(0, null, -2500, -1000, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
-	// SOUND_ENVIRONMENT_MOUNTAINS — large open, echo
-	"17" = list(0, null, -1000, -800, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
-	// SOUND_ENVIRONMENT_QUARRY — industrial pit
-	"18" = list(0, null, -1500, -300, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
-	// SOUND_ENVIRONMENT_PLAIN — open field
-	"19" = list(0, null, -8000, null, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
-	// SOUND_ENVIRONMENT_PARKING_LOT — open reflective
-	"20" = list(0, null, -3500, -800, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
-	// SOUND_ENVIRONMENT_SEWER_PIPE — metal pipe
-	"21" = list(0, null, -1000, -100, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
-	// SOUND_ENVIRONMENT_UNDERWATER — muffled
-	"22" = list(0, null, -8000, null, null, null, null, null, null, null, null, null, null, 1, 0.3, 0.3, null, 7),
-	// SOUND_ENVIRONMENT_DRUGGED — weird
-	"23" = list(0, null, -500, -1000, null, null, null, null, null, null, null, null, null, 1, 2, 1, null, 7),
-	// SOUND_ENVIRONMENT_DIZZY — disorienting
-	"24" = list(0, null, -500, -2000, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
-	// SOUND_ENVIRONMENT_PSYCHOTIC — extreme
-	"25" = list(0, null, -300, -3000, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
+	// SOUND_ENVIRONMENT_ROOM — небольшая комната, лёгкое эхо
+	"2"  = list(0, null, -800, -150, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
+	// SOUND_ENVIRONMENT_BATHROOM — кафель, звонкое эхо
+	"3"  = list(0, null, -400, -30, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
+	// SOUND_ENVIRONMENT_LIVINGROOM — мягкая мебель, тёплое эхо
+	"4"  = list(0, null, -1000, -400, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
+	// SOUND_ENVIRONMENT_STONEROOM — камень, среднее эхо
+	"5"  = list(0, null, -500, -100, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
+	// SOUND_ENVIRONMENT_AUDITORIUM — большое помещение, длинное эхо
+	"6"  = list(0, null, -300, -200, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
+	// SOUND_ENVIRONMENT_CONCERT_HALL — очень длинное чистое эхо
+	"7"  = list(0, null, -150, -300, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
+	// SOUND_ENVIRONMENT_CAVE — длинное тёмное эхо
+	"8"  = list(0, null, -500, -600, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
+	// SOUND_ENVIRONMENT_ARENA — огромное пространство
+	"9"  = list(0, null, -200, -400, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
+	// SOUND_ENVIRONMENT_HANGAR — сильный металлический ревербератор (тех-зоны)
+	"10" = list(0, null, -250, -50, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
+	// SOUND_ENVIRONMENT_CARPETED_HALLWAY — мягкий коридор
+	"11" = list(0, null, -800, -400, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
+	// SOUND_ENVIRONMENT_HALLWAY — жёсткий коридор
+	"12" = list(0, null, -500, -150, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
+	// SOUND_ENVIRONMENT_STONE_CORRIDOR — каменный коридор
+	"13" = list(0, null, -400, -300, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
+	// SOUND_ENVIRONMENT_ALLEY — узкая улица, небольшое эхо
+	"14" = list(0, null, -1500, -400, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
+	// SOUND_ENVIRONMENT_FOREST — открытая природа, минимум эха
+	"15" = list(0, null, -4000, -1500, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
+	// SOUND_ENVIRONMENT_CITY — городская среда
+	"16" = list(0, null, -1500, -800, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
+	// SOUND_ENVIRONMENT_MOUNTAINS — большое открытое пространство, отчётливое эхо
+	"17" = list(0, null, -500, -600, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
+	// SOUND_ENVIRONMENT_QUARRY — индустриальный карьер (тех-зоны)
+	"18" = list(0, null, -500, -200, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
+	// SOUND_ENVIRONMENT_PLAIN — открытое поле
+	"19" = list(0, null, -6000, null, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
+	// SOUND_ENVIRONMENT_PARKING_LOT — открытое бетонное пространство (тех-зоны)
+	"20" = list(0, null, -1500, -500, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
+	// SOUND_ENVIRONMENT_SEWER_PIPE — металлическая труба, звонкое эхо (тех-зоны)
+	"21" = list(0, null, -350, -30, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
+	// SOUND_ENVIRONMENT_UNDERWATER — под водой, глухо
+	"22" = list(0, null, -6000, null, null, null, null, null, null, null, null, null, null, 1, 0.3, 0.3, null, 7),
+	// SOUND_ENVIRONMENT_DRUGGED — странное эхо
+	"23" = list(0, null, -300, -800, null, null, null, null, null, null, null, null, null, 1, 2, 1, null, 7),
+	// SOUND_ENVIRONMENT_DIZZY — дезориентирующее эхо
+	"24" = list(0, null, -300, -1500, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
+	// SOUND_ENVIRONMENT_PSYCHOTIC — экстремальное эхо
+	"25" = list(0, null, -100, -3000, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7),
 ))
 
-/// Возращаем лист для наложения эффекта
 /proc/get_sound_environment_echo(environment, distance = 0, max_distance = 0)
-	var/echo_key = num2text(environment)
-	var/list/echo_template = GLOB.sound_environment_echo[echo_key]
-	if(!echo_template)
+	var/list/echo = GLOB.sound_environment_echo[num2text(environment)]
+	if(!echo)
 		return list(0, null, -10000, null, null, null, null, null, null, null, null, null, null, 1, 1, 1, null, 7)
 
-	var/list/echo = echo_template.Copy()
-	if(length(echo) < 18)
+	if(!max_distance || !distance)
 		return echo
 
-	if(max_distance > 0 && distance > 0)
-		var/distance_ratio = min(distance / max(max_distance, 1), 1)
-		var/room_val = echo[3]
+	var/distance_ratio = min(distance / max(max_distance, 1), 1)
+	var/list/copy = echo.Copy()
+	if(length(copy) >= 3)
+		var/room_val = copy[3]
 		if(isnum(room_val) && room_val < 0)
-			echo[3] = round(room_val + (room_val * distance_ratio * 0.3))
-
-	return echo
+			copy[3] = round(room_val + (room_val * distance_ratio * 0.3))
+	return copy
 
 /proc/get_rand_frequency()
 	return rand(32000, 55000)

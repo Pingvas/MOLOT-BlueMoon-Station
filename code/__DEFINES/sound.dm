@@ -53,6 +53,10 @@
 /// Мультплаер для джубокса
 #define JUKEBOX_POSITION_MULTIPLIER 2.5
 
+/// Приоритет звука при выделении каналов
+#define SOUND_PRIORITY_LOW 0
+#define SOUND_PRIORITY_NORMAL 1
+#define SOUND_PRIORITY_HIGH 2
 
 //Ambience types
 
