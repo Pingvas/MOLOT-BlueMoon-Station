@@ -88,6 +88,7 @@
 
 	var/atom/movable/screen/navigate_arrow/arrow = new(null, user_hud)
 	arrow.color = arrow_color
+	arrow.screen_loc = around_player
 	arrow.transform = matrix(dir2angle(dir), MATRIX_ROTATE)
 
 	user_hud.infodisplay += arrow
@@ -485,7 +486,8 @@
 	icon = 'icons/effects/multitool_arrows.dmi'
 	icon_state = "navigate_arrow_appear"
 	name = "navigate arrow"
-	screen_loc = "CENTER-1:-32,CENTER-1:-32"
+	pixel_x = -32
+	pixel_y = -32
 
 /atom/movable/screen/navigate_arrow/Destroy()
 	if(hud)
