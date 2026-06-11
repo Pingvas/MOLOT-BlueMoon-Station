@@ -21,6 +21,7 @@
 	var/use_reverb = TRUE
 	var/ignore_walls = TRUE
 	var/skip_starting_sounds = FALSE
+	var/track_movement = FALSE
 
 	var/atom/parent
 	var/timer_id
@@ -114,6 +115,9 @@
 			falloff_distance = falloff_distance,
 			use_reverb = use_reverb,
 		)
+	if(track_movement && !direct && loop_started && sound_to_play.channel)
+		var/used_channel = sound_to_play.channel
+		addtimer(CALLBACK(src, PROC_REF(refresh_spatial_position), used_channel), mid_length * 0.5, TIMER_CLIENT_TIME | TIMER_DELETE_ME)
 
 /datum/looping_sound/proc/get_sound(_mid_sounds)
 	var/list/play_from = _mid_sounds || mid_sounds
@@ -164,6 +168,18 @@
 		return
 	var/mob/mob_parent = parent
 	mob_parent.stop_sound_channel(sound_channel)
+
+/datum/looping_sound/proc/refresh_spatial_position(channel)
+	if(!parent || !loop_started)
+		return
+	var/turf/source_turf = get_turf(parent)
+	if(!source_turf)
+		return
+	var/audible_distance = SOUND_RANGE + extra_range
+	var/list/listeners = get_hearers_in_range(audible_distance, source_turf)
+	for(var/mob/listener in listeners)
+		if(listener.client)
+			listener.update_sound_spatial_position(channel, parent)
 
 /datum/looping_sound/proc/on_stop()
 	if(end_sound && loop_started)

@@ -148,6 +148,20 @@
 	S.status = SOUND_UPDATE
 	SEND_SOUND(src, S)
 
+/mob/proc/update_sound_spatial_position(channel, atom/source, distance_multiplier = SOUND_DEFAULT_DISTANCE_MULTIPLIER)
+	if(QDELETED(src) || !isnum(channel) || channel <= 0)
+		return
+	var/turf/source_turf = get_turf(source)
+	var/turf/listener_turf = get_turf(src)
+	if(!source_turf || !listener_turf)
+		return
+	var/sound/S = sound(null, FALSE, FALSE, channel)
+	S.status = SOUND_UPDATE
+	S.x = (source_turf.x - listener_turf.x) * distance_multiplier
+	S.z = (source_turf.y - listener_turf.y) * distance_multiplier
+	S.y = (source_turf.z - listener_turf.z) * 5 * distance_multiplier
+	SEND_SOUND(src, S)
+
 /client/proc/playtitlemusic(vol = 85)
 	set waitfor = FALSE
 	UNTIL(SSticker.login_music)
