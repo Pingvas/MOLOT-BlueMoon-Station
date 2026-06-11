@@ -5,8 +5,6 @@
 		CRASH("playsound(): soundin attempted to pass a list! Consider using pick()")
 	if(!soundin)
 		return
-	if(vol < SOUND_AUDIBLE_VOLUME_MIN)
-		CRASH("playsound(): volume below SOUND_AUDIBLE_VOLUME_MIN. [vol] < [SOUND_AUDIBLE_VOLUME_MIN]")
 
 	var/turf/turf_source = get_turf(source)
 	if(!turf_source)
@@ -98,9 +96,6 @@
 				pressure_factor = max(pressure_factor, 0.15)
 
 			S.volume *= pressure_factor
-
-		if(S.volume < SOUND_AUDIBLE_VOLUME_MIN)
-			return
 
 		var/dx = turf_source.x - turf_loc.x
 		S.x = dx * distance_multiplier
