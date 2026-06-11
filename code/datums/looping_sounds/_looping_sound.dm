@@ -88,7 +88,7 @@
 	var/sound/S = sound(soundfile)
 	if(direct)
 		S.channel = SSsounds.random_available_channel()
-		S.volume = volume_override || volume //Use volume as fallback if theres no override
+		S.volume = volume_override || volume
 		SEND_SOUND(parent, S)
 	else
 		playsound(parent, S, volume, vary, extra_range, falloff_exponent = falloff_exponent, falloff_distance = falloff_distance)

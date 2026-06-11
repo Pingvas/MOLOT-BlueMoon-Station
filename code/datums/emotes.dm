@@ -186,8 +186,6 @@
 
 	// Default range modifier
 	var/emote_range = -1
-	var/emote_distance_multiplier = SOUND_DEFAULT_DISTANCE_MULTIPLIER
-	var/emote_distance_multiplier_min_range = SOUND_DEFAULT_MULTIPLIER_EFFECT_RANGE
 
 	// Default pitch variance
 	var/emote_pitch_variance = 1
@@ -230,7 +228,7 @@
 /datum/emote/sound/run_emote(mob/user, params)
 	. = ..()
 	if(. && !(user?.is_muzzled() && !muzzle_ignore))
-		playsound(user.loc, sound, emote_volume, emote_pitch_variance, emote_range, emote_falloff_exponent, emote_frequency, emote_channel, emote_check_pressure, emote_ignore_walls, emote_falloff_distance, emote_wetness, emote_dryness, emote_distance_multiplier, emote_distance_multiplier_min_range)
+		playsound(user.loc, sound, emote_volume, emote_pitch_variance, emote_range, emote_falloff_exponent, emote_frequency, emote_channel, emote_check_pressure, emote_ignore_walls, emote_falloff_distance, emote_wetness, emote_dryness)
 
 		//Cooldown.
 		user.nextsoundemote = world.time + emote_cooldown

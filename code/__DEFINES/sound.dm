@@ -42,19 +42,16 @@
 #define SHORT_RANGE_SOUND_EXTRARANGE -9
 ///The range deducted from sound range for things that are considered silent / sneaky
 #define SILENCED_SOUND_EXTRARANGE -11
-///Percentage of sound's range where no falloff is applied
-#define SOUND_DEFAULT_FALLOFF_DISTANCE 1 //For a normal sound this would be 1 tile of no falloff
-///The default exponent of sound falloff
-#define SOUND_FALLOFF_EXPONENT 7.5
-/// Default distance multiplier for sounds
-#define SOUND_DEFAULT_DISTANCE_MULTIPLIER 2.5
-/// Default range at which sound distance multiplier applies
-#define SOUND_DEFAULT_MULTIPLIER_EFFECT_RANGE 7
-
+/// Дистанция с которой начинается затухание звука
+#define SOUND_DEFAULT_FALLOFF_DISTANCE 1
+/// Экспонента затухания
+#define SOUND_FALLOFF_EXPONENT 2
 
 #define SOUND_MINIMUM_PRESSURE 10
-/// remove
+/// Минимальное затухание звука без определенного источника
 #define FALLOFF_SOUNDS 1
+/// Мультплаер для джубокса
+#define JUKEBOX_POSITION_MULTIPLIER 2.5
 
 
 //Ambience types

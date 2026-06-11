@@ -132,7 +132,7 @@
 		return FALSE
 	check_clapper(user)
 	//11 tiles of ding. The sound was specifically calibrated to be rather quiet, but far-spreading.
-	playsound(src, ring_sound, 50, vary = broken_ringer, extrarange = MEDIUM_RANGE_SOUND_EXTRARANGE, falloff_exponent = 1, distance_multiplier_min_range = 12)
+	playsound(src, ring_sound, 50, vary = broken_ringer, extrarange = MEDIUM_RANGE_SOUND_EXTRARANGE, falloff_exponent = 1)
 	flick("table-bell_ding", src)
 	times_rang++
 	return TRUE

@@ -410,7 +410,7 @@ GLOBAL_LIST_EMPTY_TYPED(transmitters, /obj/structure/transmitter)
 			if(next_ring < world.time)
 				// balloon_alert_to_viewers("Inconming call: [last_caller]")
 				say("Inconming call: [last_caller]")
-				playsound(loc, 'modular_bluemoon/sound/machines/telephone/telephone_ring.ogg', 75, FALSE, distance_multiplier = 1)
+				playsound(loc, 'modular_bluemoon/sound/machines/telephone/telephone_ring.ogg', 75, FALSE)
 				visible_message(span_warning("[src] rings vigorously!"))
 				next_ring = world.time + 3 SECONDS
 	else if(outbound_call)

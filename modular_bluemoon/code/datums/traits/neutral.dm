@@ -50,14 +50,12 @@
 	emote_volume = 100
 	emote_range = MEDIUM_RANGE_SOUND_EXTRARANGE
 	emote_falloff_exponent = 1
-	emote_distance_multiplier_min_range = 12
 	emote_ignore_walls = TRUE
 
 /datum/emote/sound/human/howl
 	emote_volume = 100
 	emote_range = MEDIUM_RANGE_SOUND_EXTRARANGE
 	emote_falloff_exponent = 1
-	emote_distance_multiplier_min_range = 12
 	emote_ignore_walls = TRUE
 // TRAITT_AWOO END
 
