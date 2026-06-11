@@ -87,7 +87,7 @@
 	var/datum/map_generator/map_generator
 
 	///Used to decide what kind of reverb the area makes sound have
-	var/sound_environment = SOUND_ENVIRONMENT_NONE
+	var/sound_environment = SOUND_AREA_STANDARD_STATION
 
 	/// CIT SPECIFIC VARS
 

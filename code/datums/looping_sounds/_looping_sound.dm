@@ -56,7 +56,7 @@
 	if(timer_id)
 		return
 
-	if(!sound_channel && reserve_random_channel)
+	if(!sound_channel && (track_movement || reserve_random_channel))
 		sound_channel = SSsounds.reserve_sound_channel_datumless()
 		reserved_channel = sound_channel
 
