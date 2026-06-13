@@ -194,6 +194,9 @@
 				to_chat(src, "<span class='notice'>PM к <b>Админам</b>: <span class='linkify'>[msg]</span></span>", confidential = TRUE)
 				if(current_ticket)
 					SSblackbox.LogAhelp(current_ticket.id, "Reply", msg, recipient.ckey, src.ckey)
+				if(recipient.prefs.toggles & SOUND_ADMINHELP)
+					SEND_SOUND(recipient, sound('sound/effects/adminhelp.ogg'))
+				window_flash(recipient, ignorepref = TRUE)
 
 			//play the receiving admin the adminhelp sound (if they have them enabled)
 			if(recipient.prefs.toggles & SOUND_ADMINHELP)

@@ -259,7 +259,7 @@ export const AdminTicketPanel = (props, context) => {
                 </Box>
               </Flex>
             ) : (
-              <TicketDetailPanel ticket={selectedTicket} act={act} />
+              <TicketDetailPanel ticket={selectedTicket} act={act} data={data} />
             )}
           </Flex.Item>
         </Flex>
@@ -332,7 +332,7 @@ const TicketListItem = (props) => {
 };
 
 const TicketDetailPanel = (props, context) => {
-  const { ticket, act } = props;
+  const { ticket, act, data } = props;
   const [replyMessage, setReplyMessage] = useLocalState(
     context,
     'replyMessage',
@@ -592,6 +592,12 @@ const TicketDetailPanel = (props, context) => {
           scrollable
           buttons={
             <Flex align="center">
+              <Icon
+                name="sync"
+                color={data.time ? 'green' : 'gray'}
+                mr={1}
+                opacity={data.time ? 1 : 0.3}
+              />
               <Button
                 icon="sync"
                 tooltip="Обновить"
@@ -618,6 +624,14 @@ const TicketDetailPanel = (props, context) => {
               dangerouslySetInnerHTML={{ __html: msg }}
             />
           ))}
+          <div ref={(node) => {
+            if (node) {
+              const parent = node.parentElement?.closest('.Section__content');
+              if (parent) {
+                parent.scrollTop = parent.scrollHeight;
+              }
+            }
+          }} key={(ticket.interactions || []).length} />
         </Section>
       </Stack.Item>
       {isActive && (

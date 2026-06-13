@@ -363,6 +363,28 @@ GLOBAL_VAR_INIT(nt_fax_department, pick("NT HR Department", "NT Legal Department
 	INVOKE_ASYNC(src, PROC_REF(animate_object_travel), loaded, "fax_receive", find_overlay_state(loaded, "receive"))
 	say("Received correspondence from [sender_name].")
 	history_add("Receive", sender_name)
+
+	// Добавляем в лог сообщений для панели тикетов
+	var/paper_text
+	var/obj/item/paper/paper = loaded
+	if(istype(paper))
+		paper_text = paper.get_raw_text()
+	else
+		paper_text = loaded.name
+	var/list/message_log = list()
+	message_log["message"] = "Получен факс от [sender_name]: [paper_text]"
+	message_log["sender_name"] = sender_name
+	message_log["sender_ckey"] = null
+	message_log["time_sent"] = world.time
+	message_log["handled"] = FALSE
+	LAZYADD(GLOB.centcom_communications_messages, list(message_log))
+
+	// Уведомление администрации
+	to_chat(GLOB.admins, span_adminnotice("<b><font color=green>ПОЛУЧЕН ФАКС: </font>[sender_name]</b>: [paper_text]"))
+	for(var/client/staff as anything in GLOB.admins)
+		SEND_SOUND(staff, sound('sound/machines/twobeep_high.ogg'))
+		window_flash(staff, ignorepref = TRUE)
+
 	addtimer(CALLBACK(src, PROC_REF(vend_item), loaded), 1.9 SECONDS)
 
 /**

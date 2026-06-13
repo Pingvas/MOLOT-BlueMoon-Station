@@ -640,9 +640,11 @@
 		if(target)
 			var/turf/turf_loc = get_turf(target)
 			if(turf_loc)
-				for(var/mob/nearby as anything in hearers(4, turf_loc))
-				if(nearby.client)
-					to_chat(nearby, span_notice("[icon2html(src, nearby)] *[ringtone]*"))
+				for(var/mob/nearby in hearers(4, turf_loc))
+					if(nearby.client)
+						to_chat(nearby, span_notice("[icon2html(src, nearby)] *[ringtone]*"))
+
+
 
 /// Plays a sound to indicate a message was sent.
 /obj/item/modular_computer/proc/send_sound()
