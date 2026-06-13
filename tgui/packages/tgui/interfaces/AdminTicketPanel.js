@@ -48,7 +48,7 @@ export const AdminTicketPanel = (props, context) => {
   const [tab, setTab] = useLocalState(context, 'tab', selected_state);
   const [selectedCommId, setSelectedCommId] = useLocalState(context, 'selectedCommId', null);
   const selectedComm =
-    selectedCommId != null
+    selectedCommId !== null
       ? communications.find((c) => c.id === selectedCommId) ?? null
       : null;
 
