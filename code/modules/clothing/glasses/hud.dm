@@ -80,7 +80,6 @@
 
 /obj/item/clothing/glasses/hud/health/night/update_icon_state()
 	. = ..()
-	icon_state = length(color_cutoffs) ? initial(icon_state) : "healthhudnight_off"
 
 /obj/item/clothing/glasses/hud/health/night/syndicate
 	name = "combat night vision health scanner HUD"
@@ -144,7 +143,6 @@
 
 /obj/item/clothing/glasses/hud/diagnostic/night/update_icon_state()
 	. = ..()
-	icon_state = length(color_cutoffs) ? initial(icon_state) : "diagnostichudnight_off"
 
 ////////////
 //Sec Huds//
@@ -281,7 +279,6 @@
 
 /obj/item/clothing/glasses/hud/security/night/update_icon_state()
 	. = ..()
-	icon_state = length(color_cutoffs) ? initial(icon_state) : "securityhudnight_off"
 
 /obj/item/clothing/glasses/night/syndicate/red // this lives here due to icon_state reference
 	icon_state = "securityhudnight"

@@ -103,7 +103,6 @@
 
 /obj/item/clothing/glasses/meson/night/update_icon_state()
 	. = ..()
-	icon_state = length(color_cutoffs) ? initial(icon_state) : "nvgmeson_off"
 
 /obj/item/clothing/glasses/meson/night/ert
 	name = "night vision meson scanner"
@@ -159,7 +158,6 @@
 
 /obj/item/clothing/glasses/night/update_icon_state()
 	. = ..()
-	icon_state = length(color_cutoffs) ? initial(icon_state) : "night_off"
 
 /obj/item/clothing/glasses/night/prescription/Initialize(mapload)
 	. = ..()
