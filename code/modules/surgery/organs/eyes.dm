@@ -256,9 +256,9 @@
 /obj/item/organ/eyes/robotic/toggled/thermals/toggle(silent)
 	if(active)
 		sight_flags &= ~(initial(sight_flags))
-		lighting_alpha = parent_type:lighting_alpha
-		color_cutoffs = parent_type:color_cutoffs
-		flash_protect = parent_type:flash_protect
+		lighting_alpha = initial(lighting_alpha)
+		color_cutoffs = initial(color_cutoffs)
+		flash_protect = initial(flash_protect)
 	else
 		sight_flags |= (initial(sight_flags))
 		lighting_alpha = initial(lighting_alpha)

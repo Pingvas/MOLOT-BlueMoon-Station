@@ -342,6 +342,8 @@
 		return
 	vision_flags = NONE
 	darkness_view = 0
+	lighting_cutoff = 0
+	color_cutoffs = null
 	flash_protect = 0
 	thermal_overload()
 

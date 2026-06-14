@@ -3001,6 +3001,7 @@
 /datum/reagent/luminescent_fluid/on_mob_end_metabolize(mob/living/affected_mob)
 	. = ..()
 	QDEL_NULL(glowing)
+	added_light = FALSE
 	if(!ishuman(affected_mob))
 		return
 

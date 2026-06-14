@@ -1610,7 +1610,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 							// UI tweak end
 							dat += "</b><a style='display:block;width:100px' href='?_src_=prefs;preference=toggle_split_eyes;task=input'>[split_eye_colors ? enabled_label : disabled_label]</a>"
 							var/emissive_eyes_on = features["emissive_eyes"]
-							dat += "<h3>Glowing Eyes</h3>"
+							var/glowing_eyes_label = src.use_modern_translations ? get_modern_text("glowing_eyes", src) : "Glowing Eyes"
+							dat += "<h3>[glowing_eyes_label]</h3>"
 							dat += "<a style='display:block;width:100px' href='?_src_=prefs;preference=toggle_emissive_eyes;task=input'>[emissive_eyes_on ? enabled_label : disabled_label]</a>"
 							if(!split_eye_colors)
 								dat += "<h3>[eye_color_label]</h3>"
