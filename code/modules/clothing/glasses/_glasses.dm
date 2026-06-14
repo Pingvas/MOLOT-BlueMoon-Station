@@ -527,6 +527,8 @@
 	darkness_view = 8
 	clothing_flags = SCAN_REAGENTS
 	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
+	lighting_cutoff = LIGHTING_CUTOFF_FULLBRIGHT
+	color_cutoffs = list(30, 30, 30)
 	resistance_flags = LAVA_PROOF | FIRE_PROOF
 
 /obj/item/clothing/glasses/godeye/Initialize(mapload)
@@ -586,6 +588,8 @@
 	darkness_view = 8
 	flash_protect = 2
 	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
+	lighting_cutoff = LIGHTING_CUTOFF_FULLBRIGHT
+	color_cutoffs = list(30, 30, 30)
 	glass_colour_type = FALSE
 	clothing_flags = SCAN_REAGENTS
 	vision_flags = SEE_TURFS

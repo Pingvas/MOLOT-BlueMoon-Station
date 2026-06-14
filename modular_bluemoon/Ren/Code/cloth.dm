@@ -330,6 +330,8 @@
 	darkness_view = 3
 	flash_protect = -3
 	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
+	lighting_cutoff = LIGHTING_CUTOFF_HIGH
+	color_cutoffs = list(30, 20, 5)
 	vision_flags = SEE_TURFS|SEE_MOBS|SEE_OBJS
 	glass_colour_type = /datum/client_colour/glass_colour/orange
 

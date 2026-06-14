@@ -548,6 +548,8 @@
 	desc = "These eyes seem to have increased sensitivity to bright light, offset by basic night vision."
 	see_in_dark = 4
 	flash_protect = -1
+	low_light_cutoff = list(2, 8, 2)
+	medium_light_cutoff = list(5, 15, 5)
 
 #undef BLURRY_VISION_ONE
 #undef BLURRY_VISION_TWO
