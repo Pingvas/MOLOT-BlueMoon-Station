@@ -164,9 +164,23 @@ SUBSYSTEM_DEF(pai)
 				continue
 			if(!(ROLE_PAI in G.client.prefs.be_special))
 				continue
-			if(!G.can_reenter_round()) // this should use notify_ghosts() instead one day.
+			if(!G.can_reenter_round())
 				return FALSE
-			to_chat(G, "<span class='ghostalert'>[user] is requesting a pAI personality! Use the pAI button to submit yourself as one.</span>")
+			window_flash(G.client)
+			if(istype(p, /obj/item/paicard/syndicate))
+				to_chat(G, "<span class='ghostalert'>[user] ищет личность для синдикатского pAI! (Роль помощника антагониста — вы помогаете носителю в его целях, даже если они противоречат закону.)</span>")
+				var/atom/movable/screen/alert/notify_action/A = G.throw_alert("[REF(p)]_pai", /atom/movable/screen/alert/notify_action)
+				if(A)
+					A.name = "Синдикатский pAI"
+					A.desc = "[user] ищет личность для синдикатского pAI! Нажмите, чтобы перейти к карте."
+					A.target = p
+			else
+				to_chat(G, "<span class='ghostalert'>[user] ищет личность для pAI! (Гостевая роль — вы не антагонист. Помогайте носителю и следуйте директивам.)</span>")
+				var/atom/movable/screen/alert/notify_action/A = G.throw_alert("[REF(p)]_pai", /atom/movable/screen/alert/notify_action)
+				if(A)
+					A.name = "pAI"
+					A.desc = "[user] ищет личность для pAI! Нажмите, чтобы перейти к карте."
+					A.target = p
 		addtimer(CALLBACK(src, PROC_REF(spam_again)), spam_delay)
 	var/list/available = list()
 	for(var/datum/paiCandidate/c in SSpai.candidates)

@@ -1,21 +1,68 @@
 // Syndicate pAI
 
+/datum/antagonist/syndicate_pai
+	name = "Syndicate pAI"
+	job_rank = ROLE_PAI
+	show_to_ghosts = TRUE
+	show_in_antagpanel = TRUE
+	antag_hud_type = ANTAG_HUD_TRAITOR
+	antag_hud_name = "traitor"
+	soft_antag = TRUE
+
+/datum/antagonist/syndicate_pai/apply_innate_effects(mob/living/mob_override)
+	. = ..()
+	var/mob/M = owner?.current
+	if(M)
+		var/datum/atom_hud/antag/hud = GLOB.huds[antag_hud_type]
+		if(hud)
+			hud.join_hud(M)
+			set_antag_hud(M, antag_hud_name)
+
+/datum/antagonist/syndicate_pai/remove_innate_effects(mob/living/mob_override)
+	. = ..()
+	var/mob/M = owner?.current
+	if(M)
+		var/datum/atom_hud/antag/hud = GLOB.huds[antag_hud_type]
+		if(hud)
+			hud.leave_hud(M)
+			set_antag_hud(M, null)
+
 /mob/living/silicon/pai/syndicate
 	name = "Syndicate pAI"
 	desc = "Мобильный голографический излучатель твёрдого света pAI Синдиката. Кажется, он деактивирован."
 	software = list("thermal vision", "chemical injector")
+	syndicate_model = TRUE
 	var/chemical_injector_active = FALSE
 	var/chemical_storage = 0
 	var/chemical_max = 30
 	var/chemical_regen_time = 0
 
 /mob/living/silicon/pai/syndicate/Initialize(mapload)
+	syndicate_model = TRUE
 	. = ..()
+	if(cell)
+		QDEL_NULL(cell)
+	cell = new /obj/item/stock_parts/cell/bluespace(src)
+	cell.charge = cell.maxcharge
 	if(radio)
 		QDEL_NULL(radio)
 	radio = new /obj/item/radio/headset/silicon/pai/syndicate(src)
 	if(pda)
 		pda.store_file(new /datum/computer_file/program/secureye())
+
+/mob/living/silicon/pai/syndicate/proc/apply_syndicate_antag()
+	if(!mind.has_antag_datum(/datum/antagonist/syndicate_pai))
+		mind.special_role = ROLE_PAI
+		mind.add_antag_datum(/datum/antagonist/syndicate_pai)
+
+/mob/living/silicon/pai/syndicate/Login()
+	. = ..()
+	if(mind)
+		apply_syndicate_antag()
+
+/mob/living/silicon/pai/syndicate/mind_initialize()
+	. = ..()
+	apply_syndicate_antag()
 
 /mob/living/silicon/pai/syndicate/BiologicalLife(delta_time, times_fired)
 	. = ..()
@@ -29,6 +76,9 @@
 /mob/living/silicon/pai/syndicate/proc/toggle_thermal_vision()
 	thermal_vision_active = !thermal_vision_active
 	if(thermal_vision_active)
+		if(!use_power(500))
+			thermal_vision_active = FALSE
+			return
 		sight |= SEE_MOBS
 		lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_VISIBLE
 		to_chat(src, "<span class='notice'>Термальное зрение активировано.</span>")
@@ -39,6 +89,9 @@
 	update_sight()
 
 /mob/living/silicon/pai/syndicate/proc/inject_chemicals()
+	if(!use_power(300))
+		to_chat(src, "<span class='warning'>Недостаточно энергии для инъекции.</span>")
+		return
 	if(!chemical_injector_active)
 		to_chat(src, "<span class='warning'>Инъектор не активирован.</span>")
 		return
@@ -83,6 +136,7 @@
 
 /mob/living/silicon/pai/syndicate/ui_data(mob/user)
 	var/list/data = ..()
+	data["syndicate_model"] = TRUE
 	data["thermal_vision"] = thermal_vision_active
 	data["chemical_injector"] = chemical_injector_active
 	data["chemical_storage"] = chemical_storage

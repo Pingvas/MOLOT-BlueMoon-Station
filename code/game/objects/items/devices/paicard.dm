@@ -8,6 +8,7 @@
 	w_class = WEIGHT_CLASS_SMALL
 	slot_flags = ITEM_SLOT_BELT
 	var/mob/living/silicon/pai/pai
+	var/panel_open = FALSE
 	resistance_flags = FIRE_PROOF | ACID_PROOF
 	max_integrity = 200
 
@@ -122,6 +123,7 @@
 
 /obj/item/paicard/proc/setPersonality(mob/living/silicon/pai/personality)
 	src.pai = personality
+	personality.card = src
 	src.add_overlay("pai-null")
 	var/list/policies = CONFIG_GET(keyed_list/policy)
 	var/policy = policies[POLICYCONFIG_PAI]
@@ -170,6 +172,11 @@
 	name = "Syndicate personal AI device"
 	desc = "A Syndicate-modified personal AI device. It seems to be deactivated."
 	icon_state = "pai"
+
+/obj/item/paicard/get_cell()
+	if(pai?.cell)
+		return pai.cell
+	return ..()
 
 /obj/item/paicard/emp_act(severity)
 	. = ..()
