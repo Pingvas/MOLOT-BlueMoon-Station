@@ -490,7 +490,7 @@
 	icon_state = "glowstick"
 	item_state = "glowstick"
 	cone_angle = 0
-	grind_results = list(/datum/reagent/luminescent_fluid = 30)
+	grind_results = list(/datum/reagent/phenol = 15, /datum/reagent/hydrogen = 10, /datum/reagent/oxygen = 5, /datum/reagent/luminescent_fluid = 15) //Meth-in-a-stick
 	rad_flags = RAD_NO_CONTAMINATE
 	electronic = FALSE // BLUEMOON ADD
 	flags_1 = NONE // BLUEMOON ADD
