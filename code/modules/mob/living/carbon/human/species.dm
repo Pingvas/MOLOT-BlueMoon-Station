@@ -901,23 +901,6 @@ GLOBAL_LIST_EMPTY(roundstart_race_names)
 					right_eye_emissive.category = "HEAD"
 					standing += left_eye_emissive
 					standing += right_eye_emissive
-					// Видимый оверлей для всех игроков
-					var/mutable_appearance/left_eye_visible = mutable_appearance(left_eye.icon, left_eye.icon_state, -BODY_LAYER)
-					var/mutable_appearance/right_eye_visible = mutable_appearance(right_eye.icon, right_eye.icon_state, -BODY_LAYER)
-					left_eye_visible.color = left_eye.color
-					right_eye_visible.color = right_eye.color
-					left_eye_visible.pixel_x = left_eye.pixel_x
-					left_eye_visible.pixel_y = left_eye.pixel_y
-					right_eye_visible.pixel_x = right_eye.pixel_x
-					right_eye_visible.pixel_y = right_eye.pixel_y
-					left_eye_visible.alpha = 80
-					right_eye_visible.alpha = 80
-					left_eye_visible.blend_mode = BLEND_ADD
-					right_eye_visible.blend_mode = BLEND_ADD
-					left_eye_visible.category = "HEAD"
-					right_eye_visible.category = "HEAD"
-					standing += left_eye_visible
-					standing += right_eye_visible
 
 	/* skyrat edit
 	//Underwear, Undershirts & Socks
