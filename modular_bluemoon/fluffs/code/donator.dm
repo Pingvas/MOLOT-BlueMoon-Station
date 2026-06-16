@@ -2444,6 +2444,6 @@
 
 /datum/gear/donator/bm/krieg_backpack
 	name = "Security winter coat"
-	slot = ITEM_SLOT_BACK
+	slot = ITEM_SLOT_OCLOTHING
 	path = /obj/item/clothing/suit/hooded/wintercoat/security/no_armor
 	ckeywhitelist = list("iistrizhii")
