@@ -899,6 +899,8 @@ GLOBAL_LIST_EMPTY(roundstart_race_names)
 					right_eye_emissive.pixel_y = right_eye.pixel_y
 					left_eye_emissive.category = "HEAD"
 					right_eye_emissive.category = "HEAD"
+					left_eye_emissive.appearance_flags = KEEP_TOGETHER|TILE_BOUND|PIXEL_SCALE // ЗАМЕТКА НА БУДУЩЕЕ ЕСЛИ КТО БУДЕТ ДЕЛАТЬ СВЕТЯЩИЕСЯ ЧАСТИ ТЕЛА
+					right_eye_emissive.appearance_flags = KEEP_TOGETHER|TILE_BOUND|PIXEL_SCALE // ЕБАННАЯ МАСКА ЭММЕСИВ-ПЛЕЙНА ДЫРЯВИТ ОСВЕЩЕНИЕ И ПРОСТРАНСТВО КАК БАРБОСИК ВАГИНУ БЕЛОЙ ЖЕНЩИНЫ. ПРОПИСЫВАЙТЕ ФЛАГИ KEEP_TOGETHER|TILE_BOUND|PIXEL_SCALE И СТО ЛЕТ БЕД ЗНАТЬ НЕ БУДЕТЕ.
 					standing += left_eye_emissive
 					standing += right_eye_emissive
 
