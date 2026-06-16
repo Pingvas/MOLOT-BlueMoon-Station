@@ -939,23 +939,26 @@
 			return TRUE
 		if("buy")
 			var/target = params["buy"]
-			if(available_software.Find(target) && !software.Find(target))
-				var/cost = available_software[target]
-				if((target in list("thermal vision", "chemical injector", "weakened ai capability")) && !syndicate_model)
-					temp = "Данный модуль доступен только Syndicate pAI."
-				else if(ram >= cost)
-					software.Add(target)
-					ram -= cost
-					switch(target)
-						if("projection array")
-							action_shell.Grant(src)
-							action_chassis.Grant(src)
-							action_rest.Grant(src)
-							action_custom_holoform.Grant(src)
-						if("flashlight")
-							action_light.Grant(src)
+			if(available_software.Find(target))
+				if(software.Find(target))
+					temp = "Модуль уже установлен."
 				else
-					temp = "Недостаточно ОЗУ."
+					var/cost = available_software[target]
+					if((target in list("thermal vision", "chemical injector", "weakened ai capability")) && !syndicate_model)
+						temp = "Данный модуль доступен только Syndicate pAI."
+					else if(ram >= cost)
+						software.Add(target)
+						ram -= cost
+						switch(target)
+							if("projection array")
+								action_shell.Grant(src)
+								action_chassis.Grant(src)
+								action_rest.Grant(src)
+								action_custom_holoform.Grant(src)
+							if("flashlight")
+								action_light.Grant(src)
+					else
+						temp = "Недостаточно ОЗУ."
 			else
 				temp = "Модуль \"[target]\" не найден."
 			return TRUE
@@ -1006,6 +1009,11 @@
 							lighting_alpha = initial(lighting_alpha)
 							update_sight()
 					if("chemical injector")
+						if(istype(src, /mob/living/silicon/pai/syndicate))
+							var/mob/living/silicon/pai/syndicate/S = src
+							if(S.chemical_injector_active)
+								S.chemical_injector_active = FALSE
+							S.chemical_storage = 0
 					if("loudness booster")
 						QDEL_NULL(internal_instrument)
 					if("projection array")
@@ -1131,16 +1139,18 @@
 		if("toggle_translator")
 			grant_all_languages(source = LANGUAGE_SOFTWARE)
 			return TRUE
+		if("save_encoder")
+			var/new_name = params["name"]
+			var/new_job = params["job"]
+			if(new_name)
+				encoder_name = new_name
+				encoder_job = new_job
+				encoder_active = TRUE
+				var/job_display = encoder_job ? encoder_job : "N/A"
+				to_chat(src, "<span class='notice'>Энкодер активирован. Голос: [encoder_name], Должность: [job_display]</span>")
+			return TRUE
 		if("toggle_encoder")
-			if(!encoder_active)
-				var/new_name = tgui_input_text(src, "Введите поддельное имя", "Encoder", max_length = 50)
-				var/new_job = tgui_input_text(src, "Введите поддельную должность", "Encoder", max_length = 50)
-				if(new_name)
-					encoder_name = new_name
-					encoder_job = new_job
-					encoder_active = TRUE
-					to_chat(src, "<span class='notice'>Энкодер активирован. Голос: [encoder_name], Должность: [encoder_job ? encoder_job : "N/A"]</span>")
-			else
+			if(encoder_active)
 				encoder_active = FALSE
 				to_chat(src, "<span class='notice'>Энкодер деактивирован.</span>")
 			return TRUE
@@ -1204,9 +1214,12 @@
 			if(!use_power(100))
 				temp = "Недостаточно энергии для открытия консоли камер."
 				return TRUE
-			if(!secureye_program)
-				secureye_program = new(src)
-			secureye_program.ui_interact(src)
+			var/datum/computer_file/program/secureye/SP = locate() in pda?.get_all_files()
+			if(SP)
+				SP.computer = pda
+				SP.run_program(src)
+				pda.active_program = SP
+				SP.ui_interact(src)
 			return TRUE
 		if("door_toggle_open")
 			if(!ai_capability)
@@ -1393,6 +1406,18 @@
 			if(!internal_instrument)
 				internal_instrument = new(src)
 			internal_instrument.ui_interact(src)
+			return TRUE
+		if("save_directives")
+			var/zeroth = params["zeroth"]
+			var/supplied_text = params["supplied"]
+			if(zeroth != null)
+				laws.zeroth = zeroth
+			if(supplied_text != null)
+				laws.supplied = splittext(supplied_text, "\n")
+				for(var/i = length(laws.supplied) to 1 step -1)
+					if(trim(laws.supplied[i]) == "")
+						laws.supplied.Cut(i, i+1)
+			to_chat(src, "<span class='notice'>Директивы обновлены.</span>")
 			return TRUE
 		if("medical_bioscan")
 			subscreen = 1

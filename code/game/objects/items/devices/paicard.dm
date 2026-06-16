@@ -173,6 +173,26 @@
 	desc = "A Syndicate-modified personal AI device. It seems to be deactivated."
 	icon_state = "pai"
 
+/obj/item/paicard/syndicate/setPersonality(mob/living/silicon/pai/personality)
+	. = ..()
+	log_world("PAI_DEBUG: syndicate card setPersonality pai=[personality] pai.type=[personality?.type]")
+	personality.syndicate_model = TRUE
+	personality.software = list("thermal vision", "chemical injector", "internal camera bug", "weakened ai capability")
+	if(istype(personality, /mob/living/silicon/pai/syndicate))
+		var/mob/living/silicon/pai/syndicate/S = personality
+		S.chemical_injector_active = TRUE
+	if(!istype(personality.cell, /obj/item/stock_parts/cell/bluespace))
+		log_world("PAI_DEBUG: forcing bluespace cell (was [personality.cell?.type])")
+		if(personality.cell)
+			QDEL_NULL(personality.cell)
+		personality.cell = new /obj/item/stock_parts/cell/bluespace(personality)
+		personality.cell.charge = personality.cell.maxcharge
+	if(!istype(personality.radio, /obj/item/radio/headset/silicon/pai/syndicate))
+		log_world("PAI_DEBUG: forcing syndicate radio (was [personality.radio?.type])")
+		if(personality.radio)
+			QDEL_NULL(personality.radio)
+		personality.radio = new /obj/item/radio/headset/silicon/pai/syndicate(personality)
+
 /obj/item/paicard/get_cell()
 	if(pai?.cell)
 		return pai.cell

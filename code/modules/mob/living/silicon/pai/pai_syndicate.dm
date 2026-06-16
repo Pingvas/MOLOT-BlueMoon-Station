@@ -30,8 +30,6 @@
 /mob/living/silicon/pai/syndicate
 	name = "Syndicate pAI"
 	desc = "Мобильный голографический излучатель твёрдого света pAI Синдиката. Кажется, он деактивирован."
-	software = list("thermal vision", "chemical injector")
-	syndicate_model = TRUE
 	var/chemical_injector_active = FALSE
 	var/chemical_storage = 0
 	var/chemical_max = 30
@@ -39,7 +37,11 @@
 
 /mob/living/silicon/pai/syndicate/Initialize(mapload)
 	syndicate_model = TRUE
+	chemical_injector_active = TRUE
+	software = list("thermal vision", "chemical injector", "internal camera bug", "weakened ai capability")
+	log_world("PAI_DEBUG: syndicate Initialize running mob=[src] type=[type]")
 	. = ..()
+	log_world("PAI_DEBUG: syndicate Initialize done cell=[cell?.type] cell_charge=[cell?.charge] radio=[radio?.type]")
 	if(cell)
 		QDEL_NULL(cell)
 	cell = new /obj/item/stock_parts/cell/bluespace(src)
@@ -56,13 +58,16 @@
 		mind.add_antag_datum(/datum/antagonist/syndicate_pai)
 
 /mob/living/silicon/pai/syndicate/Login()
+	log_world("PAI_DEBUG: syndicate Login mob=[src] type=[type] mind=[mind] mind?.current=[mind?.current]")
 	. = ..()
 	if(mind)
+		log_world("PAI_DEBUG: syndicate applying antag")
 		apply_syndicate_antag()
+	else
+		log_world("PAI_DEBUG: syndicate mind is null at Login")
 
 /mob/living/silicon/pai/syndicate/mind_initialize()
 	. = ..()
-	apply_syndicate_antag()
 
 /mob/living/silicon/pai/syndicate/BiologicalLife(delta_time, times_fired)
 	. = ..()
@@ -131,6 +136,29 @@
 				to_chat(src, "<span class='notice'>Инъектор химикатов активирован. Хранилище: [chemical_storage]/[chemical_max]</span>")
 			else
 				to_chat(src, "<span class='notice'>Инъектор химикатов деактивирован.</span>")
+			return TRUE
+		if("toggle_camera_bug")
+			playsound(src, 'sound/machines/terminal_on.ogg', 50, TRUE)
+			return ..()
+		if("open_secureye")
+			if(!pda)
+				log_world("PAI_DEBUG: open_secureye - no pda")
+				return TRUE
+			var/datum/computer_file/program/secureye/SP = locate() in pda.get_all_files()
+			log_world("PAI_DEBUG: open_secureye - locate=[SP] pda=[pda] file_count=[length(pda.get_all_files())]")
+			if(!SP)
+				SP = secureye_program
+				log_world("PAI_DEBUG: open_secureye - using mob var=[SP]")
+			if(!SP)
+				log_world("PAI_DEBUG: open_secureye - no secureye found at all")
+				return TRUE
+			if(!use_power(100))
+				temp = "Недостаточно энергии."
+				return TRUE
+			SP.computer = pda
+			SP.run_program(src)
+			pda.active_program = SP
+			SP.ui_interact(src)
 			return TRUE
 	return FALSE
 

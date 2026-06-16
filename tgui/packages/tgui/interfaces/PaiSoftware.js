@@ -1,5 +1,5 @@
-import { useBackend } from '../backend';
-import { Box, Button, Icon, LabeledList, NoticeBox, ProgressBar, Section, Stack, Table } from '../components';
+import { useBackend, useLocalState } from '../backend';
+import { Box, Button, Icon, Input, LabeledList, NoticeBox, ProgressBar, Section, Stack, Table } from '../components';
 import { Window } from '../layouts';
 
 export const PaiSoftware = (props, context) => {
@@ -45,6 +45,7 @@ export const PaiSoftware = (props, context) => {
     ...(software.includes('thermal vision') ? [{ id: 'thermalvision', label: 'Термальное зрение', icon: 'fire' }] : []),
     ...(software.includes('chemical injector') ? [{ id: 'chemicalinjector', label: 'Инъектор', icon: 'syringe' }] : []),
     ...(software.includes('internal camera bug') ? [{ id: 'camerabug', label: 'Камерный жучок', icon: 'eye' }] : []),
+    ...(data.syndicate_model ? [{ id: 'cameraconsole', label: 'Консоль камер', icon: 'camera' }] : []),
     ...(software.includes('weakened ai capability') ? [{ id: 'weakenedai', label: 'Слабые возможности ИИ', icon: 'robot' }] : []),
     { id: 'buy', label: 'Загрузка ПО', icon: 'download' },
   ];
@@ -91,7 +92,7 @@ export const PaiSoftware = (props, context) => {
                 </Stack.Item>
                 <Stack.Divider />
                 <Stack.Item>
-                  <Box fontSize={0.8} color="label"><Icon name="microchip" /> Память</Box>
+                  <Box fontSize={0.8} color="label"><Icon name="microchip" /> ОЗУ</Box>
                   <ProgressBar
                     value={ramUsed / 100}
                     ranges={{ good: [0, 0.6], average: [0.6, 0.85], bad: [0.85, 1] }}
@@ -186,6 +187,8 @@ const PaiContent = (props, context) => {
       return <ChemicalInjectorScreen />;
     case 'camerabug':
       return <CameraBugScreen />;
+    case 'cameraconsole':
+      return <CameraConsoleScreen />;
     case 'weakenedai':
       return <WeakenedAIScreen />;
     default:
@@ -233,6 +236,32 @@ const MainScreen = (props, context) => {
 const DirectivesScreen = (props, context) => {
   const { act, data } = useBackend(context);
   const { master, master_dna, laws_zeroth, laws_supplied } = data;
+  const [editing, setEditing] = useLocalState(context, 'dirEdit', false);
+  const [localZeroth, setLocalZeroth] = useLocalState(context, 'dirZero', laws_zeroth || '');
+  const [localSupplied, setLocalSupplied] = useLocalState(context, 'dirSupp', (laws_supplied || []).join('\n'));
+  if (editing) {
+    return (
+      <Box>
+        <Section title={<><Icon name="edit" /> Редактирование директив</>}>
+          <LabeledList>
+            <LabeledList.Item label={<><Icon name="user" /> Владелец</>}>{master || <Box color="average">Нет</Box>}</LabeledList.Item>
+            <LabeledList.Item label={<><Icon name="dna" /> ДНК</>}>{master_dna || <Box color="average">Нет</Box>}</LabeledList.Item>
+          </LabeledList>
+          <Box bold mt={1} mb={0.5}>Главная директива</Box>
+          <Input fluid value={localZeroth} onChange={(e, v) => setLocalZeroth(v)} />
+          <Box bold mt={1} mb={0.5}>Дополнительные директивы (по одной на строку)</Box>
+          <Input fluid value={localSupplied} onChange={(e, v) => setLocalSupplied(v)} />
+          <Box mt={1}>
+            <Button icon="save" color="good" onClick={() => {
+              act('save_directives', { zeroth: localZeroth, supplied: localSupplied });
+              setEditing(false);
+            }}>Сохранить</Button>
+            <Button ml={1} icon="times" onClick={() => setEditing(false)}>Отмена</Button>
+          </Box>
+        </Section>
+      </Box>
+    );
+  }
   return (
     <Box>
       <Section title={<><Icon name="clipboard-list" /> Директивы</>}>
@@ -241,7 +270,7 @@ const DirectivesScreen = (props, context) => {
           <LabeledList.Item label={<><Icon name="dna" /> ДНК</>}>{master_dna || <Box color="average">Нет</Box>}</LabeledList.Item>
         </LabeledList>
       </Section>
-      <Section title="Главная директива" mt={1}>
+      <Section title="Главная директива">
         <Box color="label">{laws_zeroth || 'Нет'}</Box>
       </Section>
       <Section title="Дополнительные директивы" mt={1}>
@@ -251,6 +280,11 @@ const DirectivesScreen = (props, context) => {
         ))}
       </Section>
       <Button mt={1} icon="dna" onClick={() => act('directive_dna')}>Запросить образец ДНК</Button>
+      <Button mt={1} ml={1} icon="edit" onClick={() => {
+        setLocalZeroth(laws_zeroth || '');
+        setLocalSupplied((laws_supplied || []).join('\n'));
+        setEditing(true);
+      }}>Редактировать директивы</Button>
     </Box>
   );
 };
@@ -621,9 +655,49 @@ const MedHudScreen = (props, context) => {
   );
 };
 
+const CableHackSection = (props, context) => {
+  const { act, data } = useBackend(context);
+  const { cable_extended, cable_connected, hackprogress, hacking } = data;
+  const { startAction, cancelAction, title, icon } = props;
+  return (
+    <Section title={<><Icon name={icon || 'plug'} /> {title || 'Взлом (кабель)'}</>}>
+      <LabeledList>
+        <LabeledList.Item label={<><Icon name="signal" /> Статус</>}>
+          {!cable_extended ? (
+            <Box color="bad">Убран</Box>
+          ) : !cable_connected ? (
+            <Box color="average">Выдвинут (не подключён)</Box>
+          ) : (
+            <Box color="good">Подключён</Box>
+          )}
+        </LabeledList.Item>
+        {!!hacking && (
+          <LabeledList.Item label={<><Icon name="spinner" /> Прогресс</>}>
+            <ProgressBar value={hackprogress / 100} ranges={{ good: [0.8, 1], average: [0.3, 0.8], bad: [0, 0.3] }}>
+              {hackprogress}%
+            </ProgressBar>
+          </LabeledList.Item>
+        )}
+      </LabeledList>
+      {!cable_extended && (
+        <Button mt={1} icon="plug" onClick={() => act('doorjack_cable')}>Выдвинуть кабель</Button>
+      )}
+      {!!cable_extended && (
+        <Button mt={1} icon="times" color="bad" onClick={() => act('doorjack_retract')}>Убрать кабель</Button>
+      )}
+      {!!cable_connected && !hacking && (
+        <Button mt={1} icon="play" onClick={() => act(startAction)}>Начать взлом</Button>
+      )}
+      {!!hacking && (
+        <Button mt={1} icon="stop" color="bad" onClick={() => act(cancelAction)}>Отменить взлом</Button>
+      )}
+    </Section>
+  );
+};
+
 const DoorjackScreen = (props, context) => {
   const { act, data } = useBackend(context);
-  const { cable_extended, cable_connected, hackprogress, hacking, ai_capability, nearby_doors, nearby_apcs, nearby_lights, nearby_turrets, ai_capability_cooldown, ai_capability_cooldown_time } = data;
+  const { ai_capability, nearby_doors, nearby_apcs, nearby_lights, nearby_turrets, ai_capability_cooldown, ai_capability_cooldown_time } = data;
   const cdReady = ai_capability && ai_capability_cooldown <= 0;
   const cdPercent = ai_capability_cooldown_time > 0 ? (1 - ai_capability_cooldown / ai_capability_cooldown_time) : 1;
   const hasAny = (nearby_doors?.length || nearby_apcs?.length || nearby_lights?.length || nearby_turrets?.length);
@@ -636,6 +710,429 @@ const DoorjackScreen = (props, context) => {
           )}
           {nearby_doors?.length > 0 && (
             <Box bold mb={0.5}>Шлюзы</Box>
+          )}
+          {nearby_doors?.map((door, i) => (
+            <Box key={'d'+i} mb={1}>
+              <b>{door.name}</b>
+              <Box inline ml={1} color={door.open ? 'good' : 'average'}>
+                {door.open ? 'Открыт' : 'Закрыт'}
+              </Box>
+              {door.locked !== null && (
+                <Box inline ml={1} color={door.locked ? 'bad' : 'good'}>
+                  {door.locked ? 'Замок' : ''}
+                </Box>
+              )}
+              {door.electrified !== null && door.electrified && (
+                <Box inline ml={1} color="bad">⚡</Box>
+              )}
+              {door.emergency && (
+                <Box inline ml={1} color="average">Авар.доступ</Box>
+              )}
+              <Box mt={0.5}>
+                <Button disabled={!cdReady} icon={door.open ? 'door-closed' : 'door-open'} onClick={() => act('door_toggle_open', { ref: door.ref })}>
+                  {door.open ? 'Закрыть' : 'Открыть'}
+                </Button>
+                {door.locked !== null && (
+                  <Button ml={1} disabled={!cdReady} icon="lock" onClick={() => act('door_toggle_bolt', { ref: door.ref })}>
+                    {door.locked ? 'Снять блок' : 'Блокировать'}
+                  </Button>
+                )}
+                {door.locked !== null && (
+                  <Button ml={1} disabled={!cdReady} icon="bolt" onClick={() => act('ai_door_electrify', { ref: door.ref })}>
+                    {door.electrified ? 'Снять шок' : 'Электричество'}
+                  </Button>
+                )}
+                {door.locked !== null && (
+                  <Button ml={1} disabled={!cdReady} icon="exclamation-triangle" onClick={() => act('ai_door_emergency', { ref: door.ref })}>
+                    {door.emergency ? 'Авар.выкл' : 'Авар.вкл'}
+                  </Button>
+                )}
+              </Box>
+            </Box>
+          ))}
+          {nearby_apcs?.length > 0 && (
+            <Box bold mt={1} mb={0.5}>ЛКП</Box>
+          )}
+          {nearby_apcs?.map((apc, i) => (
+            <Box key={'a'+i} mb={1}>
+              <b>{apc.name}</b>
+              <Box inline ml={1} color={apc.operating ? 'good' : 'bad'}>{apc.operating ? 'Вкл' : 'Выкл'}</Box>
+              <Box mt={0.5}>
+                <Button disabled={!cdReady} icon="power-off" onClick={() => act('ai_apc_breaker', { ref: apc.ref })}>
+                  {apc.operating ? 'Выключить' : 'Включить'}
+                </Button>
+              </Box>
+            </Box>
+          ))}
+          {nearby_lights?.length > 0 && (
+            <Box bold mt={1} mb={0.5}>Свет</Box>
+          )}
+          {nearby_lights?.map((light, i) => (
+            <Box key={'l'+i} mb={1}>
+              <b>{light.name}</b>
+              <Box inline ml={1} color={light.no_emergency ? 'bad' : 'good'}>{light.no_emergency ? 'Авар.нет' : 'Авар.есть'}</Box>
+              <Box mt={0.5}>
+                <Button disabled={!cdReady} icon="lightbulb" onClick={() => act('ai_light_emergency', { ref: light.ref })}>
+                  {light.no_emergency ? 'Вкл.авар.' : 'Выкл.авар.'}
+                </Button>
+              </Box>
+            </Box>
+          ))}
+          {nearby_turrets?.length > 0 && (
+            <Box bold mt={1} mb={0.5}>Турели</Box>
+          )}
+          {nearby_turrets?.map((turret, i) => (
+            <Box key={'t'+i} mb={1}>
+              <b>{turret.name}</b>
+              <Box inline ml={1} color={turret.enabled ? 'bad' : 'good'}>{turret.enabled ? 'Активна' : 'Выкл'}</Box>
+              {turret.enabled && (
+                <Box inline ml={1} color={turret.lethal ? 'red' : 'average'}>{turret.lethal ? 'Летальный' : 'Нелетальный'}</Box>
+              )}
+              <Box mt={0.5}>
+                <Button disabled={!cdReady} icon="power-off" onClick={() => act('ai_turret_power', { ref: turret.ref })}>
+                  {turret.enabled ? 'Деактивировать' : 'Активировать'}
+                </Button>
+                <Button ml={1} disabled={!cdReady || !turret.enabled} icon="skull" onClick={() => act('ai_turret_lethal', { ref: turret.ref })}>
+                  {turret.lethal ? 'Нелетальный' : 'Летальный'}
+                </Button>
+              </Box>
+            </Box>
+          ))}
+          {!cdReady && (
+            <Box mt={1}>
+              <ProgressBar value={cdPercent} ranges={{ bad: [0, 0.5], average: [0.5, 0.8], good: [0.8, 1] }}>
+                <Icon name="clock" /> Кулдаун: {Math.ceil(ai_capability_cooldown / 10)}с
+              </ProgressBar>
+            </Box>
+          )}
+        </Section>
+      )}
+      <CableHackSection
+        {...props}
+        title="Взлом (кабель)"
+        icon="plug"
+        startAction="doorjack_start"
+        cancelAction="doorjack_cancel"
+      />
+    </>
+  );
+};
+
+const SignallerScreen = (props, context) => {
+  const { act, data } = useBackend(context);
+  const { signaler_frequency, signaler_code } = data;
+  const formatFreq = (f) => {
+    const s = String(f);
+    return s.substring(0, s.length - 1) + '.' + s.substring(s.length - 1);
+  };
+  return (
+    <Box>
+      <LabeledList>
+        <LabeledList.Item label="Частота">
+          <Button onClick={() => act('signaller_freq', { freq: -10 })}>-10</Button>
+          <Button onClick={() => act('signaller_freq', { freq: -2 })}>-2</Button>
+          <Box inline mx={1}>{formatFreq(signaler_frequency)}</Box>
+          <Button onClick={() => act('signaller_freq', { freq: 2 })}>+2</Button>
+          <Button onClick={() => act('signaller_freq', { freq: 10 })}>+10</Button>
+        </LabeledList.Item>
+        <LabeledList.Item label="Код">
+          <Button onClick={() => act('signaller_code', { code: -5 })}>-5</Button>
+          <Button onClick={() => act('signaller_code', { code: -1 })}>-1</Button>
+          <Box inline mx={1}>{signaler_code}</Box>
+          <Button onClick={() => act('signaller_code', { code: 1 })}>+1</Button>
+          <Button onClick={() => act('signaller_code', { code: 5 })}>+5</Button>
+        </LabeledList.Item>
+      </LabeledList>
+      <Button mt={1} onClick={() => act('signaller_send')}>Отправить сигнал</Button>
+    </Box>
+  );
+};
+
+const LoudnessScreen = (props, context) => {
+  const { act } = useBackend(context);
+  return (
+    <Box>
+      <Button onClick={() => act('loudness_open')}>Открыть синтезатор</Button>
+    </Box>
+  );
+};
+
+const EncryptScreen = (props, context) => {
+  const { act, data } = useBackend(context);
+  const { encryptmod } = data;
+  return (
+    <Box>
+      <Box mb={1}>
+        Модуль шифрования {encryptmod ? <Box inline color="good">включён</Box> : <Box inline color="bad">отключён</Box>}.
+      </Box>
+      {!encryptmod && (
+        <Button onClick={() => act('toggle_encrypt')}>Активировать порты шифрования</Button>
+      )}
+    </Box>
+  );
+};
+
+const TranslatorScreen = (props, context) => {
+  const { act, data } = useBackend(context);
+  const { translator_on } = data;
+  return (
+    <Box>
+      <Box mb={1}>
+        Универсальный переводчик {translator_on ? <Box inline color="good">включён</Box> : <Box inline color="bad">отключён</Box>}.
+      </Box>
+      {!translator_on && (
+        <Button onClick={() => act('toggle_translator')}>Активировать модуль перевода</Button>
+      )}
+    </Box>
+  );
+};
+
+const CameraJackScreen = (props, context) => {
+  return (
+    <CableHackSection
+      {...props}
+      title="Взлом камеры"
+      icon="video"
+      startAction="camerajack_start"
+      cancelAction="camerajack_cancel"
+    />
+  );
+};
+
+const FlashlightScreen = (props, context) => {
+  const { act, data } = useBackend(context);
+  const { flashlight_on } = data;
+  return (
+    <Section title={<><Icon name="lightbulb" /> Фонарик</>}>
+      <Box mb={1}>
+        Фонарик {flashlight_on ? <Box inline color="good">включён</Box> : <Box inline color="bad">выключен</Box>}.
+      </Box>
+      <Button icon="power-off" onClick={() => act('toggle_flashlight')}>
+        {flashlight_on ? 'Выключить' : 'Включить'}
+      </Button>
+    </Section>
+  );
+};
+
+const NightVisionScreen = (props, context) => {
+  const { act, data } = useBackend(context);
+  const { night_vision } = data;
+  return (
+    <Section title={<><Icon name="moon" /> Ночное зрение</>}>
+      <Box mb={1}>
+        Ночное зрение {night_vision ? <Box inline color="good">активировано</Box> : <Box inline color="bad">неактивировано</Box>}.
+      </Box>
+      <Button icon={night_vision ? 'eye-slash' : 'eye'} onClick={() => act('toggle_night_vision')}>
+        {night_vision ? 'Деактивировать' : 'Активировать'}
+      </Button>
+    </Section>
+  );
+};
+
+const MesonVisionScreen = (props, context) => {
+  const { act, data } = useBackend(context);
+  const { meson_vision } = data;
+  return (
+    <Section title={<><Icon name="border-all" /> Мезонное зрение</>}>
+      <Box mb={1}>
+        Мезонное зрение {meson_vision ? <Box inline color="good">активировано</Box> : <Box inline color="bad">неактивировано</Box>}.
+      </Box>
+      <Button icon={meson_vision ? 'eye-slash' : 'eye'} onClick={() => act('toggle_meson_vision')}>
+        {meson_vision ? 'Деактивировать' : 'Активировать'}
+      </Button>
+    </Section>
+  );
+};
+
+const HeartbeatScreen = (props, context) => {
+  const { act, data } = useBackend(context);
+  const { heartbeat_sensor } = data;
+  return (
+    <Section title={<><Icon name="heartbeat" /> Сенсор пульса</>}>
+      <Box mb={1}>
+        Сенсор пульса {heartbeat_sensor ? <Box inline color="good">включён</Box> : <Box inline color="bad">отключён</Box>}.
+      </Box>
+      <Button icon={heartbeat_sensor ? 'heart' : 'heart'} onClick={() => act('toggle_heartbeat')}>
+        {heartbeat_sensor ? 'Отключить' : 'Включить'} сенсор пульса
+      </Button>
+      <NoticeBox info mt={1}>
+        <Icon name="info-circle" /> При включении сенсор будет отслеживать состояние биологического носителя и предупреждать о критических изменениях здоровья.
+      </NoticeBox>
+    </Section>
+  );
+};
+
+const ProjectionScreen = (props, context) => {
+  const { act, data } = useBackend(context);
+  const { holoform, emitterhealth, emittermaxhealth } = data;
+  const healthPercent = emitterhealth / emittermaxhealth;
+  return (
+    <Section title={<><Icon name="cube" /> Голограмма</>}>
+      <Box mb={1}>
+        Голохассис {holoform ? <Box inline color="good">развёрнут</Box> : <Box inline color="bad">свёрнут</Box>}.
+      </Box>
+      <LabeledList>
+        <LabeledList.Item label={<><Icon name="heart" /> Целостность эмиттера</>}>
+          <ProgressBar value={healthPercent} ranges={{ good: [0.5, 1], average: [0.2, 0.5], bad: [0, 0.2] }}>
+            <Icon name="bolt" /> {emitterhealth} / {emittermaxhealth}
+          </ProgressBar>
+        </LabeledList.Item>
+      </LabeledList>
+      <Button mt={1} icon={holoform ? 'compress' : 'expand'} onClick={() => act('toggle_projection')}>
+        {holoform ? 'Свернуть голохассис' : 'Развернуть голохассис'}
+      </Button>
+    </Section>
+  );
+};
+
+const EncoderScreen = (props, context) => {
+  const { act, data } = useBackend(context);
+  const { encoder_active, encoder_name, encoder_job } = data;
+  const [name, setName] = useLocalState(context, 'encoderName', encoder_name || '');
+  const [job, setJob] = useLocalState(context, 'encoderJob', encoder_job || '');
+  if (!encoder_active) {
+    return (
+      <Box>
+        <Box mb={1}>
+          Энкодер <Box inline color="bad">неактивен</Box>.
+        </Box>
+        <LabeledList>
+          <LabeledList.Item label="Имя">
+            <Input value={name} onChange={(e, v) => setName(v)} />
+          </LabeledList.Item>
+          <LabeledList.Item label="Должность">
+            <Input value={job} onChange={(e, v) => setJob(v)} />
+          </LabeledList.Item>
+        </LabeledList>
+        <Button mt={1} onClick={() => act('save_encoder', { name, job })}>
+          Активировать
+        </Button>
+      </Box>
+    );
+  }
+  return (
+    <Box>
+      <Box mb={1}>
+        Энкодер <Box inline color="good">активен</Box>.
+      </Box>
+      <LabeledList>
+        <LabeledList.Item label="Имя">{encoder_name || '—'}</LabeledList.Item>
+        <LabeledList.Item label="Должность">{encoder_job || '—'}</LabeledList.Item>
+      </LabeledList>
+      <Button mt={1} icon="power-off" onClick={() => act('toggle_encoder')}>
+        Деактивировать
+      </Button>
+    </Box>
+  );
+};
+
+const ThermalVisionScreen = (props, context) => {
+  const { act, data } = useBackend(context);
+  const { thermal_vision } = data;
+  return (
+    <Box>
+      <Box mb={1}>
+        Термальное зрение {thermal_vision ? <Box inline color="good">включено</Box> : <Box inline color="bad">выключено</Box>}.
+      </Box>
+      <Button onClick={() => act('toggle_thermal_vision')}>
+        {thermal_vision ? 'Отключить' : 'Включить'}
+      </Button>
+    </Box>
+  );
+};
+
+const ChemicalInjectorScreen = (props, context) => {
+  const { act, data } = useBackend(context);
+  const { chemical_injector, chemical_storage, chemical_max } = data;
+  const chemPercent = (chemical_storage ?? 0) / (chemical_max ?? 30);
+  return (
+    <Section title={<><Icon name="syringe" /> Химический инъектор</>}>
+      <Box mb={1}>
+        Химический инъектор {chemical_injector ? <Box inline color="good">активен</Box> : <Box inline color="bad">неактивен</Box>}.
+      </Box>
+      <LabeledList>
+        <LabeledList.Item label={<><Icon name="flask" /> Запас реагентов</>}>
+          <ProgressBar value={chemPercent} ranges={{ good: [0.5, 1], average: [0.2, 0.5], bad: [0, 0.2] }}>
+            {chemical_storage ?? 0} / {chemical_max ?? 30} юнитов
+          </ProgressBar>
+        </LabeledList.Item>
+      </LabeledList>
+      <Button mt={1} icon="power-off" onClick={() => act('toggle_chemical_injector')}>
+        {chemical_injector ? 'Отключить' : 'Активировать'}
+      </Button>
+      {!!chemical_injector && (
+        <Button mt={1} ml={1} icon="share" onClick={() => act('inject_chemicals')}>
+          Впрыснуть реагенты
+        </Button>
+      )}
+    </Section>
+  );
+};
+
+const CameraBugScreen = (props, context) => {
+  const { act, data } = useBackend(context);
+  const { camera_bug_active } = data;
+  return (
+    <Section title={<><Icon name="eye" /> Internal Camera Bug</>}>
+      <Box mb={1}>
+        Камерный жучок {camera_bug_active ? <Box inline color="good">активен</Box> : <Box inline color="bad">неактивен</Box>}.
+      </Box>
+      <Button icon="power-off" onClick={() => act('toggle_camera_bug')}>
+        {camera_bug_active ? 'Деактивировать' : 'Активировать'}
+      </Button>
+      {!!camera_bug_active && (
+        <Button ml={1} icon="video" onClick={() => act('open_camera_console')}>
+          Открыть просмотр камер
+        </Button>
+      )}
+    </Section>
+  );
+};
+
+const CameraConsoleScreen = (props, context) => {
+  const { act, data } = useBackend(context);
+  return (
+    <Section title={<><Icon name="camera" /> Консоль камер</>}>
+      <Box mb={1}>
+        Откройте консоль камер наблюдения для просмотра камер станции.
+      </Box>
+      <Button icon="eye" onClick={() => act('open_secureye')}>
+        Открыть консоль камер
+      </Button>
+    </Section>
+  );
+};
+
+const WeakenedAIScreen = (props, context) => {
+  const { act, data } = useBackend(context);
+  const { ai_capability, camera_bug_active, nearby_doors, nearby_apcs, nearby_lights, nearby_turrets, ai_capability_cooldown, ai_capability_cooldown_time } = data;
+  const cdReady = ai_capability && ai_capability_cooldown <= 0;
+  const cdPercent = ai_capability_cooldown_time > 0 ? (1 - ai_capability_cooldown / ai_capability_cooldown_time) : 1;
+  const hasAny = (nearby_doors?.length || nearby_apcs?.length || nearby_lights?.length || nearby_turrets?.length);
+  return (
+    <Section title={<><Icon name="robot" /> Weakened AI Capability</>}>
+      <Box mb={1}>
+        Режим ослабленного ИИ {ai_capability ? <Box inline color="good">активен</Box> : <Box inline color="bad">неактивен</Box>}.
+      </Box>
+      {!camera_bug_active && (
+        <NoticeBox warning>
+          <Icon name="exclamation-triangle" /> Для работы требуется активировать Internal Camera Bug.
+        </NoticeBox>
+      )}
+      <Button
+        disabled={!camera_bug_active}
+        icon="power-off"
+        onClick={() => act('toggle_ai_capability')}
+      >
+        {ai_capability ? 'Деактивировать' : 'Активировать'}
+      </Button>
+      {!!ai_capability && (
+        <>
+          {!hasAny && (
+            <Box mt={1} color="average">Рядом нет устройств для взаимодействия.</Box>
+          )}
+          {nearby_doors?.length > 0 && (
+            <Box bold mt={1} mb={0.5}>Шлюзы</Box>
           )}
           {nearby_doors?.map((door, i) => (
             <Box key={'d'+i} mb={1}>
@@ -775,346 +1272,7 @@ const DoorjackScreen = (props, context) => {
               </ProgressBar>
             </Box>
           )}
-        </Section>
-      )}
-      <Section title={<><Icon name="plug" /> Взлом (кабель)</>}>
-        <LabeledList>
-          <LabeledList.Item label={<><Icon name="signal" /> Статус</>}>
-            {!cable_extended ? (
-              <Box color="bad">Убран</Box>
-            ) : !cable_connected ? (
-              <Box color="average">Выдвинут (не подключён)</Box>
-            ) : (
-              <Box color="good">Подключён</Box>
-            )}
-          </LabeledList.Item>
-          {!!hacking && (
-            <LabeledList.Item label={<><Icon name="spinner" /> Прогресс</>}>
-              <ProgressBar value={hackprogress / 100} ranges={{ good: [0.8, 1], average: [0.3, 0.8], bad: [0, 0.3] }}>
-                {hackprogress}%
-              </ProgressBar>
-            </LabeledList.Item>
-          )}
-        </LabeledList>
-        {!cable_extended && (
-          <Button mt={1} icon="plug" onClick={() => act('doorjack_cable')}>Выдвинуть кабель</Button>
-        )}
-        {!!cable_extended && (
-          <Button mt={1} icon="times" color="bad" onClick={() => act('doorjack_retract')}>Убрать кабель</Button>
-        )}
-        {!!cable_connected && !hacking && (
-          <Button mt={1} icon="play" onClick={() => act('doorjack_start')}>Начать взлом</Button>
-        )}
-        {!!hacking && (
-          <Button mt={1} icon="stop" color="bad" onClick={() => act('doorjack_cancel')}>Отменить взлом</Button>
-        )}
-      </Section>
-    </>
-  );
-};
-
-const SignallerScreen = (props, context) => {
-  const { act, data } = useBackend(context);
-  const { signaler_frequency, signaler_code } = data;
-  const formatFreq = (f) => {
-    const s = String(f);
-    return s.substring(0, s.length - 1) + '.' + s.substring(s.length - 1);
-  };
-  return (
-    <Box>
-      <LabeledList>
-        <LabeledList.Item label="Частота">
-          <Button onClick={() => act('signaller_freq', { freq: -10 })}>-10</Button>
-          <Button onClick={() => act('signaller_freq', { freq: -2 })}>-2</Button>
-          <Box inline mx={1}>{formatFreq(signaler_frequency)}</Box>
-          <Button onClick={() => act('signaller_freq', { freq: 2 })}>+2</Button>
-          <Button onClick={() => act('signaller_freq', { freq: 10 })}>+10</Button>
-        </LabeledList.Item>
-        <LabeledList.Item label="Код">
-          <Button onClick={() => act('signaller_code', { code: -5 })}>-5</Button>
-          <Button onClick={() => act('signaller_code', { code: -1 })}>-1</Button>
-          <Box inline mx={1}>{signaler_code}</Box>
-          <Button onClick={() => act('signaller_code', { code: 1 })}>+1</Button>
-          <Button onClick={() => act('signaller_code', { code: 5 })}>+5</Button>
-        </LabeledList.Item>
-      </LabeledList>
-      <Button mt={1} onClick={() => act('signaller_send')}>Отправить сигнал</Button>
-    </Box>
-  );
-};
-
-const LoudnessScreen = (props, context) => {
-  const { act } = useBackend(context);
-  return (
-    <Box>
-      <Button onClick={() => act('loudness_open')}>Открыть синтезатор</Button>
-    </Box>
-  );
-};
-
-const EncryptScreen = (props, context) => {
-  const { act, data } = useBackend(context);
-  const { encryptmod } = data;
-  return (
-    <Box>
-      <Box mb={1}>
-        Модуль шифрования {encryptmod ? <Box inline color="good">включён</Box> : <Box inline color="bad">отключён</Box>}.
-      </Box>
-      {!encryptmod && (
-        <Button onClick={() => act('toggle_encrypt')}>Активировать порты шифрования</Button>
-      )}
-    </Box>
-  );
-};
-
-const TranslatorScreen = (props, context) => {
-  const { act, data } = useBackend(context);
-  const { translator_on } = data;
-  return (
-    <Box>
-      <Box mb={1}>
-        Универсальный переводчик {translator_on ? <Box inline color="good">включён</Box> : <Box inline color="bad">отключён</Box>}.
-      </Box>
-      {!translator_on && (
-        <Button onClick={() => act('toggle_translator')}>Активировать модуль перевода</Button>
-      )}
-    </Box>
-  );
-};
-
-const CameraJackScreen = (props, context) => {
-  const { act, data } = useBackend(context);
-  const { cable_extended, cable_connected, hackprogress, hacking } = data;
-  return (
-    <Section title={<><Icon name="video" /> Взлом камеры</>}>
-      <LabeledList>
-        <LabeledList.Item label={<><Icon name="signal" /> Кабель</>}>
-          {!cable_extended ? (
-            <Box color="bad">Убран</Box>
-          ) : !cable_connected ? (
-            <Box color="average">Выдвинут (не подключён)</Box>
-          ) : (
-            <Box color="good">Подключён</Box>
-          )}
-        </LabeledList.Item>
-        {!!hacking && (
-          <LabeledList.Item label={<><Icon name="spinner" /> Прогресс</>}>
-            <ProgressBar value={hackprogress / 100} ranges={{ good: [0.8, 1], average: [0.3, 0.8], bad: [0, 0.3] }}>
-              {hackprogress}%
-            </ProgressBar>
-          </LabeledList.Item>
-        )}
-      </LabeledList>
-      {!cable_extended && (
-        <Button mt={1} icon="plug" onClick={() => act('doorjack_cable')}>Выдвинуть кабель</Button>
-      )}
-      {!!cable_extended && (
-        <Button mt={1} icon="times" color="bad" onClick={() => act('doorjack_retract')}>Убрать кабель</Button>
-      )}
-      {!!cable_connected && !hacking && (
-        <Button mt={1} icon="play" onClick={() => act('camerajack_start')}>Начать взлом камеры</Button>
-      )}
-      {!!hacking && (
-        <Button mt={1} icon="stop" color="bad" onClick={() => act('camerajack_cancel')}>Отменить взлом</Button>
-      )}
-    </Section>
-  );
-};
-
-const FlashlightScreen = (props, context) => {
-  const { act, data } = useBackend(context);
-  const { flashlight } = data;
-  return (
-    <Section title={<><Icon name="lightbulb" /> Фонарик</>}>
-      <Box mb={1}>
-        Фонарик {flashlight ? <Box inline color="good">включён</Box> : <Box inline color="bad">выключен</Box>}.
-      </Box>
-      <Button icon="power-off" onClick={() => act('toggle_flashlight')}>
-        {flashlight ? 'Выключить' : 'Включить'}
-      </Button>
-    </Section>
-  );
-};
-
-const NightVisionScreen = (props, context) => {
-  const { act, data } = useBackend(context);
-  const { night_vision } = data;
-  return (
-    <Section title={<><Icon name="moon" /> Ночное зрение</>}>
-      <Box mb={1}>
-        Ночное зрение {night_vision ? <Box inline color="good">активировано</Box> : <Box inline color="bad">неактивировано</Box>}.
-      </Box>
-      <Button icon={night_vision ? 'eye-slash' : 'eye'} onClick={() => act('toggle_night_vision')}>
-        {night_vision ? 'Деактивировать' : 'Активировать'}
-      </Button>
-    </Section>
-  );
-};
-
-const MesonVisionScreen = (props, context) => {
-  const { act, data } = useBackend(context);
-  const { meson_vision } = data;
-  return (
-    <Section title={<><Icon name="border-all" /> Мезонное зрение</>}>
-      <Box mb={1}>
-        Мезонное зрение {meson_vision ? <Box inline color="good">активировано</Box> : <Box inline color="bad">неактивировано</Box>}.
-      </Box>
-      <Button icon={meson_vision ? 'eye-slash' : 'eye'} onClick={() => act('toggle_meson_vision')}>
-        {meson_vision ? 'Деактивировать' : 'Активировать'}
-      </Button>
-    </Section>
-  );
-};
-
-const HeartbeatScreen = (props, context) => {
-  const { act, data } = useBackend(context);
-  const { heartbeat_sensor } = data;
-  return (
-    <Section title={<><Icon name="heartbeat" /> Сенсор пульса</>}>
-      <Box mb={1}>
-        Сенсор пульса {heartbeat_sensor ? <Box inline color="good">включён</Box> : <Box inline color="bad">отключён</Box>}.
-      </Box>
-      <Button icon={heartbeat_sensor ? 'heart' : 'heart'} onClick={() => act('toggle_heartbeat')}>
-        {heartbeat_sensor ? 'Отключить' : 'Включить'} сенсор пульса
-      </Button>
-      <NoticeBox info mt={1}>
-        <Icon name="info-circle" /> При включении сенсор будет отслеживать состояние биологического носителя и предупреждать о критических изменениях здоровья.
-      </NoticeBox>
-    </Section>
-  );
-};
-
-const ProjectionScreen = (props, context) => {
-  const { act, data } = useBackend(context);
-  const { holoform, emitterhealth, emittermaxhealth } = data;
-  const healthPercent = emitterhealth / emittermaxhealth;
-  return (
-    <Section title={<><Icon name="cube" /> Голограмма</>}>
-      <Box mb={1}>
-        Голохассис {holoform ? <Box inline color="good">развёрнут</Box> : <Box inline color="bad">свёрнут</Box>}.
-      </Box>
-      <LabeledList>
-        <LabeledList.Item label={<><Icon name="heart" /> Целостность эмиттера</>}>
-          <ProgressBar value={healthPercent} ranges={{ good: [0.5, 1], average: [0.2, 0.5], bad: [0, 0.2] }}>
-            <Icon name="bolt" /> {emitterhealth} / {emittermaxhealth}
-          </ProgressBar>
-        </LabeledList.Item>
-      </LabeledList>
-      <Button mt={1} icon={holoform ? 'compress' : 'expand'} onClick={() => act('toggle_projection')}>
-        {holoform ? 'Свернуть голохассис' : 'Развернуть голохассис'}
-      </Button>
-    </Section>
-  );
-};
-
-const EncoderScreen = (props, context) => {
-  const { act, data } = useBackend(context);
-  const { encoder_active, encoder_name, encoder_job } = data;
-  return (
-    <Box>
-      <Box mb={1}>
-        Энкодер {encoder_active ? <Box inline color="good">активен</Box> : <Box inline color="bad">неактивен</Box>}.
-      </Box>
-      {!!encoder_active && (
-        <LabeledList>
-          <LabeledList.Item label="Имя">{encoder_name || '—'}</LabeledList.Item>
-          <LabeledList.Item label="Должность">{encoder_job || '—'}</LabeledList.Item>
-        </LabeledList>
-      )}
-      <Button mt={1} onClick={() => act('toggle_encoder')}>
-        {encoder_active ? 'Деактивировать' : 'Активировать'}
-      </Button>
-    </Box>
-  );
-};
-
-const ThermalVisionScreen = (props, context) => {
-  const { act, data } = useBackend(context);
-  const { thermal_vision } = data;
-  return (
-    <Box>
-      <Box mb={1}>
-        Термальное зрение {thermal_vision ? <Box inline color="good">включено</Box> : <Box inline color="bad">выключено</Box>}.
-      </Box>
-      <Button onClick={() => act('toggle_thermal_vision')}>
-        {thermal_vision ? 'Отключить' : 'Включить'}
-      </Button>
-    </Box>
-  );
-};
-
-const ChemicalInjectorScreen = (props, context) => {
-  const { act, data } = useBackend(context);
-  const { chemical_injector, chemical_storage, chemical_max } = data;
-  const chemPercent = (chemical_storage ?? 0) / (chemical_max ?? 30);
-  return (
-    <Section title={<><Icon name="syringe" /> Химический инъектор</>}>
-      <Box mb={1}>
-        Химический инъектор {chemical_injector ? <Box inline color="good">активен</Box> : <Box inline color="bad">неактивен</Box>}.
-      </Box>
-      <LabeledList>
-        <LabeledList.Item label={<><Icon name="flask" /> Запас реагентов</>}>
-          <ProgressBar value={chemPercent} ranges={{ good: [0.5, 1], average: [0.2, 0.5], bad: [0, 0.2] }}>
-            {chemical_storage ?? 0} / {chemical_max ?? 30} юнитов
-          </ProgressBar>
-        </LabeledList.Item>
-      </LabeledList>
-      <Button mt={1} icon="power-off" onClick={() => act('toggle_chemical_injector')}>
-        {chemical_injector ? 'Отключить' : 'Активировать'}
-      </Button>
-      {!!chemical_injector && (
-        <Button mt={1} ml={1} icon="share" onClick={() => act('inject_chemicals')}>
-          Впрыснуть реагенты
-        </Button>
-      )}
-    </Section>
-  );
-};
-
-const CameraBugScreen = (props, context) => {
-  const { act, data } = useBackend(context);
-  const { camera_bug_active } = data;
-  return (
-    <Section title={<><Icon name="eye" /> Internal Camera Bug</>}>
-      <Box mb={1}>
-        Камерный жучок {camera_bug_active ? <Box inline color="good">активен</Box> : <Box inline color="bad">неактивен</Box>}.
-      </Box>
-      <Button icon="power-off" onClick={() => act('toggle_camera_bug')}>
-        {camera_bug_active ? 'Деактивировать' : 'Активировать'}
-      </Button>
-      {!!camera_bug_active && (
-        <Button ml={1} icon="video" onClick={() => act('open_camera_console')}>
-          Открыть просмотр камер
-        </Button>
-      )}
-    </Section>
-  );
-};
-
-const WeakenedAIScreen = (props, context) => {
-  const { act, data } = useBackend(context);
-  const { ai_capability, camera_bug_active } = data;
-  return (
-    <Section title={<><Icon name="robot" /> Weakened AI Capability</>}>
-      <Box mb={1}>
-        Режим ослабленного ИИ {ai_capability ? <Box inline color="good">активен</Box> : <Box inline color="bad">неактивен</Box>}.
-      </Box>
-      {!camera_bug_active && (
-        <NoticeBox warning>
-          <Icon name="exclamation-triangle" /> Для работы требуется активировать Internal Camera Bug.
-        </NoticeBox>
-      )}
-      <Button
-        disabled={!camera_bug_active}
-        icon="power-off"
-        onClick={() => act('toggle_ai_capability')}
-      >
-        {ai_capability ? 'Деактивировать' : 'Активировать'}
-      </Button>
-      {!!ai_capability && (
-        <Box mt={1} color="label" fontSize={0.9}>
-          <Icon name="info-circle" /> Позволяет управлять шлюзами поблизости (раз в 10 секунд) через экран взлома дверей.
-        </Box>
+        </>
       )}
     </Section>
   );
