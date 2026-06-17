@@ -134,9 +134,9 @@
 	actions_types = list(/datum/action/item_action/organ_action/use)
 
 	// Color cutoff lists for the 4-level toggle
-	var/list/low_light_cutoff
-	var/list/medium_light_cutoff
-	var/list/high_light_cutoff
+	var/list/low_light_cutoff = list(5, 10, 15)
+	var/list/medium_light_cutoff = list(15, 25, 30)
+	var/list/high_light_cutoff = list(30, 45, 50)
 	var/light_level = NIGHTVISION_LIGHT_OFF
 
 /obj/item/organ/eyes/night_vision/Initialize(mapload)
