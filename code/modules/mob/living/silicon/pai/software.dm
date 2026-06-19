@@ -2,7 +2,6 @@
 	var/list/data = list()
 	data["medical records"] = list("desc" = "Просмотр и анализ медицинских записей экипажа.", "power_usage" = 0)
 	data["security records"] = list("desc" = "Просмотр служебных и криминальных записей экипажа.", "power_usage" = 0)
-	data["camera jack"] = list("desc" = "Подключение к кабельной сети камер наблюдения.", "power_usage" = 50)
 	data["door jack"] = list("desc" = "Взлом электронных замков и шлюзов.", "power_usage" = 50)
 	data["internal camera bug"] = list("desc" = "Внедрение жучка в камеры для скрытого наблюдения.", "power_usage" = 30)
 	data["weakened ai capability"] = list("desc" = "Удалённое управление дверьми, ЛКП, светом и турелями.", "power_usage" = 100)
@@ -27,7 +26,6 @@
 															//"digital messenger" = 5, // PAI uses the new TGUI messenger program on its PDA instead
 															"medical records" = 10,
 															"security records" = 10,
-															"camera jack" = 10,
 															"door jack" = 30,
 															"internal camera bug" = 30,
 															"weakened ai capability" = 60,

@@ -31,7 +31,6 @@ export const PaiSoftware = (props, context) => {
     ...(software.includes('security HUD') ? [{ id: 'securityhud', label: 'СБ HUD', icon: 'shield-alt' }] : []),
     ...(software.includes('medical HUD') ? [{ id: 'medicalhud', label: 'Мед HUD', icon: 'heartbeat' }] : []),
     ...(software.includes('door jack') ? [{ id: 'doorjack', label: 'Взлом двери', icon: 'door-open' }] : []),
-    ...(software.includes('camera jack') ? [{ id: 'camerajack', label: 'Взлом камеры', icon: 'video' }] : []),
     ...(software.includes('heartbeat sensor') ? [{ id: 'heartbeat', label: 'Пульс', icon: 'heartbeat' }] : []),
     ...(software.includes('remote signaller') ? [{ id: 'signaller', label: 'Сигналер', icon: 'broadcast-tower' }] : []),
     ...(software.includes('loudness booster') ? [{ id: 'loudness', label: 'Громкость', icon: 'music' }] : []),
@@ -45,7 +44,6 @@ export const PaiSoftware = (props, context) => {
     ...(software.includes('thermal vision') ? [{ id: 'thermalvision', label: 'Термальное зрение', icon: 'fire' }] : []),
     ...(software.includes('chemical injector') ? [{ id: 'chemicalinjector', label: 'Инъектор', icon: 'syringe' }] : []),
     ...(software.includes('internal camera bug') ? [{ id: 'camerabug', label: 'Камерный жучок', icon: 'eye' }] : []),
-    ...(data.syndicate_model ? [{ id: 'cameraconsole', label: 'Консоль камер', icon: 'camera' }] : []),
     ...(software.includes('weakened ai capability') ? [{ id: 'weakenedai', label: 'Слабые возможности ИИ', icon: 'robot' }] : []),
     { id: 'buy', label: 'Загрузка ПО', icon: 'download' },
   ];
@@ -114,6 +112,17 @@ export const PaiSoftware = (props, context) => {
                     <Box color="good" fontSize={0.8}><Icon name="bolt" /> Зарядка...</Box>
                   </Stack.Item>
                 )}
+                <Stack.Item>
+                  <Button
+                    fluid
+                    icon="bolt"
+                    tooltip={data.cable_extended ? 'Убрать кабель' : 'Выдвинуть кабель для зарядки'}
+                    onClick={() => act(data.cable_extended ? 'doorjack_retract' : 'doorjack_cable')}
+                    color={data.cable_extended ? 'bad' : 'good'}
+                  >
+                    {data.cable_extended ? 'Убрать кабель' : 'Кабель'}
+                  </Button>
+                </Stack.Item>
               </Stack>
             </Section>
           </Stack.Item>
@@ -159,8 +168,6 @@ const PaiContent = (props, context) => {
       return <MedHudScreen />;
     case 'doorjack':
       return <DoorjackScreen />;
-    case 'camerajack':
-      return <CameraJackScreen />;
     case 'heartbeat':
       return <HeartbeatScreen />;
     case 'projection':
@@ -187,8 +194,6 @@ const PaiContent = (props, context) => {
       return <ChemicalInjectorScreen />;
     case 'camerabug':
       return <CameraBugScreen />;
-    case 'cameraconsole':
-      return <CameraConsoleScreen />;
     case 'weakenedai':
       return <WeakenedAIScreen />;
     default:
@@ -426,7 +431,6 @@ const SYNDICATE_SOFTWARE = ['thermal vision', 'chemical injector', 'weakened ai 
 const SOFTWARE_NAMES = {
   'medical records': 'Медицинские записи',
   'security records': 'Записи охраны',
-  'camera jack': 'Взлом камер',
   'door jack': 'Взлом двери',
   'internal camera bug': 'Встроенный камерный жучок',
   'weakened ai capability': 'Слабые возможности ИИ',
@@ -696,125 +700,14 @@ const CableHackSection = (props, context) => {
 };
 
 const DoorjackScreen = (props, context) => {
-  const { act, data } = useBackend(context);
-  const { ai_capability, nearby_doors, nearby_apcs, nearby_lights, nearby_turrets, ai_capability_cooldown, ai_capability_cooldown_time } = data;
-  const cdReady = ai_capability && ai_capability_cooldown <= 0;
-  const cdPercent = ai_capability_cooldown_time > 0 ? (1 - ai_capability_cooldown / ai_capability_cooldown_time) : 1;
-  const hasAny = (nearby_doors?.length || nearby_apcs?.length || nearby_lights?.length || nearby_turrets?.length);
   return (
-    <>
-      {!!ai_capability && (
-        <Section title={<><Icon name="robot" /> Управление (Weakened AI Capability)</>}>
-          {!hasAny && (
-            <Box color="average">Рядом нет устройств для взаимодействия.</Box>
-          )}
-          {nearby_doors?.length > 0 && (
-            <Box bold mb={0.5}>Шлюзы</Box>
-          )}
-          {nearby_doors?.map((door, i) => (
-            <Box key={'d'+i} mb={1}>
-              <b>{door.name}</b>
-              <Box inline ml={1} color={door.open ? 'good' : 'average'}>
-                {door.open ? 'Открыт' : 'Закрыт'}
-              </Box>
-              {door.locked !== null && (
-                <Box inline ml={1} color={door.locked ? 'bad' : 'good'}>
-                  {door.locked ? 'Замок' : ''}
-                </Box>
-              )}
-              {door.electrified !== null && door.electrified && (
-                <Box inline ml={1} color="bad">⚡</Box>
-              )}
-              {door.emergency && (
-                <Box inline ml={1} color="average">Авар.доступ</Box>
-              )}
-              <Box mt={0.5}>
-                <Button disabled={!cdReady} icon={door.open ? 'door-closed' : 'door-open'} onClick={() => act('door_toggle_open', { ref: door.ref })}>
-                  {door.open ? 'Закрыть' : 'Открыть'}
-                </Button>
-                {door.locked !== null && (
-                  <Button ml={1} disabled={!cdReady} icon="lock" onClick={() => act('door_toggle_bolt', { ref: door.ref })}>
-                    {door.locked ? 'Снять блок' : 'Блокировать'}
-                  </Button>
-                )}
-                {door.locked !== null && (
-                  <Button ml={1} disabled={!cdReady} icon="bolt" onClick={() => act('ai_door_electrify', { ref: door.ref })}>
-                    {door.electrified ? 'Снять шок' : 'Электричество'}
-                  </Button>
-                )}
-                {door.locked !== null && (
-                  <Button ml={1} disabled={!cdReady} icon="exclamation-triangle" onClick={() => act('ai_door_emergency', { ref: door.ref })}>
-                    {door.emergency ? 'Авар.выкл' : 'Авар.вкл'}
-                  </Button>
-                )}
-              </Box>
-            </Box>
-          ))}
-          {nearby_apcs?.length > 0 && (
-            <Box bold mt={1} mb={0.5}>ЛКП</Box>
-          )}
-          {nearby_apcs?.map((apc, i) => (
-            <Box key={'a'+i} mb={1}>
-              <b>{apc.name}</b>
-              <Box inline ml={1} color={apc.operating ? 'good' : 'bad'}>{apc.operating ? 'Вкл' : 'Выкл'}</Box>
-              <Box mt={0.5}>
-                <Button disabled={!cdReady} icon="power-off" onClick={() => act('ai_apc_breaker', { ref: apc.ref })}>
-                  {apc.operating ? 'Выключить' : 'Включить'}
-                </Button>
-              </Box>
-            </Box>
-          ))}
-          {nearby_lights?.length > 0 && (
-            <Box bold mt={1} mb={0.5}>Свет</Box>
-          )}
-          {nearby_lights?.map((light, i) => (
-            <Box key={'l'+i} mb={1}>
-              <b>{light.name}</b>
-              <Box inline ml={1} color={light.no_emergency ? 'bad' : 'good'}>{light.no_emergency ? 'Авар.нет' : 'Авар.есть'}</Box>
-              <Box mt={0.5}>
-                <Button disabled={!cdReady} icon="lightbulb" onClick={() => act('ai_light_emergency', { ref: light.ref })}>
-                  {light.no_emergency ? 'Вкл.авар.' : 'Выкл.авар.'}
-                </Button>
-              </Box>
-            </Box>
-          ))}
-          {nearby_turrets?.length > 0 && (
-            <Box bold mt={1} mb={0.5}>Турели</Box>
-          )}
-          {nearby_turrets?.map((turret, i) => (
-            <Box key={'t'+i} mb={1}>
-              <b>{turret.name}</b>
-              <Box inline ml={1} color={turret.enabled ? 'bad' : 'good'}>{turret.enabled ? 'Активна' : 'Выкл'}</Box>
-              {turret.enabled && (
-                <Box inline ml={1} color={turret.lethal ? 'red' : 'average'}>{turret.lethal ? 'Летальный' : 'Нелетальный'}</Box>
-              )}
-              <Box mt={0.5}>
-                <Button disabled={!cdReady} icon="power-off" onClick={() => act('ai_turret_power', { ref: turret.ref })}>
-                  {turret.enabled ? 'Деактивировать' : 'Активировать'}
-                </Button>
-                <Button ml={1} disabled={!cdReady || !turret.enabled} icon="skull" onClick={() => act('ai_turret_lethal', { ref: turret.ref })}>
-                  {turret.lethal ? 'Нелетальный' : 'Летальный'}
-                </Button>
-              </Box>
-            </Box>
-          ))}
-          {!cdReady && (
-            <Box mt={1}>
-              <ProgressBar value={cdPercent} ranges={{ bad: [0, 0.5], average: [0.5, 0.8], good: [0.8, 1] }}>
-                <Icon name="clock" /> Кулдаун: {Math.ceil(ai_capability_cooldown / 10)}с
-              </ProgressBar>
-            </Box>
-          )}
-        </Section>
-      )}
-      <CableHackSection
-        {...props}
-        title="Взлом (кабель)"
-        icon="plug"
-        startAction="doorjack_start"
-        cancelAction="doorjack_cancel"
-      />
-    </>
+    <CableHackSection
+      {...props}
+      title="Взлом (кабель)"
+      icon="plug"
+      startAction="doorjack_start"
+      cancelAction="doorjack_cancel"
+    />
   );
 };
 
@@ -884,18 +777,6 @@ const TranslatorScreen = (props, context) => {
         <Button onClick={() => act('toggle_translator')}>Активировать модуль перевода</Button>
       )}
     </Box>
-  );
-};
-
-const CameraJackScreen = (props, context) => {
-  return (
-    <CableHackSection
-      {...props}
-      title="Взлом камеры"
-      icon="video"
-      startAction="camerajack_start"
-      cancelAction="camerajack_cancel"
-    />
   );
 };
 
@@ -1089,38 +970,18 @@ const CameraBugScreen = (props, context) => {
   );
 };
 
-const CameraConsoleScreen = (props, context) => {
-  const { act, data } = useBackend(context);
-  return (
-    <Section title={<><Icon name="camera" /> Консоль камер</>}>
-      <Box mb={1}>
-        Откройте консоль камер наблюдения для просмотра камер станции.
-      </Box>
-      <Button icon="eye" onClick={() => act('open_secureye')}>
-        Открыть консоль камер
-      </Button>
-    </Section>
-  );
-};
-
 const WeakenedAIScreen = (props, context) => {
   const { act, data } = useBackend(context);
-  const { ai_capability, camera_bug_active, nearby_doors, nearby_apcs, nearby_lights, nearby_turrets, ai_capability_cooldown, ai_capability_cooldown_time } = data;
+  const { ai_capability, nearby_doors, nearby_apcs, nearby_turrets, ai_capability_cooldown, ai_capability_cooldown_time } = data;
   const cdReady = ai_capability && ai_capability_cooldown <= 0;
   const cdPercent = ai_capability_cooldown_time > 0 ? (1 - ai_capability_cooldown / ai_capability_cooldown_time) : 1;
-  const hasAny = (nearby_doors?.length || nearby_apcs?.length || nearby_lights?.length || nearby_turrets?.length);
+  const hasAny = (nearby_doors?.length || nearby_apcs?.length || nearby_turrets?.length);
   return (
     <Section title={<><Icon name="robot" /> Weakened AI Capability</>}>
       <Box mb={1}>
         Режим ослабленного ИИ {ai_capability ? <Box inline color="good">активен</Box> : <Box inline color="bad">неактивен</Box>}.
       </Box>
-      {!camera_bug_active && (
-        <NoticeBox warning>
-          <Icon name="exclamation-triangle" /> Для работы требуется активировать Internal Camera Bug.
-        </NoticeBox>
-      )}
       <Button
-        disabled={!camera_bug_active}
         icon="power-off"
         onClick={() => act('toggle_ai_capability')}
       >
@@ -1145,10 +1006,10 @@ const WeakenedAIScreen = (props, context) => {
                   {door.locked ? 'Замок' : ''}
                 </Box>
               )}
-              {door.electrified !== null && door.electrified && (
+              {!!door.electrified && (
                 <Box inline ml={1} color="bad">⚡</Box>
               )}
-              {door.emergency && (
+              {!!door.emergency && (
                 <Box inline ml={1} color="average">Авар.доступ</Box>
               )}
               <Box mt={0.5}>
@@ -1208,26 +1069,6 @@ const WeakenedAIScreen = (props, context) => {
                   onClick={() => act('ai_apc_breaker', { ref: apc.ref })}
                 >
                   {apc.operating ? 'Выключить' : 'Включить'}
-                </Button>
-              </Box>
-            </Box>
-          ))}
-          {nearby_lights?.length > 0 && (
-            <Box bold mt={1} mb={0.5}>Свет</Box>
-          )}
-          {nearby_lights?.map((light, i) => (
-            <Box key={'l'+i} mb={1}>
-              <b>{light.name}</b>
-              <Box inline ml={1} color={light.no_emergency ? 'bad' : 'good'}>
-                {light.no_emergency ? 'Авар.нет' : 'Авар.есть'}
-              </Box>
-              <Box mt={0.5}>
-                <Button
-                  disabled={!cdReady}
-                  icon="lightbulb"
-                  onClick={() => act('ai_light_emergency', { ref: light.ref })}
-                >
-                  {light.no_emergency ? 'Вкл.авар.' : 'Выкл.авар.'}
                 </Button>
               </Box>
             </Box>

@@ -64,7 +64,10 @@
 		log_world("PAI_DEBUG: syndicate applying antag")
 		apply_syndicate_antag()
 	else
-		log_world("PAI_DEBUG: syndicate mind is null at Login")
+		log_world("PAI_DEBUG: syndicate mind is null at Login, creating mind")
+		mind_initialize()
+		if(mind)
+			apply_syndicate_antag()
 
 /mob/living/silicon/pai/syndicate/mind_initialize()
 	. = ..()
@@ -77,21 +80,6 @@
 		if(world.time >= chemical_regen_time)
 			chemical_storage = min(chemical_storage + 5, chemical_max)
 			chemical_regen_time = world.time + 15 SECONDS
-
-/mob/living/silicon/pai/syndicate/proc/toggle_thermal_vision()
-	thermal_vision_active = !thermal_vision_active
-	if(thermal_vision_active)
-		if(!use_power(500))
-			thermal_vision_active = FALSE
-			return
-		sight |= SEE_MOBS
-		lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_VISIBLE
-		to_chat(src, "<span class='notice'>Термальное зрение активировано.</span>")
-	else
-		sight &= ~SEE_MOBS
-		lighting_alpha = initial(lighting_alpha)
-		to_chat(src, "<span class='notice'>Термальное зрение деактивировано.</span>")
-	update_sight()
 
 /mob/living/silicon/pai/syndicate/proc/inject_chemicals()
 	if(!use_power(300))
@@ -113,7 +101,7 @@
 	if(chemical_storage < 5)
 		to_chat(src, "<span class='warning'>Недостаточно химикатов. Осталось: [chemical_storage]/[chemical_max] юнитов.</span>")
 		return
-	var/list/available_reagents = list("kelotane", "bicaridine", "epinephrine", "salbutamol", "glucose", "mannitol", "earthsblood")
+	var/list/available_reagents = list(/datum/reagent/medicine/kelotane, /datum/reagent/medicine/bicaridine, /datum/reagent/medicine/epinephrine, /datum/reagent/medicine/salbutamol, /datum/reagent/medicine/salglu_solution, /datum/reagent/medicine/mannitol, /datum/reagent/medicine/earthsblood)
 	var/chosen = pick(available_reagents)
 	carrier.reagents?.add_reagent(chosen, 5)
 	chemical_storage -= 5
@@ -124,22 +112,6 @@
 	if(..())
 		return TRUE
 	switch(action)
-		if("toggle_thermal_vision")
-			toggle_thermal_vision()
-			return TRUE
-		if("inject_chemicals")
-			inject_chemicals()
-			return TRUE
-		if("toggle_chemical_injector")
-			chemical_injector_active = !chemical_injector_active
-			if(chemical_injector_active)
-				to_chat(src, "<span class='notice'>Инъектор химикатов активирован. Хранилище: [chemical_storage]/[chemical_max]</span>")
-			else
-				to_chat(src, "<span class='notice'>Инъектор химикатов деактивирован.</span>")
-			return TRUE
-		if("toggle_camera_bug")
-			playsound(src, 'sound/machines/terminal_on.ogg', 50, TRUE)
-			return ..()
 		if("open_secureye")
 			if(!pda)
 				log_world("PAI_DEBUG: open_secureye - no pda")

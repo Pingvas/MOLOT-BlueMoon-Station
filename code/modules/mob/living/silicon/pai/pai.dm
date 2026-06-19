@@ -51,7 +51,6 @@
 	var/datum/data/record/securityActive2
 
 	var/obj/machinery/door/hackdoor		// The airlock being hacked
-	var/obj/machinery/camera/hackcamera		// The camera being hacked
 	var/hackprogress = 0				// Possible values: 0 - 100, >= 100 means the hack is complete and will be reset upon next check
 
 	var/heartbeat_sensor = FALSE		// Whether the heartbeat sensor is active
@@ -203,33 +202,22 @@
 		hackprogress = 0
 		hacking = FALSE
 		hackdoor = null
-		hackcamera = null
+		QDEL_NULL(cable)
 		return
 	if(istype(cable.machine, /obj/machinery/door) && cable.machine == hackdoor)
-		hackprogress = clamp(hackprogress + 4, 0, 100)
-		if(screen == "doorjack" && subscreen == 0)
-			ui_interact(src)
+		hackprogress = clamp(hackprogress + 25, 0, 100)
 		if(hackprogress >= 100)
 			hackprogress = 0
 			var/obj/machinery/door/D = cable.machine
 			D.open()
 			hacking = FALSE
-	else if(istype(cable.machine, /obj/machinery/camera) && cable.machine == hackcamera)
-		hackprogress = clamp(hackprogress + 4, 0, 100)
-		if(screen == "camerajack" && subscreen == 0)
-			ui_interact(src)
-		if(hackprogress >= 100)
-			hackprogress = 0
-			var/obj/machinery/camera/C = cable.machine
-			C.toggle_cam(src, 0)
-			hacking = FALSE
-			temp = "Взлом камеры: камера отключена."
+			QDEL_NULL(cable)
 	else
 		temp = "Джек: соединение потеряно. Взлом отменён."
 		hackprogress = 0
 		hacking = FALSE
 		hackdoor = null
-		hackcamera = null
+		QDEL_NULL(cable)
 
 /mob/living/silicon/pai/proc/process_heartbeat()
 	var/mob/living/M = card.loc
@@ -681,6 +669,21 @@
 	cell.charge += power_taken
 	APC.terminal.add_load(power_taken)
 
+/mob/living/silicon/pai/proc/toggle_thermal_vision()
+	thermal_vision_active = !thermal_vision_active
+	if(thermal_vision_active)
+		if(!use_power(500))
+			thermal_vision_active = FALSE
+			return
+		sight |= SEE_MOBS
+		lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_VISIBLE
+		to_chat(src, "<span class='notice'>Термальное зрение активировано.</span>")
+	else
+		sight &= ~SEE_MOBS
+		lighting_alpha = initial(lighting_alpha)
+		to_chat(src, "<span class='notice'>Термальное зрение деактивировано.</span>")
+	update_sight()
+
 /mob/living/silicon/pai/ui_state(mob/user)
 	return GLOB.conscious_state
 
@@ -735,10 +738,9 @@
 	data["ai_capability_cooldown_time"] = ai_capability_cooldown_time
 	data["nearby_doors"] = list()
 	data["nearby_apcs"] = list()
-	data["nearby_lights"] = list()
 	data["nearby_turrets"] = list()
 	if(ai_capability)
-		for(var/obj/machinery/door/D in oview(1, src))
+		for(var/obj/machinery/door/D in range(13, src))
 			if(istype(D, /obj/machinery/door/airlock))
 				var/obj/machinery/door/airlock/A = D
 				data["nearby_doors"] += list(list(
@@ -747,7 +749,7 @@
 					"open" = !A.density,
 					"locked" = A.locked,
 					"electrified" = A.secondsElectrified ? TRUE : FALSE,
-					"emergency" = A.emergency,
+					"emergency" = A.emergency ? TRUE : FALSE,
 				))
 			else
 				data["nearby_doors"] += list(list(
@@ -756,19 +758,13 @@
 					"open" = !D.density,
 					"locked" = null,
 				))
-		for(var/obj/machinery/power/apc/APC in oview(1, src))
+		for(var/obj/machinery/power/apc/APC in range(13, src))
 			data["nearby_apcs"] += list(list(
 				"name" = APC.name,
 				"ref" = REF(APC),
 				"operating" = APC.operating,
 			))
-		for(var/obj/machinery/light/L in oview(1, src))
-			data["nearby_lights"] += list(list(
-				"name" = L.name,
-				"ref" = REF(L),
-				"no_emergency" = L.no_emergency,
-			))
-		for(var/obj/machinery/turretid/T in oview(1, src))
+		for(var/obj/machinery/turretid/T in range(13, src))
 			data["nearby_turrets"] += list(list(
 				"name" = T.name,
 				"ref" = REF(T),
@@ -991,13 +987,6 @@
 							hackdoor = null
 						if(cable)
 							QDEL_NULL(cable)
-					if("camera jack")
-						if(hacking)
-							hacking = FALSE
-							hackprogress = 0
-							hackcamera = null
-						if(cable)
-							QDEL_NULL(cable)
 					if("encoder")
 						encoder_active = FALSE
 						encoder_name = null
@@ -1154,6 +1143,9 @@
 				encoder_active = FALSE
 				to_chat(src, "<span class='notice'>Энкодер деактивирован.</span>")
 			return TRUE
+		if("toggle_thermal_vision")
+			toggle_thermal_vision()
+			return TRUE
 		if("toggle_flashlight")
 			toggle_integrated_light()
 			return TRUE
@@ -1180,10 +1172,13 @@
 		if("doorjack_start")
 			if(cable && cable.machine)
 				hackdoor = cable.machine
+				hacking = TRUE
 				hackloop()
 			return TRUE
 		if("doorjack_cancel")
 			hackdoor = null
+			hacking = FALSE
+			hackprogress = 0
 			return TRUE
 		if("toggle_camera_bug")
 			if(!camera_bug_active && !use_power(200))
@@ -1196,9 +1191,6 @@
 				to_chat(src, "<span class='notice'>Internal Camera Bug деактивирован.</span>")
 			return TRUE
 		if("toggle_ai_capability")
-			if(!ai_capability && !software.Find("internal camera bug"))
-				temp = "Требуется модуль Internal Camera Bug."
-				return TRUE
 			if(!ai_capability && !use_power(500))
 				temp = "Недостаточно энергии для активации Weakened AI Capability."
 				return TRUE
@@ -1211,15 +1203,19 @@
 		if("open_camera_console")
 			if(!camera_bug_active)
 				return TRUE
+			var/datum/computer_file/program/secureye/SP = locate() in pda?.get_all_files()
+			if(!SP)
+				SP = secureye_program
+			if(!SP)
+				temp = "Программа Secureye не найдена."
+				return TRUE
 			if(!use_power(100))
 				temp = "Недостаточно энергии для открытия консоли камер."
 				return TRUE
-			var/datum/computer_file/program/secureye/SP = locate() in pda?.get_all_files()
-			if(SP)
-				SP.computer = pda
-				SP.run_program(src)
-				pda.active_program = SP
-				SP.ui_interact(src)
+			SP.computer = pda
+			SP.run_program(src)
+			pda.active_program = SP
+			SP.ui_interact(src)
 			return TRUE
 		if("door_toggle_open")
 			if(!ai_capability)
@@ -1228,7 +1224,7 @@
 				temp = "Недостаточно энергии."
 				return TRUE
 			var/ref = params["ref"]
-			var/obj/machinery/door/D = locate(ref) in oview(1, src)
+			var/obj/machinery/door/D = locate(ref) in range(13, src)
 			if(!istype(D))
 				return TRUE
 			if(world.time < ai_capability_cooldown)
@@ -1247,7 +1243,7 @@
 				temp = "Недостаточно энергии."
 				return TRUE
 			var/ref = params["ref"]
-			var/obj/machinery/door/airlock/A = locate(ref) in oview(1, src)
+			var/obj/machinery/door/airlock/A = locate(ref) in range(13, src)
 			if(!istype(A))
 				return TRUE
 			if(world.time < ai_capability_cooldown)
@@ -1266,7 +1262,7 @@
 				temp = "Недостаточно энергии."
 				return TRUE
 			var/ref = params["ref"]
-			var/obj/machinery/door/airlock/A = locate(ref) in oview(1, src)
+			var/obj/machinery/door/airlock/A = locate(ref) in range(13, src)
 			if(!istype(A))
 				return TRUE
 			if(world.time < ai_capability_cooldown)
@@ -1285,7 +1281,7 @@
 				temp = "Недостаточно энергии."
 				return TRUE
 			var/ref = params["ref"]
-			var/obj/machinery/door/airlock/A = locate(ref) in oview(1, src)
+			var/obj/machinery/door/airlock/A = locate(ref) in range(13, src)
 			if(!istype(A))
 				return TRUE
 			if(world.time < ai_capability_cooldown)
@@ -1301,30 +1297,13 @@
 				temp = "Недостаточно энергии."
 				return TRUE
 			var/ref = params["ref"]
-			var/obj/machinery/power/apc/APC = locate(ref) in oview(1, src)
+			var/obj/machinery/power/apc/APC = locate(ref) in range(13, src)
 			if(!istype(APC))
 				return TRUE
 			if(world.time < ai_capability_cooldown)
 				temp = "Подождите [DisplayTimeText(ai_capability_cooldown - world.time)]."
 				return TRUE
 			APC.toggle_breaker(src)
-			ai_capability_cooldown = world.time + ai_capability_cooldown_time
-			. = TRUE
-		if("ai_light_emergency")
-			if(!ai_capability)
-				return TRUE
-			if(!use_power(500))
-				temp = "Недостаточно энергии."
-				return TRUE
-			var/ref = params["ref"]
-			var/obj/machinery/light/L = locate(ref) in oview(1, src)
-			if(!istype(L))
-				return TRUE
-			if(world.time < ai_capability_cooldown)
-				temp = "Подождите [DisplayTimeText(ai_capability_cooldown - world.time)]."
-				return TRUE
-			L.no_emergency = !L.no_emergency
-			L.update(FALSE)
 			ai_capability_cooldown = world.time + ai_capability_cooldown_time
 			. = TRUE
 		if("ai_turret_power")
@@ -1334,7 +1313,7 @@
 				temp = "Недостаточно энергии."
 				return TRUE
 			var/ref = params["ref"]
-			var/obj/machinery/turretid/T = locate(ref) in oview(1, src)
+			var/obj/machinery/turretid/T = locate(ref) in range(13, src)
 			if(!istype(T))
 				return TRUE
 			if(world.time < ai_capability_cooldown)
@@ -1350,7 +1329,7 @@
 				temp = "Недостаточно энергии."
 				return TRUE
 			var/ref = params["ref"]
-			var/obj/machinery/turretid/T = locate(ref) in oview(1, src)
+			var/obj/machinery/turretid/T = locate(ref) in range(13, src)
 			if(!istype(T))
 				return TRUE
 			if(world.time < ai_capability_cooldown)
@@ -1368,14 +1347,6 @@
 		if("doorjack_retract")
 			if(cable)
 				QDEL_NULL(cable)
-			return TRUE
-		if("camerajack_start")
-			if(cable && cable.machine && istype(cable.machine, /obj/machinery/camera))
-				hackcamera = cable.machine
-				hackloop()
-			return TRUE
-		if("camerajack_cancel")
-			hackcamera = null
 			return TRUE
 		if("toggle_heartbeat")
 			heartbeat_sensor = !heartbeat_sensor
@@ -1421,6 +1392,20 @@
 			return TRUE
 		if("medical_bioscan")
 			subscreen = 1
+			return TRUE
+		if("toggle_chemical_injector")
+			if(istype(src, /mob/living/silicon/pai/syndicate))
+				var/mob/living/silicon/pai/syndicate/S = src
+				S.chemical_injector_active = !S.chemical_injector_active
+				if(S.chemical_injector_active)
+					to_chat(src, "<span class='notice'>Инъектор химикатов активирован. Хранилище: [S.chemical_storage]/[S.chemical_max]</span>")
+				else
+					to_chat(src, "<span class='notice'>Инъектор химикатов деактивирован.</span>")
+			return TRUE
+		if("inject_chemicals")
+			if(istype(src, /mob/living/silicon/pai/syndicate))
+				var/mob/living/silicon/pai/syndicate/S = src
+				S.inject_chemicals()
 			return TRUE
 		if("clear_temp")
 			temp = null
