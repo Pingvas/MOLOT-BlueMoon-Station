@@ -104,7 +104,7 @@ export const PaiSoftware = (props, context) => {
                     value={(data.battery_percent ?? 0) / 100}
                     ranges={{ good: [0.5, 1], average: [0.15, 0.5], bad: [0, 0.15] }}
                   >
-                    {data.battery_charge != null ? `${data.battery_percent}%${data.charging ? ' ⚡' : ''}` : 'N/A'}
+                    {data.battery_charge !== null ? `${data.battery_percent}%${data.charging ? ' ⚡' : ''}` : 'N/A'}
                   </ProgressBar>
                 </Stack.Item>
                 {!!data.charging && (
@@ -220,7 +220,7 @@ const MainScreen = (props, context) => {
               inline
               width="200px"
             >
-              {battery_charge != null ? `${battery_percent}% (${battery_charge}/${battery_max})${charging ? ' ⚡' : ''}` : 'N/A'}
+              {battery_charge !== null ? `${battery_percent}% (${battery_charge}/${battery_max})${charging ? ' ⚡' : ''}` : 'N/A'}
             </ProgressBar>
           </LabeledList.Item>
           <LabeledList.Item label={<><Icon name="tag" /> Тип батареи</>}>{cell_type_name || 'Нет'}</LabeledList.Item>
