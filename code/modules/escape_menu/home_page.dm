@@ -23,8 +23,18 @@
 		new /atom/movable/screen/escape_menu/home_button(
 			null,
 			src,
-			"Остановить Звуки",
+			"Параметры персонажа",
 			/* offset = */ 2,
+			CALLBACK(src, PROC_REF(home_open_character_prefs)),
+		)
+	)
+
+	page_holder.give_screen_object(
+		new /atom/movable/screen/escape_menu/home_button(
+			null,
+			src,
+			"Остановить Звуки",
+			/* offset = */ 3,
 			CALLBACK(src, PROC_REF(home_stop_sounds)),
 		)
 	)
@@ -34,7 +44,7 @@
 			null,
 			src,
 			"Покинуть Тело",
-			/* offset = */ 3,
+			/* offset = */ 4,
 			CALLBACK(src, PROC_REF(open_leave_body)),
 		)
 	)
@@ -44,7 +54,7 @@
 			null,
 			src,
 			"Включить/Выключить Полноэкранный Режим",
-			/* offset = */ 5,
+			/* offset = */ 6,
 			CALLBACK(src, PROC_REF(home_fullscreen)),
 		)
 	)
@@ -53,6 +63,11 @@
 	qdel(src)
 
 /datum/escape_menu/proc/home_open_settings()
+	client?.prefs.ui_interact(client?.mob)
+	qdel(src)
+
+/datum/escape_menu/proc/home_open_character_prefs()
+	client?.prefs.current_tab = 0
 	client?.prefs.ShowChoices(client?.mob)
 	qdel(src)
 
