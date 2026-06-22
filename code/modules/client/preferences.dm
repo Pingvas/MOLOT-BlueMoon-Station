@@ -6573,7 +6573,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 		to_chat(user, span_warning("The link must be a direct http(s):// image/video URL ending with .png, .jpg, .jpeg, .gif, .webm, or .mp4!"))
 		return ACTION_HEADSHOT_LINK_NOOP
 
-	var/static/list/repl_chars = list("\n"="#","\t"="#","'"=""," "="")
+	var/static/list/repl_chars = list("\n"="#","\t"="#","'"="","\""=""," "="")
 	return sanitize(usr_input, repl_chars)
 
 /proc/headshot_preview_html(link, width = 140, height = 140)
