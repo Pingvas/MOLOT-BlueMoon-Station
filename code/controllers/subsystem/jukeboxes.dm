@@ -288,6 +288,8 @@ SUBSYSTEM_DEF(jukeboxes)
 					song_played.echo[1] = (inrange ? 0 : -10000)
 					song_played.echo[3] = (inrange ? mixes : max(mixes, 0))
 					song_played.status = SOUND_UPDATE
+			var/juke_vol = M.client?.prefs?.get_sound_volume("jukeboxes") / 100
+			song_played.volume *= juke_vol
 			SEND_SOUND(M, song_played)
 			CHECK_TICK
 	return

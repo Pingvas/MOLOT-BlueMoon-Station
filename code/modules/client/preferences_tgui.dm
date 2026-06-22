@@ -28,6 +28,17 @@
 	.["sound_prayers"] = !!(toggles & SOUND_PRAYERS)
 	.["sound_adminhelp"] = !!(toggles & SOUND_ADMINHELP)
 
+	// Sound volumes
+	.["sound_volume_midi"] = sound_volume_midi
+	.["sound_volume_ambience"] = sound_volume_ambience
+	.["sound_volume_ship_ambience"] = sound_volume_ship_ambience
+	.["sound_volume_announcements"] = sound_volume_announcements
+	.["sound_volume_bark"] = sound_volume_bark
+	.["sound_volume_prayers"] = sound_volume_prayers
+	.["sound_volume_adminhelp"] = sound_volume_adminhelp
+	.["sound_volume_instruments"] = sound_volume_instruments
+	.["sound_volume_jukeboxes"] = sound_volume_jukeboxes
+
 	// Graphics toggles
 	.["parallax"] = parallax
 	.["ambient_occlusion"] = ambientocclusion
@@ -43,7 +54,7 @@
 	.["chat_on_map"] = chat_on_map
 	.["chat_on_map_looc"] = chat_on_map_looc
 	.["see_chat_non_mob"] = see_chat_non_mob
-	.["see_rc_emotes"] = see_rc_emotes
+	.["see_chat_emotes"] = see_chat_emotes
 	.["hud_button_flashes"] = hud_toggle_flash
 
 	// Chat toggles
@@ -83,6 +94,20 @@
 	.["damage_screenshake"] = damagescreenshake
 	.["recoil_push"] = recoil_screenshake
 
+	// Admin
+	.["has_admin"] = !!check_rights_for(user?.client, R_ADMIN)
+	if(.["has_admin"])
+		.["deadmin"] = deadmin
+
+	// Antag roles
+	var/list/antag_roles = list()
+	for(var/role in GLOB.special_roles)
+		antag_roles += list(list(
+			"name" = role,
+			"status" = (role in be_special) ? be_special[role] : -1
+		))
+	.["antag_roles"] = antag_roles
+
 	// Content toggles
 	.["verb_consent"] = !!(toggles & VERB_CONSENT)
 	.["ranged_verb_pref"] = !!(toggles & RANGED_VERBS_CONSENT)
@@ -113,10 +138,27 @@
 	.["cum_onto_pref"] = !!(cit_toggles & CUM_ONTO)
 	.["sex_jitter"] = !!(cit_toggles & SEX_JITTER)
 	.["dance_disco"] = !(cit_toggles & NO_DISCO_DANCE)
-	.["tattoopref"] = tattoopref
-	.["extremeharm"] = extremeharm
-	.["unholypref"] = unholypref
 	.["gfluid_blacklist"] = gfluid_blacklist
+
+	// Old settings restoration
+	.["outline_color"] = outline_color
+	.["screentip_color"] = screentip_color
+	.["max_chat_length"] = max_chat_length
+	.["view_pixelshift"] = view_pixelshift
+	.["lighting_blur"] = lighting_blur
+	.["hud_toggle_color"] = hud_toggle_color
+	.["tgui_input_mode"] = tgui_input_mode
+	.["tgui_input_verbs"] = tgui_input_verbs
+	.["UI_style"] = UI_style
+	.["auto_capitalize_enabled"] = auto_capitalize_enabled
+	.["preferred_chaos_level"] = preferred_chaos_level
+	.["ghost_form"] = ghost_form
+	.["ghost_orbit"] = ghost_orbit
+	.["ghost_accs"] = ghost_accs
+	.["ghost_others"] = ghost_others
+	.["ooccolor"] = ooccolor
+	.["aooccolor"] = aooccolor
+	.["custom_colors"] = custom_colors
 
 	// Keybindings
 	var/list/kb_list = list()
@@ -212,6 +254,14 @@
 					toggles ^= SOUND_ADMINHELP
 			save_preferences()
 
+		// Sound volumes
+		if("set_volume")
+			var/flag = params["flag"]
+			var/value = clamp(text2num(params["value"]), 0, 100)
+			if(flag in vars)
+				vars[flag] = value
+				save_preferences()
+
 		// Graphics toggles
 		if("toggle_gfx")
 			var/flag = params["flag"]
@@ -243,8 +293,8 @@
 					chat_on_map_looc = !chat_on_map_looc
 				if("see_chat_non_mob")
 					see_chat_non_mob = !see_chat_non_mob
-				if("see_rc_emotes")
-					see_rc_emotes = !see_rc_emotes
+				if("see_chat_emotes")
+					see_chat_emotes = !see_chat_emotes
 				if("hud_button_flashes")
 					hud_toggle_flash = !hud_toggle_flash
 			save_preferences()
@@ -252,6 +302,10 @@
 		if("set_parallax")
 			parallax = clamp(text2num(params["value"]), PARALLAX_DISABLE, PARALLAX_INSANE)
 			parent?.parallax_holder?.Reset()
+			save_preferences()
+
+		if("set_clientfps")
+			clientfps = sanitize_clientfps(text2num(params["value"]))
 			save_preferences()
 
 		// Chat toggles
@@ -316,6 +370,42 @@
 					disable_combat_mouse_lock = !disable_combat_mouse_lock
 			save_preferences()
 
+		// Antag role toggles
+		if("toggle_antag")
+			var/role = params["role"]
+			var/value = text2num(params["value"])
+			if(!(role in GLOB.special_roles))
+				return
+			if(value < 0)
+				be_special -= role
+			else
+				be_special += role
+				be_special[role] = value
+			save_preferences()
+
+		if("toggle_admin")
+			var/flag = params["flag"]
+			switch(flag)
+				if("sound_adminhelp")
+					toggles ^= SOUND_ADMINHELP
+				if("announce_login")
+					toggles ^= ANNOUNCE_LOGIN
+				if("combohud_lighting")
+					toggles ^= COMBOHUD_LIGHTING
+				if("deadmin_play_login")
+					deadmin ^= DEADMIN_ONLOGIN
+				if("deadmin_play_spawn")
+					deadmin ^= DEADMIN_ONSPAWN
+				if("deadmin_antagonist")
+					deadmin ^= DEADMIN_ANTAGONIST
+				if("deadmin_head")
+					deadmin ^= DEADMIN_POSITION_HEAD
+				if("deadmin_security")
+					deadmin ^= DEADMIN_POSITION_SECURITY
+				if("deadmin_silicon")
+					deadmin ^= DEADMIN_POSITION_SILICON
+			save_preferences()
+
 		if("set_be_victim")
 			be_victim = params["value"]
 			save_preferences()
@@ -332,7 +422,75 @@
 					recoil_screenshake = clamp(value, 0, 100)
 			save_preferences()
 
-		// Content toggles
+	// Graphics value setter
+		if("set_gfx_val")
+			var/flag = params["flag"]
+			var/value = params["value"]
+			switch(flag)
+				if("outline_color")
+					outline_color = value
+				if("screentip_color")
+					screentip_color = value
+				if("hud_toggle_color")
+					hud_toggle_color = value
+				if("max_chat_length")
+					max_chat_length = clamp(text2num(value), 0, 512)
+				if("lighting_blur")
+					lighting_blur = clamp(text2num(value), 0, 6)
+				if("preferred_chaos_level")
+					preferred_chaos_level = clamp(text2num(value), 1, 5)
+			save_preferences()
+
+		if("toggle_gfx_val")
+			var/flag = params["flag"]
+			switch(flag)
+				if("view_pixelshift")
+					view_pixelshift = !view_pixelshift
+				if("auto_capitalize_enabled")
+					auto_capitalize_enabled = !auto_capitalize_enabled
+			save_preferences()
+
+		if("set_ui_pref")
+			var/flag = params["flag"]
+			var/value = params["value"]
+			switch(flag)
+				if("tgui_input_mode")
+					tgui_input_mode = (value == "TGUI" ? TRUE : FALSE)
+				if("tgui_input_verbs")
+					tgui_input_verbs = (value == "TGUI" ? TRUE : FALSE)
+				if("UI_style")
+					UI_style = value
+				if("ghost_form")
+					ghost_form = value
+				if("ghost_orbit")
+					ghost_orbit = value
+				if("ghost_accs")
+					ghost_accs = value
+				if("ghost_others")
+					ghost_others = value
+			save_preferences()
+
+		if("set_ooc_pref")
+			var/flag = params["flag"]
+			var/value = params["value"]
+			switch(flag)
+				if("ooccolor")
+					ooccolor = value
+				if("aooccolor")
+					aooccolor = value
+				if("custom_colors")
+					if(value)
+						custom_colors |= CUSTOM_OOC
+					else
+						custom_colors &= ~CUSTOM_OOC
+				if("custom_aooc")
+					if(value)
+						custom_colors |= CUSTOM_AOOC
+					else
+						custom_colors &= ~CUSTOM_AOOC
+			save_preferences()
+
+	// Content toggles
 		if("pref")
 			var/pref = params["pref"]
 			switch(pref)
@@ -394,18 +552,6 @@
 					cit_toggles ^= SEX_JITTER
 				if("dance_disco")
 					cit_toggles ^= NO_DISCO_DANCE
-			save_preferences()
-
-		if("set_consent_pref")
-			var/pref = params["pref"]
-			var/value = params["value"]
-			switch(pref)
-				if("tattoopref")
-					tattoopref = value
-				if("extremeharm")
-					extremeharm = value
-				if("unholypref")
-					unholypref = value
 			save_preferences()
 
 		// Keybinding actions

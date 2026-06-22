@@ -1,20 +1,29 @@
-import { Button, Stack } from '../../../components';
+import { Button, Stack, Tooltip } from '../../../components';
 
 type PrefRowProps = {
   label: string;
   checked?: boolean;
   onClick: () => void;
   hint?: string;
+  tooltip?: string;
 };
 
 export const PrefRow = (props: PrefRowProps) => {
-  const { label, checked, onClick, hint } = props;
+  const { label, checked, onClick, hint, tooltip } = props;
+
+  const labelEl = (
+    <div className="GamePreferences__label">{label}</div>
+  );
 
   return (
     <Stack.Item>
       <Stack align="center" fill className="GamePreferences__row">
         <Stack.Item grow basis={0}>
-          <div className="GamePreferences__label">{label}</div>
+          {tooltip ? (
+            <Tooltip content={tooltip}>{labelEl}</Tooltip>
+          ) : (
+            labelEl
+          )}
           {hint && (
             <div className="GamePreferences__hint">{hint}</div>
           )}
@@ -31,9 +40,3 @@ export const PrefRow = (props: PrefRowProps) => {
     </Stack.Item>
   );
 };
-
-export const CONSENT_OPTIONS = [
-  { value: 'Yes', label: 'Да' },
-  { value: 'Ask', label: 'Спросить' },
-  { value: 'No', label: 'Нет' },
-];

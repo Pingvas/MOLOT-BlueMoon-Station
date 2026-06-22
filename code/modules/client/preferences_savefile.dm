@@ -553,6 +553,15 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	S["color_presets_hsv"]>> color_presets_hsv // BLUEMOON ADD
 	S["color_presets_matrix"]>> color_presets_matrix // BLUEMOON ADD
 	S["clientfps"] >> clientfps
+	S["sound_volume_midi"] >> sound_volume_midi
+	S["sound_volume_ambience"] >> sound_volume_ambience
+	S["sound_volume_ship_ambience"] >> sound_volume_ship_ambience
+	S["sound_volume_announcements"] >> sound_volume_announcements
+	S["sound_volume_bark"] >> sound_volume_bark
+	S["sound_volume_prayers"] >> sound_volume_prayers
+	S["sound_volume_adminhelp"] >> sound_volume_adminhelp
+	S["sound_volume_instruments"] >> sound_volume_instruments
+	S["sound_volume_jukeboxes"] >> sound_volume_jukeboxes
 	S["parallax"] >> parallax
 	S["ambientocclusion"] >> ambientocclusion
 	S["lighting_blur"] >> lighting_blur
@@ -657,6 +666,15 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	custom_colors = sanitize_integer(custom_colors, 0, 16777215, initial(custom_colors))
 	deadmin = sanitize_integer(deadmin, 0, 16777215, initial(deadmin))
 	clientfps = sanitize_clientfps(clientfps)
+	sound_volume_midi = sanitize_integer(sound_volume_midi, 0, 100, initial(sound_volume_midi))
+	sound_volume_ambience = sanitize_integer(sound_volume_ambience, 0, 100, initial(sound_volume_ambience))
+	sound_volume_ship_ambience = sanitize_integer(sound_volume_ship_ambience, 0, 100, initial(sound_volume_ship_ambience))
+	sound_volume_announcements = sanitize_integer(sound_volume_announcements, 0, 100, initial(sound_volume_announcements))
+	sound_volume_bark = sanitize_integer(sound_volume_bark, 0, 100, initial(sound_volume_bark))
+	sound_volume_prayers = sanitize_integer(sound_volume_prayers, 0, 100, initial(sound_volume_prayers))
+	sound_volume_adminhelp = sanitize_integer(sound_volume_adminhelp, 0, 100, initial(sound_volume_adminhelp))
+	sound_volume_instruments = sanitize_integer(sound_volume_instruments, 0, 100, initial(sound_volume_instruments))
+	sound_volume_jukeboxes = sanitize_integer(sound_volume_jukeboxes, 0, 100, initial(sound_volume_jukeboxes))
 	preferred_chaos_level = sanitize_integer(preferred_chaos_level, 0, 3, 2)
 	parallax = sanitize_integer(parallax, PARALLAX_DISABLE, PARALLAX_INSANE, null)
 	ambientocclusion = sanitize_integer(ambientocclusion, 0, 1, initial(ambientocclusion))
@@ -856,6 +874,15 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	WRITE_FILE(S["color_presets_hsv"], color_presets_hsv) // BLUEMOON ADD
 	WRITE_FILE(S["color_presets_matrix"], color_presets_matrix) // BLUEMOON ADD
 	WRITE_FILE(S["clientfps"], clientfps)
+	WRITE_FILE(S["sound_volume_midi"], sound_volume_midi)
+	WRITE_FILE(S["sound_volume_ambience"], sound_volume_ambience)
+	WRITE_FILE(S["sound_volume_ship_ambience"], sound_volume_ship_ambience)
+	WRITE_FILE(S["sound_volume_announcements"], sound_volume_announcements)
+	WRITE_FILE(S["sound_volume_bark"], sound_volume_bark)
+	WRITE_FILE(S["sound_volume_prayers"], sound_volume_prayers)
+	WRITE_FILE(S["sound_volume_adminhelp"], sound_volume_adminhelp)
+	WRITE_FILE(S["sound_volume_instruments"], sound_volume_instruments)
+	WRITE_FILE(S["sound_volume_jukeboxes"], sound_volume_jukeboxes)
 	WRITE_FILE(S["parallax"], parallax)
 	WRITE_FILE(S["ambientocclusion"], ambientocclusion)
 	WRITE_FILE(S["lighting_blur"], lighting_blur)

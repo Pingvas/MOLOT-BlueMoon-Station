@@ -348,6 +348,17 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 
 	var/clientfps = 120
 
+	// Sound volume preferences
+	var/sound_volume_midi = 100
+	var/sound_volume_ambience = 27
+	var/sound_volume_ship_ambience = 35
+	var/sound_volume_announcements = 100
+	var/sound_volume_bark = 70
+	var/sound_volume_prayers = 100
+	var/sound_volume_adminhelp = 100
+	var/sound_volume_instruments = 100
+	var/sound_volume_jukeboxes = 100
+
 	var/parallax = PARALLAX_INSANE
 
 	var/fullscreen = TRUE
@@ -6071,6 +6082,10 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 
 	ShowChoices(user)
 	return TRUE
+
+/datum/preferences/proc/get_sound_volume(sound_id)
+	var/varname = "sound_volume_[sound_id]"
+	return vars[varname] || 100
 
 /datum/preferences/proc/copy_to(mob/living/carbon/human/character, icon_updates = 1, roundstart_checks = TRUE, initial_spawn = FALSE)
 	if(be_random_name)

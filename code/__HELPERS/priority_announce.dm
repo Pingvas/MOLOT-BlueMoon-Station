@@ -106,11 +106,13 @@
 
 	announcement = build_priority_announcement(text, title, type, sender_override, has_important_message)
 
-	var/s = sound(sound)
+	var/sound/s = sound(sound)
 	for(var/mob/M in GLOB.player_list)
 		if(!isnewplayer(M) && M.can_hear())
 			to_chat(M, announcement)
 			if(M.client.prefs.toggles & SOUND_ANNOUNCEMENTS)
+				var/pref_vol = M.client?.prefs?.get_sound_volume("announcements") || 100
+				s.volume = pref_vol
 				SEND_SOUND(M, s)
 
 /**
@@ -171,10 +173,11 @@
 		if(!isnewplayer(M) && M.can_hear())
 			to_chat(M, "[span_minorannounce("<font color = red>[title]</font color><BR>[message]")]<BR>")
 			if(M.client.prefs.toggles & SOUND_ANNOUNCEMENTS)
+				var/pref_vol = M.client?.prefs?.get_sound_volume("announcements") || 100
 				if(alert)
-					SEND_SOUND(M, sound('sound/misc/notice1.ogg'))
+					SEND_SOUND(M, sound('sound/misc/notice1.ogg', volume = pref_vol))
 				else
-					SEND_SOUND(M, sound('sound/misc/notice2.ogg'))
+					SEND_SOUND(M, sound('sound/misc/notice2.ogg', volume = pref_vol))
 
 /proc/build_system_notice(title, body, theme = "notice", label = null, focus = null)
 	var/list/classes = list(
@@ -207,10 +210,11 @@
 		if(!isnewplayer(M) && M.can_hear())
 			to_chat(M, html)
 			if(M.client.prefs.toggles & SOUND_ANNOUNCEMENTS)
+				var/pref_vol = M.client?.prefs?.get_sound_volume("announcements") || 100
 				if(raised)
-					SEND_SOUND(M, sound('sound/misc/notice1.ogg'))
+					SEND_SOUND(M, sound('sound/misc/notice1.ogg', volume = pref_vol))
 				else
-					SEND_SOUND(M, sound('sound/misc/notice2.ogg'))
+					SEND_SOUND(M, sound('sound/misc/notice2.ogg', volume = pref_vol))
 
 /proc/announce_captain_arrival(displayed_rank, captain_name)
 	if(!displayed_rank)
@@ -223,7 +227,8 @@
 		if(!isnewplayer(M) && M.can_hear())
 			to_chat(M, html)
 			if(M.client.prefs.toggles & SOUND_ANNOUNCEMENTS)
-				SEND_SOUND(M, sound('sound/misc/notice2.ogg'))
+				var/pref_vol = M.client?.prefs?.get_sound_volume("announcements") || 100
+				SEND_SOUND(M, sound('sound/misc/notice2.ogg', volume = pref_vol))
 
 /proc/build_ai_upload_notice(remote_access_restored = FALSE)
 	if(remote_access_restored)
