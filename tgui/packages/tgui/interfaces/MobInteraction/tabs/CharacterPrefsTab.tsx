@@ -10,6 +10,7 @@ type CharacterPrefsInfo = {
   extreme_harm: boolean,
   mobsex_pref: boolean,
   tattoo_pref: number,
+  be_victim: number,
 }
 
 export const CharacterPrefsTab = (props, context) => {
@@ -23,6 +24,7 @@ export const CharacterPrefsTab = (props, context) => {
     extreme_harm,
     mobsex_pref,
     tattoo_pref,
+    be_victim,
   } = data;
   return (
     <Flex direction="column">
@@ -196,6 +198,29 @@ export const CharacterPrefsTab = (props, context) => {
             color={mobsex_pref ? "default" : "red"}
             onClick={() => act('char_pref', {
               char_pref: 'mobsex_pref',
+              value: 0,
+            })} />
+        </LabeledList.Item>
+        <LabeledList.Item label="Жертва антагов">
+          <Button
+            icon={"check"}
+            color={be_victim === 1 ? "green" : "default"}
+            onClick={() => act('char_pref', {
+              char_pref: 'be_victim',
+              value: 1,
+            })} />
+          <Button
+            icon={"question"}
+            color={be_victim === 2 ? "yellow" : "default"}
+            onClick={() => act('char_pref', {
+              char_pref: 'be_victim',
+              value: 2,
+            })} />
+          <Button
+            icon={"times"}
+            color={be_victim === 0 ? "red" : "default"}
+            onClick={() => act('char_pref', {
+              char_pref: 'be_victim',
               value: 0,
             })} />
         </LabeledList.Item>

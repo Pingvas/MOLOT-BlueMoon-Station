@@ -23,7 +23,7 @@
 		new /atom/movable/screen/escape_menu/home_button(
 			null,
 			src,
-			"Параметры персонажа",
+			"Настройки персонажа",
 			/* offset = */ 2,
 			CALLBACK(src, PROC_REF(home_open_character_prefs)),
 		)
@@ -146,9 +146,9 @@
 
 // Needs to be separated so it doesn't scale
 /atom/movable/screen/escape_menu/home_button_text
-	maptext_width = 200
+	maptext_width = 280
 	maptext_height = 50
-	pixel_x = -80
+	pixel_x = -100
 
 	VAR_PRIVATE
 		button_text

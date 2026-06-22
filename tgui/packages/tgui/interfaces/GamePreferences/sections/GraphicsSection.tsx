@@ -45,13 +45,11 @@ const FPS_OPTIONS = [
 ];
 
 const LIGHTING_BLUR_OPTIONS = [
-  { value: 0, label: 'Отключено' },
+  { value: 0, label: '0' },
   { value: 1, label: '1' },
   { value: 2, label: '2' },
   { value: 3, label: '3' },
   { value: 4, label: '4' },
-  { value: 5, label: '5' },
-  { value: 6, label: '6' },
 ];
 
 const UI_STYLE_OPTIONS = ['Midnight', 'Plasma', 'Retro', 'Operative', 'Minimal'];
@@ -89,13 +87,14 @@ export const GraphicsSection = (props, context) => {
   const leftCol = GFX_TOGGLES.slice(0, mid);
   const rightCol = GFX_TOGGLES.slice(mid);
 
-  const colorRow = (label: string, color: string, flag: string) => {
+  const colorRow = (label: string, color: string, flag: string, tooltip?: string) => {
     const safeColor = /^#[0-9a-fA-F]{6}$/.test(color) ? color : '#000000';
     return (
       <Stack.Item>
         <Stack align="center" fill className="GamePreferences__row">
           <Stack.Item grow basis={0}>
             <div className="GamePreferences__label">{label}</div>
+            {tooltip && <div className="GamePreferences__hint">{tooltip}</div>}
           </Stack.Item>
           <Stack.Item>
             <Box
@@ -132,7 +131,7 @@ export const GraphicsSection = (props, context) => {
       label={label}
       checked={data[key]}
       tooltip={tooltip}
-      onClick={() => act('toggle_gfx_val', { flag })}
+      onClick={() => act('toggle_gfx', { flag })}
     />
   );
 
@@ -209,7 +208,8 @@ export const GraphicsSection = (props, context) => {
           </Stack.Item>
         </Stack>
       </Stack.Item>
-      {colorRow('Цвет контура', data.outline_color || '#6086A0', 'outline_color')}
+      {colorRow('Цвет контура', data.outline_color || '#6086A0', 'outline_color',
+        'Цвет свечения вокруг объектов, на которые наведён курсор. Виден в игровом мире вокруг кнопок, шкафов, дверей и прочих объектов интерфейса')}
       {colorRow('Цвет подсказок', data.screentip_color || '#ac10b5', 'screentip_color')}
       {colorRow('Цвет мигания HUD', data.hud_toggle_color || '#ffa5dc', 'hud_toggle_color')}
       <Stack.Item>

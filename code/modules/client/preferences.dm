@@ -1793,6 +1793,11 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "Vore : <a href='?_src_=prefs;preference=vore_pref'>[vorepref]</a><br>"
 					dat += "Mob Non-Con Sex : <a href='?_src_=prefs;preference=mobsex_pref'>[mobsexpref]</a><br>"
 					dat += "Horny Antags : <a href='?_src_=prefs;preference=hornyantags_pref'>[hornyantagspref]</a><br>"
+					dat += "Tattoo : <a href='?_src_=prefs;preference=tattoo_pref'>[tattoopref]</a><br>"
+					dat += "Unholy : <a href='?_src_=prefs;preference=unholypref'>[unholypref]</a><br>"
+					dat += "Extreme : <a href='?_src_=prefs;preference=extremepref'>[extremepref]</a><br>"
+					dat += "Extreme Harm : <a href='?_src_=prefs;preference=extremeharm'>[extremeharm]</a><br>"
+					dat += "Antag Victim : <a href='?_src_=prefs;preference=be_victim'>[be_victim ? be_victim : "No"]</a><br>"
 
 					dat += "<h2>Lewd preferences</h2>"
 					dat += "<b>Lust tolerance:</b><a href='?_src_=prefs;preference=lust_tolerance;task=input'>[lust_tolerance]</a><br>"
@@ -2439,19 +2444,20 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 									var/extra_loadout_data = ""
 									if(gear.base64icon)
 										extra_loadout_data += "<center><img src='data:image/jpeg;base64,[gear.base64icon]'></center>"
-									if(loadout_item)
-										class_link = "style='white-space:normal;' class='linkOn' href='?_src_=prefs;preference=gear;toggle_gear_path=[url_encode(name)];toggle_gear=0'"
-										if(gear.loadout_flags & LOADOUT_CAN_COLOR_POLYCHROMIC)
-											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color_polychromic=1;loadout_gear_name=[url_encode(gear.name)];'>Color</a>"
-											for(var/loadout_color in loadout_item[LOADOUT_COLOR])
-												extra_loadout_data += "<span style='border: 1px solid #161616; background-color: [loadout_color];'><font color='[color_hex2num(loadout_color) < 200 ? "FFFFFF" : "000000"]'>[loadout_color]</font></span>"
-										else
-											var/loadout_color_non_poly = "#FFFFFF"
-											if(length(loadout_item[LOADOUT_COLOR]))
-												loadout_color_non_poly = loadout_item[LOADOUT_COLOR][1]
-											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color=1;loadout_gear_name=[url_encode(gear.name)];'>Color</a>"
-											extra_loadout_data += "<span style='border: 1px solid #161616; background-color: [loadout_color_non_poly];'><font color='[color_hex2num(loadout_color_non_poly) < 200 ? "FFFFFF" : "000000"]'>[loadout_color_non_poly]</font></span>"
-											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color_HSV=1;loadout_gear_name=[url_encode(gear.name)];'>HSV Color</a>" // SPLURT EDIT
+									if(gear.loadout_flags & LOADOUT_CAN_COLOR_POLYCHROMIC)
+										extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color_polychromic=1;loadout_gear_name=[url_encode(gear.name)];'>Color</a>"
+										for(var/loadout_color in loadout_item[LOADOUT_COLOR])
+											var/display_color = istext(loadout_color) ? loadout_color : "#FFFFFF"
+											var/text_color = (istext(loadout_color) && color_hex2num(loadout_color) < 200) ? "FFFFFF" : "000000"
+											extra_loadout_data += "<span style='border: 1px solid #161616; background-color: [display_color];'><font color='[text_color]'>[loadout_color]</font></span>"
+									else
+										var/loadout_color_non_poly = "#FFFFFF"
+										if(length(loadout_item[LOADOUT_COLOR]))
+											var/raw_color = loadout_item[LOADOUT_COLOR][1]
+											loadout_color_non_poly = istext(raw_color) ? raw_color : "#FFFFFF"
+										extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color=1;loadout_gear_name=[url_encode(gear.name)];'>Color</a>"
+										extra_loadout_data += "<span style='border: 1px solid #161616; background-color: [loadout_color_non_poly];'><font color='[color_hex2num(loadout_color_non_poly) < 200 ? "FFFFFF" : "000000"]'>[loadout_color_non_poly]</font></span>"
+										extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color_HSV=1;loadout_gear_name=[url_encode(gear.name)];'>HSV Color</a>" // SPLURT EDIT
 										if(gear.loadout_flags & LOADOUT_CAN_NAME)
 											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_rename=1;loadout_gear_name=[url_encode(gear.name)];'>Name</a> [loadout_item[LOADOUT_CUSTOM_NAME] ? loadout_item[LOADOUT_CUSTOM_NAME] : "N/A"]"
 										if(gear.loadout_flags & LOADOUT_CAN_DESCRIPTION)
@@ -2467,7 +2473,9 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 											extra_loadout_data += "<BR><a [loadout_item["loadout_examtooltip"] ? "class='linkOn' " : ""]href='?_src_=prefs;preference=gear;loadout_examtooltip=1;loadout_gear_name=[url_encode(gear.name)];'>Examine tooltip: [loadout_item["loadout_examtooltip"] ? "Set!" : "None"]</a>"
 										if(ispath(gear.path, /obj/item/clothing/neck/petcollar)) //"name tag" sounds better for me, but in petcollar code "tagname" is used so let it be.
 											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_tagname=1;loadout_gear_name=[url_encode(gear.name)];'>Name tag</a> [loadout_item["loadout_custom_tagname"] ? loadout_item["loadout_custom_tagname"] : "Name tag is visible for everyone looking at wearer."]"
-								  // BLUEMOON ADD END
+										// BLUEMOON ADD END
+									if(loadout_item)
+										class_link = "style='white-space:normal;' class='linkOn' href='?_src_=prefs;preference=gear;toggle_gear_path=[url_encode(name)];toggle_gear=0'"
 									else if(!is_loadout_slot_available(gear.category))
 										class_link = "style='white-space:normal;' class='linkOff'"
 									else if((gear_points - gear.cost) < 0)
@@ -4777,7 +4785,9 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 
 				if ("be_victim")
 					var/pickedvictim = tgui_input_list(user, "Are you ok with antagonists interacting with you (e.g. kidnapping)? ERP consent is seperate: This setting does NOT mean they are allowed to rape you.", "Antag Victim Consent", list(BEVICTIM_NO,BEVICTIM_ASK,BEVICTIM_YES))
-					be_victim = pickedvictim
+					if(!isnull(pickedvictim))
+						be_victim = pickedvictim
+						save_preferences()
 				if ("clientfps")
 					var/config_fps = CONFIG_GET(number/fps)
 					var/list/fps_options = list(
@@ -5919,7 +5929,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 						return
 					var/list/new_loadout_data = list(LOADOUT_ITEM = "[G.type]")
 					if(length(G.loadout_initial_colors))
-						new_loadout_data[LOADOUT_COLOR] = G.loadout_initial_colors
+						new_loadout_data[LOADOUT_COLOR] = G.loadout_initial_colors.Copy()
 					else
 						new_loadout_data[LOADOUT_COLOR] = list("#FFFFFF")
 					if(loadout_data["SAVE_[loadout_slot]"])
@@ -6006,8 +6016,13 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 				if(hue && saturation && value)
 					saturation = clamp(saturation, -10, 10)
 					value = clamp(value, -10, 10)
-					var/color_to_use = color_matrix_hsv(hue, saturation, value)
-					user_gear[LOADOUT_COLOR][1] = color_to_use
+					var/list/color_matrix = color_matrix_hsv(hue, saturation, value)
+					var/hex_color = rgb(
+						round(clamp(color_matrix[1] * 255, 0, 255)),
+						round(clamp(color_matrix[4] * 255, 0, 255)),
+						round(clamp(color_matrix[7] * 255, 0, 255)),
+					)
+					user_gear[LOADOUT_COLOR][1] = hex_color
 
 			//poly coloring can only be done by poly items
 			if(href_list["loadout_color_polychromic"] && (G.loadout_flags & LOADOUT_CAN_COLOR_POLYCHROMIC))

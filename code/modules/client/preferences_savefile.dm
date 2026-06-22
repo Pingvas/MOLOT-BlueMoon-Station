@@ -498,6 +498,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 
 	//general preferences
 	S["ooccolor"] 				>> ooccolor
+	S["aooccolor"] 				>> aooccolor
 	S["lastchangelog"] 			>> lastchangelog
 	S["UI_style"] 				>> UI_style
 	S["outline_color"] 			>> outline_color
@@ -622,6 +623,9 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 
 	//Sanitize
 	ooccolor = sanitize_ooccolor(sanitize_hexcolor(ooccolor, 6, 1, initial(ooccolor)))
+	aooccolor = sanitize_ooccolor(sanitize_hexcolor(aooccolor, 6, 1, initial(aooccolor)))
+	outline_color = sanitize_hexcolor(outline_color, 6, 1, initial(outline_color))
+	outline_enabled = sanitize_integer(outline_enabled, 0, 1, initial(outline_enabled))
 	lastchangelog = sanitize_text(lastchangelog, initial(lastchangelog))
 	UI_style = sanitize_inlist(UI_style, GLOB.available_ui_styles, GLOB.available_ui_styles[1])
 	hotkeys = sanitize_integer(hotkeys, 0, 1, initial(hotkeys))
@@ -711,6 +715,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 
 	//SKYRAT CHANGES BEGIN
 	see_chat_emotes	= sanitize_integer(see_chat_emotes, 0, 1, initial(see_chat_emotes))
+	auto_capitalize_enabled = sanitize_integer(auto_capitalize_enabled, 0, 1, initial(auto_capitalize_enabled))
 	//SKYRAT CHANGES END
 
 	//SPLURT CHANGES BEGIN
@@ -824,6 +829,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 
 	//general preferences
 	WRITE_FILE(S["ooccolor"], ooccolor)
+	WRITE_FILE(S["aooccolor"], aooccolor)
 	WRITE_FILE(S["lastchangelog"], lastchangelog)
 	WRITE_FILE(S["UI_style"], UI_style)
 	WRITE_FILE(S["outline_enabled"], outline_enabled)
@@ -1393,7 +1399,9 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 									else
 										for(var/i in 1 to colors.len)
 											var/polychromic = colors[i]
-											if(istext(polychromic) && !findtext(polychromic, GLOB.is_color))
+											if(!istext(polychromic))
+												colors[i] = "#FFFFFF"
+											else if(!findtext(polychromic, regex(@"^#[0-9a-fA-F]{6}$")))
 												colors[i] = "#FFFFFF"
 								else
 									entry -= setting

@@ -47,7 +47,7 @@
 	.["fit_viewport"] = auto_fit_viewport
 	.["clientfps"] = clientfps
 	.["outline_enabled"] = outline_enabled
-	.["screentip_pref"] = !!(screentip_pref)
+	.["screentip_pref"] = (screentip_pref == SCREENTIP_PREFERENCE_ENABLED)
 	.["screentip_images"] = screentip_images
 	.["tgui_fancy"] = tgui_fancy
 	.["tgui_lock"] = tgui_lock
@@ -268,6 +268,11 @@
 			switch(flag)
 				if("ambient_occlusion")
 					ambientocclusion = !ambientocclusion
+					if(user?.hud_used)
+						var/datum/hud/H = user.hud_used
+						for(var/plane in list(GAME_PLANE, ABOVE_WALL_PLANE, WALL_PLANE, FLOOR_PLANE, LIGHTING_PLANE, CHAT_PLANE))
+							var/atom/movable/screen/plane_master/PM = H.plane_masters["[plane]"]
+							PM?.backdrop(user)
 				if("widescreen")
 					widescreenpref = !widescreenpref
 					user.client?.view_size.setDefault(getScreenSize(widescreenpref))
@@ -280,7 +285,7 @@
 				if("outline_enabled")
 					outline_enabled = !outline_enabled
 				if("screentip_pref")
-					screentip_pref = !screentip_pref
+					screentip_pref = (screentip_pref == SCREENTIP_PREFERENCE_ENABLED) ? SCREENTIP_PREFERENCE_DISABLED : SCREENTIP_PREFERENCE_ENABLED
 				if("screentip_images")
 					screentip_images = !screentip_images
 				if("tgui_fancy")
@@ -298,6 +303,7 @@
 				if("hud_button_flashes")
 					hud_toggle_flash = !hud_toggle_flash
 			save_preferences()
+			tgui_or_html_refresh(user)
 
 		if("set_parallax")
 			parallax = clamp(text2num(params["value"]), PARALLAX_DISABLE, PARALLAX_INSANE)
@@ -436,9 +442,14 @@
 				if("max_chat_length")
 					max_chat_length = clamp(text2num(value), 0, 512)
 				if("lighting_blur")
-					lighting_blur = clamp(text2num(value), 0, 6)
+					lighting_blur = clamp(text2num(value), LIGHTING_BLUR_MIN, LIGHTING_BLUR_MAX)
+					if(user?.hud_used)
+						var/datum/hud/H = user.hud_used
+						for(var/plane in list(LIGHTING_PLANE, GAME_PLANE, ABOVE_WALL_PLANE, WALL_PLANE, FLOOR_PLANE, EMISSIVE_PLANE))
+							var/atom/movable/screen/plane_master/PM = H.plane_masters["[plane]"]
+							PM?.backdrop(user)
 				if("preferred_chaos_level")
-					preferred_chaos_level = clamp(text2num(value), 1, 5)
+					preferred_chaos_level = clamp(text2num(value), 0, 3)
 			save_preferences()
 
 		if("toggle_gfx_val")

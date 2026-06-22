@@ -1,5 +1,5 @@
 import { useBackend } from '../../../backend';
-import { Box, Dropdown, Input, NumberInput, Stack } from '../../../components';
+import { Box, Dropdown, Input, NumberInput, Stack, Tooltip } from '../../../components';
 import { PrefRow } from '../components/PrefRow';
 
 type ChatData = {
@@ -40,16 +40,103 @@ const GHOST_ORBIT_OPTIONS = [
 ];
 
 const GHOST_ACCS_OPTIONS = [
-  { value: 0, label: 'Без аксессуаров' },
-  { value: 1, label: 'Только аксессуары' },
-  { value: 2, label: 'Все' },
+  { value: 1, label: 'Без аксессуаров' },
+  { value: 50, label: 'Только аксессуары' },
+  { value: 100, label: 'Все' },
 ];
 
 const GHOST_OTHERS_OPTIONS = [
-  { value: 0, label: 'Их настройки' },
+  { value: 100, label: 'Их настройки' },
   { value: 1, label: 'Простые' },
-  { value: 2, label: 'По умолчанию' },
+  { value: 50, label: 'По умолчанию' },
 ];
+
+const OOC_COLORS = (data: ChatData, act: Function) => (
+  <>
+    <Stack.Divider />
+    <Stack.Item>
+      <div className="GamePreferences__label" style={{ opacity: 0.65, fontSize: '0.85em', marginBottom: '0.25rem' }}>
+        Цвета OOC
+      </div>
+    </Stack.Item>
+    <PrefRow
+      label="Собственный цвет OOC"
+      checked={!!(Number(data.custom_colors) & 1)}
+      onClick={() => act('set_ooc_pref', { flag: 'custom_colors', value: !(Number(data.custom_colors) & 1) ? 1 : 0 })}
+    />
+    {!!(Number(data.custom_colors) & 1) && (
+      <Stack.Item>
+        <Stack align="center" fill className="GamePreferences__row">
+          <Stack.Item grow basis={0}>
+            <div className="GamePreferences__label">Цвет OOC</div>
+          </Stack.Item>
+          <Stack.Item>
+            <Box
+              as="input"
+              type="color"
+              value={/^#[0-9a-fA-F]{6}$/.test(data.ooccolor) ? data.ooccolor : '#ffbed6'}
+              style={{
+                width: '22px',
+                height: '22px',
+                padding: '0',
+                border: '1px solid rgba(255,255,255,0.2)',
+                borderRadius: '2px',
+                background: 'transparent',
+                cursor: 'pointer',
+              }}
+              onChange={e => act('set_ooc_pref', { flag: 'ooccolor', value: e.target.value })}
+            />
+          </Stack.Item>
+          <Stack.Item shrink={0} basis="80px">
+            <Input
+              width="80px"
+              value={data.ooccolor || '#ffbed6'}
+              onChange={(e, value) => act('set_ooc_pref', { flag: 'ooccolor', value })}
+            />
+          </Stack.Item>
+        </Stack>
+      </Stack.Item>
+    )}
+    <PrefRow
+      label="Собственный цвет AOOC"
+      checked={!!(Number(data.custom_colors) & 2)}
+      onClick={() => act('set_ooc_pref', { flag: 'custom_aooc', value: !(Number(data.custom_colors) & 2) ? 1 : 0 })}
+    />
+    {!!(Number(data.custom_colors) & 2) && (
+      <Stack.Item>
+        <Stack align="center" fill className="GamePreferences__row">
+          <Stack.Item grow basis={0}>
+            <div className="GamePreferences__label">Цвет OOC антага</div>
+          </Stack.Item>
+          <Stack.Item>
+            <Box
+              as="input"
+              type="color"
+              value={/^#[0-9a-fA-F]{6}$/.test(data.aooccolor) ? data.aooccolor : '#ce254f'}
+              style={{
+                width: '22px',
+                height: '22px',
+                padding: '0',
+                border: '1px solid rgba(255,255,255,0.2)',
+                borderRadius: '2px',
+                background: 'transparent',
+                cursor: 'pointer',
+              }}
+              onChange={e => act('set_ooc_pref', { flag: 'aooccolor', value: e.target.value })}
+            />
+          </Stack.Item>
+          <Stack.Item shrink={0} basis="80px">
+            <Input
+              width="80px"
+              value={data.aooccolor || '#ce254f'}
+              onChange={(e, value) => act('set_ooc_pref', { flag: 'aooccolor', value })}
+            />
+          </Stack.Item>
+        </Stack>
+      </Stack.Item>
+    )}
+  </>
+);
 
 const GHOST_TOGGLES: { key: string; label: string; flag: string; tooltip?: string }[] = [
   { key: 'chat_ghostears', label: 'Вся речь в режиме призрака', flag: 'chat_ghostears', tooltip: 'Слышать весь игровой чат (речь, радио и т.д.) находясь в режиме призрака' },
@@ -71,12 +158,17 @@ const CHAT_TOGGLES: { key: string; label: string; flag: string; tooltip?: string
   { key: 'windownoise', label: 'Звук окна при событиях', flag: 'windownoise', tooltip: 'Воспроизводить звуковой сигнал при поступлении новых сообщений в чат' },
 ];
 
-const dropdownRow = (label: string, options: any[], selected: string | number, onSelected: (value: any) => void, hint?: string) => (
+const dropdownRow = (label: string, options: any[], selected: string | number, onSelected: (value: any) => void, tooltip?: string) => (
   <Stack.Item>
     <Stack align="center" fill className="GamePreferences__row">
       <Stack.Item grow basis={0}>
-        <div className="GamePreferences__label">{label}</div>
-        {hint && <div className="GamePreferences__hint">{hint}</div>}
+        {tooltip ? (
+          <Tooltip content={tooltip}>
+            <div className="GamePreferences__label">{label}</div>
+          </Tooltip>
+        ) : (
+          <div className="GamePreferences__label">{label}</div>
+        )}
       </Stack.Item>
       <Stack.Item>
         <Dropdown
@@ -121,12 +213,13 @@ export const ChatSection = (props, context) => {
             value => act('set_ui_pref', { flag: 'ghost_form', value }))}
           {dropdownRow('Орбита призрака', GHOST_ORBIT_OPTIONS, data.ghost_orbit || 'pentagon',
             value => act('set_ui_pref', { flag: 'ghost_orbit', value }))}
-          {dropdownRow('Аксессуары призрака', GHOST_ACCS_OPTIONS, Number(data.ghost_accs ?? 2),
+          {dropdownRow('Аксессуары призрака', GHOST_ACCS_OPTIONS, Number(data.ghost_accs ?? 100),
             value => act('set_ui_pref', { flag: 'ghost_accs', value }),
             'Отображение аксессуаров на призраке')}
-          {dropdownRow('Призраки других', GHOST_OTHERS_OPTIONS, Number(data.ghost_others ?? 0),
+          {dropdownRow('Призраки других', GHOST_OTHERS_OPTIONS, Number(data.ghost_others ?? 100),
             value => act('set_ui_pref', { flag: 'ghost_others', value }),
             'Как отображать призраков других игроков')}
+          {OOC_COLORS(data, act)}
         </Stack>
       </Stack.Item>
       <Stack.Item basis="50%">
@@ -196,88 +289,6 @@ export const ChatSection = (props, context) => {
             tooltip="Автоматически делать первую букву предложения заглавной в IC-чате"
             onClick={() => act('toggle_gfx_val', { flag: 'auto_capitalize_enabled' })}
           />
-          <Stack.Divider />
-          <Stack.Item>
-            <div className="GamePreferences__label" style={{ opacity: 0.65, fontSize: '0.85em', marginBottom: '0.25rem' }}>
-              Цвета OOC
-            </div>
-          </Stack.Item>
-          <PrefRow
-            label="Собственный цвет OOC"
-            checked={!!(Number(data.custom_colors) & 1)}
-            onClick={() => act('set_ooc_pref', { flag: 'custom_colors', value: !(Number(data.custom_colors) & 1) ? 1 : 0 })}
-          />
-          {!!(Number(data.custom_colors) & 1) && (
-            <Stack.Item>
-              <Stack align="center" fill className="GamePreferences__row">
-                <Stack.Item grow basis={0}>
-                  <div className="GamePreferences__label">Цвет OOC</div>
-                </Stack.Item>
-                <Stack.Item>
-                  <Box
-                    as="input"
-                    type="color"
-                    value={/^#[0-9a-fA-F]{6}$/.test(data.ooccolor) ? data.ooccolor : '#ffbed6'}
-                    style={{
-                      width: '22px',
-                      height: '22px',
-                      padding: '0',
-                      border: '1px solid rgba(255,255,255,0.2)',
-                      borderRadius: '2px',
-                      background: 'transparent',
-                      cursor: 'pointer',
-                    }}
-                    onChange={e => act('set_ooc_pref', { flag: 'ooccolor', value: e.target.value })}
-                  />
-                </Stack.Item>
-                <Stack.Item shrink={0} basis="80px">
-                  <Input
-                    width="80px"
-                    value={data.ooccolor || '#ffbed6'}
-                    onChange={(e, value) => act('set_ooc_pref', { flag: 'ooccolor', value })}
-                  />
-                </Stack.Item>
-              </Stack>
-            </Stack.Item>
-          )}
-          <PrefRow
-            label="Собственный цвет AOOC"
-            checked={!!(Number(data.custom_colors) & 2)}
-            onClick={() => act('set_ooc_pref', { flag: 'custom_aooc', value: !(Number(data.custom_colors) & 2) ? 1 : 0 })}
-          />
-          {!!(Number(data.custom_colors) & 2) && (
-            <Stack.Item>
-              <Stack align="center" fill className="GamePreferences__row">
-                <Stack.Item grow basis={0}>
-                  <div className="GamePreferences__label">Цвет OOC антага</div>
-                </Stack.Item>
-                <Stack.Item>
-                  <Box
-                    as="input"
-                    type="color"
-                    value={/^#[0-9a-fA-F]{6}$/.test(data.aooccolor) ? data.aooccolor : '#ce254f'}
-                    style={{
-                      width: '22px',
-                      height: '22px',
-                      padding: '0',
-                      border: '1px solid rgba(255,255,255,0.2)',
-                      borderRadius: '2px',
-                      background: 'transparent',
-                      cursor: 'pointer',
-                    }}
-                    onChange={e => act('set_ooc_pref', { flag: 'aooccolor', value: e.target.value })}
-                  />
-                </Stack.Item>
-                <Stack.Item shrink={0} basis="80px">
-                  <Input
-                    width="80px"
-                    value={data.aooccolor || '#ce254f'}
-                    onChange={(e, value) => act('set_ooc_pref', { flag: 'aooccolor', value })}
-                  />
-                </Stack.Item>
-              </Stack>
-            </Stack.Item>
-          )}
         </Stack>
       </Stack.Item>
     </Stack>

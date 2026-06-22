@@ -120,15 +120,15 @@ export const AntagsSection = (props, context) => {
         <Stack align="center" fill className="GamePreferences__row">
           <Stack.Item grow basis={0}>
             <div className="GamePreferences__label">Предпочитаемый уровень хаоса</div>
-            <div className="GamePreferences__hint">1 — минимальный, 5 — максимальный хаос</div>
+            <div className="GamePreferences__hint">0 — минимальный, 3 — максимальный хаос</div>
           </Stack.Item>
           <Stack.Item>
             <NumberInput
               width="80px"
-              minValue={1}
-              maxValue={5}
+              minValue={0}
+              maxValue={3}
               step={1}
-              value={Number(data.preferred_chaos_level ?? 3)}
+              value={Number(data.preferred_chaos_level ?? 2)}
               onChange={(e, value) => act('set_gfx_val', { flag: 'preferred_chaos_level', value })}
             />
           </Stack.Item>

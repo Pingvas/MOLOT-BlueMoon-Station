@@ -26,7 +26,7 @@ const SOUND_WITH_VOL: { key: string; label: string; volKey: string; tooltip?: st
   { key: 'sound_ambience', label: 'Эмбиент (окружающие звуки)', volKey: 'sound_volume_ambience', tooltip: 'Фоновые звуки локаций: гул вентиляции, капающая вода, скрежет металла и т.д.' },
   { key: 'sound_ship_ambience', label: 'Фоновый гул станции', volKey: 'sound_volume_ship_ambience', tooltip: 'Низкочастотный гул, доносящийся от двигателей и энергосистем станции или шаттла' },
   { key: 'sound_announcements', label: 'Звуки объявлений', volKey: 'sound_volume_announcements', tooltip: 'Звуки, сопровождающие объявления командования, ИИ и приоритетные общестанционные оповещения' },
-  { key: 'sound_bark', label: 'Голосовые байки (вокал)', volKey: 'sound_volume_bark', tooltip: 'Звуки вокализации персонажа: рычание, мурлыканье, вой и прочие эмоциональные возгласы' },
+  { key: 'sound_bark', label: 'Голосовые барки (вокал)', volKey: 'sound_volume_bark', tooltip: 'Звуки вокализации персонажа: рычание, мурлыканье, вой и прочие эмоциональные возгласы' },
   { key: 'sound_instruments', label: 'Музыкальные инструменты', volKey: 'sound_volume_instruments', tooltip: 'Громкость звуков музыкальных инструментов в игре (синтезированные и обычные)' },
   { key: 'sound_jukeboxes', label: 'Джукбоксы', volKey: 'sound_volume_jukeboxes', tooltip: 'Громкость музыки, проигрываемой на джукбоксах в игре' },
   { key: 'sound_personal_jukeboxes', label: 'Персональные музыкальные шкатулки', volKey: 'sound_volume_jukeboxes', tooltip: 'Громкость музыки из персональных музыкальных шкатулок' },
