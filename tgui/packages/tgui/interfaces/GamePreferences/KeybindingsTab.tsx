@@ -100,12 +100,14 @@ const BindButton = (props: {
   content: string;
   selected?: boolean;
   color?: string;
+  fluid?: boolean;
   onClick: () => void;
 }) => (
   <Button
     content={props.content}
     selected={props.selected}
     color={props.color}
+    fluid={props.fluid}
     className="GamePreferences__bindButton"
     onClick={props.onClick}
   />

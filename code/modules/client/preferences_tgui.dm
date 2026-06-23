@@ -258,7 +258,7 @@
 		if("set_volume")
 			var/flag = params["flag"]
 			var/value = clamp(text2num(params["value"]), 0, 100)
-			if(flag in vars)
+			if(copytext(flag, 1, 13) == "sound_volume_" && (flag in vars))
 				vars[flag] = value
 				save_preferences()
 

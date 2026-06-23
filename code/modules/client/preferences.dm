@@ -2446,13 +2446,14 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 										extra_loadout_data += "<center><img src='data:image/jpeg;base64,[gear.base64icon]'></center>"
 									if(gear.loadout_flags & LOADOUT_CAN_COLOR_POLYCHROMIC)
 										extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color_polychromic=1;loadout_gear_name=[url_encode(gear.name)];'>Color</a>"
-										for(var/loadout_color in loadout_item[LOADOUT_COLOR])
-											var/display_color = istext(loadout_color) ? loadout_color : "#FFFFFF"
-											var/text_color = (istext(loadout_color) && color_hex2num(loadout_color) < 200) ? "FFFFFF" : "000000"
-											extra_loadout_data += "<span style='border: 1px solid #161616; background-color: [display_color];'><font color='[text_color]'>[loadout_color]</font></span>"
+										if(loadout_item && length(loadout_item[LOADOUT_COLOR]))
+											for(var/loadout_color in loadout_item[LOADOUT_COLOR])
+												var/display_color = istext(loadout_color) ? loadout_color : "#FFFFFF"
+												var/text_color = (istext(loadout_color) && color_hex2num(loadout_color) < 200) ? "FFFFFF" : "000000"
+												extra_loadout_data += "<span style='border: 1px solid #161616; background-color: [display_color];'><font color='[text_color]'>[loadout_color]</font></span>"
 									else
 										var/loadout_color_non_poly = "#FFFFFF"
-										if(length(loadout_item[LOADOUT_COLOR]))
+										if(loadout_item && length(loadout_item[LOADOUT_COLOR]))
 											var/raw_color = loadout_item[LOADOUT_COLOR][1]
 											loadout_color_non_poly = istext(raw_color) ? raw_color : "#FFFFFF"
 										extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color=1;loadout_gear_name=[url_encode(gear.name)];'>Color</a>"
@@ -3482,6 +3483,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 			i = text2num(i)
 		i = clamp(i, 1, MAX_HEADSHOTS)
 		set_headshot_link(user, i, features["headshot_links"])
+		ShowChoices(user)
 		return TRUE
 
 	else if(href_list["preference"] == "headshot_naked")
@@ -3490,6 +3492,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 			i = text2num(i)
 		i = clamp(i, 1, MAX_HEADSHOTS_NAKED)
 		set_headshot_link(user, i, features["headshot_naked_links"])
+		ShowChoices(user)
 		return TRUE
 
 	else if(href_list["preference"] == "open_tattoo_manager")
@@ -5397,7 +5400,14 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 						user << browse(null, "window=capturekeypress")
 						tgui_or_html_refresh(user)
 						return
-					ApplyKeybindingSet(user, href_list)
+					if(!GLOB.keybindings_by_name[href_list["keybinding"]])
+						user << browse(null, "window=capturekeypress")
+						tgui_or_html_refresh(user)
+						return
+					if(!ApplyKeybindingSet(user, href_list))
+						user << browse(null, "window=capturekeypress")
+						tgui_or_html_refresh(user)
+						return
 					user << browse(null, "window=capturekeypress")
 					save_preferences()
 					tgui_or_html_refresh(user)
@@ -6017,12 +6027,16 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					saturation = clamp(saturation, -10, 10)
 					value = clamp(value, -10, 10)
 					var/list/color_matrix = color_matrix_hsv(hue, saturation, value)
-					var/hex_color = rgb(
-						round(clamp(color_matrix[1] * 255, 0, 255)),
-						round(clamp(color_matrix[4] * 255, 0, 255)),
-						round(clamp(color_matrix[7] * 255, 0, 255)),
-					)
-					user_gear[LOADOUT_COLOR][1] = hex_color
+					var/current_hex = user_gear[LOADOUT_COLOR][1]
+					if(!istext(current_hex))
+						current_hex = "#FFFFFF"
+					var/r_part = hex2num(copytext(current_hex, 2, 4)) / 255
+					var/g_part = hex2num(copytext(current_hex, 4, 6)) / 255
+					var/b_part = hex2num(copytext(current_hex, 6, 8)) / 255
+					var/new_r = round(clamp((r_part * color_matrix[1] + g_part * color_matrix[2] + b_part * color_matrix[3]) * 255, 0, 255))
+					var/new_g = round(clamp((r_part * color_matrix[4] + g_part * color_matrix[5] + b_part * color_matrix[6]) * 255, 0, 255))
+					var/new_b = round(clamp((r_part * color_matrix[7] + g_part * color_matrix[8] + b_part * color_matrix[9]) * 255, 0, 255))
+					user_gear[LOADOUT_COLOR][1] = rgb(new_r, new_g, new_b)
 
 			//poly coloring can only be done by poly items
 			if(href_list["loadout_color_polychromic"] && (G.loadout_flags & LOADOUT_CAN_COLOR_POLYCHROMIC))
@@ -6100,7 +6114,9 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 
 /datum/preferences/proc/get_sound_volume(sound_id)
 	var/varname = "sound_volume_[sound_id]"
-	return vars[varname] || 100
+	. = vars[varname]
+	if(isnull(.))
+		return 100
 
 /datum/preferences/proc/copy_to(mob/living/carbon/human/character, icon_updates = 1, roundstart_checks = TRUE, initial_spawn = FALSE)
 	if(be_random_name)
@@ -6480,14 +6496,16 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					restricted = TRUE
 				if(restricted && !(language_name in pref_species.languagewhitelist))
 					var/quirklanguagefound = FALSE
-					for(var/datum/quirk/Q in all_quirks)
-						if(language_name in Q.languagewhitelist)
+					for(var/qname in all_quirks)
+						var/datum/quirk/Q = SSquirks.quirks[qname]
+						if(Q && (language_name in Q.languagewhitelist))
 							quirklanguagefound = TRUE
+							break
 					if(!quirklanguagefound)
 						continue
-				else
-					var/link_class = (language_name in language) ? "class='linkOn'" : ""
-					dat += "<a [link_class] href='?_src_=prefs;preference=language;task=update;language=[language_name]'><b>[language_name]</a></b> [L.desc]<br><br>"
+
+				var/link_class = (language_name in language) ? "class='linkOn'" : ""
+				dat += "<a [link_class] href='?_src_=prefs;preference=language;task=update;language=[language_name]'><b>[language_name]</a></b> [L.desc]<br><br>"
 		else
 			dat += "<center><b>The language subsystem hasn't fully loaded yet! Please wait a bit and try again.</b></center><br>"
 		dat += "<hr>"

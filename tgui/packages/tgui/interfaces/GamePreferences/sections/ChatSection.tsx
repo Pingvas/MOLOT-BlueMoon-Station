@@ -55,7 +55,7 @@ const OOC_COLORS = (data: ChatData, act: Function) => (
   <>
     <Stack.Divider />
     <Stack.Item>
-      <div className="GamePreferences__label" style={{ opacity: 0.65, fontSize: '0.85em', marginBottom: '0.25rem' }}>
+      <div className="GamePreferences__label" style={{ opacity: 0.65, 'font-size': '0.85em', 'margin-bottom': '0.25rem' }}>
         Цвета OOC
       </div>
     </Stack.Item>
@@ -195,7 +195,7 @@ export const ChatSection = (props, context) => {
       <Stack.Item basis="50%">
         <Stack vertical>
           <Stack.Item>
-            <div className="GamePreferences__label" style={{ opacity: 0.65, fontSize: '0.85em', marginBottom: '0.25rem' }}>
+            <div className="GamePreferences__label" style={{ opacity: 0.65, 'font-size': '0.85em', 'margin-bottom': '0.25rem' }}>
               Слышимость в режиме призрака
             </div>
           </Stack.Item>

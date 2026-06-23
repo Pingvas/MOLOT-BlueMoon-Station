@@ -31,7 +31,7 @@ const PREF_TOGGLES: { key: string; label: string; flag: string; tooltip?: string
   { key: 'edging_pref', label: 'Эджинг', flag: 'edging_pref', tooltip: 'Разрешить отказ в разрядке во время полового акта (эджинг)' },
   { key: 'cum_onto_pref', label: 'Покрытие спермой', flag: 'cum_onto_pref', tooltip: 'Разрешить покрытие вашего персонажа спермой других (или наоборот)' },
   { key: 'sex_jitter', label: 'Дрожь при сексе', flag: 'sex_jitter', tooltip: 'Визуальная дрожь персонажа во время полового акта' },
-  { key: 'dance_disco', label: 'Танцевать возле диско-шара', flag: 'dance_disco', tooltip: 'Автоматически танцевать при нахождении рядом с диско-шаром' },
+  { key: 'no_disco_dance', label: 'Танцевать возле диско-шара', flag: 'no_disco_dance', tooltip: 'Автоматически танцевать при нахождении рядом с диско-шаром' },
 ];
 
 export const ContentSection = (props, context) => {

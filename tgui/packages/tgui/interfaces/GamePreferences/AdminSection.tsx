@@ -129,7 +129,7 @@ export const AdminSection = (props, context) => {
       <Stack.Item>
         <Stack align="center" fill className="GamePreferences__row">
           <Stack.Item grow basis={0}>
-            <div className="GamePreferences__label">Announce Login</div>
+            <div className="GamePreferences__label">Оповещение о входе</div>
             <div className="GamePreferences__hint">Оповещать о вашем входе в игру (видно в админ-панели)</div>
           </Stack.Item>
           <Stack.Item>
@@ -144,14 +144,14 @@ export const AdminSection = (props, context) => {
       <Stack.Item>
         <Stack align="center" fill className="GamePreferences__row">
           <Stack.Item grow basis={0}>
-            <div className="GamePreferences__label">Combo HUD Lighting</div>
+            <div className="GamePreferences__label">Подсветка комбо-HUD</div>
             <div className="GamePreferences__hint">Режим подсветки комбо-HUD: стандартный или полная яркость</div>
           </Stack.Item>
           <Stack.Item>
             <Dropdown
               width="150px"
-              options={['No Change', 'Full Brightness']}
-              selected={combohud_lighting ? 'Full Brightness' : 'No Change'}
+              options={['Без изменений', 'Полная яркость']}
+              selected={combohud_lighting ? 'Полная яркость' : 'Без изменений'}
               onSelected={() => act('toggle_admin', { flag: 'combohud_lighting' })}
             />
           </Stack.Item>
