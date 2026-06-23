@@ -80,7 +80,7 @@
 
 	return announcement
 
-/proc/priority_announce(text, title = "", sound, type , sender_override, has_important_message)
+/proc/priority_announce(text, title = "", sound, type , sender_override, has_important_message, sound_id = "announcements")
 	if(!text)
 		return
 
@@ -111,7 +111,7 @@
 		if(!isnewplayer(M) && M.can_hear())
 			to_chat(M, announcement)
 			if(M.client.prefs.toggles & SOUND_ANNOUNCEMENTS)
-				var/pref_vol = M.client?.prefs?.get_sound_volume("announcements") || 100
+				var/pref_vol = M.client?.prefs?.get_sound_volume(sound_id) || 100
 				s.volume = pref_vol
 				SEND_SOUND(M, s)
 

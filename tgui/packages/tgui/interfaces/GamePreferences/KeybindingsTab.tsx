@@ -1,7 +1,7 @@
 import { Component, createRef } from 'inferno';
 
 import { useBackend } from '../../backend';
-import { Box, Button, NoticeBox, Section, Stack } from '../../components';
+import { Box, Button, NoticeBox, Section, Stack, Tooltip } from '../../components';
 import { keyToByond } from '../../keyToByond';
 
 type KeybindingInfo = {
@@ -188,13 +188,15 @@ export const KeybindingsTab = (props, context) => {
         <Section fitted>
           <Stack fill px={1}>
             <Stack.Item grow>
-              <Button
-                fluid
-                selected={hotkeys}
-                icon={hotkeys ? 'toggle-on' : 'toggle-off'}
-                content={hotkeys ? 'Режим: горячие клавиши' : 'Режим: ввод текста'}
-                onClick={() => act('toggle_hotkeys')}
-              />
+              <Tooltip content={'В режиме "горячие клавиши" нажатие кнопок сразу выполняет действия (движение, открытие окон и т.д.). В режиме «ввод текста» клавиши печатают символы - для команд нужно зажать Ctrl или переключиться в горячий режим через Ctrl+Shift'}>
+                <Button
+                  fluid
+                  selected={hotkeys}
+                  icon={hotkeys ? 'toggle-on' : 'toggle-off'}
+                  content={hotkeys ? 'Режим: горячие клавиши' : 'Режим: ввод текста'}
+                  onClick={() => act('toggle_hotkeys')}
+                />
+              </Tooltip>
             </Stack.Item>
             <Stack.Item>
               <Button
