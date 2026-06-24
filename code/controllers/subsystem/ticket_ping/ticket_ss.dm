@@ -32,7 +32,9 @@ SUBSYSTEM_DEF(ticket_ping)
 		if(!(staff.prefs?.toggles & SOUND_ADMINHELP))
 			continue
 		var/sound_pick = rand(0, 1)
-		var/ah_vol = staff.prefs?.get_sound_volume("adminhelp") || 100
+		var/ah_vol = staff.prefs?.get_sound_volume("adminhelp")
+		if(isnull(ah_vol))
+			ah_vol = 100
 		switch(sound_pick)
 			if(0)
 				SEND_SOUND(staff, sound('modular_bluemoon/sound/effects/soft_ping.ogg', volume = ah_vol))
