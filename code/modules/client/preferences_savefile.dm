@@ -5,7 +5,7 @@
 //	You do not need to raise this if you are adding new values that have sane defaults.
 //	Only raise this value when changing the meaning/format/name/layout of an existing value
 //	where you would want the updater procs below to run
-#define SAVEFILE_VERSION_MAX	72
+#define SAVEFILE_VERSION_MAX	73
 
 /// Upper bound for character slot indices during savefile migration (loop over S.dir).
 /// Prevents corrupted or garbage directory names (e.g. huge slot numbers) from inflating max_save_slots
@@ -114,6 +114,67 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 
 	if(current_version < 70) // Bitflag toggles don't set their defaults when they're added, always defaulting to off instead.
 		toggles |= SOUND_PERSONAL_JUKEBOXES
+
+	// BLUEMOON - миграция цветов лодаута
+	if(current_version < 73)
+		var/raw_loadout
+		S["loadout"] >> raw_loadout
+		if(istext(raw_loadout))
+			var/list/migrated_loadout = safe_json_decode(raw_loadout)
+			if(islist(migrated_loadout))
+				var/had_matrices = FALSE
+				for(var/loadout_save_index = 1, loadout_save_index <= MAXIMUM_LOADOUT_SAVES, loadout_save_index++)
+					var/save_key = "SAVE_[loadout_save_index]"
+					var/list/sanitize_entries = migrated_loadout[save_key]
+					if(!islist(sanitize_entries) || !LAZYLEN(sanitize_entries))
+						continue
+					for(var/list/entry in sanitize_entries)
+						if(!islist(entry))
+							continue
+						var/list/colors_list = entry[LOADOUT_COLOR]
+						if(!islist(colors_list))
+							continue
+						var/list/default_color
+						var/loadout_item_type = entry[LOADOUT_ITEM]
+						if(ispath(loadout_item_type) && islist(GLOB.loadout_items))
+							for(var/cat in GLOB.loadout_items)
+								var/list/subcategories = GLOB.loadout_items[cat]
+								if(!islist(subcategories))
+									continue
+								for(var/subcat in subcategories)
+									var/list/items = subcategories[subcat]
+									if(!islist(items))
+										continue
+									for(var/item_name in items)
+										var/datum/gear/G = items[item_name]
+										if(G?.type == loadout_item_type && length(G.loadout_initial_colors))
+											default_color = G.loadout_initial_colors
+											break
+									if(default_color)
+										break
+							if(default_color)
+								break
+						for(var/i in 1 to length(colors_list))
+							var/color_val = colors_list[i]
+							if(islist(color_val))
+								had_matrices = TRUE
+								var/list/matrix = color_val
+								if(length(matrix) >= 9)
+									var/source_color = "#FFFFFF"
+									if(default_color && i <= length(default_color))
+										source_color = default_color[i]
+									var/r_part = hex2num(copytext(source_color, 2, 4)) / 255
+									var/g_part = hex2num(copytext(source_color, 4, 6)) / 255
+									var/b_part = hex2num(copytext(source_color, 6, 8)) / 255
+									var/new_r = round(clamp((r_part * matrix[1] + g_part * matrix[2] + b_part * matrix[3]) * 255, 0, 255))
+									var/new_g = round(clamp((r_part * matrix[4] + g_part * matrix[5] + b_part * matrix[6]) * 255, 0, 255))
+									var/new_b = round(clamp((r_part * matrix[7] + g_part * matrix[8] + b_part * matrix[9]) * 255, 0, 255))
+									colors_list[i] = rgb(new_r, new_g, new_b)
+								else
+									colors_list[i] = "#FFFFFF"
+				if(had_matrices)
+					S["loadout"] << safe_json_encode(migrated_loadout)
+					log_admin("Loadout migration v73: converted color matrices for [path]")
 
 /datum/preferences/proc/update_character(current_version, savefile/S)
 	if(current_version < 19)
