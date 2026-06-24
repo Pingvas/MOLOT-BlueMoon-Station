@@ -1427,14 +1427,17 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 													var/source_color = "#FFFFFF"
 													if(default_color && i <= length(default_color))
 														source_color = default_color[i]
-													if(length(matrix) >= 9)
-														var/r_part = hex2num(copytext(source_color, 2, 4)) / 255
-														var/g_part = hex2num(copytext(source_color, 4, 6)) / 255
-														var/b_part = hex2num(copytext(source_color, 6, 8)) / 255
-														var/new_r = round(clamp((r_part * matrix[1] + g_part * matrix[2] + b_part * matrix[3]) * 255, 0, 255))
-														var/new_g = round(clamp((r_part * matrix[4] + g_part * matrix[5] + b_part * matrix[6]) * 255, 0, 255))
-														var/new_b = round(clamp((r_part * matrix[7] + g_part * matrix[8] + b_part * matrix[9]) * 255, 0, 255))
-														colors[i] = rgb(new_r, new_g, new_b)
+													if(length(matrix) >= 9 && length(matrix) <= 12)
+														if(!isnum(matrix[1]) || !isnum(matrix[2]) || !isnum(matrix[3]) || !isnum(matrix[4]) || !isnum(matrix[5]) || !isnum(matrix[6]) || !isnum(matrix[7]) || !isnum(matrix[8]) || !isnum(matrix[9]))
+															colors[i] = "#FFFFFF"
+														else
+															var/r_part = hex2num(copytext(source_color, 2, 4)) / 255
+															var/g_part = hex2num(copytext(source_color, 4, 6)) / 255
+															var/b_part = hex2num(copytext(source_color, 6, 8)) / 255
+															var/new_r = round(clamp((r_part * matrix[1] + g_part * matrix[2] + b_part * matrix[3]) * 255, 0, 255))
+															var/new_g = round(clamp((r_part * matrix[4] + g_part * matrix[5] + b_part * matrix[6]) * 255, 0, 255))
+															var/new_b = round(clamp((r_part * matrix[7] + g_part * matrix[8] + b_part * matrix[9]) * 255, 0, 255))
+															colors[i] = rgb(new_r, new_g, new_b)
 													else
 														colors[i] = "#FFFFFF"
 												else
