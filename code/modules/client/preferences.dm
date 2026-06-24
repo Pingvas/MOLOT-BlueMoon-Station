@@ -2351,6 +2351,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "</td>"
 					dat += "</tr></table>"
 				if(LOADOUT_CHAR_TAB)
+					stack_trace("ShowChoices: rendering loadout tab (user: [user?.ckey], loadout_slot: [loadout_slot])")
 					dat += "<table align='center' width='100%'>"
 					var/loadout_slot_label = src.use_modern_translations ? get_modern_text("loadout_slot", src) : "Loadout slot"
 					dat += "<tr><td colspan=4><center><b>[loadout_slot_label]</b></center></td></tr>"
@@ -2432,6 +2433,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 									var/datum/gear/gear = subcategory_items[name]
 									if(!gear)
 										continue
+									var/display_name = html_encode(name)
 									var/donoritem = gear.donoritem
 									if(donoritem && !gear.donator_ckey_check(user.ckey))
 										continue
@@ -2443,23 +2445,24 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 									var/list/loadout_item = has_loadout_gear(loadout_slot, "[gear.type]")
 									var/extra_loadout_data = ""
 									if(gear.base64icon)
-										extra_loadout_data += "<center><img src='data:image/jpeg;base64,[gear.base64icon]'></center>"
-									if(gear.loadout_flags & LOADOUT_CAN_COLOR_POLYCHROMIC)
-										extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color_polychromic=1;loadout_gear_name=[url_encode(gear.name)];'>Color</a>"
-										if(loadout_item && length(loadout_item[LOADOUT_COLOR]))
-											for(var/loadout_color in loadout_item[LOADOUT_COLOR])
-												var/display_color = istext(loadout_color) ? loadout_color : "#FFFFFF"
-												var/text_color = (istext(loadout_color) && color_hex2num(loadout_color) < 200) ? "FFFFFF" : "000000"
-												extra_loadout_data += "<span style='border: 1px solid #161616; background-color: [display_color];'><font color='[text_color]'>[loadout_color]</font></span>"
-									else
-										var/loadout_color_non_poly = "#FFFFFF"
-										if(loadout_item && length(loadout_item[LOADOUT_COLOR]))
-											var/raw_color = loadout_item[LOADOUT_COLOR][1]
-											loadout_color_non_poly = istext(raw_color) ? raw_color : "#FFFFFF"
-										extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color=1;loadout_gear_name=[url_encode(gear.name)];'>Color</a>"
-										extra_loadout_data += "<span style='border: 1px solid #161616; background-color: [loadout_color_non_poly];'><font color='[color_hex2num(loadout_color_non_poly) < 200 ? "FFFFFF" : "000000"]'>[loadout_color_non_poly]</font></span>"
-										extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color_HSV=1;loadout_gear_name=[url_encode(gear.name)];'>HSV Color</a>" // SPLURT EDIT
-										if(loadout_item)
+										extra_loadout_data += "<center><img src='data:image/png;base64,[gear.base64icon]'></center>"
+									if(loadout_item)
+										if(gear.loadout_flags & LOADOUT_CAN_COLOR_POLYCHROMIC)
+											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color_polychromic=1;loadout_gear_name=[url_encode(gear.name)];'>Color</a>"
+											if(length(loadout_item[LOADOUT_COLOR]))
+												for(var/loadout_color in loadout_item[LOADOUT_COLOR])
+													var/display_color = istext(loadout_color) ? loadout_color : "#FFFFFF"
+													var/text_color = (istext(loadout_color) && color_hex2num(loadout_color) < 200) ? "FFFFFF" : "000000"
+													extra_loadout_data += "<span style='border: 1px solid #161616; background-color: [display_color];'><font color='[text_color]'>[loadout_color]</font></span>"
+										else
+											var/loadout_color_non_poly = "#FFFFFF"
+											if(length(loadout_item[LOADOUT_COLOR]))
+												var/raw_color = loadout_item[LOADOUT_COLOR][1]
+												loadout_color_non_poly = istext(raw_color) ? raw_color : "#FFFFFF"
+											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color=1;loadout_gear_name=[url_encode(gear.name)];'>Color</a>"
+											extra_loadout_data += "<span style='border: 1px solid #161616; background-color: [loadout_color_non_poly];'><font color='[color_hex2num(loadout_color_non_poly) < 200 ? "FFFFFF" : "000000"]'>[loadout_color_non_poly]</font></span>"
+											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color_HSV=1;loadout_gear_name=[url_encode(gear.name)];'>HSV Color</a>" // SPLURT EDIT
+											
 											if(gear.loadout_flags & LOADOUT_CAN_NAME)
 												extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_rename=1;loadout_gear_name=[url_encode(gear.name)];'>Name</a> [loadout_item[LOADOUT_CUSTOM_NAME] ? loadout_item[LOADOUT_CUSTOM_NAME] : "N/A"]"
 											if(gear.loadout_flags & LOADOUT_CAN_DESCRIPTION)
@@ -2488,7 +2491,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 										class_link = "style='white-space:normal;' href='?_src_=prefs;preference=gear;toggle_gear_path=[url_encode(name)];toggle_gear=1'"
 									else
 										class_link = "style='white-space:normal;background:#eb2e2e;' class='linkOff'"
-									dat += "<tr style='vertical-align:top; background-color: [background_cl];'><td width=15%><a [class_link]>[name]</a>[extra_loadout_data]</td>"
+									dat += "<tr style='vertical-align:top; background-color: [background_cl];'><td width=15%><a [class_link]>[display_name]</a>[extra_loadout_data]</td>"
 									dat += "<td width = 5% style='vertical-align:top'>[gear.cost]</td><td>"
 									if(islist(gear.restricted_roles))
 										if(gear.restricted_roles.len)
@@ -5956,6 +5959,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 			var/existing = has_loadout_gear(loadout_slot, "[G2.type]")
 			if(existing)
 				existing[LOADOUT_COLOR] = list(sanitize_hexcolor(color, 6, TRUE, "#FF0000"))
+				save_preferences(silent = TRUE)
 				ShowChoices(user)
 				return
 			if(!is_loadout_slot_available(G2.category))
@@ -5974,6 +5978,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 				loadout_data["SAVE_[loadout_slot]"] += list(new_loadout_data)
 			else
 				loadout_data["SAVE_[loadout_slot]"] = list(new_loadout_data)
+			save_preferences(silent = TRUE)
 			ShowChoices(user)
 			return
 
@@ -6106,6 +6111,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 				else
 					user_gear -= "loadout_examtooltip"
 
+	save_preferences(silent = TRUE)
 	ShowChoices(user)
 	return TRUE
 
