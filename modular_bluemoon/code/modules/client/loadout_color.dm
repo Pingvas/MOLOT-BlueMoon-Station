@@ -220,6 +220,7 @@
 	switch(active_mode)
 		if(COLORMATE_TINT)
 			user_gear[LOADOUT_COLOR][1] = activecolor
+			user_gear -= LOADOUT_COLOR_HSV_DATA
 		if(COLORMATE_MATRIX)
 			user_gear[LOADOUT_COLOR][1] = rgb_construct_color_matrix(
 				text2num(color_matrix_last[1]),
@@ -235,9 +236,13 @@
 				text2num(color_matrix_last[11]),
 				text2num(color_matrix_last[12])
 			)
+			user_gear -= LOADOUT_COLOR_HSV_DATA
 		if(COLORMATE_HSV)
 			var/list/cm = color_matrix_hsv(build_hue, build_sat, build_val)
 			user_gear[LOADOUT_COLOR][1] = cm
+			user_gear[LOADOUT_COLOR_HSV_DATA] = list(build_hue, build_sat, build_val)
+
+	user_gear[LOADOUT_COLOR_MODE] = active_mode
 
 /datum/loadout_color_handler/ui_close(mob/target)
 	. = ..()

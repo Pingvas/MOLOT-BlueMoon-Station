@@ -2156,7 +2156,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 												if(MATRIX_BLUE)
 													primary_index = 3
 												if(MATRIX_RED_BLUE)
-													secondary_index = 2
+													secondary_index = 3
 												if(MATRIX_GREEN_BLUE)
 													primary_index = 2
 													secondary_index = 3
@@ -5015,7 +5015,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 						var/matrixed_sections = S.covered_limbs[GLOB.bodypart_names[num2text(marking_list[1])]]
 						if(color_number == 1)
 							switch(matrixed_sections)
-								if(MATRIX_GREEN)
+								if(MATRIX_GREEN, MATRIX_GREEN_BLUE)
 									color_number = 2
 								if(MATRIX_BLUE)
 									color_number = 3
@@ -5027,7 +5027,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 									color_number = 3
 
 						var/color_list = features[marking_type][index][3]
-						var/new_marking_color = input(user, "Choose your character's marking color:", "Character Preference","#"+color_list[color_number]) as color|null
+						var/new_marking_color = input(user, "Choose your character's marking color:", "Character Preference", color_list[color_number]) as color|null
 						if(new_marking_color)
 							var/temp_hsv = RGBtoHSV(new_marking_color)
 							if((MUTCOLORS_PARTSONLY in pref_species.species_traits) || ReadHSV(temp_hsv)[3] >= ReadHSV(MINIMUM_MUTANT_COLOR)[3] || !CONFIG_GET(flag/character_color_limits)) // mutantcolors must be bright, but only if they affect the skin //SPLURT EDIT
@@ -5923,8 +5923,39 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 				LCH.user_gear = user_gear
 				LCH.gear = G
 				var/current_color = user_gear[LOADOUT_COLOR][1]
-				if(istext(current_color))
-					LCH.activecolor = current_color
+				var/saved_mode = user_gear[LOADOUT_COLOR_MODE]
+				if(!isnum(saved_mode))
+					saved_mode = COLORMATE_HSV
+				else
+					// if stored color format doesn't match saved mode, infer from format
+					switch(saved_mode)
+						if(COLORMATE_TINT)
+							if(!istext(current_color))
+								saved_mode = COLORMATE_HSV
+						if(COLORMATE_MATRIX)
+							if(!islist(current_color) || length(current_color) < 12)
+								saved_mode = COLORMATE_TINT
+						if(COLORMATE_HSV)
+							if(!islist(current_color) || length(current_color) < 12)
+								saved_mode = COLORMATE_TINT
+				LCH.active_mode = saved_mode
+				switch(saved_mode)
+					if(COLORMATE_TINT)
+						if(istext(current_color))
+							LCH.activecolor = current_color
+					if(COLORMATE_MATRIX)
+						if(islist(current_color) && length(current_color) >= 12)
+							var/list/color_matrix = current_color
+							LCH.color_matrix_last = color_matrix.Copy()
+					if(COLORMATE_HSV)
+						if(islist(current_color) && length(current_color) >= 12)
+							var/list/color_matrix = current_color
+							LCH.color_matrix_last = color_matrix.Copy()
+						var/list/hsv_data = user_gear[LOADOUT_COLOR_HSV_DATA]
+						if(length(hsv_data) == 3)
+							LCH.build_hue = hsv_data[1]
+							LCH.build_sat = hsv_data[2]
+							LCH.build_val = hsv_data[3]
 				LCH.open(user)
 
 			//poly coloring can only be done by poly items
