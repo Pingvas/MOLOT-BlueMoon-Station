@@ -786,6 +786,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 				var/accent_b = text2num("0x[copytext(accent_hex, 5, 7)]")
 				custom_vars = "--csetup-bg:[bg_primary];--csetup-panel:[bg_secondary];--csetup-panel-2:[bg_secondary];--csetup-border:[border_color];--csetup-text:[text_primary];--csetup-muted:[text_secondary];--csetup-accent:[accent_color];--csetup-accent-rgb:[accent_r],[accent_g],[accent_b];--csetup-btn-bg:[button_bg];--csetup-btn-hover:[button_hover];--csetup-btn-active:[button_active];--csetup-btn-active-text:[button_text];"
 			modern_palette_css = "<style>\n\
+	body{background-color:[bg_primary]}\n\
 	.csetup-root{[custom_vars]background-color:[bg_primary];color:[text_primary];background-image:[bg_pattern]}\n\
 	.csetup-root a,.csetup-root a:link,.csetup-root a:visited{color:[text_primary];background-color:[button_bg];border-color:[border_color];border-radius:[button_radius]}\n\
 	.csetup-root a:hover{background-color:[button_hover]}\n\
@@ -2073,8 +2074,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "</center>"
 					dat += "<hr>"
 					// BLUEMOON ADD END
-					var/iterated_markings = 0
-					var/total_pages = 0
 					// rp marking selection
 					// assume you can only have mam markings or regular markings or none, never both
 					var/marking_type
@@ -2122,8 +2121,10 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 									var/list/markings = features[marking_type]
 									if(!islist(markings))
 										markings = list()
-									for(var/list/marking_list in markings)
-										var/marking_index = markings.Find(marking_list)
+									for(var/marking_index in 1 to length(markings))
+										var/marking_list = markings[marking_index]
+										if(!istype(marking_list, /list))
+											continue
 										var/limb_value = marking_list[1]
 										var/actual_name = GLOB.bodypart_names[num2text(limb_value)]
 										if(actual_name != limb)
@@ -2187,124 +2188,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 							dat += "<a href='?_src_=prefs;preference=markings_remove;task=input'>[remove_all_markings_label]</a>"
 							dat += "</div>"
 							dat += "</div>"
-							dat += "<div class='csetup-markings-classic'>"
-						var/add_marking_label = src.use_modern_translations ? get_modern_text("add_marking", src) : "Add marking"
-						dat += "<center>"
-						dat += "<h3>[src.use_modern_translations ? get_modern_text(marking_type, src) : GLOB.all_mutant_parts[marking_type]]</h3>" // give it the appropriate title for the type of marking
-						dat += "<a href='?_src_=prefs;preference=marking_add;marking_type=[marking_type];task=input'>[add_marking_label]</a>"
-						dat += "</center>"
 
-						dat += "<table width=100%><tr>"
-
-						for(var/limb in GLOB.bodypart_values)
-							if(length(GLOB.bodypart_values) % 3 != 0)
-								continue
-							total_pages++
-
-						for(var/limb in GLOB.bodypart_values)
-							if(!iterated_markings)
-								dat += "<td width=[(100 / total_pages)]%>"
-							dat += "<h3><center>[limb]</center></h3>"
-							dat += "<table align='center'; width='100%'; height='100px'; style='background-color:#13171C'>"
-							dat += "<td width=4%><font size=2> </font></td>"
-							dat += "<td width=10%><font size=2> </font></td>"
-							dat += "<td width=6%><font size=2> </font></td>"
-							dat += "<td width=20%><font size=2> </font></td>"
-							dat += "<td width=40%><font size=2> </font></td>"
-							dat += "<td width=15%><font size=2> </font></td>"
-							dat += "</tr>"
-
-							// list out the current markings you have
-							if(length(features[marking_type]))
-								var/list/markings = features[marking_type]
-								if(!islist(markings))
-									// something went terribly wrong
-									markings = list()
-
-								for(var/list/marking_list in markings)
-									var/marking_index = markings.Find(marking_list) // consider changing loop to go through indexes over lists instead of using Find here
-									var/limb_value = marking_list[1]
-									var/actual_name = GLOB.bodypart_names[num2text(limb_value)] // get the actual name from the bitflag representing the part the marking is applied to
-									if(actual_name != limb)
-										continue
-									var/color_marking_dat = ""
-									var/number_colors = 1
-									var/datum/sprite_accessory/mam_body_markings/S = GLOB.mam_body_markings_list[marking_list[2]]
-									var/matrixed_sections = S.covered_limbs[actual_name]
-									if(S && matrixed_sections)
-										// if it has nothing initialize it to white
-										if(length(marking_list) == 2)
-											var/first = "#FFFFFF"
-											var/second = "#FFFFFF"
-											var/third = "#FFFFFF"
-											if(features["mcolor"])
-												first = "#[features["mcolor"]]"
-											if(features["mcolor2"])
-												second = "#[features["mcolor2"]]"
-											if(features["mcolor3"])
-												third = "#[features["mcolor3"]]"
-											marking_list += list(list(first, second, third)) // just assume its 3 colours if it isnt it doesnt matter we just wont use the other values
-										// index magic
-										var/primary_index = 1
-										var/secondary_index = 2
-										var/tertiary_index = 3
-										switch(matrixed_sections)
-											if(MATRIX_GREEN)
-												primary_index = 2
-											if(MATRIX_BLUE)
-												primary_index = 3
-											if(MATRIX_RED_BLUE)
-												secondary_index = 2
-											if(MATRIX_GREEN_BLUE)
-												primary_index = 2
-												secondary_index = 3
-
-										// we know it has one matrixed section at minimum
-										color_marking_dat += "<a href='?_src_=prefs;preference=marking_color_specific;marking_index=[marking_index];marking_type=[marking_type];number_color=[number_colors];task=input'><span style='border: 1px solid #161616; background-color: [marking_list[3][primary_index]];'><font color='[color_hex2num(marking_list[3][primary_index]) < 200 ? "FFFFFF" : "000000"]'>[marking_list[3][primary_index]]</font></span></a>"
-										// if it has a second section, add it
-										if(matrixed_sections == MATRIX_RED_BLUE || matrixed_sections == MATRIX_GREEN_BLUE || matrixed_sections == MATRIX_RED_GREEN || matrixed_sections == MATRIX_ALL)
-											number_colors = 2
-											color_marking_dat += "<a href='?_src_=prefs;preference=marking_color_specific;marking_index=[marking_index];marking_type=[marking_type];number_color=[number_colors];task=input'><span style='border: 1px solid #161616; background-color: [marking_list[3][secondary_index]];'><font color='[color_hex2num(marking_list[3][secondary_index]) < 200 ? "FFFFFF" : "000000"]'>[marking_list[3][secondary_index]]</font></span></a>"
-										// if it has a third section, add it
-										if(matrixed_sections == MATRIX_ALL)
-											number_colors = 3
-											color_marking_dat += "<a href='?_src_=prefs;preference=marking_color_specific;marking_index=[marking_index];marking_type=[marking_type];number_color=[number_colors];task=input'><span style='border: 1px solid #161616; background-color: [marking_list[3][tertiary_index]];'><font color='[color_hex2num(marking_list[3][tertiary_index]) < 200 ? "FFFFFF" : "000000"]'>[marking_list[3][tertiary_index]]</font></span></a>"
-									dat += "<tr style='vertical-align:top;'>"
-									dat += "<td>[marking_index]</td>"
-									dat += "<td><a href='?_src_=prefs;preference=marking_up;task=input;marking_index=[marking_index];marking_type=[marking_type]'>&#709;</a></td>"
-									dat += "<td><a href='?_src_=prefs;preference=marking_down;task=input;marking_index=[marking_index];marking_type=[marking_type];'>&#708;</a></td>"
-									dat += "<td>[marking_list[2]]</td>"
-									dat += "<td>[color_marking_dat]</td>"
-									dat += "<td><a href='?_src_=prefs;preference=marking_remove;task=input;marking_index=[marking_index];marking_type=[marking_type]'>X</a></td>"
-									dat += "</tr>"
-
-							else
-								dat += "<tr style='vertical-align:top;'>"
-								dat += "<td> </td>"
-								dat += "<td> </td>"
-								dat += "<td> </td>"
-								dat += "<td> </td>"
-								dat += "<td> </td>"
-								dat += "<td> </td>"
-								dat += "<td> </td>"
-								dat += "</tr>"
-
-							dat += "</table>"
-
-							iterated_markings++
-							if(iterated_markings >= 3)
-								dat += "</td>"
-								iterated_markings = 0
-						dat += "</tr></table>"
-						// BLUEMOON ADD START - кнопка для удаления всех маркингов на персонаже
-						dat += "<center>"
-						dat += "<h3>Danger Zone</h3>"
-						dat += "<a href='?_src_=prefs;preference=markings_remove;task=input'>Remove All Markings</a>"
-						dat += "</center>"
-						// BLUEMOON ADD END
-						if(is_modern_theme)
-							dat += "</div>"
-							dat += "</div>"
+						dat += "</td>"
 
 				if(SPEECH_CHAR_TAB)
 					dat += "<table><tr><td width='340px' height='300px' valign='top'>"
@@ -2351,7 +2236,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "</td>"
 					dat += "</tr></table>"
 				if(LOADOUT_CHAR_TAB)
-					stack_trace("ShowChoices: rendering loadout tab (user: [user?.ckey], loadout_slot: [loadout_slot])")
 					dat += "<table align='center' width='100%'>"
 					var/loadout_slot_label = src.use_modern_translations ? get_modern_text("loadout_slot", src) : "Loadout slot"
 					dat += "<tr><td colspan=4><center><b>[loadout_slot_label]</b></center></td></tr>"
@@ -2539,13 +2423,13 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 									dat += "</td></tr>"
 					dat += "</table>"
 
-	dat += "<hr><center>"
+	dat += "<center>"
 
 	if(!IsGuestKey(user.key))
-		dat += "<a href='?_src_=prefs;preference=load'>Undo</a> "
-		dat += "<a href='?_src_=prefs;preference=save'>Save Setup</a> "
+		dat += "<a class='csetup-btn' href='?_src_=prefs;preference=load'>Undo</a> "
+		dat += "<a class='csetup-btn' href='?_src_=prefs;preference=save'>Save Setup</a> "
 
-	dat += "<a href='?_src_=prefs;preference=reset_all'>Reset Setup</a>"
+	dat += "<a class='csetup-btn' href='?_src_=prefs;preference=reset_all'>Reset Setup</a>"
 	dat += "</center>"
 
 	if(new_character_creator)
@@ -5000,45 +4884,53 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					// move the specified marking down
 					var/index = text2num(href_list["marking_index"])
 					var/marking_type = href_list["marking_type"]
-					if(index && marking_type && features[marking_type] && index != length(features[marking_type]))
-						var/index_down = index + 1
-						var/markings = features[marking_type]
-						var/first_marking = markings[index]
-						var/second_marking = markings[index_down]
-						markings[index] = second_marking
-						markings[index_down] = first_marking
+					if(marking_type && features[marking_type])
+						var/list/markings = features[marking_type]
+						if(index >= 1 && index < length(markings))
+							var/index_down = index + 1
+							var/first_marking = markings[index]
+							var/second_marking = markings[index_down]
+							if(istype(first_marking, /list) && istype(second_marking, /list))
+								markings[index] = second_marking
+								markings[index_down] = first_marking
 
 				if("marking_up")
 					// move the specified marking up
 					var/index = text2num(href_list["marking_index"])
 					var/marking_type = href_list["marking_type"]
-					if(index && marking_type && features[marking_type] && index != 1)
-						var/index_up = index - 1
-						var/markings = features[marking_type]
-						var/first_marking = markings[index]
-						var/second_marking = markings[index_up]
-						markings[index] = second_marking
-						markings[index_up] = first_marking
+					if(marking_type && features[marking_type])
+						var/list/markings = features[marking_type]
+						if(index > 1 && index <= length(markings))
+							var/index_up = index - 1
+							var/first_marking = markings[index]
+							var/second_marking = markings[index_up]
+							if(istype(first_marking, /list) && istype(second_marking, /list))
+								markings[index] = second_marking
+								markings[index_up] = first_marking
 
 				if("marking_top")
 					// move the specified marking to the top
 					var/index = text2num(href_list["marking_index"])
 					var/marking_type = href_list["marking_type"]
-					if(index && marking_type && features[marking_type] && index != 1)
+					if(marking_type && features[marking_type])
 						var/list/markings = features[marking_type]
-						var/list/entry = markings[index]
-						markings.Cut(index, index + 1)
-						markings.Insert(1, entry)
+						if(index >= 1 && index <= length(markings) && index != 1)
+							var/entry = markings[index]
+							if(istype(entry, /list))
+								for(var/i = index; i > 1; i--)
+									markings.Swap(i, i - 1)
 
 				if("marking_bottom")
 					// move the specified marking to the bottom
 					var/index = text2num(href_list["marking_index"])
 					var/marking_type = href_list["marking_type"]
-					if(index && marking_type && features[marking_type] && index != length(features[marking_type]))
+					if(marking_type && features[marking_type])
 						var/list/markings = features[marking_type]
-						var/list/entry = markings[index]
-						markings.Cut(index, index + 1)
-						markings += list(entry)
+						if(index >= 1 && index < length(markings))
+							var/entry = markings[index]
+							if(istype(entry, /list))
+								for(var/i = index; i < length(markings); i++)
+									markings.Swap(i, i + 1)
 
 				if("marking_remove")
 					// move the specified marking up
