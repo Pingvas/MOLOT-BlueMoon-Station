@@ -4612,6 +4612,7 @@
 #include "modular_bluemoon\code\modules\client\preferences_savefile.dm"
 #include "modular_bluemoon\code\modules\client\pronouns_ru.dm"
 #include "modular_bluemoon\code\modules\client\varies.dm"
+#include "modular_bluemoon\code\modules\client\loadout_color.dm"
 #include "modular_bluemoon\code\modules\client\loadout\_loadout.dm"
 #include "modular_bluemoon\code\modules\client\loadout\ac_clothing.dm"
 #include "modular_bluemoon\code\modules\client\loadout\accessory.dm"

@@ -140,6 +140,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/list/color_presets_tint = list() // Пример: list(/obj/item/clothing = list("Стандарт" = "#ffffff"))
 	var/list/color_presets_hsv = list() // Пример: list(/obj/item/clothing = list("Стандарт" = list("hue" = 0, "sat" = 1, "val" = 1)))
 	var/list/color_presets_matrix = list() // Пример: list(/obj/item/clothing = list("Стандарт" = list(1,0,0,0,1,0,0,0,1,0,0,0)))
+	var/tmp/datum/loadout_color_handler/loadout_color_handler
 	// BLUEMOON ADD END
 
 	//character preferences
@@ -2331,38 +2332,43 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 									if(gear.base64icon)
 										extra_loadout_data += "<center><img src='data:image/png;base64,[gear.base64icon]'></center>"
 									if(loadout_item)
+										var/loadout_color_display = "#FFFFFF"
+										var/loadout_color_label = "#FFFFFF"
+										if(length(loadout_item[LOADOUT_COLOR]))
+											var/raw_color = loadout_item[LOADOUT_COLOR][1]
+											if(istext(raw_color))
+												loadout_color_display = raw_color
+												loadout_color_label = raw_color
+											else
+												loadout_color_display = "#FFFFFF"
+												loadout_color_label = "CMatrix"
+										extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color=1;loadout_gear_name=[url_encode(gear.name)];'>Color</a>"
+										extra_loadout_data += "<span style='border: 1px solid #161616; background-color: [loadout_color_display];'><font color='[color_hex2num(loadout_color_display) < 200 ? "FFFFFF" : "000000"]'>[loadout_color_label]</font></span>"
 										if(gear.loadout_flags & LOADOUT_CAN_COLOR_POLYCHROMIC)
-											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color_polychromic=1;loadout_gear_name=[url_encode(gear.name)];'>Color</a>"
+											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color_polychromic=1;loadout_gear_name=[url_encode(gear.name)];'>Channels</a>"
 											if(length(loadout_item[LOADOUT_COLOR]))
 												for(var/loadout_color in loadout_item[LOADOUT_COLOR])
 													var/display_color = istext(loadout_color) ? loadout_color : "#FFFFFF"
+													var/display_label = istext(loadout_color) ? loadout_color : "M"
 													var/text_color = (istext(loadout_color) && color_hex2num(loadout_color) < 200) ? "FFFFFF" : "000000"
-													extra_loadout_data += "<span style='border: 1px solid #161616; background-color: [display_color];'><font color='[text_color]'>[loadout_color]</font></span>"
+													extra_loadout_data += "<span style='border: 1px solid #161616; background-color: [display_color];'><font color='[text_color]'>[display_label]</font></span>"
+
+										if(gear.loadout_flags & LOADOUT_CAN_NAME)
+											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_rename=1;loadout_gear_name=[url_encode(gear.name)];'>Name</a> [loadout_item[LOADOUT_CUSTOM_NAME] ? loadout_item[LOADOUT_CUSTOM_NAME] : "N/A"]"
+										if(gear.loadout_flags & LOADOUT_CAN_DESCRIPTION)
+											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_redescribe=1;loadout_gear_name=[url_encode(gear.name)];'>Description</a>"
 										else
-											var/loadout_color_non_poly = "#FFFFFF"
-											if(length(loadout_item[LOADOUT_COLOR]))
-												var/raw_color = loadout_item[LOADOUT_COLOR][1]
-												loadout_color_non_poly = istext(raw_color) ? raw_color : "#FFFFFF"
-											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color=1;loadout_gear_name=[url_encode(gear.name)];'>Color</a>"
-											extra_loadout_data += "<span style='border: 1px solid #161616; background-color: [loadout_color_non_poly];'><font color='[color_hex2num(loadout_color_non_poly) < 200 ? "FFFFFF" : "000000"]'>[loadout_color_non_poly]</font></span>"
-											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_color_HSV=1;loadout_gear_name=[url_encode(gear.name)];'>HSV Color</a>" // SPLURT EDIT
-											
-											if(gear.loadout_flags & LOADOUT_CAN_NAME)
-												extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_rename=1;loadout_gear_name=[url_encode(gear.name)];'>Name</a> [loadout_item[LOADOUT_CUSTOM_NAME] ? loadout_item[LOADOUT_CUSTOM_NAME] : "N/A"]"
-											if(gear.loadout_flags & LOADOUT_CAN_DESCRIPTION)
-												extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_redescribe=1;loadout_gear_name=[url_encode(gear.name)];'>Description</a>"
-											else
-												extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_addheirloom=1;loadout_gear_name=[url_encode(gear.name)];'>Select as Heirloom</a><BR>"
-											// BLUEMOON ADD START - выбор вещей из лодаута как family heirloom
-											if(loadout_item[LOADOUT_IS_HEIRLOOM])
-												extra_loadout_data += "<BR><a class='linkOn' href='?_src_=prefs;preference=gear;loadout_removeheirloom=1;loadout_gear_name=[url_encode(gear.name)];'>Select as Heirloom</a><BR>"
-											else
-												extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_addheirloom=1;loadout_gear_name=[url_encode(gear.name)];'>Select as Heirloom</a><BR>"
-											if(ispath(gear.path, /obj/item/clothing))
-												extra_loadout_data += "<BR><a [loadout_item["loadout_examtooltip"] ? "class='linkOn' " : ""]href='?_src_=prefs;preference=gear;loadout_examtooltip=1;loadout_gear_name=[url_encode(gear.name)];'>Examine tooltip: [loadout_item["loadout_examtooltip"] ? "Set!" : "None"]</a>"
-											if(ispath(gear.path, /obj/item/clothing/neck/petcollar))
-												extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_tagname=1;loadout_gear_name=[url_encode(gear.name)];'>Name tag</a> [loadout_item["loadout_custom_tagname"] ? loadout_item["loadout_custom_tagname"] : "Name tag is visible for everyone looking at wearer."]"
-											// BLUEMOON ADD END
+											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_addheirloom=1;loadout_gear_name=[url_encode(gear.name)];'>Select as Heirloom</a><BR>"
+										// BLUEMOON ADD START - выбор вещей из лодаута как family heirloom
+										if(loadout_item[LOADOUT_IS_HEIRLOOM])
+											extra_loadout_data += "<BR><a class='linkOn' href='?_src_=prefs;preference=gear;loadout_removeheirloom=1;loadout_gear_name=[url_encode(gear.name)];'>Select as Heirloom</a><BR>"
+										else
+											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_addheirloom=1;loadout_gear_name=[url_encode(gear.name)];'>Select as Heirloom</a><BR>"
+										if(ispath(gear.path, /obj/item/clothing))
+											extra_loadout_data += "<BR><a [loadout_item["loadout_examtooltip"] ? "class='linkOn' " : ""]href='?_src_=prefs;preference=gear;loadout_examtooltip=1;loadout_gear_name=[url_encode(gear.name)];'>Examine tooltip: [loadout_item["loadout_examtooltip"] ? "Set!" : "None"]</a>"
+										if(ispath(gear.path, /obj/item/clothing/neck/petcollar))
+											extra_loadout_data += "<BR><a href='?_src_=prefs;preference=gear;loadout_tagname=1;loadout_gear_name=[url_encode(gear.name)];'>Name tag</a> [loadout_item["loadout_custom_tagname"] ? loadout_item["loadout_custom_tagname"] : "Name tag is visible for everyone looking at wearer."]"
+										// BLUEMOON ADD END
 									if(loadout_item)
 										class_link = "style='white-space:normal;' class='linkOn' href='?_src_=prefs;preference=gear;toggle_gear_path=[url_encode(name)];toggle_gear=0'"
 									else if(!is_loadout_slot_available(gear.category))
@@ -5884,7 +5890,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					sanitize_current_slot.Remove(list(entry))
 					break
 
-		if(href_list["loadout_color"] || href_list["loadout_color_polychromic"] || href_list["loadout_color_HSV"] || href_list["loadout_rename"] || href_list["loadout_redescribe"] || href_list["loadout_addheirloom"] || href_list["loadout_removeheirloom"] || href_list["loadout_tagname"] || href_list["loadout_examtooltip"])
+		if(href_list["loadout_color"] || href_list["loadout_color_polychromic"] || href_list["loadout_rename"] || href_list["loadout_redescribe"] || href_list["loadout_addheirloom"] || href_list["loadout_removeheirloom"] || href_list["loadout_tagname"] || href_list["loadout_examtooltip"])
 
 			//if the gear doesn't exist, or they don't have it, ignore the request
 			var/name = url_decode(href_list["loadout_gear_name"])
@@ -5902,35 +5908,24 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 			//possible requests: recolor, recolor (polychromic), rename, redescribe
 			//always make sure the gear allows said request before proceeding
 
-			//non-poly coloring can only be done by non-poly items
-			if(href_list["loadout_color"] && !(G.loadout_flags & LOADOUT_CAN_COLOR_POLYCHROMIC))
+			// Colormate
+			if(href_list["loadout_color"])
+				if(src.loadout_color_handler)
+					SStgui.close_uis(src.loadout_color_handler)
 				if(!length(user_gear[LOADOUT_COLOR]))
 					user_gear[LOADOUT_COLOR] = list("#FFFFFF")
+				src.loadout_color_handler = new /datum/loadout_color_handler
+				var/datum/loadout_color_handler/LCH = src.loadout_color_handler
+				LCH.user = user
+				LCH.prefs = src
+				LCH.gear_name = name
+				LCH.loadout_slot = loadout_slot
+				LCH.user_gear = user_gear
+				LCH.gear = G
 				var/current_color = user_gear[LOADOUT_COLOR][1]
-				if(!istext(current_color))
-					current_color = "#FFFFFF"
-				var/new_color = input(user, "Polychromic options", "Choose Color", current_color) as color|null
-				user_gear[LOADOUT_COLOR][1] = sanitize_hexcolor(new_color, 6, TRUE, current_color)
-
-			// HSV Coloring (SPLURT EDIT)
-			if(href_list["loadout_color_HSV"] && !(G.loadout_flags & LOADOUT_CAN_COLOR_POLYCHROMIC))
-				var/hue = input(user, "Enter Hue (0-360)", "HSV options") as num|null
-				var/saturation = input(user, "Enter Saturation (-10 to 10)", "HSV options") as num|null
-				var/value = input(user, "Enter Value (-10 to 10)", "HSV options") as num|null
-				if(hue && saturation && value)
-					saturation = clamp(saturation, -10, 10)
-					value = clamp(value, -10, 10)
-					var/list/color_matrix = color_matrix_hsv(hue, saturation, value)
-					var/current_hex = user_gear[LOADOUT_COLOR][1]
-					if(!istext(current_hex))
-						current_hex = "#FFFFFF"
-					var/r_part = hex2num(copytext(current_hex, 2, 4)) / 255
-					var/g_part = hex2num(copytext(current_hex, 4, 6)) / 255
-					var/b_part = hex2num(copytext(current_hex, 6, 8)) / 255
-					var/new_r = round(clamp((r_part * color_matrix[1] + g_part * color_matrix[2] + b_part * color_matrix[3]) * 255, 0, 255))
-					var/new_g = round(clamp((r_part * color_matrix[4] + g_part * color_matrix[5] + b_part * color_matrix[6]) * 255, 0, 255))
-					var/new_b = round(clamp((r_part * color_matrix[7] + g_part * color_matrix[8] + b_part * color_matrix[9]) * 255, 0, 255))
-					user_gear[LOADOUT_COLOR][1] = rgb(new_r, new_g, new_b)
+				if(istext(current_color))
+					LCH.activecolor = current_color
+				LCH.open(user)
 
 			//poly coloring can only be done by poly items
 			if(href_list["loadout_color_polychromic"] && (G.loadout_flags & LOADOUT_CAN_COLOR_POLYCHROMIC))
