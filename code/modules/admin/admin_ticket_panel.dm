@@ -79,9 +79,17 @@
 		if(world.time - AH.typing_admins[typing_ckey] < 5 SECONDS)
 			typing += typing_ckey
 		else
-			AH.typing_admins -= typing_ckey
+			var/client/C = GLOB.directory[typing_ckey]
+			if(C?.reply_modal_open)
+				typing += typing_ckey
+			else
+				AH.typing_admins -= typing_ckey
 	.["typing_admins"] = typing
 	.["initiator_typing"] = (AH.initiator_typing_time != null && world.time - AH.initiator_typing_time < 5 SECONDS)
+	if(!.["initiator_typing"] && AH.initiator_ckey)
+		var/client/C = GLOB.directory[AH.initiator_ckey]
+		if(C?.reply_modal_open)
+			.["initiator_typing"] = TRUE
 	.["interactions"] = AH._interactions.Copy()
 
 /datum/admin_ticket_panel/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)

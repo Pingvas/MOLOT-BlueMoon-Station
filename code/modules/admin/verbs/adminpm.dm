@@ -56,7 +56,9 @@
 		message_admins("[key_name_admin(src, FALSE)] [ADMIN_FLW(src.mob)] начал отвечать на админхелп [key_name_admin(C, FALSE)] [ADMIN_FLW(C.mob)].",\
 		islog = FALSE, prefix = "AHELP")
 		AH.typing_admins[usr.ckey] = world.time
+		reply_modal_open = TRUE
 	var/msg = input(src,"Сообщение:", "Приватное сообщение [C.holder?.fakekey ? "администрации" : key_name(C, FALSE)].") as message|null
+	reply_modal_open = FALSE
 	if (!msg)
 		message_admins("[key_name_admin(src, FALSE)] [ADMIN_FLW(src.mob)] прекратил отвечать на admin help [key_name_admin(C, FALSE)] [ADMIN_FLW(C.mob)].",\
 		islog = FALSE, prefix = "AHELP")
@@ -137,8 +139,11 @@
 			else if(holder && recipient?.current_ticket)
 				typing_ticket = recipient.current_ticket
 				typing_ticket.typing_admins[src.ckey] = world.time
+			if(typing_ticket)
+				reply_modal_open = TRUE
 
 			msg = input(src,"Сообщение:", "Приватное сообщение для [recipient.holder?.fakekey ? "администрации" : key_name(recipient, 0, 0)].") as message|null
+			reply_modal_open = FALSE
 			msg = trim(msg)
 			if(!msg)
 				if(typing_ticket)

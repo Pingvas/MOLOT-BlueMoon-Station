@@ -400,6 +400,7 @@ const TicketDetailPanel = (props, context) => {
 
   const stopTyping = () => {
     act('typing_stop');
+    setLastTypingPing(0);
   };
 
   const sendReply = () => {
