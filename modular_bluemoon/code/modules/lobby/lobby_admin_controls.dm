@@ -34,7 +34,7 @@
 			if(!LAZYLEN(SStitle_bm.sfw_images))
 				to_chat(user, span_warning("SFW-пул картинок пустой! Добавьте файлы в config/title_screens/"))
 				return
-			SStitle_bm.change_image(null)
+			SStitle_bm.change_image(pick(SStitle_bm.sfw_images))
 			message_admins("[key_name_admin(user)] выбрал случайную SFW-картинку лобби.")
 
 		if("Случайный NSFW")
@@ -91,8 +91,23 @@
 	log_admin("[key_name(user)] меняет фон лобби на видео/GIF.")
 	message_admins("[key_name_admin(user)] меняет фон лобби на видео/GIF.")
 
-	var/type_choice = tgui_input_list(user, "Тип медиа:", "Медиа для лобби", list("GIF (картинка)", "Видео (MP4/WebM)", "YouTube"))
+	var/type_choice = tgui_input_list(user, "Тип медиа:", "Медиа для лобби", list("GIF (картинка)", "Видео (MP4/WebM)", "YouTube", "Загрузить"))
 	if(!type_choice)
+		return
+
+	if(type_choice == "Загрузить")
+		var/video_file = input(user, "Выберите видеофайл (MP4/WebM, макс. 50 МБ):", "Загрузка видео") as file|null
+		if(!video_file)
+			return
+		if(!SStitle_bm)
+			to_chat(mob, span_warning("SStitle_bm не инициализирован!"))
+			return
+		SStitle_bm.set_video_upload(video_file, user)
+		if(!SStitle_bm.current_video_file)
+			return
+		log_admin("[key_name(user)] загрузил видео на сервер для фона лобби.")
+		message_admins("[key_name_admin(user)] загрузил видео на сервер для фона лобби.")
+		to_chat(user, span_notice("Видео загружено и отправлено всем игрокам."))
 		return
 
 	var/input_hint

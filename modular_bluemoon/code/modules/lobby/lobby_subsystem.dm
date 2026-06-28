@@ -10,6 +10,9 @@ SUBSYSTEM_DEF(title_bm)
 	var/current_notice
 	var/loading_image = BM_LOBBY_LOADING_GIF
 	var/current_video_payload
+	var/current_video_file       // путь к загруженному видеофайлу на сервере
+	var/current_video_id = ""    // уникальный ID загруженного видео
+	var/current_video_rsc                     // закешированный rsc-ссылкa файла (fcopy_rsc)
 	var/cached_static_html = ""
 	var/cached_js_url = ""           // URL JS-библиотеки — вычисляется один раз в _build_static_html
 	var/cached_notice_js = ""        // JS-вызов для текущего объявления — кешируется в set_notice
@@ -67,10 +70,13 @@ SUBSYSTEM_DEF(title_bm)
 
 /datum/controller/subsystem/title_bm/Destroy()
 	UnregisterSignal(SSticker, list(COMSIG_TICKER_ENTER_PREGAME, COMSIG_TICKER_ENTER_SETTING_UP))
+	_cleanup_video_file()
 	sfw_images = null
 	nsfw_images = null
 	current_sfw_image = null
 	current_nsfw_image = null
+	current_video_file = null
+	current_video_rsc = null
 	cached_static_html = ""
 	cached_js_url = ""
 	cached_notice_js = ""
@@ -86,6 +92,9 @@ SUBSYSTEM_DEF(title_bm)
 		lobby_html = _parse_lobby_html(file2text(BM_LOBBY_HTML_FILE))
 	else
 		lobby_html = SStitle_bm.lobby_html
+	current_video_file      = SStitle_bm.current_video_file
+	current_video_id        = SStitle_bm.current_video_id
+	current_video_rsc       = SStitle_bm.current_video_rsc
 	cached_static_html      = SStitle_bm.cached_static_html
 	cached_js_url           = SStitle_bm.cached_js_url
 	cached_notice_js        = SStitle_bm.cached_notice_js
@@ -151,16 +160,106 @@ SUBSYSTEM_DEF(title_bm)
 		current_nsfw_image = current_sfw_image
 
 /datum/controller/subsystem/title_bm/proc/set_video(payload)
+	// Удаляем загруженное видео с диска
+	_cleanup_video_file()
 	current_video_payload = payload
 	current_image = null
+	current_video_file = null
+	current_video_id = ""
+	current_video_rsc = null
 	for(var/mob/dead/new_player/player as anything in GLOB.new_player_list)
 		if(!player.bm_lobby_ready || !player.client)
 			continue
 		if(!player.client.prefs || player.client.prefs.bm_lobby_show_admin_bg)
 			player.client << output(payload, "bm_lobby_browser:bm_set_background")
 
-/datum/controller/subsystem/title_bm/proc/change_image(file_or_icon)
+/datum/controller/subsystem/title_bm/proc/set_video_upload(uploaded_file, mob/user = null)
+	_cleanup_video_file()
 	current_video_payload = null
+	current_image = null
+	current_video_file = null
+	current_video_id = ""
+
+	if(!uploaded_file)
+		return
+
+	// Проверка лимита размера
+	var/file_size = length(uploaded_file)
+	if(file_size > 0 && file_size > BM_LOBBY_VIDEO_MAX_SIZE)
+		log_game("set_video_upload: файл превышает 50 МБ ([file_size] байт)")
+		if(user)
+			to_chat(user, span_warning("Файл слишком большой! Максимум 50 МБ."))
+		return
+
+	// Генерируем имя и сохраняем
+	var/ext = ".mp4"
+	var/low_name = lowertext(uploaded_file)
+	if(findtext(low_name, ".webm"))
+		ext = ".webm"
+	else if(findtext(low_name, ".gif"))
+		ext = ".gif"
+	var/video_id = "lobby_[num2text(world.time, 12)]"
+	var/save_path = "[BM_LOBBY_VIDEOS_DIR][video_id][ext]"
+
+	if(!fexists(BM_LOBBY_VIDEOS_DIR))
+		rustg_file_write("", "[BM_LOBBY_VIDEOS_DIR].gitkeep")
+
+	fcopy(uploaded_file, save_path)
+
+	if(!fexists(save_path))
+		log_game("set_video_upload: не удалось сохранить файл [save_path]")
+		if(user)
+			to_chat(user, span_warning("Не удалось сохранить файл на сервер."))
+		return
+
+	current_video_file = save_path
+	current_video_id = video_id
+
+	// Кешируем rsc для быстрой отправки всем игрокам
+	current_video_rsc = fcopy_rsc(save_path)
+
+	for(var/mob/dead/new_player/player as anything in GLOB.new_player_list)
+		if(!player.bm_lobby_ready || !player.client)
+			continue
+		if(!player.client.prefs || player.client.prefs.bm_lobby_show_admin_bg)
+			INVOKE_ASYNC(src, PROC_REF(_serve_video_to_player), player)
+
+/// Удаляет загруженный видеофайл с диска.
+/datum/controller/subsystem/title_bm/proc/_cleanup_video_file()
+	if(current_video_file && fexists(current_video_file))
+		fdel(current_video_file)
+
+/datum/controller/subsystem/title_bm/proc/_serve_video_to_player(mob/dead/new_player/player)
+	set waitfor = 0
+	if(!player?.client || !current_video_rsc || !current_video_file || !current_video_id)
+		return
+
+	if(player.bm_current_video_id == current_video_id)
+		return
+
+	// имя в кеше
+	var/cache_name = "bm_lobby_video_[current_video_id].mp4"
+
+	player.client << browse(current_video_rsc, "file=[cache_name];display=0")
+
+	var/serve_type = "video"
+	var/lf = length(current_video_file)
+	if(lf >= 4)
+		var/last4 = lowertext(copytext(current_video_file, lf - 3, lf + 1))
+		if(last4 == ".gif")
+			serve_type = "image"
+
+	var/list/payload_data = list("url" = cache_name, "type" = serve_type, "uploaded" = TRUE)
+	var/payload = json_encode(payload_data)
+	player.client << output(payload, "bm_lobby_browser:bm_set_background")
+	player.bm_current_video_id = current_video_id
+
+/datum/controller/subsystem/title_bm/proc/change_image(file_or_icon)
+	_cleanup_video_file()
+	current_video_payload = null
+	current_video_file = null
+	current_video_id = ""
+	current_video_rsc = null
 	if(file_or_icon)
 		current_image = file_or_icon
 	else

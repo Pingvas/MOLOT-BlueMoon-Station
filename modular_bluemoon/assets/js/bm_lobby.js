@@ -243,6 +243,18 @@ function bm_set_background(data) {
     vid.setAttribute('data-bm-src', url);
     bg.parentNode.replaceChild(vid, bg);
     bm_show_volume_panel('video');
+    if (_bm_is_admin && parsed.uploaded) {
+      _bm_video_confirm_show(function() {
+        location.href = '?src=' + (window._BM_SRC || '') + ';bm_lobby_action=video_reject';
+        var cur2 = document.getElementById('bm-bg');
+        if (cur2) {
+          var img = document.createElement('img');
+          img.id = 'bm-bg'; img.className = 'bg'; img.src = 'loading_screen.gif';
+          cur2.parentNode.replaceChild(img, cur2);
+        }
+        bm_show_volume_panel(null);
+      });
+    }
   } else if (type === 'iframe') {
     if (bg.tagName === 'IFRAME' && bg.getAttribute('data-bm-src') === url) return;
     var _prev_bg = bg.cloneNode(false);

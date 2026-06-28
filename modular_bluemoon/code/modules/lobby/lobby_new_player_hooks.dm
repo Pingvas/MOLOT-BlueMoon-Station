@@ -17,6 +17,7 @@
 	bm_lobby_ready = FALSE
 	bm_lobby_music_path = ""
 	bm_lobby_track_name = ""
+	bm_current_video_id = ""
 	SStitle_bm?.update_player_counts_all()
 	return ..()
 

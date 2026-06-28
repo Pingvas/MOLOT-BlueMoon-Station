@@ -13,6 +13,9 @@
 
 #define BM_LOBBY_LOADING_GIF "config/title_screens/cyberpunk_cityscape.gif"
 
+#define BM_LOBBY_VIDEOS_DIR "config/title_screens/videos/"
+#define BM_LOBBY_VIDEO_MAX_SIZE 52428800 // Лимит загрузки
+
 #define BM_DEFAULT_LOBBY_HTML_PREAMBLE {"<!DOCTYPE html>
 <html lang='ru'>
 <head>

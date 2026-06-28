@@ -5,6 +5,7 @@
 	COOLDOWN_DECLARE(bm_ready_cd)
 	var/bm_lobby_music_path = ""
 	var/bm_lobby_track_name = ""
+	var/bm_current_video_id = "" // ID последнего полученного загруженного видео
 
 /mob/dead/new_player/Login()
 	. = ..()
@@ -79,6 +80,9 @@
 		return
 	var/show_admin_bg = !client.prefs || client.prefs.bm_lobby_show_admin_bg
 	if(SStitle_bm?.current_video_payload && show_admin_bg)
+		if(SStitle_bm.current_video_file)
+			SStitle_bm._serve_video_to_player(src)
+			return
 		client << output(SStitle_bm.current_video_payload, "bm_lobby_browser:bm_set_background")
 		return
 	var/show_nsfw = client.prefs?.bm_lobby_show_nsfw || FALSE
@@ -430,7 +434,7 @@ var _i=0;setInterval(function(){var s=_i%4;document.getElementById('d').textCont
 		if("video_reject")
 			if(!check_rights_for(client, R_FUN))
 				return
-			if(!SStitle_bm?.current_video_payload)
+			if(!SStitle_bm)
 				return
 			log_admin("[key_name(src)] убрал видео с лобби (подтверждение не прошло).")
 			message_admins("[key_name_admin(src)] убрал видео с лобби (видео работало некорректно).")
