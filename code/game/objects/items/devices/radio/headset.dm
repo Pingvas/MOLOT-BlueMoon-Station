@@ -415,10 +415,10 @@ GLOBAL_LIST_INIT(channel_tokens, list(
 	. = ..()
 	return EMP_PROTECT_SELF
 
-/obj/item/radio/headset/silicon/pai/syndicate
-	name = "\proper mini Syndicate Subspace Transceiver"
+/obj/item/radio/headset/silicon/pai/inteq
+	name = "\proper mini InteQ Subspace Transceiver"
 
-/obj/item/radio/headset/silicon/pai/syndicate/Initialize(mapload)
+/obj/item/radio/headset/silicon/pai/inteq/Initialize(mapload)
 	. = ..()
 	make_syndie()
 

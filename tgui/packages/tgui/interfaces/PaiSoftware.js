@@ -13,7 +13,7 @@ export const PaiSoftware = (props, context) => {
 
   if (stat === 4) {
     return (
-      <Window title="pAI OS" width={640} height={480}>
+      <Window title="ПИИ OS" width={640} height={480}>
         <Window.Content>
           <NoticeBox danger color="bad">Системы нефункциональны</NoticeBox>
         </Window.Content>
@@ -52,7 +52,7 @@ export const PaiSoftware = (props, context) => {
   const ramUsed = 100 - ram;
 
   return (
-    <Window title="pAI OS" width={750} height={600}>
+    <Window title="ПИИ OS" width={750} height={600}>
       <Window.Content>
         <Stack fill>
           <Stack.Item width="210px">
@@ -453,14 +453,14 @@ const SOFTWARE_NAMES = {
 
 const BuyScreen = (props, context) => {
   const { act, data } = useBackend(context);
-  const { ram, software, available_software, syndicate_model } = data;
+  const { ram, software, available_software, inteq_model } = data;
   const ramUsed = 100 - ram;
   const softName = (item) => SOFTWARE_NAMES[item.id] || item.id;
   const normalSoftware = [];
-  const syndicateSoftware = [];
+  const inteqSoftware = [];
   (available_software || []).forEach(item => {
     if (SYNDICATE_SOFTWARE.includes(item.id)) {
-      syndicateSoftware.push(item);
+      inteqSoftware.push(item);
     } else {
       normalSoftware.push(item);
     }
@@ -484,22 +484,22 @@ const BuyScreen = (props, context) => {
               softName={softName(item)}
               installed={software.includes(item.id)}
               canAfford={ram >= item.cost}
-              syndicate={false}
+              inteq={false}
             />
           ))}
-          {!!syndicate_model && syndicateSoftware.length > 0 && (
+          {!!inteq_model && inteqSoftware.length > 0 && (
             <>
               <Box mt={2} mb={1} bold color="orange" fontSize={1.2}>
-                <Icon name="skull" /> Программы Синдиката
+                <Icon name="skull" /> Программы InteQ
               </Box>
-              {syndicateSoftware.map(item => (
+              {inteqSoftware.map(item => (
                 <SoftwareCard
                   key={item.id}
                   item={item}
                   softName={softName(item)}
                   installed={software.includes(item.id)}
                   canAfford={ram >= item.cost}
-                  syndicate={true}
+                  inteq={true}
                 />
               ))}
             </>
@@ -512,17 +512,17 @@ const BuyScreen = (props, context) => {
 
 const SoftwareCard = (props, context) => {
   const { act } = useBackend(context);
-  const { item, softName, installed, canAfford, syndicate } = props;
+  const { item, softName, installed, canAfford, inteq } = props;
   return (
     <Box
       mb={1}
       p={1}
       style={{
-        border: syndicate ? '1px solid #cf6a1f' : '1px solid #333',
+        border: inteq ? '1px solid #cf6a1f' : '1px solid #333',
         borderRadius: '4px',
         background: 'rgba(0,0,0,0.15)',
       }}>
-      <Box bold fontSize={1.1} mb={0.5} color={syndicate ? 'orange' : null}>
+      <Box bold fontSize={1.1} mb={0.5} color={inteq ? 'orange' : null}>
         {softName}
       </Box>
       {item.desc && (
