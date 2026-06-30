@@ -64,7 +64,7 @@ const CandidateDisplay = (props, context) => {
   return (
     <Section
       buttons={
-        <Button icon="save" onClick={() => act('download', { ckey })}>
+        <Button icon="save" onClick={() => act('download', { ckey })} tooltip="Загрузить этого кандидата в устройство.">
           Скачать
         </Button>
       }
@@ -135,7 +135,7 @@ const PaiOptions = (props, context) => {
       <LabeledList>
         <LabeledList.Item label="Мастер">
           {master || (
-            <Button icon="dna" onClick={() => act('set_dna')}>
+            <Button icon="dna" onClick={() => act('set_dna')} tooltip="Стать мастером устройства.">
               Отпечаток
             </Button>
           )}
@@ -153,6 +153,7 @@ const PaiOptions = (props, context) => {
             icon={can_holo ? 'toggle-on' : 'toggle-off'}
             onClick={() => act('toggle_holo')}
             selected={can_holo}
+            tooltip="Разрешить ПИИ использовать голограмму."
           >
             Переключить
           </Button>
@@ -162,6 +163,7 @@ const PaiOptions = (props, context) => {
             icon={leashed ? 'toggle-on' : 'toggle-off'}
             onClick={() => act('toggle_leash')}
             selected={leashed}
+            tooltip="Ограничить радиус передвижения ПИИ."
           >
             {leashed ? 'Отпустить' : 'Привязать'}
           </Button>
@@ -173,6 +175,7 @@ const PaiOptions = (props, context) => {
                 icon="minus"
                 onClick={() => act('decrease_range')}
                 disabled={range === range_min}
+                tooltip="Уменьшить радиус действия голограммы."
               />
             </Stack.Item>
             <Stack.Item mt={0.5}>{range}</Stack.Item>
@@ -181,6 +184,7 @@ const PaiOptions = (props, context) => {
                 icon="plus"
                 onClick={() => act('increase_range')}
                 disabled={range === range_max}
+                tooltip="Увеличить радиус действия голограммы."
               />
             </Stack.Item>
           </Stack>
@@ -190,6 +194,7 @@ const PaiOptions = (props, context) => {
             icon={transmit ? 'toggle-on' : 'toggle-off'}
             onClick={() => act('toggle_radio', { option: 'transmit' })}
             selected={transmit}
+            tooltip="Отключить/включить микрофон ПИИ."
           >
             Переключить
           </Button>
@@ -199,20 +204,21 @@ const PaiOptions = (props, context) => {
             icon={receive ? 'toggle-on' : 'toggle-off'}
             onClick={() => act('toggle_radio', { option: 'receive' })}
             selected={receive}
+            tooltip="Отключить/включить динамик ПИИ."
           >
             Переключить
           </Button>
         </LabeledList.Item>
         <LabeledList.Item label="Устранение неполадок">
-          <Button icon="comment" onClick={() => act('fix_speech')}>
+          <Button icon="comment" onClick={() => act('fix_speech')} tooltip="Перезагрузить речевые модули ПИИ.">
             Настроить речь
           </Button>
-          <Button icon="edit" onClick={() => act('set_laws')}>
+          <Button icon="edit" onClick={() => act('set_laws')} tooltip="Установить дополнительные директивы для ПИИ.">
             Установить законы
           </Button>
         </LabeledList.Item>
         <LabeledList.Item label="Личность">
-          <Button icon="trash" onClick={() => act('wipe_pai')}>
+          <Button icon="trash" onClick={() => act('wipe_pai')} tooltip="Необратимо стереть личность ПИИ.">
             Стереть
           </Button>
         </LabeledList.Item>
@@ -223,6 +229,7 @@ const PaiOptions = (props, context) => {
           icon="bug"
           mt={1}
           onClick={() => act('reset_software')}
+          tooltip="Сбросить ПО после ЕМАГа — очищает мастер-ДНК и директивы."
         >
           Сброс ПО
         </Button>

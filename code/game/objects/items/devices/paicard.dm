@@ -110,7 +110,11 @@
 			. = TRUE
 		if("toggle_radio")
 			if(pai.radio)
-				pai.radio.wires.cut(params["option"] == "transmit" ? WIRE_TX : WIRE_RX)
+				var/wire_id = params["option"] == "transmit" ? WIRE_TX : WIRE_RX
+				if(pai.radio.wires.is_cut(wire_id))
+					pai.radio.wires.mend(wire_id)
+				else
+					pai.radio.wires.cut(wire_id)
 			. = TRUE
 		if("increase_range")
 			pai.range = min(pai.range + 1, 7)

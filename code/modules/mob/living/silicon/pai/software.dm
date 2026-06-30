@@ -47,21 +47,21 @@
 															)
 
 /mob/living/silicon/pai/proc/CheckDNA(mob/living/carbon/M)
-	var/answer = tgui_alert(M, "[src] is requesting a DNA sample from you. Will you allow it to confirm your identity?", "[src] Check DNA", list("Yes", "No"))
-	if(answer == "Yes")
-		M.visible_message("<span class='notice'>[M] presses [M.ru_ego()] thumb against [src].</span>",\
-						"<span class='notice'>You press your thumb against [src].</span>",\
-						"<span class='notice'>[src] makes a sharp clicking sound as it extracts DNA material from [M].</span>")
+	var/answer = tgui_alert(M, "[src] запрашивает у вас образец ДНК. Разрешить проверку личности?", "Проверка ДНК [src]", list("Да", "Нет"))
+	if(answer == "Да")
+		M.visible_message("<span class='notice'>[M] прижимает [M.ru_ego()] палец к [src].</span>",\
+						"<span class='notice'>Вы прижимаете палец к [src].</span>",\
+						"<span class='notice'>[src] издаёт резкий щелчок, извлекая образец ДНК из [M].</span>")
 		if(!M.has_dna())
-			to_chat(src, "<b>No DNA detected</b>")
+			to_chat(src, "<b>ДНК не обнаружена</b>")
 			return
-		to_chat(src, "<font color = red><h3>[M]'s UE string : [M.dna.unique_enzymes]</h3></font>")
+		to_chat(src, "<font color = red><h3>UE-строка [M]: [M.dna.unique_enzymes]</h3></font>")
 		if(M.dna.unique_enzymes == src.master_dna)
-			to_chat(src, "<b>DNA is a match to stored Master DNA.</b>")
+			to_chat(src, "<b>ДНК совпадает с сохранённой ДНК владельца.</b>")
 		else
-			to_chat(src, "<b>DNA does not match stored Master DNA.</b>")
+			to_chat(src, "<b>ДНК не совпадает с сохранённой ДНК владельца.</b>")
 	else
-		to_chat(src, "[M] does not seem like [M.ru_who()] going to provide a DNA sample willingly.")
+		to_chat(src, "[M] отказывается добровольно предоставить образец ДНК.")
 
 // Door Jack - supporting proc
 /mob/living/silicon/pai/proc/hackloop()

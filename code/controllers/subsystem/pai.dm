@@ -138,13 +138,13 @@ SUBSYSTEM_DEF(pai)
 			return TRUE
 
 /datum/controller/subsystem/pai/proc/download_candidate_card(ckey, obj/item/paicard/card, mob/user)
+	if(!istype(card, /obj/item/paicard))
+		return FALSE
 	if(card.pai)
 		return FALSE
 	for(var/datum/paiCandidate/candidate in candidates)
 		if(candidate.key != ckey)
 			continue
-		if(!istype(card, /obj/item/paicard))
-			return FALSE
 		if(check_ready(candidate) != candidate)
 			return FALSE
 		var/mob/living/silicon/pai/pai

@@ -81,7 +81,7 @@
 			chemical_storage = min(chemical_storage + 5, chemical_max)
 			chemical_regen_time = world.time + 15 SECONDS
 
-/mob/living/silicon/pai/inteq/proc/inject_chemicals()
+/mob/living/silicon/pai/inteq/proc/inject_chemicals(reagent_key)
 	if(!use_power(300))
 		to_chat(src, "<span class='warning'>Недостаточно энергии для инъекции.</span>")
 		return
@@ -98,17 +98,27 @@
 	if(!carrier)
 		to_chat(src, "<span class='warning'>Носитель не обнаружен.</span>")
 		return
-	if(chemical_storage < 5)
-		to_chat(src, "<span class='warning'>Недостаточно химикатов. Осталось: [chemical_storage]/[chemical_max] юнитов.</span>")
+	var/static/list/reagent_map = list(
+		"kelotane" = /datum/reagent/medicine/kelotane,
+		"bicaridine" = /datum/reagent/medicine/bicaridine,
+		"epinephrine" = /datum/reagent/medicine/epinephrine,
+		"salbutamol" = /datum/reagent/medicine/salbutamol,
+		"salglu_solution" = /datum/reagent/medicine/salglu_solution,
+		"mannitol" = /datum/reagent/medicine/mannitol,
+		"earthsblood" = /datum/reagent/medicine/earthsblood,
+	)
+	var/reagent_type = reagent_map[reagent_key]
+	if(!reagent_type)
+		to_chat(src, "<span class='warning'>Неизвестный реагент.</span>")
 		return
-	var/list/available_reagents = list(/datum/reagent/medicine/kelotane, /datum/reagent/medicine/bicaridine, /datum/reagent/medicine/epinephrine, /datum/reagent/medicine/salbutamol, /datum/reagent/medicine/salglu_solution, /datum/reagent/medicine/mannitol, /datum/reagent/medicine/earthsblood)
-	var/chosen = pick(available_reagents)
-	carrier.reagents?.add_reagent(chosen, 5)
-	chemical_storage -= 5
-	to_chat(src, "<span class='notice'>Впрыснуто 5u [chosen] в [carrier]. Остаток: [chemical_storage]/[chemical_max]</span>")
+	var/reagent_cost = (reagent_type == /datum/reagent/medicine/earthsblood) ? 30 : 5
+	if(chemical_storage < reagent_cost)
+		to_chat(src, "<span class='warning'>Недостаточно химикатов. Нужно: [reagent_cost], осталось: [chemical_storage]/[chemical_max] юнитов.</span>")
+		return
+	carrier.reagents?.add_reagent(reagent_type, 5)
+	chemical_storage -= reagent_cost
+	to_chat(src, "<span class='notice'>Впрыснуто 5u [reagent_type] в [carrier]. Остаток: [chemical_storage]/[chemical_max]</span>")
 	to_chat(carrier, "<span class='notice'>Что-то щёлкает, и вы чувствуете лёгкую укол...</span>")
-
-
 	return FALSE
 
 /mob/living/silicon/pai/inteq/ui_data(mob/user)
@@ -118,6 +128,15 @@
 	data["chemical_injector"] = chemical_injector_active
 	data["chemical_storage"] = chemical_storage
 	data["chemical_max"] = chemical_max
+	data["chemical_reagents"] = list(
+		list("id" = "kelotane", "name" = "Келотан (ожоги)", "cost" = 5),
+		list("id" = "bicaridine", "name" = "Бикаридин (ушибы)", "cost" = 5),
+		list("id" = "epinephrine", "name" = "Эпинефрин (критическое состояние)", "cost" = 5),
+		list("id" = "salbutamol", "name" = "Сальбутамол (кислород)", "cost" = 5),
+		list("id" = "salglu_solution", "name" = "Глюкоза (кровь)", "cost" = 5),
+		list("id" = "mannitol", "name" = "Маннитол (мозг)", "cost" = 5),
+		list("id" = "earthsblood", "name" = "Земляная кровь", "cost" = 30),
+	)
 	return data
 
 /mob/living/silicon/pai/inteq/Destroy()

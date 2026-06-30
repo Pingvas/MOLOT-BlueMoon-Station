@@ -437,8 +437,11 @@
 		to_chat(user, span_notice("Вы [panel_open ? "открываете" : "закрываете"] отсек для батареи на [src]."))
 		return
 
-	// Encryption key when encryptmod is not installed
+	// Encryption key
 	if(istype(W, /obj/item/encryptionkey))
+		if(pai?.encryptmod && pai.radio)
+			pai.radio.attackby(W, user, params)
+			return
 		to_chat(user, span_alert("Порты ключей шифрования не настроены."))
 
 /obj/item/paicard/emag_act(mob/user)
@@ -450,6 +453,7 @@
 	log_admin("[key_name(user)] emagged [key_name(pai)], wiping their master DNA and supplemental directive at [AREACOORD(src)]")
 	pai.master = null
 	pai.master_dna = null
+	pai.laws?.clear_supplied_laws()
 	pai.add_supplied_law(0, "Отсутствуют.")
 
 /mob/living/silicon/pai/proc/wipe_pai(mob/user)
@@ -498,6 +502,7 @@
 	emagged = FALSE
 	master = null
 	master_dna = null
+	laws?.clear_supplied_laws()
 	add_supplied_law(0, "Отсутствуют.")
 	balloon_alert(src, "программное обеспечение перезагружено")
 	return TRUE
@@ -1405,7 +1410,7 @@
 		if("inject_chemicals")
 			if(istype(src, /mob/living/silicon/pai/inteq))
 				var/mob/living/silicon/pai/inteq/S = src
-				S.inject_chemicals()
+				S.inject_chemicals(params["reagent"])
 			return TRUE
 		if("clear_temp")
 			temp = null

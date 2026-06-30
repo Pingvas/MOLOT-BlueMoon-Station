@@ -420,7 +420,7 @@ GLOBAL_LIST_INIT(channel_tokens, list(
 
 /obj/item/radio/headset/silicon/pai/inteq/Initialize(mapload)
 	. = ..()
-	make_syndie()
+	make_inteq()
 
 /obj/item/radio/headset/silicon/ai
 	name = "\proper Integrated Subspace Transceiver "

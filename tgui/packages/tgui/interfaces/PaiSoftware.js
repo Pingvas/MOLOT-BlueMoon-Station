@@ -539,7 +539,7 @@ const SoftwareCard = (props, context) => {
             <Icon name="bolt" /> <b>{item.power_usage}</b> эн.
           </Box>
         )}
-        {installed ? (
+          {installed ? (
           <Button icon="trash" color="red" onClick={() => act('uninstall', { uninstall: item.id })}>
             Удалить
           </Button>
@@ -759,7 +759,7 @@ const EncryptScreen = (props, context) => {
         Модуль шифрования {encryptmod ? <Box inline color="good">включён</Box> : <Box inline color="bad">отключён</Box>}.
       </Box>
       {!encryptmod && (
-        <Button onClick={() => act('toggle_encrypt')}>Активировать порты шифрования</Button>
+        <Button onClick={() => act('toggle_encrypt')} tooltip="Активировать порты для установки ключей шифрования. После активации используйте отвёртку на карте, затем вставьте ключ.">Активировать порты шифрования</Button>
       )}
     </Box>
   );
@@ -900,7 +900,7 @@ const EncoderScreen = (props, context) => {
         <LabeledList.Item label="Имя">{encoder_name || '—'}</LabeledList.Item>
         <LabeledList.Item label="Должность">{encoder_job || '—'}</LabeledList.Item>
       </LabeledList>
-      <Button mt={1} icon="power-off" onClick={() => act('toggle_encoder')}>
+        <Button mt={1} icon="power-off" onClick={() => act('toggle_encoder')}>
         Деактивировать
       </Button>
     </Box>
@@ -915,7 +915,7 @@ const ThermalVisionScreen = (props, context) => {
       <Box mb={1}>
         Термальное зрение {thermal_vision ? <Box inline color="good">включено</Box> : <Box inline color="bad">выключено</Box>}.
       </Box>
-      <Button onClick={() => act('toggle_thermal_vision')}>
+      <Button onClick={() => act('toggle_thermal_vision')} tooltip={thermal_vision ? 'Выключить термальное зрение.' : 'Видеть живых существ сквозь стены.'}>
         {thermal_vision ? 'Отключить' : 'Включить'}
       </Button>
     </Box>
@@ -924,7 +924,7 @@ const ThermalVisionScreen = (props, context) => {
 
 const ChemicalInjectorScreen = (props, context) => {
   const { act, data } = useBackend(context);
-  const { chemical_injector, chemical_storage, chemical_max } = data;
+  const { chemical_injector, chemical_storage, chemical_max, chemical_reagents } = data;
   const chemPercent = (chemical_storage ?? 0) / (chemical_max ?? 30);
   return (
     <Section title={<><Icon name="syringe" /> Химический инъектор</>}>
@@ -941,11 +941,16 @@ const ChemicalInjectorScreen = (props, context) => {
       <Button mt={1} icon="power-off" onClick={() => act('toggle_chemical_injector')}>
         {chemical_injector ? 'Отключить' : 'Активировать'}
       </Button>
-      {!!chemical_injector && (
-        <Button mt={1} ml={1} icon="share" onClick={() => act('inject_chemicals')}>
-          Впрыснуть реагенты
+      {!!chemical_injector && chemical_reagents?.map(reagent => (
+        <Button
+          key={reagent.id}
+          mt={1}
+          ml={1}
+          disabled={chemical_storage < reagent.cost}
+          onClick={() => act('inject_chemicals', { reagent: reagent.id })}>
+          {reagent.name} ({reagent.cost}u)
         </Button>
-      )}
+      ))}
     </Section>
   );
 };
