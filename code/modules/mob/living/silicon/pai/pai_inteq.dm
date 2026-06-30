@@ -111,14 +111,23 @@
 	if(!reagent_type)
 		to_chat(src, "<span class='warning'>Неизвестный реагент.</span>")
 		return
+	var/static/list/reagent_names = list(
+		"kelotane" = "Келотан",
+		"bicaridine" = "Бикаридин",
+		"epinephrine" = "Эпинефрин",
+		"salbutamol" = "Сальбутамол",
+		"salglu_solution" = "Сальглю",
+		"mannitol" = "Маннитол",
+		"earthsblood" = "Земляная кровь",
+	)
 	var/reagent_cost = (reagent_type == /datum/reagent/medicine/earthsblood) ? 30 : 5
 	if(chemical_storage < reagent_cost)
 		to_chat(src, "<span class='warning'>Недостаточно химикатов. Нужно: [reagent_cost], осталось: [chemical_storage]/[chemical_max] юнитов.</span>")
 		return
 	carrier.reagents?.add_reagent(reagent_type, 5)
 	chemical_storage -= reagent_cost
-	to_chat(src, "<span class='notice'>Впрыснуто 5u [reagent_type] в [carrier]. Остаток: [chemical_storage]/[chemical_max]</span>")
-	to_chat(carrier, "<span class='notice'>Что-то щёлкает, и вы чувствуете лёгкую укол...</span>")
+	to_chat(src, "<span class='notice'>Впрыснуто 5u [reagent_names[reagent_key]] в [carrier]. Остаток: [chemical_storage]/[chemical_max]</span>")
+	to_chat(carrier, "<span class='notice'>Что-то щёлкает, и вы чувствуете лёгкий укол...</span>")
 	return FALSE
 
 /mob/living/silicon/pai/inteq/ui_data(mob/user)

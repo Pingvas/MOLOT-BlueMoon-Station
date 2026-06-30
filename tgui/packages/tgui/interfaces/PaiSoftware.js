@@ -946,7 +946,7 @@ const ChemicalInjectorScreen = (props, context) => {
           key={reagent.id}
           mt={1}
           ml={1}
-          disabled={chemical_storage < reagent.cost}
+          disabled={(chemical_storage ?? 0) < reagent.cost}
           onClick={() => act('inject_chemicals', { reagent: reagent.id })}>
           {reagent.name} ({reagent.cost}u)
         </Button>
