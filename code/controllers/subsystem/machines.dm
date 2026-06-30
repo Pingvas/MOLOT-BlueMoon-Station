@@ -80,7 +80,8 @@ SUBSYSTEM_DEF(machines)
 			if (MC_TICK_CHECK)
 				return
 		current_part = SSMACHINES_APCS
-		src.currentrun = processing_apcs.Copy()
+		currentrun = processing_apcs.Copy()
+		src.currentrun = currentrun
 		if (MC_TICK_CHECK)
 			return
 
@@ -89,17 +90,17 @@ SUBSYSTEM_DEF(machines)
 		while(currentrun.len)
 			var/obj/machinery/power/apc/apc = currentrun[currentrun.len]
 			currentrun.len--
-			if(QDELETED(apc))
+			if(QDELETED(apc) || apc.process(wait * 0.1) == PROCESS_KILL)
 				processing_apcs -= apc
-				apc.datum_flags &= ~DF_ISPROCESSING
-			else
-				apc.process(wait * 0.1)
-				if(apc.use_power != apc.static_power_mode)
-					apc.update_current_power_usage()
+				if (!QDELETED(apc))
+					apc.datum_flags &= ~DF_ISPROCESSING
+			else if(apc.use_power != apc.static_power_mode)
+				apc.update_current_power_usage()
 			if (MC_TICK_CHECK)
 				return
 		current_part = SSMACHINES_MACHINES
-		src.currentrun = processing.Copy()
+		currentrun = processing.Copy()
+		src.currentrun = currentrun
 		if (MC_TICK_CHECK)
 			return
 
@@ -117,7 +118,8 @@ SUBSYSTEM_DEF(machines)
 			if (MC_TICK_CHECK)
 				return
 		current_part = SSMACHINES_MACHINES_LATE
-		src.currentrun = processing_late.Copy()
+		currentrun = processing_late.Copy()
+		src.currentrun = currentrun
 		if (MC_TICK_CHECK)
 			return
 

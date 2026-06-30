@@ -24,18 +24,19 @@
 	machine.update_use_power(IDLE_POWER_USE)
 	TEST_ASSERT_EQUAL(machine.static_power_usage, 100, "idle machine must set static_power_usage to idle_power_usage")
 	TEST_ASSERT_EQUAL(machine.static_power_mode, IDLE_POWER_USE, "idle machine must set static_power_mode to IDLE_POWER_USE")
-	TEST_ASSERT(test_area.usage(STATIC_EQUIP) >= 100, "idle machine must register static power on area EQUIP channel")
+	TEST_ASSERT_EQUAL(test_area.usage(STATIC_EQUIP), 100, "idle machine must register 100 static power on area EQUIP channel")
 
 	// active power
 	machine.update_use_power(ACTIVE_POWER_USE)
 	TEST_ASSERT_EQUAL(machine.static_power_usage, 500, "active machine must set static_power_usage to active_power_usage")
 	TEST_ASSERT_EQUAL(machine.static_power_mode, ACTIVE_POWER_USE, "active machine must set static_power_mode to ACTIVE_POWER_USE")
-	TEST_ASSERT(test_area.usage(STATIC_EQUIP) >= 500, "active machine must register static power on area EQUIP channel")
+	TEST_ASSERT_EQUAL(test_area.usage(STATIC_EQUIP), 500, "active machine must register 500 static power on area EQUIP channel")
 
 	// no power
 	machine.update_use_power(NO_POWER_USE)
 	TEST_ASSERT_EQUAL(machine.static_power_usage, 0, "no-power machine must have 0 static_power_usage")
 	TEST_ASSERT_EQUAL(machine.static_power_mode, NO_POWER_USE, "no-power machine must have static_power_mode = NO_POWER_USE")
+	TEST_ASSERT_EQUAL(test_area.usage(STATIC_EQUIP), 0, "no-power machine must have 0 static power on area EQUIP channel")
 
 	// Restore floor to its original area before test_area is qdel'd by teardown.
 	original_area.contents.Add(floor)

@@ -330,11 +330,11 @@ Class Procs:
 		if(ACTIVE_POWER_USE)
 			new_usage = active_power_usage
 
-	static_power_usage = new_usage
-
 	if(new_usage)
 		var/area/our_area = get_area(src)
-		our_area?.addStaticPower(new_usage, DYNAMIC_TO_STATIC_CHANNEL(power_channel))
+		if(our_area)
+			our_area.addStaticPower(new_usage, DYNAMIC_TO_STATIC_CHANNEL(power_channel))
+			static_power_usage = new_usage
 
 	use_power = new_use_power
 	static_power_mode = use_power
@@ -355,6 +355,7 @@ Class Procs:
 
 	if(our_area && usage)
 		our_area.addStaticPower(usage, DYNAMIC_TO_STATIC_CHANNEL(new_power_channel))
+		static_power_usage = usage
 		static_power_mode = use_power
 
 	power_channel = new_power_channel
@@ -374,10 +375,10 @@ Class Procs:
 
 	if(use_power_mode == use_power)
 		unset_static_power()
-		static_power_usage = new_usage
 		var/area/our_area = get_area(src)
 		if(our_area)
-			our_area.addStaticPower(static_power_usage, DYNAMIC_TO_STATIC_CHANNEL(power_channel))
+			our_area.addStaticPower(new_usage, DYNAMIC_TO_STATIC_CHANNEL(power_channel))
+			static_power_usage = new_usage
 		static_power_mode = use_power
 
 	return TRUE
@@ -392,8 +393,8 @@ Class Procs:
 
 	if(our_area && old_usage)
 		our_area.addStaticPower(-old_usage, DYNAMIC_TO_STATIC_CHANNEL(power_channel))
-		static_power_usage = 0
 
+	static_power_usage = 0
 	static_power_mode = NO_POWER_USE
 
 	return old_usage
