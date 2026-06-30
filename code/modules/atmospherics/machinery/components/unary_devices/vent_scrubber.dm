@@ -70,7 +70,7 @@
 		amount = active_power_usage
 
 	if(widenet)
-		amount += amount * (adjacent_turfs.len * (adjacent_turfs.len / 2))
+		amount += amount * adjacent_turfs.len
 	use_power(amount, power_channel)
 	return TRUE
 
