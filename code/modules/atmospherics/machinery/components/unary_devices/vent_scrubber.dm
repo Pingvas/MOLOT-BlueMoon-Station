@@ -5,7 +5,7 @@
 	icon_state = "scrub_map-2"
 	name = "air scrubber"
 	desc = "Has a valve and pump attached to it."
-	use_power = IDLE_POWER_USE
+	use_power = NO_POWER_USE
 	idle_power_usage = 10
 	active_power_usage = 60
 	can_unwrench = TRUE
@@ -58,15 +58,8 @@
 	UnregisterSignal(SSdcs, COMSIG_GLOB_NEW_GAS)
 	return ..()
 
-/obj/machinery/atmospherics/components/unary/vent_scrubber/auto_use_power()
+/obj/machinery/atmospherics/components/unary/vent_scrubber/proc/use_power_dynamic()
 	if(!on || welded || !is_operational)
-		return FALSE
-	// Fetch the area once and call its procs directly, instead of going through powered()
-	// (a get_area()) and then use_power() (another get_area()) — same shape as the base
-	// /obj/machinery/proc/auto_use_power(). use_power is IDLE_POWER_USE here so powered()'s
-	// "!use_power → return TRUE" early-out never fired; this is behaviour-equivalent.
-	var/area/our_area = get_area(src)
-	if(!our_area?.powered(power_channel))
 		return FALSE
 
 	var/amount = idle_power_usage
@@ -78,7 +71,7 @@
 
 	if(widenet)
 		amount += amount * (adjacent_turfs.len * (adjacent_turfs.len / 2))
-	our_area.use_power(amount, power_channel)
+	use_power(amount, power_channel)
 	return TRUE
 
 /obj/machinery/atmospherics/components/unary/vent_scrubber/update_icon_nopipes()
@@ -192,6 +185,7 @@
 /obj/machinery/atmospherics/components/unary/vent_scrubber/process()
 	if(widenet)
 		check_turfs()
+	use_power_dynamic()
 
 //we populate a list of turfs with nonatmos-blocked cardinal turfs AND
 //	diagonal turfs that can share atmos with *both* of the cardinal turfs

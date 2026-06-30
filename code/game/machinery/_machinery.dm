@@ -145,6 +145,10 @@ Class Procs:
 	/// What was our power state the last time we updated its appearance?
 	/// TRUE for on, FALSE for off, -1 for never checked
 	var/appearance_power_state = -1
+	/// The current amount of static power usage this machine registers on its area.
+	var/static_power_usage = 0
+	/// Tracks which use_power mode (NO_POWER_USE/IDLE_POWER_USE/ACTIVE_POWER_USE) the static_power_usage was registered for.
+	var/static_power_mode = NO_POWER_USE
 
 	var/allow_oversized_characters = FALSE // BLUEMOON ADD - чтобы большие персонажи могли помещаться в некоторые машины
 
@@ -174,10 +178,12 @@ Class Procs:
 			START_PROCESSING(SSfastprocess, src)
 		else
 			START_PROCESSING(SSmachines, src)
-	RegisterSignal(src, COMSIG_ENTER_AREA, PROC_REF(power_change))
+	RegisterSignal(src, COMSIG_ENTER_AREA, PROC_REF(on_enter_area))
+	RegisterSignal(src, COMSIG_EXIT_AREA, PROC_REF(on_exit_area))
 
 	if (occupant_typecache)
 		occupant_typecache = typecacheof(occupant_typecache)
+	update_current_power_usage()
 	return INITIALIZE_HINT_LATELOAD
 
 /obj/machinery/LateInitialize()
@@ -187,10 +193,10 @@ Class Procs:
 /obj/machinery/Destroy()
 	SSmachines.unregister_machine(src)
 	GLOB.machines.Remove(src)
-	if(!speed_process)
-		STOP_PROCESSING(SSmachines, src)
-	else
+	SSmachines.stop_processing(src)
+	if(speed_process)
 		STOP_PROCESSING(SSfastprocess, src)
+	unset_static_power()
 	dropContents()
 	if(length(component_parts))
 		for(var/atom/A in component_parts)
@@ -204,6 +210,14 @@ Class Procs:
 	return
 
 /obj/machinery/process(delta_time)//If you dont use process or power why are you here
+	return PROCESS_KILL
+
+/// Early process for machines that need priority power draw. Runs before APCs and main processing.
+/obj/machinery/proc/process_early(delta_time)
+	return PROCESS_KILL
+
+/// Late process for machines that need to record power usage stats. Runs after main processing.
+/obj/machinery/proc/process_late(delta_time)
 	return PROCESS_KILL
 
 /obj/machinery/proc/process_atmos()//If you dont use process why are you here
@@ -289,6 +303,124 @@ Class Procs:
 		our_area.use_power(idle_power_usage, power_channel)
 	else if(use_power >= ACTIVE_POWER_USE)
 		our_area.use_power(active_power_usage, power_channel)
+	return TRUE
+
+/// Called on enter area to update power state and register static power on the new area.
+/obj/machinery/proc/on_enter_area(datum/source, area/area_to_register)
+	SIGNAL_HANDLER
+	power_change()
+	update_current_power_usage()
+
+/// Called on exit area to remove static power from the old area before the transition.
+/obj/machinery/proc/on_exit_area(datum/source, area/area_to_unregister)
+	SIGNAL_HANDLER
+	unset_static_power()
+
+/// Updates use_power and re-registers static power on the area.
+/obj/machinery/proc/update_use_power(new_use_power)
+	if(new_use_power == use_power)
+		return FALSE
+
+	unset_static_power()
+
+	var/new_usage = 0
+	switch(new_use_power)
+		if(IDLE_POWER_USE)
+			new_usage = idle_power_usage
+		if(ACTIVE_POWER_USE)
+			new_usage = active_power_usage
+
+	static_power_usage = new_usage
+
+	if(new_usage)
+		var/area/our_area = get_area(src)
+		our_area?.addStaticPower(new_usage, DYNAMIC_TO_STATIC_CHANNEL(power_channel))
+
+	use_power = new_use_power
+	static_power_mode = use_power
+
+	if(use_power)
+		power_change()
+
+	return TRUE
+
+/// Updates the power channel and re-registers static power on the new channel.
+/obj/machinery/proc/update_power_channel(new_power_channel)
+	if(new_power_channel == power_channel)
+		return FALSE
+
+	var/usage = unset_static_power()
+
+	var/area/our_area = get_area(src)
+
+	if(our_area && usage)
+		our_area.addStaticPower(usage, DYNAMIC_TO_STATIC_CHANNEL(new_power_channel))
+		static_power_mode = use_power
+
+	power_channel = new_power_channel
+
+	return TRUE
+
+/// Updates idle or active power usage value and re-registers static power if currently in that mode.
+/obj/machinery/proc/update_mode_power_usage(use_power_mode, new_usage)
+	if(use_power_mode == NO_POWER_USE)
+		return FALSE
+
+	switch(use_power_mode)
+		if(IDLE_POWER_USE)
+			idle_power_usage = new_usage
+		if(ACTIVE_POWER_USE)
+			active_power_usage = new_usage
+
+	if(use_power_mode == use_power)
+		unset_static_power()
+		static_power_usage = new_usage
+		var/area/our_area = get_area(src)
+		if(our_area)
+			our_area.addStaticPower(static_power_usage, DYNAMIC_TO_STATIC_CHANNEL(power_channel))
+		static_power_mode = use_power
+
+	return TRUE
+
+/// Removes all static power usage from the current area and returns the old usage value.
+/obj/machinery/proc/unset_static_power()
+	SHOULD_NOT_OVERRIDE(TRUE)
+
+	var/old_usage = static_power_usage
+
+	var/area/our_area = get_area(src)
+
+	if(our_area && old_usage)
+		our_area.addStaticPower(-old_usage, DYNAMIC_TO_STATIC_CHANNEL(power_channel))
+		static_power_usage = 0
+
+	static_power_mode = NO_POWER_USE
+
+	return old_usage
+
+/// (Re)registers static power usage on the area based on current use_power mode.
+/obj/machinery/proc/update_current_power_usage()
+	if(static_power_usage)
+		unset_static_power()
+
+	var/area/our_area = get_area(src)
+	if(!our_area)
+		static_power_mode = NO_POWER_USE
+		return FALSE
+
+	switch(use_power)
+		if(IDLE_POWER_USE)
+			static_power_usage = idle_power_usage
+		if(ACTIVE_POWER_USE)
+			static_power_usage = active_power_usage
+		if(NO_POWER_USE)
+			static_power_mode = NO_POWER_USE
+			return
+
+	if(static_power_usage)
+		our_area.addStaticPower(static_power_usage, DYNAMIC_TO_STATIC_CHANNEL(power_channel))
+
+	static_power_mode = use_power
 	return TRUE
 
 /**

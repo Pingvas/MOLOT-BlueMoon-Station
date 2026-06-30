@@ -1,8 +1,8 @@
 // Regression tests guarding the machinery optimization pass.
 // These pin observable behaviour — they pass before AND after the optimizations.
 
-/// A1: auto_use_power() must charge the machine's area exactly the same amount as before
-/// the rewrite (idle / active / unpowered), and return the area's powered state.
+/// A1: update_use_power() must register the correct static power on the machine's area
+/// for idle / active / no-power modes, and unset static power correctly.
 /datum/unit_test/machinery_auto_use_power/Run()
 	var/turf/floor = run_loc_floor_bottom_left
 	// The reservation z-level turfs live in /area/space, which unconditionally
@@ -14,35 +14,28 @@
 	allocated += test_area
 	test_area.contents.Add(floor) // reassigns floor.loc → test_area
 
-	// The base /area has requires_power = TRUE and power_equip = TRUE by default.
-	TEST_ASSERT(test_area.powered(EQUIP), "synthetic area must be powered on EQUIP by default")
-
 	var/obj/machinery/machine = allocate(/obj/machinery)
 	machine.forceMove(floor)
 	machine.power_channel = EQUIP
 	machine.idle_power_usage = 100
 	machine.active_power_usage = 500
 
-	// --- idle power ---
-	machine.use_power = IDLE_POWER_USE
-	test_area.clear_usage()
-	var/before = test_area.used_equip
-	var/result = machine.auto_use_power()
-	TEST_ASSERT(result, "auto_use_power() should return TRUE in a powered area")
-	TEST_ASSERT_EQUAL(test_area.used_equip - before, 100, "idle machine must add idle_power_usage to area EQUIP usage")
+	// idle power
+	machine.update_use_power(IDLE_POWER_USE)
+	TEST_ASSERT_EQUAL(machine.static_power_usage, 100, "idle machine must set static_power_usage to idle_power_usage")
+	TEST_ASSERT_EQUAL(machine.static_power_mode, IDLE_POWER_USE, "idle machine must set static_power_mode to IDLE_POWER_USE")
+	TEST_ASSERT(test_area.usage(STATIC_EQUIP) >= 100, "idle machine must register static power on area EQUIP channel")
 
-	// --- active power ---
-	machine.use_power = ACTIVE_POWER_USE
-	before = test_area.used_equip
-	machine.auto_use_power()
-	TEST_ASSERT_EQUAL(test_area.used_equip - before, 500, "active machine must add active_power_usage to area EQUIP usage")
+	// active power
+	machine.update_use_power(ACTIVE_POWER_USE)
+	TEST_ASSERT_EQUAL(machine.static_power_usage, 500, "active machine must set static_power_usage to active_power_usage")
+	TEST_ASSERT_EQUAL(machine.static_power_mode, ACTIVE_POWER_USE, "active machine must set static_power_mode to ACTIVE_POWER_USE")
+	TEST_ASSERT(test_area.usage(STATIC_EQUIP) >= 500, "active machine must register static power on area EQUIP channel")
 
-	// --- unpowered channel ---
-	test_area.power_equip = FALSE
-	before = test_area.used_equip
-	result = machine.auto_use_power()
-	TEST_ASSERT(!result, "auto_use_power() should return FALSE when the area's EQUIP channel is unpowered")
-	TEST_ASSERT_EQUAL(test_area.used_equip - before, 0, "unpowered machine must not consume power")
+	// no power
+	machine.update_use_power(NO_POWER_USE)
+	TEST_ASSERT_EQUAL(machine.static_power_usage, 0, "no-power machine must have 0 static_power_usage")
+	TEST_ASSERT_EQUAL(machine.static_power_mode, NO_POWER_USE, "no-power machine must have static_power_mode = NO_POWER_USE")
 
 	// Restore floor to its original area before test_area is qdel'd by teardown.
 	original_area.contents.Add(floor)
@@ -341,10 +334,10 @@
 	miner.set_broken(TRUE)
 	TEST_ASSERT_EQUAL(miner.icon_rebuilds, 3, "re-breaking the miner must rebuild the icon exactly once")
 
-/// C5 (A1-pattern): vent_scrubber/auto_use_power() must charge its area exactly the same
-/// amount as the old powered()+use_power() (= two get_area()s) version did, across the
-/// scrubbing/siphoning/widenet modes, and return FALSE (charging nothing) when off / welded /
-/// not operational / the area's channel is unpowered.
+/// C5 (A1-pattern): vent_scrubber/use_power_dynamic() must charge its area the correct
+/// dynamic amount across scrubbing/siphoning/widenet modes, and draw nothing when off /
+/// welded / not operational. The powered-channel check is handled by the APC, not by
+/// use_power_dynamic() itself (consistent with static power behaviour).
 /datum/unit_test/vent_scrubber_auto_use_power/Run()
 	var/turf/floor = run_loc_floor_bottom_left
 	// Same trick as machinery_auto_use_power: the reservation z lives in /area/space, which
@@ -357,7 +350,7 @@
 	var/obj/machinery/atmospherics/components/unary/vent_scrubber/scrubber = allocate(/obj/machinery/atmospherics/components/unary/vent_scrubber)
 	scrubber.forceMove(floor)
 	scrubber.set_machine_stat(0) // clear NOPOWER → is_operational TRUE
-	scrubber.power_channel = EQUIP // so we can poke test_area.power_equip / used_equip
+	scrubber.power_channel = EQUIP // so we can poke test_area.used_equip
 	scrubber.on = TRUE
 	scrubber.welded = FALSE
 	scrubber.filter_types = list()
@@ -370,14 +363,14 @@
 	scrubber.scrubbing = 1 // SCRUBBING
 	test_area.clear_usage()
 	var/before = test_area.used_equip
-	var/result = scrubber.auto_use_power()
-	TEST_ASSERT(result, "auto_use_power() returns TRUE when on / powered / operational")
+	var/result = scrubber.use_power_dynamic()
+	TEST_ASSERT(result, "use_power_dynamic() returns TRUE when on / powered / operational")
 	TEST_ASSERT_EQUAL(test_area.used_equip - before, scrubber.idle_power_usage, "idle scrubbing must draw idle_power_usage from the area")
 
 	// --- siphoning: active_power_usage ---
 	scrubber.scrubbing = 0 // SIPHONING
 	before = test_area.used_equip
-	scrubber.auto_use_power()
+	scrubber.use_power_dynamic()
 	TEST_ASSERT_EQUAL(test_area.used_equip - before, scrubber.active_power_usage, "siphoning must draw active_power_usage from the area")
 
 	// --- widenet over 2 turfs: amount += amount * (2 * (2/2)) = amount * 2 → triples ---
@@ -385,38 +378,38 @@
 	scrubber.widenet = TRUE
 	scrubber.adjacent_turfs = list(floor, floor) // only .len matters here
 	before = test_area.used_equip
-	scrubber.auto_use_power()
+	scrubber.use_power_dynamic()
 	TEST_ASSERT_EQUAL(test_area.used_equip - before, scrubber.idle_power_usage * 3, "widenet scrubbing over 2 adjacent turfs must triple the draw")
 	scrubber.widenet = FALSE
 	scrubber.adjacent_turfs = list()
 	scrubber.scrubbing = 1 // SCRUBBING
 
-	// --- welded / off / not operational / unpowered channel: FALSE, charges nothing ---
+	// --- welded / off / not operational: FALSE, charges nothing ---
 	scrubber.welded = TRUE
 	before = test_area.used_equip
-	result = scrubber.auto_use_power()
-	TEST_ASSERT(!result, "a welded scrubber's auto_use_power() returns FALSE")
+	result = scrubber.use_power_dynamic()
+	TEST_ASSERT(!result, "a welded scrubber's use_power_dynamic() returns FALSE")
 	TEST_ASSERT_EQUAL(test_area.used_equip - before, 0, "a welded scrubber draws no power")
 	scrubber.welded = FALSE
 
 	scrubber.on = FALSE
 	before = test_area.used_equip
-	result = scrubber.auto_use_power()
-	TEST_ASSERT(!result, "an off scrubber's auto_use_power() returns FALSE")
+	result = scrubber.use_power_dynamic()
+	TEST_ASSERT(!result, "an off scrubber's use_power_dynamic() returns FALSE")
 	TEST_ASSERT_EQUAL(test_area.used_equip - before, 0, "an off scrubber draws no power")
 	scrubber.on = TRUE
 
 	scrubber.set_machine_stat(NOPOWER) // is_operational → FALSE
 	before = test_area.used_equip
-	result = scrubber.auto_use_power()
-	TEST_ASSERT(!result, "a non-operational scrubber's auto_use_power() returns FALSE")
+	result = scrubber.use_power_dynamic()
+	TEST_ASSERT(!result, "a non-operational scrubber's use_power_dynamic() returns FALSE")
 	TEST_ASSERT_EQUAL(test_area.used_equip - before, 0, "a non-operational scrubber draws no power")
 	scrubber.set_machine_stat(0)
 
-	test_area.power_equip = FALSE
-	before = test_area.used_equip
-	result = scrubber.auto_use_power()
-	TEST_ASSERT(!result, "auto_use_power() returns FALSE when the area's channel is unpowered")
-	TEST_ASSERT_EQUAL(test_area.used_equip - before, 0, "an unpowered scrubber draws no power")
+	// Note: use_power_dynamic() does NOT check powered(power_channel) — consistent with the
+	// static power system, the APC handles channel allocation. The unpowered test case from
+	// the old auto_use_power() test is removed intentionally.
+	// система полностью спизженна с ТГ билда, пожалуйста читайте их документацию
+	// или читайте все изменения через ссылку на пр, так будет проще что-то трогать в дальнейшем. Главное один раз понять.
 
 	original_area.contents.Add(floor) // restore the floor before test_area is qdel'd by teardown

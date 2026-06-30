@@ -7,6 +7,8 @@
 #define STATIC_LIGHT	6
 #define STATIC_ENVIRON	7
 
+#define DYNAMIC_TO_STATIC_CHANNEL(dyn_channel) (dyn_channel + 4)
+
 //Power use
 #define NO_POWER_USE 0
 #define IDLE_POWER_USE 1

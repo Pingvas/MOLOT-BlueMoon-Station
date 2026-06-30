@@ -237,6 +237,8 @@
 
 /obj/machinery/power/apc/Initialize(mapload, ndir, building = FALSE)
 	. = ..()
+	SSmachines.processing -= src
+	SSmachines.processing_apcs += src
 	alarm_manager = new(src)
 	tdir = ndir || dir
 	var/area/A = get_base_area(src)
@@ -316,6 +318,8 @@
 		return CONTEXTUAL_SCREENTIP_SET
 
 /obj/machinery/power/apc/Destroy()
+	SSmachines.processing_apcs -= src
+	SSmachines.currentrun -= src
 	GLOB.apcs_list -= src
 	GLOB.nightshift_apc_queue -= src
 	nightshift_refresh_queued = FALSE
