@@ -494,8 +494,10 @@
 	)
 	if(!new_laws || !master)
 		return FALSE
-	add_supplied_law(0, new_laws)
-	to_chat(src, span_notice(new_laws))
+	var/sanitized_laws = sanitize(new_laws)
+	laws?.clear_supplied_laws()
+	add_supplied_law(0, sanitized_laws)
+	to_chat(src, span_notice(sanitized_laws))
 	return TRUE
 
 /mob/living/silicon/pai/proc/reset_software()

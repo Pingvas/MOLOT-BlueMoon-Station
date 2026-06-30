@@ -81,22 +81,12 @@ const DirectRecruit = (props, context) => {
 
 const NormalRecruit = (props, context) => {
   const { act, data } = useBackend(context);
-  const { comments, description, name, has_candidate, load_version } = data;
-  const [lastVersion, setLastVersion] = useLocalState(context, 'paiLoadVer', 0);
+  const { comments, description, name, has_candidate } = data;
   const [input, setInput] = useLocalState(context, 'paiInput', {
     comments: comments || '',
     description: description || '',
     name: name || '',
   });
-
-  if (load_version && load_version !== lastVersion) {
-    setLastVersion(load_version);
-    setInput({
-      comments: comments || '',
-      description: description || '',
-      name: name || '',
-    });
-  }
 
   const { comments: iComments, description: iDesc, name: iName } = input;
 
@@ -241,10 +231,10 @@ const NormalRecruit = (props, context) => {
 
 export const PaiSubmit = (props, context) => {
   const { data } = useBackend(context);
-  const { card_ref } = data;
+  const { card_ref, load_version } = data;
 
   if (card_ref) {
     return <DirectRecruit />;
   }
-  return <NormalRecruit />;
+  return <NormalRecruit key={load_version || 'default'} />;
 };
