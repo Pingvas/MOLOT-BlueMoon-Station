@@ -116,6 +116,7 @@
 /obj/shapeshift_holder/Destroy()
 	if(!restoring)
 		restore()
+	slink = null
 	stored = null
 	shape = null
 	. = ..()
@@ -170,6 +171,10 @@
 
 /datum/soullink/shapeshift
 	var/obj/shapeshift_holder/source
+
+/datum/soullink/shapeshift/Destroy()
+	source = null
+	return ..()
 
 /datum/soullink/shapeshift/ownerDies(gibbed, mob/living/owner)
 	if(source)

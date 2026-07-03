@@ -319,6 +319,7 @@
 
 	GLOB.lighting_deferred_atoms -= src
 	QDEL_NULL(light)
+	QDEL_NULL(proximity_monitor)
 
 	return ..()
 
