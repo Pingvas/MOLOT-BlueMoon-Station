@@ -521,6 +521,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	/// UI decoration level for modern theme: "minimal" (performance), "standard" (current), "enhanced" (gradients)
 	var/ui_decoration_level = "enhanced"
 	var/unholypref = "No"
+	var/unholyhardpref = "No"
 	var/new_character_creator = TRUE
 	var/list/gfluid_blacklist = list()
 	var/fuzzy = FALSE
@@ -1793,16 +1794,17 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 					dat += "<b>Uplink Location:</b><a style='display:block;width:100px' href ='?_src_=prefs;preference=uplink_loc;task=input'>[uplink_spawn_loc]</a>"
 
 					dat += "<h2>Consent preferences</h2>"
-					dat += "ERP : <a href='?_src_=prefs;preference=erp_pref'>[erppref]</a><br>"
-					dat += "Non-Con : <a href='?_src_=prefs;preference=noncon_pref'>[nonconpref]</a><br>"
-					dat += "Vore : <a href='?_src_=prefs;preference=vore_pref'>[vorepref]</a><br>"
-					dat += "Mob Non-Con Sex : <a href='?_src_=prefs;preference=mobsex_pref'>[mobsexpref]</a><br>"
-					dat += "Horny Antags : <a href='?_src_=prefs;preference=hornyantags_pref'>[hornyantagspref]</a><br>"
-					dat += "Tattoo : <a href='?_src_=prefs;preference=tattoo_pref'>[tattoopref]</a><br>"
-					dat += "Unholy : <a href='?_src_=prefs;preference=unholypref'>[unholypref]</a><br>"
-					dat += "Extreme : <a href='?_src_=prefs;preference=extremepref'>[extremepref]</a><br>"
-					dat += "Extreme Harm : <a href='?_src_=prefs;preference=extremeharm'>[extremeharm]</a><br>"
-					dat += "Antag Victim : <a href='?_src_=prefs;preference=be_victim'>[be_victim ? be_victim : "No"]</a><br>"
+					dat += "<span title='Эротические взаимодействия'>ERP : <a href='?_src_=prefs;preference=erp_pref'>[erppref]</a></span><br>"
+					dat += "<span title='Принудительные сцены без согласия вашего'>Non-Con : <a href='?_src_=prefs;preference=noncon_pref'>[nonconpref]</a></span><br>"
+					dat += "<span title='Пожирание и переваривание'>Vore : <a href='?_src_=prefs;preference=vore_pref'>[vorepref]</a></span><br>"
+					dat += "<span title='Особые мобы попытаются вас изнасиловать'>Mob Non-Con Sex : <a href='?_src_=prefs;preference=mobsex_pref'>[mobsexpref]</a></span><br>"
+					dat += "<span title='Разрешение хорни-антагонистам взаимодействовать с вами (ЕПР-генокрады, актеры-насильники и т.д)'>Horny Antags : <a href='?_src_=prefs;preference=hornyantags_pref'>[hornyantagspref]</a></span><br>"
+					dat += "<span title='Другие игроки смогут оставлять тату на вас'>Tattoo : <a href='?_src_=prefs;preference=tattoo_pref'>[tattoopref]</a></span><br>"
+					dat += "<span title='Разрешение на грязные взаимодействия: Моча, смегма, запахи и вкусы'>Unholy : <a href='?_src_=prefs;preference=unholypref' onclick=\"return confirm('Мочевые взаимодействия (пись, золотой дождь, сквирт). При включении вы сможете участвовать и наблюдать соответствующие сцены.');\">[unholypref]</a></span><br>"
+					dat += "<span title='Особые грязные взаимодействия: выделения, газы, другое'>Unholy Hard : <a href='?_src_=prefs;preference=unholyhardpref' onclick=\"return confirm('Фекальные и газовые взаимодействия (говно, пердёж). При включении вы сможете участвовать и наблюдать соответствующие сцены.');\">[unholyhardpref]</a></span><br>"
+					dat += "<span title='Экстремальные сцены, ебля в: глаза, уши, удушение, укусы)'>Extreme : <a href='?_src_=prefs;preference=extremepref' onclick=\"return confirm('Экстремальные сцены (глаза, уши, удушение, травмы). При включении вы сможете участвовать и наблюдать соответствующие сцены.');\">[extremepref]</a></span><br>"
+					dat += "<span title='Особые жестокие сцены: сдавливание головы ляжками, другое'>Extreme Harm : <a href='?_src_=prefs;preference=extremeharm' onclick=\"return confirm('Экстремальные сцены с физическим уроном. При включении вы сможете участвовать и наблюдать соответствующие сцены.');\">[extremeharm]</a></span><br>"
+					dat += "<span title='Тестовый преф, не на что не влияет'>Antag Victim : <a href='?_src_=prefs;preference=be_victim'>[be_victim ? be_victim : "No"]</a></span><br>"
 
 					dat += "<h2>Lewd preferences</h2>"
 					dat += "<b>Lust tolerance:</b><a href='?_src_=prefs;preference=lust_tolerance;task=input'>[lust_tolerance]</a><br>"
@@ -5247,6 +5249,14 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 							unholypref = "No"
 						if("No")
 							unholypref = "Yes"
+				if("unholyhardpref") // Господи благослови панк рок вечерники.
+					switch(unholyhardpref)
+						if("Yes")
+							unholyhardpref = "Ask"
+						if("Ask")
+							unholyhardpref = "No"
+						if("No")
+							unholyhardpref = "Yes"
 				//Gardelin0 Addoon
 				if("mobsex_pref") //...
 					switch(mobsexpref)

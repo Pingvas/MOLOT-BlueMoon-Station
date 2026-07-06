@@ -115,6 +115,8 @@ GLOBAL_LIST_EMPTY(mobs_with_editable_flavor_text) //et tu, hacky code
 				else
 					content += "\n"
 
+				content += " <b>| Unholy Hard:</b> [L.client.prefs.unholyhardpref]\n"
+
 //				content += " <b>| Stomping Interactions:</b> [L.client.prefs.stomppref ? "Yes" : "No"]\n"
 
 				if(L.client.prefs.extremepref == "Yes")
