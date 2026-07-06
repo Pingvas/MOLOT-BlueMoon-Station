@@ -14,20 +14,21 @@ type CharacterPrefsInfo = {
   be_victim: number,
 }
 
-<<<<<<< Updated upstream
-export const CharacterPrefsTab = (props) => {
-  const { act, data } = useBackend<CharacterPrefsInfo>();
-=======
-const CONFIRM_DESCRIPTIONS = {
+type ConfirmState = {
+  char_pref: string;
+  value: number;
+  description: string;
+} | null;
+
+const CONFIRM_DESCRIPTIONS: Record<string, string> = {
   unholy_pref: 'Грязные взаимодействия, моча, смегма и излишние запахи. При включении вы сможете участвовать и наблюдать соответствующие сцены.',
   unholy_hard_pref: 'Особые грязные взаимодействия, коричневое золото, газы, другое. При включении вы сможете участвовать и наблюдать соответствующие сцены.',
-  extreme_pref: 'Экстремальные сцены ебля в глаза, уши, укусы). При включении вы сможете участвовать и наблюдать соответствующие сцены.',
+  extreme_pref: 'Экстремальные сцены ебля в глаза, уши, укусы. При включении вы сможете участвовать и наблюдать соответствующие сцены.',
   extreme_harm: 'Экстремальные сцены с особым физическим уроном. При включении вы сможете участвовать и наблюдать соответствующие сцены.',
 };
 
-export const CharacterPrefsTab = (props, context) => {
-  const { act, data } = useBackend<CharacterPrefsInfo>(context);
->>>>>>> Stashed changes
+export const CharacterPrefsTab = (props) => {
+  const { act, data } = useBackend<CharacterPrefsInfo>();
   const {
     erp_pref,
     noncon_pref,
@@ -41,7 +42,7 @@ export const CharacterPrefsTab = (props, context) => {
     be_victim,
   } = data;
 
-  const [confirmDialog, setConfirmDialog] = useLocalState(context, 'confirmPrefDialog', null);
+  const [confirmDialog, setConfirmDialog] = useLocalState<ConfirmState>('confirmPrefDialog', null);
 
   const confirmAndAct = (char_pref, value) => {
     const desc = CONFIRM_DESCRIPTIONS[char_pref];

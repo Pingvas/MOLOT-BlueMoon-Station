@@ -289,19 +289,12 @@ const CharacterDirectoryList = (props) => {
 
   const { directory, canOrbit, directory_notes } = data;
 
-<<<<<<< Updated upstream
   const [sortId, _setSortId] = useLocalState('sortId', 'name');
   const [sortOrder, _setSortOrder] = useLocalState('sortOrder', 'name');
   const [overlay, setOverlay] = useLocalState('overlay', null);
   const [searchText, setSearchText] = useLocalState('searchText', '');
-=======
-  const [sortId, _setSortId] = useLocalState(context, 'sortId', 'name');
-  const [sortOrder, _setSortOrder] = useLocalState(context, 'sortOrder', 'name');
-  const [overlay, setOverlay] = useLocalState(context, 'overlay', null);
-  const [searchText, setSearchText] = useLocalState(context, 'searchText', '');
-  const [tagFilters, setTagFilters] = useLocalState(context, 'tagFilters', {});
-  const [showFilters, setShowFilters] = useLocalState(context, 'showFilters', false);
->>>>>>> Stashed changes
+  const [tagFilters, setTagFilters] = useLocalState('tagFilters', {});
+  const [showFilters, setShowFilters] = useLocalState('showFilters', false);
 
   const toggleTagFilter = (tag) => {
     const current = tagFilters[tag];
