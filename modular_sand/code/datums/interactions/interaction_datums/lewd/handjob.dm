@@ -32,8 +32,8 @@
 
 	if(!partner.is_fucking(user, CUM_TARGET_HAND, partner.getorganslot(ORGAN_SLOT_PENIS)))
 		partner.set_is_fucking(user, CUM_TARGET_HAND, partner.getorganslot(ORGAN_SLOT_PENIS))
-	var/dirty_user = is_mob_dirty(user) && user.client?.prefs?.unholypref != "No"
-	var/dirty_partner = is_mob_dirty(partner) && partner.client?.prefs?.unholypref != "No"
+	var/dirty_user = mob_wants_dirty_text(user)
+	var/dirty_partner = mob_wants_dirty_text(partner)
 	if(dirty_user || dirty_partner)
 		message = replacetext(pick(GLOB.dirty_handjob_messages), "$PARTNER", "\the <b>[partner]</b>")
 	else

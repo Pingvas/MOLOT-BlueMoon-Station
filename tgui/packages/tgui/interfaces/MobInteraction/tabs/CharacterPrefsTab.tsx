@@ -46,7 +46,7 @@ export const CharacterPrefsTab = (props) => {
 
   const confirmAndAct = (char_pref, value) => {
     const desc = CONFIRM_DESCRIPTIONS[char_pref];
-    if (desc) {
+    if (desc && value > 0) {
       setConfirmDialog({ char_pref, value, description: desc });
     } else {
       act('char_pref', { char_pref, value });

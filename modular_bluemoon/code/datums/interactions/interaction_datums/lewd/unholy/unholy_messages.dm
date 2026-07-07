@@ -54,3 +54,8 @@ GLOBAL_LIST_INIT(dirty_self_jack_first_messages, list(
 	"активно теребит свой сальный $PENIS, размазывая грязь",
 	"с усердием вздрачивает свой грязный $PENIS",
 ))
+
+/proc/mob_wants_dirty_text(mob/living/M)
+	if(!M.client)
+		return FALSE
+	return is_mob_dirty(M) && M.client.prefs.unholypref != "No"

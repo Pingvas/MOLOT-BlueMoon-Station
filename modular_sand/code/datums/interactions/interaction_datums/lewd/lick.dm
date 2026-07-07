@@ -12,8 +12,8 @@
 	if(is_hidden)
 		distance = 1
 	var/picked_hidden = pick(hidden_additional)
-	var/dirty_user = is_mob_dirty(user) && user.client?.prefs?.unholypref != "No"
-	var/dirty_partner = is_mob_dirty(partner) && partner.client?.prefs?.unholypref != "No"
+	var/dirty_user = mob_wants_dirty_text(user)
+	var/dirty_partner = mob_wants_dirty_text(partner)
 	if(dirty_user || dirty_partner)
 		user.visible_message("<span class='lewd'>[is_hidden ? (picked_hidden) : null]<b>[user]</b> [replacetext(pick(GLOB.dirty_rimming_messages), "$PARTNER", "\the <b>[partner]</b>")]</span>", ignored_mobs = user.get_unconsenting(), vision_distance = distance)
 	else

@@ -101,7 +101,7 @@
 				SEND_SIGNAL(quirk_holder, COMSIG_ADD_MOOD_EVENT, "need_shower", /datum/mood_event/need_shower/like_it)
 			else
 				SEND_SIGNAL(quirk_holder, COMSIG_ADD_MOOD_EVENT, "need_shower", /datum/mood_event/need_shower/dirty)
-			if(warning_level < 2)
+			if(warning_level < 2 && !unholy_likes_it)
 				to_chat(quirk_holder, span_phobia("Мне нужно сходить в душ."))
 				warning_level = 2
 		if(VERY_DIRTY to INFINITY)
