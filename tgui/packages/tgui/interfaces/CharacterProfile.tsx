@@ -43,6 +43,7 @@ interface CharacterProfileContext {
   mob_tag: string;
   nc_tag: string;
   unholy_tag: string;
+  unholy_hard_tag: string;
   extreme_tag: string;
   very_extreme_tag: string;
   tattoo_tag: string;
@@ -58,6 +59,7 @@ export const CharacterProfile = (props) => {
     { name: "Vore", title: "Поедание/Проглатывание", value: data.vore_tag },
     { name: "Mob-Sex", title: "Совокупление с Мобами", value: data.mob_tag },
     { name: "Unholy", title: "Грязный секс", value: data.unholy_tag },
+    { name: "Unholy Hard", title: "Очень грязный секс", value: data.unholy_hard_tag },
     { name: "Extreme", title: "Жестокий секс", value: data.extreme_tag },
     { name: "Extreme Harm", title: "Очень жестокий секс", value: data.very_extreme_tag },
     { name: "Tattoo", title: "Татуировки от других", value: data.tattoo_tag },
