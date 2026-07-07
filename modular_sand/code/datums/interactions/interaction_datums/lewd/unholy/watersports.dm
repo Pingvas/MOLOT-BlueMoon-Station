@@ -200,6 +200,7 @@
 	user.apply_external_stink()
 
 /datum/interaction/lewd/unholy/piss/vagina/over_body/self/pick_message(mob/living/user, mob/living/partner, is_fucking)
+	user.apply_external_stink()
 	return pick(
 		SELF_MAIN_MESSAGES,
 		"USER выставляет свою киску и демонстративно мочится на себя",
@@ -219,6 +220,7 @@
 	user.apply_external_stink()
 
 /datum/interaction/lewd/unholy/piss/penis/over_body/self/pick_message(mob/living/user, mob/living/partner, is_fucking)
+	user.apply_external_stink()
 	var/shape_desc = get_penis_shape_desc(user)
 	return pick(
 		SELF_MAIN_MESSAGES,
