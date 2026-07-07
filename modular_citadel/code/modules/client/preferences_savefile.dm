@@ -26,7 +26,6 @@
 	nonconpref = sanitize_inlist(S["noncon_pref"], GLOB.lewd_prefs_choices, "Ask")
 	vorepref = sanitize_inlist(S["vore_pref"], GLOB.lewd_prefs_choices, "Ask")
 	mobsexpref = sanitize_inlist(S["mobsex_pref"], GLOB.lewd_prefs_choices, "No") //Hentai
-	hornyantagspref = sanitize_inlist(S["hornyantags_pref"], GLOB.lewd_prefs_choices, "No") //Hentai
 	tattoopref = sanitize_inlist(S["tattoo_pref"], GLOB.lewd_prefs_choices, "Ask") //BLUEMOON ADD - tattoo consent
 	unholypref = sanitize_inlist(S["unholypref"], GLOB.lewd_prefs_choices, "Ask") //I AM MENTAL I AM MAD I AM INSANE
 	unholyhardpref = sanitize_inlist(S["unholyhard_pref"], GLOB.lewd_prefs_choices, "No") // https://youtu.be/DCC6w9pAn3k?si=YIKRdkT_wwQr-V8U
@@ -76,7 +75,6 @@
 	WRITE_FILE(S["noncon_pref"], nonconpref)
 	WRITE_FILE(S["vore_pref"], vorepref)
 	WRITE_FILE(S["mobsex_pref"], mobsexpref) //Hentai
-	WRITE_FILE(S["hornyantags_pref"], hornyantagspref) //Hentai
 	WRITE_FILE(S["tattoo_pref"], tattoopref) //BLUEMOON ADD - tattoo consent
 	WRITE_FILE(S["unholypref"], unholypref)
 	WRITE_FILE(S["unholyhard_pref"], unholyhardpref)

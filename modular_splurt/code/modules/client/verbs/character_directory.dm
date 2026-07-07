@@ -105,7 +105,6 @@ GLOBAL_DATUM(character_directory, /datum/character_directory)
 		var/unholy_hard_tag
 		var/extreme_tag
 		var/extreme_harm_tag
-		var/hornyantags_tag
 		var/list/headshot_links = list()
 		var/ref = REF(C?.mob)
 		if (C.mob?.mind) //could use ternary for all three but this is more efficient
@@ -124,7 +123,6 @@ GLOBAL_DATUM(character_directory, /datum/character_directory)
 		unholy_hard_tag = C.prefs?.unholyhardpref || "No"
 		extreme_tag = C.prefs?.extremepref || "No"
 		extreme_harm_tag = C.prefs?.extremeharm || "No"
-		hornyantags_tag = C.prefs?.hornyantagspref || "No"
 		// Авто-детект для ансет.
 		if(gendertag == "Unset")
 			var/hc = C.prefs?.features["has_cock"]
@@ -190,7 +188,6 @@ GLOBAL_DATUM(character_directory, /datum/character_directory)
 			"unholy_hard_tag" = unholy_hard_tag,
 			"extreme_tag" = extreme_tag,
 			"extreme_harm_tag" = extreme_harm_tag,
-			"hornyantags_tag" = hornyantags_tag,
 			"headshot_links" = headshot_links,
 			"ref" = ref
 		)))

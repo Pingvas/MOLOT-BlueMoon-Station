@@ -527,13 +527,11 @@
 		.["noncon_pref"] = 				pref_to_num(prefs.nonconpref)
 		.["vore_pref"] = 				pref_to_num(prefs.vorepref)
 		.["mobsex_pref"] = 				pref_to_num(prefs.mobsexpref)	//Hentai
-		.["hornyantags_pref"] = 		pref_to_num(prefs.hornyantagspref)	//Hentai
 		.["extreme_pref"] = 			pref_to_num(prefs.extremepref)
 		.["extreme_harm"] = 			pref_to_num(prefs.extremeharm)
 		.["unholy_pref"] =				pref_to_num(prefs.unholypref)
 		.["unholy_hard_pref"] =			pref_to_num(prefs.unholyhardpref)
 		.["tattoo_pref"] =				pref_to_num(prefs.tattoopref)
-		.["be_victim"] =				pref_to_num(prefs.be_victim)
 
 	//Getting preferences
 		.["verb_consent"] = 			!!CHECK_BITFIELD(prefs.toggles, VERB_CONSENT)
@@ -755,12 +753,6 @@
 					else
 						prefs.mobsexpref = value
 
-				if("hornyantags_pref") //Hentai
-					if(prefs.hornyantagspref == value)
-						return FALSE
-					else
-						prefs.hornyantagspref = value
-
 				if("unholy_pref")
 					if(prefs.unholypref == value)
 						return FALSE
@@ -788,11 +780,6 @@
 						return FALSE
 					else
 						prefs.tattoopref = value
-				if("be_victim")
-					if(prefs.be_victim == value)
-						return FALSE
-					else
-						prefs.be_victim = value
 				else
 					return FALSE
 			prefs.save_character()

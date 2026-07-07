@@ -167,7 +167,6 @@ const ViewCharacter = (props) => {
 
   const prefTags = [
     { name: 'Изнасилование', value: overlay.noncon_tag },
-    { name: 'Хорни антаги', value: overlay.hornyantags_tag },
     { name: 'Грязный секс', value: overlay.unholy_tag },
     { name: 'Очень грязный секс', value: overlay.unholy_hard_tag },
     { name: 'Жестокий секс', value: overlay.extreme_tag },
@@ -353,7 +352,6 @@ const CharacterDirectoryList = (props) => {
             ['unholy_hard_tag', 'Ex. Unholy'],
             ['extreme_tag', 'Extreme'],
             ['extreme_harm_tag', 'Ex.Harm'],
-            ['hornyantags_tag', 'H.Antags'],
           ].map(([tag, label]) => {
             const active = tagFilters[tag];
             return (
@@ -385,7 +383,6 @@ const CharacterDirectoryList = (props) => {
           <SortButton id="unholy_hard_tag">Unh.Hard</SortButton>
           <SortButton id="extreme_tag">Extreme</SortButton>
           <SortButton id="extreme_harm_tag">Ex. Harm</SortButton>
-          <SortButton id="hornyantags_tag">H. Antags</SortButton>
           <Table.Cell collapsing textAlign="right">
             Ad
           </Table.Cell>
@@ -454,11 +451,6 @@ const CharacterDirectoryList = (props) => {
               <Table.Cell>
                 <Box inline bold color={prefTagTextColor[character.extreme_harm_tag]}>
                   {character.extreme_harm_tag}
-                </Box>
-              </Table.Cell>
-              <Table.Cell>
-                <Box inline bold color={prefTagTextColor[character.hornyantags_tag]}>
-                  {character.hornyantags_tag}
                 </Box>
               </Table.Cell>
               <Table.Cell collapsing textAlign="right">

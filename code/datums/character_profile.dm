@@ -112,7 +112,6 @@ GLOBAL_LIST_EMPTY(cached_previews)
 	data["vore_tag"] = M?.client?.prefs?.vorepref || "No"
 	data["erp_tag"] = M?.client?.prefs?.erppref || "No"
 	data["mob_tag"] = M?.client?.prefs?.mobsexpref || "No"
-	data["hornyantags_tag"] = M?.client?.prefs?.hornyantagspref || "No"
 	data["nc_tag"] = M?.client?.prefs?.nonconpref || "No"
 	data["unholy_tag"] = M?.client?.prefs?.unholypref || "No"
 	data["unholy_hard_tag"] = M?.client?.prefs?.unholyhardpref || "No"

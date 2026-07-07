@@ -108,7 +108,7 @@ GLOBAL_LIST_EMPTY(mobs_with_editable_flavor_text) //et tu, hacky code
 			var/content
 			if(flavor_name == "OOC Notes")
 
-				content += "[L]'s OOC Notes: <br> <b>ERP:</b> [L.client.prefs.erppref] <b>| Non-Con:</b> [L.client.prefs.nonconpref] <b>| Vore:</b> [L.client.prefs.vorepref] <b>| Mob Non-Con Sex:</b> [L.client.prefs.mobsexpref] <b>| Horny Antags:</b> [L.client.prefs.hornyantagspref]"
+				content += "[L]'s OOC Notes: <br> <b>ERP:</b> [L.client.prefs.erppref] <b>| Non-Con:</b> [L.client.prefs.nonconpref] <b>| Vore:</b> [L.client.prefs.vorepref] <b>| Mob Non-Con Sex:</b> [L.client.prefs.mobsexpref]"
 
 				if(L.client.prefs.unholypref == "Yes")
 					content += " <b>| Unholy:</b> [L.client.prefs.unholypref]\n"
@@ -122,10 +122,7 @@ GLOBAL_LIST_EMPTY(mobs_with_editable_flavor_text) //et tu, hacky code
 				if(L.client.prefs.extremepref == "Yes")
 					content += "<br><b>Extreme content:</b> [L.client.prefs.extremepref] <b>| Extreme content harm:</b> [L.client.prefs.extremeharm]\n"
 
-				if(L.client.prefs.be_victim == BEVICTIM_ASK || L.client.prefs.be_victim == BEVICTIM_YES)
-					content += "<br><b>Be antag victim:</b> [L.client.prefs.be_victim]\n"
-
-				content += "\n"
+			content += "\n"
 
 			content += text
 			if(flavor_name == "Headshot") //SPLURT edit

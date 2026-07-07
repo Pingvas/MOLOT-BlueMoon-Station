@@ -597,7 +597,6 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	S["recoil_screenshake"] >> recoil_screenshake
 
 	// Splurt
-	S["be_victim"]				>> be_victim
 	S["disable_combat_cursor"]	>> disable_combat_cursor
 	S["disable_combat_mouse_lock"]	>> disable_combat_mouse_lock
 	S["gfluid_blacklist"]		>> gfluid_blacklist
@@ -960,7 +959,6 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	WRITE_FILE(S["recoil_screenshake"], recoil_screenshake)
 
 	// Splurt
-	WRITE_FILE(S["be_victim"], be_victim)
 	WRITE_FILE(S["disable_combat_cursor"], disable_combat_cursor)
 	WRITE_FILE(S["disable_combat_mouse_lock"], disable_combat_mouse_lock)
 	WRITE_FILE(S["gfluid_blacklist"], gfluid_blacklist)
