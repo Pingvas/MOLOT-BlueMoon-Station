@@ -133,6 +133,12 @@
 	write_log_user = "piss over"
 	write_log_target = "get golden rain from"
 
+/datum/interaction/lewd/unholy/piss/vagina/over_body/post_reaction(mob/living/user, mob/living/partner, is_fucking, is_hidden)
+	if(user == partner)
+		apply_external_stink(user)
+	else
+		apply_external_stink(partner)
+
 /datum/interaction/lewd/unholy/piss/vagina/over_body/pick_message(mob/living/user, mob/living/partner, is_fucking)
 	return pick(
 		MAIN_MESSAGES,
@@ -152,6 +158,12 @@
 	p13target_strength = PLUG13_STRENGTH_LOW
 	write_log_user = "piss over"
 	write_log_target = "get golden rain from"
+
+/datum/interaction/lewd/unholy/piss/penis/over_body/post_reaction(mob/living/user, mob/living/partner, is_fucking, is_hidden)
+	if(user == partner)
+		apply_external_stink(user)
+	else
+		apply_external_stink(partner)
 
 /datum/interaction/lewd/unholy/piss/penis/over_body/pick_message(mob/living/user, mob/living/partner, is_fucking)
 	var/shape_desc = get_penis_shape_desc(user)
@@ -190,6 +202,9 @@
 	write_log_user = "piss over self"
 	write_log_target = null
 
+/datum/interaction/lewd/unholy/piss/vagina/over_body/self/post_reaction(mob/living/user, mob/living/partner, is_fucking, is_hidden)
+	apply_external_stink(user)
+
 /datum/interaction/lewd/unholy/piss/vagina/over_body/self/pick_message(mob/living/user, mob/living/partner, is_fucking)
 	return pick(
 		SELF_MAIN_MESSAGES,
@@ -205,6 +220,9 @@
 	interaction_flags = INTERACTION_FLAG_ADJACENT | INTERACTION_FLAG_OOC_CONSENT | INTERACTION_FLAG_UNHOLY_CONTENT | INTERACTION_FLAG_USER_IS_TARGET
 	write_log_user = "piss over self"
 	write_log_target = null
+
+/datum/interaction/lewd/unholy/piss/penis/over_body/self/post_reaction(mob/living/user, mob/living/partner, is_fucking, is_hidden)
+	apply_external_stink(user)
 
 /datum/interaction/lewd/unholy/piss/penis/over_body/self/pick_message(mob/living/user, mob/living/partner, is_fucking)
 	var/shape_desc = get_penis_shape_desc(user)

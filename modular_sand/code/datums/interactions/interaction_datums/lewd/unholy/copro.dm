@@ -11,6 +11,7 @@
 
 /datum/interaction/lewd/unholy/hard/do_faceshit/display_interaction(mob/living/user, mob/living/target, is_hidden)
 	user.do_faceshit(target, is_hidden)
+	apply_external_stink(target)
 
 /datum/interaction/lewd/unholy/hard/do_crotchshit/
 	description = "Насрать на промежность."
@@ -25,6 +26,7 @@
 
 /datum/interaction/lewd/unholy/hard/do_crotchshit/display_interaction(mob/living/user, mob/living/target, is_hidden)
 	user.do_crotchshit(target, is_hidden)
+	apply_external_stink(target)
 
 /datum/interaction/lewd/unholy/hard/do_shitfuck
 	description = "Трахнуть в задницу с говнецом."
