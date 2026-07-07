@@ -134,10 +134,7 @@
 	write_log_target = "get golden rain from"
 
 /datum/interaction/lewd/unholy/piss/vagina/over_body/post_reaction(mob/living/user, mob/living/partner, is_fucking, is_hidden)
-	if(user == partner)
-		apply_external_stink(user)
-	else
-		apply_external_stink(partner)
+	partner.apply_external_stink()
 
 /datum/interaction/lewd/unholy/piss/vagina/over_body/pick_message(mob/living/user, mob/living/partner, is_fucking)
 	return pick(
@@ -160,10 +157,7 @@
 	write_log_target = "get golden rain from"
 
 /datum/interaction/lewd/unholy/piss/penis/over_body/post_reaction(mob/living/user, mob/living/partner, is_fucking, is_hidden)
-	if(user == partner)
-		apply_external_stink(user)
-	else
-		apply_external_stink(partner)
+	partner.apply_external_stink()
 
 /datum/interaction/lewd/unholy/piss/penis/over_body/pick_message(mob/living/user, mob/living/partner, is_fucking)
 	var/shape_desc = get_penis_shape_desc(user)
@@ -203,7 +197,7 @@
 	write_log_target = null
 
 /datum/interaction/lewd/unholy/piss/vagina/over_body/self/post_reaction(mob/living/user, mob/living/partner, is_fucking, is_hidden)
-	apply_external_stink(user)
+	user.apply_external_stink()
 
 /datum/interaction/lewd/unholy/piss/vagina/over_body/self/pick_message(mob/living/user, mob/living/partner, is_fucking)
 	return pick(
@@ -222,7 +216,7 @@
 	write_log_target = null
 
 /datum/interaction/lewd/unholy/piss/penis/over_body/self/post_reaction(mob/living/user, mob/living/partner, is_fucking, is_hidden)
-	apply_external_stink(user)
+	user.apply_external_stink()
 
 /datum/interaction/lewd/unholy/piss/penis/over_body/self/pick_message(mob/living/user, mob/living/partner, is_fucking)
 	var/shape_desc = get_penis_shape_desc(user)

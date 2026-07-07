@@ -30,8 +30,8 @@
 	if(is_hidden)
 		distance = 1
 	var/picked_hidden = pick(hidden_additional)
-	var/dirty_user = mob_wants_dirty_text(user)
-	var/dirty_partner = mob_wants_dirty_text(partner)
+	var/dirty_user = user.wants_dirty_text()
+	var/dirty_partner = partner.wants_dirty_text()
 	var/dirty = dirty_user || dirty_partner
 
 	if(partner.is_fucking(user, CUM_TARGET_MOUTH))

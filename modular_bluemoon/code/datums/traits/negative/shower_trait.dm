@@ -258,18 +258,18 @@
 	timeout = 10 SECONDS
 
 // Хелперы для секса (😳)
-/proc/is_mob_dirty(mob/living/M)
-	if(!HAS_TRAIT(M, TRAIT_BLUEMOON_SHOWER_NEED))
+/mob/living/proc/is_dirty()
+	if(!HAS_TRAIT(src, TRAIT_BLUEMOON_SHOWER_NEED))
 		return FALSE
-	for(var/datum/quirk/bluemoon_shower_need/quirk in M.roundstart_quirks)
-		if(quirk.cleanse_level >= 900) // DIRTY
+	for(var/datum/quirk/bluemoon_shower_need/quirk in src.roundstart_quirks)
+		if(quirk.cleanse_level >= 900)
 			return TRUE
 	return FALSE
 
-/proc/apply_external_stink(mob/living/M)
-	if(!HAS_TRAIT(M, TRAIT_BLUEMOON_SHOWER_NEED))
+/mob/living/proc/apply_external_stink()
+	if(!HAS_TRAIT(src, TRAIT_BLUEMOON_SHOWER_NEED))
 		return
-	for(var/datum/quirk/bluemoon_shower_need/quirk in M.roundstart_quirks)
+	for(var/datum/quirk/bluemoon_shower_need/quirk in src.roundstart_quirks)
 		if(quirk.cleanse_level >= 900)
 			return
 		quirk.cleanse_level = min(quirk.cleanse_level + 300, 899)

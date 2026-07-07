@@ -28,7 +28,7 @@
 		cached_item = user.pulling
 		if(istype(cached_item, /obj/item/reagent_containers))
 			liquid_container = cached_item
-	var/dirty = mob_wants_dirty_text(user)
+	var/dirty = user.wants_dirty_text()
 	var/distance = 7
 	var/extrarange = DEFAULT_INTERACTION_SOUND_EXTRARANGE(is_hidden)
 	var/const/volume = 70
