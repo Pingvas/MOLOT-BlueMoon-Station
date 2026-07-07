@@ -44,9 +44,16 @@ export const CharacterPrefsTab = (props) => {
 
   const [confirmDialog, setConfirmDialog] = useLocalState<ConfirmState>('confirmPrefDialog', null);
 
+  const currentValues: Record<string, number> = {
+    unholy_pref,
+    unholy_hard_pref,
+    extreme_pref,
+    extreme_harm: extreme_harm ? 1 : 0,
+  };
+
   const confirmAndAct = (char_pref, value) => {
     const desc = CONFIRM_DESCRIPTIONS[char_pref];
-    if (desc && value > 0) {
+    if (desc && currentValues[char_pref] === 0) {
       setConfirmDialog({ char_pref, value, description: desc });
     } else {
       act('char_pref', { char_pref, value });
