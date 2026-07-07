@@ -355,10 +355,14 @@
 		if("toggle_gameplay")
 			var/flag = params["flag"]
 			switch(flag)
-				if("no_antag")
-					toggles ^= NO_ANTAG
-				if("midround_antag")
-					toggles ^= MIDROUND_ANTAG
+			if("no_antag")
+				toggles ^= NO_ANTAG
+				if(toggles & NO_ANTAG)
+					toggles &= ~MIDROUND_ANTAG
+				else
+					toggles |= MIDROUND_ANTAG
+			if("midround_antag")
+				toggles ^= MIDROUND_ANTAG
 				if("deathrattle")
 					toggles ^= DISABLE_DEATHRATTLE
 				if("arrivalrattle")
