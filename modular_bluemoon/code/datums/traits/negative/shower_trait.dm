@@ -262,7 +262,7 @@
 	if(!HAS_TRAIT(src, TRAIT_BLUEMOON_SHOWER_NEED))
 		return FALSE
 	for(var/datum/quirk/bluemoon_shower_need/quirk in src.roundstart_quirks)
-		if(quirk.cleanse_level >= 900)
+		if(quirk.cleanse_level >= DIRTY)
 			return TRUE
 	return FALSE
 
@@ -270,9 +270,9 @@
 	if(!HAS_TRAIT(src, TRAIT_BLUEMOON_SHOWER_NEED))
 		return
 	for(var/datum/quirk/bluemoon_shower_need/quirk in src.roundstart_quirks)
-		if(quirk.cleanse_level >= 900)
+		if(quirk.cleanse_level >= DIRTY)
 			return
-		quirk.cleanse_level = min(quirk.cleanse_level + 300, 899)
+		quirk.cleanse_level = min(quirk.cleanse_level + 300, DIRTY - 1)
 
 #undef FINE_CLEAN
 #undef FIRST_WARNING
