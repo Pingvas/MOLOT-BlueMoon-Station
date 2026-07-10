@@ -89,6 +89,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/tgui_panel_state = ""
 	var/list/ui_zoom_preferences = list()
 	var/windowflashing = TRUE
+	var/adminhelp_windowflash = TRUE
 	var/windownoise = TRUE
 	var/mood_vignette = TRUE
 	var/toggles = TOGGLES_DEFAULT

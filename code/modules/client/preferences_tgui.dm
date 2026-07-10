@@ -73,6 +73,7 @@
 	.["chat_pullr"] = !!(chat_toggles & CHAT_PULLR)
 	.["chat_bankcard"] = !!(chat_toggles & CHAT_BANKCARD)
 	.["windowflashing"] = windowflashing
+	.["adminhelp_windowflash"] = adminhelp_windowflash
 	.["windownoise"] = windownoise
 	.["mood_vignette"] = mood_vignette
 
@@ -409,6 +410,8 @@
 					toggles ^= SOUND_ADMINHELP
 				if("announce_login")
 					toggles ^= ANNOUNCE_LOGIN
+				if("adminhelp_windowflash")
+					adminhelp_windowflash = !adminhelp_windowflash
 				if("combohud_lighting")
 					toggles ^= COMBOHUD_LIGHTING
 				if("deadmin_play_login")

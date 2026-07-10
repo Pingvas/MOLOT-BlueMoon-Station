@@ -525,6 +525,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	S["tgui_panel_state"]		>> tgui_panel_state
 	S["ui_zoom_preferences"]	>> ui_zoom_preferences
 	S["windowflash"] 			>> windowflashing
+	S["adminhelp_windowflash"]	>> adminhelp_windowflash
 	S["windownoise"] 			>> windownoise
 	S["mood_vignette"] 			>> mood_vignette
 	S["action_buttons_hide_on_spawn"] 			>> action_buttons_hide_on_spawn
@@ -687,6 +688,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 				ui_zoom_count++
 		ui_zoom_preferences = sanitized_ui_zoom_preferences
 	windowflashing = sanitize_integer(windowflashing, 0, 1, initial(windowflashing))
+	adminhelp_windowflash = sanitize_integer(adminhelp_windowflash, 0, 1, initial(adminhelp_windowflash))
 	windownoise = sanitize_integer(windownoise, 0, 1, initial(windownoise))
 	mood_vignette = sanitize_integer(mood_vignette, 0, 1, initial(mood_vignette))
 	action_buttons_hide_on_spawn = sanitize_integer(action_buttons_hide_on_spawn, 0, 1, initial(action_buttons_hide_on_spawn))
@@ -896,6 +898,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	WRITE_FILE(S["tgui_panel_state"], tgui_panel_state)
 	WRITE_FILE(S["ui_zoom_preferences"], ui_zoom_preferences)
 	WRITE_FILE(S["windowflash"], windowflashing)
+	WRITE_FILE(S["adminhelp_windowflash"], adminhelp_windowflash)
 	WRITE_FILE(S["windownoise"], windownoise)
 	WRITE_FILE(S["mood_vignette"], mood_vignette)
 	WRITE_FILE(S["action_buttons_hide_on_spawn"], action_buttons_hide_on_spawn)

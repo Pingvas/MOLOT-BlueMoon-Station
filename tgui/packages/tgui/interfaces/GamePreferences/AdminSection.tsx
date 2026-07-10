@@ -9,6 +9,7 @@ type AdminData = {
   sound_volume_adminhelp: number;
   sound_volume_prayers: number;
   announce_login: boolean;
+  adminhelp_windowflash: boolean;
   combohud_lighting: boolean;
 };
 
@@ -46,7 +47,7 @@ const SoundToggleButton = (props: { enabled: boolean; onClick: () => void }) => 
 
 export const AdminSection = (props) => {
   const { act, data } = useBackend<AdminData>();
-  const { has_admin, deadmin, sound_adminhelp, sound_prayers, sound_volume_adminhelp, sound_volume_prayers, announce_login, combohud_lighting } = data;
+  const { has_admin, deadmin, sound_adminhelp, sound_prayers, sound_volume_adminhelp, sound_volume_prayers, announce_login, adminhelp_windowflash, combohud_lighting } = data;
 
   if (!has_admin) {
     return null;
@@ -126,6 +127,21 @@ export const AdminSection = (props) => {
       {renderSoundRow('sound_adminhelp', 'Adminhelp', 'sound_volume_adminhelp', 'Звук, уведомляющий о новом обращении в adminhelp')}
       {renderSoundRow('sound_prayers', 'Звуки молитв', 'sound_volume_prayers', 'Воспроизводится при молитве божеству или при получении ответа')}
       <Stack.Divider />
+      <Stack.Item>
+        <Stack align="center" fill className="GamePreferences__row">
+          <Stack.Item grow basis={0}>
+            <div className="GamePreferences__label">Мигание окна триггерах</div>
+            <div className="GamePreferences__hint">Мигание окна при получении ахелпа, напоминалке тикетов и полученниии факса</div>
+          </Stack.Item>
+          <Stack.Item>
+            <Button
+              icon={adminhelp_windowflash ? "toggle-on" : "toggle-off"}
+              selected={adminhelp_windowflash}
+              onClick={() => act('toggle_admin', { flag: 'adminhelp_windowflash' })}
+            />
+          </Stack.Item>
+        </Stack>
+      </Stack.Item>
       <Stack.Item>
         <Stack align="center" fill className="GamePreferences__row">
           <Stack.Item grow basis={0}>
