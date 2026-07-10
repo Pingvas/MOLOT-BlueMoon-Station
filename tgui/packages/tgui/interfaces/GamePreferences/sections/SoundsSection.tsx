@@ -21,6 +21,7 @@ type SoundsData = {
   sound_volume_instruments: number;
   sound_volume_jukeboxes: number;
   sound_volume_emote: number;
+  sound_volume_personal_jukeboxes: number;
 };
 
 const SOUND_WITH_VOL: { key: string; label: string; volKey: string; tooltip?: string }[] = [
@@ -32,7 +33,7 @@ const SOUND_WITH_VOL: { key: string; label: string; volKey: string; tooltip?: st
   { key: 'sound_emote', label: 'Звуки эмоутов (*emote)', volKey: 'sound_volume_emote', tooltip: 'Громкость звуков, воспроизводимых через эмоуты (вздохи, смех, кашель и т.д.)' },
   { key: 'sound_instruments', label: 'Музыкальные инструменты', volKey: 'sound_volume_instruments', tooltip: 'Громкость звуков музыкальных инструментов в игре (синтезированные и обычные)' },
   { key: 'sound_jukeboxes', label: 'Джукбоксы', volKey: 'sound_volume_jukeboxes', tooltip: 'Громкость музыки, проигрываемой на джукбоксах в игре' },
-  { key: 'sound_personal_jukeboxes', label: 'Персональные музыкальные шкатулки', volKey: 'sound_volume_jukeboxes', tooltip: 'Громкость музыки из персональных музыкальных шкатулок' },
+  { key: 'sound_personal_jukeboxes', label: 'Персональные музыкальные шкатулки', volKey: 'sound_volume_personal_jukeboxes', tooltip: 'Громкость музыки из персональных музыкальных шкатулок' },
 ];
 
 const SoundToggleButton = (props: { enabled: boolean; onClick: () => void }) => {

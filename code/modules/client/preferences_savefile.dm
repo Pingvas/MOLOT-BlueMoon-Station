@@ -570,6 +570,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	S["sound_volume_adminhelp"] >> sound_volume_adminhelp
 	S["sound_volume_instruments"] >> sound_volume_instruments
 	S["sound_volume_jukeboxes"] >> sound_volume_jukeboxes
+	S["sound_volume_personal_jukeboxes"] >> sound_volume_personal_jukeboxes
 	S["sound_volume_emote"] >> sound_volume_emote
 	S["parallax"] >> parallax
 	S["ambientocclusion"] >> ambientocclusion
@@ -706,6 +707,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	sound_volume_adminhelp = sanitize_integer(sound_volume_adminhelp, 0, 100, initial(sound_volume_adminhelp))
 	sound_volume_instruments = sanitize_integer(sound_volume_instruments, 0, 100, initial(sound_volume_instruments))
 	sound_volume_jukeboxes = sanitize_integer(sound_volume_jukeboxes, 0, 100, initial(sound_volume_jukeboxes))
+	sound_volume_personal_jukeboxes = sanitize_integer(sound_volume_personal_jukeboxes, 0, 100, initial(sound_volume_personal_jukeboxes))
 	sound_volume_emote = sanitize_integer(sound_volume_emote, 0, 100, initial(sound_volume_emote))
 	preferred_chaos_level = sanitize_integer(preferred_chaos_level, 0, 3, 2)
 	parallax = sanitize_integer(parallax, PARALLAX_DISABLE, PARALLAX_INSANE, null)
@@ -938,6 +940,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	WRITE_FILE(S["sound_volume_adminhelp"], sound_volume_adminhelp)
 	WRITE_FILE(S["sound_volume_instruments"], sound_volume_instruments)
 	WRITE_FILE(S["sound_volume_jukeboxes"], sound_volume_jukeboxes)
+	WRITE_FILE(S["sound_volume_personal_jukeboxes"], sound_volume_personal_jukeboxes)
 	WRITE_FILE(S["sound_volume_emote"], sound_volume_emote)
 	WRITE_FILE(S["parallax"], parallax)
 	WRITE_FILE(S["ambientocclusion"], ambientocclusion)
@@ -993,7 +996,6 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	WRITE_FILE(S["use_modern_translations"], use_modern_translations)
 	WRITE_FILE(S["new_character_creator"], new_character_creator)
 	WRITE_FILE(S["view_pixelshift"], view_pixelshift)
-	WRITE_FILE(S["eorg_enabled"], eorg_enabled)
 
 	//SKYRAT CHANGES BEGIN
 	WRITE_FILE(S["see_chat_emotes"], see_chat_emotes)
