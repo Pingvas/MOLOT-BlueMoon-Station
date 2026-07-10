@@ -356,6 +356,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/sound_volume_adminhelp = 100
 	var/sound_volume_instruments = 100
 	var/sound_volume_jukeboxes = 100
+	var/sound_volume_emote = 100
 
 	var/parallax = PARALLAX_INSANE
 

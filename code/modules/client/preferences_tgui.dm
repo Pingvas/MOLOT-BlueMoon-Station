@@ -25,6 +25,7 @@
 	.["sound_ship_ambience"] = !!(toggles & SOUND_SHIP_AMBIENCE)
 	.["sound_announcements"] = !!(toggles & SOUND_ANNOUNCEMENTS)
 	.["sound_bark"] = !!(toggles & SOUND_BARK)
+	.["sound_emote"] = !!(toggles & SOUND_EMOTE)
 	.["sound_prayers"] = !!(toggles & SOUND_PRAYERS)
 	.["sound_adminhelp"] = !!(toggles & SOUND_ADMINHELP)
 
@@ -38,6 +39,7 @@
 	.["sound_volume_adminhelp"] = sound_volume_adminhelp
 	.["sound_volume_instruments"] = sound_volume_instruments
 	.["sound_volume_jukeboxes"] = sound_volume_jukeboxes
+	.["sound_volume_emote"] = sound_volume_emote
 
 	// Graphics toggles
 	.["parallax"] = parallax
@@ -249,6 +251,8 @@
 					toggles ^= SOUND_ANNOUNCEMENTS
 				if("sound_bark")
 					toggles ^= SOUND_BARK
+				if("sound_emote")
+					toggles ^= SOUND_EMOTE
 				if("sound_prayers")
 					toggles ^= SOUND_PRAYERS
 				if("sound_adminhelp")

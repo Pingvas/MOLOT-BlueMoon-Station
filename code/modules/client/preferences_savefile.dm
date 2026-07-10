@@ -569,6 +569,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	S["sound_volume_adminhelp"] >> sound_volume_adminhelp
 	S["sound_volume_instruments"] >> sound_volume_instruments
 	S["sound_volume_jukeboxes"] >> sound_volume_jukeboxes
+	S["sound_volume_emote"] >> sound_volume_emote
 	S["parallax"] >> parallax
 	S["ambientocclusion"] >> ambientocclusion
 	S["lighting_blur"] >> lighting_blur
@@ -703,6 +704,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	sound_volume_adminhelp = sanitize_integer(sound_volume_adminhelp, 0, 100, initial(sound_volume_adminhelp))
 	sound_volume_instruments = sanitize_integer(sound_volume_instruments, 0, 100, initial(sound_volume_instruments))
 	sound_volume_jukeboxes = sanitize_integer(sound_volume_jukeboxes, 0, 100, initial(sound_volume_jukeboxes))
+	sound_volume_emote = sanitize_integer(sound_volume_emote, 0, 100, initial(sound_volume_emote))
 	preferred_chaos_level = sanitize_integer(preferred_chaos_level, 0, 3, 2)
 	parallax = sanitize_integer(parallax, PARALLAX_DISABLE, PARALLAX_INSANE, null)
 	ambientocclusion = sanitize_integer(ambientocclusion, 0, 1, initial(ambientocclusion))
@@ -933,6 +935,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	WRITE_FILE(S["sound_volume_adminhelp"], sound_volume_adminhelp)
 	WRITE_FILE(S["sound_volume_instruments"], sound_volume_instruments)
 	WRITE_FILE(S["sound_volume_jukeboxes"], sound_volume_jukeboxes)
+	WRITE_FILE(S["sound_volume_emote"], sound_volume_emote)
 	WRITE_FILE(S["parallax"], parallax)
 	WRITE_FILE(S["ambientocclusion"], ambientocclusion)
 	WRITE_FILE(S["lighting_blur"], lighting_blur)
