@@ -480,6 +480,11 @@
 					tgui_input_verbs = (value == "TGUI" ? TRUE : FALSE)
 				if("UI_style")
 					UI_style = value
+					if(user?.hud_used)
+						QDEL_NULL(user.hud_used)
+						user.create_mob_hud()
+						if(user.hud_used)
+							user.hud_used.show_hud(1, user)
 				if("ghost_form")
 					ghost_form = value
 				if("ghost_orbit")
