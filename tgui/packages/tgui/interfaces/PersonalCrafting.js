@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { useBackend } from '../backend';
 import {
@@ -8,6 +8,7 @@ import {
   Divider,
   Icon,
   Input,
+  LabeledList,
   Section,
   Stack,
   Tabs,
@@ -16,7 +17,7 @@ import { Window } from '../layouts';
 
 const FOOD_CATEGORIES = new Set([
   'Foods', 'Breads', 'Burgers', 'Cakes', 'Donuts',
-  'Egg-Based Food', 'Ice', 'Meats', 'Mexican',
+  'Egg-Based Food', 'Frozen', 'Meats', 'Mexican',
   'Misc. Food', 'Pastries', 'Pies & Sweets', 'Pizzas',
   'Salads', 'Seafood', 'Sandwiches', 'Soups', 'Spaghettis',
   'East foods', 'Drinks',
@@ -157,7 +158,7 @@ export function PersonalCrafting() {
   const isSearching = query.length > 0;
 
   useEffect(() => {
-    if (categories.length > 0 && !tab) {
+    if (categories.length > 0 && (!tab || tab === '')) {
       const firstCat = categories[0];
       setTab(firstCat.id);
       act('set_category', {
@@ -167,6 +168,17 @@ export function PersonalCrafting() {
     }
     act('search', { query: '' });
   }, []);
+
+  useEffect(() => {
+    if (categories.length > 0) {
+      const firstCat = categories[0];
+      setTab(firstCat.id);
+      act('set_category', {
+        category: firstCat.category,
+        subcategory: firstCat.subcategory,
+      });
+    }
+  }, [mode, categories.length]);
 
   useEffect(() => {
     return () => {
@@ -224,141 +236,137 @@ export function PersonalCrafting() {
   return (
     <Window title="Crafting Menu" width={700} height={800}>
       <Window.Content>
-        <Stack fill vertical>
-          {!!busy && (
-            <Dimmer fontSize="32px">
-              <Icon color="blue" name="cog" spin={1} />
-              {' Crafting...'}
-            </Dimmer>
-          )}
-          <Stack.Item grow={1}>
-            <Stack fill>
-              <Stack.Item width="180px">
-                <Section fill scrollable>
-                  <Stack fill vertical>
-                    <Stack.Item>
-                      <Stack>
-                        <Stack.Item grow>
-                          <Input
-                            fluid
-                            placeholder="Search recipes..."
-                            value={searchQuery}
-                            onInput={(e, value) => handleSearch(value)}
-                          />
-                        </Stack.Item>
-                        <Stack.Item>
-                          <Button
-                            icon="times"
-                            disabled={!searchQuery}
-                            color="transparent"
-                            onClick={clearSearch}
-                            tooltip="Clear search"
-                          />
-                        </Stack.Item>
-                      </Stack>
-                    </Stack.Item>
+        {!!busy && (
+          <Dimmer fontSize="32px">
+            <Icon color="blue" name="cog" spin={1} />
+            {' Crafting...'}
+          </Dimmer>
+        )}
+        <Stack fill>
+          <Stack.Item width="180px">
+            <Section fill scrollable>
+              <Stack fill vertical>
+                <Stack.Item>
+                  <Stack>
                     <Stack.Item grow>
-                      <Tabs vertical>
-                        {categories.map((cat) => (
-                          <Tabs.Tab
-                            key={cat.id}
-                            selected={cat.id === tab && !isSearching}
-                            onClick={() => handleTabClick(cat)}
-                          >
-                            <Stack align="center">
-                              <Stack.Item width="16px" textAlign="center">
-                                <Icon
-                                  name={
-                                    CATEGORY_ICONS[cat.name]
-                                    || CATEGORY_ICONS[cat.category]
-                                    || 'circle'
-                                  }
-                                />
-                              </Stack.Item>
-                              <Stack.Item grow ml={1}>
-                                {cat.name}
-                              </Stack.Item>
-                            </Stack>
-                          </Tabs.Tab>
-                        ))}
-                      </Tabs>
+                      <Input
+                        fluid
+                        placeholder="Search recipes..."
+                        value={searchQuery}
+                        onInput={(e, value) => handleSearch(value)}
+                      />
                     </Stack.Item>
                     <Stack.Item>
-                      <Divider />
-                      <Button.Checkbox
-                        fluid
-                        checked={display_craftable_only}
-                        onClick={() => act('toggle_recipes')}
-                      >
-                        Can make
-                      </Button.Checkbox>
-                      <Button.Checkbox
-                        fluid
-                        checked={display_compact}
-                        onClick={() => act('toggle_compact')}
-                      >
-                        Compact
-                      </Button.Checkbox>
-                      <Divider />
-                      <Stack textAlign="center">
-                        <Stack.Item grow>
-                          <Button.Checkbox
-                            fluid
-                            lineHeight={2}
-                            checked={!isCook(mode)}
-                            icon="hammer"
-                            style={{
-                              border: '2px solid ' + (!isCook(mode) ? '#20b142' : '#333'),
-                            }}
-                            onClick={() => isCook(mode) && act('toggle_mode')}
-                          >
-                            Craft
-                          </Button.Checkbox>
-                        </Stack.Item>
-                        <Stack.Item grow>
-                          <Button.Checkbox
-                            fluid
-                            lineHeight={2}
-                            checked={isCook(mode)}
-                            icon="utensils"
-                            style={{
-                              border: '2px solid ' + (isCook(mode) ? '#20b142' : '#333'),
-                            }}
-                            onClick={() => !isCook(mode) && act('toggle_mode')}
-                          >
-                            Cook
-                          </Button.Checkbox>
-                        </Stack.Item>
-                      </Stack>
+                      <Button
+                        icon="times"
+                        disabled={!searchQuery}
+                        color="transparent"
+                        onClick={clearSearch}
+                        tooltip="Clear search"
+                      />
                     </Stack.Item>
                   </Stack>
-                </Section>
-              </Stack.Item>
-              <Stack.Item grow ml={0.5}>
-                {isSearching ? (
-                  <Section fill scrollable>
-                    <SearchResults
-                      nameMatches={nameMatches}
-                      ingredientMatches={ingredientMatches}
-                      craftability={craftability}
-                      display_craftable_only={display_craftable_only}
-                      display_compact={display_compact}
-                    />
-                  </Section>
-                ) : (
-                  <Section fill scrollable>
-                    <RecipeList
-                      recipes={shownRecipes}
-                      craftability={craftability}
-                      display_craftable_only={display_craftable_only}
-                      display_compact={display_compact}
-                      page={page}
-                      onLoadMore={() => setPage(page + 1)}
-                    />
-                  </Section>
-                )}
-              </Stack.Item>
-            </Stack>
+                </Stack.Item>
+                <Stack.Item grow>
+                  <Tabs vertical>
+                    {categories.map((cat) => (
+                      <Tabs.Tab
+                        key={cat.id}
+                        selected={cat.id === tab && !isSearching}
+                        onClick={() => handleTabClick(cat)}
+                      >
+                        <Stack align="center">
+                          <Stack.Item width="16px" textAlign="center">
+                            <Icon
+                              name={
+                                CATEGORY_ICONS[cat.name]
+                                || CATEGORY_ICONS[cat.category]
+                                || 'circle'
+                              }
+                            />
+                          </Stack.Item>
+                          <Stack.Item grow ml={1}>
+                            {cat.name}
+                          </Stack.Item>
+                        </Stack>
+                      </Tabs.Tab>
+                    ))}
+                  </Tabs>
+                </Stack.Item>
+                <Stack.Item>
+                  <Divider />
+                  <Button.Checkbox
+                    fluid
+                    checked={display_craftable_only}
+                    onClick={() => act('toggle_recipes')}
+                  >
+                    Can make
+                  </Button.Checkbox>
+                  <Button.Checkbox
+                    fluid
+                    checked={display_compact}
+                    onClick={() => act('toggle_compact')}
+                  >
+                    Compact
+                  </Button.Checkbox>
+                  <Divider />
+                  <Stack textAlign="center">
+                    <Stack.Item grow>
+                      <Button.Checkbox
+                        fluid
+                        lineHeight={2}
+                        checked={!isCook(mode)}
+                        icon="hammer"
+                        style={{
+                          border: '2px solid ' + (!isCook(mode) ? '#20b142' : '#333'),
+                        }}
+                        onClick={() => isCook(mode) && act('toggle_mode')}
+                      >
+                        Craft
+                      </Button.Checkbox>
+                    </Stack.Item>
+                    <Stack.Item grow>
+                      <Button.Checkbox
+                        fluid
+                        lineHeight={2}
+                        checked={isCook(mode)}
+                        icon="utensils"
+                        style={{
+                          border: '2px solid ' + (isCook(mode) ? '#20b142' : '#333'),
+                        }}
+                        onClick={() => !isCook(mode) && act('toggle_mode')}
+                      >
+                        Cook
+                      </Button.Checkbox>
+                    </Stack.Item>
+                  </Stack>
+                </Stack.Item>
+              </Stack>
+            </Section>
+          </Stack.Item>
+          <Stack.Item grow ml={0.5}>
+            {isSearching ? (
+              <Section fill scrollable>
+                <SearchResults
+                  nameMatches={nameMatches}
+                  ingredientMatches={ingredientMatches}
+                  craftability={craftability}
+                  display_craftable_only={display_craftable_only}
+                  display_compact={display_compact}
+                />
+              </Section>
+            ) : (
+              <Section fill scrollable>
+                <RecipeList
+                  recipes={shownRecipes}
+                  craftability={craftability}
+                  display_craftable_only={display_craftable_only}
+                  display_compact={display_compact}
+                  page={page}
+                  onLoadMore={() => setPage(page + 1)}
+                />
+              </Section>
+            )}
           </Stack.Item>
         </Stack>
       </Window.Content>
