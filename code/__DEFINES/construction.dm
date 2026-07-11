@@ -108,6 +108,16 @@
 // Category tab; single subcategory for crystallizer crystals and gas crafts (BLUEMOON ADD)
 #define CAT_ATMOSPHERIC "Atmospherics"
 #define CAT_ATMOSPHERICS "Gas Crystals"
+#define CAT_STRUCTURES "Structures"
+#define CAT_TILES "Tiles"
+#define CAT_WINDOWS "Windows"
+#define CAT_DOORS "Doors"
+#define CAT_EQUIPMENT "Equipment"
+#define CAT_CONTAINERS "Containers"
+#define CAT_ENTERTAINMENT "Entertainment"
+#define CAT_GARDENING "Gardening"
+#define CAT_DECOR "Decor"
+#define CAT_CHEMISTRY "Chemistry"
 
 #define RCD_FLOORWALL 1
 #define RCD_AIRLOCK 2

@@ -12,19 +12,33 @@
 
 /datum/component/personal_crafting
 	var/busy
+	var/mode = FALSE //FALSE = craft mode, TRUE = cook mode
 	var/viewing_category = 1 //typical powergamer starting on the Weapons tab
 	var/viewing_subcategory = 1
 	var/list/categories = list(
 				CAT_WEAPONRY = list(
+					CAT_MELEE,
 					CAT_WEAPON,
 					CAT_AMMO,
 				),
 				CAT_ROBOT = CAT_NONE,
 				CAT_MISCELLANEOUS = list(
 					CAT_MISCELLANEOUS,
-					CAT_TOOL,
-					CAT_FURNITURE,
 				),
+				CAT_OTHER = CAT_NONE,
+				CAT_STRUCTURES = CAT_NONE,
+				CAT_TOOL = CAT_NONE,
+				CAT_FURNITURE = CAT_NONE,
+				CAT_TILES = CAT_NONE,
+				CAT_WINDOWS = CAT_NONE,
+				CAT_DOORS = CAT_NONE,
+				CAT_EQUIPMENT = CAT_NONE,
+				CAT_CONTAINERS = CAT_NONE,
+				CAT_ENTERTAINMENT = CAT_NONE,
+				CAT_GARDENING = CAT_NONE,
+				CAT_DECOR = CAT_NONE,
+				CAT_CHEMISTRY = CAT_NONE,
+				CAT_CLOTHING = CAT_NONE,
 				CAT_ATMOSPHERIC = list(
 					CAT_ATMOSPHERICS,
 				),
@@ -47,16 +61,16 @@
 					CAT_SANDWICH,
 					CAT_SOUP,
 					CAT_SPAGHETTI,
+					CAT_EAST,
 				),
 				CAT_DRINK = CAT_NONE,
-				CAT_CLOTHING = CAT_NONE,
 			)
 
 	var/cur_category = CAT_NONE
 	var/cur_subcategory = CAT_NONE
 	var/datum/action/innate/crafting/button
 	var/display_craftable_only = FALSE
-	var/display_compact = TRUE
+	var/display_compact = FALSE
 	var/search_query = ""
 
 /*	This is what procs do:
@@ -361,6 +375,7 @@
 /datum/component/personal_crafting/ui_data(mob/user)
 	var/list/data = list()
 	data["busy"] = busy
+	data["mode"] = mode
 	data["category"] = cur_category
 	data["subcategory"] = cur_subcategory
 	data["display_craftable_only"] = display_craftable_only
@@ -407,6 +422,9 @@
 
 /datum/component/personal_crafting/ui_static_data(mob/user)
 	var/list/data = list()
+
+	data["mode"] = mode
+	data["categories"] = categories
 
 	var/list/crafting_recipes = list()
 	for(var/rec in GLOB.crafting_recipes)
@@ -474,39 +492,84 @@
 		if("search")
 			search_query = params["query"]
 			. = TRUE
+		if("toggle_mode")
+			mode = !mode
+			. = TRUE
 
 /datum/component/personal_crafting/proc/build_recipe_data(datum/crafting_recipe/R)
 	var/list/data = list()
 	data["name"] = R.name
+	data["desc"] = R.desc
 	data["ref"] = "[REF(R)]"
+	data["category"] = R.category
+	data["subcategory"] = R.subcategory
+	data["time"] = R.time
+	data["complexity"] = R.complexity
+	data["foodtypes"] = R.foodtypes
+	data["mass_craftable"] = R.mass_craftable
+	if(R.result)
+		data["icon_data"] = get_cached_item_icon(R.result)
 	var/req_text = ""
 	var/tool_text = ""
 	var/catalyst_text = ""
+	var/list/reqs_detail = list()
+	var/list/catalysts_detail = list()
+	var/list/tools_detail = list()
 
 	for(var/a in R.reqs)
-		//We just need the name, so cheat-typecast to /atom for speed (even tho Reagents are /datum they DO have a "name" var)
-		//Also these are typepaths so sadly we can't just do "[a]"
 		var/atom/A = a
 		req_text += " [R.reqs[A]] [initial(A.name)],"
+		var/list/entry = list()
+		entry["name"] = initial(A.name)
+		entry["amount"] = R.reqs[A]
+		entry["icon_data"] = get_cached_item_icon(A)
+		reqs_detail += list(entry)
 	req_text = replacetext(req_text,",","",-1)
 	data["req_text"] = req_text
+	data["reqs_detail"] = reqs_detail
 
 	for(var/a in R.chem_catalysts)
-		var/atom/A = a //cheat-typecast
+		var/atom/A = a
 		catalyst_text += " [R.chem_catalysts[A]] [initial(A.name)],"
+		var/list/entry = list()
+		entry["name"] = initial(A.name)
+		entry["amount"] = R.chem_catalysts[A]
+		entry["icon_data"] = get_cached_item_icon(A)
+		catalysts_detail += list(entry)
 	catalyst_text = replacetext(catalyst_text,",","",-1)
 	data["catalyst_text"] = catalyst_text
+	data["catalysts_detail"] = catalysts_detail
 
 	for(var/a in R.tools)
 		if(ispath(a, /obj/item))
 			var/obj/item/b = a
 			tool_text += " [initial(b.name)],"
+			var/list/entry = list()
+			entry["name"] = initial(b.name)
+			entry["icon_data"] = get_cached_item_icon(b)
+			tools_detail += list(entry)
 		else
 			tool_text += " [a],"
+			tools_detail += list(list("name" = "[a]"))
 	tool_text = replacetext(tool_text,",","",-1)
 	data["tool_text"] = tool_text
+	data["tools_detail"] = tools_detail
 
 	return data
+
+/proc/get_cached_item_icon(atom/path)
+	var/static/list/icon_cache = list()
+	var/key = "[path]"
+	if(icon_cache[key])
+		return icon_cache[key]
+	var/icon_file = initial(path.icon)
+	if(!icon_file)
+		return null
+	var/icon/I = icon(icon_file, initial(path.icon_state), SOUTH, 1)
+	if(!isicon(I))
+		return null
+	. = icon2base64(I)
+	icon_cache[key] = .
 
 //Mind helpers
 
