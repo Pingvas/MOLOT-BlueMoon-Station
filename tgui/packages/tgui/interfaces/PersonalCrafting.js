@@ -16,59 +16,59 @@ import {
 import { Window } from '../layouts';
 
 const FOOD_CATEGORIES = new Set([
-  'Foods', 'Breads', 'Burgers', 'Cakes', 'Donuts',
-  'Egg-Based Food', 'Frozen', 'Meats', 'Mexican',
-  'Misc. Food', 'Pastries', 'Pies & Sweets', 'Pizzas',
-  'Salads', 'Seafood', 'Sandwiches', 'Soups', 'Spaghettis',
-  'East foods', 'Drinks',
+  'Еда', 'Хлеб', 'Бургеры', 'Торты', 'Пончики',
+  'Из яиц', 'Заморозка', 'Мясо', 'Мексиканское',
+  'Разная еда', 'Выпечка', 'Пироги и сладости', 'Пицца',
+  'Салаты', 'Морепродукты', 'Сэндвичи', 'Супы', 'Спагетти',
+  'Восточная еда', 'Напитки',
 ]);
 
 const CATEGORY_ICONS = {
   'Can Make': 'hammer',
-  Weaponry: 'hand-fist',
-  'Melee Weapons': 'hand-fist',
-  'Ranged Weapons': 'gun',
-  Ammunition: 'box',
-  'Weapon Parts': 'gear',
-  Robots: 'robot',
-  Miscellaneous: 'shapes',
-  'Tools & Storage': 'screwdriver-wrench',
-  Furniture: 'chair',
-  Tribal: 'campground',
-  Clothing: 'shirt',
-  Foods: 'utensils',
-  Drinks: 'wine-bottle',
-  Atmospherics: 'fan',
-  'Gas Crystals': 'gem',
-  'East foods': 'drumstick-bite',
-  Breads: 'bread-slice',
-  Burgers: 'burger',
-  Cakes: 'cake-candles',
-  Donuts: 'cookie',
-  'Egg-Based Food': 'egg',
-  Meats: 'bacon',
-  Mexican: 'pepper-hot',
-  'Misc. Food': 'shapes',
-  Pastries: 'cookie',
-  'Pies & Sweets': 'chart-pie',
-  Pizzas: 'pizza-slice',
-  Salads: 'leaf',
-  Seafood: 'fish',
-  Sandwiches: 'hotdog',
-  Soups: 'mug-hot',
-  Spaghettis: 'wheat-awn',
-  Frozen: 'ice-cream',
-  Structures: 'cube',
-  Tiles: 'border-all',
-  Windows: 'person-through-window',
-  Doors: 'door-open',
-  Equipment: 'calculator',
-  Containers: 'briefcase',
-  Tools: 'tools',
-  Entertainment: 'masks-theater',
-  Gardening: 'seedling',
-  Decor: 'tree',
-  Chemistry: 'microscope',
+  Оружие: 'hand-fist',
+  'Ближний бой': 'hand-fist',
+  Дальнобойное: 'gun',
+  Боеприпасы: 'box',
+  'Части оружия': 'gear',
+  Роботы: 'robot',
+  Разное: 'shapes',
+  Прочее: 'shapes',
+  Инструменты: 'screwdriver-wrench',
+  Мебель: 'chair',
+  Племенное: 'campground',
+  Одежда: 'shirt',
+  Еда: 'utensils',
+  Напитки: 'wine-bottle',
+  Атмосфера: 'fan',
+  'Газовые кристаллы': 'gem',
+  'Восточная еда': 'drumstick-bite',
+  Хлеб: 'bread-slice',
+  Бургеры: 'burger',
+  Торты: 'cake-candles',
+  Пончики: 'cookie',
+  'Из яиц': 'egg',
+  Мясо: 'bacon',
+  Мексиканское: 'pepper-hot',
+  'Разная еда': 'shapes',
+  Выпечка: 'cookie',
+  'Пироги и сладости': 'chart-pie',
+  Пицца: 'pizza-slice',
+  Салаты: 'leaf',
+  Морепродукты: 'fish',
+  Сэндвичи: 'hotdog',
+  Супы: 'mug-hot',
+  Спагетти: 'wheat-awn',
+  Заморозка: 'ice-cream',
+  Структуры: 'cube',
+  Плитка: 'border-all',
+  Окна: 'person-through-window',
+  Двери: 'door-open',
+  Снаряжение: 'calculator',
+  Контейнеры: 'briefcase',
+  Развлечения: 'masks-theater',
+  Садоводство: 'seedling',
+  Декор: 'tree',
+  Химия: 'microscope',
 };
 
 const PAGE_SIZE = 20;
@@ -234,12 +234,12 @@ export function PersonalCrafting() {
   }
 
   return (
-    <Window title="Crafting Menu" width={700} height={800}>
+    <Window title="Крафтинг" width={700} height={800}>
       <Window.Content>
         {!!busy && (
           <Dimmer fontSize="32px">
             <Icon color="blue" name="cog" spin={1} />
-            {' Crafting...'}
+            {' Изготовление...'}
           </Dimmer>
         )}
         <Stack fill>
@@ -251,7 +251,7 @@ export function PersonalCrafting() {
                     <Stack.Item grow>
                       <Input
                         fluid
-                        placeholder="Search recipes..."
+                        placeholder="Поиск рецептов..."
                         value={searchQuery}
                         onInput={(e, value) => handleSearch(value)}
                       />
@@ -262,7 +262,7 @@ export function PersonalCrafting() {
                         disabled={!searchQuery}
                         color="transparent"
                         onClick={clearSearch}
-                        tooltip="Clear search"
+                        tooltip="Очистить"
                       />
                     </Stack.Item>
                   </Stack>
@@ -300,14 +300,14 @@ export function PersonalCrafting() {
                     checked={display_craftable_only}
                     onClick={() => act('toggle_recipes')}
                   >
-                    Can make
+                    Могу сделать
                   </Button.Checkbox>
                   <Button.Checkbox
                     fluid
                     checked={display_compact}
                     onClick={() => act('toggle_compact')}
                   >
-                    Compact
+                    Компактно
                   </Button.Checkbox>
                   <Divider />
                   <Stack textAlign="center">
@@ -322,7 +322,7 @@ export function PersonalCrafting() {
                         }}
                         onClick={() => isCook(mode) && act('toggle_mode')}
                       >
-                        Craft
+                        Крафт
                       </Button.Checkbox>
                     </Stack.Item>
                     <Stack.Item grow>
@@ -336,7 +336,7 @@ export function PersonalCrafting() {
                         }}
                         onClick={() => !isCook(mode) && act('toggle_mode')}
                       >
-                        Cook
+                        Готовка
                       </Button.Checkbox>
                     </Stack.Item>
                   </Stack>
@@ -386,7 +386,7 @@ function SearchResults(props) {
   return (
     <Stack vertical fill>
       <Stack.Item>
-        <Section title={'Name matches (' + nameMatches.length + ')'}>
+        <Section title={'По названию (' + nameMatches.length + ')'}>
           <RecipeList
             recipes={nameMatches}
             craftability={craftability}
@@ -397,7 +397,7 @@ function SearchResults(props) {
       </Stack.Item>
       <Stack.Item>
         <Section
-          title={'Ingredient matches (' + ingredientMatches.length + ')'}
+          title={'По ингредиентам (' + ingredientMatches.length + ')'}
         >
           <RecipeList
             recipes={ingredientMatches}
@@ -434,7 +434,7 @@ function RecipeList(props) {
     <Box>
       {paged.length === 0 && (
         <Box color="gray" textAlign="center" py={2}>
-          No recipes found.
+          Рецептов не найдено.
         </Box>
       )}
       {paged.map((recipe) =>
@@ -458,10 +458,10 @@ function RecipeList(props) {
             onClick={onLoadMore}
             icon="chevron-down"
             tooltip={
-              'Show ' + Math.min(PAGE_SIZE, visible.length - displayLimit) + ' more'
+              'Показать ещё ' + Math.min(PAGE_SIZE, visible.length - displayLimit)
             }
           >
-            Load more ({visible.length - displayLimit} left)
+            Загрузить ещё (осталось {visible.length - displayLimit})
           </Button>
         </Section>
       )}
@@ -492,12 +492,12 @@ function FullRecipe(props) {
       <Stack>
         {!!recipe.icon_data && (
           <Stack.Item>
-            <Box textAlign="center" minWidth="48px" minHeight="48px" mr={1}>
+            <Box mr={1}>
               <img
                 src={"data:image/png;base64," + recipe.icon_data}
                 style={{
-                  width: '48px',
-                  height: '48px',
+                  width: '32px',
+                  height: '32px',
                   imageRendering: 'pixelated',
                 }}
               />
@@ -517,7 +517,7 @@ function FullRecipe(props) {
               )}
               {recipe.reqs_detail?.length > 0 && (
                 <>
-                  <GroupTitle title="Materials" />
+                  <GroupTitle title="Материалы" />
                   {recipe.reqs_detail.map((req, i) => (
                     <Stack key={i} align="center" my={0.25}>
                       {!!req.icon_data && (
@@ -546,7 +546,7 @@ function FullRecipe(props) {
               )}
               {recipe.catalysts_detail?.length > 0 && (
                 <>
-                  <GroupTitle title="Catalysts" />
+                  <GroupTitle title="Катализаторы" />
                   {recipe.catalysts_detail.map((cat, i) => (
                     <Stack key={i} align="center" my={0.25}>
                       {!!cat.icon_data && (
@@ -575,7 +575,7 @@ function FullRecipe(props) {
               )}
               {recipe.tools_detail?.length > 0 && (
                 <>
-                  <GroupTitle title="Tools" />
+                  <GroupTitle title="Инструменты" />
                   {recipe.tools_detail.map((tool, i) => (
                     <Stack key={i} align="center" my={0.25}>
                       {!!tool.icon_data && (
@@ -610,13 +610,26 @@ function FullRecipe(props) {
                     color={canCraft ? 'green' : 'default'}
                     onClick={() => act('make', { recipe: recipe.ref })}
                   >
-                    Craft
+                    Создать
                   </Button>
+                  {!!recipe.mass_craftable && (
+                    <Button
+                      lineHeight={2.5}
+                      align="center"
+                      fluid
+                      disabled={!canCraft}
+                      icon="repeat"
+                      color={canCraft ? 'green' : 'default'}
+                      onClick={() => act('make_mass', { recipe: recipe.ref })}
+                      tooltip="Повторять пока не кончатся ингредиенты"
+                      tooltipPosition="top"
+                    />
+                  )}
                 </Stack.Item>
                 {!!recipe.complexity && (
                   <Stack.Item>
                     <Box color="gray" mt={0.5}>
-                      Complexity: {recipe.complexity}
+                      Сложность: {recipe.complexity}
                     </Box>
                   </Stack.Item>
                 )}
@@ -662,19 +675,31 @@ function CompactRecipe(props) {
         </Stack>
       }
       buttons={
-        <Button
-          icon="cog"
-          content="Craft"
-          disabled={!canCraft}
-          color={canCraft ? 'green' : 'default'}
-          tooltip={
-            recipe.tool_text
-              ? 'Tools: ' + recipe.tool_text
-              : undefined
-          }
-          tooltipPosition="left"
-          onClick={() => act('make', { recipe: recipe.ref })}
-        />
+        <Box>
+          <Button
+            icon="cog"
+            content="Создать"
+            disabled={!canCraft}
+            color={canCraft ? 'green' : 'default'}
+            tooltip={
+              recipe.tool_text
+                ? 'Инструменты: ' + recipe.tool_text
+                : undefined
+            }
+            tooltipPosition="left"
+            onClick={() => act('make', { recipe: recipe.ref })}
+          />
+          {!!recipe.mass_craftable && (
+            <Button
+              icon="repeat"
+              disabled={!canCraft}
+              color={canCraft ? 'green' : 'default'}
+              tooltip="Повторять пока не кончатся ингредиенты"
+              tooltipPosition="top"
+              onClick={() => act('make_mass', { recipe: recipe.ref })}
+            />
+          )}
+        </Box>
       }
     >
       <Box color="gray" inline>

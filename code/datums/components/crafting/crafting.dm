@@ -424,7 +424,6 @@
 	var/list/data = list()
 
 	data["mode"] = mode
-	data["categories"] = categories
 
 	var/list/crafting_recipes = list()
 	for(var/rec in GLOB.crafting_recipes)
@@ -479,6 +478,8 @@
 			else
 				to_chat(user, "<span class='warning'>Construction failed[result]</span>")
 			busy = FALSE
+			ui_interact(user)
+			. = TRUE
 		if("toggle_recipes")
 			display_craftable_only = !display_craftable_only
 			. = TRUE
@@ -495,6 +496,22 @@
 		if("toggle_mode")
 			mode = !mode
 			. = TRUE
+		if("make_mass")
+			var/mob/user = usr
+			var/datum/crafting_recipe/TR = locate(params["recipe"]) in GLOB.crafting_recipes
+			busy = TRUE
+			ui_interact(user)
+			for(var/i in 1 to 100)
+				var/atom/movable/result = construct_item(user, TR)
+				if(istext(result))
+					break
+				if(ismob(user) && isitem(result))
+					user.put_in_hands(result)
+				else
+					result.forceMove(user.drop_location())
+			busy = FALSE
+			ui_interact(user)
+			. = TRUE
 
 /datum/component/personal_crafting/proc/build_recipe_data(datum/crafting_recipe/R)
 	var/list/data = list()
@@ -503,15 +520,12 @@
 	data["ref"] = "[REF(R)]"
 	data["category"] = R.category
 	data["subcategory"] = R.subcategory
-	data["time"] = R.time
 	data["complexity"] = R.complexity
-	data["foodtypes"] = R.foodtypes
 	data["mass_craftable"] = R.mass_craftable
 	if(R.result)
 		data["icon_data"] = get_cached_item_icon(R.result)
 	var/req_text = ""
 	var/tool_text = ""
-	var/catalyst_text = ""
 	var/list/reqs_detail = list()
 	var/list/catalysts_detail = list()
 	var/list/tools_detail = list()
@@ -530,14 +544,11 @@
 
 	for(var/a in R.chem_catalysts)
 		var/atom/A = a
-		catalyst_text += " [R.chem_catalysts[A]] [initial(A.name)],"
 		var/list/entry = list()
 		entry["name"] = initial(A.name)
 		entry["amount"] = R.chem_catalysts[A]
 		entry["icon_data"] = get_cached_item_icon(A)
 		catalysts_detail += list(entry)
-	catalyst_text = replacetext(catalyst_text,",","",-1)
-	data["catalyst_text"] = catalyst_text
 	data["catalysts_detail"] = catalysts_detail
 
 	for(var/a in R.tools)
