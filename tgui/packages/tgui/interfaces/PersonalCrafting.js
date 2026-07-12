@@ -145,6 +145,8 @@ export function PersonalCrafting() {
     display_compact,
     crafting_recipes = {},
     craftability = {},
+    max_crafts = {},
+    craft_errors = {},
   } = data;
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -351,6 +353,8 @@ export function PersonalCrafting() {
                   nameMatches={nameMatches}
                   ingredientMatches={ingredientMatches}
                   craftability={craftability}
+                  max_crafts={max_crafts}
+                  craft_errors={craft_errors}
                   display_craftable_only={display_craftable_only}
                   display_compact={display_compact}
                 />
@@ -360,6 +364,8 @@ export function PersonalCrafting() {
                 <RecipeList
                   recipes={shownRecipes}
                   craftability={craftability}
+                  max_crafts={max_crafts}
+                  craft_errors={craft_errors}
                   display_craftable_only={display_craftable_only}
                   display_compact={display_compact}
                   page={page}
@@ -379,6 +385,8 @@ function SearchResults(props) {
     nameMatches,
     ingredientMatches,
     craftability,
+    max_crafts,
+    craft_errors,
     display_craftable_only,
     display_compact,
   } = props;
@@ -390,6 +398,8 @@ function SearchResults(props) {
           <RecipeList
             recipes={nameMatches}
             craftability={craftability}
+            max_crafts={max_crafts}
+            craft_errors={craft_errors}
             display_craftable_only={display_craftable_only}
             display_compact={display_compact}
           />
@@ -402,6 +412,8 @@ function SearchResults(props) {
           <RecipeList
             recipes={ingredientMatches}
             craftability={craftability}
+            max_crafts={max_crafts}
+            craft_errors={craft_errors}
             display_craftable_only={display_craftable_only}
             display_compact={display_compact}
           />
@@ -415,6 +427,8 @@ function RecipeList(props) {
   const {
     recipes = [],
     craftability = {},
+    max_crafts = {},
+    craft_errors = {},
     display_craftable_only,
     display_compact,
     page,
@@ -443,12 +457,16 @@ function RecipeList(props) {
             key={recipe.ref}
             recipe={recipe}
             canCraft={craftability[recipe.ref]}
+            maxCrafts={max_crafts[recipe.ref] || 1}
+            craftError={craft_errors[recipe.ref]}
           />
         ) : (
           <FullRecipe
             key={recipe.ref}
             recipe={recipe}
             canCraft={craftability[recipe.ref]}
+            maxCrafts={max_crafts[recipe.ref] || 1}
+            craftError={craft_errors[recipe.ref]}
           />
         ),
       )}
@@ -484,8 +502,12 @@ function GroupTitle(props) {
 }
 
 function FullRecipe(props) {
-  const { recipe, canCraft } = props;
+  const { recipe, canCraft, maxCrafts = 1, craftError } = props;
   const { act } = useBackend();
+  const [count, setCount] = useState(1);
+  const safeMax = Math.max(1, Number(maxCrafts) || 1);
+  const safeCount = Math.max(1, Math.min(count, safeMax));
+  const hasMultiple = !!(canCraft && safeMax > 1);
 
   return (
     <Section>
@@ -601,30 +623,64 @@ function FullRecipe(props) {
             <Stack.Item pl={1}>
               <Stack vertical>
                 <Stack.Item>
-                  <Button
-                    lineHeight={2.5}
-                    align="center"
-                    fluid
-                    disabled={!canCraft}
-                    icon="cog"
-                    color={canCraft ? 'green' : 'default'}
-                    onClick={() => act('make', { recipe: recipe.ref })}
-                  >
-                    Создать
-                  </Button>
-                  {!!recipe.mass_craftable && (
-                    <Button
-                      lineHeight={2.5}
-                      align="center"
-                      fluid
-                      disabled={!canCraft}
-                      icon="repeat"
-                      color={canCraft ? 'green' : 'default'}
-                      onClick={() => act('make_mass', { recipe: recipe.ref })}
-                      tooltip="Повторять пока не кончатся ингредиенты"
-                      tooltipPosition="top"
-                    />
-                  )}
+                  <Stack align="center">
+                    {!!hasMultiple && (
+                      <>
+                        <Stack.Item>
+                          <Button
+                            icon="minus"
+                            disabled={safeCount <= 1}
+                            onClick={() => setCount(Math.max(1, count - 1))}
+                            tooltip={'Меньше (мин. 1)'}
+                            tooltipPosition="top"
+                          />
+                        </Stack.Item>
+                        <Stack.Item>
+                          <Box
+                            style={{
+                              minWidth: '24px',
+                              textAlign: 'center',
+                              fontWeight: 'bold',
+                            }}
+                          >
+                            {safeCount}
+                          </Box>
+                        </Stack.Item>
+                        <Stack.Item>
+                          <Button
+                            icon="plus"
+                            disabled={safeCount >= safeMax}
+                            onClick={() =>
+                              setCount(Math.min(safeMax, count + 1))
+                            }
+                            tooltip={'Больше (макс. ' + safeMax + ')'}
+                            tooltipPosition="top"
+                          />
+                        </Stack.Item>
+                      </>
+                    )}
+                    <Stack.Item>
+                      <Button
+                        lineHeight={2.5}
+                        align="center"
+                        disabled={!canCraft}
+                        icon="cog"
+                        color={canCraft ? 'green' : 'default'}
+                        tooltip={!canCraft && craftError ? craftError : undefined}
+                        tooltipPosition="top"
+                        onClick={() =>
+                          hasMultiple
+                            ? act('make_multiple', {
+                                recipe: recipe.ref,
+                                count: safeCount,
+                              })
+                            : act('make', { recipe: recipe.ref })
+                        }
+                      >
+                        {hasMultiple ? 'Создать x' + safeCount : 'Создать'}
+                      </Button>
+                    </Stack.Item>
+                  </Stack>
                 </Stack.Item>
                 {!!recipe.complexity && (
                   <Stack.Item>
@@ -643,8 +699,12 @@ function FullRecipe(props) {
 }
 
 function CompactRecipe(props) {
-  const { recipe, canCraft } = props;
+  const { recipe, canCraft, maxCrafts = 1, craftError } = props;
   const { act } = useBackend();
+  const [count, setCount] = useState(1);
+  const safeMax = Math.max(1, Number(maxCrafts) || 1);
+  const safeCount = Math.max(1, Math.min(count, safeMax));
+  const hasMultiple = !!(canCraft && safeMax > 1);
 
   return (
     <LabeledList.Item
@@ -676,29 +736,55 @@ function CompactRecipe(props) {
       }
       buttons={
         <Box>
+          {!!hasMultiple && (
+            <>
+              <Button
+                icon="minus"
+                disabled={safeCount <= 1}
+                onClick={() => setCount(Math.max(1, count - 1))}
+                tooltipPosition="top"
+              />
+              <Box
+                inline
+                mx={0.5}
+                style={{
+                  minWidth: '18px',
+                  textAlign: 'center',
+                  fontWeight: 'bold',
+                }}
+              >
+                {safeCount}
+              </Box>
+              <Button
+                icon="plus"
+                disabled={safeCount >= safeMax}
+                onClick={() => setCount(Math.min(safeMax, count + 1))}
+                tooltipPosition="top"
+              />
+            </>
+          )}
           <Button
             icon="cog"
-            content="Создать"
+            content={hasMultiple ? 'x' + safeCount : 'Создать'}
             disabled={!canCraft}
             color={canCraft ? 'green' : 'default'}
             tooltip={
-              recipe.tool_text
-                ? 'Инструменты: ' + recipe.tool_text
-                : undefined
+              !canCraft && craftError
+                ? craftError
+                : recipe.tool_text
+                  ? 'Инструменты: ' + recipe.tool_text
+                  : undefined
             }
-            tooltipPosition="left"
-            onClick={() => act('make', { recipe: recipe.ref })}
+            tooltipPosition={!canCraft ? 'top' : 'left'}
+            onClick={() =>
+              hasMultiple
+                ? act('make_multiple', {
+                    recipe: recipe.ref,
+                    count: safeCount,
+                  })
+                : act('make', { recipe: recipe.ref })
+            }
           />
-          {!!recipe.mass_craftable && (
-            <Button
-              icon="repeat"
-              disabled={!canCraft}
-              color={canCraft ? 'green' : 'default'}
-              tooltip="Повторять пока не кончатся ингредиенты"
-              tooltipPosition="top"
-              onClick={() => act('make_mass', { recipe: recipe.ref })}
-            />
-          )}
         </Box>
       }
     >

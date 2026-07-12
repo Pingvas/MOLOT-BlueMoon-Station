@@ -70,7 +70,7 @@
 	var/cur_subcategory = CAT_NONE
 	var/datum/action/innate/crafting/button
 	var/display_craftable_only = FALSE
-	var/display_compact = FALSE
+	var/display_compact = TRUE
 	var/search_query = ""
 
 /*	This is what procs do:
@@ -383,6 +383,8 @@
 
 	var/list/surroundings = get_surroundings(user)
 	var/list/craftability = list()
+	var/list/max_crafts = list()
+	var/list/craft_errors = list()
 
 	if(search_query && search_query != "")	// If we're currently using a search tab, use this check
 		for(var/rec in GLOB.crafting_recipes)
@@ -403,7 +405,15 @@
 			if(!matched)
 				continue	// No matches by name or ingridients
 
-			craftability["[REF(R)]"] = check_contents(user, R, surroundings)
+			if(check_contents(user, R, surroundings))
+				craftability["[REF(R)]"] = TRUE
+				if(check_tools(user, R, surroundings))
+					max_crafts["[REF(R)]"] = count_possible_crafts(R, surroundings)
+				else
+					craft_errors["[REF(R)]"] = "Нет нужных инструментов"
+			else
+				craftability["[REF(R)]"] = FALSE
+				craft_errors["[REF(R)]"] = "Нет нужных ингредиентов"
 	else	// Not searching right now, check for category
 		for(var/rec in GLOB.crafting_recipes)
 			var/datum/crafting_recipe/R = rec
@@ -414,9 +424,19 @@
 			if((R.category != cur_category) || (R.subcategory != cur_subcategory))
 				continue
 
-			craftability["[REF(R)]"] = check_contents(user, R, surroundings)
+			if(check_contents(user, R, surroundings))
+				craftability["[REF(R)]"] = TRUE
+				if(check_tools(user, R, surroundings))
+					max_crafts["[REF(R)]"] = count_possible_crafts(R, surroundings)
+				else
+					craft_errors["[REF(R)]"] = "Нет нужных инструментов"
+			else
+				craftability["[REF(R)]"] = FALSE
+				craft_errors["[REF(R)]"] = "Нет нужных ингредиентов"
 
 	data["craftability"] = craftability
+	data["max_crafts"] = max_crafts
+	data["craft_errors"] = craft_errors
 
 	return data
 
@@ -512,6 +532,45 @@
 			busy = FALSE
 			ui_interact(user)
 			. = TRUE
+		if("make_multiple")
+			var/mob/user = usr
+			var/datum/crafting_recipe/TR = locate(params["recipe"]) in GLOB.crafting_recipes
+			busy = TRUE
+			ui_interact(user)
+			for(var/i in 1 to clamp(text2num(params["count"]), 1, 100))
+				var/atom/movable/result = construct_item(user, TR)
+				if(istext(result))
+					break
+				if(ismob(user) && isitem(result))
+					user.put_in_hands(result)
+				else
+					result.forceMove(user.drop_location())
+			busy = FALSE
+			ui_interact(user)
+			. = TRUE
+
+/datum/component/personal_crafting/proc/count_possible_crafts(datum/crafting_recipe/R, list/contents)
+	var/list/possible_counts = list()
+
+	for(var/a in R.reqs)
+		var/needed = R.reqs[a]
+		var/available = 0
+		for(var/content_type in contents["other"])
+			if(ispath(content_type, a) && !R.blacklist.Find(content_type))
+				available += contents["other"][content_type]
+		if(available < needed)
+			return 0
+		possible_counts += round(available / needed)
+
+	for(var/a in R.chem_catalysts)
+		var/needed = R.chem_catalysts[a]
+		var/available = contents["other"][a] || 0
+		if(available < needed)
+			return 0
+
+	if(!possible_counts.len)
+		return 1
+	return min(possible_counts)
 
 /datum/component/personal_crafting/proc/build_recipe_data(datum/crafting_recipe/R)
 	var/list/data = list()
