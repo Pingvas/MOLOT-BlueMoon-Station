@@ -1,4 +1,5 @@
-import { useRef, useCallback } from 'react';
+import { useCallback, useRef } from 'react';
+
 import { useBackend } from '../backend';
 import { Box, Button, Dropdown, Flex, Icon, Input, Section } from '../components';
 import { Window } from '../layouts';
@@ -25,26 +26,6 @@ const LOG_COLORS = {
 };
 
 const getLogColor = (type) => LOG_COLORS[type] || 'gray';
-
-const FilterBadge = ({ label, onClear }) => (
-  <Box
-    as="span"
-    ml={0.5}
-    px={0.5}
-    py={0.2}
-    fontSize="10px"
-    style={{
-      color: '#ffd54f',
-      backgroundColor: '#ffd54f22',
-      border: '1px solid #ffd54f44',
-      borderRadius: '3px',
-      cursor: 'pointer',
-    }}
-    onClick={onClear}
-  >
-    {label} ×
-  </Box>
-);
 
 export const LogViewer = (props) => {
   const { act, data } = useBackend();
@@ -87,13 +68,14 @@ export const LogViewer = (props) => {
   const showAllFlag = log_types.find(
     (t) => t.name === 'Показать все' || t.name === 'Show All'
   )?.flag;
-  const activeFilters = [];
-  if (filter_text) activeFilters.push({ label: `текст: ${filter_text}`, onClear: () => act('set_filter', { text: '' }) });
-  if (targetFilter) activeFilters.push({ label: `цель: ${targetFilter}`, onClear: () => act('set_target_filter', { text: '' }) });
-  if (showAllFlag !== undefined && viewing_type !== showAllFlag) {
-    const activeType = log_types.find((t) => t.flag === viewing_type);
-    if (activeType) activeFilters.push({ label: activeType.name, onClear: () => act('set_viewing_type', { type: showAllFlag }) });
-  }
+  const handleClearText = useCallback(() => act('set_filter', { text: '' }), [act]);
+  const handleClearTarget = useCallback(() => act('set_target_filter', { text: '' }), [act]);
+  const handleClearType = useCallback(() => {
+    if (showAllFlag !== undefined) act('set_viewing_type', { type: showAllFlag });
+  }, [act, showAllFlag]);
+  const activeFilterType = showAllFlag !== undefined && viewing_type !== showAllFlag
+    ? log_types.find((t) => t.flag === viewing_type)
+    : null;
 
   return (
     <Window title="Log Viewer" width={1100} height={700} resizable>
@@ -209,15 +191,69 @@ export const LogViewer = (props) => {
               </Flex>
             </Flex.Item>
 
-            {activeFilters.length > 0 && (
+            {(filter_text || targetFilter || activeFilterType) && (
               <Flex.Item>
                 <Flex align="center" gap={0.5}>
                   <Box style={{ color: '#666', fontSize: '11px' }}>
                     Фильтры:
                   </Box>
-                  {activeFilters.map((f) => (
-                    <FilterBadge key={f.label} label={f.label} onClear={f.onClear} />
-                  ))}
+                  {filter_text && (
+                    <Box
+                      as="span"
+                      ml={0.5}
+                      px={0.5}
+                      py={0.2}
+                      fontSize="10px"
+                      style={{
+                        color: '#ffd54f',
+                        backgroundColor: '#ffd54f22',
+                        border: '1px solid #ffd54f44',
+                        borderRadius: '3px',
+                        cursor: 'pointer',
+                      }}
+                      onClick={handleClearText}
+                    >
+                      текст: {filter_text} ×
+                    </Box>
+                  )}
+                  {targetFilter && (
+                    <Box
+                      as="span"
+                      ml={0.5}
+                      px={0.5}
+                      py={0.2}
+                      fontSize="10px"
+                      style={{
+                        color: '#ffd54f',
+                        backgroundColor: '#ffd54f22',
+                        border: '1px solid #ffd54f44',
+                        borderRadius: '3px',
+                        cursor: 'pointer',
+                      }}
+                      onClick={handleClearTarget}
+                    >
+                      цель: {targetFilter} ×
+                    </Box>
+                  )}
+                  {activeFilterType && (
+                    <Box
+                      as="span"
+                      ml={0.5}
+                      px={0.5}
+                      py={0.2}
+                      fontSize="10px"
+                      style={{
+                        color: '#ffd54f',
+                        backgroundColor: '#ffd54f22',
+                        border: '1px solid #ffd54f44',
+                        borderRadius: '3px',
+                        cursor: 'pointer',
+                      }}
+                      onClick={handleClearType}
+                    >
+                      {activeFilterType.name} ×
+                    </Box>
+                  )}
                 </Flex>
               </Flex.Item>
             )}

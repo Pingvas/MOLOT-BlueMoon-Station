@@ -1,6 +1,7 @@
 import { useState } from 'react';
+
 import { useBackend } from '../backend';
-import { Box, Button, Flex, Input, Section, Icon } from '../components';
+import { Box, Button, Flex, Icon, Input, Section } from '../components';
 import { Window } from '../layouts';
 
 export const PlayerList = (props) => {
