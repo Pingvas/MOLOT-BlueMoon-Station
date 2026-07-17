@@ -109,12 +109,19 @@
 			message = trim(message)
 			if(!message)
 				return TRUE
+			message = copytext_char(message, 1, MAX_MESSAGE_LEN)
 			if(!selected_ticket.handler)
 				selected_ticket.handle_issue()
 			selected_ticket.typing_mentors -= usr.ckey
 			if(selected_ticket.initiator)
 				selected_ticket.AddInteraction("<font color='#a855f7'>[key_name_admin(usr)]: [html_encode(message)]</font>")
 				usr.client.cmd_mentor_pm(selected_ticket.initiator, message)
+			. = TRUE
+
+		if("reopen")
+			if(!selected_ticket || selected_ticket.state == MENTOR_TICKET_ACTIVE)
+				return TRUE
+			selected_ticket.Reopen()
 			. = TRUE
 
 		if("close")

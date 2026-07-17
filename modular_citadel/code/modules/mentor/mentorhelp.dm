@@ -10,7 +10,7 @@
 	set name = "Mentorhelp"
 
 	if(GLOB.say_disabled)
-		to_chat(usr, "<span class='danger'>Speech is currently admin-disabled.</span>")
+		to_chat(usr, "<span class='danger'>Речь отключена администратором.</span>")
 		return
 
 	if(msg)
@@ -24,7 +24,7 @@
 		return
 
 	if(prefs.muted & MUTE_ADMINHELP)
-		to_chat(src, "<span class='danger'>You cannot send mentorhelps (Muted).</span>")
+		to_chat(src, "<span class='danger'>Вы не можете отправлять менторхелпы (Мут).</span>")
 		return
 
 	var/datum/player_ticket_panel/panel = new(src)

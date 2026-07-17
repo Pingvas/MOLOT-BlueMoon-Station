@@ -603,8 +603,8 @@ GLOBAL_DATUM_INIT(ahelp_tickets, /datum/admin_help_tickets, new)
 	set category = "Admin"
 	set name = "Adminhelp"
 
-	if(GLOB.say_disabled) // проблем больше не должно быть?
-		to_chat(usr, "<span class='danger'>Speech is currently admin-disabled.</span>")
+	if(GLOB.say_disabled)
+		to_chat(usr, "<span class='danger'>Речь отключена администратором.</span>")
 		return
 
 	if(prefs.muted & MUTE_ADMINHELP)

@@ -126,11 +126,11 @@
 				return TRUE
 			if(type == "mentor")
 				var/datum/mentor_ticket/MT = locate(ref)
-				if(MT && MT.state == MENTOR_TICKET_ACTIVE)
+				if(MT && MT.state == MENTOR_TICKET_ACTIVE && MT.initiator_ckey == usr.client.ckey)
 					MT.MessageNoRecipient(message)
 			else
 				var/datum/admin_help/AH = locate(ref)
-				if(AH && AH.state == AHELP_ACTIVE)
+				if(AH && AH.state == AHELP_ACTIVE && AH.initiator_ckey == usr.client.ckey)
 					AH.MessageNoRecipient(message)
 			. = TRUE
 
@@ -139,11 +139,11 @@
 			var/type = params["type"]
 			if(type == "mentor")
 				var/datum/mentor_ticket/MT = locate(ref)
-				if(MT)
+				if(MT && MT.initiator_ckey == usr.client.ckey)
 					MT.initiator_typing_time = world.time
 			else
 				var/datum/admin_help/AH = locate(ref)
-				if(AH)
+				if(AH && AH.initiator_ckey == usr.client.ckey)
 					AH.initiator_typing_time = world.time
 			. = TRUE
 
@@ -152,11 +152,11 @@
 			var/type = params["type"]
 			if(type == "mentor")
 				var/datum/mentor_ticket/MT = locate(ref)
-				if(MT)
+				if(MT && MT.initiator_ckey == usr.client.ckey)
 					MT.initiator_typing_time = null
 			else
 				var/datum/admin_help/AH = locate(ref)
-				if(AH)
+				if(AH && AH.initiator_ckey == usr.client.ckey)
 					AH.initiator_typing_time = null
 			. = TRUE
 

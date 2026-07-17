@@ -64,6 +64,8 @@ export const LogViewer = (props) => {
   } = data;
 
   const debounceRef = useRef(null);
+  const logsArray = Array.isArray(logs) ? logs : [];
+  const safeLogCount = logsArray.length;
   const debouncedAct = useCallback((action, payload, delay = 120) => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => act(action, payload), delay);
@@ -223,7 +225,7 @@ export const LogViewer = (props) => {
         </Section>
 
         <Section
-          title={"Лог (" + log_count + " записей" + (log_count_total > log_count ? ", показано " + log_count + " из " + log_count_total : "") + ")"}
+          title={"Лог (" + safeLogCount + " записей" + (safeLogCount < log_count_total ? ", показано " + safeLogCount + " из " + log_count_total : "") + ")"}
           buttons={
             <Button
               icon="sync"
@@ -238,13 +240,13 @@ export const LogViewer = (props) => {
               Выберите игрока из списка выше
             </Box>
           )}
-          {target_ckey && logs.length === 0 && (
+          {target_ckey && safeLogCount === 0 && (
             <Box style={{ color: '#555', textAlign: 'center', py: 6, fontSize: '14px' }}>
               <Icon name="search" mr={1} />
               Логов не найдено
             </Box>
           )}
-          {logs.slice().reverse().map((entry, i) => (
+          {logsArray.slice().reverse().map((entry, i) => (
             <LogEntry key={entry.time + entry.who + entry.type + i} entry={entry} act={act} />
           ))}
         </Section>

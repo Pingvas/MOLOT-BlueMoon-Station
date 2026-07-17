@@ -32,7 +32,7 @@ export const PlayerList = (props) => {
             style={{ color: '#98B0C3', textShadow: '1px 1px 3px #000' }}
           >
             <Icon name="users" mr={1} />
-            Player Panel
+            Панель игроков
           </Box>
 
           <Flex align="center" justify="center" wrap mb={2}>
@@ -224,7 +224,7 @@ const PlayerCard = (props) => {
             <Flex.Item>
               <Box fontSize="13px" style={{ color: '#aaa' }}>
                 <Icon name="briefcase" mr={0.8} color="#78909c" />
-                Должность: <b>{p.job || 'Unknown'}</b>
+                Должность: <b>{p.job || 'Неизвестно'}</b>
                 {' | '}
                 <Icon name="tag" mr={0.5} color="#78909c" />
                 Имя: <b>{p.name}</b>

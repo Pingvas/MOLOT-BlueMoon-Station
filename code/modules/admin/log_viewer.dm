@@ -108,6 +108,7 @@ GLOBAL_LIST_EMPTY(log_viewer_instances)
 		for(var/entry in entries)
 			if(!islist(entry))
 				continue
+			entry = entry.Copy()
 			if(entry["time"] && filter_text && filter_text != "")
 				var/find_lower = lowertext(filter_text)
 				var/what_text = strip_html_tags(entry["what"])

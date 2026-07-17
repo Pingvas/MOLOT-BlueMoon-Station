@@ -87,7 +87,7 @@ GLOBAL_DATUM_INIT(mentor_tickets, /datum/mentor_ticket_manager, new)
 
 	if(C)
 		remove_verb(C, /client/verb/mentorhelp)
-		C.mentorhelptimerid = addtimer(CALLBACK(C, TYPE_PROC_REF(/client, give_mentorhelp_verb)), 1200, TIMER_STOPPABLE)
+		C.mentorhelptimerid = addtimer(CALLBACK(C, TYPE_PROC_REF(/client, give_mentorhelp_verb)), 2 MINUTES, TIMER_STOPPABLE)
 
 	id = ++ticket_counter
 	opened_at = world.time
@@ -113,7 +113,7 @@ GLOBAL_DATUM_INIT(mentor_tickets, /datum/mentor_ticket_manager, new)
 	for(var/client/X in GLOB.mentors | GLOB.admins)
 		mentors_online += X
 	if(mentors_online.len <= 0)
-		to_chat(C, "<span class='notice'>No mentors online, your question was sent to admins.</span>")
+		to_chat(C, "<span class='notice'>Менторов онлайн нет, ваш вопрос отправлен администраторам.</span>")
 
 	GLOB.mentor_tickets.active_tickets += src
 
@@ -154,7 +154,7 @@ GLOBAL_DATUM_INIT(mentor_tickets, /datum/mentor_ticket_manager, new)
 			SEND_SOUND(X, sound('sound/effects/adminhelp.ogg'))
 		to_chat(X, examine_block(mentor_msg))
 
-	to_chat(initiator, "<span class='mentornotice'>PM to-<b>Mentors</b>: <span class='linkify'>[encoded_msg]</span></span>")
+	to_chat(initiator, "<span class='mentornotice'>PM для-<b>Менторов</b>: <span class='linkify'>[encoded_msg]</span></span>")
 
 /datum/mentor_ticket/proc/Close()
 	if(state != MENTOR_TICKET_ACTIVE)
@@ -162,10 +162,10 @@ GLOBAL_DATUM_INIT(mentor_tickets, /datum/mentor_ticket_manager, new)
 	RemoveActive()
 	state = MENTOR_TICKET_CLOSED
 	if(!close_reason)
-		close_reason = "Closed"
+		close_reason = "Закрыт"
 	GLOB.mentor_tickets.ListInsert(src)
-	to_chat(initiator, examine_block("<center><span class='mentornotice'>Your mentor ticket has been closed.</span></center>"))
-	AddInteraction("<font color='#a855f7'><u>Closed</u> [key_name_admin(usr)].</font>")
+	to_chat(initiator, examine_block("<center><span class='mentornotice'>Ваш ментор-тикет был закрыт.</span></center>"))
+	AddInteraction("<font color='#a855f7'><u>Закрыт</u> [key_name_admin(usr)].</font>")
 	var/msg = "Mentor ticket [TicketHref("#[id]")] closed by [key_name_admin(usr)]."
 	message_admins(msg, islog = FALSE, prefix = "MENTOR")
 	log_admin_private(msg)
@@ -176,11 +176,11 @@ GLOBAL_DATUM_INIT(mentor_tickets, /datum/mentor_ticket_manager, new)
 	RemoveActive()
 	state = MENTOR_TICKET_RESOLVED
 	if(!close_reason)
-		close_reason = "Resolved"
+		close_reason = "Решён"
 	GLOB.mentor_tickets.ListInsert(src)
 
-	AddInteraction("<font color='#4ade80'><u>Resolved</u> [key_name_admin(usr)].</font>")
-	to_chat(initiator, examine_block("<center><span class='mentornotice'>Your mentor ticket has been resolved.</span></center>"))
+	AddInteraction("<font color='#4ade80'><u>Решён</u> [key_name_admin(usr)].</font>")
+	to_chat(initiator, examine_block("<center><span class='mentornotice'>Ваш ментор-тикет был решён.</span></center>"))
 	var/msg = "Mentor ticket [TicketHref("#[id]")] resolved by [key_name_admin(usr)]."
 	message_admins(msg, islog = FALSE, prefix = "MENTOR")
 	log_admin_private(msg)
@@ -191,13 +191,13 @@ GLOBAL_DATUM_INIT(mentor_tickets, /datum/mentor_ticket_manager, new)
 	if(handler && handler == usr.ckey)
 		return TRUE
 	if(handler && handler != usr.ckey)
-		var/response = tgui_alert(usr, "Ticket already taken by [handler]. Take anyway?", "Ticket assigned", list("Yes", "No"))
-		if(response != "Yes")
+		var/response = tgui_alert(usr, "Тикет уже взят ментором [handler]. Взять всё равно?", "Тикет назначен", list("Да", "Нет"))
+		if(response != "Да")
 			return FALSE
 	if(initiator)
-		to_chat(initiator, "<span class='mentornotice'>Your mentor ticket has been taken. Please wait.</span>")
+		to_chat(initiator, "<span class='mentornotice'>Ваш ментор-тикет был взят. Пожалуйста, подождите.</span>")
 	handler = "[usr.ckey]"
-	AddInteraction("<u>Taken by</u> [key_name_admin(usr)]")
+	AddInteraction("<u>Взят ментором</u> [key_name_admin(usr)]")
 	var/msg = "Mentor ticket [TicketHref("#[id]")] taken by [key_name_admin(usr)]."
 	message_admins(msg, islog = FALSE, prefix = "MENTOR")
 	log_admin_private(msg)
@@ -224,10 +224,10 @@ GLOBAL_DATUM_INIT(mentor_tickets, /datum/mentor_ticket_manager, new)
 
 /datum/mentor_ticket/proc/Reopen()
 	if(state == MENTOR_TICKET_ACTIVE)
-		to_chat(usr, "<span class='warning'>This ticket is already open.</span>")
+		to_chat(usr, "<span class='warning'>Этот тикет уже открыт.</span>")
 		return
 	if(GLOB.mentor_tickets.CKey2Ticket(initiator_ckey))
-		to_chat(usr, "<span class='warning'>This user already has an open mentor ticket.</span>")
+		to_chat(usr, "<span class='warning'>У этого пользователя уже есть открытый ментор-тикет.</span>")
 		return
 	GLOB.mentor_tickets.active_tickets += src
 	GLOB.mentor_tickets.closed_tickets -= src
@@ -235,7 +235,7 @@ GLOBAL_DATUM_INIT(mentor_tickets, /datum/mentor_ticket_manager, new)
 	state = MENTOR_TICKET_ACTIVE
 	closed_at = null
 	close_reason = null
-	AddInteraction("<font color='#c084fc'><u>Reopened by</u> [key_name_admin(usr)]</font>")
+	AddInteraction("<font color='#c084fc'><u>Переоткрыт</u> [key_name_admin(usr)]</font>")
 	var/msg = "Mentor ticket [TicketHref("#[id]")] was reopened by [key_name_admin(usr)]."
 	message_admins(msg, islog = FALSE, prefix = "MENTOR")
 	log_admin_private(msg)

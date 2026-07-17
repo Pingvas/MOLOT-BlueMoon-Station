@@ -44,7 +44,7 @@ export const MentorTicketPanel = (props) => {
 
   return (
     <Window
-      title="Mentor Ticket Panel"
+      title="Ментор-тикеты"
       width={900}
       height={600}
       theme="admin"
@@ -140,7 +140,7 @@ export const MentorTicketPanel = (props) => {
                 </Box>
               </Flex>
             ) : (
-              <TicketDetailPanel ticket={selectedTicket} act={act} data={data} />
+              <TicketDetailPanel key={selectedTicket.ref} ticket={selectedTicket} act={act} data={data} />
             )}
           </Flex.Item>
         </Flex>
@@ -156,14 +156,15 @@ const TicketListItem = (props) => {
   const hasListInitiatorTyping = !!ticket.initiator_typing;
 
   return (
-    <Box
-      className={'Button Button--fluid' + (selected ? ' Button--selected' : '')}
+    <Button
+      fluid
+      selected={selected}
       onClick={onSelect}
       mb={0.5}
       style={{
         textAlign: 'left',
         padding: '6px 8px',
-        cursor: 'pointer',
+        justifyContent: 'flex-start',
         borderLeft: selected
           ? '3px solid ' + color
           : '3px solid transparent',
@@ -227,7 +228,7 @@ const TicketListItem = (props) => {
           </Box>
         </Flex.Item>
       </Flex>
-    </Box>
+    </Button>
   );
 };
 
@@ -373,6 +374,15 @@ const TicketDetailPanel = (props) => {
                 Закрыть
               </Button>
             </Flex>
+          </Section>
+        </Stack.Item>
+      )}
+      {!isActive && (
+        <Stack.Item>
+          <Section title="Действия">
+            <Button icon="undo" color="purple" onClick={() => act('reopen')}>
+              Переоткрыть
+            </Button>
           </Section>
         </Stack.Item>
       )}

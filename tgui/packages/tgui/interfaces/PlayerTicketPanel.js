@@ -69,15 +69,15 @@ export const PlayerTicketPanel = (props) => {
           <Stack.Item grow>
             {tab === 1 ? (
               has_ticket ? (
-                <TicketChatPanel ticket={ticket} act={act} />
+                <TicketChatPanel key="admin-chat" ticket={ticket} act={act} />
               ) : (
-                <NewTicketPanel act={act} type="admin" />
+                <NewTicketPanel key="admin-new" act={act} type="admin" />
               )
             ) : (
               has_mentor_ticket ? (
-                <TicketChatPanel ticket={mentor_ticket} act={act} type="mentor" />
+                <TicketChatPanel key="mentor-chat" ticket={mentor_ticket} act={act} type="mentor" />
               ) : (
-                <NewTicketPanel act={act} type="mentor" />
+                <NewTicketPanel key="mentor-new" act={act} type="mentor" />
               )
             )}
           </Stack.Item>
