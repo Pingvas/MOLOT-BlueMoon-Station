@@ -1742,6 +1742,8 @@
 #include "code\modules\admin\admin_ranks.dm"
 #include "code\modules\admin\admin_ticket_panel.dm"
 #include "code\modules\admin\admin_verbs.dm"
+#include "code\modules\admin\log_viewer.dm"
+#include "code\modules\admin\player_list.dm"
 #include "code\modules\admin\adminmenu.dm"
 #include "code\modules\admin\antag_panel.dm"
 #include "code\modules\admin\ban_panel.dm"
