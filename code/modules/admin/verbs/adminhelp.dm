@@ -595,15 +595,18 @@ GLOBAL_DATUM_INIT(ahelp_tickets, /datum/admin_help_tickets, new)
 	deltimer(adminhelptimerid)
 	adminhelptimerid = 0
 
+/client/proc/open_ticket_panel()
+	var/datum/player_ticket_panel/panel = new(src)
+	panel.ui_interact(usr)
+
 /client/verb/adminhelp()
 	set category = "Admin"
 	set name = "Adminhelp"
 
-	if(GLOB.say_disabled)	//This is here to try to identify lag problems
+	if(GLOB.say_disabled) // проблем больше не должно быть?
 		to_chat(usr, "<span class='danger'>Speech is currently admin-disabled.</span>")
 		return
 
-	//handle muting and automuting
 	if(prefs.muted & MUTE_ADMINHELP)
 		to_chat(src, "<span class='danger'>Ошибка: Admin-PM: Вы не можете отправлять админхелпы (Мут).</span>")
 		return
@@ -611,33 +614,7 @@ GLOBAL_DATUM_INIT(ahelp_tickets, /datum/admin_help_tickets, new)
 		to_chat(src, "<span class='danger'>Вам запрещено использовать ахелп.</span>")
 		return
 
-	var/message = ""
-	if(prefs.tgui_input_verbs)
-		message = tgui_input_text(src, "Пожалуйста, опишите вашу проблему внятным образом и администратор поможет вам как можно скорее.", "Содержимое Adminhelp", "", MAX_MESSAGE_LEN, TRUE, TRUE)
-	else
-		message = stripped_multiline_input_or_reflect(mob, "Пожалуйста, опишите вашу проблему внятным образом и администратор поможет вам как можно скорее.", "Содержимое Adminhelp")
-
-	if(!holder)
-		if(handle_spam_prevention(message,MUTE_ADMINHELP))
-			return
-
-	if(!message)
-		return
-
-	SSblackbox.record_feedback("tally", "admin_verb", 1, "Adminhelp") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
-	if(current_ticket)
-		if(tgui_alert(usr, "У вас уже есть открытый тикет. Относится ли новый к той же проблеме?", "Adminhelp", list("Да", "Нет")) != "Нет")
-			if(current_ticket)
-				current_ticket.MessageNoRecipient(message)
-				current_ticket.TimeoutVerb()
-				return
-			else
-				to_chat(usr, "<span class='warning'>Тикет не найден, создаём новый...</span>")
-		else
-			current_ticket.AddInteraction("Открыт новый тикет админом [key_name_admin(usr)].")
-			current_ticket.Close()
-
-	new /datum/admin_help(message, src, FALSE)
+	open_ticket_panel()
 
 //
 // LOGGING
