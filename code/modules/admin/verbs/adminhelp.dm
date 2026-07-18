@@ -239,12 +239,6 @@ GLOBAL_DATUM_INIT(ahelp_tickets, /datum/admin_help_tickets, new)
 		answered = TRUE
 		send2adminchat(initiator_ckey, "[key_name(initiator)] | Ticket #[id]: Answered by [key_name(usr)]")
 	_interactions += "[TIME_STAMP("hh:mm:ss", FALSE)]: [formatted_message]"
-
-//Removes the ahelp verb and returns it after 2 minutes
-/datum/admin_help/proc/TimeoutVerb()
-	remove_verb(initiator, /client/verb/adminhelp)
-	initiator.adminhelptimerid = addtimer(CALLBACK(initiator, TYPE_PROC_REF(/client, giveadminhelpverb)), 1200, TIMER_STOPPABLE) //2 minute cooldown of admin helps
-
 //private
 /datum/admin_help/proc/FullMonty(ref_src)
 	if(!ref_src)

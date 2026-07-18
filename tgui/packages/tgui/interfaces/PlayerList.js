@@ -1,14 +1,12 @@
-import { useState } from 'react';
-
-import { useBackend } from '../backend';
+import { useBackend, useLocalState } from '../backend';
 import { Box, Button, Flex, Icon, Input, Section } from '../components';
 import { Window } from '../layouts';
 
-export const PlayerList = (props) => {
+export const PlayerList = (props, context) => {
   const { act, data } = useBackend();
   const { players = [], total = 0 } = data;
 
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useLocalState('playerlist_search', '');
 
   const lowerSearch = search.toLowerCase();
   const filtered = players.filter((p) => {

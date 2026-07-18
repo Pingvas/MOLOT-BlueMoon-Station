@@ -93,6 +93,14 @@
 
 	switch(action)
 		if("create_ticket")
+			if(GLOB.say_disabled)
+				to_chat(usr, "<span class='danger'>Речь отключена администратором.</span>")
+				return TRUE
+
+			if(usr.client.prefs.muted & MUTE_ADMINHELP)
+				to_chat(usr, "<span class='danger'>Ошибка: Admin-PM: Вы не можете отправлять админхелпы (Мут).</span>")
+				return TRUE
+
 			var/message = params["message"]
 			var/type = params["type"]
 			if(!istext(message) || !istext(type))
@@ -101,6 +109,9 @@
 			if(!message)
 				return TRUE
 			if(type == "mentor")
+				if(jobban_isbanned(usr.client.mob, "ahelp"))
+					to_chat(usr, "<span class='danger'>Вам запрещено использовать ахелп.</span>")
+					return TRUE
 				if(GLOB.mentor_tickets?.CKey2Ticket(usr.client.ckey))
 					to_chat(usr, "<span class='warning'>У вас уже есть открытый ментор-тикет.</span>")
 					return TRUE

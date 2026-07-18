@@ -139,21 +139,21 @@ export const LogViewer = (props) => {
                   ))}
                 </Flex.Item>
                 <Flex.Item grow={1} />
-                <Flex.Item shrink={0}>
+                <Flex.Item width={150} shrink={0}>
                   <Input
+                    fluid
                     placeholder="Поиск..."
                     value={filter_text}
-                    width={150}
                     onInput={(e, value) =>
                       debouncedAct('set_filter', { text: value })
                     }
                   />
                 </Flex.Item>
-                <Flex.Item shrink={0}>
+                <Flex.Item width={180} shrink={0}>
                   <Input
+                    fluid
                     placeholder="Цель (игрок 2)..."
                     value={targetFilter}
-                    width={180}
                     onInput={(e, value) =>
                       debouncedAct('set_target_filter', { text: value })
                     }

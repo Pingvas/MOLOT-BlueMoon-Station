@@ -85,10 +85,6 @@ GLOBAL_DATUM_INIT(mentor_tickets, /datum/mentor_ticket_manager, new)
 		qdel(src)
 		return
 
-	if(C)
-		remove_verb(C, /client/verb/mentorhelp)
-		C.mentorhelptimerid = addtimer(CALLBACK(C, TYPE_PROC_REF(/client, give_mentorhelp_verb)), 2 MINUTES, TIMER_STOPPABLE)
-
 	id = ++ticket_counter
 	opened_at = world.time
 
@@ -96,7 +92,7 @@ GLOBAL_DATUM_INIT(mentor_tickets, /datum/mentor_ticket_manager, new)
 
 	initiator = C
 	initiator_ckey = initiator.ckey
-	initiator_key_name = key_name(initiator, FALSE, TRUE)
+	initiator_key_name = CONFIG_GET(flag/mentors_mobname_only) ? "Ментор" : key_name(initiator, FALSE, TRUE)
 
 	_interactions = list()
 	typing_mentors = list()

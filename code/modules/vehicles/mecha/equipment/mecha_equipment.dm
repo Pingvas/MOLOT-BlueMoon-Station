@@ -140,7 +140,7 @@
 
 /obj/item/mecha_parts/mecha_equipment/log_message(message, message_type=LOG_GAME, color=null, log_globally, atom/target = null)
 	if(chassis)
-		chassis.log_message("ATTACHMENT: [src] [message]", message_type, color, target = target)
+		chassis.log_message("ATTACHMENT: [src] [message]", message_type, color, log_globally, target = target)
 	else
 		..(message, message_type, color, log_globally, target)
 

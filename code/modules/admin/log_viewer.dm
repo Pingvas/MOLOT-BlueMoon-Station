@@ -48,6 +48,9 @@ GLOBAL_LIST_EMPTY(log_viewer_instances)
 /datum/log_viewer/ui_state(mob/user)
 	return GLOB.admin_state
 
+/datum/log_viewer/ui_close(mob/user)
+	qdel(src)
+
 /datum/log_viewer/ui_static_data(mob/user)
 	. = list()
 	.["log_types"] = list(
@@ -132,7 +135,7 @@ GLOBAL_LIST_EMPTY(log_viewer_instances)
 
 	var/log_total = length(log_entries)
 	if(log_total > 500)
-		log_entries.Cut(501)
+		log_entries.Cut(1, log_total - 499)
 
 	.["logs"] = log_entries.Copy()
 	.["log_count"] = min(log_total, 500)

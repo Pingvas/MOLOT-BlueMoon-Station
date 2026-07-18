@@ -124,6 +124,7 @@ const NewTicketPanel = (props) => {
             }
             value={message}
             onInput={(e, val) => setMessage(val)}
+            onEnter={sendTicket}
           />
         </Section>
       </Stack.Item>

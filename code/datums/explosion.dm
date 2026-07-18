@@ -407,6 +407,7 @@ GLOBAL_LIST_EMPTY(explosions)
 		return QDEL_HINT_IWILLGC
 	GLOB.explosions -= src
 	explosion_source = null
+	explosion_attacker = null
 	return ..()
 
 /client/proc/check_bomb_impacts()
