@@ -81,7 +81,6 @@ GLOBAL_LIST_EMPTY(log_viewer_instances)
 	.["viewing_type"] = viewing_type
 	.["ckeys_list"] = get_all_logged_ckeys()
 
-	var/list/log_entries = list()
 	var/list/log_source
 	if(target_mob)
 		log_source = target_mob.logging
@@ -93,46 +92,49 @@ GLOBAL_LIST_EMPTY(log_viewer_instances)
 			log_source = PD.logging
 
 	if(!log_source)
-		.["logs"] = log_entries
+		.["logs"] = list()
+		.["log_count"] = 0
+		.["log_count_total"] = 0
 		return
 
-	for(var/log_type_str in log_source)
-		var/nlog_type = text2num(log_type_str)
+	var/list/log_entries = list()
+	for(var/log_type_key in log_source)
+		var/nlog_type = text2num(log_type_key)
 		if(!(nlog_type & viewing_type))
 			continue
 
-		var/list/entries = log_source[log_type_str]
+		var/list/entries = log_source[log_type_key]
 		if(!length(entries))
 			continue
 
-		for(var/entry in entries)
-			if(!islist(entry))
+		for(var/list/entry_assoc in entries)
+			if(!islist(entry_assoc))
 				continue
-			entry = entry.Copy()
-			if(entry["time"] && filter_text && filter_text != "")
+			var/list/entry_copy = entry_assoc.Copy()
+			if(filter_text && filter_text != "" && entry_copy["time"])
 				var/find_lower = lowertext(filter_text)
-				var/what_text = strip_html_tags(entry["what"])
-				var/who_text = entry["who"] ? entry["who"] : ""
-				var/where_text = entry["where"] ? entry["where"] : ""
+				var/what_text = strip_html_tags(entry_copy["what"])
+				var/who_text = entry_copy["who"] ? entry_copy["who"] : ""
+				var/where_text = entry_copy["where"] ? entry_copy["where"] : ""
 				var/found = findtext(lowertext(what_text), find_lower) || findtext(lowertext(who_text), find_lower) || findtext(lowertext(where_text), find_lower)
 				if(!found)
 					continue
 			if(target_filter && target_filter != "")
 				var/target_lower = lowertext(target_filter)
-				var/entry_who = entry["who"] ? entry["who"] : ""
-				var/entry_target_name = entry["target_name"] ? entry["target_name"] : ""
-				var/entry_target_key = entry["target_key"] ? entry["target_key"] : ""
+				var/entry_who = entry_copy["who"] ? entry_copy["who"] : ""
+				var/entry_target_name = entry_copy["target_name"] ? entry_copy["target_name"] : ""
+				var/entry_target_key = entry_copy["target_key"] ? entry_copy["target_key"] : ""
 				if(!findtext(lowertext(entry_who), target_lower) && !findtext(lowertext(entry_target_name), target_lower) && !findtext(lowertext(entry_target_key), target_lower))
 					continue
-			log_entries.Add(entry)
+			log_entries += list(entry_copy)
 
-	var/log_count_before_cut = length(log_entries)
-	if(log_count_before_cut > 500)
+	var/log_total = length(log_entries)
+	if(log_total > 500)
 		log_entries.Cut(501)
 
-	.["logs"] = log_entries
-	.["log_count"] = length(log_entries)
-	.["log_count_total"] = log_count_before_cut
+	.["logs"] = log_entries.Copy()
+	.["log_count"] = min(log_total, 500)
+	.["log_count_total"] = log_total
 
 /datum/log_viewer/ui_act(action, params, datum/tgui/ui)
 	if(..())
