@@ -203,8 +203,6 @@ GLOBAL_DATUM_INIT(ahelp_tickets, /datum/admin_help_tickets, new)
 		initiator.current_ticket.Close()
 	initiator.current_ticket = src
 
-	TimeoutVerb()
-
 	statclick = new(null, src)
 	_interactions = list()
 	typing_admins = list()

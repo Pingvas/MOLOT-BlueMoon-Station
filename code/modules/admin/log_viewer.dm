@@ -128,6 +128,8 @@ GLOBAL_LIST_EMPTY(log_viewer_instances)
 					continue
 			log_entries += list(entry_copy)
 
+	log_entries = sort_list(log_entries, GLOBAL_PROC_REF(cmp_log_entry_time))
+
 	var/log_total = length(log_entries)
 	if(log_total > 500)
 		log_entries.Cut(501)
@@ -192,3 +194,6 @@ GLOBAL_LIST_EMPTY(log_viewer_instances)
 	cached_ckeys = ckeys
 	last_ckey_cache = world.time
 	return ckeys
+
+/proc/cmp_log_entry_time(list/a, list/b)
+	return a["timestamp"] - b["timestamp"]

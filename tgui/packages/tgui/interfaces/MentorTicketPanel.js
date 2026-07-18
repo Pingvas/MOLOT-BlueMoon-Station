@@ -364,9 +364,6 @@ const TicketDetailPanel = (props) => {
         <Stack.Item>
           <Section title="Действия">
             <Flex wrap="wrap" align="center">
-              <Button icon="hand-paper" color="violet" mr={0.5} onClick={() => act('handle_issue')}>
-                Взять
-              </Button>
               <Button icon="check-circle" color="green" mr={0.5} onClick={() => act('resolve')}>
                 Решить
               </Button>

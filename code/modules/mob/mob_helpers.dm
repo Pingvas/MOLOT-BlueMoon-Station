@@ -543,7 +543,7 @@ It's fairly easy to fix if dealing with single letters but not so much with comp
 		logging[smessage_type] = list()
 
 	var/log_time = TIME_STAMP("hh:mm:ss", FALSE)
-	var/log_who = key_name(src)
+	var/log_who = key_name_mentor(src, FALSE, FALSE, TRUE)
 	var/log_where = loc_name(src)
 	var/log_type_name = log_type_to_name(message_type)
 	var/mob/living/L = src
@@ -570,6 +570,7 @@ It's fairly easy to fix if dealing with single letters but not so much with comp
 
 	var/list/entry = list(
 		"time" = log_time,
+		"timestamp" = world.time,
 		"who" = log_who,
 		"what" = colored_message,
 		"where" = log_where,

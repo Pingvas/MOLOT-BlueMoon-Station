@@ -119,7 +119,7 @@ export const LogViewer = (props) => {
 
             <Flex.Item>
               <Flex align="center" gap={1}>
-                <Flex.Item>
+                <Flex.Item shrink={0}>
                   <Box inline bold mr={0.5}
                     style={{ color: '#aaa', fontSize: '13px' }}>
                     Источник:
@@ -138,7 +138,8 @@ export const LogViewer = (props) => {
                     />
                   ))}
                 </Flex.Item>
-                <Flex.Item>
+                <Flex.Item grow={1} />
+                <Flex.Item shrink={0}>
                   <Input
                     placeholder="Поиск..."
                     value={filter_text}
@@ -148,7 +149,7 @@ export const LogViewer = (props) => {
                     }
                   />
                 </Flex.Item>
-                <Flex.Item>
+                <Flex.Item shrink={0}>
                   <Input
                     placeholder="Цель (игрок 2)..."
                     value={targetFilter}
