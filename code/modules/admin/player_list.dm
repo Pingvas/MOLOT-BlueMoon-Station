@@ -53,6 +53,12 @@
 		else if(isobserver(M))
 			var/mob/dead/observer/O = M
 			job = O.started_as_observer ? "Observer" : "Ghost"
+		var/is_ghost_role = FALSE
+		if(job in GLOB.exp_specialmap[EXP_TYPE_SPECIAL])
+			is_ghost_role = TRUE
+		else if(job in list(ROLE_PAI, ROLE_POSIBRAIN))
+			is_ghost_role = TRUE
+
 		players_data += list(list(
 			"name" = "[M.name]",
 			"real_name" = "[M.real_name]",
@@ -63,6 +69,11 @@
 			"cid" = "[M.computer_id]",
 			"antag" = is_special_character(M),
 			"is_cyborg" = iscyborg(M),
+			"stat" = M.stat,
+			"is_observer" = isobserver(M),
+			"is_new_player" = isnewplayer(M),
+			"is_ghost_role" = is_ghost_role,
+			"is_sec_or_cmd" = (job in GLOB.security_positions) || (job in GLOB.command_positions),
 		))
 	.["players"] = players_data
 	.["total"] = length(players_data)
