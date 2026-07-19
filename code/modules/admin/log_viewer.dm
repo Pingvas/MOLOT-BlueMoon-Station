@@ -17,6 +17,7 @@ GLOBAL_LIST_EMPTY(log_viewer_instances)
 	var/target_ckey_stored
 	var/filter_text = ""
 	var/target_filter = ""
+	var/zone_filter = ""
 	var/source_type = LOGSRC_CLIENT
 	var/viewing_type = INDIVIDUAL_SHOW_ALL_LOG
 	var/list/cached_ckeys
@@ -81,6 +82,7 @@ GLOBAL_LIST_EMPTY(log_viewer_instances)
 	.["source_type"] = source_type
 	.["filter_text"] = filter_text
 	.["target_filter"] = target_filter
+	.["zone_filter"] = zone_filter
 	.["viewing_type"] = viewing_type
 	.["ckeys_list"] = get_all_logged_ckeys()
 
@@ -129,16 +131,22 @@ GLOBAL_LIST_EMPTY(log_viewer_instances)
 				var/entry_target_key = entry_copy["target_key"] ? entry_copy["target_key"] : ""
 				if(!findtext(lowertext(entry_who), target_lower) && !findtext(lowertext(entry_target_name), target_lower) && !findtext(lowertext(entry_target_key), target_lower))
 					continue
+			if(zone_filter && zone_filter != "")
+				var/zone_lower = lowertext(zone_filter)
+				var/entry_where = entry_copy["where"] ? entry_copy["where"] : ""
+				var/paren_pos = findtext(entry_where, " (")
+				if(paren_pos)
+					entry_where = copytext(entry_where, 1, paren_pos)
+				if(!findtext(lowertext(entry_where), zone_lower))
+					continue
 			log_entries += list(entry_copy)
 
 	log_entries = sort_list(log_entries, GLOBAL_PROC_REF(cmp_log_entry_time))
 
 	var/log_total = length(log_entries)
-	if(log_total > 500)
-		log_entries.Cut(1, log_total - 499)
 
 	.["logs"] = log_entries.Copy()
-	.["log_count"] = min(log_total, 500)
+	.["log_count"] = log_total
 	.["log_count_total"] = log_total
 
 /datum/log_viewer/ui_act(action, params, datum/tgui/ui)
@@ -175,6 +183,11 @@ GLOBAL_LIST_EMPTY(log_viewer_instances)
 		if("set_target_filter")
 			var/raw = params["text"]
 			target_filter = raw ? raw : ""
+			return TRUE
+
+		if("set_zone_filter")
+			var/raw = params["text"]
+			zone_filter = raw ? raw : ""
 			return TRUE
 
 		if("refresh")

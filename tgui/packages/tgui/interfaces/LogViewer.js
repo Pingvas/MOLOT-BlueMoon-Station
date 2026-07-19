@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useBackend } from '../backend';
 import { Box, Button, Dropdown, Flex, Icon, Input, Section } from '../components';
@@ -7,6 +7,12 @@ import { Window } from '../layouts';
 const stripHtml = (str) => {
   if (!str) return str;
   return String(str).replace(/<[^>]*>/g, '').trim();
+};
+
+const extractAreaName = (whereStr) => {
+  if (!whereStr) return '';
+  const match = whereStr.match(/^(.*?)\s*\(\d+,\s*\d+,\s*\d+\)/);
+  return match ? match[1].trim() : whereStr.trim();
 };
 
 const LOG_COLORS = {
@@ -38,6 +44,7 @@ export const LogViewer = (props) => {
     source_type,
     filter_text,
     target_filter: targetFilter = '',
+    zone_filter: zoneFilter = '',
     viewing_type,
     log_types = [],
     source_options = [],
@@ -45,8 +52,23 @@ export const LogViewer = (props) => {
   } = data;
 
   const debounceRef = useRef(null);
+  const intervalRef = useRef(null);
   const logsArray = Array.isArray(logs) ? logs : [];
   const safeLogCount = logsArray.length;
+  const [autoRefresh, setAutoRefresh] = useState(true);
+
+  useEffect(() => {
+    if (autoRefresh) {
+      intervalRef.current = setInterval(() => act('refresh'), 3000);
+    }
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [autoRefresh, act]);
+
   const debouncedAct = useCallback((action, payload, delay = 120) => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => act(action, payload), delay);
@@ -58,24 +80,37 @@ export const LogViewer = (props) => {
 
   const handleKeyDown = useCallback((e) => {
     if (e.key === 'Escape') {
-      if (filter_text || targetFilter) {
+      if (filter_text || targetFilter || zoneFilter) {
         act('set_filter', { text: '' });
         act('set_target_filter', { text: '' });
+        act('set_zone_filter', { text: '' });
       }
     }
-  }, [filter_text, targetFilter, act]);
+  }, [filter_text, targetFilter, zoneFilter, act]);
 
   const showAllFlag = log_types.find(
     (t) => t.name === 'Показать все' || t.name === 'Show All'
   )?.flag;
+  const isShowAll = viewing_type === showAllFlag;
   const handleClearText = useCallback(() => act('set_filter', { text: '' }), [act]);
   const handleClearTarget = useCallback(() => act('set_target_filter', { text: '' }), [act]);
+  const handleClearZone = useCallback(() => act('set_zone_filter', { text: '' }), [act]);
   const handleClearType = useCallback(() => {
     if (showAllFlag !== undefined) act('set_viewing_type', { type: showAllFlag });
   }, [act, showAllFlag]);
-  const activeFilterType = showAllFlag !== undefined && viewing_type !== showAllFlag
-    ? log_types.find((t) => t.flag === viewing_type)
-    : null;
+
+  const handleTypeClick = (flag) => {
+    if (flag === showAllFlag) {
+      act('set_viewing_type', { type: showAllFlag });
+      return;
+    }
+    if (isShowAll) {
+      act('set_viewing_type', { type: flag });
+    } else {
+      const newType = viewing_type ^ flag;
+      act('set_viewing_type', { type: newType || showAllFlag });
+    }
+  };
 
   return (
     <Window title="Log Viewer" width={1100} height={700} resizable>
@@ -117,31 +152,36 @@ export const LogViewer = (props) => {
               </Flex>
             </Flex.Item>
 
-            <Flex.Item>
-              <Flex align="center" gap={1}>
+            <Flex.Item style={{ width: '100%' }}>
+              <Flex align="center" gap={1} style={{ width: '100%' }}>
                 <Flex.Item shrink={0}>
                   <Box inline bold mr={0.5}
                     style={{ color: '#aaa', fontSize: '13px' }}>
                     Источник:
                   </Box>
-                  {source_options.map((src) => (
-                    <Button
-                      key={src}
-                      selected={source_type === src}
-                      content={src}
-                      style={{
-                        fontSize: '12px',
-                        padding: '2px 8px',
-                        minWidth: '0',
-                      }}
-                      onClick={() => act('set_source', { source: src })}
-                    />
-                  ))}
+                  {source_options.map((src) => {
+                    const srcColor = src === 'CLIENT' ? '#4fc3ff' : '#81c784';
+                    const isSelected = source_type === src;
+                    return (
+                      <Button
+                        key={src}
+                        content={src}
+                        compact
+                        style={{
+                          color: isSelected ? srcColor : srcColor + '77',
+                          fontWeight: isSelected ? 'bold' : 'normal',
+                          border: `1px solid ${isSelected ? srcColor : 'transparent'}`,
+                          backgroundColor: 'transparent',
+                        }}
+                        onClick={() => act('set_source', { source: src })}
+                      />
+                    );
+                  })}
                 </Flex.Item>
-                <Flex.Item grow={1} />
-                <Flex.Item width={150} shrink={0}>
+                <Flex.Item grow={1} style={{ minWidth: 0 }} />
+                <Flex.Item shrink={0}>
                   <Input
-                    fluid
+                    width="150px"
                     placeholder="Поиск..."
                     value={filter_text}
                     onInput={(e, value) =>
@@ -149,9 +189,9 @@ export const LogViewer = (props) => {
                     }
                   />
                 </Flex.Item>
-                <Flex.Item width={180} shrink={0}>
+                <Flex.Item shrink={0}>
                   <Input
-                    fluid
+                    width="180px"
                     placeholder="Цель (игрок 2)..."
                     value={targetFilter}
                     onInput={(e, value) =>
@@ -168,34 +208,31 @@ export const LogViewer = (props) => {
                   style={{ color: '#aaa', fontSize: '13px' }}>
                   Тип:
                 </Box>
-                {log_types.map((lt) => (
-                  <Button
-                    key={lt.flag}
-                    selected={viewing_type === lt.flag}
-                    style={{
-                      fontSize: '12px',
-                      padding: '2px 10px',
-                      minWidth: '0',
-                      borderColor: viewing_type === lt.flag ? lt.color : lt.color + '55',
-                      backgroundColor:
-                        viewing_type === lt.flag ? lt.color + '33' : 'transparent',
-                      color:
-                        viewing_type === lt.flag ? lt.color : lt.color + 'aa',
-                      fontWeight: viewing_type === lt.flag ? 'bold' : 'normal',
-                    }}
-                    content={lt.name}
-                    onClick={() =>
-                      act('set_viewing_type', { type: lt.flag })
-                    }
-                  />
-                ))}
+                {log_types.map((lt) => {
+                  const isSelected = lt.flag === showAllFlag ? isShowAll : (viewing_type & lt.flag);
+                  return (
+                    <Button
+                      key={lt.flag}
+                      compact
+                      style={{
+                        color: isSelected ? lt.color : lt.color + '77',
+                        fontWeight: isSelected ? 'bold' : 'normal',
+                        border: `1px solid ${isSelected ? lt.color : lt.color + '44'}`,
+                        backgroundColor: 'transparent',
+                        opacity: lt.flag === showAllFlag && !isSelected ? 0.45 : 1,
+                      }}
+                      content={lt.name}
+                      onClick={() => handleTypeClick(lt.flag)}
+                    />
+                  );
+                })}
               </Flex>
             </Flex.Item>
 
-            {(filter_text || targetFilter || activeFilterType) && (
+            {(filter_text || targetFilter || zoneFilter) && (
               <Flex.Item>
                 <Flex align="center" gap={0.5}>
-                  <Box style={{ color: '#666', fontSize: '11px' }}>
+                  <Box style={{ color: '#999', fontSize: '11px' }}>
                     Фильтры:
                   </Box>
                   {filter_text && (
@@ -236,7 +273,7 @@ export const LogViewer = (props) => {
                       цель: {targetFilter} ×
                     </Box>
                   )}
-                  {activeFilterType && (
+                  {zoneFilter && (
                     <Box
                       as="span"
                       ml={0.5}
@@ -244,15 +281,15 @@ export const LogViewer = (props) => {
                       py={0.2}
                       fontSize="10px"
                       style={{
-                        color: '#ffd54f',
-                        backgroundColor: '#ffd54f22',
-                        border: '1px solid #ffd54f44',
+                        color: '#81c784',
+                        backgroundColor: '#81c78422',
+                        border: '1px solid #81c78444',
                         borderRadius: '3px',
                         cursor: 'pointer',
                       }}
-                      onClick={handleClearType}
+                      onClick={handleClearZone}
                     >
-                      {activeFilterType.name} ×
+                      зона: {zoneFilter} ×
                     </Box>
                   )}
                 </Flex>
@@ -262,13 +299,21 @@ export const LogViewer = (props) => {
         </Section>
 
         <Section
-          title={"Лог (" + safeLogCount + " записей" + (safeLogCount < log_count_total ? ", показано " + safeLogCount + " из " + log_count_total : "") + ")"}
+          title={"Лог (" + safeLogCount + " записей)"}
           buttons={
-            <Button
-              icon="sync"
-              content="Обновить"
-              onClick={() => act('refresh')}
-            />
+            <Flex align="center" gap={0.5}>
+              <Button.Checkbox
+                checked={autoRefresh}
+                content="Авто"
+                tooltip="Автообновление каждые 3 сек"
+                onClick={() => setAutoRefresh(!autoRefresh)}
+              />
+              <Button
+                icon="sync"
+                content="Обновить"
+                onClick={() => act('refresh')}
+              />
+            </Flex>
           }
         >
           {!target_ckey && (
@@ -308,6 +353,7 @@ const LogEntry = (props) => {
 
   const typeColor = getLogColor(type);
   const hasTarget = target_name || target_key;
+  const areaName = extractAreaName(where);
 
   return (
     <Box
@@ -326,7 +372,7 @@ const LogEntry = (props) => {
     >
       <Flex align="flex-start" gap={0.5}>
         <Flex.Item shrink={0}
-          style={{ color: '#555', minWidth: '58px', fontSize: '11px' }}>
+          style={{ color: '#b0b0b0', minWidth: '58px', fontSize: '11px', fontWeight: 'bold' }}>
           {time}
         </Flex.Item>
         <Flex.Item shrink={0}>
@@ -363,8 +409,23 @@ const LogEntry = (props) => {
         </Flex.Item>
       </Flex>
       <Flex mt={0.3} align="center" wrap>
-        <Flex.Item style={{ color: '#444', fontSize: '11px' }}>
-          {where}
+        <Flex.Item style={{ color: '#aaa', fontSize: '11px' }}>
+          {where && (
+            <>
+              <Box
+                as="span"
+                style={{
+                  cursor: 'pointer',
+                  borderBottom: '1px dashed #666',
+                }}
+                onClick={() => act('set_zone_filter', { text: areaName })}
+              >
+                {areaName}
+              </Box>
+              {where.substring(areaName.length)}
+            </>
+          )}
+          {!where && '—'}
           {health !== null && health !== undefined && (
             <Box as="span" ml={1.5}
               style={{ color: '#ff8c00', fontWeight: 'bold' }}>
