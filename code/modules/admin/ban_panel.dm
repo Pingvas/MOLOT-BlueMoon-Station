@@ -74,11 +74,15 @@
 		.["player_notes"] = get_notes(playerckey)
 
 /datum/ban_panel/proc/get_player_exp(target_ckey)
+	var/clean_ckey = ckey(target_ckey)
+	for(var/client/C in GLOB.clients)
+		if(C.ckey == clean_ckey)
+			return C.get_exp_living(TRUE)
 	if(!SSdbcore.Connect())
 		return 0
 	var/datum/db_query/query = SSdbcore.NewQuery(
 		"SELECT COALESCE(SUM(minutes), 0) FROM [format_table_name("role_time")] WHERE ckey = :ckey",
-		list("ckey" = target_ckey)
+		list("ckey" = clean_ckey)
 	)
 	if(!query.warn_execute())
 		qdel(query)
@@ -93,13 +97,14 @@
 	. = list()
 	if(!SSdbcore.Connect())
 		return
+	var/clean_ckey = ckey(target_ckey)
 	var/datum/db_query/query = SSdbcore.NewQuery({"
 		SELECT id, IFNULL((SELECT byond_key FROM [format_table_name("player")] WHERE ckey = adminckey), adminckey),
 			text, timestamp, server, secret, severity, lasteditor, expire_timestamp
 		FROM [format_table_name("messages")]
 		WHERE type = 'note' AND targetckey = :targetckey AND deleted = 0 AND (expire_timestamp > NOW() OR expire_timestamp IS NULL)
 		ORDER BY timestamp DESC
-	"}, list("targetckey" = target_ckey))
+	"}, list("targetckey" = clean_ckey))
 	if(!query.warn_execute())
 		qdel(query)
 		return

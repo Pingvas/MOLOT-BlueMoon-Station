@@ -231,7 +231,7 @@ const SearchBar = (props) => {
             Search
           </Button>
         </Flex.Item>
-        {localPlayer && player_exp > 0 && (
+        {playerckey && player_exp > 0 && (
           <Flex.Item mb={0.5} ml={1}>
             <Icon name="clock" mr={0.5} color="#ffd54f" />
             <Box inline color="#ffd54f" bold fontSize="13px">
