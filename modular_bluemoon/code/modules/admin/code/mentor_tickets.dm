@@ -75,6 +75,7 @@ GLOBAL_DATUM_INIT(mentor_tickets, /datum/mentor_ticket_manager, new)
 	var/handler
 	var/list/typing_mentors
 	var/initiator_typing_time
+	var/initial_notification_sent = FALSE
 /datum/mentor_ticket/New(msg, client/C, is_bwoink)
 	msg = copytext_char(msg, 1, MAX_MESSAGE_LEN)
 	if(!msg || !C || !C.mob)
@@ -98,7 +99,7 @@ GLOBAL_DATUM_INIT(mentor_tickets, /datum/mentor_ticket_manager, new)
 	typing_mentors = list()
 
 	if(is_bwoink)
-		AddInteraction("<font color='#a855f7'>[key_name_admin(usr)] PM'd [LinkedReplyName()]</font>")
+		AddInteraction("<font color='#a855f7'>Ментор PM'd [LinkedReplyName()]</font>")
 		message_admins("<font color='#a855f7'>Mentor ticket [TicketHref("#[id]")] created</font>")
 		handle_issue()
 	else
@@ -124,6 +125,10 @@ GLOBAL_DATUM_INIT(mentor_tickets, /datum/mentor_ticket_manager, new)
 		answered = TRUE
 		send2adminchat(initiator_ckey, "[key_name(initiator)] | Mentor Ticket #[id]: Answered by [key_name(usr)]")
 	_interactions += "[TIME_STAMP("hh:mm:ss", FALSE)]: [formatted_message]"
+	var/interactions_count = LAZYLEN(_interactions)
+		for(var/datum/tgui/ui in SStgui.open_uis)
+			if(istype(ui.src_object, /datum/mentor_ticket_panel) || istype(ui.src_object, /datum/player_ticket_panel))
+				SStgui.update_uis(ui.src_object)
 
 /datum/mentor_ticket/proc/LinkedReplyName(ref_src)
 	if(!ref_src)
@@ -141,15 +146,25 @@ GLOBAL_DATUM_INIT(mentor_tickets, /datum/mentor_ticket_manager, new)
 	var/encoded_msg = html_encode(msg)
 	var/ref_src = "[REF(src)]"
 
-	var/mentor_msg = "<span class='mentornotice'><span class='mentorhelp'>Mentor Ticket [TicketHref("#[id]", ref_src)]</span><b>: "
-	mentor_msg += "[LinkedReplyName(ref_src)]:</b> <span class='linkify'>[keywords_lookup(msg)]</span><br></span>"
+	var/mentor_msg
+	if(!initial_notification_sent)
+		initial_notification_sent = TRUE
+		mentor_msg = "<span class='mentornotice'><span class='mentorhelp'>Mentor Ticket [TicketHref("#[id]", ref_src)]</span><b>: "
+		mentor_msg += "[LinkedReplyName(ref_src)]:</b> <span class='linkify'>[keywords_lookup(msg)]</span><br></span>"
+		for(var/client/X in GLOB.mentors | GLOB.admins)
+			if(X.prefs.toggles & SOUND_MENTORHELP)
+				var/mentor_vol = X.prefs?.get_sound_volume("mentorhelp")
+				SEND_SOUND(X, sound('sound/effects/mentorhelp.ogg', volume = mentor_vol))
+			to_chat(X, examine_block(mentor_msg))
+	else
+		mentor_msg = "<span class='mentornotice'>[LinkedReplyName(ref_src)]: <span class='linkify'>[keywords_lookup(msg)]</span></span>"
+		for(var/client/X in GLOB.mentors | GLOB.admins)
+			if(X.prefs?.toggles & SOUND_MENTORHELP)
+				var/mentor_vol = X.prefs?.get_sound_volume("mentorhelp")
+				SEND_SOUND(X, sound('sound/effects/mentorhelp.ogg', volume = mentor_vol))
+			to_chat(X, examine_block(mentor_msg))
+
 	AddInteraction("<font color='#a855f7'>[LinkedReplyName(ref_src)]: [encoded_msg]</font>")
-
-	for(var/client/X in GLOB.mentors | GLOB.admins)
-		if(X.prefs.toggles & SOUND_ADMINHELP)
-			SEND_SOUND(X, sound('sound/effects/adminhelp.ogg'))
-		to_chat(X, examine_block(mentor_msg))
-
 	to_chat(initiator, "<span class='mentornotice'>PM для-<b>Менторов</b>: <span class='linkify'>[encoded_msg]</span></span>")
 
 /datum/mentor_ticket/proc/Close()
@@ -161,7 +176,7 @@ GLOBAL_DATUM_INIT(mentor_tickets, /datum/mentor_ticket_manager, new)
 		close_reason = "Закрыт"
 	GLOB.mentor_tickets.ListInsert(src)
 	to_chat(initiator, examine_block("<center><span class='mentornotice'>Ваш ментор-тикет был закрыт.</span></center>"))
-	AddInteraction("<font color='#a855f7'><u>Закрыт</u> [key_name_admin(usr)].</font>")
+	AddInteraction("<font color='#a855f7'><u>Закрыт</u> Ментор.</font>")
 	var/msg = "Mentor ticket [TicketHref("#[id]")] closed by [key_name_admin(usr)]."
 	message_admins(msg, islog = FALSE, prefix = "MENTOR")
 	log_admin_private(msg)
@@ -175,7 +190,7 @@ GLOBAL_DATUM_INIT(mentor_tickets, /datum/mentor_ticket_manager, new)
 		close_reason = "Решён"
 	GLOB.mentor_tickets.ListInsert(src)
 
-	AddInteraction("<font color='#4ade80'><u>Решён</u> [key_name_admin(usr)].</font>")
+	AddInteraction("<font color='#4ade80'><u>Решён</u> Ментор.</font>")
 	to_chat(initiator, examine_block("<center><span class='mentornotice'>Ваш ментор-тикет был решён.</span></center>"))
 	var/msg = "Mentor ticket [TicketHref("#[id]")] resolved by [key_name_admin(usr)]."
 	message_admins(msg, islog = FALSE, prefix = "MENTOR")
@@ -193,7 +208,7 @@ GLOBAL_DATUM_INIT(mentor_tickets, /datum/mentor_ticket_manager, new)
 	if(initiator)
 		to_chat(initiator, "<span class='mentornotice'>Ваш ментор-тикет был взят. Пожалуйста, подождите.</span>")
 	handler = "[usr.ckey]"
-	AddInteraction("<u>Взят ментором</u> [key_name_admin(usr)]")
+	AddInteraction("<u>Взят ментором</u>")
 	var/msg = "Mentor ticket [TicketHref("#[id]")] taken by [key_name_admin(usr)]."
 	message_admins(msg, islog = FALSE, prefix = "MENTOR")
 	log_admin_private(msg)
@@ -201,7 +216,7 @@ GLOBAL_DATUM_INIT(mentor_tickets, /datum/mentor_ticket_manager, new)
 
 /datum/mentor_ticket/proc/Action(action)
 	switch(action)
-		if("reply")
+		if("reply", "mentorticket")
 			usr.client.cmd_mentor_pm(initiator)
 		if("close")
 			Close()
@@ -231,7 +246,7 @@ GLOBAL_DATUM_INIT(mentor_tickets, /datum/mentor_ticket_manager, new)
 	state = MENTOR_TICKET_ACTIVE
 	closed_at = null
 	close_reason = null
-	AddInteraction("<font color='#c084fc'><u>Переоткрыт</u> [key_name_admin(usr)]</font>")
+	AddInteraction("<font color='#c084fc'><u>Переоткрыт ментором</u></font>")
 	var/msg = "Mentor ticket [TicketHref("#[id]")] was reopened by [key_name_admin(usr)]."
 	message_admins(msg, islog = FALSE, prefix = "MENTOR")
 	log_admin_private(msg)

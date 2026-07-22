@@ -62,7 +62,7 @@
 	.["initiator_ckey"] = MT.initiator_ckey
 	.["initiator_key_name"] = MT.initiator_key_name
 	.["has_initiator"] = !isnull(MT.initiator)
-	.["handler"] = MT.handler
+	.["handler"] = MT.handler ? "Ментор" : null
 	var/list/typing = list()
 	for(var/typing_ckey in MT.typing_mentors)
 		if(world.time - MT.typing_mentors[typing_ckey] < 5 SECONDS)
@@ -114,7 +114,6 @@
 				selected_ticket.handle_issue()
 			selected_ticket.typing_mentors -= usr.ckey
 			if(selected_ticket.initiator)
-				selected_ticket.AddInteraction("<font color='#a855f7'>[key_name_admin(usr)]: [html_encode(message)]</font>")
 				usr.client.cmd_mentor_pm(selected_ticket.initiator, message)
 			. = TRUE
 
