@@ -222,7 +222,7 @@
 
 				//omg this is dumb, just fill in both their tickets
 				var/interaction_message = "<font color='#c084fc'>PM от <b>Администратор</b>: [keywordparsedmsg]</font>"
-				admin_ticket_log(src, interaction_message)
+				admin_ticket_log(src, "<font color='#c084fc'>PM от <b>[src.ckey]</b>: [keywordparsedmsg]</font>")
 				if(recipient != src)	//reeee
 					admin_ticket_log(recipient, interaction_message)
 				if(current_ticket)
