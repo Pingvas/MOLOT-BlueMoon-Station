@@ -28,7 +28,7 @@
 	.["sound_emote"] = !!(toggles & SOUND_EMOTE)
 	.["sound_prayers"] = !!(toggles & SOUND_PRAYERS)
 	.["sound_adminhelp"] = !!(toggles & SOUND_ADMINHELP)
-	.["sound_mentorhelp"] = !!(toggles & SOUND_MENTORHELP)
+	.["sound_mentorhelp"] = !!(mentor_toggles & SOUND_MENTORHELP)
 	.["sound_fax"] = !!(toggles & SOUND_FAX)
 
 	// Sound volumes
@@ -268,7 +268,7 @@
 				if("sound_adminhelp")
 					toggles ^= SOUND_ADMINHELP
 				if("sound_mentorhelp")
-					toggles ^= SOUND_MENTORHELP
+					mentor_toggles ^= SOUND_MENTORHELP
 				if("sound_fax")
 					toggles ^= SOUND_FAX
 			save_preferences()
@@ -445,6 +445,8 @@
 			return TRUE
 
 		if("toggle_mentor")
+			if(!usr.client?.is_mentor())
+				return TRUE
 			var/flag = params["flag"]
 			switch(flag)
 				if("dementor_on_login")

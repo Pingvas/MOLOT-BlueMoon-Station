@@ -151,14 +151,14 @@ GLOBAL_DATUM_INIT(mentor_tickets, /datum/mentor_ticket_manager, new)
 		mentor_msg = "<span class='mentornotice'><span class='mentorhelp'>Mentor Ticket [TicketHref("#[id]", ref_src)]</span><b>: "
 		mentor_msg += "[LinkedReplyName(ref_src)]:</b> <span class='linkify'>[keywords_lookup(msg)]</span><br></span>"
 		for(var/client/X in GLOB.mentors | GLOB.admins)
-			if(X.prefs.toggles & SOUND_MENTORHELP)
+			if(X.prefs.mentor_toggles & SOUND_MENTORHELP)
 				var/mentor_vol = X.prefs?.get_sound_volume("mentorhelp")
 				SEND_SOUND(X, sound('sound/effects/mentorhelp.ogg', volume = mentor_vol))
 			to_chat(X, examine_block(mentor_msg))
 	else
 		mentor_msg = "<span class='mentornotice'>[LinkedReplyName(ref_src)]: <span class='linkify'>[keywords_lookup(msg)]</span></span>"
 		for(var/client/X in GLOB.mentors | GLOB.admins)
-			if(X.prefs?.toggles & SOUND_MENTORHELP)
+			if(X.prefs?.mentor_toggles & SOUND_MENTORHELP)
 				var/mentor_vol = X.prefs?.get_sound_volume("mentorhelp")
 				SEND_SOUND(X, sound('sound/effects/mentorhelp.ogg', volume = mentor_vol))
 			to_chat(X, examine_block(mentor_msg))

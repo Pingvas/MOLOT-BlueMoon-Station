@@ -28,7 +28,7 @@
 		toggles |= SOUND_EMOTE
 
 	if(current_version < 76)
-		toggles |= SOUND_MENTORHELP
+		mentor_toggles |= SOUND_MENTORHELP
 		toggles |= SOUND_FAX
 
 	. = ..()

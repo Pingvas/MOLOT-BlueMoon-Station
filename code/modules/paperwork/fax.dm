@@ -406,7 +406,7 @@ GLOBAL_VAR_INIT(nt_fax_department, pick("NT HR Department", "NT Legal Department
 	to_chat(GLOB.admins, span_adminnotice("<b><font color=green>ПОЛУЧЕН ФАКС: </font>[sender_name]</b>: [loaded.name]"))
 	for(var/client/staff as anything in GLOB.admins)
 		if(staff.prefs?.toggles & SOUND_FAX)
-			var/fax_vol = staff.prefs?.get_sound_volume("fax") || 100
+			var/fax_vol = staff.prefs?.get_sound_volume("fax")
 			SEND_SOUND(staff, sound('sound/machines/twobeep_high.ogg', volume = fax_vol))
 		if(staff.prefs?.adminhelp_windowflash)
 			window_flash(staff, ignorepref = TRUE)

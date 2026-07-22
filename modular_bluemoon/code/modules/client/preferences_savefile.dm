@@ -74,7 +74,11 @@
 		toggles |= SOUND_EMOTE
 
 	if(current_version < 76) // BLUEMOON ADD - новые звуковые тогглы
-		toggles |= SOUND_MENTORHELP
+		mentor_toggles |= SOUND_MENTORHELP
+		toggles |= SOUND_FAX
+
+	if(current_version < 77) // BLUEMOON ADD - фикс битов для SOUND_FAX (теперь (1<<19))
+		mentor_toggles |= SOUND_MENTORHELP
 		toggles |= SOUND_FAX
 
 	. = ..()
