@@ -71,7 +71,7 @@
 	.["initiator_ckey"] = AH.initiator_ckey
 	.["initiator_key_name"] = AH.initiator_key_name
 	.["has_initiator"] = !isnull(AH.initiator)
-	.["handler"] = AH.handler ? "Администратор" : null
+	.["handler"] = AH.handler
 	.["ticket_ping_stop"] = AH.ticket_ping_stop
 	.["ticket_ping"] = AH.ticket_ping
 	var/list/typing = list()

@@ -62,7 +62,7 @@
 	.["initiator_ckey"] = MT.initiator_ckey
 	.["initiator_key_name"] = MT.initiator_key_name
 	.["has_initiator"] = !isnull(MT.initiator)
-	.["handler"] = MT.handler ? "Ментор" : null
+	.["handler"] = MT.handler
 	var/list/typing = list()
 	for(var/typing_ckey in MT.typing_mentors)
 		if(world.time - MT.typing_mentors[typing_ckey] < 5 SECONDS)
