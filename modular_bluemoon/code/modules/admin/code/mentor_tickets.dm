@@ -125,10 +125,9 @@ GLOBAL_DATUM_INIT(mentor_tickets, /datum/mentor_ticket_manager, new)
 		answered = TRUE
 		send2adminchat(initiator_ckey, "[key_name(initiator)] | Mentor Ticket #[id]: Answered by [key_name(usr)]")
 	_interactions += "[TIME_STAMP("hh:mm:ss", FALSE)]: [formatted_message]"
-	var/interactions_count = LAZYLEN(_interactions)
-		for(var/datum/tgui/ui in SStgui.open_uis)
-			if(istype(ui.src_object, /datum/mentor_ticket_panel) || istype(ui.src_object, /datum/player_ticket_panel))
-				SStgui.update_uis(ui.src_object)
+	for(var/datum/tgui/ui in SStgui.open_uis)
+		if(istype(ui.src_object, /datum/mentor_ticket_panel) || istype(ui.src_object, /datum/player_ticket_panel))
+			SStgui.update_uis(ui.src_object)
 
 /datum/mentor_ticket/proc/LinkedReplyName(ref_src)
 	if(!ref_src)
