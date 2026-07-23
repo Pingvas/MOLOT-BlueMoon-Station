@@ -38,7 +38,7 @@
 	.["opened_ago_text"] = DisplayTimeText(world.time - AH.opened_at)
 	.["close_reason"] = AH.close_reason
 	.["initiator_ckey"] = AH.initiator_ckey
-	.["handler"] = AH.handler ? "Администратор" : null
+	.["handler"] = AH.handler
 	.["initiator_typing"] = (AH.initiator_typing_time != null && world.time - AH.initiator_typing_time < 5 SECONDS)
 	if(!.["initiator_typing"] && AH.initiator_ckey)
 		var/client/C = GLOB.directory[AH.initiator_ckey]
@@ -47,11 +47,11 @@
 	var/list/typing = list()
 	for(var/typing_ckey in AH.typing_admins)
 		if(world.time - AH.typing_admins[typing_ckey] < 5 SECONDS)
-			typing += "Администратор"
+			typing += typing_ckey
 		else
 			var/client/C = GLOB.directory[typing_ckey]
 			if(C?.reply_modal_open)
-				typing += "Администратор"
+				typing += typing_ckey
 			else
 				AH.typing_admins -= typing_ckey
 	.["typing_admins"] = typing
