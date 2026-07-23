@@ -302,11 +302,12 @@ GLOBAL_DATUM_INIT(ahelp_tickets, /datum/admin_help_tickets, new)
 		<hr><span style='font-size: 0.85em;'><center>[FullMonty(ref_src)]<br>[TicketVerbs(ref_src)]</center></span></font>"
 
 		for(var/client/X in GLOB.admins)
-			if(X.prefs.toggles & SOUND_ADMINHELP)
-				var/ah_vol = X.prefs?.get_sound_volume("adminhelp")
-				SEND_SOUND(X, sound('sound/effects/adminhelp.ogg', volume = ah_vol))
-			if(X.prefs.adminhelp_windowflash)
-				window_flash(X, ignorepref = TRUE)
+			if(!handler || X.ckey == handler)
+				if(X.prefs.toggles & SOUND_ADMINHELP)
+					var/ah_vol = X.prefs?.get_sound_volume("adminhelp")
+					SEND_SOUND(X, sound('sound/effects/adminhelp.ogg', volume = ah_vol))
+				if(X.prefs.adminhelp_windowflash)
+					window_flash(X, ignorepref = TRUE)
 			to_chat(X, examine_block(admin_msg))
 	else
 		// последующие утонченные сообщения
@@ -314,11 +315,12 @@ GLOBAL_DATUM_INIT(ahelp_tickets, /datum/admin_help_tickets, new)
 		[LinkedReplyName(ref_src)]:</b> <span class='linkify'>[keywords_lookup(msg)]</span></span>"
 
 		for(var/client/X in GLOB.admins)
-			if(X.prefs.toggles & SOUND_ADMINHELP)
-				var/ah_vol = X.prefs?.get_sound_volume("adminhelp")
-				SEND_SOUND(X, sound('sound/effects/adminhelp.ogg', volume = ah_vol))
-			if(X.prefs.adminhelp_windowflash)
-				window_flash(X, ignorepref = TRUE)
+			if(!handler || X.ckey == handler)
+				if(X.prefs.toggles & SOUND_ADMINHELP)
+					var/ah_vol = X.prefs?.get_sound_volume("adminhelp")
+					SEND_SOUND(X, sound('sound/effects/adminhelp.ogg', volume = ah_vol))
+				if(X.prefs.adminhelp_windowflash)
+					window_flash(X, ignorepref = TRUE)
 			to_chat(X, followup_msg)
 
 	//show it to the person adminhelping too

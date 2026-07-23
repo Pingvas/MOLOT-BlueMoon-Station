@@ -146,9 +146,10 @@ GLOBAL_DATUM_INIT(mentor_tickets, /datum/mentor_ticket_manager, new)
 	AddInteraction("<font color='#a855f7'>[LinkedReplyName(ref_src)]: [encoded_msg]</font>")
 
 	for(var/client/X in mentor_traffic_recipients())
-		if(X.prefs.mentor_toggles & SOUND_MENTORHELP)
-			var/mentor_vol = X.prefs?.get_sound_volume("mentorhelp")
-			SEND_SOUND(X, sound('sound/effects/mentorhelp.ogg', volume = mentor_vol))
+		if(!handler || X.ckey == handler)
+			if(X.prefs.mentor_toggles & SOUND_MENTORHELP)
+				var/mentor_vol = X.prefs?.get_sound_volume("mentorhelp")
+				SEND_SOUND(X, sound('sound/effects/mentorhelp.ogg', volume = mentor_vol))
 		to_chat(X, examine_block(mentor_msg))
 	to_chat(initiator, "<span class='mentornotice'>PM для-<b>Менторов</b>: <span class='linkify'>[encoded_msg]</span></span>")
 
