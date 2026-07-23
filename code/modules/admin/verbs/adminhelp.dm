@@ -158,6 +158,7 @@ GLOBAL_DATUM_INIT(ahelp_tickets, /datum/admin_help_tickets, new)
 	var/client/initiator	//semi-misnomer, it's the person who ahelped/was bwoinked
 	var/initiator_ckey
 	var/initiator_key_name
+	var/initiator_mob_name
 
 	var/list/_interactions	//use AddInteraction() or, preferably, admin_ticket_log()
 
@@ -199,6 +200,7 @@ GLOBAL_DATUM_INIT(ahelp_tickets, /datum/admin_help_tickets, new)
 	initiator = C
 	initiator_ckey = initiator.ckey
 	initiator_key_name = key_name(initiator, FALSE, TRUE)
+	initiator_mob_name = initiator.mob.name
 	if(initiator.current_ticket)	//This is a bug
 		stack_trace("Multiple ahelp current_tickets")
 		initiator.current_ticket.AddInteraction("Ticket erroneously left open by code")
