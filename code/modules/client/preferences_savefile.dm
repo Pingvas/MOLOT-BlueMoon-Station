@@ -547,6 +547,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	S["toggles"] >> toggles
 	S["custom_colors"] >> custom_colors
 	S["deadmin"] >> deadmin
+	S["ticket_nickname"] >> ticket_nickname
 	S["ghost_form"] >> ghost_form
 	S["ghost_orbit"] >> ghost_orbit
 	S["ghost_accs"] >> ghost_accs
@@ -1019,6 +1020,8 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 		WRITE_FILE(S["unlockable_loadout"], safe_json_encode(unlockable_loadout_data))
 	else
 		WRITE_FILE(S["unlockable_loadout"], safe_json_encode(list()))
+
+	WRITE_FILE(S["ticket_nickname"], ticket_nickname)
 
 	if(parent)
 		if(ishuman(parent?.mob))

@@ -100,6 +100,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/chat_toggles = TOGGLES_DEFAULT_CHAT
 	/// Bitfield for chat mutes (MUTE_* flags).
 	var/muted = NONE
+	var/ticket_nickname = ""
 	var/ghost_form = "ghost"
 	var/ghost_orbit = GHOST_ORBIT_CIRCLE
 	var/ghost_accs = GHOST_ACCS_DEFAULT_OPTION
