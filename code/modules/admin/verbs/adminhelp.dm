@@ -296,11 +296,13 @@ GLOBAL_DATUM_INIT(ahelp_tickets, /datum/admin_help_tickets, new)
 	var/ref_src = "[REF(src)]"
 	AddInteraction("<font color='#f87171'>[LinkedReplyName(ref_src)]: [encoded_msg]</font>")
 
+	var/flw_link = initiator?.mob ? " [ADMIN_FLW(initiator.mob)]" : ""
+
 	if(!initial_notification_sent)
 		initial_notification_sent = TRUE
 		// Долбоебский формат с гиганскими кнопками как у доярки сиськи
 		var/admin_msg = "<span class='adminnotice'><span class='adminhelp'>Тикет [TicketHref("#[id]", ref_src)]</span><b>: \
-		[LinkedReplyName(ref_src)]:</b> <span class='linkify'>[keywords_lookup(msg)]</span><br>\
+		[LinkedReplyName(ref_src)][flw_link]:</b> <span class='linkify'>[keywords_lookup(msg)]</span><br>\
 		<hr><span style='font-size: 0.85em;'><center>[FullMonty(ref_src)]<br>[TicketVerbs(ref_src)]</center></span></font>"
 
 		for(var/client/X in GLOB.admins)
@@ -314,7 +316,7 @@ GLOBAL_DATUM_INIT(ahelp_tickets, /datum/admin_help_tickets, new)
 	else
 		// последующие утонченные сообщения
 		var/followup_msg = "<span class='adminnotice'><span class='adminhelp'>Тикет #[id]</span><b>: \
-		[LinkedReplyName(ref_src)]:</b> <span class='linkify'>[keywords_lookup(msg)]</span></span>"
+		[LinkedReplyName(ref_src)][flw_link]:</b> <span class='linkify'>[keywords_lookup(msg)]</span></span>"
 
 		for(var/client/X in GLOB.admins)
 			if(!handler || X.ckey == handler)
