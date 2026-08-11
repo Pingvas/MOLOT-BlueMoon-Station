@@ -98,8 +98,9 @@
 	if (!isnull(linked_portal.current_mob))
 		balloon_alert(user, "портал уже занят!")
 		return FALSE
-	visible_message("[user] вставляет [M] в [src]!")
-	return ..(M, user, check_loc = FALSE)
+	. = ..(M, user, check_loc = FALSE)
+	if(.)
+		visible_message("[user] вставляет [M] в [src]!")
 
 /obj/structure/lewd_portal/post_buckle_mob(mob/living/buckled_mob)
 	if (!ishuman(buckled_mob))
@@ -110,7 +111,7 @@
 			mob_scale_y = current_mob.transform.e
 			offset_algorithm()
 
-	if(!isnull(current_mob) && !isnull(current_mob.dna.species))
+	if(!isnull(current_mob) && !isnull(current_mob.dna?.species) && !isnull(linked_portal))
 		relayed_body = new /obj/lewd_portal_relay(linked_portal.loc, current_mob, linked_portal)
 		relayed_body.transform = relayed_body.transform.Scale(current_mob.transform.a, current_mob.transform.e)
 		switch(linked_portal.dir)
@@ -308,6 +309,17 @@
 	var/creation_mode = GLORYHOLE
 	var/obj/structure/lewd_portal/previous_portal
 
+/obj/item/wallframe/lewd_portal/Destroy(force)
+	if(previous_portal)
+		UnregisterSignal(previous_portal, COMSIG_PARENT_QDELETING)
+		previous_portal = null
+	return ..()
+
+/// Обнуляет ссылку на сохранённый портал, если его снесли до установки пары.
+/obj/item/wallframe/lewd_portal/proc/on_previous_portal_qdel(datum/source)
+	SIGNAL_HANDLER
+	previous_portal = null
+
 /obj/item/wallframe/lewd_portal/examine(mob/user)
 	. = ..()
 	var/inspect_mode = "gloryhole"
@@ -357,11 +369,15 @@
 /obj/item/wallframe/lewd_portal/after_attach(obj/attached_to)
 	var/obj/structure/lewd_portal/portal_result = attached_to
 	portal_result.portal_mode = creation_mode
-	if(!previous_portal)
+	if(!previous_portal || QDELETED(previous_portal))
+		if(previous_portal)
+			UnregisterSignal(previous_portal, COMSIG_PARENT_QDELETING)
 		previous_portal = portal_result
+		RegisterSignal(previous_portal, COMSIG_PARENT_QDELETING, PROC_REF(on_previous_portal_qdel))
 	else
 		portal_result.linked_portal = previous_portal
 		previous_portal.linked_portal = portal_result
+		UnregisterSignal(previous_portal, COMSIG_PARENT_QDELETING)
 		previous_portal = null
 	. = ..()
 
@@ -420,16 +436,17 @@
 	RegisterSignal(owner, COMSIG_MOB_EMOTE, PROC_REF(relay_owner_emote))
 
 /obj/lewd_portal_relay/Destroy(force)
+	UnregisterSignal(src, COMSIG_ATOM_HEARER_IN_VIEW)
 	if(!isnull(owner))
-		UnregisterSignal(src, COMSIG_ATOM_HEARER_IN_VIEW)
 		UnregisterSignal(owner, list(COMSIG_MOB_ITEM_EQUIPPED, COMSIG_MOB_UNEQUIPPED_ITEM, COMSIG_MOB_UPDATE_GENITALS, COMSIG_MOB_SAY, COMSIG_MOB_EMOTE))
 		owner = null
-		owning_portal = null
+	owning_portal = null
 	visible_message("[src] исчезает в портале!")
 	return ..()
 
 /// Мост коммуникации
 /obj/lewd_portal_relay/proc/include_owner(datum/source, list/processing_list, list/hearers)
+	SIGNAL_HANDLER
 	if(relaying || QDELETED(owner))
 		return
 	hearers |= owner
@@ -498,9 +515,10 @@
 	if(islist(overlay))
 		for(var/overlay_entry in overlay)
 			if(isimage(overlay_entry) || isappearance(overlay_entry))
-				if(exclude_head_category && overlay_entry:category == "HEAD")
+				var/mutable_appearance/overlay_appearance = overlay_entry
+				if(exclude_head_category && overlay_appearance?.category == "HEAD")
 					continue
-				var/image/copy = image(overlay_entry)
+				var/image/copy = image(overlay_appearance)
 				copy.layer = target_layer
 				copy.plane = GAME_PLANE
 				if(apply_mask)
