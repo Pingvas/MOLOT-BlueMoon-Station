@@ -24,6 +24,24 @@
 #define GLORYHOLE "gloryhole"
 #define WALLSTUCK "wallstuck"
 
+/// релей интеракты, убирает требование к дистанции
+/proc/is_lewd_portal_relay_interaction(mob/user, mob/target)
+	if(!istype(user) || !istype(target))
+		return FALSE
+	for(var/obj/lewd_portal_relay/R in range(1, user))
+		if(R.owner == target)
+			return TRUE
+	return FALSE
+
+/// АЛЬФА МАСКА КОТОРАЯ СКРЫВАЕТ ЧАСТЬ ТЕЛА
+/proc/build_top_hide_mask(fraction)
+	var/static/icon/white_canvas = icon("icons/effects/alphacolors.dmi", "white")
+	var/icon/mask = new(white_canvas)
+	var/size = world.icon_size
+	var/cut = round(fraction * size)
+	mask.DrawBox(null, 1, size - cut + 1, size, size)
+	return mask
+
 /obj/structure/lewd_portal
 	name = "LustWish Portal"
 	desc = "Портал, сквозь который человек может пролезть лишь частично."
@@ -40,6 +58,8 @@
 	var/obj/lewd_portal_relay/relayed_body
 	var/mob_scale_y = 1
 	var/wallstuck_offset_amount = 12
+	var/mob_is_immobilized = FALSE
+	var/locked_dir = SOUTH
 
 /obj/structure/lewd_portal/Initialize(mapload)
 	LAZYINITLIST(buckled_mobs)
@@ -116,10 +136,13 @@
 				else
 					relayed_body.pixel_y = 7
 		relayed_body.update_visuals()
+		if(portal_mode == WALLSTUCK)
+			relayed_body.filters += filter(type = "alpha", icon = build_top_hide_mask(0.4))
 		if(portal_mode == GLORYHOLE)
 			hide_penis()
 			RegisterSignals(current_mob, list(COMSIG_MOB_ITEM_EQUIPPED, COMSIG_MOB_UNEQUIPPED_ITEM, COMSIG_MOB_UPDATE_GENITALS), PROC_REF(hide_penis))
 			current_mob.dir = dir
+			lock_mob_in_place(current_mob, dir)
 			switch(dir)
 				if(NORTH)
 					current_mob.pixel_y += 24
@@ -133,6 +156,7 @@
 			current_mob.dir = SOUTH
 			head_only()
 			RegisterSignals(current_mob, list(COMSIG_MOB_ITEM_EQUIPPED, COMSIG_MOB_UNEQUIPPED_ITEM, COMSIG_MOB_UPDATE_GENITALS), PROC_REF(head_only))
+			lock_mob_in_place(current_mob, SOUTH)
 			switch(dir)
 				if(NORTH)
 					current_mob.pixel_y += wallstuck_offset_amount
@@ -170,6 +194,26 @@
 	current_mob.apply_overlay(BODY_FRONT_LAYER)
 	current_mob.apply_overlay(HORNS_LAYER)
 
+/// фиксируем куклу на месте
+/obj/structure/lewd_portal/proc/lock_mob_in_place(mob/living/M, fixed_dir)
+	mob_is_immobilized = M.AmountImmobilized()
+	locked_dir = fixed_dir
+	M.Immobilize(INFINITY, ignore_canstun = TRUE)
+	M.setDir(fixed_dir)
+	RegisterSignal(M, COMSIG_ATOM_DIR_AFTER_CHANGE, PROC_REF(force_rotate_mob))
+	ADD_TRAIT(M, TRAIT_NO_PIXEL_SHIFT, REF(src))
+	ADD_TRAIT(M, TRAIT_LIVING_NO_DENSITY, REF(src))
+	M.unpixel_shift()
+	M.update_density()
+
+/obj/structure/lewd_portal/proc/force_rotate_mob(mob/living/M)
+	SIGNAL_HANDLER
+	if(QDELETED(M) || M != current_mob)
+		UnregisterSignal(M, COMSIG_ATOM_DIR_AFTER_CHANGE)
+		return
+	if(M.dir != locked_dir)
+		M.setDir(locked_dir)
+
 /obj/structure/lewd_portal/proc/hide_penis()
 	SIGNAL_HANDLER
 	if(!current_mob)
@@ -186,8 +230,13 @@
 		current_mob.add_overlay(I)
 
 /obj/structure/lewd_portal/post_unbuckle_mob(mob/living/unbuckled_mob)
-	UnregisterSignal(unbuckled_mob, list(COMSIG_MOB_ITEM_EQUIPPED, COMSIG_MOB_UNEQUIPPED_ITEM, COMSIG_MOB_UPDATE_GENITALS))
+	UnregisterSignal(unbuckled_mob, list(COMSIG_ATOM_DIR_AFTER_CHANGE, COMSIG_MOB_ITEM_EQUIPPED, COMSIG_MOB_UNEQUIPPED_ITEM, COMSIG_MOB_UPDATE_GENITALS))
 	REMOVE_TRAIT(unbuckled_mob, TRAIT_HUMAN_NO_RENDER, "lewd_portal")
+	REMOVE_TRAIT(unbuckled_mob, TRAIT_NO_PIXEL_SHIFT, REF(src))
+	REMOVE_TRAIT(unbuckled_mob, TRAIT_LIVING_NO_DENSITY, REF(src))
+	unbuckled_mob.SetImmobilized(mob_is_immobilized, ignore_canstun = TRUE)
+	unbuckled_mob.update_density()
+	mob_is_immobilized = FALSE
 	visible_message("[unbuckled_mob] вылезает из [src]")
 	current_mob = null
 	mob_scale_y = 1
