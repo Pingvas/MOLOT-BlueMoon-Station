@@ -35,7 +35,7 @@
 
 /// АЛЬФА МАСКА КОТОРАЯ СКРЫВАЕТ ЧАСТЬ ТЕЛА
 /proc/build_top_hide_mask(fraction)
-	var/static/icon/white_canvas = icon("icons/effects/alphacolors.dmi", "white")
+	var/static/icon/white_canvas = icon('icons/effects/alphacolors.dmi')
 	var/icon/mask = new(white_canvas)
 	var/size = world.icon_size
 	var/cut = round(fraction * size)
