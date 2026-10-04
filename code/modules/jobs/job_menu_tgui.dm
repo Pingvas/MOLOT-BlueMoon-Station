@@ -141,14 +141,15 @@
 			if(!job_datum)
 				continue
 			// Часть профессий попадают под несколько отделов, например КМ состоит и в главах и в карго.
-			if(job_datum.title in emitted)
+			var/is_head = (job_title == category[1])
+			if(!is_head && (job_datum.title in emitted))
 				continue
+			emitted += job_datum.title
 			if(latejoin_mode)
 				var/mob/dead/new_player/J = user
 				// Вакансии которые ваще не доступны скрываем
 				if(!istype(J) || J.IsJobUnavailable(job_datum.title, TRUE) != JOB_AVAILABLE)
 					continue
-			emitted += job_datum.title
 			jobs += list(build_job_entry(job_datum, user))
 
 		var/department_type = head_job.exp_type_department
@@ -173,13 +174,13 @@
 			display_title = prefs.alt_titles_preferences[job_datum.title]
 		entry["displayTitle"] = display_title
 
+	if(length(job_datum.alt_titles))
+		entry["hasAltTitles"] = TRUE
+
 	if(mode == JOB_MENU_LATEJOIN)
 		if(job_datum in SSjob.prioritized_jobs)
 			entry["pinned"] = TRUE
 		return entry
-
-	if(length(job_datum.alt_titles))
-		entry["hasAltTitles"] = TRUE
 
 	var/blocked_reason = prefs_blocked_reason(job_datum, user)
 	if(blocked_reason)
@@ -393,7 +394,7 @@
 			return
 
 		if("alt_title")
-			if(mode != JOB_MENU_PREFS || !prefs)
+			if(!prefs)
 				return
 			var/job_title = params["job"]
 			var/datum/job/job_datum = SSjob?.GetJob(job_title)
