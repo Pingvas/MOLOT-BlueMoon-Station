@@ -1,8 +1,17 @@
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useEffect, useMemo, useState } from 'react';
 
 import { BooleanLike } from '../../common/react';
 import { useBackend } from '../backend';
-import { Box, Button, Divider, Section, Stack } from '../components';
+import {
+  Box,
+  Button,
+  Divider,
+  Icon,
+  NoticeBox,
+  Section,
+  Stack,
+  Tooltip,
+} from '../components';
 import { Window } from '../layouts';
 import { JOB_INFO, JOB_INFO_DEFAULT } from './jobInfoData';
 
@@ -10,6 +19,8 @@ type JobEntry = {
   title: string;
   displayTitle?: string;
   command?: BooleanLike;
+  /** Глава отдела */
+  head?: BooleanLike;
   current: number;
   total: number;
   /** Приоритет */
@@ -20,6 +31,27 @@ type JobEntry = {
   overflow?: BooleanLike;
   locked?: BooleanLike;
   hasAltTitles?: BooleanLike;
+};
+
+/** Копактное описание гост ролбки */
+type GhostRole = {
+  name: string;
+  category: string;
+  group?: string;
+  amount: number;
+  /** 0 — чужой облик, 1 — можно своего персонажа, 2 — только свой */
+  canLoad?: number;
+  infinite?: BooleanLike;
+  antag?: BooleanLike;
+  previewable?: BooleanLike;
+  kind?: 'silicon' | 'animal' | 'other';
+};
+
+type GhostInfo = {
+  short?: string;
+  flavour?: string;
+  warning?: string;
+  addition?: string;
 };
 
 type Department = {
@@ -42,7 +74,8 @@ type JobMenuData = {
   preview?: string;
   previewJob?: string;
   departments?: Department[];
-  ghostRoles?: string[];
+  ghostRoles?: GhostRole[];
+  ghostInfo?: GhostInfo | null;
   round?: RoundInfo;
   joblessrole?: string;
   overflowRole?: string;
@@ -58,11 +91,27 @@ const PRIORITY_LEVELS = [
 const slotLabel = (job: JobEntry) =>
   `${job.current}/${job.total === -1 ? '∞' : job.total}`;
 
+/** Главы отделов золотом */
+const HEAD_COLOR = '#ffcc66';
+/** Белый для прозрачных кнопок */
+const ROW_COLOR = '#ffffff';
+/** Вторичный текст */
+const SUBTLE = '#c9d1d9';
+
 const tinted = (hex: string, alpha = 0.16) => {
   const match = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex || '');
   if (!match) return 'rgba(255,255,255,0.04)';
   const [r, g, b] = [1, 2, 3].map((i) => parseInt(match[i], 16));
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
+
+/** Цвета отделов местами тёмные */
+const readable = (hex: string, amount = 0.45) => {
+  const match = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex || '');
+  if (!match) return '#9fb3c8';
+  const [r, g, b] = [1, 2, 3].map((i) => parseInt(match[i], 16));
+  const mix = (c: number) => Math.round(c + (255 - c) * amount);
+  return `rgb(${mix(r)}, ${mix(g)}, ${mix(b)})`;
 };
 
 function splitColumns<T>(items: T[], columns: number, weight: (item: T) => number): T[][] {
@@ -77,6 +126,102 @@ function splitColumns<T>(items: T[], columns: number, weight: (item: T) => numbe
     sizes[index] += weight(item);
   }
   return result;
+}
+
+/** Категории гост ролей, как их разложил сам SpawnersMenu */
+const GHOST_CATEGORIES: Record<
+  string,
+  { label: string; icon: string; color: string }
+> = {
+  misc: { label: 'Прочее', icon: 'ghost', color: '#9fb3c8' },
+  syndicate: { label: 'Синдикат', icon: 'handshake', color: '#e06c5a' },
+  inteq: { label: 'InteQ', icon: 'skull-crossbones', color: '#e0a458' },
+  sol: { label: 'Солнечная Федерация', icon: 'flag', color: '#e6c94a' },
+  midround: { label: 'Мидраунд', icon: 'dice-five', color: '#6fb7e0' },
+  special: { label: 'Особые', icon: 'heart', color: '#b98fe0' },
+  offstation: { label: 'Оффстаншн', icon: 'person-digging', color: '#6fd08c' },
+  trauma: { label: 'Травма', icon: 'heartbeat', color: '#f08a9a' },
+};
+
+const GHOST_CATEGORY_ORDER = [
+  'misc',
+  'syndicate',
+  'inteq',
+  'sol',
+  'midround',
+  'special',
+  'offstation',
+  'trauma',
+];
+
+const ghostCategory = (key?: string) =>
+  GHOST_CATEGORIES[key || ''] ||
+  ({ label: key || 'Прочее', icon: 'ghost', color: '#9fb3c8' });
+
+type GhostBlock = {
+  key: string;
+  title: string;
+  color: string;
+  icon: string;
+  roles: GhostRole[];
+};
+
+/**
+ * Разбиваем гост роли сначала по категориям, потом внутри по подстатусу
+ */
+function buildGhostBlocks(roles: GhostRole[]): GhostBlock[] {
+  const categories = new Map<string, Map<string, GhostRole[]>>();
+  for (const role of roles) {
+    const cat = role.category || 'misc';
+    if (!categories.has(cat)) categories.set(cat, new Map());
+    const groups = categories.get(cat)!;
+    const group = role.group || '';
+    if (!groups.has(group)) groups.set(group, []);
+    groups.get(group)!.push(role);
+  }
+
+  const catKeys = [...categories.keys()].sort(
+    (a, b) =>
+      (GHOST_CATEGORY_ORDER.indexOf(a) + 1 || 99) -
+        (GHOST_CATEGORY_ORDER.indexOf(b) + 1 || 99) ||
+      a.localeCompare(b, 'ru'),
+  );
+
+  const blocks: GhostBlock[] = [];
+  for (const cat of catKeys) {
+    const meta = ghostCategory(cat);
+    const groups = [...categories.get(cat)!.entries()].sort((a, b) => {
+      const multi = (b[1].length > 1 ? 1 : 0) - (a[1].length > 1 ? 1 : 0);
+      if (multi) return multi;
+      return a[0].localeCompare(b[0], 'ru');
+    });
+
+    const multi = groups.filter(([group, list]) => group && list.length > 1);
+    const singles = groups
+      .filter(([group, list]) => !group || list.length <= 1)
+      .flatMap(([, list]) => list);
+    const soloTitle = groups.length <= 1 || multi.length === 0;
+
+    for (const [group, list] of multi) {
+      blocks.push({
+        key: `${cat}|${group}`,
+        title: soloTitle ? meta.label : `${meta.label} · ${group}`,
+        color: meta.color,
+        icon: meta.icon,
+        roles: [...list].sort((a, b) => a.name.localeCompare(b.name, 'ru')),
+      });
+    }
+    if (singles.length) {
+      blocks.push({
+        key: `${cat}|`,
+        title: meta.label,
+        color: meta.color,
+        icon: meta.icon,
+        roles: [...singles].sort((a, b) => a.name.localeCompare(b.name, 'ru')),
+      });
+    }
+  }
+  return blocks;
 }
 
 const PriorityDots = (props: {
@@ -138,7 +283,7 @@ const JobRow = (props: {
   onPriority: (title: string, level: number) => void;
 }) => {
   const { job, mode, selected, onSelect, onPriority } = props;
-  const displayTitle = job.displayTitle || job.title;
+  // Название строки базовая профессия, выбранное альтернативное показываем под ней
   const altTitle =
     job.displayTitle && job.displayTitle !== job.title ? job.displayTitle : null;
   const isSelected = selected === job.title;
@@ -161,7 +306,8 @@ const JobRow = (props: {
       style={{
         display: 'block',
         textAlign: 'left',
-        fontWeight: job.command ? 700 : 400,
+        color: ROW_COLOR,
+        fontWeight: job.command || job.head ? 700 : 400,
         opacity: job.locked ? 0.6 : 1,
       }}
       onClick={() => onSelect(job.title)}>
@@ -178,15 +324,16 @@ const JobRow = (props: {
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
+            color: job.head ? HEAD_COLOR : undefined,
           }}>
-          {displayTitle}
+          {job.title}
         </Box>
         <Box style={{ flex: '0 0 auto' }} color={rightColor}>
           {rightSide}
         </Box>
       </Box>
       {altTitle && (
-        <Box fontSize="11px" color="#BBBBBB" italic>
+        <Box fontSize="11px" color={SUBTLE} italic>
           как {altTitle}
         </Box>
       )}
@@ -199,8 +346,13 @@ const JobRow = (props: {
   );
 };
 
-const Group = (props: { color: string; title: string; children?: ReactNode }) => {
-  const { color, title, children } = props;
+const Group = (props: {
+  color: string;
+  title: string;
+  icon?: string;
+  children?: ReactNode;
+}) => {
+  const { color, title, icon, children } = props;
   return (
     <Box
       as="fieldset"
@@ -215,11 +367,129 @@ const Group = (props: { color: string; title: string; children?: ReactNode }) =>
       <Box
         as="legend"
         px={1}
-        style={{ color, fontSize: '12px', fontWeight: 700 }}>
+        style={{
+          color: readable(color),
+          fontSize: '13px',
+          fontWeight: 700,
+          textShadow: '0 1px 2px rgba(0,0,0,0.85)',
+        }}>
+        {!!icon && (
+          <Icon
+            name={icon}
+            style={{ fontSize: '11px', marginRight: '5px' }}
+          />
+        )}
         {title}
       </Box>
       {children}
     </Box>
+  );
+};
+
+/** Маленькая плашка статус для левой колонки гост роли */
+const Chip = (props: { color: string; children?: ReactNode }) => {
+  const { color, children } = props;
+  return (
+    <Box
+      px={0.75}
+      style={{
+        border: `1px solid ${color}`,
+        color,
+        borderRadius: '3px',
+        fontSize: '11px',
+        lineHeight: '16px',
+        whiteSpace: 'nowrap',
+      }}>
+      {children}
+    </Box>
+  );
+};
+
+const GhostRow = (props: {
+  role: GhostRole;
+  selected: string | null;
+  onSelect: (name: string) => void;
+}) => {
+  const { role, selected, onSelect } = props;
+  const canLoad = role.canLoad || 0;
+
+  return (
+    <Button
+      fluid
+      color="transparent"
+      selected={selected === role.name}
+      style={{ display: 'block', textAlign: 'left', color: ROW_COLOR }}
+      onClick={() => onSelect(role.name)}>
+      <Box style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+        <Box
+          style={{
+            flex: '1 1 auto',
+            minWidth: 0,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}>
+          {role.name}
+        </Box>
+        <Box
+          style={{
+            flex: '0 0 auto',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '3px',
+          }}>
+          {!!role.antag && (
+            <Tooltip content="Антагонист">
+              <Icon
+                name="skull-crossbones"
+                color="bad"
+                style={{ fontSize: '11px' }}
+              />
+            </Tooltip>
+          )}
+          {role.kind === 'silicon' && (
+            <Tooltip content="Силикон">
+              <Icon
+                name="robot"
+                color="#6fb7e0"
+                style={{ fontSize: '11px' }}
+              />
+            </Tooltip>
+          )}
+          {role.kind === 'animal' && (
+            <Tooltip content="Разумное животное">
+              <Icon name="paw" color="orange" style={{ fontSize: '11px' }} />
+            </Tooltip>
+          )}
+          {role.kind === 'other' && (
+            <Tooltip content="Не человек">
+              <Icon name="ghost" color="label" style={{ fontSize: '11px' }} />
+            </Tooltip>
+          )}
+          {canLoad > 0 && (
+            <Tooltip
+              content={
+                canLoad === 2
+                  ? 'Роль обязана использовать вашего персонажа'
+                  : 'Роль позволяет использовать вашего персонажа'
+              }>
+              <Icon
+                name="user"
+                color={canLoad === 2 ? 'yellow' : 'green'}
+                style={{ fontSize: '11px' }}
+              />
+            </Tooltip>
+          )}
+          <Box
+            fontSize="11px"
+            color={SUBTLE}
+            width="22px"
+            textAlign="right">
+            {role.infinite ? '∞' : role.amount}
+          </Box>
+        </Box>
+      </Box>
+    </Button>
   );
 };
 
@@ -231,6 +501,7 @@ export const JobMenu = () => {
   const selectedGhost = data?.selectedGhost || null;
   const departments = data?.departments || [];
   const ghostRoles = data?.ghostRoles || [];
+  const ghostInfo = data?.ghostInfo;
   const round = data?.round || {};
   const joblessrole = data?.joblessrole;
   const isLatejoin = mode === 'latejoin';
@@ -253,17 +524,29 @@ export const JobMenu = () => {
   const selectedJob = selectedDept?.jobs.find(
     (job) => job.title === selected,
   );
-  const ghostName = !selected && selectedGhost ? selectedGhost : null;
+
+  // Гост роль показываем только когда стоим на её вкладке
+  const showGhost = isLatejoin && tab === 'ghosts' && !!selectedGhost;
+  const ghostRole = showGhost
+    ? ghostRoles.find((role) => role.name === selectedGhost)
+    : undefined;
+  const ghostName = showGhost ? selectedGhost : null;
+  const ghostBlock = showGhost
+    ? ghostCategory(ghostRole?.category)
+    : null;
+
   const info = (selectedJob && JOB_INFO[selectedJob.title]) || JOB_INFO_DEFAULT;
 
-  const previewImage = selected ? previewCache[selected] : null;
+  const previewKey: string | null =
+    showGhost && selectedGhost ? `ghost:${selectedGhost}` : selected || null;
+  const previewImage = previewKey ? previewCache[previewKey] : null;
 
-  // Гост-роли уходят в свою вкладку, чтобы не забивать список профессий
-  const visibleGroups = isLatejoin
-    ? departments.filter((dept) => dept.jobs.length > 0)
-    : departments;
+  // Гост роли уходят в свою вкладку, чтобы не забивать список профессий.
+  // Пустые отделы не показываем — от них остаётся только пустая рамка.
+  const visibleGroups = departments.filter((dept) => dept.jobs.length > 0);
   const jobColumns = splitColumns(visibleGroups, 3, (dept) => dept.jobs.length + 1);
-  const ghostColumns = splitColumns(ghostRoles, 3, () => 1);
+  const ghostBlocks = useMemo(() => buildGhostBlocks(ghostRoles), [ghostRoles]);
+  const ghostColumns = splitColumns(ghostBlocks, 3, (block) => block.roles.length + 1);
 
   return (
     <Window width={1000} height={700}>
@@ -309,12 +592,15 @@ export const JobMenu = () => {
               {/* Левая колонка вся текстовая информация */}
               <InfoColumn
                 selected={selected}
-                selectedGhost={selectedGhost}
+                selectedGhost={ghostName}
                 selectedJob={selectedJob}
                 selectedDept={selectedDept}
-                ghostName={ghostName}
+                ghostRole={ghostRole}
+                ghostInfo={ghostInfo}
+                ghostBlock={ghostBlock}
                 info={info}
                 previewImage={previewImage}
+                onGhostTab={isLatejoin && tab === 'ghosts'}
                 isLatejoin={isLatejoin}
                 act={act}
               />
@@ -346,7 +632,7 @@ export const JobMenu = () => {
                       align="center"
                       color="transparent"
                       icon="door-open"
-                      style={{ fontWeight: 600 }}
+                      style={{ fontWeight: 600, color: ROW_COLOR }}
                       tooltip="Что делать, если выбранные профессии не подойдут"
                       tooltipPosition="top"
                       onClick={() => act('joblessrole')}>
@@ -359,7 +645,7 @@ export const JobMenu = () => {
                       align="center"
                       color="transparent"
                       icon="undo"
-                      style={{ fontWeight: 600 }}
+                      style={{ fontWeight: 600, color: ROW_COLOR }}
                       tooltip="Сбросить все выставленные приоритеты"
                       tooltipPosition="top"
                       onClick={() => act('reset')}>
@@ -370,6 +656,7 @@ export const JobMenu = () => {
                     <Button
                       color="transparent"
                       icon="times"
+                      style={{ color: ROW_COLOR }}
                       tooltip="Закрыть окно"
                       tooltipPosition="top-end"
                       onClick={() => act('close')}>
@@ -392,9 +679,12 @@ const InfoColumn = (props: {
   selectedGhost: string | null;
   selectedJob?: JobEntry;
   selectedDept?: Department;
-  ghostName: string | null;
+  ghostRole?: GhostRole;
+  ghostInfo?: GhostInfo | null;
+  ghostBlock: { label: string; icon: string; color: string } | null;
   info: { summary: string; tasks?: string[]; reports?: string[] };
   previewImage: string | null;
+  onGhostTab: boolean;
   isLatejoin: boolean;
   act: (action: string, params?: Record<string, unknown>) => void;
 }) => {
@@ -403,12 +693,27 @@ const InfoColumn = (props: {
     selectedGhost,
     selectedJob,
     selectedDept,
-    ghostName,
+    ghostRole,
+    ghostInfo,
+    ghostBlock,
     info,
     previewImage,
+    onGhostTab,
     isLatejoin,
     act,
   } = props;
+
+  let previewFallback = 'Профессия не выбрана.';
+  if (selectedGhost) {
+    previewFallback =
+      ghostRole && !ghostRole.previewable
+        ? 'Для этой роли превью не отображается.'
+        : 'Превью грузится…';
+  } else if (selected) {
+    previewFallback = 'Превью грузится…';
+  } else if (onGhostTab) {
+    previewFallback = 'Гост-роль не выбрана.';
+  }
 
   return (
     <Stack.Item width="300px" shrink={0}>
@@ -431,13 +736,7 @@ const InfoColumn = (props: {
               style={{ imageRendering: 'pixelated' }}
             />
           ) : (
-            <Box color="label">
-              {ghostName
-                ? 'Для гост-роли превью не отображается.'
-                : selected
-                  ? 'Превью грузится…'
-                  : 'Профессия не выбрана.'}
-            </Box>
+            <Box color="label">{previewFallback}</Box>
           )}
         </Box>
 
@@ -445,9 +744,13 @@ const InfoColumn = (props: {
           <>
             <JobTitle job={selectedJob} dept={selectedDept} act={act} />
 
-            <Box fontSize="11px" color="label">
+            <Box fontSize="11px" color={SUBTLE}>
               Отдел: {selectedDept?.name}
-              {selectedJob.command ? ' · Командование' : ''}
+              {selectedJob.head
+                ? ' · Глава отдела'
+                : selectedJob.command
+                  ? ' · Командование'
+                  : ''}
             </Box>
 
             {!!info.reports?.length && (
@@ -496,19 +799,87 @@ const InfoColumn = (props: {
           </>
         )}
 
-        {!!ghostName && (
+        {!!selectedGhost && (
           <>
-            <Box mt={1} fontSize="16px" bold color="#ffffff">
-              {ghostName}
+            <Box
+              mt={1}
+              fontSize="16px"
+              bold
+              color={ghostBlock?.color || '#ffffff'}>
+              {selectedGhost}
             </Box>
-            <Box fontSize="11px" color="label">
-              Гост-роль · вне штатных профессий
+
+            <Box fontSize="11px" color={SUBTLE}>
+              {ghostBlock?.label || 'Гост-роль'}
+              {!!ghostRole?.group && ` · ${ghostRole.group}`}
             </Box>
+
+            <Box
+              mt={0.5}
+              style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+              {!!ghostRole?.antag && (
+                <Chip color="#e06c5a">Антагонист</Chip>
+              )}
+              {ghostRole?.kind === 'silicon' && (
+                <Chip color="#6fb7e0">Силикон</Chip>
+              )}
+              {ghostRole?.kind === 'animal' && (
+                <Chip color="orange">Разумное животное</Chip>
+              )}
+              {ghostRole?.kind === 'other' && (
+                <Chip color="#9fb3c8">Не человек</Chip>
+              )}
+              {!!ghostRole &&
+                (ghostRole.canLoad === 2 ? (
+                  <Chip color="yellow">Только ваш персонаж</Chip>
+                ) : ghostRole.canLoad === 1 ? (
+                  <Chip color="green">Можно своего персонажа</Chip>
+                ) : (
+                  <Chip color="#e06c5a">Чужой облик</Chip>
+                ))}
+              {!!ghostRole &&
+                (ghostRole.infinite ? (
+                  <Chip color="#9fb3c8">Без лимита</Chip>
+                ) : (
+                  <Chip color="#9fb3c8">
+                    Точек спавна: {ghostRole.amount}
+                  </Chip>
+                ))}
+            </Box>
+
             <Divider />
-            <Box fontSize="12px">
-              Внеочередная роль вне штатного расписания станции. Вы попадаете в
-              неё как призрак, а не через набор экипажа.
-            </Box>
+
+            {!ghostInfo ? (
+              <Box color="label" fontSize="12px">
+                Описание загружается…
+              </Box>
+            ) : (
+              <>
+                {!!ghostInfo.short && (
+                  <Box fontSize="13px" bold>
+                    {ghostInfo.short}
+                  </Box>
+                )}
+                {!!ghostInfo.flavour && (
+                  <Box mt={0.5} fontSize="12px">
+                    {ghostInfo.flavour}
+                  </Box>
+                )}
+                {!!ghostInfo.warning && (
+                  <Box mt={1} color="bad" bold fontSize="12px">
+                    {ghostInfo.warning}
+                  </Box>
+                )}
+                {!!ghostInfo.addition && (
+                  <Box mt={1}>
+                    <NoticeBox>
+                      <Box fontSize="12px">{ghostInfo.addition}</Box>
+                    </NoticeBox>
+                  </Box>
+                )}
+              </>
+            )}
+
             <Button
               mt={1}
               fluid
@@ -520,10 +891,11 @@ const InfoColumn = (props: {
           </>
         )}
 
-        {!selectedJob && !ghostName && (
+        {!selectedJob && !selectedGhost && (
           <Box color="label" fontSize="12px">
-            Выберите профессию в списке справа, чтобы увидеть описание,
-            обязанности и цепочку подчинения.
+            {onGhostTab
+              ? 'Выберите гост-роль в списке справа, чтобы прочитать её описание и условия.'
+              : 'Выберите профессию в списке справа, чтобы увидеть описание, обязанности и цепочку подчинения.'}
           </Box>
         )}
       </Box>
@@ -538,34 +910,52 @@ const JobTitle = (props: {
   act: (action: string, params?: Record<string, unknown>) => void;
 }) => {
   const { job, dept, act } = props;
-  const title = job.displayTitle || job.title;
-
-  if (!job.hasAltTitles) {
-    return (
-      <Box mt={1} fontSize="16px" bold color={dept?.color}>
-        {title}
-      </Box>
-    );
-  }
+  const altTitle =
+    job.displayTitle && job.displayTitle !== job.title ? job.displayTitle : null;
+  const color = job.head ? HEAD_COLOR : dept?.color;
 
   return (
-    <Button
-      mt={1}
-      fluid
-      color="transparent"
-      icon="pen"
-      tooltip="Изменить название должности"
-      tooltipPosition="bottom-end"
-      style={{
-        textAlign: 'left',
-        fontSize: '16px',
-        fontWeight: 700,
-        color: dept?.color,
-        padding: '2px 0',
-      }}
-      onClick={() => act('alt_title', { job: job.title })}>
-      {title}
-    </Button>
+    <>
+      <Box
+        mt={1}
+        style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        {!!job.head && (
+          <Icon
+            name="crown"
+            style={{ color: HEAD_COLOR, fontSize: '14px', flex: '0 0 auto' }}
+          />
+        )}
+        <Box style={{ flex: '1 1 auto', minWidth: 0 }}>
+          {!job.hasAltTitles ? (
+            <Box fontSize="16px" bold color={color}>
+              {job.title}
+            </Box>
+          ) : (
+            <Button
+              fluid
+              color="transparent"
+              icon="pen"
+              tooltip="Изменить название должности"
+              tooltipPosition="bottom-end"
+              style={{
+                textAlign: 'left',
+                fontSize: '16px',
+                fontWeight: 700,
+                color: color || ROW_COLOR,
+                padding: '2px 0',
+              }}
+              onClick={() => act('alt_title', { job: job.title })}>
+              {job.title}
+            </Button>
+          )}
+        </Box>
+      </Box>
+      {!!altTitle && (
+        <Box fontSize="11px" italic color={SUBTLE}>
+          как {altTitle}
+        </Box>
+      )}
+    </>
   );
 };
 
@@ -578,9 +968,9 @@ const SelectColumn = (props: {
   tab: 'jobs' | 'ghosts';
   onTabChange: (tab: 'jobs' | 'ghosts') => void;
   jobColumns: Department[][];
-  ghostColumns: string[][];
+  ghostColumns: GhostBlock[][];
   visibleGroups: Department[];
-  ghostRoles: string[];
+  ghostRoles: GhostRole[];
   act: (action: string, params?: Record<string, unknown>) => void;
 }) => {
   const {
@@ -681,31 +1071,33 @@ const JobColumns = (props: {
     <Stack align="flex-start">
       {columns.map((column, index) => (
         <Stack.Item key={index} grow basis={0} style={{ minWidth: 0 }}>
-          {column.map((dept) => (
-            <Group key={dept.name} color={dept.color} title={dept.name}>
-              {dept.jobs.map((job) => (
-                <JobRow
-                  key={job.title}
-                  job={job}
-                  mode={mode}
-                  selected={selected}
-                  onSelect={(title) => act('select', { job: title })}
-                  onPriority={(title, level) =>
-                    act('set_priority', { job: title, level })
-                  }
-                />
-              ))}
-            </Group>
-          ))}
+          {column.map((dept) =>
+            dept.jobs.length ? (
+              <Group key={dept.name} color={dept.color} title={dept.name}>
+                {dept.jobs.map((job) => (
+                  <JobRow
+                    key={job.title}
+                    job={job}
+                    mode={mode}
+                    selected={selected}
+                    onSelect={(title) => act('select', { job: title })}
+                    onPriority={(title, level) =>
+                      act('set_priority', { job: title, level })
+                    }
+                  />
+                ))}
+              </Group>
+            ) : null,
+          )}
         </Stack.Item>
       ))}
     </Stack>
   );
 };
 
-/** Три колонки со списком гост ролей */
+/** Три колонки со списком гост ролей, разложенных по категориям и подстатусам */
 const GhostColumns = (props: {
-  columns: string[][];
+  columns: GhostBlock[][];
   selected: string | null;
   act: (action: string, params?: Record<string, unknown>) => void;
 }) => {
@@ -715,16 +1107,21 @@ const GhostColumns = (props: {
     <Stack align="flex-start">
       {columns.map((column, index) => (
         <Stack.Item key={index} grow basis={0} style={{ minWidth: 0 }}>
-          {column.map((spawner) => (
-            <Button
-              key={spawner}
-              fluid
-              color="transparent"
-              selected={selected === spawner}
-              style={{ textAlign: 'left' }}
-              onClick={() => act('select_ghost', { spawner })}>
-              {spawner}
-            </Button>
+          {column.map((block) => (
+            <Group
+              key={block.key}
+              color={block.color}
+              icon={block.icon}
+              title={`${block.title} (${block.roles.length})`}>
+              {block.roles.map((role) => (
+                <GhostRow
+                  key={role.name}
+                  role={role}
+                  selected={selected}
+                  onSelect={(name) => act('select_ghost', { spawner: name })}
+                />
+              ))}
+            </Group>
           ))}
         </Stack.Item>
       ))}
