@@ -82,11 +82,12 @@ type JobMenuData = {
   overflowRole?: string;
 };
 
+/** Шкала приоритета не забыть не менять после */
 const PRIORITY_LEVELS = [
-  { level: 3, label: 'Высокий', color: 'slateblue' },
-  { level: 2, label: 'Средний', color: 'green' },
-  { level: 1, label: 'Низкий', color: 'orange' },
   { level: 0, label: 'Никогда', color: 'red' },
+  { level: 1, label: 'Низкий', color: 'orange' },
+  { level: 2, label: 'Средний', color: 'green' },
+  { level: 3, label: 'Высокий', color: 'slateblue' },
 ];
 
 const slotLabel = (job: JobEntry) =>
@@ -234,8 +235,8 @@ const PriorityDots = (props: {
 
   const levels = job.overflow
     ? [
-        { level: 3, label: 'Да', color: 'green' },
         { level: 0, label: 'Нет', color: 'red' },
+        { level: 3, label: 'Да', color: 'green' },
       ]
     : PRIORITY_LEVELS;
   const current = job.overflow ? (job.priority ? 3 : 0) : job.priority || 0;
