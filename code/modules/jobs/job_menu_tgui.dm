@@ -2,6 +2,8 @@
 // В этот раз без пидор_бэк дефайнов.
 #define JOB_MENU_LATEJOIN "latejoin"
 #define JOB_MENU_PREFS "prefs"
+/// Потолок холста превью в пикселях: и base64, и обход канвасом остаются разумными
+#define JOB_MENU_PREVIEW_LIMIT 128
 
 /mob/dead/new_player
 	var/datum/job_menu/job_menu
@@ -584,34 +586,31 @@ GLOBAL_LIST_INIT(job_menu_antag_spawners, list(
 		return ""
 	return encode_preview_icon(icon(icon_file, icon_state, SOUTH, 1))
 
-/datum/job_menu/proc/fit_preview_icon(icon/target, size = 32)
+/datum/job_menu/proc/fit_preview_icon(icon/target)
 	if(!isicon(target))
 		return target
 	var/width = target.Width()
 	var/height = target.Height()
 	if(!isnum(width) || !isnum(height) || width <= 0 || height <= 0)
 		return target
-	if(width == size && height == size)
+
+	var/longest = max(width, height)
+	if(longest <= JOB_MENU_PREVIEW_LIMIT)
 		return target
 
-	var/icon/result = new /icon(target)
-	var/longest = max(width, height)
-	if(longest != size)
-		var/scale = size / longest
-		result.Scale(max(1, round(width * scale, 1)), max(1, round(height * scale, 1)))
-		width = result.Width()
-		height = result.Height()
+	// Нужен был целый делитель для вмещения куклы ровно по центру превью без скейла. Во бля
+	var/factor = 1
+	while(longest / factor > JOB_MENU_PREVIEW_LIMIT)
+		factor++
 
-	if(width != size || height != size)
-		var/pad_x = round((size - width) / 2, 1)
-		var/pad_y = round((size - height) / 2, 1)
-		result.Crop(1 - pad_x, 1 - pad_y, size - pad_x, size - pad_y)
+	var/icon/result = new /icon(target)
+	result.Scale(max(1, round(width / factor, 1)), max(1, round(height / factor, 1)))
 	return result
 
 /datum/job_menu/proc/encode_preview_icon(icon/target)
 	if(!isicon(target))
 		return ""
-	var/encoded = icon2base64_scaled(fit_preview_icon(target), 2)
+	var/encoded = icon2base64(fit_preview_icon(target))
 	return istext(encoded) ? encoded : ""
 
 // АКТы
@@ -790,3 +789,4 @@ GLOBAL_LIST_INIT(job_menu_antag_spawners, list(
 
 #undef JOB_MENU_LATEJOIN
 #undef JOB_MENU_PREFS
+#undef JOB_MENU_PREVIEW_LIMIT

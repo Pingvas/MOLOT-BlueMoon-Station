@@ -722,6 +722,146 @@ const buildJoinButton = (
   return null;
 };
 
+const PREVIEW_BOX = 256;
+const PREVIEW_CACHE_MAX = 64;
+
+type FramedPreview = { url: string; w: number; h: number };
+const previewFrameCache = new Map<string, FramedPreview>();
+
+const framePreview = (image: HTMLImageElement): FramedPreview | null => {
+  const width = image.naturalWidth;
+  const height = image.naturalHeight;
+  if (!width || !height) return null;
+
+  let x0 = 0;
+  let y0 = 0;
+  let x1 = width - 1;
+  let y1 = height - 1;
+
+  const probe = document.createElement('canvas');
+  probe.width = width;
+  probe.height = height;
+  const probeCtx = probe.getContext('2d', { willReadFrequently: true });
+  if (probeCtx) {
+    probeCtx.imageSmoothingEnabled = false;
+    probeCtx.drawImage(image, 0, 0);
+    try {
+      const { data } = probeCtx.getImageData(0, 0, width, height);
+      let left = width;
+      let right = -1;
+      let top = height;
+      let bottom = -1;
+      for (let y = 0; y < height; y++) {
+        const row = y * width * 4;
+        for (let x = 0; x < width; x++) {
+          if (data[row + x * 4 + 3] === 0) continue;
+          if (x < left) left = x;
+          if (x > right) right = x;
+          if (y < top) top = y;
+          if (y > bottom) bottom = y;
+        }
+      }
+      if (right >= 0 && bottom >= 0) {
+        x0 = left;
+        y0 = top;
+        x1 = right;
+        y1 = bottom;
+      }
+    } catch {
+      x0 = 0;
+      y0 = 0;
+      x1 = width - 1;
+      y1 = height - 1;
+    }
+  }
+
+  const contentWidth = x1 - x0 + 1;
+  const contentHeight = y1 - y0 + 1;
+  const scale = Math.max(
+    1,
+    Math.floor(PREVIEW_BOX / Math.max(contentWidth, contentHeight)),
+  );
+
+  const out = document.createElement('canvas');
+  out.width = contentWidth * scale;
+  out.height = contentHeight * scale;
+  const outCtx = out.getContext('2d');
+  if (!outCtx) return null;
+  outCtx.imageSmoothingEnabled = false;
+  outCtx.drawImage(
+    image,
+    x0,
+    y0,
+    contentWidth,
+    contentHeight,
+    0,
+    0,
+    out.width,
+    out.height,
+  );
+
+  return { url: out.toDataURL('image/png'), w: out.width, h: out.height };
+};
+
+const PixelPreview = (props: { src: string }) => {
+  const { src } = props;
+  const [framed, setFramed] = useState<FramedPreview | null>(
+    () => previewFrameCache.get(src) || null,
+  );
+
+  useEffect(() => {
+    const cached = previewFrameCache.get(src);
+    if (cached) {
+      setFramed(cached);
+      return;
+    }
+    setFramed(null);
+
+    let cancelled = false;
+    const image = new Image();
+    image.onload = () => {
+      const result = framePreview(image);
+      if (result) {
+        if (previewFrameCache.size >= PREVIEW_CACHE_MAX) {
+          const oldest = previewFrameCache.keys().next();
+          if (!oldest.done) previewFrameCache.delete(oldest.value);
+        }
+        previewFrameCache.set(src, result);
+      }
+      if (!cancelled) setFramed(result);
+    };
+    image.src = `data:image/png;base64,${src}`;
+    return () => {
+      cancelled = true;
+    };
+  }, [src]);
+
+  return (
+    <Box
+      style={{
+        width: PREVIEW_BOX,
+        height: PREVIEW_BOX,
+        margin: '0 auto',
+        overflow: 'hidden',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+      {framed && (
+        <Box
+          as="img"
+          src={framed.url}
+          style={{
+            width: `${framed.w}px`,
+            height: `${framed.h}px`,
+            imageRendering: 'pixelated',
+          }}
+        />
+      )}
+    </Box>
+  );
+};
+
 /** Левая колонка превью, название, подчинение, описание, кнопки. */
 const InfoColumn = (props: {
   selected: string | null;
@@ -794,12 +934,7 @@ const InfoColumn = (props: {
             textAlign: 'center',
           }}>
           {previewImage ? (
-            <Box
-              as="img"
-              width="100%"
-              src={`data:image/png;base64,${previewImage}`}
-              style={{ imageRendering: 'pixelated' }}
-            />
+            <PixelPreview key={previewImage} src={previewImage} />
           ) : (
             <Box color="label">{previewFallback}</Box>
           )}
