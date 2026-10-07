@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useMemo, useState } from 'react';
+import { Fragment, ReactNode, useEffect, useMemo, useState } from 'react';
 
 import { BooleanLike } from '../../common/react';
 import { useBackend } from '../backend';
@@ -57,6 +57,7 @@ type GhostInfo = {
 type Department = {
   name: string;
   color: string;
+  command?: BooleanLike;
   jobs: JobEntry[];
 };
 
@@ -284,15 +285,31 @@ const JobRow = (props: {
 }) => {
   const { job, mode, selected, onSelect, onPriority } = props;
   // Название строки базовая профессия, выбранное альтернативное показываем под ней
-  const altTitle =
-    job.displayTitle && job.displayTitle !== job.title ? job.displayTitle : null;
+  const rowTitle = job.displayTitle || job.title;
+  const baseTitle =
+    job.displayTitle && job.displayTitle !== job.title ? job.title : null;
   const isSelected = selected === job.title;
+
+  // Подсказка строки
+  const hints: string[] = [];
+  if (baseTitle) hints.push(`Профессия: ${baseTitle}`);
+  if (job.pinned) hints.push('Приоритетная вакансия — ×2 метадоллара за час');
 
   let rightSide: ReactNode = null;
   let rightColor: string | undefined;
 
   if (mode === 'latejoin') {
-    rightSide = slotLabel(job);
+    rightSide = job.pinned ? (
+      <>
+        <Icon
+          name="star"
+          style={{ color: 'orange', marginRight: '3px' }}
+        />
+        {slotLabel(job)}
+      </>
+    ) : (
+      slotLabel(job)
+    );
     rightColor = job.pinned ? 'orange' : undefined;
   } else if (!job.blocked) {
     rightSide = <PriorityDots job={job} onPriority={onPriority} />;
@@ -303,6 +320,7 @@ const JobRow = (props: {
       fluid
       color="transparent"
       selected={isSelected}
+      tooltip={hints.length ? hints.join(' · ') : undefined}
       style={{
         display: 'block',
         textAlign: 'left',
@@ -326,17 +344,12 @@ const JobRow = (props: {
             whiteSpace: 'nowrap',
             color: job.head ? HEAD_COLOR : undefined,
           }}>
-          {job.title}
+          {rowTitle}
         </Box>
         <Box style={{ flex: '0 0 auto' }} color={rightColor}>
           {rightSide}
         </Box>
       </Box>
-      {altTitle && (
-        <Box fontSize="11px" color={SUBTLE} italic>
-          как {altTitle}
-        </Box>
-      )}
       {job.blocked && (
         <Box fontSize="11px" color="bad" bold>
           {job.blocked}
@@ -518,9 +531,11 @@ export const JobMenu = () => {
     }
   }, [data?.preview, data?.previewJob]);
 
-  const selectedDept = departments.find((dept) =>
+  const deptMatches = departments.filter((dept) =>
     dept.jobs.some((job) => job.title === selected),
   );
+  const selectedDept =
+    deptMatches.find((dept) => !dept.command) || deptMatches[0];
   const selectedJob = selectedDept?.jobs.find(
     (job) => job.title === selected,
   );
@@ -673,6 +688,39 @@ export const JobMenu = () => {
   );
 };
 
+/** Креплю кнопку захода в хату. Первым делом при прибытии на станцию персонаж говорит "Кто тут у нас петушок, кого ебать в пердак с просвистоном" */
+const buildJoinButton = (
+  isLatejoin: boolean,
+  selectedJob: JobEntry | undefined,
+  selectedGhost: string | null,
+  act: (action: string, params?: Record<string, unknown>) => void,
+): ReactNode => {
+  if (!isLatejoin) {
+    return null;
+  }
+  if (selectedGhost) {
+    return (
+      <Button
+        color="good"
+        icon="sign-in-alt"
+        content="Присоединиться"
+        onClick={() => act('join_ghost', { spawner: selectedGhost })}
+      />
+    );
+  }
+  if (selectedJob) {
+    return (
+      <Button
+        color="good"
+        icon="sign-in-alt"
+        content="Присоединиться"
+        onClick={() => act('join', { job: selectedJob.title })}
+      />
+    );
+  }
+  return null;
+};
+
 /** Левая колонка превью, название, подчинение, описание, кнопки. */
 const InfoColumn = (props: {
   selected: string | null;
@@ -715,11 +763,27 @@ const InfoColumn = (props: {
     previewFallback = 'Гост-роль не выбрана.';
   }
 
+  const joinButton = buildJoinButton(
+    isLatejoin,
+    selectedJob,
+    selectedGhost,
+    act,
+  );
+
   return (
-    <Stack.Item width="300px" shrink={0}>
+    <Stack.Item
+      width="300px"
+      shrink={0}
+      style={{ display: 'flex', flexDirection: 'column' }}>
       <Box
-        height="100%"
-        style={{ overflowY: 'auto', overflowX: 'hidden', paddingRight: '6px' }}>
+        style={{
+          flex: '1 1 auto',
+          minHeight: 0,
+          overflowY: 'auto',
+          overflowX: 'hidden',
+          paddingRight: '6px',
+          paddingBottom: '6px',
+        }}>
         <Box
           px={1}
           py={1}
@@ -744,14 +808,12 @@ const InfoColumn = (props: {
           <>
             <JobTitle job={selectedJob} dept={selectedDept} act={act} />
 
-            <Box fontSize="11px" color={SUBTLE}>
-              Отдел: {selectedDept?.name}
-              {selectedJob.head
-                ? ' · Глава отдела'
-                : selectedJob.command
-                  ? ' · Командование'
-                  : ''}
-            </Box>
+            {!!selectedJob.command && (
+              <Box fontSize="11px" color={SUBTLE}>
+                Отдел: {selectedDept?.name}
+                {selectedJob.head ? ' · Глава отдела' : ''}
+              </Box>
+            )}
 
             {!!info.reports?.length && (
               <Box fontSize="12px" mt={0.5}>
@@ -776,24 +838,23 @@ const InfoColumn = (props: {
               </>
             )}
 
-            <Divider />
-
             {isLatejoin && (
               <>
+                <Divider />
                 <Box>
                   Свободные места: <b>{slotLabel(selectedJob)}</b>
                 </Box>
                 {!!selectedJob.pinned && (
-                  <Box color="orange">Приоритетная вакансия</Box>
+                  <Box color="orange" bold fontSize="12px">
+                    Приоритетная вакансия
+                  </Box>
                 )}
-                <Button
-                  mt={1}
-                  fluid
-                  color="good"
-                  icon="sign-in-alt"
-                  content="Присоединиться"
-                  onClick={() => act('join', { job: selectedJob.title })}
-                />
+                {!!selectedJob.pinned && (
+                  <Box fontSize="11px" color={SUBTLE}>
+                    За час на ней начисляется{' '}
+                    <b style={{ color: HEAD_COLOR }}>×2 метадоллара</b>
+                  </Box>
+                )}
               </>
             )}
           </>
@@ -879,15 +940,6 @@ const InfoColumn = (props: {
                 )}
               </>
             )}
-
-            <Button
-              mt={1}
-              fluid
-              color="good"
-              icon="sign-in-alt"
-              content="Присоединиться"
-              onClick={() => act('join_ghost', { spawner: selectedGhost })}
-            />
           </>
         )}
 
@@ -899,6 +951,20 @@ const InfoColumn = (props: {
           </Box>
         )}
       </Box>
+      {joinButton && (
+        <Box
+          style={{
+            flex: '0 0 auto',
+            display: 'flex',
+            justifyContent: 'flex-start',
+            marginTop: '6px',
+            paddingTop: '6px',
+            marginRight: '6px',
+            borderTop: '1px solid rgba(255,255,255,0.2)',
+          }}>
+          {joinButton}
+        </Box>
+      )}
     </Stack.Item>
   );
 };
@@ -910,52 +976,51 @@ const JobTitle = (props: {
   act: (action: string, params?: Record<string, unknown>) => void;
 }) => {
   const { job, dept, act } = props;
-  const altTitle =
-    job.displayTitle && job.displayTitle !== job.title ? job.displayTitle : null;
+  // Показываем уже выбранное название, базовое — в тултипе кнопки
+  const jobTitle = job.displayTitle || job.title;
+  const baseTitle =
+    job.displayTitle && job.displayTitle !== job.title ? job.title : null;
   const color = job.head ? HEAD_COLOR : dept?.color;
 
   return (
-    <>
-      <Box
-        mt={1}
-        style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-        {!!job.head && (
-          <Icon
-            name="crown"
-            style={{ color: HEAD_COLOR, fontSize: '14px', flex: '0 0 auto' }}
-          />
-        )}
-        <Box style={{ flex: '1 1 auto', minWidth: 0 }}>
-          {!job.hasAltTitles ? (
-            <Box fontSize="16px" bold color={color}>
-              {job.title}
-            </Box>
-          ) : (
-            <Button
-              fluid
-              color="transparent"
-              icon="pen"
-              tooltip="Изменить название должности"
-              tooltipPosition="bottom-end"
-              style={{
-                textAlign: 'left',
-                fontSize: '16px',
-                fontWeight: 700,
-                color: color || ROW_COLOR,
-                padding: '2px 0',
-              }}
-              onClick={() => act('alt_title', { job: job.title })}>
-              {job.title}
-            </Button>
-          )}
-        </Box>
-      </Box>
-      {!!altTitle && (
-        <Box fontSize="11px" italic color={SUBTLE}>
-          как {altTitle}
-        </Box>
+    <Box
+      mt={1}
+      style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+      {!!job.head && (
+        <Icon
+          name="crown"
+          style={{ color: HEAD_COLOR, fontSize: '14px', flex: '0 0 auto' }}
+        />
       )}
-    </>
+      <Box style={{ flex: '1 1 auto', minWidth: 0 }}>
+        {!job.hasAltTitles ? (
+          <Box fontSize="16px" bold color={color}>
+            {jobTitle}
+          </Box>
+        ) : (
+          <Button
+            fluid
+            color="transparent"
+            icon="pen"
+            tooltip={
+              baseTitle
+                ? `Профессия: ${baseTitle}. Нажмите, чтобы изменить`
+                : 'Изменить название должности'
+            }
+            tooltipPosition="bottom-end"
+            style={{
+              textAlign: 'left',
+              fontSize: '16px',
+              fontWeight: 700,
+              color: color || ROW_COLOR,
+              padding: '2px 0',
+            }}
+            onClick={() => act('alt_title', { job: job.title })}>
+            {jobTitle}
+          </Button>
+        )}
+      </Box>
+    </Box>
   );
 };
 
@@ -1049,6 +1114,17 @@ const SelectColumn = (props: {
   );
 };
 
+/** Вот тут менять линию между профами */
+const RowDivider = () => (
+  <Box
+    style={{
+      height: '1px',
+      margin: '1px 0',
+      background: 'rgba(255,255,255,0.12)',
+    }}
+  />
+);
+
 /** Три колонки со списком профессий. */
 const JobColumns = (props: {
   columns: Department[][];
@@ -1074,17 +1150,19 @@ const JobColumns = (props: {
           {column.map((dept) =>
             dept.jobs.length ? (
               <Group key={dept.name} color={dept.color} title={dept.name}>
-                {dept.jobs.map((job) => (
-                  <JobRow
-                    key={job.title}
-                    job={job}
-                    mode={mode}
-                    selected={selected}
-                    onSelect={(title) => act('select', { job: title })}
-                    onPriority={(title, level) =>
-                      act('set_priority', { job: title, level })
-                    }
-                  />
+                {dept.jobs.map((job, jobIndex) => (
+                  <Fragment key={job.title}>
+                    {jobIndex > 0 && <RowDivider />}
+                    <JobRow
+                      job={job}
+                      mode={mode}
+                      selected={selected}
+                      onSelect={(title) => act('select', { job: title })}
+                      onPriority={(title, level) =>
+                        act('set_priority', { job: title, level })
+                      }
+                    />
+                  </Fragment>
                 ))}
               </Group>
             ) : null,

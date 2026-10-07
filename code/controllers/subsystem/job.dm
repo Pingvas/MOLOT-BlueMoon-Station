@@ -490,6 +490,9 @@ SUBSYSTEM_DEF(job)
 
 	if(H.mind)
 		H.mind.assigned_role = rank
+		// Приоритет роли
+		if(job && (job in SSjob.prioritized_jobs))
+			H.mind.job_priority_boost = TRUE
 
 	if(job)
 		if(!job.dresscodecompliant)// CIT CHANGE - dress code compliance
@@ -526,6 +529,8 @@ SUBSYSTEM_DEF(job)
 			flavor_display_text += "\n<li>Ввиду критической нехватки персонала, ваша ID-карта имеет дополнительный доступ.</li>"
 		if(job.custom_spawn_text)
 			flavor_display_text += "\n<li>[capitalize(job.custom_spawn_text)]</li>"
+		if(H.mind?.job_priority_boost)
+			flavor_display_text += "\n<li><span class='notice'>Роль объявлена приоритетной: за час игры на ней начисляется <b>удвоенное</b> количество метадолларов.</span></li>"
 	if(ishuman(H))
 		var/mob/living/carbon/human/wageslave = H
 		flavor_display_text += "\n<li>Номер вашего банковского аккаунта - [wageslave.account_id].</li>"

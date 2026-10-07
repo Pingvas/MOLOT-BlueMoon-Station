@@ -156,8 +156,10 @@ GLOBAL_LIST_INIT(job_menu_antag_spawners, list(
 				SSjob.prioritized_jobs -= prioritized_job
 
 	var/list/emitted = list()
+	var/group_index = 0
 
 	for(var/list/category in categories)
+		group_index++
 		if(!length(category))
 			continue
 		var/datum/job/head_job = SSjob.name_occupations[category[1]]
@@ -185,6 +187,7 @@ GLOBAL_LIST_INIT(job_menu_antag_spawners, list(
 		. += list(list(
 			"name" = (GLOB.exp_type_department_ru[department_type] || department_type),
 			"color" = head_job.selection_color,
+			"command" = (group_index == 1),
 			"jobs" = jobs,
 		))
 
@@ -529,9 +532,9 @@ GLOBAL_LIST_INIT(job_menu_antag_spawners, list(
 
 	// Синтетики
 	if(istype(job_datum, /datum/job/ai))
-		return encode_preview_icon(icon('icons/mob/AI.dmi', resolve_ai_icon(preview_prefs.preferred_ai_core_display), SOUTH))
+		return encode_preview_icon(icon('icons/mob/AI.dmi', resolve_ai_icon(preview_prefs.preferred_ai_core_display), SOUTH, 1))
 	if(istype(job_datum, /datum/job/cyborg))
-		return encode_preview_icon(icon('icons/mob/robots.dmi', "robot", SOUTH))
+		return encode_preview_icon(icon('icons/mob/robots.dmi', "robot", SOUTH, 1))
 
 	var/icon/flat_icon = get_flat_human_icon(null, job_datum, preview_prefs, null, list(SOUTH))
 	return encode_preview_icon(flat_icon)
@@ -556,9 +559,9 @@ GLOBAL_LIST_INIT(job_menu_antag_spawners, list(
 
 	// Синтетики
 	if(ispath(spawn_landmark.mob_type, /mob/living/silicon/ai))
-		return encode_preview_icon(icon('icons/mob/AI.dmi', resolve_ai_icon(preview_prefs?.preferred_ai_core_display), SOUTH))
+		return encode_preview_icon(icon('icons/mob/AI.dmi', resolve_ai_icon(preview_prefs?.preferred_ai_core_display), SOUTH, 1))
 	if(ispath(spawn_landmark.mob_type, /mob/living/silicon/robot))
-		return encode_preview_icon(icon('icons/mob/robots.dmi', "robot", SOUTH))
+		return encode_preview_icon(icon('icons/mob/robots.dmi', "robot", SOUTH, 1))
 
 	// учитывается только реальный человек, у мнимых друзей тут спрайт не тот
 	if(ispath(spawn_landmark.mob_type, /mob/living/carbon/human))
@@ -579,12 +582,36 @@ GLOBAL_LIST_INIT(job_menu_antag_spawners, list(
 		return ""
 	if(!(icon_state in icon_states(icon_file)))
 		return ""
-	return encode_preview_icon(icon(icon_file, icon_state, SOUTH))
+	return encode_preview_icon(icon(icon_file, icon_state, SOUTH, 1))
+
+/datum/job_menu/proc/fit_preview_icon(icon/target, size = 32)
+	if(!isicon(target))
+		return target
+	var/width = target.Width()
+	var/height = target.Height()
+	if(!isnum(width) || !isnum(height) || width <= 0 || height <= 0)
+		return target
+	if(width == size && height == size)
+		return target
+
+	var/icon/result = new /icon(target)
+	var/longest = max(width, height)
+	if(longest != size)
+		var/scale = size / longest
+		result.Scale(max(1, round(width * scale, 1)), max(1, round(height * scale, 1)))
+		width = result.Width()
+		height = result.Height()
+
+	if(width != size || height != size)
+		var/pad_x = round((size - width) / 2, 1)
+		var/pad_y = round((size - height) / 2, 1)
+		result.Crop(1 - pad_x, 1 - pad_y, size - pad_x, size - pad_y)
+	return result
 
 /datum/job_menu/proc/encode_preview_icon(icon/target)
 	if(!isicon(target))
 		return ""
-	var/encoded = icon2base64_scaled(target, 2)
+	var/encoded = icon2base64_scaled(fit_preview_icon(target), 2)
 	return istext(encoded) ? encoded : ""
 
 // АКТы
