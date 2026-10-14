@@ -645,7 +645,7 @@ const AntagonistsTab = (props: { antagCount: number }) => {
                   <>
                     <Box className="CheckAntagonists__StatChip">
                       <Box className="CheckAntagonists__StatChipLabel">
-                        В рейсе
+                        В игре
                       </Box>
                       <Box bold>{stats.ingame}</Box>
                     </Box>
@@ -901,7 +901,7 @@ const StatsSection = () => {
           </Box>
         </LabeledList.Item>
         <LabeledList.Item label="Подключено">
-          {stats.connected} · в рейсе: {stats.ingame} · в лобби: {stats.lobby}
+          {stats.connected} · в игре: {stats.ingame} · в лобби: {stats.lobby}
         </LabeledList.Item>
         <LabeledList.Item label="Живые">
           {stats.living} (в сети: {stats.living_connected})
