@@ -4965,6 +4965,7 @@
 #include "modular_bluemoon\code\modules\cargo\packs\science.dm"
 #include "modular_bluemoon\code\modules\cargo\packs\security.dm"
 #include "modular_bluemoon\code\modules\client\fullscreen.dm"
+#include "modular_bluemoon\code\modules\client\hair_style_picker.dm"
 #include "modular_bluemoon\code\modules\client\loadout_color.dm"
 #include "modular_bluemoon\code\modules\client\modern_ru.dm"
 #include "modular_bluemoon\code\modules\client\padezhi.dm"
