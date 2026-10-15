@@ -6720,8 +6720,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	return "<img src='[link]' referrerpolicy='no-referrer' style='border: 1px solid black; object-fit: contain;' width='[width]' height='[height]'>"
 
 /datum/preferences/proc/get_ass_photo_markup()
-	var/ass_photo_label = use_modern_translations ? get_modern_text("ass_photo", src) : "Butt photo"
-	var/set_ass_photo_label = use_modern_translations ? get_modern_text("set_ass_photo", src) : "Set photo"
+	var/ass_photo_label = use_modern_translations ? get_modern_text("ass_photo", src) : "Ass Shot"
+	var/set_ass_photo_label = use_modern_translations ? get_modern_text("set_ass_photo", src) : "Set Ass Shot"
 	var/list/markup = list()
 	markup += "<h2>[ass_photo_label]</h2>"
 	markup += "<a href='?_src_=prefs;preference=ass_photo'><b>[set_ass_photo_label]</b></a>"
