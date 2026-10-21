@@ -450,7 +450,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	///loadout stuff
 	var/gear_points = 20 // Больше очков - сочнее персонажи.
 	var/list/gear_categories
-	var/list/loadout_data = list()
+	var/list/list/loadout_data = list()
 	var/list/unlockable_loadout_data = list()
 	var/loadout_slot = 1 //goes from 1 to MAXIMUM_LOADOUT_SAVES
 	var/loadout_enabled = TRUE // BLUEMOON ADD - переключатель: спавниться с лодаутом или нет
