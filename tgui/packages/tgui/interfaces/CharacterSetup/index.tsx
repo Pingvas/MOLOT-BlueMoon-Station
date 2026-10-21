@@ -1,0 +1,330 @@
+import { useState } from 'react';
+
+import { useBackend } from '../../backend';
+import {
+  Box,
+  Button,
+  ByondUi,
+  Dropdown,
+  NoticeBox,
+  Section,
+  Stack,
+  Tabs,
+} from '../../components';
+import { Window } from '../../layouts';
+import { AppearanceTab } from './tabs/Appearance';
+import { BackgroundTab } from './tabs/Background';
+import { GeneralTab } from './tabs/General';
+import { LoadoutTab } from './tabs/Loadout';
+import { MarkingsTab } from './tabs/Markings';
+import { QuirksTab } from './tabs/Quirks';
+import { SpeechTab } from './tabs/Speech';
+
+interface CharacterSetupTab {
+  id: number;
+  label: string;
+  icon: string;
+}
+
+interface CharacterSetupData {
+  tabs: CharacterSetupTab[];
+  maxSlots: number;
+  slotNames: (string | null)[];
+  defaultSlot: number;
+  tab: number;
+  previewRef: string | null;
+  previewPref: string;
+  previewModes: string[];
+  localStorageName: string | null;
+  offerActive: boolean;
+  redemptionCode?: string;
+}
+
+const PREVIEW_MODE_LABELS: Record<string, string> = {
+  Job: 'По профессии',
+  Loadout: 'Экипировка',
+  Naked: 'Без одежды',
+  'Naked - Aroused': 'Без одежды (возбужд.)',
+};
+
+const slotLabel = (
+  slot: number,
+  names: (string | null)[],
+): string => {
+  const name = names[slot - 1];
+  return `[${slot}] ${name ? name : '— пустой'}`;
+};
+
+export const CharacterSetup = () => {
+  const { act, data } = useBackend<CharacterSetupData>();
+
+  const tabs = data.tabs || [];
+  const activeTab = data.tab;
+
+  return (
+    <Window
+      width={1180}
+      height={820}
+      resizable
+      title="Создание персонажа"
+    >
+      <Window.Content>
+        <Stack fill vertical>
+          <Stack.Item>
+            <SlotBar />
+          </Stack.Item>
+          <Stack.Item>
+            <Tabs>
+              {tabs.map((tabEntry) => (
+                <Tabs.Tab
+                  key={tabEntry.id}
+                  selected={activeTab === tabEntry.id}
+                  icon={tabEntry.icon}
+                  onClick={() => act('set_tab', { tab: tabEntry.id })}
+                >
+                  {tabEntry.label}
+                </Tabs.Tab>
+              ))}
+            </Tabs>
+          </Stack.Item>
+          <Stack.Item grow={1} basis={0}>
+            <Stack fill>
+              <Stack.Item grow={1} basis={0}>
+                <TabContent tab={activeTab} />
+              </Stack.Item>
+              <Stack.Item>
+                <Preview />
+              </Stack.Item>
+            </Stack>
+          </Stack.Item>
+        </Stack>
+      </Window.Content>
+    </Window>
+  );
+};
+
+const SlotBar = () => {
+  const { act, data } = useBackend<CharacterSetupData>();
+
+  const maxSlots = data.maxSlots || 1;
+  const slotNames = data.slotNames || [];
+  const defaultSlot = data.defaultSlot || 1;
+
+  const slotOptions = [];
+  for (let slot = 1; slot <= maxSlots; slot++) {
+    slotOptions.push({
+      value: slot,
+      displayText: slotLabel(slot, slotNames),
+    });
+  }
+
+  return (
+    <Section>
+      <Stack align="center">
+        <Stack.Item>
+          <Dropdown
+            width="240px"
+            options={slotOptions}
+            selected={defaultSlot}
+            onSelected={(value) => act('switch_slot', { slot: value })}
+          />
+        </Stack.Item>
+        <Stack.Item>
+          <Button
+            icon="save"
+            content="Сохранить"
+            onClick={() => act('save')}
+          />
+        </Stack.Item>
+        <Stack.Item>
+          <Button
+            icon="undo"
+            content="Отменить"
+            tooltip="Откатить несохранённые изменения к последнему сохранению"
+            onClick={() => act('load')}
+          />
+        </Stack.Item>
+        <Stack.Item>
+          <Button
+            icon="trash"
+            color="bad"
+            content="Удалить слот"
+            onClick={() => act('delete_slot', { slot: defaultSlot })}
+          />
+        </Stack.Item>
+        <Stack.Item>
+          <Button
+            icon="dice"
+            content="Случайный персонаж"
+            onClick={() => act('randomize')}
+          />
+        </Stack.Item>
+        <Stack.Item grow={1} />
+      </Stack>
+      <SlotTools />
+    </Section>
+  );
+};
+
+const SlotTools = () => {
+  const { act, data } = useBackend<CharacterSetupData>();
+  const [open, setOpen] = useState(false);
+
+  const localName = data.localStorageName;
+  const offerActive = !!data.offerActive;
+
+  return (
+    <Box mt={1}>
+      <Button
+        icon={open ? 'chevron-down' : 'chevron-right'}
+        content="Передача слота"
+        selected={open}
+        onClick={() => setOpen(!open)}
+      />
+      {open && (
+        <Stack mt={1} align="center" wrap>
+          <Stack.Item>
+            <Box color="label">
+              Локальная копия:{' '}
+              {localName ? localName : 'пусто'}
+            </Box>
+          </Stack.Item>
+          <Stack.Item>
+            <Button
+              icon="download"
+              content="Экспорт слота"
+              onClick={() => act('slot_export')}
+            />
+          </Stack.Item>
+          <Stack.Item>
+            <Button
+              icon="upload"
+              content="Импорт в слот"
+              disabled={!localName}
+              tooltip={localName ? undefined : 'Локальной копии нет'}
+              onClick={() => act('slot_import')}
+            />
+          </Stack.Item>
+          <Stack.Item>
+            <Button.Confirm
+              icon="trash"
+              color="bad"
+              content="Стереть локальную копию"
+              confirmContent="Стереть локальную копию?"
+              onClick={() => act('slot_delete_local')}
+            />
+          </Stack.Item>
+          <Stack.Item>
+            <Button.Confirm
+              icon="share-alt"
+              color={offerActive ? 'bad' : undefined}
+              content={offerActive ? 'Отменить передачу' : 'Предложить слот'}
+              confirmContent={
+                offerActive
+                  ? 'Отменить предложение?'
+                  : 'Вывести слот на передачу?'
+              }
+              onClick={() => act('slot_give')}
+            />
+          </Stack.Item>
+          <Stack.Item>
+            <Button
+              icon="key"
+              content="Получить по коду"
+              onClick={() => act('slot_retrieve')}
+            />
+          </Stack.Item>
+          {offerActive && !!data.redemptionCode && (
+            <Stack.Item>
+              <Box>
+                Код передачи:{' '}
+                <Box inline bold>
+                  {data.redemptionCode}
+                </Box>
+              </Box>
+            </Stack.Item>
+          )}
+        </Stack>
+      )}
+    </Box>
+  );
+};
+
+const Preview = () => {
+  const { act, data } = useBackend<CharacterSetupData>();
+
+  const modes = data.previewModes || [];
+
+  return (
+    <Section title="Превью" width="280px">
+      <Box textAlign="center" mb={1}>
+        {data.previewRef ? (
+          <ByondUi
+            height="300px"
+            width="240px"
+            params={{ id: data.previewRef, type: 'map', zoom: 0 }}
+          />
+        ) : (
+          <NoticeBox>Превью ещё не собрано</NoticeBox>
+        )}
+      </Box>
+      <Stack mb={1}>
+        <Stack.Item grow>
+          <Button
+            fluid
+            icon="undo"
+            content="Влево"
+            onClick={() => act('preview_rotate', { step: 'left' })}
+          />
+        </Stack.Item>
+        <Stack.Item grow>
+          <Button
+            fluid
+            icon="redo"
+            content="Вправо"
+            onClick={() => act('preview_rotate', { step: 'right' })}
+          />
+        </Stack.Item>
+      </Stack>
+      <Stack vertical>
+        {modes.map((mode) => (
+          <Stack.Item key={mode}>
+            <Button
+              fluid
+              selected={data.previewPref === mode}
+              content={PREVIEW_MODE_LABELS[mode] || mode}
+              onClick={() => act('set_preview_mode', { mode })}
+            />
+          </Stack.Item>
+        ))}
+      </Stack>
+    </Section>
+  );
+};
+
+const TabContent = (props: { tab: number }) => {
+  const { tab } = props;
+
+  switch (tab) {
+    case 0:
+      return <GeneralTab />;
+    case 1:
+      return <BackgroundTab />;
+    case 2:
+      return <AppearanceTab />;
+    case 3:
+      return <MarkingsTab />;
+    case 4:
+      return <SpeechTab />;
+    case 5:
+      return <LoadoutTab />;
+    case 6:
+      return <QuirksTab />;
+    default:
+      return (
+        <Section fill scrollable>
+          <NoticeBox>Неизвестная вкладка - её содержимое не определено.</NoticeBox>
+        </Section>
+      );
+  }
+};
