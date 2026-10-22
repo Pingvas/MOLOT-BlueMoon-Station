@@ -3477,7 +3477,8 @@
 	cut_overlays()
 	if(appearance_source)
 		appearance_source.setDir(SOUTH)
-		appearance_source.transform = matrix()
+		var/matrix/appearance_matrix = appearance_source.transform
+		appearance_source.transform = matrix(appearance_matrix?.a || 1, 0, 0, 0, appearance_matrix?.e || 1, appearance_matrix?.f || 0)
 		appearance_source.pixel_x = 0
 		appearance_source.pixel_y = 0
 		add_overlay(appearance_source)

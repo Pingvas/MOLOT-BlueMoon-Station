@@ -2289,6 +2289,9 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 
 	load_tattoo_prefs(S) // BLUEMOON ADD - загрузка татуировок
 
+	if(parent?.prefs == src)
+		parent.tgui_panel?.emotes_send_list()
+
 	return S
 
 /// Имена персонажей по слотам (null - слот пуст). Сейвфайл читается только после сброса кэша.
