@@ -68,6 +68,7 @@ export const BackgroundTab = () => {
             maxLength={flavorLen}
             height="150px"
             placeholder="Что видно, когда на персонажа смотрят"
+            editField="flavor_text"
           />
           <TextAreaRow
             label="Описание без одежды"
@@ -76,6 +77,7 @@ export const BackgroundTab = () => {
             action="set_naked_flavor_text"
             maxLength={flavorLen}
             placeholder="Текст поверх обнажённого персонажа"
+            editField="naked_flavor_text"
           />
           <TextAreaRow
             label="Описание силикона"
@@ -84,6 +86,7 @@ export const BackgroundTab = () => {
             action="set_silicon_flavor_text"
             maxLength={flavorLen}
             placeholder="Особенности корпуса борга"
+            editField="silicon_flavor_text"
           />
           <TextAreaRow
             label="Описание вкуса"
@@ -91,6 +94,7 @@ export const BackgroundTab = () => {
             action="set_taste"
             maxLength={tasteLen}
             placeholder="На вкус персонаж похож на... (узнаётся при облизывании *lick)"
+            editField="taste"
           />
           <TextAreaRow
             label="Описание запаха"
@@ -98,6 +102,7 @@ export const BackgroundTab = () => {
             action="set_smell"
             maxLength={tasteLen}
             placeholder="Запах персонажа... (узнаётся при обнюхивании *sniff)"
+            editField="smell"
           />
           <TextAreaRow
             label="Охранные записи"
@@ -107,6 +112,7 @@ export const BackgroundTab = () => {
             maxLength={flavorLen}
             height="90px"
             placeholder="Что найдёт служба безопасности"
+            editField="security_records"
           />
           <TextAreaRow
             label="Медицинские записи"
@@ -116,6 +122,7 @@ export const BackgroundTab = () => {
             maxLength={flavorLen}
             height="90px"
             placeholder="Что найдёт медслужба"
+            editField="medical_records"
           />
         </Section>
       </Stack.Item>
@@ -136,6 +143,7 @@ export const BackgroundTab = () => {
             action="set_species_lore"
             maxLength={flavorLen}
             placeholder="История и культура вашего вида"
+            editField="species_lore"
           />
           <TextAreaRow
             label="OOC-заметки"
@@ -144,6 +152,7 @@ export const BackgroundTab = () => {
             action="set_ooc_notes"
             maxLength={flavorLen}
             placeholder="Всегда видимые заметки о предпочтениях"
+            editField="ooc_notes"
           />
           <TextAreaRow
             label="Эмоут смерти"
@@ -153,6 +162,7 @@ export const BackgroundTab = () => {
             maxLength={background.deathgaspMaxLen || 1024}
             height="80px"
             placeholder="Что произойдёт при смерти"
+            editField="deathgasp"
           />
           <DeathsoundRow />
         </Section>

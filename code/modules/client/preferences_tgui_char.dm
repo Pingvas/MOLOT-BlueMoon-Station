@@ -2691,9 +2691,8 @@
 	prefs.save_character(TRUE)
 	qdel(offer_datum)
 
-/datum/character_setup/proc/format_help()
-	var/mob/user = prefs.parent?.mob
-	var/help_text = {"Форматирование описания персонажа:
+/datum/character_setup/proc/format_help_text()
+	return {"Форматирование описания персонажа:
 
 *текст* или _текст_ — курсив
 !текст! — жирный
@@ -2706,7 +2705,73 @@
 -=RRGGBB текст =- — цвет (hex, например -=ff0000 красный=- , -=00ff00 зелёный=-)
 Экранирование: \\* \\! \\_ \\^ \\| \\( \\)
 "}
-	tgui_alert(user, help_text, "Помощь по форматированию", list("OK"))
+
+/datum/character_setup/proc/format_help()
+	var/mob/user = prefs.parent?.mob
+	tgui_alert(user, format_help_text(), "Помощь по форматированию", list("OK"))
+
+/datum/character_setup/proc/apply_text_edit(field, text)
+	switch(field)
+		if("flavor_text")
+			prefs.features["flavor_text"] = clip_text(text, MAX_FLAVOR_LEN)
+		if("naked_flavor_text")
+			prefs.features["naked_flavor_text"] = clip_text(text, MAX_FLAVOR_LEN)
+		if("silicon_flavor_text")
+			prefs.features["silicon_flavor_text"] = clip_text(text, MAX_FLAVOR_LEN)
+		if("taste")
+			prefs.vore_taste = clip_text(text, MAX_TASTE_LEN)
+		if("smell")
+			prefs.vore_smell = clip_text(text, MAX_TASTE_LEN)
+		if("species_lore")
+			prefs.features["custom_species_lore"] = clip_text(text, MAX_FLAVOR_LEN)
+		if("ooc_notes")
+			prefs.features["ooc_notes"] = clip_text(text, MAX_FLAVOR_LEN)
+		if("security_records")
+			prefs.security_records = clip_text(text, MAX_FLAVOR_LEN)
+		if("medical_records")
+			prefs.medical_records = clip_text(text, MAX_FLAVOR_LEN)
+		if("deathgasp")
+			if(isnull(text))
+				return
+			prefs.features["custom_deathgasp"] = strip_html_simple("[text]", MAX_DEATHGASP_LEN)
+		else
+			return FALSE
+	return TRUE
+
+/datum/character_setup/proc/edit_text_field(list/params)
+	var/field = "[params["field"]]"
+	var/list/config
+	switch(field)
+		if("flavor_text")
+			config = list("Описание при осмотре", prefs.features["flavor_text"], MAX_FLAVOR_LEN)
+		if("naked_flavor_text")
+			config = list("Описание без одежды", prefs.features["naked_flavor_text"], MAX_FLAVOR_LEN)
+		if("silicon_flavor_text")
+			config = list("Описание силикона", prefs.features["silicon_flavor_text"], MAX_FLAVOR_LEN)
+		if("taste")
+			config = list("Описание вкуса", prefs.vore_taste, MAX_TASTE_LEN)
+		if("smell")
+			config = list("Описание запаха", prefs.vore_smell, MAX_TASTE_LEN)
+		if("species_lore")
+			config = list("Предыстория вида", prefs.features["custom_species_lore"], MAX_FLAVOR_LEN)
+		if("ooc_notes")
+			config = list("OOC-заметки", prefs.features["ooc_notes"], MAX_FLAVOR_LEN)
+		if("security_records")
+			config = list("Охранные записи", prefs.security_records, MAX_FLAVOR_LEN)
+		if("medical_records")
+			config = list("Медицинские записи", prefs.medical_records, MAX_FLAVOR_LEN)
+		if("deathgasp")
+			config = list("Эмоут смерти", prefs.features["custom_deathgasp"], MAX_DEATHGASP_LEN)
+		else
+			return
+	var/opened_slot = prefs.default_slot
+	var/mob/user = prefs.parent?.mob
+	var/new_text = tgui_input_text(user, "", config[1], config[2], config[3], TRUE, FALSE, 0, FALSE, format_help_text())
+	if(isnull(new_text))
+		return TRUE
+	if(prefs.default_slot != opened_slot)
+		return TRUE
+	return apply_text_edit(field, new_text)
 
 /datum/character_setup/proc/build_background_data()
 	var/list/data = list()
@@ -2951,48 +3016,38 @@
 			prefs.SetChoices(usr)
 			return TRUE
 
+		if("edit_text")
+			return edit_text_field(params)
+
 		if("set_flavor_text")
-			prefs.features["flavor_text"] = clip_text(params["text"], MAX_FLAVOR_LEN)
-			return TRUE
+			return apply_text_edit("flavor_text", params["text"])
 
 		if("set_naked_flavor_text")
-			prefs.features["naked_flavor_text"] = clip_text(params["text"], MAX_FLAVOR_LEN)
-			return TRUE
+			return apply_text_edit("naked_flavor_text", params["text"])
 
 		if("set_silicon_flavor_text")
-			prefs.features["silicon_flavor_text"] = clip_text(params["text"], MAX_FLAVOR_LEN)
-			return TRUE
+			return apply_text_edit("silicon_flavor_text", params["text"])
 
 		if("set_taste")
-			prefs.vore_taste = clip_text(params["text"], MAX_TASTE_LEN)
-			return TRUE
+			return apply_text_edit("taste", params["text"])
 
 		if("set_smell")
-			prefs.vore_smell = clip_text(params["text"], MAX_TASTE_LEN)
-			return TRUE
+			return apply_text_edit("smell", params["text"])
 
 		if("set_species_lore")
-			prefs.features["custom_species_lore"] = clip_text(params["text"], MAX_FLAVOR_LEN)
-			return TRUE
+			return apply_text_edit("species_lore", params["text"])
 
 		if("set_ooc_notes")
-			prefs.features["ooc_notes"] = clip_text(params["text"], MAX_FLAVOR_LEN)
-			return TRUE
+			return apply_text_edit("ooc_notes", params["text"])
 
 		if("set_security_records")
-			prefs.security_records = clip_text(params["text"], MAX_FLAVOR_LEN)
-			return TRUE
+			return apply_text_edit("security_records", params["text"])
 
 		if("set_medical_records")
-			prefs.medical_records = clip_text(params["text"], MAX_FLAVOR_LEN)
-			return TRUE
+			return apply_text_edit("medical_records", params["text"])
 
 		if("set_deathgasp")
-			var/new_gasp = params["text"]
-			if(isnull(new_gasp))
-				return
-			prefs.features["custom_deathgasp"] = strip_html_simple("[new_gasp]", MAX_DEATHGASP_LEN)
-			return TRUE
+			return apply_text_edit("deathgasp", params["text"])
 
 		if("set_deathsound")
 			var/new_sound = params["value"]

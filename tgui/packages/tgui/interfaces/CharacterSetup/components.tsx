@@ -285,6 +285,7 @@ export const TextAreaRow = (props: {
   maxLength?: number;
   tooltip?: string;
   placeholder?: string;
+  editField?: string;
 }) => {
   const { act } = useBackend<any>();
   const {
@@ -295,6 +296,7 @@ export const TextAreaRow = (props: {
     maxLength,
     tooltip,
     placeholder,
+    editField,
   } = props;
   const [expanded, setExpanded] = useState(false);
   return (
@@ -303,6 +305,16 @@ export const TextAreaRow = (props: {
         <Stack.Item grow>
           <Box title={tooltip}>{label}</Box>
         </Stack.Item>
+        {editField && (
+          <Stack.Item>
+            <Button
+              compact
+              icon="window-maximize"
+              tooltip="Редактировать в отдельном окне"
+              onClick={() => act('edit_text', { field: editField })}
+            />
+          </Stack.Item>
+        )}
         <Stack.Item>
           <Button
             compact

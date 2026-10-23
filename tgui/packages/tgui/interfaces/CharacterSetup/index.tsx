@@ -5,7 +5,7 @@ import {
   Box,
   Button,
   ByondUi,
-  Dropdown,
+  Divider,
   NoticeBox,
   Section,
   Stack,
@@ -63,6 +63,7 @@ export const CharacterSetup = () => {
   const activeTab = data.tab;
 
   const [maximized, setMaximized] = useState(false);
+  const [slotsOpen, setSlotsOpen] = useState(false);
   const restoreGeometry = useRef<{ pos: string; size: string } | null>(null);
 
   const toggleMaximize = async () => {
@@ -119,27 +120,58 @@ export const CharacterSetup = () => {
           <Stack.Item>
             <SlotBar />
           </Stack.Item>
-          <Stack.Item>
-            <Tabs>
-              {tabs.map((tabEntry) => (
-                <Tabs.Tab
-                  key={tabEntry.id}
-                  selected={activeTab === tabEntry.id}
-                  icon={tabEntry.icon}
-                  onClick={() => act('set_tab', { tab: tabEntry.id })}
-                >
-                  {tabEntry.label}
-                </Tabs.Tab>
-              ))}
-            </Tabs>
-          </Stack.Item>
           <Stack.Item grow={1} basis={0}>
             <Stack fill>
-              <Stack.Item grow={1} basis={0}>
-                <TabContent tab={activeTab} />
-              </Stack.Item>
               <Stack.Item>
-                <Preview />
+                <Box
+                  style={{
+                    height: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Button
+                    compact
+                    icon={slotsOpen ? 'chevron-left' : 'chevron-right'}
+                    tooltip={slotsOpen
+                      ? 'Скрыть список персонажей'
+                      : 'Показать список персонажей'}
+                    onClick={() => setSlotsOpen(!slotsOpen)}
+                  />
+                </Box>
+              </Stack.Item>
+              {slotsOpen && (
+                <Stack.Item width="260px">
+                  <SlotPanel />
+                </Stack.Item>
+              )}
+              <Stack.Item grow={1} basis={0}>
+                <Stack fill vertical>
+                  <Stack.Item>
+                    <Tabs>
+                      {tabs.map((tabEntry) => (
+                        <Tabs.Tab
+                          key={tabEntry.id}
+                          selected={activeTab === tabEntry.id}
+                          icon={tabEntry.icon}
+                          onClick={() => act('set_tab', { tab: tabEntry.id })}
+                        >
+                          {tabEntry.label}
+                        </Tabs.Tab>
+                      ))}
+                    </Tabs>
+                  </Stack.Item>
+                  <Stack.Item grow={1} basis={0}>
+                    <Stack fill>
+                      <Stack.Item grow={1} basis={0}>
+                        <TabContent tab={activeTab} />
+                      </Stack.Item>
+                      <Stack.Item>
+                        <Preview />
+                      </Stack.Item>
+                    </Stack>
+                  </Stack.Item>
+                </Stack>
               </Stack.Item>
             </Stack>
           </Stack.Item>
@@ -152,28 +184,16 @@ export const CharacterSetup = () => {
 const SlotBar = () => {
   const { act, data } = useBackend<CharacterSetupData>();
 
-  const maxSlots = data.maxSlots || 1;
   const slotNames = data.slotNames || [];
   const defaultSlot = data.defaultSlot || 1;
-
-  const slotOptions = [];
-  for (let slot = 1; slot <= maxSlots; slot++) {
-    slotOptions.push({
-      value: slot,
-      displayText: slotLabel(slot, slotNames),
-    });
-  }
 
   return (
     <Section>
       <Stack align="center">
-        <Stack.Item>
-          <Dropdown
-            width="240px"
-            options={slotOptions}
-            selected={defaultSlot}
-            onSelected={(value) => act('switch_slot', { slot: value })}
-          />
+        <Stack.Item grow={1}>
+          <Box color="label">
+            Текущий персонаж: {slotLabel(defaultSlot, slotNames)}
+          </Box>
         </Stack.Item>
         <Stack.Item>
           <Button
@@ -190,24 +210,122 @@ const SlotBar = () => {
             onClick={() => act('load')}
           />
         </Stack.Item>
-        <Stack.Item>
-          <Button
-            icon="trash"
-            color="bad"
-            content="Удалить слот"
-            onClick={() => act('delete_slot', { slot: defaultSlot })}
-          />
-        </Stack.Item>
-        <Stack.Item>
-          <Button
-            icon="dice"
-            content="Случайный персонаж"
-            onClick={() => act('randomize')}
-          />
-        </Stack.Item>
-        <Stack.Item grow={1} />
       </Stack>
-      <SlotTools />
+    </Section>
+  );
+};
+
+const SlotPanel = () => {
+  const { act, data } = useBackend<CharacterSetupData>();
+
+  const maxSlots = data.maxSlots || 1;
+  const slotNames = data.slotNames || [];
+  const defaultSlot = data.defaultSlot || 1;
+  const [showEmpty, setShowEmpty] = useState(false);
+
+  const occupied: number[] = [];
+  const empty: number[] = [];
+  for (let slot = 1; slot <= maxSlots; slot++) {
+    if (slotNames[slot - 1]) {
+      occupied.push(slot);
+    } else {
+      empty.push(slot);
+    }
+  }
+
+  const emptyVisible =
+    showEmpty || occupied.length === 0 || !slotNames[defaultSlot - 1];
+
+  return (
+    <Section
+      fill
+      title="Персонажи"
+      buttons={<Box color="label">{occupied.length}/{maxSlots}</Box>}
+    >
+      <Stack fill vertical>
+        <Stack.Item
+          grow
+          basis={0}
+          style={{ overflowY: 'auto', overflowX: 'hidden', minHeight: 0 }}
+        >
+          {occupied.length > 0 ? (
+            <Box style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px' }}>
+              {occupied.map((slot) => (
+                <Button
+                  key={slot}
+                  fluid
+                  ellipsis
+                  style={{ margin: 0 }}
+                  content={`${slot}. ${slotNames[slot - 1]}`}
+                  selected={slot === defaultSlot}
+                  tooltip={slotLabel(slot, slotNames)}
+                  onClick={() => act('switch_slot', { slot })}
+                />
+              ))}
+            </Box>
+          ) : (
+            <Box color="label">
+              Занятых слотов нет - выберите пустой слот, чтобы создать
+              персонажа.
+            </Box>
+          )}
+          <Button
+            fluid
+            mt={1}
+            icon={showEmpty ? 'eye-slash' : 'eye'}
+            content={showEmpty
+              ? 'Скрыть пустые'
+              : `Пустые слоты (${empty.length})`}
+            onClick={() => setShowEmpty(!showEmpty)}
+          />
+          {emptyVisible && empty.length > 0 && (
+            <Box
+              mt={1}
+              style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px' }}
+            >
+              {empty.map((slot) => (
+                <Button
+                  key={slot}
+                  fluid
+                  icon="plus"
+                  style={{ margin: 0 }}
+                  content={`Слот ${slot}`}
+                  selected={slot === defaultSlot}
+                  onClick={() => act('switch_slot', { slot })}
+                />
+              ))}
+            </Box>
+          )}
+        </Stack.Item>
+        <Stack.Item>
+          <Divider />
+          <Stack vertical>
+            <Stack.Item>
+              <Button
+                fluid
+                icon="dice"
+                content="Случайный персонаж"
+                onClick={() => act('randomize')}
+              />
+            </Stack.Item>
+            <Stack.Item>
+              <Button.Confirm
+                fluid
+                icon="trash"
+                color="bad"
+                content="Удалить слот"
+                confirmContent="Удалить слот?"
+                disabled={!slotNames[defaultSlot - 1]}
+                tooltip={slotNames[defaultSlot - 1]
+                  ? undefined
+                  : 'Текущий слот и так пуст'}
+                onClick={() => act('delete_slot', { slot: defaultSlot })}
+              />
+            </Stack.Item>
+          </Stack>
+          <SlotTools />
+        </Stack.Item>
+      </Stack>
     </Section>
   );
 };
