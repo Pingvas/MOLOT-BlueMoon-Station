@@ -12,7 +12,7 @@
 #define FEATURE_COLOR_LIMITED "limited"
 #define FEATURE_COLOR_MUTANT "mutant"
 #define FEATURE_COLOR_RESET "reset"
-#define FEATURE_MISMATCH_HINT "Показывать части и разметки, не соответствующие текущему виду."
+#define FEATURE_MISMATCH_HINT "Показывать части и маркинги, не соответствующие текущему виду."
 #define FEATURE_HETEROCHROMIA_HINT "Особые глаза с гетерохромией: wide, big, bigcyclops, skrell, third, thirdbig."
 #define FEATURE_ERP_HINT "Эротические взаимодействия."
 #define FEATURE_NONCON_HINT "Принудительные сцены без согласия вашего персонажа."
@@ -120,7 +120,7 @@
 	var/list/consent_cycle = list("Yes" = "Да", "Ask" = "Спросить", "No" = "Нет")
 	var/list/consent_binary = list("Yes" = "Да", "No" = "Нет")
 
-	fields += list(ff("show_mismatched_markings", "Чужие части и разметки", FEATURE_BOOL, FEATURE_SCOPE_PREF, FEATURE_MISMATCH_HINT))
+	fields += list(ff("show_mismatched_markings", "Чужие части и маркинги", FEATURE_BOOL, FEATURE_SCOPE_PREF, FEATURE_MISMATCH_HINT))
 	fields += list(ff("allow_emissives", "Свечение", FEATURE_BOOL))
 	fields += list(ff("be_random_body", "Всегда случайное тело", FEATURE_BOOL, FEATURE_SCOPE_PREF))
 
@@ -796,7 +796,7 @@
 	var/list/limb_choices = marking_limb_choices()
 	var/selected_limb = params["limb"]
 	if(!(selected_limb in limb_choices))
-		selected_limb = tgui_input_list(user, "Выберите часть тела для разметки.", "Настройка персонажа", limb_choices)
+		selected_limb = tgui_input_list(user, "Выберите часть тела для отметины.", "Настройка персонажа", limb_choices)
 	if(!selected_limb)
 		return
 	var/list/options = marking_name_options(selected_limb)
@@ -2333,7 +2333,7 @@
 		list("id" = GENERAL_CHAR_TAB, "label" = "Общее", "icon" = "user"),
 		list("id" = BACKGROUND_CHAR_TAB, "label" = "Прошлое", "icon" = "book"),
 		list("id" = APPEARANCE_CHAR_TAB, "label" = "Внешность", "icon" = "palette"),
-		list("id" = MARKINGS_CHAR_TAB, "label" = "Разметки", "icon" = "highlighter"),
+		list("id" = MARKINGS_CHAR_TAB, "label" = "Маркинги", "icon" = "highlighter"),
 		list("id" = SPEECH_CHAR_TAB, "label" = "Речь", "icon" = "comment"),
 		list("id" = LOADOUT_CHAR_TAB, "label" = "Экипировка", "icon" = "tshirt"),
 		list("id" = QUIRKS_CHAR_TAB, "label" = "Особенности", "icon" = "brain"),
