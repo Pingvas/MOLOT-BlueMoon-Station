@@ -57,11 +57,6 @@ const slotLabel = (
 };
 
 export const CharacterSetup = () => {
-  const { act, data } = useBackend<CharacterSetupData>();
-
-  const tabs = data.tabs || [];
-  const activeTab = data.tab;
-
   const [maximized, setMaximized] = useState(false);
   const [slotsOpen, setSlotsOpen] = useState(false);
   const restoreGeometry = useRef<{ pos: string; size: string } | null>(null);
@@ -121,63 +116,117 @@ export const CharacterSetup = () => {
             <SlotBar />
           </Stack.Item>
           <Stack.Item grow={1} basis={0}>
-            <Stack fill>
-              <Stack.Item>
-                <Box
-                  style={{
-                    height: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                  }}
-                >
-                  <Button
-                    compact
-                    icon={slotsOpen ? 'chevron-left' : 'chevron-right'}
-                    tooltip={slotsOpen
-                      ? 'Скрыть список персонажей'
-                      : 'Показать список персонажей'}
-                    onClick={() => setSlotsOpen(!slotsOpen)}
-                  />
-                </Box>
-              </Stack.Item>
-              {slotsOpen && (
-                <Stack.Item width="260px">
-                  <SlotPanel />
+            <Box style={{ position: 'relative', height: '100%' }}>
+              <Stack fill>
+                <Stack.Item>
+                  <Box
+                    style={{
+                      position: 'relative',
+                      zIndex: 30,
+                      height: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Button
+                      icon={slotsOpen ? 'chevron-left' : 'chevron-right'}
+                      selected={slotsOpen}
+                      tooltip={slotsOpen
+                        ? 'Скрыть список персонажей'
+                        : 'Показать список персонажей'}
+                      onClick={() => setSlotsOpen(!slotsOpen)}
+                      style={{
+                        height: '150px',
+                        width: '28px',
+                        padding: 0,
+                        fontSize: '10px',
+                        margin: 0,
+                        borderRadius: '0 6px 6px 0',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    />
+                    {slotsOpen && (
+                      <Box
+                        style={{
+                          position: 'absolute',
+                          left: '100%',
+                          top: 0,
+                          marginLeft: '6px',
+                          height: '100%',
+                          width: '264px',
+                          zIndex: 20,
+                          backgroundColor: '#252525',
+                          border: '1px solid #466278',
+                          borderRadius: '6px',
+                          boxShadow: '0 6px 18px rgba(0, 0, 0, 0.55)',
+                          overflow: 'hidden',
+                        }}
+                      >
+                        <SlotPanel />
+                      </Box>
+                    )}
+                  </Box>
                 </Stack.Item>
+                <Stack.Item grow={1} basis={0}>
+                  <TabWorkspace />
+                </Stack.Item>
+              </Stack>
+              {slotsOpen && (
+                <Box
+                  onClick={() => setSlotsOpen(false)}
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    zIndex: 10,
+                  }}
+                />
               )}
-              <Stack.Item grow={1} basis={0}>
-                <Stack fill vertical>
-                  <Stack.Item>
-                    <Tabs>
-                      {tabs.map((tabEntry) => (
-                        <Tabs.Tab
-                          key={tabEntry.id}
-                          selected={activeTab === tabEntry.id}
-                          icon={tabEntry.icon}
-                          onClick={() => act('set_tab', { tab: tabEntry.id })}
-                        >
-                          {tabEntry.label}
-                        </Tabs.Tab>
-                      ))}
-                    </Tabs>
-                  </Stack.Item>
-                  <Stack.Item grow={1} basis={0}>
-                    <Stack fill>
-                      <Stack.Item grow={1} basis={0}>
-                        <TabContent tab={activeTab} />
-                      </Stack.Item>
-                      <Stack.Item>
-                        <Preview />
-                      </Stack.Item>
-                    </Stack>
-                  </Stack.Item>
-                </Stack>
-              </Stack.Item>
-            </Stack>
+            </Box>
           </Stack.Item>
         </Stack>
       </Window.Content>
     </Window>
+  );
+};
+
+const TabWorkspace = () => {
+  const { act, data } = useBackend<CharacterSetupData>();
+
+  const tabs = data.tabs || [];
+  const activeTab = data.tab;
+
+  return (
+    <Stack fill vertical>
+      <Stack.Item>
+        <Tabs>
+          {tabs.map((tabEntry) => (
+            <Tabs.Tab
+              key={tabEntry.id}
+              selected={activeTab === tabEntry.id}
+              icon={tabEntry.icon}
+              onClick={() => act('set_tab', { tab: tabEntry.id })}
+            >
+              {tabEntry.label}
+            </Tabs.Tab>
+          ))}
+        </Tabs>
+      </Stack.Item>
+      <Stack.Item grow={1} basis={0}>
+        <Stack fill>
+          <Stack.Item grow={1} basis={0}>
+            <TabContent tab={activeTab} />
+          </Stack.Item>
+          <Stack.Item>
+            <Preview />
+          </Stack.Item>
+        </Stack>
+      </Stack.Item>
+    </Stack>
   );
 };
 

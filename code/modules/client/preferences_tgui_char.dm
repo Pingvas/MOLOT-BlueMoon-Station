@@ -163,16 +163,16 @@
 	fields += list(cycle_ff("extremeharm", "Extreme Harm", consent_binary, FEATURE_EXTREME_HARM_HINT))
 
 	var/list/lust_limits = list(25, 200)
-	fields += list(num_ff("lust_tolerance", "Терпимость к желанию", lust_limits[1], lust_limits[2], FEATURE_SCOPE_PREF))
+	fields += list(num_ff("lust_tolerance", "Сексуальная чувствительность", lust_limits[1], lust_limits[2], FEATURE_SCOPE_PREF))
 	var/list/potency_limits = list(-1, 25)
 	fields += list(num_ff("sexual_potency", "Сексуальная потенция", potency_limits[1], potency_limits[2], FEATURE_SCOPE_PREF))
 
 	fields += list(num_ff("virility", "Шанс оплодотворения, %", 0, 100, FEATURE_SCOPE_PREF))
 	fields += list(num_ff("fertility", "Шанс забеременеть, %", 0, 100, FEATURE_SCOPE_PREF))
 	fields += list(ff("inert_eggs", "Откладывать неоплодотворённые яйца", FEATURE_BOOL))
-	fields += list(ff("pregnancy_inflation", "Вздутие при беременности", FEATURE_BOOL, FEATURE_SCOPE_PREF))
+	fields += list(ff("pregnancy_inflation", "Увеличение живота при беременности", FEATURE_BOOL, FEATURE_SCOPE_PREF))
 	fields += list(ff("pregnancy_breast_growth", "Рост груди при беременности", FEATURE_BOOL, FEATURE_SCOPE_PREF))
-	fields += list(list_ff("egg_shell", "Скорлупа яйца", GLOB.egg_skins, FEATURE_SCOPE_PREF))
+	fields += list(list_ff("egg_shell", "Вид яйца", GLOB.egg_skins, FEATURE_SCOPE_PREF))
 
 	var/list/visibility_options = CONFIG_GET(str_list/safe_visibility_toggles)
 	var/list/breast_cups = list()

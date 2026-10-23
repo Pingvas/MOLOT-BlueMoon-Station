@@ -711,6 +711,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 /datum/preferences/proc/ShowChoices(mob/user, rebuild_preview = TRUE)
 	if(!user || !user.client)
 		return
+	if(rebuild_preview && !QDELETED(character_setup_ui))
+		character_setup_ui.preview_dirty = TRUE
 	open_character_setup(user)
 
 /datum/preferences/proc/ClearKeybindingCapture()

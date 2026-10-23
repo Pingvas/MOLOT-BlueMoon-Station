@@ -207,19 +207,19 @@ export const MarkingsTab = () => {
   const markings = data.markings;
 
   if (!markings) {
-    return <TabDataMissing title="Разметки" />;
+    return <TabDataMissing title="Маркинги" />;
   }
 
   if (!markings.supported) {
     return (
-      <Section fill scrollable title="Разметки">
-        <Box color="label">Ваш вид не умеет наносить разметки на тело.</Box>
+      <Section fill scrollable title="Маркинги">
+        <Box color="label">Ваш вид не умеет наносить отметины на тело.</Box>
       </Section>
     );
   }
 
   return (
-    <Section fill scrollable title="Разметки">
+    <Section fill scrollable title="Маркинги">
       <Stack align="center" mb={1}>
         <Stack.Item>
           <Button
@@ -241,8 +241,8 @@ export const MarkingsTab = () => {
           <Button.Confirm
             icon="trash"
             color="bad"
-            content="Удалить все разметки"
-            confirmContent="Удалить все разметки?"
+            content="Удалить все маркинги"
+            confirmContent="Удалить все маркинги?"
             confirmIcon="trash"
             disabled={!markings.hasMarkings}
             onClick={() => act('markings_remove')}

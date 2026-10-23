@@ -206,7 +206,7 @@ export const AppearanceTab = () => {
             />
             {!!appearance.speciesSexes && (
               <SelectRow
-                label="Тип фигуры"
+                label="Телосложение"
                 value={appearance.bodyModel}
                 options={asOptions(appearance.bodyModelOptions)}
                 action="set_body_model"
