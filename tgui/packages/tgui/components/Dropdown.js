@@ -110,7 +110,7 @@ export class Dropdown extends Component {
         </Box>
       );
     });
-    return ops.length ? ops : 'No Options Found';
+    return ops.length ? ops : 'Нет совпадений';
   }
 
   render() {
