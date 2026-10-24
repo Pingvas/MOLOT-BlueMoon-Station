@@ -2306,6 +2306,8 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	bluemoon_character_pref_load(S)
 
 	load_tattoo_prefs(S) // BLUEMOON ADD - загрузка татуировок
+	if(!provided)
+		character_setup_ui?.record_saved_state()
 
 	if(parent?.prefs == src)
 		parent.tgui_panel?.emotes_send_list()
@@ -2731,6 +2733,8 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 			to_chat(parent, span_notice("Персонаж сохранён!"))
 
 	blocking_call_finish(blocking_started_ms, "savefile (персонаж)", "персонаж [parent?.ckey || "?"] слот [default_slot]")
+	if(!export)
+		character_setup_ui?.record_saved_state()
 	return S
 
 /datum/preferences/proc/queue_save_char(save_in, silent)

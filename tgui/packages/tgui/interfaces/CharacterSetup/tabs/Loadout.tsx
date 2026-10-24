@@ -42,6 +42,10 @@ interface LoadoutRow {
   examTooltip?: string;
   examTooltipAlways?: boolean;
   colors?: LoadoutColor[];
+  availabilityReason?: string;
+  roleMismatch?: boolean;
+  roleWarning?: string;
+  conflicts?: string[];
 }
 
 interface InvalidRow {
@@ -70,6 +74,7 @@ interface LoadoutData {
   showCkeyId: boolean;
   items: LoadoutRow[];
   invalid: InvalidRow[];
+  plannedJob?: string;
 }
 
 interface LoadoutContext {
@@ -193,6 +198,7 @@ const GearRow = (props: { row: LoadoutRow }) => {
             content={row.selected ? 'Убрать' : 'Взять'}
             selected={row.selected}
             disabled={!row.selected && !row.canBuy}
+            tooltip={row.selected ? 'Убрать вещь из набора' : row.availabilityReason}
             onClick={() => act('loadout_toggle_gear', { name: row.id })}
           />
         </Stack.Item>
@@ -201,6 +207,17 @@ const GearRow = (props: { row: LoadoutRow }) => {
       {!!row.restrictions && (
         <Box color="label" fontSize="0.9em">
           {row.restrictions}
+        </Box>
+      )}
+      {!!row.roleWarning && (
+        <Box color="average" mt={0.5}>{row.roleWarning}</Box>
+      )}
+      {!!row.availabilityReason && (
+        <Box color="average" mt={0.5}>{row.availabilityReason}</Box>
+      )}
+      {!!row.conflicts?.length && (
+        <Box color="average" mt={0.5}>
+          Общий слот с: {row.conflicts.join(', ')}.{' '}
         </Box>
       )}
       {!!row.description && (
@@ -369,6 +386,11 @@ export const LoadoutTab = () => {
 
   return (
     <Section fill scrollable title="Экипировка">
+      {loadout.selectedView && (
+        <Box color="label" mb={1}>
+          Проверка профессии: {loadout.plannedJob || 'профессия с приоритетом не выбрана'}.{' '}
+        </Box>
+      )}
       {!loadout.enabled && (
         <NoticeBox warning>
           Стандартная одежда останется на персонаже. Вещи лодаута для занятых

@@ -33,7 +33,7 @@ interface MarkingsContext {
   markingOptions?: Record<string, string[]>;
 }
 
-const MarkingRowView = (props: { row: MarkingRow; total: number }) => {
+const MarkingRowView = (props: { row: MarkingRow; total: number; limb: string }) => {
   const { act, data } = useBackend<MarkingsContext>();
   const { row, total } = props;
   const first = row.index <= 1;
@@ -130,7 +130,9 @@ const MarkingRowView = (props: { row: MarkingRow; total: number }) => {
           />
         </Stack.Item>
         <Stack.Item grow textAlign="center">
-          {row.name}
+          <Dropdown width="100%" searchable selected={row.name}
+            options={data.markingOptions?.[props.limb] || []}
+            onSelected={(value) => act('marking_set', { index: row.index, value })} />
         </Stack.Item>
         <Stack.Item>
           <Button
@@ -172,6 +174,7 @@ const MarkingLimbCard = (props: { limb: MarkingLimb; total: number }) => {
 
   return (
     <Box
+      data-search-label={limb.label}
       p={1}
       style={{
         width: '100%',
@@ -212,7 +215,7 @@ const MarkingLimbCard = (props: { limb: MarkingLimb; total: number }) => {
         <Box color="label">На этой части тела нет разметок.</Box>
       ) : (
         limb.markings.map((row) => (
-          <MarkingRowView key={row.index} row={row} total={total} />
+          <MarkingRowView key={row.index} row={row} total={total} limb={limb.name} />
         ))
       )}
     </Box>

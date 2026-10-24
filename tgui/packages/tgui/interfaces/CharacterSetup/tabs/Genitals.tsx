@@ -84,6 +84,7 @@ export const GenitalsSection = (props: {
         {(genitals.parts || []).map((part) => (
           <Box
             key={part.key}
+            data-search-label={part.label}
             p={1}
             style={{
               border: '1px solid rgba(255,255,255,0.15)',

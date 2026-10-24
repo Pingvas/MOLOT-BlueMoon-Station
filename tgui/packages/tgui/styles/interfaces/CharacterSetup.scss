@@ -37,6 +37,40 @@
     min-height: 0;
   }
 
+  &__search {
+    position: relative;
+    flex-shrink: 0;
+    margin-bottom: 0.5rem;
+    z-index: 6;
+  }
+
+  &__search-results {
+    max-height: min(50vh, 32rem);
+    overflow-y: auto;
+    padding: 0.6rem;
+    background: transparent;
+    border: 1px solid #507c99;
+
+    .Button {
+      white-space: normal;
+      padding: 0.5rem;
+      color: #fff;
+      background-color: transparent;
+      transition: background-color 50ms;
+
+      &:hover,
+      &.Button--selected {
+        background-color: rgba(255, 255, 255, 0.08);
+      }
+    }
+  }
+
+  &__search-highlight {
+    outline: 2px solid #e4be59;
+    outline-offset: -2px;
+    background-color: rgba(228, 190, 89, 0.12);
+  }
+
   &__tabs {
     display: flex;
     flex-wrap: wrap;
@@ -147,7 +181,7 @@
 
   &__preview-toolbar {
     flex-shrink: 0;
-    background: #1b2229;
+    background: transparent;
     padding: 0.6rem 0 0.8rem;
     margin-bottom: 0.5rem;
 

@@ -1,8 +1,12 @@
+import { createSearch } from 'common/string';
+import { useState } from 'react';
+
 import { useBackend } from '../../../backend';
 import {
   Box,
   Button,
   Icon,
+  Input,
   NoticeBox,
   NumberInput,
   Section,
@@ -61,7 +65,31 @@ interface SpeechData {
 interface SpeechContext {
   speech?: SpeechData;
   languageIcons?: Record<string, string>;
+  playingSoundPreview?: string;
 }
+
+const SoundPreviewButton = (props: {
+  kind: string;
+  tooltip: string;
+  disabled?: boolean;
+}) => {
+  const { act, data } = useBackend<SpeechContext>();
+  const playing = data.playingSoundPreview === props.kind;
+  const action = props.kind === 'voice'
+    ? 'preview_bark'
+    : props.kind === 'death' ? 'preview_deathsound' : 'preview_laugh';
+  return (
+    <Button
+      className="CharacterSetup__icon-button"
+      icon={playing ? 'stop' : 'volume-up'}
+      selected={playing}
+      tooltip={playing ? 'Остановить прослушивание' : props.tooltip}
+      aria-label={props.tooltip}
+      disabled={props.disabled}
+      onClick={() => act(playing ? 'stop_sound_preview' : action)}
+    />
+  );
+};
 
 const BarkNumberRow = (props: {
   label: string;
@@ -147,6 +175,7 @@ const LanguageToggle = (props: { language: LanguageOption; icon?: string }) => {
 
 export const SpeechTab = () => {
   const { act, data } = useBackend<SpeechContext>();
+  const [languageSearch, setLanguageSearch] = useState('');
   const speech = data.speech;
 
   if (!speech) {
@@ -158,6 +187,7 @@ export const SpeechTab = () => {
 
   const languageIcons = data.languageIcons || {};
   const languages = speech.languages || [];
+  const visibleLanguages = languages.filter(createSearch(languageSearch, (language: LanguageOption) => `${language.name} ${language.desc || ''}`));
 
   return (
     <Section fill scrollable title="Речь">
@@ -191,12 +221,10 @@ export const SpeechTab = () => {
             arrowsTogether
             onCycle={(dir) => act('set_laugh', { dir })}
             extra={
-              <Button
-                className="CharacterSetup__icon-button"
-                icon="volume-up"
+              <SoundPreviewButton
+                kind="laugh"
                 tooltip="Прослушать смех"
                 disabled={!speech.laughPreviewable}
-                onClick={() => act('preview_laugh')}
               />
             }
           />
@@ -229,12 +257,10 @@ export const SpeechTab = () => {
             action="set_bark_sound"
             onCycle={(dir) => act('set_bark_sound', { dir })}
             extra={
-              <Button
-                className="CharacterSetup__icon-button"
-                icon="volume-up"
+              <SoundPreviewButton
+                kind="voice"
                 tooltip="Прослушать звук"
                 disabled={!bark.valid}
-                onClick={() => act('preview_bark')}
               />
             }
           />
@@ -276,11 +302,9 @@ export const SpeechTab = () => {
             arrowsTogether
             onCycle={(dir) => act('set_deathsound', { dir })}
             extra={
-              <Button
-                className="CharacterSetup__icon-button"
-                icon="volume-up"
+              <SoundPreviewButton
+                kind="death"
                 tooltip="Прослушать звук смерти"
-                onClick={() => act('preview_deathsound')}
               />
             }
           />
@@ -298,8 +322,11 @@ export const SpeechTab = () => {
                 отключатся при сохранении.
               </Box>
             )}
+            <Input fluid mb={1} placeholder="Поиск языка по названию или описанию" value={languageSearch}
+              onInput={(event, value) => setLanguageSearch(value)} />
+            {!visibleLanguages.length && <Box color="label">Языки не найдены.</Box>}
             <SettingsGrid>
-              {languages.map((language) => (
+              {visibleLanguages.map((language) => (
                 <LanguageToggle
                   key={language.name}
                   language={language}

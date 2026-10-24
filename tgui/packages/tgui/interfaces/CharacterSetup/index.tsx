@@ -14,6 +14,7 @@ import {
 } from '../../components';
 import { Window } from '../../layouts';
 import { SelectRow } from './components';
+import { SearchSettings } from './SearchSettings';
 import { AppearanceTab } from './tabs/Appearance';
 import { BackgroundTab } from './tabs/Background';
 import { GeneralTab } from './tabs/General';
@@ -42,6 +43,8 @@ interface CharacterSetupData {
   localStorageName: string | null;
   offerActive: boolean;
   redemptionCode?: string;
+  hasUnsavedChanges: boolean;
+  saveNotice?: string;
 }
 
 const PREVIEW_MODES: Record<string, { label: string; icon: string }> = {
@@ -81,6 +84,12 @@ export const CharacterSetup = () => {
                 </Box>
               </Stack.Item>
               <Stack.Item>
+                <Box color={data.hasUnsavedChanges ? 'average' : 'good'} title={data.saveNotice}>
+                  <Icon name={data.hasUnsavedChanges ? 'pencil-alt' : 'check'} />{' '}
+                  {data.hasUnsavedChanges ? 'Есть изменения' : 'Сохранено'}
+                </Box>
+              </Stack.Item>
+              <Stack.Item>
                 <Button
                   icon="save"
                   color="good"
@@ -105,6 +114,7 @@ export const CharacterSetup = () => {
           >
             {slotsOpen && <SlotPanel />}
             <div className="CharacterSetup__editor">
+              <SearchSettings />
               <Tabs className="CharacterSetup__tabs">
                 {(data.tabs || []).map((tab) => (
                   <Tabs.Tab
@@ -216,7 +226,7 @@ const SlotPanel = () => {
         </div>
         <div className="CharacterSetup__slot-tools">
           <Box color="label" mb={1}>
-            При переключении текущий персонаж сохраняется.
+            {data.saveNotice || 'При переключении текущий персонаж сохраняется.'}
           </Box>
           <Button.Confirm
             fluid

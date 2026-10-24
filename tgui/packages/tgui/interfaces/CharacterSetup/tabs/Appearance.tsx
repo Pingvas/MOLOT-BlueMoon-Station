@@ -69,6 +69,7 @@ interface AppearanceData {
   hairStyle: string;
   facialHairStyle: string;
   gradStyle: string;
+  hairOptions?: Record<string, string[]>;
 
   mutantParts: MutantPart[];
 
@@ -94,7 +95,7 @@ const HairStyleRow = (props: {
   kind: string;
   style: string;
 }) => {
-  const { act } = useBackend<AppearanceContext>();
+  const { act, data } = useBackend<AppearanceContext>();
   const { label, kind, style } = props;
   return (
     <FieldRow label={label} labelBasis="30%">
@@ -104,18 +105,9 @@ const HairStyleRow = (props: {
             arrowsTogether
             onCycle={(dir) => act('cycle_hair_style', { kind, dir })}
           >
-            <Box
-              title={style}
-              color={style ? undefined : 'label'}
-              style={{
-                overflow: 'hidden',
-                textAlign: 'center',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {style || 'по умолчанию'}
-            </Box>
+            <Dropdown width="100%" searchable
+              selected={style} options={data.appearance?.hairOptions?.[kind] || []}
+              onSelected={(value) => act('set_hair_style', { kind, value })} />
           </CycleChoice>
         </Stack.Item>
         <Stack.Item>
@@ -136,6 +128,8 @@ const MutantPartCard = (props: { part: MutantPart }) => {
   const { part } = props;
   return (
     <Box
+      data-search-label={part.label}
+      data-search-id={'part:' + part.key}
       p={1}
       style={{
         border: '1px solid rgba(255,255,255,0.15)',

@@ -19,10 +19,10 @@
 #define FEATURE_VORE_HINT "Пожирание и переваривание."
 #define FEATURE_MOBSEX_HINT "Особые мобы попытаются вас изнасиловать."
 #define FEATURE_TATTOO_HINT "Другие игроки смогут оставлять тату на вас."
-#define FEATURE_UNHOLY_HINT "Разрешение на грязные взаимодействия: моча, смегма, запахи и вкусы."
-#define FEATURE_UNHOLY_HARD_HINT "Особые грязные взаимодействия: выделения, газы, другое."
+#define FEATURE_UNHOLY_HINT "Разрешение на грязные взаимодействия: моча, смегма."
+#define FEATURE_UNHOLY_HARD_HINT "Особые грязные взаимодействия: копро, выделения, газы."
 #define FEATURE_EXTREME_HINT "Экстремальные сцены: в глаза, уши, удушение, укусы."
-#define FEATURE_EXTREME_HARM_HINT "Особые жестокие сцены: сдавливание головы ляжками, другое."
+#define FEATURE_EXTREME_HARM_HINT "Особые жестокие сцены с возможным летальным исходом: сдавливание головы ляжками, отстрел яиц, другое."
 #define FEATURE_SPRITE_SCALE_HINT "Размер вашего спрайта повлияет на это."
 #define FEATURE_REAGENT "reagent"
 #define FEATURE_GENITAL_SIZE_HINT "0 - отключить ограничение."
@@ -41,15 +41,52 @@
 	var/list/viewer_screens
 	var/preview_auto_fit = TRUE
 	var/preview_aroused = FALSE
+	var/saved_character_state
+	var/save_notice
+	var/sound_preview_channel
+	var/sound_preview_kind
+	var/sound_preview_until = 0
+	var/sound_preview_generation = 0
+	var/next_sound_preview = 0
 
 /datum/character_setup/New(datum/preferences/new_prefs)
 	prefs = new_prefs
+	record_saved_state()
 
 /datum/character_setup/Destroy(force, ...)
+	stop_sound_preview()
 	SStgui.close_uis(src)
 	QDEL_LIST_ASSOC_VAL(viewer_screens)
 	prefs = null
 	return ..()
+
+// Сравниваем значения, а не нажатия: отменённый диалог и возврат к сохранённому значению не создают изменений.
+/datum/character_setup/proc/character_state()
+	var/static/list/keys = list(
+		"real_name", "nameless", "age", "gender", "custom_species", "custom_names", "be_random_name",
+		"hide_ckey", "custom_blood_color", "blood_color", "prefered_security_department", "preferred_ai_core_display",
+		"pda_color", "pda_style", "pda_skin", "pda_ringtone", "pda_theme", "silicon_lawset", "jumpsuit_style",
+		"features", "skin_tone", "use_custom_skin_tone", "eye_type", "split_eye_colors", "left_eye_color", "right_eye_color",
+		"hair_style", "hair_color", "facial_hair_style", "facial_hair_color", "grad_style", "grad_color",
+		"modified_limbs", "chosen_limb_id", "body_weight", "scars_list", "bgstate", "preview_pref",
+		"custom_speech_verb", "custom_speech_verb_ru", "custom_tongue", "custom_laugh", "language",
+		"bark_id", "bark_speed", "bark_pitch", "bark_variance", "enable_personal_chat_color", "personal_chat_color",
+		"loadout_slot", "loadout_enabled", "loadout_data", "all_quirks", "antag_opt_in_level",
+		"phobia_type", "shriek_type", "onelife_death_type", "summon_nickname", "vore_taste", "vore_smell",
+		"security_records", "medical_records", "underwear", "undershirt", "socks", "undie_color", "shirt_color", "socks_color",
+		"job_preferences", "joblessrole", "alt_titles_preferences", "persistent_tattoos", "tattoos_string", "pending_tattoo_removals",
+	)
+	var/list/state = list("slot" = prefs.default_slot, "species" = prefs.pref_species?.type)
+	for(var/key in keys)
+		state[key] = prefs.vars[key]
+	for(var/list/field in get_feature_fields())
+		if(field["scope"] == FEATURE_SCOPE_PREF && field["key"] != "show_mismatched_markings")
+			state[field["key"]] = prefs.vars[field["key"]]
+	return md5(json_encode(state))
+
+/datum/character_setup/proc/record_saved_state()
+	if(prefs)
+		saved_character_state = character_state()
 
 /datum/preferences/proc/open_character_setup(mob/user)
 	if(QDELETED(character_setup_ui))
@@ -71,6 +108,8 @@
 	var/atom/movable/screen/map_view/character_setup_screen/viewer_screen = LAZYACCESS(viewer_screens, user)
 	LAZYREMOVE(viewer_screens, user)
 	qdel(viewer_screen)
+	if(!length(viewer_screens))
+		stop_sound_preview()
 
 /datum/character_setup/ui_interact(mob/user, datum/tgui/ui)
 	var/atom/movable/screen/map_view/character_setup_screen/viewer_screen = LAZYACCESS(viewer_screens, user)
@@ -102,6 +141,11 @@
 	data["featureFields"] = get_feature_fields()
 	data["languageIcons"] = build_language_icons()
 	data["markingOptions"] = build_marking_options_data()
+	var/list/part_labels = list()
+	for(var/part in GLOB.all_mutant_parts)
+		if(part != "mam_body_markings")
+			part_labels[part] = ru_strings["[part]"] || GLOB.all_mutant_parts[part] || part
+	data["mutantPartLabels"] = part_labels
 	return data
 
 /datum/character_setup/proc/get_feature_fields()
@@ -378,6 +422,11 @@
 	data["hairStyle"] = prefs.hair_style
 	data["facialHairStyle"] = prefs.facial_hair_style
 	data["gradStyle"] = prefs.grad_style
+	data["hairOptions"] = list(
+		"hair" = hair_style_options(GLOB.hair_styles_list, user?.ckey),
+		"facial" = hair_style_options(GLOB.facial_hair_styles_list, user?.ckey),
+		"grad" = hair_style_options(GLOB.hair_gradients_list, user?.ckey),
+	)
 
 	data["mutantParts"] = build_mutant_parts_data(user)
 
@@ -886,7 +935,7 @@
 	var/direction = params["dir"]
 	if(!index || index < 1 || index > length(entries))
 		return
-	if(direction != "prev" && direction != "next")
+	if(isnull(params["value"]) && direction != "prev" && direction != "next")
 		return
 	var/list/entry = entries[index]
 	if(!islist(entry) || length(entry) < 2)
@@ -906,6 +955,14 @@
 		if(S.is_allowed_for(user_key))
 			available += name
 	if(!length(available))
+		return
+	if(!isnull(params["value"]))
+		if(!(params["value"] in available))
+			return
+		entry[2] = params["value"]
+		if(length(entry) >= 3 && entry[3])
+			entry[3] = list("#FFFFFF", "#FFFFFF", "#FFFFFF")
+		preview_dirty = TRUE
 		return
 	var/current_pos = available.Find(entry[2])
 	if(!current_pos)
@@ -1072,10 +1129,9 @@
 	if(SSticker.current_state == GAME_STATE_STARTUP)
 		to_chat(user, span_warning("Звук смеха нельзя прослушать во время инициализации!"))
 		return
-	if(!COOLDOWN_FINISHED(prefs, laugh_preview))
+	if(!start_sound_preview("laugh", 3 SECONDS))
 		return
-	COOLDOWN_START(prefs, laugh_preview, (3 SECONDS))
-	user.playsound_local(user, pick(get_laugh_sound(prefs.custom_laugh, FALSE)), 50)
+	user.playsound_local(user, pick(get_laugh_sound(prefs.custom_laugh, FALSE)), 50, channel = sound_preview_channel)
 
 /datum/character_setup/proc/build_language_options()
 	var/list/options = list()
@@ -1247,19 +1303,45 @@
 	if(SSticker.current_state == GAME_STATE_STARTUP)
 		to_chat(user, span_warning("Звук речи нельзя прослушать во время инициализации!"))
 		return
-	if(!COOLDOWN_FINISHED(prefs, bark_previewing))
-		return
 	var/datum/bark/path = GLOB.bark_list[prefs.bark_id]
 	if(!path || prefs.bark_speed <= 0)
 		return
-	COOLDOWN_START(prefs, bark_previewing, (5 SECONDS))
-	var/atom/movable/barkbox = new(get_turf(user))
-	barkbox.set_bark(prefs.bark_id)
+	if(!start_sound_preview("voice", 5 SECONDS))
+		return
+	var/generation = sound_preview_generation
 	var/total_delay
 	for(var/i in 1 to (round((32 / prefs.bark_speed)) + 1))
-		addtimer(CALLBACK(barkbox, TYPE_PROC_REF(/atom/movable, bark), list(user), 7, 70, BARK_DO_VARY(prefs.bark_pitch, prefs.bark_variance)), total_delay)
+		addtimer(CALLBACK(src, PROC_REF(play_bark_preview), generation, initial(path.soundpath), BARK_DO_VARY(prefs.bark_pitch, prefs.bark_variance)), total_delay)
 		total_delay += rand(DS2TICKS(prefs.bark_speed/4), DS2TICKS(prefs.bark_speed/4) + DS2TICKS(prefs.bark_speed/4)) TICKS
-	QDEL_IN(barkbox, total_delay)
+	sound_preview_until = world.time + total_delay + 1 SECONDS
+
+// Один канал и номер сеанса не дают прошлому голосу продолжить играть после запуска нового звука.
+/datum/character_setup/proc/start_sound_preview(kind, duration)
+	if(world.time < next_sound_preview)
+		return FALSE
+	next_sound_preview = world.time + 0.3 SECONDS
+	stop_sound_preview()
+	if(!sound_preview_channel)
+		sound_preview_channel = SSsounds.reserve_sound_channel(src)
+	if(!sound_preview_channel)
+		return FALSE
+	sound_preview_kind = kind
+	sound_preview_until = world.time + duration
+	return TRUE
+
+/datum/character_setup/proc/stop_sound_preview()
+	sound_preview_generation++
+	sound_preview_kind = null
+	sound_preview_until = 0
+	if(sound_preview_channel)
+		prefs?.parent?.mob?.stop_sound_channel(sound_preview_channel)
+
+/datum/character_setup/proc/play_bark_preview(generation, sound_path, pitch)
+	if(generation != sound_preview_generation || world.time >= sound_preview_until)
+		return
+	var/mob/user = prefs?.parent?.mob
+	if(user)
+		user.playsound_local(user, sound_path, round(user.client.prefs.get_sound_volume("bark") * 0.7), vary = TRUE, frequency = pitch, channel = sound_preview_channel)
 
 /proc/loadout_ui_label(key)
 	switch(key)
@@ -1367,6 +1449,8 @@
 	data["slotCount"] = MAXIMUM_LOADOUT_SAVES
 	data["enabled"] = !!prefs.loadout_enabled
 	data["selectedView"] = loadout_selected
+	var/datum/job/planned_job = prefs.get_highest_job()
+	data["plannedJob"] = planned_job?.title
 	var/list/selected_items = list()
 	var/selected_count = 0
 	var/list/chosen_gear = prefs.loadout_data["SAVE_[prefs.loadout_slot]"]
@@ -1441,7 +1525,7 @@
 
 	var/restrictions = gear.restricted_desc
 	if(!restrictions && islist(gear.restricted_roles) && length(gear.restricted_roles))
-		restrictions = gear.restricted_roles.Join(";")
+		restrictions = "Разрешённые профессии: [gear.restricted_roles.Join(", ")]"
 	row["restrictions"] = restrictions
 
 	var/unlocked = TRUE
@@ -1457,7 +1541,38 @@
 	var/list/entry = prefs.has_loadout_gear(prefs.loadout_slot, "[gear.type]")
 	row["selected"] = !!entry
 	row["noPoints"] = !entry && (prefs.gear_points < gear.cost)
-	row["canBuy"] = !entry && !row["noPoints"] && unlocked
+	var/availability_reason
+	if(gear.donoritem && !gear.donator_ckey_check(prefs.parent?.key))
+		availability_reason = "Нет доступа к донатному предмету."
+	else if(!unlocked)
+		availability_reason = "Не выполнены условия разблокировки. Прогресс: [row["progress"]]."
+	else if(!entry && !prefs.is_loadout_slot_available(gear.category))
+		availability_reason = "Достигнут лимит вещей этой категории. Сначала уберите одну из выбранных."
+	else if(row["noPoints"])
+		availability_reason = "Не хватает очков: нужно [gear.cost], осталось [prefs.gear_points]."
+	row["availabilityReason"] = availability_reason
+	row["canBuy"] = !entry && !availability_reason
+	var/datum/job/planned_job = prefs.get_highest_job()
+	row["roleMismatch"] = planned_job && length(gear.restricted_roles) && !(planned_job.title in gear.restricted_roles)
+	if(row["roleMismatch"])
+		row["roleWarning"] = "Не выдаётся для профессии «[planned_job.title]». Итоговая проверка зависит от назначенной профессии."
+
+	// Для отдельных носимых слотов показываем конфликты между доступными предметами набора.
+	if(gear.slot && !(gear.slot in list(ITEM_SLOT_BACKPACK, ITEM_SLOT_HANDS, ITEM_SLOT_ACCESSORY)))
+		var/list/conflicts = list()
+		var/list/chosen_gear = prefs.loadout_data["SAVE_[prefs.loadout_slot]"]
+		for(var/list/other_entry in chosen_gear)
+			var/datum/gear/other = find_loadout_gear(other_entry[LOADOUT_ITEM])
+			if(!other || other.type == gear.type || other.slot != gear.slot)
+				continue
+			if(planned_job && length(other.restricted_roles) && !(planned_job.title in other.restricted_roles))
+				continue
+			if(other.donoritem && !other.donator_ckey_check(prefs.parent?.key))
+				continue
+			conflicts += other_entry[LOADOUT_CUSTOM_NAME] || other.name
+		row["conflicts"] = conflicts
+	if(row["roleMismatch"])
+		row["conflicts"] = list()
 
 	if(!entry)
 		return row
@@ -2206,6 +2321,12 @@
 		return direction == "next" ? options[1] : options[length(options)]
 	return direction == "next" ? next_list_item(current, options) : previous_list_item(current, options)
 
+/datum/character_setup/proc/hair_style_options(list/reference, user_key)
+	var/list/options = list()
+	for(var/style in prefs.filter_accessories_by_ckey(reference, user_key))
+		options += style
+	return options
+
 /datum/character_setup/proc/cycle_hair_style(list/params)
 	if(!prefs.parent || !prefs.pref_species)
 		return
@@ -2228,7 +2349,9 @@
 	if(!(required_trait in prefs.pref_species.species_traits))
 		return
 	var/list/options = prefs.filter_accessories_by_ckey(reference, prefs.parent.ckey)
-	var/new_value = cycle_choice(prefs.vars[pref_key], options, params["dir"])
+	var/new_value = isnull(params["dir"]) ? params["value"] : cycle_choice(prefs.vars[pref_key], options, params["dir"])
+	if(!(new_value in options))
+		return
 	if(isnull(new_value))
 		return
 	prefs.vars[pref_key] = new_value
@@ -2404,6 +2527,9 @@
 	data["speciesName"] = prefs.pref_species.name
 	data["tab"] = prefs.character_settings_tab
 	data["emissivesAllowed"] = !!prefs.features["allow_emissives"]
+	data["hasUnsavedChanges"] = character_state() != saved_character_state
+	data["saveNotice"] = save_notice
+	data["playingSoundPreview"] = world.time < sound_preview_until ? sound_preview_kind : null
 
 	data["localStorageName"] = prefs.get_local_storage_name(user.client)
 	data["offerActive"] = !!prefs.offer
@@ -2949,6 +3075,7 @@
 			var/new_slot = num_param(params["slot"])
 			if(isnull(new_slot) || new_slot != round(new_slot) || new_slot < 1 || new_slot > prefs.max_save_slots || new_slot == prefs.default_slot)
 				return
+			var/previous_name = prefs.real_name
 			// Завершаем запись старого слота до загрузки нового, включая отложенное сохранение.
 			if(!prefs.save_character(bypass_cooldown = TRUE, silent = TRUE))
 				return
@@ -2963,16 +3090,24 @@
 					return
 			prefs.save_preferences(bypass_cooldown = TRUE, silent = TRUE)
 			prefs.parent?.tgui_panel?.emotes_send_list()
+			stop_sound_preview()
+			save_notice = "[previous_name]: сохранён автоматически при переключении."
 			character_revision++
 			preview_dirty = TRUE
 			return TRUE
 
 		if("save")
-			prefs.save_character(bypass_cooldown = TRUE)
+			if(prefs.save_character(bypass_cooldown = TRUE))
+				save_notice = "Персонаж сохранён."
+			else
+				save_notice = "Не удалось сохранить персонажа. Изменения остаются в редакторе."
 			return TRUE
 
 		if("load")
-			prefs.load_character(prefs.default_slot, bypass_cooldown = TRUE)
+			if(!prefs.load_character(prefs.default_slot, bypass_cooldown = TRUE))
+				save_notice = "Не удалось загрузить сохранённого персонажа."
+				return TRUE
+			save_notice = "Восстановлено последнее сохранение."
 			character_revision++
 			preview_dirty = TRUE
 			return TRUE
@@ -3243,6 +3378,10 @@
 			cycle_marking(params)
 			return TRUE
 
+		if("marking_set")
+			cycle_marking(params)
+			return TRUE
+
 		if("marking_remove")
 			remove_marking(params)
 			return TRUE
@@ -3301,6 +3440,10 @@
 
 		if("preview_bark")
 			preview_bark()
+			return TRUE
+
+		if("stop_sound_preview")
+			stop_sound_preview()
 			return TRUE
 
 		if("loadout_select_slot")
@@ -3546,7 +3689,7 @@
 			apply_body_weight(params["value"])
 			return TRUE
 
-		if("cycle_hair_style")
+		if("cycle_hair_style", "set_hair_style")
 			cycle_hair_style(params)
 			return TRUE
 
@@ -3608,11 +3751,8 @@
 
 /datum/character_setup/proc/preview_deathsound()
 	if(SSticker.current_state == GAME_STATE_STARTUP)
-		to_chat(usr, "<span class='warning'>Предпросмотр звука смерти недоступен при инициализации!</span>")
+		to_chat(usr, span_warning("Предпросмотр звука смерти недоступен при инициализации!"))
 		return
-	if(!COOLDOWN_FINISHED(prefs, deathsound_preview))
-		return
-	COOLDOWN_START(prefs, deathsound_preview, (3 SECONDS))
 
 	var/picked_name = prefs.features["custom_deathsound"]
 	var/picked_path
@@ -3624,9 +3764,11 @@
 		if(GLOB.deathgasp_sounds[picked_name])
 			picked_path = GLOB.deathgasp_sounds[picked_name]
 	if(picked_path)
-		usr.playsound_local(usr, picked_path, 60)
+		if(start_sound_preview("death", 3 SECONDS))
+			usr.playsound_local(usr, picked_path, 60, channel = sound_preview_channel)
 	else
-		to_chat(usr, "<span class='warning'>Выбран беззвучный deathgasp или выбранный звук отсутствует!</span>")
+		stop_sound_preview()
+		to_chat(usr, span_warning("Выбран беззвучный вариант или звук отсутствует!"))
 
 /datum/character_setup/proc/num_param(value)
 	if(isnum(value))

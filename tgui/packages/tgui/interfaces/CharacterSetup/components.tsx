@@ -128,30 +128,32 @@ export const FieldRow = (props: {
   const { label, tooltip, labelBasis, children } = props;
   const fieldLabel = <div className="CharacterSetup__field-label">{label}</div>;
   return (
-    <Stack align="center" mb={1}>
-      <Stack.Item basis={labelBasis || '48%'}>
-        {tooltip ? (
-          <Tooltip content={<span className="Tooltip__text">{tooltip}</span>}>
-            {fieldLabel}
-          </Tooltip>
-        ) : (
-          fieldLabel
-        )}
-      </Stack.Item>
-      <Stack.Item grow basis={0} style={{ minWidth: 0 }}>
-        <Box
-          className="CharacterSetup__field-control"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'flex-end',
-            width: '100%',
-          }}
-        >
-          {children}
-        </Box>
-      </Stack.Item>
-    </Stack>
+    <div data-search-label={label}>
+      <Stack align="center" mb={1}>
+        <Stack.Item basis={labelBasis || '48%'}>
+          {tooltip ? (
+            <Tooltip content={<span className="Tooltip__text">{tooltip}</span>}>
+              {fieldLabel}
+            </Tooltip>
+          ) : (
+            fieldLabel
+          )}
+        </Stack.Item>
+        <Stack.Item grow basis={0} style={{ minWidth: 0 }}>
+          <Box
+            className="CharacterSetup__field-control"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'flex-end',
+              width: '100%',
+            }}
+          >
+            {children}
+          </Box>
+        </Stack.Item>
+      </Stack>
+    </div>
   );
 };
 
@@ -469,6 +471,7 @@ export const TextAreaRow = (props: {
   };
   return (
     <Box
+      data-search-label={label}
       mb={1}
       onKeyDownCapture={(event) => {
         if (event.key === 'Escape') {
@@ -560,6 +563,16 @@ const asReagentOptions = (source: unknown): SelectOption[] => {
 };
 
 export const FeatureFieldView = (props: {
+  field: FeatureField;
+  value: unknown;
+  cycle?: boolean;
+}) => (
+  <div data-search-id={props.field.key} data-search-label={props.field.label}>
+    <FeatureFieldControl {...props} />
+  </div>
+);
+
+const FeatureFieldControl = (props: {
   field: FeatureField;
   value: unknown;
   cycle?: boolean;
