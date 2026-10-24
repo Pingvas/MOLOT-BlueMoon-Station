@@ -1,10 +1,8 @@
-import { type RefObject, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
-import { Button, Input } from '../../components';
-
-const PANEL_WIDTH = 190;
-const PANEL_HEIGHT = 152;
+import { useLocalState } from '../../backend';
+import { Box, Button, Input, NumberInput, Stack } from '../../components';
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value));
@@ -81,227 +79,380 @@ const hsvToHex = (hue: number, saturation: number, brightness: number) => {
   return `#${toByte(channels[0])}${toByte(channels[1])}${toByte(channels[2])}`;
 };
 
-const useDrag = (
-  ref: RefObject<HTMLDivElement | null>,
-  onPick: (x: number, y: number) => void,
-) => {
-  const pickRef = useRef(onPick);
-  pickRef.current = onPick;
-  return (event: React.MouseEvent) => {
-    event.preventDefault();
-    const node = ref.current;
-    if (!node) {
-      return;
-    }
-    const pick = (clientX: number, clientY: number) => {
-      const rect = node.getBoundingClientRect();
-      pickRef.current(
-        clamp((clientX - rect.left) / rect.width, 0, 1),
-        clamp((clientY - rect.top) / rect.height, 0, 1),
+const PALETTE_RADIUS = 5;
+const PALETTE_ROWS = Array.from(
+  { length: PALETTE_RADIUS * 2 + 1 },
+  (_, row) => {
+    const r = row - PALETTE_RADIUS;
+    const start = Math.max(-PALETTE_RADIUS, -r - PALETTE_RADIUS);
+    const end = Math.min(PALETTE_RADIUS, -r + PALETTE_RADIUS);
+    return Array.from({ length: end - start + 1 }, (_, column) => {
+      const q = start + column;
+      const distance = (Math.abs(q) + Math.abs(r) + Math.abs(q + r)) / 2;
+      const hue =
+        ((Math.atan2((r * Math.sqrt(3)) / 2, q + r / 2) * 180) / Math.PI +
+          690) %
+        360;
+      return hsvToHex(
+        hue,
+        Math.min(distance / (PALETTE_RADIUS - 1), 1),
+        distance === PALETTE_RADIUS ? 0.65 : 1
       );
-    };
-    pick(event.clientX, event.clientY);
-    const move = (e: MouseEvent) => pick(e.clientX, e.clientY);
-    const stop = () => {
-      window.removeEventListener('mousemove', move);
-      window.removeEventListener('mouseup', stop);
-    };
-    window.addEventListener('mousemove', move);
-    window.addEventListener('mouseup', stop);
-  };
+    });
+  }
+);
+const GRAYSCALE = Array.from({ length: 11 }, (_, index) =>
+  hsvToHex(0, 0, 1 - index / 10)
+);
+
+const WHEEL_SIZE = 260;
+const TRIANGLE_TOP = 77;
+const TRIANGLE_BOTTOM = 236;
+const TRIANGLE_LEFT = 130 - 53 * Math.sqrt(3);
+const TRIANGLE_RIGHT = 130 + 53 * Math.sqrt(3);
+
+const triangleWeights = (x: number, y: number): [number, number, number] => {
+  const black = (y - TRIANGLE_TOP) / (TRIANGLE_BOTTOM - TRIANGLE_TOP);
+  const white =
+    (x - TRIANGLE_LEFT - black * (130 - TRIANGLE_LEFT)) /
+    (TRIANGLE_RIGHT - TRIANGLE_LEFT);
+  return [1 - black - white, white, black];
 };
 
-const ColorPanel = (props: {
-  value: string;
-  left: number;
-  top: number;
-  onCommit: (hex: string) => void;
-  onClose: () => void;
+const HueTriangle = (props: {
+  hsv: [number, number, number];
+  onChange: (next: [number, number, number]) => void;
 }) => {
-  const { value, left, top, onCommit, onClose } = props;
-  const [hsv, setHsv] = useState<[number, number, number]>(() =>
-    hexToHsv(safeHex(value)),
-  );
-  const [hue, saturation, brightness] = hsv;
-  const hex = hsvToHex(hue, saturation, brightness);
-  const [draft, setDraft] = useState(hex);
-
-  const commitRef = useRef(onCommit);
-  commitRef.current = onCommit;
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const latest = useRef(hex);
-  const dirty = useRef(false);
-
-  const schedule = (next: string) => {
-    dirty.current = true;
-    latest.current = next;
-    setDraft(next);
-    if (timer.current) {
-      clearTimeout(timer.current);
-    }
-    timer.current = setTimeout(() => commitRef.current(latest.current), 120);
-  };
-
-  useEffect(
-    () => () => {
-      if (timer.current) {
-        clearTimeout(timer.current);
-        if (dirty.current) {
-          commitRef.current(latest.current);
+  const {
+    hsv: [hue, saturation, brightness],
+    onChange,
+  } = props;
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const drag = useRef<'hue' | 'triangle' | null>(null);
+  useEffect(() => {
+    const context = canvasRef.current?.getContext('2d');
+    if (!context) return;
+    const pixels = context.createImageData(WHEEL_SIZE, WHEEL_SIZE);
+    const hueHex = hsvToHex(hue, 1, 1);
+    const channels = [1, 3, 5].map((offset) =>
+      parseInt(hueHex.slice(offset, offset + 2), 16)
+    );
+    for (let y = TRIANGLE_TOP; y <= TRIANGLE_BOTTOM; y++) {
+      for (let x = Math.floor(TRIANGLE_LEFT); x <= TRIANGLE_RIGHT; x++) {
+        const weights = triangleWeights(x + 0.5, y + 0.5);
+        if (weights.some((weight) => weight < 0)) continue;
+        const offset = (y * WHEEL_SIZE + x) * 4;
+        for (let channel = 0; channel < 3; channel++) {
+          pixels.data[offset + channel] = Math.round(
+            channels[channel] * weights[0] + 255 * weights[1]
+          );
         }
+        pixels.data[offset + 3] = 255;
       }
-    },
-    [],
-  );
+    }
+    context.putImageData(pixels, 0, 0);
+  }, [hue]);
 
-  const svRef = useRef<HTMLDivElement>(null);
-  const hueRef = useRef<HTMLDivElement>(null);
-
-  const pickSv = useDrag(svRef, (x, y) => {
-    const next: [number, number, number] = [hue, x, 1 - y];
-    setHsv(next);
-    schedule(hsvToHex(next[0], next[1], next[2]));
-  });
-
-  const pickHue = useDrag(hueRef, (_x, y) => {
-    const next: [number, number, number] = [
-      (1 - y) * 360,
-      saturation,
-      brightness,
+  const point = (event: React.PointerEvent<HTMLDivElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    return [
+      ((event.clientX - rect.left) / rect.width) * WHEEL_SIZE,
+      ((event.clientY - rect.top) / rect.height) * WHEEL_SIZE,
     ];
-    setHsv(next);
-    schedule(hsvToHex(next[0], next[1], next[2]));
-  });
-
-  const swatch: React.CSSProperties = {
-    flex: '0 0 auto',
-    width: '24px',
-    height: '20px',
-    borderRadius: '2px',
-    border: '1px solid rgba(255, 255, 255, 0.3)',
-    background: hex,
   };
-
+  const pick = (x: number, y: number) => {
+    if (drag.current === 'hue') {
+      const next = ((Math.atan2(x - 130, 130 - y) * 180) / Math.PI + 360) % 360;
+      onChange([next, saturation, brightness]);
+    } else if (drag.current === 'triangle') {
+      // За пределами треугольника прижимаем выбор к его границам.
+      const weights = triangleWeights(x, y).map((weight) =>
+        Math.max(0, weight)
+      );
+      const total = weights.reduce((sum, weight) => sum + weight, 0);
+      const value = (weights[0] + weights[1]) / total;
+      onChange([
+        hue,
+        value ? weights[0] / (weights[0] + weights[1]) : 0,
+        value,
+      ]);
+    }
+  };
+  const hueWeight = saturation * brightness;
+  const whiteWeight = (1 - saturation) * brightness;
+  const blackWeight = 1 - brightness;
   return (
     <div
-      style={{
-        position: 'fixed',
-        left,
-        top,
-        zIndex: 1000,
-        width: PANEL_WIDTH,
-        padding: '6px',
-        borderRadius: '4px',
-        border: '1px solid rgba(255, 255, 255, 0.18)',
-        background: '#1b1e27',
-        boxShadow: '0 6px 16px rgba(0, 0, 0, 0.55)',
-        color: '#fff',
-        fontFamily: 'Verdana, sans-serif',
-        fontSize: '12px',
+      className="CharacterSetup__color-wheel"
+      tabIndex={0}
+      role="group"
+      aria-label="Круг цветового тона и треугольник насыщенности и яркости"
+      title="Круг — цветовой тон. Треугольник — насыщенность и яркость. Стрелки изменяют насыщенность и яркость."
+      onKeyDown={(event) => {
+        const changes: Record<string, [number, number]> = {
+          ArrowLeft: [-0.01, 0],
+          ArrowRight: [0.01, 0],
+          ArrowUp: [0, 0.01],
+          ArrowDown: [0, -0.01],
+        };
+        const change = changes[event.key];
+        if (!change) return;
+        event.preventDefault();
+        onChange([
+          hue,
+          clamp(saturation + change[0], 0, 1),
+          clamp(brightness + change[1], 0, 1),
+        ]);
+      }}
+      onPointerDown={(event) => {
+        if (event.button !== 0) return;
+        const [x, y] = point(event);
+        const radius = Math.hypot(x - 130, y - 130);
+        if (radius >= 109 && radius <= 130) drag.current = 'hue';
+        else if (triangleWeights(x, y).every((weight) => weight >= 0))
+          { drag.current = 'triangle'; }
+        else return;
+        event.currentTarget.focus();
+        event.currentTarget.setPointerCapture(event.pointerId);
+        pick(x, y);
+      }}
+      onPointerMove={(event) => {
+        if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+          const [x, y] = point(event);
+          pick(x, y);
+        }
+      }}
+      onPointerUp={(event) => {
+        if (event.currentTarget.hasPointerCapture(event.pointerId))
+          { event.currentTarget.releasePointerCapture(event.pointerId); }
+        drag.current = null;
+      }}
+      onPointerCancel={() => {
+        drag.current = null;
+      }}
+      onLostPointerCapture={() => {
+        drag.current = null;
       }}
     >
-      <div style={{ display: 'flex', gap: '6px' }}>
-        <div
-          ref={svRef}
-          onMouseDown={pickSv}
-          style={{
-            position: 'relative',
-            flex: '0 0 auto',
-            width: '132px',
-            height: '104px',
-            cursor: 'crosshair',
-            borderRadius: '2px',
-            border: '1px solid rgba(0, 0, 0, 0.5)',
-            background:
-              'linear-gradient(to top, #000, rgba(0,0,0,0)), '
-              + 'linear-gradient(to right, #fff, rgba(255,255,255,0)), '
-              + `hsl(${hue}, 100%, 50%)`,
-          }}
-        >
-          <div
-            style={{
-              position: 'absolute',
-              left: `${saturation * 100}%`,
-              top: `${(1 - brightness) * 100}%`,
-              width: '10px',
-              height: '10px',
-              marginLeft: '-5px',
-              marginTop: '-5px',
-              borderRadius: '50%',
-              border: '2px solid #fff',
-              boxShadow: '0 0 3px rgba(0, 0, 0, 0.8)',
-              pointerEvents: 'none',
-            }}
-          />
-        </div>
-        <div
-          ref={hueRef}
-          onMouseDown={pickHue}
-          style={{
-            position: 'relative',
-            flex: '0 0 auto',
-            width: '16px',
-            height: '104px',
-            cursor: 'pointer',
-            borderRadius: '2px',
-            border: '1px solid rgba(0, 0, 0, 0.5)',
-            background:
-              'linear-gradient(to top, #f00 0%, #ff0 17%, #0f0 33%, '
-              + '#0ff 50%, #00f 67%, #f0f 83%, #f00 100%)',
-          }}
-        >
-          <div
-            style={{
-              position: 'absolute',
-              left: '-2px',
-              right: '-2px',
-              bottom: `${(hue / 360) * 100}%`,
-              height: '5px',
-              marginTop: '-2px',
-              borderRadius: '2px',
-              border: '1px solid #fff',
-              boxShadow: '0 0 3px rgba(0, 0, 0, 0.8)',
-              pointerEvents: 'none',
-            }}
-          />
-        </div>
-      </div>
-      <div
-        style={{ display: 'flex', alignItems: 'center', marginTop: '6px' }}
-      >
-        <div style={{ flex: '1 1 auto', marginRight: '6px' }}>
-          <Input
-            width="100%"
-            value={draft}
-            onInput={(e, next) => setDraft(next)}
-            onChange={(e, next) => {
-              const normalized = normalizeHex(next);
-              if (!normalized) {
-                setDraft(hex);
-                return;
-              }
-              setHsv(hexToHsv(normalized));
-              schedule(normalized);
-            }}
-          />
-        </div>
-        <div style={swatch} />
-        <div style={{ flex: '0 0 auto', marginLeft: '6px' }}>
-          <Button compact icon="check" tooltip="Закрыть пикер" onClick={onClose} />
-        </div>
-      </div>
+      <div className="CharacterSetup__hue-ring" />
+      <canvas ref={canvasRef} width={WHEEL_SIZE} height={WHEEL_SIZE} />
+      <svg viewBox="0 0 260 260" aria-hidden="true">
+        <polygon
+          points={TRIANGLE_LEFT + ',77 ' + TRIANGLE_RIGHT + ',77 130,236'}
+          fill="none"
+          stroke="rgba(255,255,255,0.4)"
+        />
+        <circle
+          cx={130 + 119 * Math.sin((hue * Math.PI) / 180)}
+          cy={130 - 119 * Math.cos((hue * Math.PI) / 180)}
+          r="4"
+          className="CharacterSetup__wheel-marker"
+        />
+        <circle
+          cx={
+            hueWeight * TRIANGLE_LEFT +
+            whiteWeight * TRIANGLE_RIGHT +
+            blackWeight * 130
+          }
+          cy={brightness * TRIANGLE_TOP + blackWeight * TRIANGLE_BOTTOM}
+          r="4"
+          className="CharacterSetup__wheel-marker"
+        />
+      </svg>
     </div>
   );
 };
 
-let panelRoot: HTMLDivElement | null = null;
+const ColorPanel = (props: {
+  value: string;
+  onCommit: (hex: string) => void;
+  onClose: () => void;
+}) => {
+  const { value, onCommit, onClose } = props;
+  const [hsv, setHsv] = useState<[number, number, number]>(() =>
+    hexToHsv(value)
+  );
+  const [draft, setDraft] = useState(value);
+  const [recent, setRecent] = useLocalState<string[]>(
+    'characterColorHistory',
+    []
+  );
+  const hex = hsvToHex(...hsv);
+  const select = (next: string) => {
+    setHsv(hexToHsv(next));
+    setDraft(next);
+  };
+  const selectHsv = (next: [number, number, number]) => {
+    setHsv(next);
+    setDraft(hsvToHex(...next));
+  };
+  const valid = normalizeHex(draft);
+  const apply = () => {
+    if (!valid) return;
+    setRecent(
+      [valid, ...recent.filter((color) => color !== valid)].slice(0, 12)
+    );
+    onCommit(valid);
+    onClose();
+  };
+  const swatches = (colors: string[]) =>
+    colors.map((color) => (
+      <button
+        key={color}
+        type="button"
+        className="CharacterSetup__swatch"
+        style={{ '--swatch-color': color } as React.CSSProperties}
+        title={color}
+        aria-label={'Выбрать цвет ' + color}
+        aria-pressed={hex.toLowerCase() === color.toLowerCase()}
+        onClick={() => select(color)}
+      />
+    ));
 
-const getPanelRoot = () => {
-  if (!panelRoot) {
-    panelRoot = document.createElement('div');
-    document.documentElement.appendChild(panelRoot);
-  }
-  return panelRoot;
+  return (
+    <div
+      className="CharacterSetup__color-overlay"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <div
+        className="CharacterSetup__color-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Выбор цвета"
+      >
+        <Box className="CharacterSetup__card-title">Выбор цвета</Box>
+        <div className="CharacterSetup__color-layout">
+          <div>
+            <Box color="label" mb={1}>
+              Готовая палитра
+            </Box>
+            <div
+              className="CharacterSetup__honeycomb"
+              role="group"
+              aria-label="Цветовая палитра"
+            >
+              {PALETTE_ROWS.map((row, index) => (
+                <div key={index} className="CharacterSetup__palette-row">
+                  {swatches(row)}
+                </div>
+              ))}
+            </div>
+            <div
+              className="CharacterSetup__palette CharacterSetup__palette--grayscale"
+              role="group"
+              aria-label="Оттенки серого"
+            >
+              {swatches(GRAYSCALE)}
+            </div>
+            {!!recent.length && (
+              <>
+                <Box color="label" mt={1} mb={1}>
+                  Недавние цвета
+                </Box>
+                <div className="CharacterSetup__palette">
+                  {swatches(recent)}
+                </div>
+              </>
+            )}
+          </div>
+          <div>
+            <Box color="label" mb={1}>
+              Точная настройка
+            </Box>
+            <div className="CharacterSetup__color-editor">
+              <HueTriangle hsv={hsv} onChange={selectHsv} />
+              <div>
+                <div className="CharacterSetup__color-values">
+                  {['R', 'G', 'B'].map((channel, index) => (
+                    <div key={channel}>
+                      <Box color="label" mb={0.5}>
+                        {channel}
+                      </Box>
+                      <NumberInput
+                        width="100%"
+                        minValue={0}
+                        maxValue={255}
+                        step={1}
+                        value={parseInt(
+                          hex.slice(1 + index * 2, 3 + index * 2),
+                          16
+                        )}
+                        onChange={(event, next) => {
+                          const channels = [1, 3, 5].map((offset) =>
+                            hex.slice(offset, offset + 2)
+                          );
+                          channels[index] = clamp(Math.round(next), 0, 255)
+                            .toString(16)
+                            .padStart(2, '0');
+                          select('#' + channels.join(''));
+                        }}
+                      />
+                    </div>
+                  ))}
+                  <div>
+                    <Box color="label" mb={0.5}>
+                      HEX
+                    </Box>
+                    <Input
+                      fluid
+                      autoFocus
+                      value={draft}
+                      placeholder="#rrggbb"
+                      onInput={(event, next) => {
+                        setDraft(next);
+                        const normalized = normalizeHex(next);
+                        if (normalized) setHsv(hexToHsv(normalized));
+                      }}
+                      onEnter={apply}
+                    />
+                  </div>
+                </div>
+
+                <div className="CharacterSetup__color-comparison">
+                  <Box color="label">Новый</Box>
+                  <div
+                    className="CharacterSetup__color-sample"
+                    style={{ background: hex }}
+                  />
+                  <button
+                    className="CharacterSetup__color-sample"
+                    type="button"
+                    style={{ background: value }}
+                    title="Вернуть исходный цвет"
+                    aria-label="Вернуть исходный цвет"
+                    onClick={() => select(value)}
+                  />
+                  <Box color="label">Исходный</Box>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {!valid && (
+          <Box color="bad" mt={1}>
+            Введите 3 или 6 шестнадцатеричных цифр.
+          </Box>
+        )}
+        <Stack mt={2}>
+          <Stack.Item grow>
+            <Button fluid icon="times" content="Отмена" onClick={onClose} />
+          </Stack.Item>
+          <Stack.Item grow>
+            <Button
+              fluid
+              icon="check"
+              color="good"
+              content="Применить"
+              disabled={!valid}
+              onClick={apply}
+            />
+          </Stack.Item>
+        </Stack>
+      </div>
+    </div>
+  );
 };
 
 export const ColorPicker = (props: {
@@ -313,93 +464,43 @@ export const ColorPicker = (props: {
 }) => {
   const { value, onCommit, tooltip, width = '28px', height = '24px' } = props;
   const [open, setOpen] = useState(false);
-  const [position, setPosition] = useState({ left: 0, top: 0 });
-  const anchorRef = useRef<HTMLDivElement>(null);
-  const panelRef = useRef<HTMLDivElement>(null);
   const hex = safeHex(value);
-
-  const toggle = () => {
-    const node = anchorRef.current;
-    if (node) {
-      const rect = node.getBoundingClientRect();
-      const gap = 4;
-      const left = clamp(
-        rect.left,
-        4,
-        Math.max(4, window.innerWidth - PANEL_WIDTH - 4),
-      );
-      const below = rect.bottom + gap;
-      setPosition({
-        left,
-        top:
-          below + PANEL_HEIGHT > window.innerHeight - 4
-            ? Math.max(4, rect.top - gap - PANEL_HEIGHT)
-            : below,
-      });
-    }
-    setOpen(!open);
+  const anchorRef = useRef<HTMLButtonElement>(null);
+  const close = () => {
+    setOpen(false);
+    anchorRef.current?.focus();
   };
-
   useEffect(() => {
-    if (!open) {
-      return;
-    }
-    const away = (event: Event) => {
-      const target = event.target as Node | null;
-      if (
-        (panelRef.current && target && panelRef.current.contains(target))
-        || (anchorRef.current && target && anchorRef.current.contains(target))
-      ) {
-        return;
-      }
-      setOpen(false);
-    };
+    if (!open) return;
     const escape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
+        event.preventDefault();
+        event.stopPropagation();
         setOpen(false);
+        anchorRef.current?.focus();
       }
     };
-    document.addEventListener('mousedown', away);
-    document.addEventListener('keydown', escape);
-    return () => {
-      document.removeEventListener('mousedown', away);
-      document.removeEventListener('keydown', escape);
-    };
+    document.addEventListener('keydown', escape, true);
+    return () => document.removeEventListener('keydown', escape, true);
   }, [open]);
-
+  const root = document.querySelector('.CharacterSetup__editor');
   return (
     <>
-      <div
+      <button
         ref={anchorRef}
+        type="button"
+        className="CharacterSetup__color-chip"
         title={tooltip || hex}
-        onClick={toggle}
-        style={{
-          display: 'inline-block',
-          width,
-          height,
-          padding: 0,
-          cursor: 'pointer',
-          border: '1px solid rgba(255, 255, 255, 0.3)',
-          borderRadius: '2px',
-          background: hex,
-          verticalAlign: 'middle',
-        }}
+        aria-label={tooltip || 'Выбрать цвет ' + hex}
+        aria-expanded={open}
+        onClick={() => setOpen(!open)}
+        style={{ width, height, background: hex }}
       />
-      {open
-        && createPortal(
-          <div
-            ref={panelRef}
-            style={{ zoom: document.body.style.zoom || '100%' }}
-          >
-            <ColorPanel
-              value={hex}
-              left={position.left}
-              top={position.top}
-              onCommit={onCommit}
-              onClose={() => setOpen(false)}
-            />
-          </div>,
-          getPanelRoot(),
+      {open &&
+        root &&
+        createPortal(
+          <ColorPanel value={hex} onCommit={onCommit} onClose={close} />,
+          root
         )}
     </>
   );

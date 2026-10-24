@@ -1,11 +1,5 @@
 import { useBackend } from '../../../backend';
-import {
-  Box,
-  Button,
-  Dropdown,
-  Section,
-  Stack,
-} from '../../../components';
+import { Box, Button, Dropdown, Section, Stack } from '../../../components';
 import {
   asArray,
   asOptions,
@@ -94,7 +88,11 @@ interface AppearanceContext {
   featureFields?: FeatureField[];
 }
 
-const HairStyleRow = (props: { label: string; kind: string; style: string }) => {
+const HairStyleRow = (props: {
+  label: string;
+  kind: string;
+  style: string;
+}) => {
   const { act } = useBackend<AppearanceContext>();
   const { label, kind, style } = props;
   return (
@@ -195,208 +193,197 @@ export const AppearanceTab = () => {
 
   return (
     <Section fill scrollable title="Внешность">
-      <Stack>
-        <Stack.Item grow basis={0} pr={2}>
-          <Section title="Тело">
+      <div className="CharacterSetup__settings-grid">
+        <Section title="Тело">
+          <SelectRow
+            label="Пол"
+            value={appearance.gender}
+            options={asOptions(appearance.genderOptions)}
+            action="set_gender"
+          />
+          {!!appearance.speciesSexes && (
             <SelectRow
-              label="Пол"
-              value={appearance.gender}
-              options={asOptions(appearance.genderOptions)}
-              action="set_gender"
+              label="Телосложение"
+              value={appearance.bodyModel}
+              options={asOptions(appearance.bodyModelOptions)}
+              action="set_body_model"
             />
-            {!!appearance.speciesSexes && (
-              <SelectRow
-                label="Телосложение"
-                value={appearance.bodyModel}
-                options={asOptions(appearance.bodyModelOptions)}
-                action="set_body_model"
-              />
-            )}
-            <SelectRow
-              label="Вид"
-              value={appearance.species}
-              options={appearance.speciesList || []}
-              action="set_species"
+          )}
+          <SelectRow
+            label="Вид"
+            value={appearance.species}
+            options={appearance.speciesList || []}
+            action="set_species"
+          />
+          <TextRow
+            label="Особая раса"
+            tooltip="Имя, показываемое вместо вида."
+            value={appearance.customSpecies}
+            action="set_custom_species"
+          />
+          <ToggleRow
+            label="Продвинутая раскраска"
+            tooltip="Отдельные цвета частей тела вместо общего оттенка."
+            value={appearance.advancedColors}
+            action="toggle_color_scheme"
+          />
+          {field('show_mismatched_markings')}
+          {field('allow_emissives')}
+          {field('be_random_body')}
+          <Box mb={1}>
+            <Button
+              icon="dice"
+              content="Случайное тело"
+              onClick={() => act('randomize')}
             />
-            <TextRow
-              label="Особая раса"
-              tooltip="Имя, показываемое вместо вида."
-              value={appearance.customSpecies}
-              action="set_custom_species"
+          </Box>
+          <Box mb={1}>
+            <Box>Модификация конечностей</Box>
+            <Button
+              icon="wrench"
+              content="Изменить"
+              onClick={() => act('modify_limbs')}
             />
-            <ToggleRow
-              label="Продвинутая раскраска"
-              tooltip="Отдельные цвета частей тела вместо общего оттенка."
-              value={appearance.advancedColors}
-              action="toggle_color_scheme"
-            />
-            {field('show_mismatched_markings')}
-            {field('allow_emissives')}
-            {field('be_random_body')}
-            <Box mb={1}>
-              <Button
-                icon="dice"
-                content="Случайное тело"
-                onClick={() => act('randomize')}
-              />
+          </Box>
+          {asArray(appearance.modifiedLimbs).map((limb) => (
+            <Box key={limb.name} color="label">
+              {limb.name}: {limb.kind}
+              {limb.extra ? ` (${limb.extra})` : ''}
             </Box>
-            <Box mb={1}>
-              <Box>Модификация конечностей</Box>
-              <Button
-                icon="wrench"
-                content="Изменить"
-                onClick={() => act('modify_limbs')}
-              />
-            </Box>
-            {asArray(appearance.modifiedLimbs).map((limb) => (
-              <Box key={limb.name} color="label">
-                {limb.name}: {limb.kind}
-                {limb.extra ? ` (${limb.extra})` : ''}
-              </Box>
-            ))}
-            {(appearance.bodySprites || []).length > 0 && (
-              <SelectRow
-                label="Спрайт тела"
-                value={appearance.bodySprite}
-                options={appearance.bodySprites || []}
-                action="set_body_sprite"
-              />
-            )}
+          ))}
+          {(appearance.bodySprites || []).length > 0 && (
             <SelectRow
-              label="Фон превью"
-              value={appearance.bgstate}
-              options={appearance.bgOptions || []}
-              action="set_bgstate"
+              label="Спрайт тела"
+              value={appearance.bodySprite}
+              options={appearance.bodySprites || []}
+              action="set_body_sprite"
             />
-          </Section>
-        </Stack.Item>
+          )}
+          <SelectRow
+            label="Фон превью"
+            value={appearance.bgstate}
+            options={appearance.bgOptions || []}
+            action="set_bgstate"
+          />
+        </Section>
 
-        <Stack.Item grow basis={0} pr={2}>
-          <Section title="Цвет тела и размер">
-            {!!appearance.useSkintones && (
-              <>
-                <SelectRow
-                  label="Тон кожи"
-                  value={
-                    appearance.useCustomSkinTone ? 'custom' : appearance.skinTone
-                  }
-                  options={appearance.skinToneOptions || []}
+        <Section title="Цвет тела и размер">
+          {!!appearance.useSkintones && (
+            <>
+              <SelectRow
+                label="Тон кожи"
+                value={
+                  appearance.useCustomSkinTone ? 'custom' : appearance.skinTone
+                }
+                options={appearance.skinToneOptions || []}
+                action="set_skin_tone"
+              />
+              {!!appearance.useCustomSkinTone && (
+                <ColorField
+                  label="Цвет тона"
+                  value={appearance.skinTone}
                   action="set_skin_tone"
                 />
-                {!!appearance.useCustomSkinTone && (
-                  <ColorField
-                    label="Цвет тона"
-                    value={appearance.skinTone}
-                    action="set_skin_tone"
-                  />
-                )}
-              </>
-            )}
-            {fieldIf(appearance.hasMutantColors, 'mcolor')}
-            {fieldIf(appearance.hasMutantColors, 'mcolor2')}
-            {fieldIf(appearance.hasMutantColors, 'mcolor3')}
-            {fieldIf(
-              appearance.hasMutantColors && appearance.useSkintones,
-              'genitals_use_skintone',
-            )}
-            {fieldIf(appearance.hasMutantColors, 'body_size')}
-            {fieldIf(appearance.hasMutantColors, 'normalized_size')}
-            {fieldIf(appearance.hasMutantColors, 'fuzzy')}
-            {!!appearance.hasMutantColors && (
-              <>
-                <SelectRow
-                  label="Вес персонажа"
-                  tooltip={
-                    appearance.weightLocked
-                      ? 'Квирк «Пожиратель» несовместим с любым весом, кроме стандартного.'
-                      : (appearance.weightOptions || {})[appearance.bodyWeight]
-                  }
-                  value={appearance.bodyWeight}
-                  options={weightNames}
-                  action="set_body_weight"
-                />
-                {!!appearance.weightLocked && (
-                  <Box color="label" italic mb={1}>
-                    Сейчас действует вес «средний».
-                  </Box>
-                )}
-              </>
-            )}
-          </Section>
-        </Stack.Item>
+              )}
+            </>
+          )}
+          {fieldIf(appearance.hasMutantColors, 'mcolor')}
+          {fieldIf(appearance.hasMutantColors, 'mcolor2')}
+          {fieldIf(appearance.hasMutantColors, 'mcolor3')}
+          {fieldIf(
+            appearance.hasMutantColors && appearance.useSkintones,
+            'genitals_use_skintone'
+          )}
+          {fieldIf(appearance.hasMutantColors, 'body_size')}
+          {fieldIf(appearance.hasMutantColors, 'normalized_size')}
+          {fieldIf(appearance.hasMutantColors, 'fuzzy')}
+          {!!appearance.hasMutantColors && (
+            <>
+              <SelectRow
+                label="Вес персонажа"
+                tooltip={
+                  appearance.weightLocked
+                    ? 'Квирк «Пожиратель» несовместим с любым весом, кроме стандартного.'
+                    : (appearance.weightOptions || {})[appearance.bodyWeight]
+                }
+                value={appearance.bodyWeight}
+                options={weightNames}
+                action="set_body_weight"
+              />
+              {!!appearance.weightLocked && (
+                <Box color="label" italic mb={1}>
+                  Сейчас действует вес «средний».
+                </Box>
+              )}
+            </>
+          )}
+        </Section>
 
-        <Stack.Item grow basis={0}>
-          <Section title="Глаза и волосы">
-            {!!appearance.hasEyes && (
-              <>
-                <SelectRow
-                  label="Форма глаз"
-                  value={appearance.eyeType}
-                  options={appearance.eyeTypes || []}
-                  action="set_eye_type"
-                />
-                <ToggleRow
-                  label="Светящиеся глаза"
-                  value={appearance.eyesGlow}
-                  action="toggle_emissive_part"
-                  params={{ part: 'eyes' }}
-                />
-                {!!appearance.hasEyecolor &&
-                  (values.split_eye_colors ? (
-                    <>
-                      {field('split_eye_colors')}
-                      {field('left_eye_color')}
-                      {field('right_eye_color')}
-                    </>
-                  ) : (
-                    <>
-                      {field('split_eye_colors')}
-                      <ColorField
-                        label="Цвет глаз"
-                        value={values.left_eye_color as string}
-                        action="set_eye_color"
-                      />
-                    </>
-                  ))}
-              </>
-            )}
-            {!!appearance.hasHair && (
-              <>
-                <HairStyleRow
-                  label="Причёска"
-                  kind="hair"
-                  style={appearance.hairStyle}
-                />
-                {field('hair_color')}
-                <HairStyleRow
-                  label="Борода"
-                  kind="facial"
-                  style={appearance.facialHairStyle}
-                />
-                {field('facial_hair_color')}
-                <HairStyleRow
-                  label="Градиент"
-                  kind="grad"
-                  style={appearance.gradStyle}
-                />
-                {field('grad_color')}
-              </>
-            )}
-          </Section>
-        </Stack.Item>
-      </Stack>
+        <Section title="Глаза и волосы">
+          {!!appearance.hasEyes && (
+            <>
+              <SelectRow
+                label="Форма глаз"
+                value={appearance.eyeType}
+                options={appearance.eyeTypes || []}
+                action="set_eye_type"
+              />
+              <ToggleRow
+                label="Светящиеся глаза"
+                value={appearance.eyesGlow}
+                action="toggle_emissive_part"
+                params={{ part: 'eyes' }}
+              />
+              {!!appearance.hasEyecolor &&
+                (values.split_eye_colors ? (
+                  <>
+                    {field('split_eye_colors')}
+                    {field('left_eye_color')}
+                    {field('right_eye_color')}
+                  </>
+                ) : (
+                  <>
+                    {field('split_eye_colors')}
+                    <ColorField
+                      label="Цвет глаз"
+                      value={values.left_eye_color as string}
+                      action="set_eye_color"
+                    />
+                  </>
+                ))}
+            </>
+          )}
+          {!!appearance.hasHair && (
+            <>
+              <HairStyleRow
+                label="Причёска"
+                kind="hair"
+                style={appearance.hairStyle}
+              />
+              {field('hair_color')}
+              <HairStyleRow
+                label="Борода"
+                kind="facial"
+                style={appearance.facialHairStyle}
+              />
+              {field('facial_hair_color')}
+              <HairStyleRow
+                label="Градиент"
+                kind="grad"
+                style={appearance.gradStyle}
+              />
+              {field('grad_color')}
+            </>
+          )}
+        </Section>
+      </div>
 
       <Section title="Части тела" mt={1}>
-        <Stack wrap>
+        <div className="CharacterSetup__settings-grid CharacterSetup__settings-grid--compact">
           {asArray(appearance.mutantParts).map((part) => (
-            <Stack.Item
-              key={part.key}
-              style={{ flex: '1 1 260px', minWidth: '260px' }}
-            >
-              <MutantPartCard part={part} />
-            </Stack.Item>
+            <MutantPartCard key={part.key} part={part} />
           ))}
-        </Stack>
+        </div>
       </Section>
 
       {appearance.genitals && (

@@ -1,5 +1,5 @@
 import { useBackend } from '../../../backend';
-import { Box, Dropdown, Section, Stack } from '../../../components';
+import { Box, Dropdown, Section } from '../../../components';
 import {
   ColorField,
   FeatureField,
@@ -72,61 +72,60 @@ export const GenitalsSection = (props: {
 
   return (
     <Section title="Гениталии">
-      <Stack wrap>
+      <div className="CharacterSetup__settings-grid CharacterSetup__settings-grid--compact">
         {(genitals.parts || []).map((part) => (
-          <Stack.Item key={part.key} style={{ width: '260px' }}>
-            <Box
-              p={1}
-              style={{
-                border: '1px solid rgba(255,255,255,0.15)',
-                borderRadius: '2px',
-              }}
-            >
-              <Box mb={1}>
-                <b>{part.label}</b>
-              </Box>
-              <ToggleRow
-                label="Свечение"
-                value={part.glow}
-                action="toggle_emissive_part"
-                params={{ part: part.key }}
-                onLabel="Да"
-                offLabel="Нет"
-              />
-              {renderField(part.activeKey)}
-              {!!part.active &&
-                part.fields.map((key) => {
-                  if (key === 'cock_shape' && genitals.cockShape) {
-                    return (
-                      <FieldRow key={key} label="Форма пениса">
-                        <Dropdown
-                          width="100%"
-                          options={genitals.cockShape.options || []}
-                          selected={genitals.cockShape.value || ''}
-                          onSelected={(next) =>
-                            act('set_cock_shape', { value: next })
-                          }
-                        />
-                      </FieldRow>
-                    );
-                  }
-                  if (key === 'anus_glow') {
-                    return (
-                      <ToggleRow
-                        key={key}
-                        label="Свечение ануса"
-                        value={!!part.subGlow}
-                        action="toggle_emissive_part"
-                        params={{ part: part.subGlowKey }}
-                      />
-                    );
-                  }
-                  return <Box key={key}>{renderField(key)}</Box>;
-                })}
+          <Box
+            key={part.key}
+            p={1}
+            style={{
+              border: '1px solid rgba(255,255,255,0.15)',
+              borderRadius: '2px',
+            }}
+          >
+            <Box mb={1}>
+              <b>{part.label}</b>
             </Box>
-          </Stack.Item>
+            <ToggleRow
+              label="Свечение"
+              value={part.glow}
+              action="toggle_emissive_part"
+              params={{ part: part.key }}
+              onLabel="Да"
+              offLabel="Нет"
+            />
+            {renderField(part.activeKey)}
+            {!!part.active &&
+              part.fields.map((key) => {
+                if (key === 'cock_shape' && genitals.cockShape) {
+                  return (
+                    <FieldRow key={key} label="Форма пениса">
+                      <Dropdown
+                        width="100%"
+                        options={genitals.cockShape.options || []}
+                        selected={genitals.cockShape.value || ''}
+                        onSelected={(next) =>
+                          act('set_cock_shape', { value: next })
+                        }
+                      />
+                    </FieldRow>
+                  );
+                }
+                if (key === 'anus_glow') {
+                  return (
+                    <ToggleRow
+                      key={key}
+                      label="Свечение ануса"
+                      value={!!part.subGlow}
+                      action="toggle_emissive_part"
+                      params={{ part: part.subGlowKey }}
+                    />
+                  );
+                }
+                return <Box key={key}>{renderField(key)}</Box>;
+              })}
+          </Box>
         ))}
-      </Stack>
+      </div>
 
       {!!genitals.hasNeckfire && (
         <Box

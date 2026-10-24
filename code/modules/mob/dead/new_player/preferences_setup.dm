@@ -33,7 +33,7 @@
 	// Determine what job is marked as 'High' priority, and dress them up as such.
 	var/datum/job/previewJob = get_highest_job()
 
-	if(previewJob)
+	if(previewJob && preview_pref == PREVIEW_PREF_JOB)
 		// Silicons only need a very basic preview since there is no customization for them.
 		if(istype(previewJob,/datum/job/ai))
 			return mutable_appearance('icons/mob/AI.dmi', resolve_ai_icon(preferred_ai_core_display), FLOAT_LAYER, GAME_PLANE)

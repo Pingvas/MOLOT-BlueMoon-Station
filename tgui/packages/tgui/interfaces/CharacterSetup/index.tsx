@@ -4,8 +4,8 @@ import { useBackend } from '../../backend';
 import {
   Box,
   Button,
-  ByondUi,
-  Divider,
+  Icon,
+  Input,
   NoticeBox,
   Section,
   Stack,
@@ -21,19 +21,16 @@ import { MarkingsTab } from './tabs/Markings';
 import { QuirksTab } from './tabs/Quirks';
 import { SpeechTab } from './tabs/Speech';
 
-interface CharacterSetupTab {
-  id: number;
-  label: string;
-  icon: string;
-}
-
 interface CharacterSetupData {
-  tabs: CharacterSetupTab[];
+  tabs: { id: number; label: string; icon: string }[];
   maxSlots: number;
   slotNames: (string | null)[];
   defaultSlot: number;
+  characterRevision: number;
+  characterName: string;
+  speciesName: string;
   tab: number;
-  previewRef: string | null;
+  previewImages: { id: string; label: string; icon: string }[];
   previewPref: string;
   previewModes: string[];
   localStorageName: string | null;
@@ -41,24 +38,17 @@ interface CharacterSetupData {
   redemptionCode?: string;
 }
 
-const PREVIEW_MODE_LABELS: Record<string, string> = {
-  Job: 'По профессии',
-  Loadout: 'Экипировка',
-  Naked: 'Без одежды',
-  'Naked - Aroused': 'Без одежды (возбужд.)',
-};
-
-const slotLabel = (
-  slot: number,
-  names: (string | null)[],
-): string => {
-  const name = names[slot - 1];
-  return `[${slot}] ${name ? name : '— пустой'}`;
+const PREVIEW_MODES: Record<string, { label: string; icon: string }> = {
+  Job: { label: 'По профессии', icon: 'briefcase' },
+  Loadout: { label: 'Экипировка', icon: 'tshirt' },
+  Naked: { label: 'Без одежды', icon: 'user' },
+  'Naked - Aroused': { label: 'Без одежды (возбужд.)', icon: 'heart' },
 };
 
 export const CharacterSetup = () => {
+  const { act, data } = useBackend<CharacterSetupData>();
   const [maximized, setMaximized] = useState(false);
-  const [slotsOpen, setSlotsOpen] = useState(false);
+  const [slotsOpen, setSlotsOpen] = useState(true);
   const restoreGeometry = useRef<{ pos: string; size: string } | null>(null);
 
   const toggleMaximize = async () => {
@@ -95,286 +85,194 @@ export const CharacterSetup = () => {
 
   return (
     <Window
-      width={1180}
-      height={820}
+      width={1600}
+      height={1080}
       resizable
-      title="Создание персонажа"
+      title="Настройка персонажа"
       buttons={
         <Button
           icon={maximized ? 'compress' : 'expand'}
           color="transparent"
-          tooltip={maximized
-            ? 'Свернуть окно обратно'
-            : 'Развернуть окно на весь экран'}
+          tooltip={maximized ? 'Восстановить размер окна' : 'Развернуть окно'}
           onClick={toggleMaximize}
         />
       }
     >
       <Window.Content>
-        <Stack fill vertical>
-          <Stack.Item>
-            <SlotBar />
-          </Stack.Item>
-          <Stack.Item grow={1} basis={0}>
-            <Box style={{ position: 'relative', height: '100%' }}>
-              <Stack fill>
-                <Stack.Item>
-                  <Box
-                    style={{
-                      position: 'relative',
-                      zIndex: 30,
-                      height: '100%',
-                      display: 'flex',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <Button
-                      icon={slotsOpen ? 'chevron-left' : 'chevron-right'}
-                      selected={slotsOpen}
-                      tooltip={slotsOpen
-                        ? 'Скрыть список персонажей'
-                        : 'Показать список персонажей'}
-                      onClick={() => setSlotsOpen(!slotsOpen)}
-                      style={{
-                        height: '150px',
-                        width: '28px',
-                        padding: 0,
-                        fontSize: '10px',
-                        margin: 0,
-                        borderRadius: '0 6px 6px 0',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    />
-                    {slotsOpen && (
-                      <Box
-                        style={{
-                          position: 'absolute',
-                          left: '100%',
-                          top: 0,
-                          marginLeft: '6px',
-                          height: '100%',
-                          width: '264px',
-                          zIndex: 20,
-                          backgroundColor: '#252525',
-                          border: '1px solid #466278',
-                          borderRadius: '6px',
-                          boxShadow: '0 6px 18px rgba(0, 0, 0, 0.55)',
-                          overflow: 'hidden',
-                        }}
-                      >
-                        <SlotPanel />
-                      </Box>
-                    )}
-                  </Box>
-                </Stack.Item>
-                <Stack.Item grow={1} basis={0}>
-                  <TabWorkspace />
-                </Stack.Item>
-              </Stack>
-              {slotsOpen && (
-                <Box
-                  onClick={() => setSlotsOpen(false)}
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    zIndex: 10,
-                  }}
+        <div className="CharacterSetup">
+          <Section className="CharacterSetup__header">
+            <Stack align="center">
+              <Stack.Item>
+                <Button
+                  icon="users"
+                  selected={slotsOpen}
+                  content="Персонажи"
+                  onClick={() => setSlotsOpen(!slotsOpen)}
                 />
-              )}
-            </Box>
-          </Stack.Item>
-        </Stack>
+              </Stack.Item>
+              <Stack.Item grow basis={0}>
+                <Box className="CharacterSetup__name">{data.characterName}</Box>
+                <Box color="label">
+                  Слот {data.defaultSlot} · {data.speciesName}
+                </Box>
+              </Stack.Item>
+              <Stack.Item>
+                <Button
+                  icon="save"
+                  color="good"
+                  content="Сохранить"
+                  onClick={() => act('save')}
+                />
+                <Button.Confirm
+                  icon="undo"
+                  content="Отменить изменения"
+                  confirmContent="Отменить изменения?"
+                  tooltip="Вернуть настройки текущего персонажа к последнему сохранению"
+                  onClick={() => act('load')}
+                />
+              </Stack.Item>
+            </Stack>
+          </Section>
+          <div
+            className={
+              'CharacterSetup__body' +
+              (slotsOpen ? '' : ' CharacterSetup__body--collapsed')
+            }
+          >
+            {slotsOpen && <SlotPanel />}
+            <div className="CharacterSetup__editor">
+              <Tabs className="CharacterSetup__tabs">
+                {(data.tabs || []).map((tab) => (
+                  <Tabs.Tab
+                    key={tab.id}
+                    selected={data.tab === tab.id}
+                    icon={tab.icon}
+                    onClick={() => act('set_tab', { tab: tab.id })}
+                  >
+                    {tab.label}
+                  </Tabs.Tab>
+                ))}
+              </Tabs>
+              <div
+                className="CharacterSetup__content"
+                key={
+                  data.defaultSlot +
+                  ':' +
+                  data.characterRevision +
+                  ':' +
+                  data.tab
+                }
+              >
+                <TabContent tab={data.tab} />
+              </div>
+            </div>
+            <Preview />
+          </div>
+        </div>
       </Window.Content>
     </Window>
   );
 };
 
-const TabWorkspace = () => {
-  const { act, data } = useBackend<CharacterSetupData>();
-
-  const tabs = data.tabs || [];
-  const activeTab = data.tab;
-
-  return (
-    <Stack fill vertical>
-      <Stack.Item>
-        <Tabs>
-          {tabs.map((tabEntry) => (
-            <Tabs.Tab
-              key={tabEntry.id}
-              selected={activeTab === tabEntry.id}
-              icon={tabEntry.icon}
-              onClick={() => act('set_tab', { tab: tabEntry.id })}
-            >
-              {tabEntry.label}
-            </Tabs.Tab>
-          ))}
-        </Tabs>
-      </Stack.Item>
-      <Stack.Item grow={1} basis={0}>
-        <Stack fill>
-          <Stack.Item grow={1} basis={0}>
-            <TabContent tab={activeTab} />
-          </Stack.Item>
-          <Stack.Item>
-            <Preview />
-          </Stack.Item>
-        </Stack>
-      </Stack.Item>
-    </Stack>
-  );
-};
-
-const SlotBar = () => {
-  const { act, data } = useBackend<CharacterSetupData>();
-
-  const slotNames = data.slotNames || [];
-  const defaultSlot = data.defaultSlot || 1;
-
-  return (
-    <Section>
-      <Stack align="center">
-        <Stack.Item grow={1}>
-          <Box color="label">
-            Текущий персонаж: {slotLabel(defaultSlot, slotNames)}
-          </Box>
-        </Stack.Item>
-        <Stack.Item>
-          <Button
-            icon="save"
-            content="Сохранить"
-            onClick={() => act('save')}
-          />
-        </Stack.Item>
-        <Stack.Item>
-          <Button
-            icon="undo"
-            content="Отменить"
-            tooltip="Откатить несохранённые изменения к последнему сохранению"
-            onClick={() => act('load')}
-          />
-        </Stack.Item>
-      </Stack>
-    </Section>
-  );
-};
-
 const SlotPanel = () => {
   const { act, data } = useBackend<CharacterSetupData>();
-
-  const maxSlots = data.maxSlots || 1;
-  const slotNames = data.slotNames || [];
-  const defaultSlot = data.defaultSlot || 1;
+  const [search, setSearch] = useState('');
   const [showEmpty, setShowEmpty] = useState(false);
-
-  const occupied: number[] = [];
-  const empty: number[] = [];
-  for (let slot = 1; slot <= maxSlots; slot++) {
-    if (slotNames[slot - 1]) {
-      occupied.push(slot);
-    } else {
-      empty.push(slot);
-    }
-  }
-
-  const emptyVisible =
-    showEmpty || occupied.length === 0 || !slotNames[defaultSlot - 1];
+  const names = data.slotNames || [];
+  const slots = Array.from(
+    { length: data.maxSlots || 1 },
+    (_, index) => index + 1
+  );
+  const occupied = slots.filter((slot) => !!names[slot - 1]);
+  const empty = slots.filter((slot) => !names[slot - 1]);
+  const query = search.trim().toLocaleLowerCase();
+  const visible = occupied.filter(
+    (slot) =>
+      String(slot) === query ||
+      names[slot - 1]?.toLocaleLowerCase().includes(query)
+  );
 
   return (
     <Section
       fill
       title="Персонажи"
-      buttons={<Box color="label">{occupied.length}/{maxSlots}</Box>}
+      className="CharacterSetup__slots"
+      buttons={
+        <Box color="label">
+          {occupied.length}/{slots.length}
+        </Box>
+      }
     >
-      <Stack fill vertical>
-        <Stack.Item
-          grow
-          basis={0}
-          style={{ overflowY: 'auto', overflowX: 'hidden', minHeight: 0 }}
-        >
-          {occupied.length > 0 ? (
-            <Box style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px' }}>
-              {occupied.map((slot) => (
-                <Button
-                  key={slot}
-                  fluid
-                  ellipsis
-                  style={{ margin: 0 }}
-                  content={`${slot}. ${slotNames[slot - 1]}`}
-                  selected={slot === defaultSlot}
-                  tooltip={slotLabel(slot, slotNames)}
-                  onClick={() => act('switch_slot', { slot })}
-                />
-              ))}
-            </Box>
-          ) : (
-            <Box color="label">
-              Занятых слотов нет - выберите пустой слот, чтобы создать
-              персонажа.
+      <div className="CharacterSetup__slot-panel">
+        <Input
+          fluid
+          placeholder="Имя или номер слота"
+          value={search}
+          onInput={(event, value) => setSearch(value)}
+        />
+        <div className="CharacterSetup__slot-list">
+          {visible.map((slot) => (
+            <Button
+              key={slot}
+              fluid
+              selected={slot === data.defaultSlot}
+              className="CharacterSetup__slot"
+              onClick={() => act('switch_slot', { slot })}
+            >
+              <span className="CharacterSetup__slot-number">{slot}</span>
+              <span className="CharacterSetup__slot-name">
+                {names[slot - 1]}
+              </span>
+              {slot === data.defaultSlot && <Icon name="check" />}
+            </Button>
+          ))}
+          {!visible.length && (
+            <Box color="label" my={1}>
+              Персонажи не найдены.
             </Box>
           )}
           <Button
             fluid
-            mt={1}
-            icon={showEmpty ? 'eye-slash' : 'eye'}
-            content={showEmpty
-              ? 'Скрыть пустые'
-              : `Пустые слоты (${empty.length})`}
+            icon={showEmpty ? 'chevron-up' : 'plus'}
+            content={'Свободные слоты: ' + empty.length}
             onClick={() => setShowEmpty(!showEmpty)}
           />
-          {emptyVisible && empty.length > 0 && (
-            <Box
-              mt={1}
-              style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px' }}
-            >
-              {empty.map((slot) => (
-                <Button
-                  key={slot}
-                  fluid
-                  icon="plus"
-                  style={{ margin: 0 }}
-                  content={`Слот ${slot}`}
-                  selected={slot === defaultSlot}
-                  onClick={() => act('switch_slot', { slot })}
-                />
-              ))}
-            </Box>
-          )}
-        </Stack.Item>
-        <Stack.Item>
-          <Divider />
-          <Stack vertical>
-            <Stack.Item>
+          {(showEmpty || !occupied.length) &&
+            empty.map((slot) => (
               <Button
+                key={slot}
                 fluid
-                icon="dice"
-                content="Случайный персонаж"
-                onClick={() => act('randomize')}
+                icon="plus"
+                color="transparent"
+                content={'Новый персонаж · слот ' + slot}
+                tooltip="Создать нового персонажа в свободном слоте"
+                onClick={() => act('switch_slot', { slot })}
               />
-            </Stack.Item>
-            <Stack.Item>
-              <Button.Confirm
-                fluid
-                icon="trash"
-                color="bad"
-                content="Удалить слот"
-                confirmContent="Удалить слот?"
-                disabled={!slotNames[defaultSlot - 1]}
-                tooltip={slotNames[defaultSlot - 1]
-                  ? undefined
-                  : 'Текущий слот и так пуст'}
-                onClick={() => act('delete_slot', { slot: defaultSlot })}
-              />
-            </Stack.Item>
-          </Stack>
+            ))}
+        </div>
+        <div className="CharacterSetup__slot-tools">
+          <Box color="label" mb={1}>
+            При переключении текущий персонаж сохраняется.
+          </Box>
+          <Button.Confirm
+            fluid
+            icon="dice"
+            content="Случайная внешность"
+            confirmContent="Изменить внешность?"
+            onClick={() => act('randomize')}
+          />
+          <Button.Confirm
+            fluid
+            icon="trash"
+            color="bad"
+            content="Удалить персонажа"
+            confirmContent="Удалить этот слот?"
+            disabled={!names[data.defaultSlot - 1]}
+            onClick={() => act('delete_slot', { slot: data.defaultSlot })}
+          />
           <SlotTools />
-        </Stack.Item>
-      </Stack>
+        </div>
+      </div>
     </Section>
   );
 };
@@ -398,8 +296,7 @@ const SlotTools = () => {
         <Stack mt={1} align="center" wrap>
           <Stack.Item>
             <Box color="label">
-              Локальная копия:{' '}
-              {localName ? localName : 'пусто'}
+              Локальная копия: {localName ? localName : 'пусто'}
             </Box>
           </Stack.Item>
           <Stack.Item>
@@ -465,52 +362,48 @@ const SlotTools = () => {
 
 const Preview = () => {
   const { act, data } = useBackend<CharacterSetupData>();
-
-  const modes = data.previewModes || [];
-
   return (
-    <Section title="Превью" width="280px">
-      <Box textAlign="center" mb={1}>
-        {data.previewRef ? (
-          <ByondUi
-            height="300px"
-            width="240px"
-            params={{ id: data.previewRef, type: 'map', zoom: 0 }}
-          />
-        ) : (
-          <NoticeBox>Превью ещё не собрано</NoticeBox>
-        )}
-      </Box>
-      <Stack mb={1}>
-        <Stack.Item grow>
-          <Button
-            fluid
-            icon="undo"
-            content="Влево"
-            onClick={() => act('preview_rotate', { step: 'left' })}
-          />
-        </Stack.Item>
-        <Stack.Item grow>
-          <Button
-            fluid
-            icon="redo"
-            content="Вправо"
-            onClick={() => act('preview_rotate', { step: 'right' })}
-          />
-        </Stack.Item>
-      </Stack>
-      <Stack vertical>
-        {modes.map((mode) => (
-          <Stack.Item key={mode}>
+    <Section
+      fill
+      scrollable
+      title="Внешний вид"
+      className="CharacterSetup__preview"
+    >
+      <div className="CharacterSetup__preview-toolbar">
+        <Box color="label" mb={1}>
+          Показать персонажа
+        </Box>
+        <div className="CharacterSetup__preview-modes">
+          {(data.previewModes || []).map((mode) => (
             <Button
+              key={mode}
               fluid
+              icon={PREVIEW_MODES[mode]?.icon || 'user'}
               selected={data.previewPref === mode}
-              content={PREVIEW_MODE_LABELS[mode] || mode}
+              content={PREVIEW_MODES[mode]?.label || mode}
               onClick={() => act('set_preview_mode', { mode })}
             />
-          </Stack.Item>
+          ))}
+        </div>
+      </div>
+      <div className="CharacterSetup__views">
+        {(data.previewImages || []).map((view) => (
+          <div key={view.id} className="CharacterSetup__view">
+            <Box color="label" textAlign="center">
+              {view.label}
+            </Box>
+            <img
+              className="CharacterSetup__preview-image"
+              src={'data:image/png;base64,' + view.icon}
+              alt={view.label}
+              draggable={false}
+            />
+          </div>
         ))}
-      </Stack>
+      </div>
+      {!data.previewImages?.length && (
+        <NoticeBox>Предпросмотр загружается…</NoticeBox>
+      )}
     </Section>
   );
 };
@@ -536,7 +429,9 @@ const TabContent = (props: { tab: number }) => {
     default:
       return (
         <Section fill scrollable>
-          <NoticeBox>Неизвестная вкладка - её содержимое не определено.</NoticeBox>
+          <NoticeBox>
+            Неизвестная вкладка - её содержимое не определено.
+          </NoticeBox>
         </Section>
       );
   }

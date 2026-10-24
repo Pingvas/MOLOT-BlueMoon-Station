@@ -34,22 +34,18 @@
 
 /datum/character_setup
 	var/datum/preferences/prefs
-	var/list/viewer_screens
-	var/preview_dir = SOUTH
 	var/tmp/preview_dirty = TRUE
 	var/list/feature_field_cache
+	var/character_revision = 0
+	var/loadout_selected = FALSE
+	var/list/preview_images
 
 /datum/character_setup/New(datum/preferences/new_prefs)
 	prefs = new_prefs
 
 /datum/character_setup/Destroy(force, ...)
 	SStgui.close_uis(src)
-	for(var/mob/viewer as anything in viewer_screens)
-		var/atom/movable/screen/map_view/character_setup_screen/viewer_screen = viewer_screens[viewer]
-		if(viewer_screen)
-			viewer_screen.hide_from(viewer)
-			qdel(viewer_screen)
-	viewer_screens = null
+	preview_images = null
 	prefs = null
 	return ..()
 
@@ -69,28 +65,12 @@
 		return UI_CLOSE
 	return .
 
-/datum/character_setup/ui_close(mob/user)
-	var/atom/movable/screen/map_view/character_setup_screen/viewer_screen = LAZYACCESS(viewer_screens, user)
-	LAZYREMOVE(viewer_screens, user)
-	if(viewer_screen)
-		viewer_screen.hide_from(user)
-		qdel(viewer_screen)
-
 /datum/character_setup/ui_interact(mob/user, datum/tgui/ui)
-	var/atom/movable/screen/map_view/character_setup_screen/viewer_screen = LAZYACCESS(viewer_screens, user)
-	if(isnull(viewer_screen))
-		viewer_screen = new
-		viewer_screen.generate_view("character_setup_[REF(prefs)]_[REF(user)]_map")
-		LAZYSET(viewer_screens, user, viewer_screen)
-		preview_dirty = TRUE
-
 	update_preview(user)
-
 	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
 		ui = new(user, src, CHARACTER_SETUP_INTERFACE, "Создание персонажа")
 		ui.open()
-		viewer_screen.display_to(user, ui.window)
 
 /datum/character_setup/ui_static_data(mob/user, datum/tgui/ui, datum/ui_state/state)
 	var/list/data = list()
@@ -1355,8 +1335,23 @@
 	data["slot"] = prefs.loadout_slot
 	data["slotCount"] = MAXIMUM_LOADOUT_SAVES
 	data["enabled"] = !!prefs.loadout_enabled
+	data["selectedView"] = loadout_selected
+	var/list/selected_items = list()
+	var/selected_count = 0
+	var/list/chosen_gear = prefs.loadout_data["SAVE_[prefs.loadout_slot]"]
+	for(var/list/entry in chosen_gear)
+		var/datum/gear/gear = find_loadout_gear(entry[LOADOUT_ITEM])
+		if(istype(gear))
+			selected_count++
+			if(loadout_selected)
+				selected_items += list(build_loadout_row(gear, gear.name))
+	data["selectedCount"] = selected_count
 
 	data["showCkeyId"] = (prefs.gear_category == LOADOUT_CATEGORY_DONATOR && prefs.gear_subcategory == LOADOUT_SUBCATEGORIES_DON03)
+	if(loadout_selected)
+		data["items"] = selected_items
+		data["invalid"] = list()
+		return data
 
 	if(prefs.gear_category == LOADOUT_CATEGORY_ERROR)
 		data["items"] = list()
@@ -1401,6 +1396,8 @@
 
 /datum/character_setup/proc/build_loadout_row(datum/gear/gear, item_name)
 	var/list/row = list("name" = item_name)
+	row["id"] = "[gear.type]"
+	row["category"] = loadout_ui_label(gear.category)
 	row["cost"] = gear.cost
 	row["preview"] = gear.get_base64icon()
 	row["donor"] = !!gear.donoritem
@@ -1455,6 +1452,12 @@
 	return row
 
 /datum/character_setup/proc/find_loadout_gear(name)
+	// В обзоре выбранного вещи относятся к разным категориям; идентификатор проверяем по каталогу.
+	var/gear_path = text2path(name)
+	if(ispath(gear_path, /datum/gear))
+		var/datum/gear/gear_type = gear_path
+		var/datum/gear/gear = GLOB.loadout_items[initial(gear_type.category)]?[initial(gear_type.subcategory)]?[initial(gear_type.name)]
+		return gear?.type == gear_path ? gear : null
 	var/list/subcategory_items = GLOB.loadout_items[prefs.gear_category]?[prefs.gear_subcategory]
 	return subcategory_items?[name]
 
@@ -1479,6 +1482,7 @@
 	sanitize_loadout_navigation(prefs)
 
 /datum/character_setup/proc/loadout_select_category(list/params)
+	loadout_selected = FALSE
 	prefs.gear_category = "[params["value"]]"
 	var/list/subcategories = GLOB.loadout_categories[prefs.gear_category]
 	if(length(subcategories))
@@ -1960,7 +1964,7 @@
 	var/bright_enough = ReadHSV(temp_hsv)[3] >= ReadHSV(MINIMUM_MUTANT_COLOR)[3]
 	var/parts_only = (flavor == FEATURE_COLOR_MUTANT) && (MUTCOLORS_PARTSONLY in prefs.pref_species.species_traits)
 	if(!parts_only && !bright_enough && CONFIG_GET(flag/character_color_limits))
-		to_chat(usr, span_danger("Invalid color. Your color is not bright enough."))
+		to_chat(usr, span_danger("Этот цвет слишком тёмный для выбранной части тела."))
 		return null
 	return sanitize_hexcolor(raw, 6)
 
@@ -2291,13 +2295,13 @@
 	if(!prefs)
 		return data
 
-	var/atom/movable/screen/map_view/character_setup_screen/viewer_screen = LAZYACCESS(viewer_screens, user)
-	data["previewRef"] = viewer_screen?.assigned_map
-	data["previewDir"] = dir_to_text(preview_dir)
 	data["previewPref"] = prefs.preview_pref
 
 	data["slotNames"] = prefs.get_slot_names() || list()
 	data["defaultSlot"] = prefs.default_slot
+	data["characterRevision"] = character_revision
+	data["characterName"] = prefs.real_name
+	data["speciesName"] = prefs.pref_species.name
 	data["tab"] = prefs.character_settings_tab
 
 	data["localStorageName"] = prefs.get_local_storage_name(user.client)
@@ -2323,6 +2327,7 @@
 		data["appearance"] = build_appearance_data(user)
 
 	update_preview(user)
+	data["previewImages"] = preview_images || list()
 	if(preview_dirty)
 		data["previewDirty"] = TRUE
 
@@ -2609,6 +2614,7 @@
 	if(!prefs.load_character(provided = S))
 		tgui_alert_async(user, "Не удалось загрузить слот персонажа.")
 		return
+	character_revision++
 	preview_dirty = TRUE
 	tgui_alert_async(user, "Слот персонажа загружен.")
 	prefs.save_character(TRUE)
@@ -2686,6 +2692,7 @@
 		to_chat(the_owner, span_boldwarning("Что-то пошло не так на последнем шаге передачи, сообщите об этом."))
 		qdel(offer_datum)
 		return
+	character_revision++
 	preview_dirty = TRUE
 	tgui_alert_async(user, "Персонаж [character_name] получен!")
 	prefs.save_character(TRUE)
@@ -2813,22 +2820,42 @@
 	return slots
 
 /datum/character_setup/proc/update_preview(mob/user)
-	if(!prefs?.parent)
+	if(!prefs?.parent || !preview_dirty)
 		return
-	var/atom/movable/screen/map_view/character_setup_screen/viewer_screen = LAZYACCESS(viewer_screens, user)
-	if(!viewer_screen)
+	// Манекен собирается один раз; полные изображения ракурсов сохраняем до следующего изменения внешности.
+	var/mutable_appearance/appearance_source = prefs.build_preview_appearance()
+	if(!appearance_source)
 		return
-
-	if(preview_dirty)
-		var/appearance_source = prefs.build_preview_appearance()
-		if(appearance_source)
-			viewer_screen.update_character(appearance_source)
-			preview_dirty = FALSE
-	viewer_screen.set_direction(preview_dir)
+	var/matrix/appearance_matrix = appearance_source.transform
+	var/scale_x = appearance_matrix?.a || 1
+	var/scale_y = appearance_matrix?.e || 1
+	var/list/images = list()
+	var/list/view_labels = list("[SOUTH]" = "Спереди", "[WEST]" = "Слева", "[EAST]" = "Справа", "[NORTH]" = "Сзади")
+	for(var/direction in list(SOUTH, WEST, EAST, NORTH))
+		appearance_source.setDir(direction)
+		// getFlatIcon сохраняет выступающие слои и отрицательные смещения, в том числе длинные тела тавров.
+		var/icon/full_icon = getFlatIcon(appearance_source, defdir = direction, no_anim = TRUE)
+		if(!isicon(full_icon))
+			return
+		var/scaled_width = max(1, round(full_icon.Width() * abs(scale_x)))
+		var/scaled_height = max(1, round(full_icon.Height() * abs(scale_y)))
+		if(scaled_width != full_icon.Width() || scaled_height != full_icon.Height())
+			full_icon.Scale(scaled_width, scaled_height)
+		if(scale_x < 0)
+			full_icon.Flip(EAST)
+		if(scale_y < 0)
+			full_icon.Flip(NORTH)
+		full_icon.Crop(-1, -1, full_icon.Width() + 2, full_icon.Height() + 2)
+		images += list(list("id" = dir_to_text(direction), "label" = view_labels["[direction]"], "icon" = icon2base64(full_icon)))
+	preview_images = images
+	preview_dirty = FALSE
 
 /datum/character_setup/ui_act(action, list/params)
 	. = ..()
 	if(. || !prefs)
+		return
+	// Запоздалый ввод из редактора прежнего персонажа не должен менять новый слот.
+	if(!isnull(params["character_slot"]) && num_param(params["character_slot"]) != prefs.default_slot)
 		return
 
 	switch(action)
@@ -2841,10 +2868,23 @@
 
 		if("switch_slot")
 			var/new_slot = num_param(params["slot"])
-			if(isnull(new_slot) || new_slot < 1 || new_slot > prefs.max_save_slots)
+			if(isnull(new_slot) || new_slot != round(new_slot) || new_slot < 1 || new_slot > prefs.max_save_slots || new_slot == prefs.default_slot)
 				return
-			prefs.default_slot = new_slot
-			prefs.load_character(new_slot)
+			// Завершаем запись старого слота до загрузки нового, включая отложенное сохранение.
+			if(!prefs.save_character(bypass_cooldown = TRUE, silent = TRUE))
+				return
+			var/list/slot_names = prefs.get_slot_names()
+			if(slot_names?[new_slot])
+				var/old_slot = prefs.default_slot
+				if(!prefs.load_character(new_slot, bypass_cooldown = TRUE))
+					prefs.default_slot = old_slot
+					return
+			else
+				if(!prefs.create_character(new_slot))
+					return
+			prefs.save_preferences(bypass_cooldown = TRUE, silent = TRUE)
+			prefs.parent?.tgui_panel?.emotes_send_list()
+			character_revision++
 			preview_dirty = TRUE
 			return TRUE
 
@@ -2854,6 +2894,7 @@
 
 		if("load")
 			prefs.load_character(prefs.default_slot, bypass_cooldown = TRUE)
+			character_revision++
 			preview_dirty = TRUE
 			return TRUE
 
@@ -2862,22 +2903,13 @@
 			if(isnull(del_slot))
 				del_slot = prefs.default_slot
 			prefs.delete_character(del_slot)
+			character_revision++
 			preview_dirty = TRUE
 			return TRUE
 
 		if("randomize")
 			prefs.random_character()
 			preview_dirty = TRUE
-			return TRUE
-
-		if("preview_rotate")
-			var/step = params["step"]
-			if(step == "left")
-				preview_dir = turn(preview_dir, 90)
-			else if(step == "right")
-				preview_dir = turn(preview_dir, -90)
-			else
-				return
 			return TRUE
 
 		if("set_preview_mode")
@@ -2891,7 +2923,7 @@
 		if("set_name")
 			var/new_name = reject_bad_name("[params["name"]]", allow_numbers = TRUE)
 			if(!new_name)
-				to_chat(usr, "<font color='red'>Некорректное имя: от 2 до [MAX_NAME_LEN] символов, допустимы A-Z, a-z, А-Я, а-я, 0-9, -, ' и .</font>")
+				to_chat(usr, span_warning("Некорректное имя: от 2 до [MAX_NAME_LEN] символов, допустимы A-Z, a-z, А-Я, а-я, 0-9, -, ' и ."))
 				return
 			prefs.real_name = new_name
 			return TRUE
@@ -3171,6 +3203,10 @@
 
 		if("loadout_select_category")
 			loadout_select_category(params)
+			return TRUE
+
+		if("loadout_selected")
+			loadout_selected = TRUE
 			return TRUE
 
 		if("loadout_select_subcategory")
@@ -3500,57 +3536,3 @@
 
 #undef CHARACTER_SETUP_INTERFACE
 #undef CHARACTER_SETUP_HEADSHOT_MAX_LEN
-
-/atom/movable/screen/map_view/character_setup_screen
-	name = "character setup screen"
-	var/mutable_appearance/cached_source
-	var/shown_offset = 0
-
-/atom/movable/screen/map_view/character_setup_screen/ensure_plane_group()
-	if(popup_plane_group)
-		return popup_plane_group
-	popup_plane_group = new /datum/plane_master_group/popup/on_demand(PLANE_GROUP_POPUP_WINDOW(src), assigned_map)
-	disable_popup_lighting()
-	return popup_plane_group
-
-/atom/movable/screen/map_view/character_setup_screen/proc/disable_popup_lighting()
-	if(!popup_plane_group)
-		return
-	for(var/plane_key in popup_plane_group.plane_masters)
-		var/atom/movable/screen/plane_master/plane_master = popup_plane_group.plane_masters[plane_key]
-		if(istype(plane_master, /atom/movable/screen/plane_master/lighting) || istype(plane_master, /atom/movable/screen/plane_master/emissive))
-			plane_master.set_alpha(LIGHTING_PLANE_ALPHA_INVISIBLE)
-			plane_master.filters = null
-
-/atom/movable/screen/map_view/character_setup_screen/Destroy()
-	cached_source = null
-	return ..()
-
-/atom/movable/screen/map_view/character_setup_screen/proc/update_character(mutable_appearance/appearance_source)
-	if(cached_source == appearance_source)
-		return
-	cut_overlays()
-	if(appearance_source)
-		appearance_source.setDir(SOUTH)
-		var/matrix/appearance_matrix = appearance_source.transform
-		appearance_source.transform = matrix(appearance_matrix?.a || 1, 0, 0, 0, appearance_matrix?.e || 1, appearance_matrix?.f || 0)
-		appearance_source.pixel_x = 0
-		appearance_source.pixel_y = 0
-		add_overlay(appearance_source)
-		var/new_offset = PLANE_TO_OFFSET(appearance_source.plane)
-		if(new_offset != shown_offset)
-			shown_offset = new_offset
-			var/datum/plane_master_group/popup/popup_group = ensure_plane_group()
-			popup_group?.ensure_popup_depth(shown_offset)
-			disable_popup_lighting()
-	cached_source = appearance_source
-
-/atom/movable/screen/map_view/character_setup_screen/proc/set_direction(new_dir)
-	if(isnull(new_dir) || dir == new_dir)
-		return
-	setDir(new_dir)
-	if(!cached_source)
-		return
-	cut_overlays()
-	cached_source.setDir(new_dir)
-	add_overlay(cached_source)

@@ -88,10 +88,7 @@ const BarkNumberRow = (props: {
   );
 };
 
-const LanguageToggle = (props: {
-  language: LanguageOption;
-  icon?: string;
-}) => {
+const LanguageToggle = (props: { language: LanguageOption; icon?: string }) => {
   const { act } = useBackend<SpeechContext>();
   const { language, icon } = props;
   const selected = !!language.selected;
@@ -101,10 +98,15 @@ const LanguageToggle = (props: {
       p={1}
       onClick={() => act('toggle_language', { value: language.name })}
       style={{
-        border: '1px solid '
-          + (selected ? 'rgba(120, 205, 148, 0.55)' : 'rgba(255, 255, 255, 0.12)'),
+        border:
+          '1px solid ' +
+          (selected
+            ? 'rgba(120, 205, 148, 0.55)'
+            : 'rgba(255, 255, 255, 0.12)'),
         borderRadius: '3px',
-        backgroundColor: selected ? 'rgba(70, 165, 108, 0.14)' : 'rgba(0, 0, 0, 0.18)',
+        backgroundColor: selected
+          ? 'rgba(70, 165, 108, 0.14)'
+          : 'rgba(0, 0, 0, 0.18)',
         cursor: 'pointer',
       }}
     >
@@ -154,116 +156,109 @@ export const SpeechTab = () => {
 
   const languageIcons = data.languageIcons || {};
   const languages = speech.languages || [];
-  const half = Math.ceil(languages.length / 2);
-  const leftLanguages = languages.slice(0, half);
-  const rightLanguages = languages.slice(half);
 
   return (
     <Section fill scrollable title="Речь">
-      <Stack>
-        <Stack.Item grow basis={0} pr={2}>
-          <Section title="Речевые предпочтения">
-            <SelectRow
-              label="Глагол речи"
-              tooltip="«Обычный» означает глагол вашего вида."
-              value={speech.verb}
-              options={speech.verbOptions || []}
-              action="set_speech_verb"
+      <div className="CharacterSetup__settings-grid">
+        <Section title="Речевые предпочтения">
+          <SelectRow
+            label="Глагол речи"
+            tooltip="«Обычный» означает глагол вашего вида."
+            value={speech.verb}
+            options={speech.verbOptions || []}
+            action="set_speech_verb"
+          />
+          <ToggleRow
+            label="Использовать русские глаголы"
+            value={speech.verbRu}
+            action="toggle_speech_verb_ru"
+          />
+          <SelectRow
+            label="Акцент"
+            tooltip="«Обычный» означает акцент вашего вида."
+            value={speech.tongue}
+            options={speech.tongueOptions || []}
+            action="set_tongue"
+          />
+          <SelectRow
+            label="Смех"
+            value={speech.laugh}
+            options={speech.laughOptions || []}
+            action="set_laugh"
+            extra={
+              <Button
+                icon="volume-up"
+                tooltip="Прослушать смех"
+                disabled={!speech.laughPreviewable}
+                onClick={() => act('preview_laugh')}
+              />
+            }
+          />
+          <ToggleRow
+            label="Свой цвет руначата"
+            value={speech.chatColorEnabled}
+            action="toggle_personal_chat_color"
+          />
+          {!!speech.chatColorEnabled && (
+            <ColorField
+              label="Цвет руначата"
+              value={speech.chatColor}
+              action="set_personal_chat_color"
             />
-            <ToggleRow
-              label="Использовать русские глаголы"
-              value={speech.verbRu}
-              action="toggle_speech_verb_ru"
-            />
+          )}
+        </Section>
+
+        <Section title="Голос">
+          {!bark.valid ? (
+            <NoticeBox>
+              Звук речи из сейва больше не существует - выберите другой.
+            </NoticeBox>
+          ) : (
             <SelectRow
-              label="Акцент"
-              tooltip="«Обычный» означает акцент вашего вида."
-              value={speech.tongue}
-              options={speech.tongueOptions || []}
-              action="set_tongue"
-            />
-            <SelectRow
-              label="Смех"
-              value={speech.laugh}
-              options={speech.laughOptions || []}
-              action="set_laugh"
+              label="Звук голоса"
+              value={bark.id}
+              options={bark.options || []}
+              action="set_bark_sound"
               extra={
                 <Button
                   icon="volume-up"
-                  tooltip="Прослушать смех"
-                  disabled={!speech.laughPreviewable}
-                  onClick={() => act('preview_laugh')}
+                  tooltip="Прослушать звук"
+                  onClick={() => act('preview_bark')}
                 />
               }
             />
-            <ToggleRow
-              label="Свой цвет руначата"
-              value={speech.chatColorEnabled}
-              action="toggle_personal_chat_color"
-            />
-            {!!speech.chatColorEnabled && (
-              <ColorField
-                label="Цвет руначата"
-                value={speech.chatColor}
-                action="set_personal_chat_color"
+          )}
+          {!!bark.valid && (
+            <>
+              <BarkNumberRow
+                label="Скорость голоса"
+                tooltip="Значение выше - медленная речь, ниже - быстрая."
+                value={bark.speed || 0}
+                min={bark.minSpeed || 0}
+                max={bark.maxSpeed || 0}
+                step={1}
+                barkKey="speed"
               />
-            )}
-          </Section>
-        </Stack.Item>
-
-        <Stack.Item grow basis={0}>
-          <Section title="Голос">
-            {!bark.valid ? (
-              <NoticeBox>
-                Звук речи из сейва больше не существует - выберите другой.
-              </NoticeBox>
-            ) : (
-              <SelectRow
-                label="Звук голоса"
-                value={bark.id}
-                options={bark.options || []}
-                action="set_bark_sound"
-                extra={
-                  <Button
-                    icon="volume-up"
-                    tooltip="Прослушать звук"
-                    onClick={() => act('preview_bark')}
-                  />
-                }
+              <BarkNumberRow
+                label="Высота голоса"
+                value={bark.pitch || 0}
+                min={bark.minPitch || 0}
+                max={bark.maxPitch || 0}
+                step={0.1}
+                barkKey="pitch"
               />
-            )}
-            {!!bark.valid && (
-              <>
-                <BarkNumberRow
-                  label="Скорость голоса"
-                  tooltip="Значение выше - медленная речь, ниже - быстрая."
-                  value={bark.speed || 0}
-                  min={bark.minSpeed || 0}
-                  max={bark.maxSpeed || 0}
-                  step={1}
-                  barkKey="speed"
-                />
-                <BarkNumberRow
-                  label="Высота голоса"
-                  value={bark.pitch || 0}
-                  min={bark.minPitch || 0}
-                  max={bark.maxPitch || 0}
-                  step={0.1}
-                  barkKey="pitch"
-                />
-                <BarkNumberRow
-                  label="Разброс голоса"
-                  value={bark.variance || 0}
-                  min={bark.minVariance || 0}
-                  max={bark.maxVariance || 0}
-                  step={0.1}
-                  barkKey="variance"
-                />
-              </>
-            )}
-          </Section>
-        </Stack.Item>
-      </Stack>
+              <BarkNumberRow
+                label="Разброс голоса"
+                value={bark.variance || 0}
+                min={bark.minVariance || 0}
+                max={bark.maxVariance || 0}
+                step={0.1}
+                barkKey="variance"
+              />
+            </>
+          )}
+        </Section>
+      </div>
 
       <Section title="Дополнительные языки" mt={1}>
         {languagesOff ? (
@@ -272,30 +267,19 @@ export const SpeechTab = () => {
           <>
             {speech.maxLanguages > 0 && (
               <Box color="label" mb={1}>
-                Можно выбрать не более {speech.maxLanguages}. Языки сверх
-                лимита отключатся при сохранении.
+                Можно выбрать не более {speech.maxLanguages}. Языки сверх лимита
+                отключатся при сохранении.
               </Box>
             )}
-            <Stack>
-              <Stack.Item grow basis={0} pr={1}>
-                {leftLanguages.map((language) => (
-                  <LanguageToggle
-                    key={language.name}
-                    language={language}
-                    icon={languageIcons[language.name]}
-                  />
-                ))}
-              </Stack.Item>
-              <Stack.Item grow basis={0}>
-                {rightLanguages.map((language) => (
-                  <LanguageToggle
-                    key={language.name}
-                    language={language}
-                    icon={languageIcons[language.name]}
-                  />
-                ))}
-              </Stack.Item>
-            </Stack>
+            <div className="CharacterSetup__settings-grid">
+              {languages.map((language) => (
+                <LanguageToggle
+                  key={language.name}
+                  language={language}
+                  icon={languageIcons[language.name]}
+                />
+              ))}
+            </div>
             <Box mt={1}>
               <Button
                 icon="undo"
