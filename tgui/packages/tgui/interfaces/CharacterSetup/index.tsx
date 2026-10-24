@@ -141,13 +141,14 @@ export const CharacterSetup = () => {
 const SlotPanel = () => {
   const { act, data } = useBackend<CharacterSetupData>();
   const [search, setSearch] = useState('');
+  const [showEmpty, setShowEmpty] = useState(false);
   const names = data.slotNames || [];
   const slots = Array.from(
     { length: data.maxSlots || 1 },
     (_, index) => index + 1
   );
   const occupied = slots.filter((slot) => !!names[slot - 1]);
-  const freeSlot = slots.find((slot) => !names[slot - 1]);
+  const empty = slots.filter((slot) => !names[slot - 1]);
   const query = search.trim().toLocaleLowerCase();
   const visible = occupied.filter(
     (slot) =>
@@ -196,16 +197,22 @@ const SlotPanel = () => {
           )}
           <Button
             fluid
-            icon="plus"
-            content="Новый персонаж"
-            disabled={!freeSlot}
-            tooltip={
-              freeSlot
-                ? `Создать нового персонажа в свободном слоте №${freeSlot}`
-                : 'Нет свободных слотов для нового персонажа'
-            }
-            onClick={() => freeSlot && act('switch_slot', { slot: freeSlot })}
+            icon={showEmpty ? 'chevron-up' : 'plus'}
+            content={'Свободные слоты: ' + empty.length}
+            onClick={() => setShowEmpty(!showEmpty)}
           />
+          {(showEmpty || !occupied.length) &&
+            empty.map((slot) => (
+              <Button
+                key={slot}
+                fluid
+                icon="plus"
+                color="transparent"
+                content={'Новый персонаж · слот ' + slot}
+                tooltip="Создать нового персонажа в свободном слоте"
+                onClick={() => act('switch_slot', { slot })}
+              />
+            ))}
         </div>
         <div className="CharacterSetup__slot-tools">
           <Box color="label" mb={1}>
