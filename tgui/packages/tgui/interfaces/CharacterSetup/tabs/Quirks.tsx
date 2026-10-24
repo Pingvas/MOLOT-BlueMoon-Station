@@ -180,31 +180,13 @@ export const QuirksTab = () => {
       </Section>
 
       <Section title="Выбранные особенности">
-        <Stack mb={1} align="flex-start">
-          <Stack.Item>
-            <Box bold nowrap>
-              Текущие:
-            </Box>
-          </Stack.Item>
-          <Stack.Item grow>
-            <Box
-              color="label"
-              title={current.join(', ')}
-              style={{
-                display: '-webkit-box',
-                WebkitBoxOrient: 'vertical',
-                WebkitLineClamp: 2,
-                overflow: 'hidden',
-              }}
-            >
-              {current.length ? (
-                <QuirkNames names={current} values={quirks.quirkValues} />
-              ) : (
-                'нет'
-              )}
-            </Box>
-          </Stack.Item>
-        </Stack>
+        <Box color="label" mb={1} style={{ overflowWrap: 'anywhere' }}>
+          {current.length ? (
+            <QuirkNames names={current} values={quirks.quirkValues} />
+          ) : (
+            'Особенности не выбраны'
+          )}
+        </Box>
         <Stack mb={1} wrap>
           <Stack.Item>
             <Box inline bold mr={1} color="good">

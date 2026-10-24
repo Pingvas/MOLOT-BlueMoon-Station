@@ -54,6 +54,8 @@ interface SpeechData {
   maxLanguages: number;
   languages: LanguageOption[];
   bark: BarkData;
+  deathsound: string | null;
+  deathsounds: string[];
 }
 
 interface SpeechContext {
@@ -257,6 +259,19 @@ export const SpeechTab = () => {
               />
             </>
           )}
+          <SelectRow
+            label="Звук смерти"
+            value={speech.deathsound || 'По умолчанию'}
+            options={speech.deathsounds || []}
+            action="set_deathsound"
+            extra={
+              <Button
+                icon="volume-up"
+                tooltip="Прослушать звук смерти"
+                onClick={() => act('preview_deathsound')}
+              />
+            }
+          />
         </Section>
       </SettingsGrid>
 

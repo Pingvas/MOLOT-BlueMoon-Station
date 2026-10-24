@@ -420,13 +420,7 @@ const QuirksSummary = () => {
         <Stack.Item grow basis={0}>
           <Box
             color="label"
-            title={quirks.join(', ')}
-            style={{
-              display: '-webkit-box',
-              WebkitBoxOrient: 'vertical',
-              WebkitLineClamp: 2,
-              overflow: 'hidden',
-            }}
+            style={{ overflowWrap: 'anywhere' }}
           >
             {quirks.length ? (
               <QuirkNames names={quirks} values={general?.quirkValues} />

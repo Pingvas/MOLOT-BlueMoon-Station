@@ -51,8 +51,6 @@ interface AppearanceData {
   customSpecies: string | null;
   advancedColors: boolean;
   modifiedLimbs: ModifiedLimb[];
-  bgstate: string;
-  bgOptions: string[];
 
   useSkintones: boolean;
   skinTone: string;
@@ -217,7 +215,7 @@ export const AppearanceTab = () => {
             action="set_species"
           />
           <TextRow
-            label="Особая раса"
+            label="Кастомная раса"
             tooltip="Имя, показываемое вместо вида."
             value={appearance.customSpecies}
             action="set_custom_species"
@@ -260,12 +258,6 @@ export const AppearanceTab = () => {
               action="set_body_sprite"
             />
           )}
-          <SelectRow
-            label="Фон превью"
-            value={appearance.bgstate}
-            options={appearance.bgOptions || []}
-            action="set_bgstate"
-          />
         </Section>
 
         <Section title="Цвет тела и размер">

@@ -6,7 +6,7 @@ import {
   Section,
   Stack,
 } from '../../../components';
-import { SelectRow, TabDataMissing, TextAreaRow } from '../components';
+import { TabDataMissing, TextAreaRow } from '../components';
 
 interface BackgroundData {
   flavorText: string;
@@ -19,8 +19,6 @@ interface BackgroundData {
   deathgasp: string;
   securityRecords: string;
   medicalRecords: string;
-  deathsound: string | null;
-  deathsounds: string[];
   headshots: (string | null)[];
   nakedHeadshots: (string | null)[];
   headshotMaxLen: number;
@@ -164,7 +162,6 @@ export const BackgroundTab = () => {
             placeholder="Что произойдёт при смерти"
             editField="deathgasp"
           />
-          <DeathsoundRow />
         </Section>
       </Stack.Item>
 
@@ -195,27 +192,6 @@ export const BackgroundTab = () => {
   );
 };
 
-const DeathsoundRow = () => {
-  const { act, data } = useBackend<BackgroundContext>();
-  const background = data.background;
-
-  return (
-    <SelectRow
-      label="Звук смерти"
-      value={background?.deathsound || 'По умолчанию'}
-      options={background?.deathsounds || []}
-      action="set_deathsound"
-      extra={
-        <Button
-          icon="volume-up"
-          tooltip="Прослушать"
-          onClick={() => act('preview_deathsound')}
-        />
-      }
-    />
-  );
-};
-
 const HeadshotGrid = (props: {
   title: string;
   listKind: 'regular' | 'naked' | 'ass';
@@ -238,7 +214,8 @@ const HeadshotGrid = (props: {
               <Box
                 style={{
                   display: 'flex',
-                  height: '140px',
+                  width: '100%',
+                  aspectRatio: '1',
                   alignItems: 'center',
                   justifyContent: 'center',
                   overflow: 'hidden',

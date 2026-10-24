@@ -14,6 +14,7 @@ import {
 } from '../../components';
 import { getScreenSize } from '../../drag';
 import { Window } from '../../layouts';
+import { SelectRow } from './components';
 import { AppearanceTab } from './tabs/Appearance';
 import { BackgroundTab } from './tabs/Background';
 import { GeneralTab } from './tabs/General';
@@ -36,6 +37,8 @@ interface CharacterSetupData {
   previewViewportReady: boolean;
   previewPref: string;
   previewModes: string[];
+  previewBackground: string;
+  previewBackgrounds: string[];
   localStorageName: string | null;
   offerActive: boolean;
   redemptionCode?: string;
@@ -416,6 +419,14 @@ const Preview = () => {
             onClick={() => act('set_preview_auto_fit', { value: false })}
           />
         </div>
+        <Box mt={1}>
+          <SelectRow
+            label="Фон превью"
+            value={data.previewBackground}
+            options={data.previewBackgrounds || []}
+            action="set_bgstate"
+          />
+        </Box>
       </div>
       {data.previewRef ? (
         <ByondUi

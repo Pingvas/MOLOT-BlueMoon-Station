@@ -1,3 +1,4 @@
+import { sortBy } from 'common/collections';
 import {
   Children,
   isValidElement,
@@ -85,7 +86,10 @@ export const QuirkNames = (props: {
   values?: Record<string, number>;
 }) => (
   <>
-    {props.names.map((name, index) => (
+    {sortBy((name: string) => {
+      const value = props.values?.[name] ?? 0;
+      return value > 0 ? 0 : value < 0 ? 1 : 2;
+    })(props.names).map((name, index) => (
       <span key={name}>
         {index > 0 && ', '}
         <Box as="span" color={quirkColor(props.values?.[name] ?? 0)}>
@@ -125,6 +129,7 @@ export const FieldRow = (props: {
       </Stack.Item>
       <Stack.Item grow basis={0} style={{ minWidth: 0 }}>
         <Box
+          className="CharacterSetup__field-control"
           style={{
             display: 'flex',
             alignItems: 'center',

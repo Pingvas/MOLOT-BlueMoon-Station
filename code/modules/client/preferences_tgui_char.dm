@@ -356,8 +356,6 @@
 		limbs += list(row)
 	data["modifiedLimbs"] = limbs
 
-	data["bgstate"] = prefs.bgstate
-	data["bgOptions"] = bg_state_options()
 
 	data["useSkintones"] = !!species.use_skintones
 	data["skinTone"] = prefs.skin_tone
@@ -1007,6 +1005,11 @@
 	data["languages"] = build_language_options()
 
 	data["bark"] = build_bark_data()
+	data["deathsound"] = prefs.features["custom_deathsound"]
+	var/list/death_sounds = list()
+	for(var/sound_name in GLOB.deathgasp_sounds)
+		death_sounds += sound_name
+	data["deathsounds"] = death_sounds
 	return data
 
 /datum/character_setup/proc/speech_verb_value()
@@ -2309,6 +2312,8 @@
 		return data
 
 	data["previewPref"] = prefs.preview_pref
+	data["previewBackground"] = prefs.bgstate
+	data["previewBackgrounds"] = bg_state_options()
 
 	data["slotNames"] = prefs.get_slot_names() || list()
 	data["defaultSlot"] = prefs.default_slot
@@ -2819,12 +2824,6 @@
 	data["securityRecords"] = prefs.security_records
 	data["medicalRecords"] = prefs.medical_records
 
-	data["deathsound"] = prefs.features["custom_deathsound"]
-	var/list/death_sounds = list()
-	for(var/sound_name in GLOB.deathgasp_sounds)
-		death_sounds += sound_name
-	data["deathsounds"] = death_sounds
-
 	data["headshots"] = build_headshot_slots(prefs.features["headshot_links"], MAX_HEADSHOTS)
 	data["nakedHeadshots"] = build_headshot_slots(prefs.features["headshot_naked_links"], MAX_HEADSHOTS_NAKED)
 	data["headshotMaxLen"] = CHARACTER_SETUP_HEADSHOT_MAX_LEN
@@ -3032,10 +3031,11 @@
 
 		if("set_pda_theme")
 			var/new_theme = params["value"]
-			if(!(new_theme in GLOB.pda_name_to_theme))
-				return
-			prefs.pda_theme = GLOB.pda_name_to_theme[new_theme]
-			return TRUE
+			for(var/theme_name in GLOB.pda_name_to_theme)
+				if(GLOB.pda_name_to_theme[theme_name] == new_theme)
+					prefs.pda_theme = new_theme
+					return TRUE
+			return
 
 		if("set_silicon_lawset")
 			var/new_lawset = params["value"]
