@@ -15,7 +15,7 @@
 #define FEATURE_MISMATCH_HINT "Показывать части и маркинги, не соответствующие текущему виду."
 #define FEATURE_HETEROCHROMIA_HINT "Особые глаза с гетерохромией: wide, big, bigcyclops, skrell, third, thirdbig."
 #define FEATURE_ERP_HINT "Эротические взаимодействия."
-#define FEATURE_NONCON_HINT "Принудительные сцены без согласия вашего персонажа."
+#define FEATURE_NONCON_HINT "No — сексуальное насилие над персонажем запрещено, включая применение секс-игрушек и ERP-реагентов без отдельного OOC-согласия.\n\nAsk — согласие на насильственные ERP-действия с правом потребовать остановить сцену в LOOC. Секс-игрушки — только с отдельного OOC-согласия.\n\nYes — автоматическое согласие на сексуальное насилие над персонажем.\n\nЭмоуты и непристойные глаголы при No/Ask требуют OOC-согласия. Промывка мозгов и законы силиконов согласие не заменяют. После начала сцены, включая похищение и другие подготовительные агрессивные действия, запрещено менять Non-Con/Unholy/Extreme/Harmful со значения Yes."
 #define FEATURE_VORE_HINT "Пожирание и переваривание."
 #define FEATURE_MOBSEX_HINT "Особые мобы попытаются вас изнасиловать."
 #define FEATURE_TATTOO_HINT "Другие игроки смогут оставлять тату на вас."
@@ -40,6 +40,7 @@
 	var/loadout_selected = FALSE
 	var/list/viewer_screens
 	var/preview_auto_fit = TRUE
+	var/preview_aroused = FALSE
 
 /datum/character_setup/New(datum/preferences/new_prefs)
 	prefs = new_prefs
@@ -92,7 +93,7 @@
 
 	data["tabs"] = build_tabs_data()
 	data["maxSlots"] = prefs.max_save_slots
-	data["previewModes"] = list(PREVIEW_PREF_JOB, PREVIEW_PREF_LOADOUT, PREVIEW_PREF_NAKED, PREVIEW_PREF_NAKED_AROUSED)
+	data["previewModes"] = list(PREVIEW_PREF_JOB, PREVIEW_PREF_LOADOUT, PREVIEW_PREF_NAKED)
 	data["options"] = build_options_static()
 	data["ageMin"] = AGE_MIN
 	data["ageMax"] = AGE_MAX_INPUT
@@ -2392,6 +2393,7 @@
 		return data
 
 	data["previewPref"] = prefs.preview_pref
+	data["previewAroused"] = preview_aroused
 	data["previewBackground"] = prefs.bgstate
 	data["previewBackgrounds"] = bg_state_options()
 
@@ -2919,7 +2921,7 @@
 /datum/character_setup/proc/update_preview(mob/user)
 	if(!prefs?.parent || !preview_dirty || !length(viewer_screens))
 		return
-	var/mutable_appearance/appearance_source = prefs.build_preview_appearance()
+	var/mutable_appearance/appearance_source = prefs.build_preview_appearance(preview_aroused)
 	if(!appearance_source)
 		return
 	for(var/viewer in viewer_screens)
@@ -2991,9 +2993,14 @@
 
 		if("set_preview_mode")
 			var/new_mode = params["mode"]
-			if(!(new_mode in list(PREVIEW_PREF_JOB, PREVIEW_PREF_LOADOUT, PREVIEW_PREF_NAKED, PREVIEW_PREF_NAKED_AROUSED)))
+			if(!(new_mode in list(PREVIEW_PREF_JOB, PREVIEW_PREF_LOADOUT, PREVIEW_PREF_NAKED)))
 				return
 			prefs.preview_pref = new_mode
+			preview_dirty = TRUE
+			return TRUE
+
+		if("set_preview_aroused")
+			preview_aroused = !!params["value"]
 			preview_dirty = TRUE
 			return TRUE
 

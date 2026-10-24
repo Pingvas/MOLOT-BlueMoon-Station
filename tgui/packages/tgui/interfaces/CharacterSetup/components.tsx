@@ -18,6 +18,7 @@ import {
   NumberInput,
   Stack,
   TextArea,
+  Tooltip,
 } from '../../components';
 import {
   ColorPicker,
@@ -70,7 +71,7 @@ export const SettingsGrid = (props: {
     >
       {Children.toArray(props.children).map((child, index) => (
         <div
-          key={isValidElement(child) ? child.key ?? index : index}
+          key={isValidElement(child) ? (child.key ?? index) : index}
           className="CharacterSetup__settings-item"
         >
           <div className="CharacterSetup__settings-content">{child}</div>
@@ -125,12 +126,17 @@ export const FieldRow = (props: {
   children: React.ReactNode;
 }) => {
   const { label, tooltip, labelBasis, children } = props;
+  const fieldLabel = <div className="CharacterSetup__field-label">{label}</div>;
   return (
     <Stack align="center" mb={1}>
       <Stack.Item basis={labelBasis || '48%'}>
-        <Box className="CharacterSetup__field-label" title={tooltip}>
-          {label}
-        </Box>
+        {tooltip ? (
+          <Tooltip content={<span className="Tooltip__text">{tooltip}</span>}>
+            {fieldLabel}
+          </Tooltip>
+        ) : (
+          fieldLabel
+        )}
       </Stack.Item>
       <Stack.Item grow basis={0} style={{ minWidth: 0 }}>
         <Box
@@ -374,6 +380,7 @@ export const SelectRow = (props: {
   const dropdown = (
     <Dropdown
       over={over}
+      tooltip={tooltip}
       width={width || '100%'}
       options={normalizeOptions(options || [])}
       selected={value}

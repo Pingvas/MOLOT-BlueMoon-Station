@@ -35,6 +35,7 @@ interface CharacterSetupData {
   previewAutoFit: boolean;
   previewViewportReady: boolean;
   previewPref: string;
+  previewAroused: boolean;
   previewModes: string[];
   previewBackground: string;
   previewBackgrounds: string[];
@@ -47,7 +48,6 @@ const PREVIEW_MODES: Record<string, { label: string; icon: string }> = {
   Job: { label: 'По профессии', icon: 'briefcase' },
   Loadout: { label: 'Экипировка', icon: 'tshirt' },
   Naked: { label: 'Без одежды', icon: 'user' },
-  'Naked - Aroused': { label: 'Без одежды (возбужд.)', icon: 'heart' },
 };
 
 export const CharacterSetup = () => {
@@ -326,11 +326,7 @@ const Preview = () => {
     [act]
   );
   return (
-    <Section
-      fill
-      title="Внешний вид"
-      className="CharacterSetup__preview"
-    >
+    <Section fill title="Внешний вид" className="CharacterSetup__preview">
       <div className="CharacterSetup__preview-toolbar">
         <Box color="label" mb={1}>
           Показать персонажа
@@ -346,6 +342,15 @@ const Preview = () => {
               onClick={() => act('set_preview_mode', { mode })}
             />
           ))}
+          <Button.Checkbox
+            fluid
+            checked={!!data.previewAroused}
+            content="Возбуждён"
+            tooltip="Показывать возбуждённые гениталии в выбранном режиме просмотра"
+            onClick={() =>
+              act('set_preview_aroused', { value: !data.previewAroused })
+            }
+          />
         </div>
         <Box color="label" mt={1} mb={0.5}>
           Масштаб просмотра

@@ -29,7 +29,7 @@
 	bark_variance = BARK_VARIANCE_RAND
 	age = rand(AGE_MIN,AGE_MAX)
 
-/datum/preferences/proc/build_preview_appearance()
+/datum/preferences/proc/build_preview_appearance(aroused_preview = FALSE)
 	// Determine what job is marked as 'High' priority, and dress them up as such.
 	var/datum/job/previewJob = get_highest_job()
 
@@ -54,23 +54,15 @@
 				mannequin.job = previewJob.title
 				previewJob.equip(mannequin, TRUE, preference_source = parent)
 		if(PREVIEW_PREF_LOADOUT)
-			SSjob.equip_loadout(parent.mob, mannequin, bypass_prereqs = TRUE, can_drop = FALSE, is_dummy = TRUE)
-			SSjob.post_equip_loadout(parent.mob, mannequin, bypass_prereqs = TRUE, can_drop = FALSE, is_dummy = TRUE)
-		if(PREVIEW_PREF_NAKED)
-			/*
-			mannequin.hidden_underwear = TRUE
-			mannequin.hidden_undershirt = TRUE
-			mannequin.hidden_socks = TRUE
-			*/
-		if(PREVIEW_PREF_NAKED_AROUSED)
-			/*
-			mannequin.hidden_underwear = TRUE
-			mannequin.hidden_undershirt = TRUE
-			mannequin.hidden_socks = TRUE
-			*/
-			for(var/obj/item/organ/genital/genital in mannequin.internal_organs)
-				if(CHECK_BITFIELD(genital.genital_flags, GENITAL_CAN_AROUSE))
-					genital.set_aroused_state(TRUE, null)
+			SSjob.equip_loadout(parent?.mob, mannequin, bypass_prereqs = TRUE, can_drop = FALSE, is_dummy = TRUE, preferences_source = src)
+			SSjob.post_equip_loadout(parent?.mob, mannequin, bypass_prereqs = TRUE, can_drop = FALSE, is_dummy = TRUE, preferences_source = src)
+
+	// Органы манекена переиспользуются: каждый кадр явно задаёт выбранную позу,
+	// независимо от прошлого превью и игровых ограничений возбуждения.
+	for(var/obj/item/organ/genital/genital in mannequin.internal_organs)
+		if(CHECK_BITFIELD(genital.genital_flags, GENITAL_CAN_AROUSE))
+			genital.aroused_state = aroused_preview
+			genital.update_appearance()
 
 	mannequin.regenerate_icons()
 

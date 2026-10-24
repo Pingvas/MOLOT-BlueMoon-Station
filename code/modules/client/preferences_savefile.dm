@@ -2294,7 +2294,9 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	split_eye_colors = sanitize_integer(split_eye_colors, FALSE, TRUE, FALSE)
 	if(!(bgstate in bgstate_options))
 		bgstate = initial(bgstate)
-	if(!(preview_pref in list(PREVIEW_PREF_JOB, PREVIEW_PREF_LOADOUT, PREVIEW_PREF_NAKED, PREVIEW_PREF_NAKED_AROUSED)))
+	if(preview_pref == PREVIEW_PREF_NAKED_AROUSED)
+		preview_pref = PREVIEW_PREF_NAKED
+	if(!(preview_pref in list(PREVIEW_PREF_JOB, PREVIEW_PREF_LOADOUT, PREVIEW_PREF_NAKED)))
 		preview_pref = PREVIEW_PREF_JOB
 
 	sand_character_pref_load(S)
