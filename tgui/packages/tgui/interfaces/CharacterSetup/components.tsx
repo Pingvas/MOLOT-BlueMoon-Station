@@ -19,7 +19,12 @@ import {
   Stack,
   TextArea,
 } from '../../components';
-import { ColorPicker, normalizeHex, safeHex } from './ColorPicker';
+import {
+  ColorPicker,
+  normalizeHex,
+  safeHex,
+  uppercaseHexInput,
+} from '../../components/ColorPicker';
 
 export const SettingsGrid = (props: {
   compact?: boolean;
@@ -189,6 +194,7 @@ export const ColorField = (props: {
         <Stack align="center" style={{ width: '100%' }}>
           <Stack.Item>
             <ColorPicker
+              portalRoot=".CharacterSetup__editor"
               value={hex}
               tooltip={`Пикер цвета: ${hex}`}
               onCommit={(next) => act(action, { ...params, color: next })}
@@ -197,9 +203,9 @@ export const ColorField = (props: {
           <Stack.Item grow>
             <Input
               width="100%"
-              placeholder="#rrggbb"
+              placeholder="#RRGGBB"
               value={draft ?? hex}
-              onInput={(e, next) => setDraft(next)}
+              onInput={(e, next) => setDraft(uppercaseHexInput(e, next))}
               onChange={(e, next) => {
                 const normalized = normalizeHex(next);
                 setDraft(null);
@@ -225,6 +231,7 @@ export const ColorChip = (props: {
   const { value, action, params, tooltip } = props;
   return (
     <ColorPicker
+      portalRoot=".CharacterSetup__editor"
       value={value}
       tooltip={tooltip}
       width="30px"

@@ -1,11 +1,14 @@
+import { clamp } from 'common/math';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
-import { useLocalState } from '../../backend';
-import { Box, Button, Input, NumberInput, Stack } from '../../components';
-
-const clamp = (value: number, min: number, max: number) =>
-  Math.min(max, Math.max(min, value));
+import { useLocalState } from '../backend';
+import { Box } from './Box';
+import { Button } from './Button';
+import { Dropdown } from './Dropdown';
+import { Input } from './Input';
+import { NumberInput } from './NumberInput';
+import { Stack } from './Stack';
 
 export const safeHex = (value: string | null | undefined): string => {
   if (!value) {
@@ -15,7 +18,7 @@ export const safeHex = (value: string | null | undefined): string => {
   if (hex.length === 3) {
     hex = hex.replace(/./g, (char) => char + char);
   }
-  return /^[0-9a-fA-F]{6}$/.test(hex) ? `#${hex}` : '#000000';
+  return /^[0-9a-fA-F]{6}$/.test(hex) ? `#${hex.toUpperCase()}` : '#000000';
 };
 
 export const normalizeHex = (raw: string): string | null => {
@@ -26,7 +29,21 @@ export const normalizeHex = (raw: string): string | null => {
   if (hex.length === 3) {
     hex = hex.replace(/./g, (char) => char + char);
   }
-  return /^[0-9a-fA-F]{6}$/.test(hex) ? `#${hex.toLowerCase()}` : null;
+  return /^[0-9a-fA-F]{6}$/.test(hex) ? `#${hex.toUpperCase()}` : null;
+};
+
+export const uppercaseHexInput = (
+  event: React.FormEvent<HTMLInputElement>,
+  value: string
+) => {
+  const uppercase = value.toUpperCase();
+  if (uppercase !== value) {
+    const input = event.target as HTMLInputElement;
+    const { selectionStart, selectionEnd } = input;
+    input.value = uppercase;
+    input.setSelectionRange(selectionStart, selectionEnd);
+  }
+  return uppercase;
 };
 
 const hexToHsv = (hex: string): [number, number, number] => {
@@ -75,8 +92,39 @@ const hsvToHex = (hue: number, saturation: number, brightness: number) => {
   const toByte = (channel: number) =>
     clamp(Math.round((channel + base) * 255), 0, 255)
       .toString(16)
+      .toUpperCase()
       .padStart(2, '0');
   return `#${toByte(channels[0])}${toByte(channels[1])}${toByte(channels[2])}`;
+};
+
+const hsvToHsl = (
+  hue: number,
+  saturation: number,
+  brightness: number
+): [number, number, number] => {
+  const lightness = brightness * (1 - saturation / 2);
+  return [
+    hue,
+    lightness === 0 || lightness === 1
+      ? 0
+      : (brightness - lightness) / Math.min(lightness, 1 - lightness),
+    lightness,
+  ];
+};
+
+const hslToHsv = (
+  hue: number,
+  saturation: number,
+  lightness: number
+): [number, number, number] => {
+  const brightness =
+    lightness + saturation * Math.min(lightness, 1 - lightness);
+  // Сохраняем тон серого и чёрного, чтобы его можно было выбрать до насыщенности.
+  return [
+    hue % 360,
+    brightness === 0 ? 0 : 2 * (1 - lightness / brightness),
+    brightness,
+  ];
 };
 
 const PALETTE_RADIUS = 5;
@@ -183,7 +231,7 @@ const HueTriangle = (props: {
   const blackWeight = 1 - brightness;
   return (
     <div
-      className="CharacterSetup__color-wheel"
+      className="ColorPicker__wheel"
       tabIndex={0}
       role="group"
       aria-label="Круг цветового тона и треугольник насыщенности и яркости"
@@ -209,9 +257,9 @@ const HueTriangle = (props: {
         const [x, y] = point(event);
         const radius = Math.hypot(x - 130, y - 130);
         if (radius >= 109 && radius <= 130) drag.current = 'hue';
-        else if (triangleWeights(x, y).every((weight) => weight >= 0))
-          { drag.current = 'triangle'; }
-        else return;
+        else if (triangleWeights(x, y).every((weight) => weight >= 0)) {
+          drag.current = 'triangle';
+        } else return;
         event.currentTarget.focus();
         event.currentTarget.setPointerCapture(event.pointerId);
         pick(x, y);
@@ -223,8 +271,9 @@ const HueTriangle = (props: {
         }
       }}
       onPointerUp={(event) => {
-        if (event.currentTarget.hasPointerCapture(event.pointerId))
-          { event.currentTarget.releasePointerCapture(event.pointerId); }
+        if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+          event.currentTarget.releasePointerCapture(event.pointerId);
+        }
         drag.current = null;
       }}
       onPointerCancel={() => {
@@ -234,7 +283,7 @@ const HueTriangle = (props: {
         drag.current = null;
       }}
     >
-      <div className="CharacterSetup__hue-ring" />
+      <div className="ColorPicker__hue-ring" />
       <canvas ref={canvasRef} width={WHEEL_SIZE} height={WHEEL_SIZE} />
       <svg viewBox="0 0 260 260" aria-hidden="true">
         <polygon
@@ -246,7 +295,7 @@ const HueTriangle = (props: {
           cx={130 + 119 * Math.sin((hue * Math.PI) / 180)}
           cy={130 - 119 * Math.cos((hue * Math.PI) / 180)}
           r="4"
-          className="CharacterSetup__wheel-marker"
+          className="ColorPicker__wheel-marker"
         />
         <circle
           cx={
@@ -256,31 +305,53 @@ const HueTriangle = (props: {
           }
           cy={brightness * TRIANGLE_TOP + blackWeight * TRIANGLE_BOTTOM}
           r="4"
-          className="CharacterSetup__wheel-marker"
+          className="ColorPicker__wheel-marker"
         />
       </svg>
     </div>
   );
 };
 
-const ColorPanel = (props: {
+export const ColorPickerPanel = (props: {
   value: string;
   onCommit: (hex: string) => void;
-  onClose: () => void;
+  onCancel: () => void;
+  title?: string;
+  message?: string;
+  largeButtons?: boolean;
+  swappedButtons?: boolean;
+  className?: string;
 }) => {
-  const { value, onCommit, onClose } = props;
+  const {
+    value,
+    onCommit,
+    onCancel,
+    title = 'Выбор цвета',
+    message,
+    largeButtons,
+    swappedButtons,
+    className,
+  } = props;
   const [hsv, setHsv] = useState<[number, number, number]>(() =>
     hexToHsv(value)
   );
-  const [draft, setDraft] = useState(value);
-  const [recent, setRecent] = useLocalState<string[]>(
-    'characterColorHistory',
+  const [draft, setDraft] = useState(() => safeHex(value));
+  const [colorModel, setColorModel] = useState<'RGB' | 'HSL'>('RGB');
+  const [history, setRecent] = useLocalState<string[]>(
+    'colorPickerHistory',
     []
   );
+  const recent = [...new Set(history.map(safeHex))];
   const hex = hsvToHex(...hsv);
+  const hsl = hsvToHsl(...hsv);
+  const channels = colorModel === 'RGB' ? ['R', 'G', 'B'] : ['H', 'S', 'L'];
+  const channelDescriptions =
+    colorModel === 'RGB'
+      ? ['Красный', 'Зелёный', 'Синий']
+      : ['Цветовой тон', 'Насыщенность', 'Светлота'];
   const select = (next: string) => {
     setHsv(hexToHsv(next));
-    setDraft(next);
+    setDraft(safeHex(next));
   };
   const selectHsv = (next: [number, number, number]) => {
     setHsv(next);
@@ -288,6 +359,7 @@ const ColorPanel = (props: {
   };
   const valid = normalizeHex(draft);
   const commit = (color: string) => {
+    color = color.toUpperCase();
     setRecent(
       [color, ...recent.filter((recentColor) => recentColor !== color)].slice(
         0,
@@ -295,7 +367,6 @@ const ColorPanel = (props: {
       )
     );
     onCommit(color);
-    onClose();
   };
   const apply = () => {
     if (valid) commit(valid);
@@ -305,7 +376,7 @@ const ColorPanel = (props: {
       <button
         key={color}
         type="button"
-        className="CharacterSetup__swatch"
+        className="ColorPicker__swatch"
         style={{ '--swatch-color': color } as React.CSSProperties}
         title={color}
         aria-label={'Выбрать цвет ' + color}
@@ -317,140 +388,177 @@ const ColorPanel = (props: {
 
   return (
     <div
-      className="CharacterSetup__color-overlay"
-      onMouseDown={(event) => {
-        if (event.target === event.currentTarget) onClose();
-      }}
+      className={'ColorPicker' + (className ? ' ' + className : '')}
+      role="dialog"
+      aria-modal="true"
+      aria-label={title || 'Выбор цвета'}
     >
-      <div
-        className="CharacterSetup__color-panel"
-        role="dialog"
-        aria-modal="true"
-        aria-label="Выбор цвета"
-      >
-        <Box className="CharacterSetup__card-title">Выбор цвета</Box>
-        <div className="CharacterSetup__color-layout">
-          <div>
-            <div
-              className="CharacterSetup__honeycomb"
-              role="group"
-              aria-label="Цветовая палитра"
-            >
-              {PALETTE_ROWS.map((row, index) => (
-                <div key={index} className="CharacterSetup__palette-row">
-                  {swatches(row)}
-                </div>
-              ))}
-            </div>
-            <div
-              className="CharacterSetup__palette CharacterSetup__palette--grayscale"
-              role="group"
-              aria-label="Оттенки серого"
-            >
-              {swatches(GRAYSCALE)}
-            </div>
-            {!!recent.length && (
-              <>
-                <Box color="label" mt={1} mb={1}>
-                  Недавние цвета
-                </Box>
-                <div className="CharacterSetup__palette">
-                  {swatches(recent)}
-                </div>
-              </>
-            )}
+      {!!title && <Box className="ColorPicker__title">{title}</Box>}
+      {!!message && (
+        <Box color="label" mb={1} preserveWhitespace>
+          {message}
+        </Box>
+      )}
+      <div className="ColorPicker__layout">
+        <div>
+          <div
+            className="ColorPicker__honeycomb"
+            role="group"
+            aria-label="Цветовая палитра"
+          >
+            {PALETTE_ROWS.map((row, index) => (
+              <div key={index} className="ColorPicker__palette-row">
+                {swatches(row)}
+              </div>
+            ))}
           </div>
-          <div>
-            <div className="CharacterSetup__color-editor">
-              <HueTriangle hsv={hsv} onChange={selectHsv} />
-              <div>
-                <div className="CharacterSetup__color-values">
-                  {['R', 'G', 'B'].map((channel, index) => (
-                    <div key={channel}>
-                      <Box color="label" mb={0.5}>
-                        {channel}
-                      </Box>
-                      <NumberInput
-                        width="100%"
-                        minValue={0}
-                        maxValue={255}
-                        step={1}
-                        value={parseInt(
-                          hex.slice(1 + index * 2, 3 + index * 2),
-                          16
-                        )}
-                        onChange={(event, next) => {
-                          const channels = [1, 3, 5].map((offset) =>
-                            hex.slice(offset, offset + 2)
-                          );
-                          channels[index] = clamp(Math.round(next), 0, 255)
-                            .toString(16)
-                            .padStart(2, '0');
-                          select('#' + channels.join(''));
-                        }}
-                      />
-                    </div>
-                  ))}
-                  <div>
+          <div
+            className="ColorPicker__palette ColorPicker__palette--grayscale"
+            role="group"
+            aria-label="Оттенки серого"
+          >
+            {swatches(GRAYSCALE)}
+          </div>
+          {!!recent.length && (
+            <>
+              <Box color="label" mt={1} mb={1}>
+                Недавние цвета
+              </Box>
+              <div className="ColorPicker__palette">{swatches(recent)}</div>
+            </>
+          )}
+        </div>
+        <div>
+          <div className="ColorPicker__editor">
+            <HueTriangle hsv={hsv} onChange={selectHsv} />
+            <div>
+              <div className="ColorPicker__values">
+                <Dropdown
+                  width="100%"
+                  aria-label="Цветовая модель"
+                  selected={colorModel}
+                  options={['RGB', 'HSL']}
+                  onSelected={setColorModel}
+                />
+                {channels.map((channel, index) => (
+                  <div
+                    key={colorModel + channel}
+                    title={channelDescriptions[index]}
+                  >
                     <Box color="label" mb={0.5}>
-                      HEX
+                      {channel}
                     </Box>
-                    <Input
-                      fluid
-                      autoFocus
-                      value={draft}
-                      placeholder="#rrggbb"
-                      onInput={(event, next) => {
-                        setDraft(next);
-                        const normalized = normalizeHex(next);
-                        if (normalized) setHsv(hexToHsv(normalized));
+                    <NumberInput
+                      width="100%"
+                      minValue={0}
+                      maxValue={
+                        colorModel === 'RGB' ? 255 : index === 0 ? 360 : 100
+                      }
+                      step={1}
+                      unit={
+                        colorModel === 'HSL'
+                          ? index === 0
+                            ? '°'
+                            : '%'
+                          : undefined
+                      }
+                      format={(value: number) => Math.round(value * 100) / 100}
+                      value={
+                        colorModel === 'HSL'
+                          ? hsl[index] * (index === 0 ? 1 : 100)
+                          : parseInt(
+                              hex.slice(1 + index * 2, 3 + index * 2),
+                              16
+                            )
+                      }
+                      onChange={(event, next) => {
+                        if (!Number.isFinite(next)) return;
+                        if (colorModel === 'HSL') {
+                          const nextHsl: [number, number, number] = [...hsl];
+                          nextHsl[index] =
+                            index === 0
+                              ? clamp(next, 0, 360)
+                              : clamp(next, 0, 100) / 100;
+                          selectHsv(hslToHsv(...nextHsl));
+                          return;
+                        }
+                        const channels = [1, 3, 5].map((offset) =>
+                          hex.slice(offset, offset + 2)
+                        );
+                        channels[index] = clamp(Math.round(next), 0, 255)
+                          .toString(16)
+                          .padStart(2, '0');
+                        select('#' + channels.join(''));
                       }}
-                      onEnter={apply}
                     />
                   </div>
+                ))}
+                <div>
+                  <Box color="label" mb={0.5}>
+                    HEX
+                  </Box>
+                  <Input
+                    fluid
+                    autoFocus
+                    value={draft}
+                    placeholder="#RRGGBB"
+                    onInput={(event, next) => {
+                      setDraft(uppercaseHexInput(event, next));
+                      const normalized = normalizeHex(next);
+                      if (normalized) setHsv(hexToHsv(normalized));
+                    }}
+                    onEnter={apply}
+                  />
                 </div>
+              </div>
 
-                <div className="CharacterSetup__color-comparison">
-                  <Box color="label">Новый</Box>
-                  <div
-                    className="CharacterSetup__color-sample"
-                    style={{ background: hex }}
-                  />
-                  <button
-                    className="CharacterSetup__color-sample"
-                    type="button"
-                    style={{ background: value }}
-                    title="Вернуть исходный цвет"
-                    aria-label="Вернуть исходный цвет"
-                    onClick={() => select(value)}
-                  />
-                  <Box color="label">Исходный</Box>
-                </div>
+              <div className="ColorPicker__comparison">
+                <Box color="label">Новый</Box>
+                <div
+                  className="ColorPicker__sample"
+                  style={{ background: hex }}
+                />
+                <button
+                  className="ColorPicker__sample"
+                  type="button"
+                  style={{ background: value }}
+                  title="Вернуть исходный цвет"
+                  aria-label="Вернуть исходный цвет"
+                  onClick={() => select(value)}
+                />
+                <Box color="label">Исходный</Box>
               </div>
             </div>
           </div>
         </div>
-        {!valid && (
-          <Box color="bad" mt={1}>
-            Введите 3 или 6 шестнадцатеричных цифр.
-          </Box>
-        )}
-        <Stack mt={2}>
-          <Stack.Item grow>
-            <Button fluid icon="times" content="Отмена" onClick={onClose} />
-          </Stack.Item>
-          <Stack.Item grow>
-            <Button
-              fluid
-              icon="check"
-              color="good"
-              content="Применить"
-              disabled={!valid}
-              onClick={apply}
-            />
-          </Stack.Item>
-        </Stack>
       </div>
+      {!valid && (
+        <Box color="bad" mt={1}>
+          Введите 3 или 6 шестнадцатеричных цифр.
+        </Box>
+      )}
+      <Stack mt={2} direction={swappedButtons ? 'row-reverse' : 'row'}>
+        <Stack.Item grow>
+          <Button
+            fluid
+            icon="times"
+            content="Отмена"
+            height={largeButtons ? 2 : undefined}
+            onClick={onCancel}
+          />
+        </Stack.Item>
+        <Stack.Item grow>
+          <Button
+            fluid
+            height={largeButtons ? 2 : undefined}
+            icon="check"
+            color="good"
+            content="Применить"
+            disabled={!valid}
+            onClick={apply}
+          />
+        </Stack.Item>
+      </Stack>
     </div>
   );
 };
@@ -461,8 +569,16 @@ export const ColorPicker = (props: {
   tooltip?: string;
   width?: string;
   height?: string;
+  portalRoot?: string;
 }) => {
-  const { value, onCommit, tooltip, width = '28px', height = '24px' } = props;
+  const {
+    value,
+    onCommit,
+    tooltip,
+    width = '28px',
+    height = '24px',
+    portalRoot,
+  } = props;
   const [open, setOpen] = useState(false);
   const hex = safeHex(value);
   const anchorRef = useRef<HTMLButtonElement>(null);
@@ -483,13 +599,14 @@ export const ColorPicker = (props: {
     document.addEventListener('keydown', escape, true);
     return () => document.removeEventListener('keydown', escape, true);
   }, [open]);
-  const root = document.querySelector('.CharacterSetup__editor');
+  const root =
+    anchorRef.current?.closest(portalRoot || '.Layout') || document.body;
   return (
     <>
       <button
         ref={anchorRef}
         type="button"
-        className="CharacterSetup__color-chip"
+        className="ColorPicker__chip"
         title={tooltip || hex}
         aria-label={tooltip || 'Выбрать цвет ' + hex}
         aria-expanded={open}
@@ -499,7 +616,21 @@ export const ColorPicker = (props: {
       {open &&
         root &&
         createPortal(
-          <ColorPanel value={hex} onCommit={onCommit} onClose={close} />,
+          <div
+            className="ColorPicker__overlay"
+            onMouseDown={(event) => {
+              if (event.target === event.currentTarget) close();
+            }}
+          >
+            <ColorPickerPanel
+              value={hex}
+              onCommit={(next) => {
+                onCommit(next);
+                close();
+              }}
+              onCancel={close}
+            />
+          </div>,
           root
         )}
     </>
