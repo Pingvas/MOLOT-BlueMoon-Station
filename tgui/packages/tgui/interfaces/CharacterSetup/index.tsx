@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 import { useBackend } from '../../backend';
 import {
@@ -33,6 +33,7 @@ interface CharacterSetupData {
   tab: number;
   previewRef: string;
   previewAutoFit: boolean;
+  previewViewportReady: boolean;
   previewPref: string;
   previewModes: string[];
   localStorageName: string | null;
@@ -365,6 +366,11 @@ const SlotTools = () => {
 const Preview = () => {
   const { act, data } = useBackend<CharacterSetupData>();
   const autoFit = !!(data.previewAutoFit ?? true);
+  const handleResize = useCallback(
+    ({ width, height }: { width: number; height: number }) =>
+      act('set_preview_viewport', { width, height }),
+    [act]
+  );
   return (
     <Section
       fill
@@ -412,11 +418,13 @@ const Preview = () => {
       {data.previewRef ? (
         <ByondUi
           className="CharacterSetup__preview-map"
+          onResize={handleResize}
           params={{
             id: data.previewRef,
             type: 'map',
             zoom: 0,
             'zoom-mode': 'normal',
+            letterbox: !data.previewViewportReady,
           }}
         />
       ) : (

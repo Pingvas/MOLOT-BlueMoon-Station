@@ -2343,6 +2343,7 @@
 	var/atom/movable/screen/map_view/character_setup_screen/viewer_screen = LAZYACCESS(viewer_screens, user)
 	data["previewRef"] = viewer_screen?.assigned_map
 	data["previewAutoFit"] = preview_auto_fit
+	data["previewViewportReady"] = viewer_screen && !isnull(viewer_screen.viewport_aspect)
 	if(preview_dirty)
 		data["previewDirty"] = TRUE
 
@@ -2919,6 +2920,20 @@
 			preview_auto_fit = !!params["value"]
 			preview_dirty = TRUE
 			return TRUE
+
+		if("set_preview_viewport")
+			var/width = num_param(params["width"])
+			var/height = num_param(params["height"])
+			if(isnull(width) || isnull(height) || width <= 0 || height <= 0)
+				return
+			var/atom/movable/screen/map_view/character_setup_screen/viewer_screen = LAZYACCESS(viewer_screens, usr)
+			if(!viewer_screen)
+				return
+			var/was_ready = !isnull(viewer_screen.viewport_aspect)
+			if(!viewer_screen.set_viewport_size(width, height))
+				return
+			// После первого замера обновляем только нативный холст, без повторной отправки всех настроек.
+			return !was_ready
 
 		if("set_name")
 			var/new_name = reject_bad_name("[params["name"]]", allow_numbers = TRUE)
@@ -3547,12 +3562,17 @@
 	var/list/previews = list()
 	var/shown_offset = 0
 	var/list/icon_bounds_cache = list()
+	var/viewport_aspect
+	var/mutable_appearance/cached_source
+	var/cached_background_state
+	var/cached_auto_fit
 
 /atom/movable/screen/map_view/character_setup_screen/Destroy()
 	hide_from()
 	vis_contents.Cut()
 	QDEL_LIST_ASSOC_VAL(previews)
 	icon_bounds_cache = null
+	cached_source = null
 	return ..()
 
 /atom/movable/screen/map_view/character_setup_screen/ensure_plane_group()
@@ -3568,7 +3588,19 @@
 			plane_master.filters = null
 	return popup_plane_group
 
+/atom/movable/screen/map_view/character_setup_screen/proc/set_viewport_size(width, height)
+	var/new_aspect = clamp(width / height, 0.1, 10)
+	if(viewport_aspect == new_aspect)
+		return FALSE
+	viewport_aspect = new_aspect
+	if(cached_source)
+		update_character(cached_source, cached_background_state, cached_auto_fit)
+	return TRUE
+
 /atom/movable/screen/map_view/character_setup_screen/proc/update_character(mutable_appearance/appearance_source, background_state, auto_fit = TRUE)
+	cached_source = appearance_source
+	cached_background_state = background_state
+	cached_auto_fit = auto_fit
 	var/list/view_bounds = list()
 	var/reference_width = world.icon_size * 2
 	var/reference_height = world.icon_size
@@ -3614,13 +3646,22 @@
 		frame_width = max(frame_width, CEILING(reference_width * max_scale + padding * 2, 1))
 		frame_height = max(frame_height, CEILING(reference_height * max_scale + padding * 2, 1))
 	var/map_height = frame_height * length(previews)
+	// Вторичная карта округляет габариты до клеток: закрашиваем также её правый и верхний запас.
+	var/canvas_width = CEILING(frame_width, world.icon_size)
+	var/canvas_height = CEILING(map_height, world.icon_size)
+	if(!isnull(viewport_aspect))
+		// Расширяем только фон. При заполнении контрола обрежется этот запас, а не фигуры.
+		if(canvas_width / canvas_height < viewport_aspect)
+			canvas_width = CEILING(canvas_height * viewport_aspect, world.icon_size)
+		else
+			canvas_height = CEILING(canvas_width / viewport_aspect, world.icon_size)
 	var/icon/map_bounds = icon('icons/mob/map_backgrounds.dmi', "clear")
-	map_bounds.Crop(1, 1, frame_width, map_height)
+	map_bounds.Crop(1, 1, canvas_width, canvas_height)
 	// Фон — отдельная неподвижная сетка, без матрицы и размеров персонажа.
 	var/icon/background_tile = icon('modular_citadel/icons/ui/backgrounds.dmi', background_state, SOUTH, 1)
 	var/icon/background_canvas = icon(map_bounds)
-	for(var/x = 0, x < frame_width, x += background_tile.Width())
-		for(var/y = 0, y < map_height, y += background_tile.Height())
+	for(var/x = 0, x < canvas_width, x += background_tile.Width())
+		for(var/y = 0, y < canvas_height, y += background_tile.Height())
 			background_canvas.Blend(background_tile, ICON_OVERLAY, x + 1, y + 1)
 	icon = background_canvas
 	plane = appearance_source.plane
@@ -3630,8 +3671,8 @@
 		var/atom/movable/screen/preview = previews["[direction]"]
 		var/list/bounds = view_bounds["[direction]"]
 		// Центрируем в координатах фона; pixel_x/y хранят только целые пиксели.
-		preview.pixel_x = round(frame_width / 2 - (bounds[1] + bounds[3]) / 2, 1)
-		preview.pixel_y = round((position + 0.5) * frame_height - (bounds[2] + bounds[4]) / 2, 1)
+		preview.pixel_x = round(canvas_width / 2 - (bounds[1] + bounds[3]) / 2, 1)
+		preview.pixel_y = round((canvas_height - map_height) / 2 + (position + 0.5) * frame_height - (bounds[2] + bounds[4]) / 2, 1)
 		position++
 	shown_offset = PLANE_TO_OFFSET(appearance_source.plane)
 	ensure_plane_group()
