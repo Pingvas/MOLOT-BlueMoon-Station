@@ -5,6 +5,7 @@ import {
   FeatureField,
   FeatureFieldView,
   FieldRow,
+  SettingsGrid,
   ToggleRow,
 } from '../components';
 
@@ -72,7 +73,7 @@ export const GenitalsSection = (props: {
 
   return (
     <Section title="Гениталии">
-      <div className="CharacterSetup__settings-grid CharacterSetup__settings-grid--compact">
+      <SettingsGrid compact>
         {(genitals.parts || []).map((part) => (
           <Box
             key={part.key}
@@ -125,7 +126,7 @@ export const GenitalsSection = (props: {
               })}
           </Box>
         ))}
-      </div>
+      </SettingsGrid>
 
       {!!genitals.hasNeckfire && (
         <Box

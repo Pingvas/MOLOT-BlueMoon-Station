@@ -1,4 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
+import {
+  Children,
+  isValidElement,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 
 import { useBackend } from '../../backend';
 import {
@@ -12,6 +19,82 @@ import {
   TextArea,
 } from '../../components';
 import { ColorPicker, normalizeHex, safeHex } from './ColorPicker';
+
+export const SettingsGrid = (props: {
+  compact?: boolean;
+  children: React.ReactNode;
+}) => {
+  const gridRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    const grid = gridRef.current;
+    if (!grid) return;
+    let frame = 0;
+    const contents = Array.from(grid.children).map(
+      (item) => item.firstElementChild as HTMLElement
+    );
+    const measure = () => {
+      for (const content of contents) {
+        // Высота в локальных пикселях учитывает переносы текста без поправок на DPI и zoom TGUI.
+        const span = `span ${Math.max(1, Math.ceil(content.offsetHeight))}`;
+        const item = content.parentElement!;
+        if (item.style.gridRowEnd !== span) item.style.gridRowEnd = span;
+      }
+    };
+    const schedule = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(measure);
+    };
+    const observer = new ResizeObserver(schedule);
+    contents.forEach((content) => observer.observe(content));
+    measure();
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(frame);
+    };
+  }, [props.children]);
+
+  return (
+    <div
+      ref={gridRef}
+      className={
+        'CharacterSetup__settings-grid' +
+        (props.compact ? ' CharacterSetup__settings-grid--compact' : '')
+      }
+    >
+      {Children.toArray(props.children).map((child, index) => (
+        <div
+          key={isValidElement(child) ? child.key ?? index : index}
+          className="CharacterSetup__settings-item"
+        >
+          <div className="CharacterSetup__settings-content">{child}</div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+export const quirkColor = (value: number): string | undefined => {
+  if (value > 0) return 'good';
+  if (value < 0) return 'bad';
+  return undefined;
+};
+
+export const QuirkNames = (props: {
+  names: string[];
+  values?: Record<string, number>;
+}) => (
+  <>
+    {props.names.map((name, index) => (
+      <span key={name}>
+        {index > 0 && ', '}
+        <Box as="span" color={quirkColor(props.values?.[name] ?? 0)}>
+          {name}
+        </Box>
+      </span>
+    ))}
+  </>
+);
 
 export const TabDataMissing = (props: { title: string }) => (
   <NoticeBox>

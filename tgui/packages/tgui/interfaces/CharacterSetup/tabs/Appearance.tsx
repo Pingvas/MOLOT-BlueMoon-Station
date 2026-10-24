@@ -8,6 +8,7 @@ import {
   FieldRow,
   renderFeatureField,
   SelectRow,
+  SettingsGrid,
   TabDataMissing,
   TextRow,
   ToggleRow,
@@ -193,7 +194,7 @@ export const AppearanceTab = () => {
 
   return (
     <Section fill scrollable title="Внешность">
-      <div className="CharacterSetup__settings-grid">
+      <SettingsGrid>
         <Section title="Тело">
           <SelectRow
             label="Пол"
@@ -376,14 +377,14 @@ export const AppearanceTab = () => {
             </>
           )}
         </Section>
-      </div>
+      </SettingsGrid>
 
       <Section title="Части тела" mt={1}>
-        <div className="CharacterSetup__settings-grid CharacterSetup__settings-grid--compact">
+        <SettingsGrid compact>
           {asArray(appearance.mutantParts).map((part) => (
             <MutantPartCard key={part.key} part={part} />
           ))}
-        </div>
+        </SettingsGrid>
       </Section>
 
       {appearance.genitals && (

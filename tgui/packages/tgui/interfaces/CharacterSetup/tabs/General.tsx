@@ -14,9 +14,11 @@ import {
   ColorField,
   FeatureField,
   FieldRow,
+  QuirkNames,
   renderFeatureField,
   SelectOption,
   SelectRow,
+  SettingsGrid,
   TabDataMissing,
   ToggleRow,
 } from '../components';
@@ -50,6 +52,7 @@ interface GeneralData {
   siliconLaws?: string[];
   quirkBalance?: number;
   quirks?: string[];
+  quirkValues?: Record<string, number>;
   customNames: CustomNameEntry[];
 }
 
@@ -159,7 +162,7 @@ export const GeneralTab = () => {
     <Section fill scrollable className="CharacterSetup__general">
       <QuirksSummary />
 
-      <div className="CharacterSetup__settings-grid">
+      <SettingsGrid>
         <SettingsSection title="Личность" icon="id-card">
           <NameRow />
           <FieldRow label="Возраст">
@@ -331,10 +334,6 @@ export const GeneralTab = () => {
 
         <SettingsSection title="Согласие" icon="handshake">
           {CONSENT_KEYS.map((key) => field(key))}
-        </SettingsSection>
-
-        <SettingsSection title="Секс, беременность и цели" icon="heart">
-          {PERSONAL_KEYS.map((key) => field(key))}
           {!!antag && (
             <>
               <SelectRow
@@ -365,7 +364,11 @@ export const GeneralTab = () => {
             </>
           )}
         </SettingsSection>
-      </div>
+
+        <SettingsSection title="Секс и беременность" icon="heart">
+          {PERSONAL_KEYS.map((key) => field(key))}
+        </SettingsSection>
+      </SettingsGrid>
     </Section>
   );
 };
@@ -425,7 +428,11 @@ const QuirksSummary = () => {
               overflow: 'hidden',
             }}
           >
-            {quirks.length ? quirks.join(', ') : 'Особенности не выбраны'}
+            {quirks.length ? (
+              <QuirkNames names={quirks} values={general?.quirkValues} />
+            ) : (
+              'Особенности не выбраны'
+            )}
           </Box>
         </Stack.Item>
         <Stack.Item>

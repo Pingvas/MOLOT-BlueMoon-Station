@@ -287,13 +287,18 @@ const ColorPanel = (props: {
     setDraft(hsvToHex(...next));
   };
   const valid = normalizeHex(draft);
-  const apply = () => {
-    if (!valid) return;
+  const commit = (color: string) => {
     setRecent(
-      [valid, ...recent.filter((color) => color !== valid)].slice(0, 12)
+      [color, ...recent.filter((recentColor) => recentColor !== color)].slice(
+        0,
+        12
+      )
     );
-    onCommit(valid);
+    onCommit(color);
     onClose();
+  };
+  const apply = () => {
+    if (valid) commit(valid);
   };
   const swatches = (colors: string[]) =>
     colors.map((color) => (
@@ -306,6 +311,7 @@ const ColorPanel = (props: {
         aria-label={'Выбрать цвет ' + color}
         aria-pressed={hex.toLowerCase() === color.toLowerCase()}
         onClick={() => select(color)}
+        onDoubleClick={() => commit(color)}
       />
     ));
 
@@ -325,9 +331,6 @@ const ColorPanel = (props: {
         <Box className="CharacterSetup__card-title">Выбор цвета</Box>
         <div className="CharacterSetup__color-layout">
           <div>
-            <Box color="label" mb={1}>
-              Готовая палитра
-            </Box>
             <div
               className="CharacterSetup__honeycomb"
               role="group"
@@ -358,9 +361,6 @@ const ColorPanel = (props: {
             )}
           </div>
           <div>
-            <Box color="label" mb={1}>
-              Точная настройка
-            </Box>
             <div className="CharacterSetup__color-editor">
               <HueTriangle hsv={hsv} onChange={selectHsv} />
               <div>

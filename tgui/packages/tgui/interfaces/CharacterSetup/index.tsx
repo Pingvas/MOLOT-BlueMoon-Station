@@ -303,16 +303,18 @@ const SlotTools = () => {
             </Box>
           </Stack.Item>
           <Stack.Item>
-            <Button
+            <Button.Confirm
               icon="download"
               content="Экспорт слота"
+              confirmContent="Экспортировать слот?"
               onClick={() => act('slot_export')}
             />
           </Stack.Item>
           <Stack.Item>
-            <Button
+            <Button.Confirm
               icon="upload"
               content="Импорт в слот"
+              confirmContent="Заменить текущий слот?"
               disabled={!localName}
               tooltip={localName ? undefined : 'Локальной копии нет'}
               onClick={() => act('slot_import')}

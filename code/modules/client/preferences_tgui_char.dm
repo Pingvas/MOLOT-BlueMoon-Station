@@ -2398,6 +2398,7 @@
 	if(CONFIG_GET(flag/roundstart_traits))
 		data["quirkBalance"] = quirk_balance()
 		data["quirks"] = prefs.all_quirks
+		data["quirkValues"] = selected_quirk_values()
 
 	var/list/custom_names_data = list()
 	for(var/custom_name_id in GLOB.preferences_custom_names)
@@ -2413,6 +2414,13 @@
 	data["customNames"] = custom_names_data
 
 	return data
+
+/datum/character_setup/proc/selected_quirk_values()
+	var/list/values = list()
+	if(SSquirks)
+		for(var/quirk_name in prefs.all_quirks)
+			values[quirk_name] = SSquirks.quirk_points_by_name(quirk_name)
+	return values
 
 /datum/character_setup/proc/quirk_balance()
 	var/balance = 0
@@ -2490,6 +2498,7 @@
 		list("value" = QUIRK_NEGATIVE, "label" = "Негативные"),
 	)
 	data["current"] = prefs.all_quirks
+	data["quirkValues"] = selected_quirk_values()
 
 	data["shriek"] = prefs.shriek_type
 	var/list/shriek_options = list()

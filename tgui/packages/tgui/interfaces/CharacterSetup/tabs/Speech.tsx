@@ -13,6 +13,7 @@ import {
   FieldRow,
   SelectOption,
   SelectRow,
+  SettingsGrid,
   TabDataMissing,
   ToggleRow,
 } from '../components';
@@ -94,7 +95,6 @@ const LanguageToggle = (props: { language: LanguageOption; icon?: string }) => {
   const selected = !!language.selected;
   return (
     <Box
-      mb={1}
       p={1}
       onClick={() => act('toggle_language', { value: language.name })}
       style={{
@@ -159,7 +159,7 @@ export const SpeechTab = () => {
 
   return (
     <Section fill scrollable title="Речь">
-      <div className="CharacterSetup__settings-grid">
+      <SettingsGrid>
         <Section title="Речевые предпочтения">
           <SelectRow
             label="Глагол речи"
@@ -258,7 +258,7 @@ export const SpeechTab = () => {
             </>
           )}
         </Section>
-      </div>
+      </SettingsGrid>
 
       <Section title="Дополнительные языки" mt={1}>
         {languagesOff ? (
@@ -271,7 +271,7 @@ export const SpeechTab = () => {
                 отключатся при сохранении.
               </Box>
             )}
-            <div className="CharacterSetup__settings-grid">
+            <SettingsGrid>
               {languages.map((language) => (
                 <LanguageToggle
                   key={language.name}
@@ -279,7 +279,7 @@ export const SpeechTab = () => {
                   icon={languageIcons[language.name]}
                 />
               ))}
-            </div>
+            </SettingsGrid>
             <Box mt={1}>
               <Button
                 icon="undo"
