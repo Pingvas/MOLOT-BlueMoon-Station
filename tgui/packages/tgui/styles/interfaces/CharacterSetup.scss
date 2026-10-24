@@ -150,6 +150,11 @@
     background: #1b2229;
     padding: 0.6rem 0 0.8rem;
     margin-bottom: 0.5rem;
+
+    // Список открывается вверх и помещается в панели, не заходя на нативную карту BYOND.
+    .Dropdown__menu {
+      max-height: 12rem;
+    }
   }
 
   &__preview-map {

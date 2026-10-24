@@ -2627,11 +2627,11 @@
 		return
 	var/savefile/S = prefs.save_character(export = TRUE)
 	if(!istype(S, /savefile))
-		tgui_alert_async(user, "Не удалось сохранить слот персонажа.")
+		to_chat(user, span_warning("Не удалось экспортировать персонажа."))
 		return
 	user.client.local_storage_name_read = FALSE
 	user.client.Export(S)
-	tgui_alert_async(user, "Слот персонажа сохранён.")
+	to_chat(user, span_notice("Персонаж экспортирован в локальную копию."))
 
 /datum/character_setup/proc/slot_import()
 	var/mob/user = prefs.parent?.mob
@@ -2639,14 +2639,14 @@
 		return
 	var/savefile/S = new(user.client.Import())
 	if(!istype(S, /savefile))
-		tgui_alert_async(user, "Не удалось загрузить слот персонажа.")
+		to_chat(user, span_warning("Не удалось импортировать персонажа из локальной копии."))
 		return
 	if(!prefs.load_character(provided = S))
-		tgui_alert_async(user, "Не удалось загрузить слот персонажа.")
+		to_chat(user, span_warning("Не удалось импортировать персонажа из локальной копии."))
 		return
 	character_revision++
 	preview_dirty = TRUE
-	tgui_alert_async(user, "Слот персонажа загружен.")
+	to_chat(user, span_notice("Персонаж импортирован из локальной копии."))
 	prefs.save_character(TRUE)
 
 /datum/character_setup/proc/slot_delete_local()

@@ -302,6 +302,7 @@ export const SelectRow = (props: {
   tooltip?: string;
   labelBasis?: string;
   extra?: React.ReactNode;
+  over?: boolean;
 }) => {
   const { act } = useBackend<any>();
   const {
@@ -314,9 +315,11 @@ export const SelectRow = (props: {
     tooltip,
     labelBasis,
     extra,
+    over,
   } = props;
   const dropdown = (
     <Dropdown
+      over={over}
       width={width || '100%'}
       options={normalizeOptions(options || [])}
       selected={value}
