@@ -4,6 +4,7 @@ import {
   asArray,
   asOptions,
   ColorField,
+  CycleChoice,
   FeatureField,
   FieldRow,
   renderFeatureField,
@@ -83,6 +84,7 @@ interface AppearanceData {
 }
 
 interface AppearanceContext {
+  emissivesAllowed: boolean;
   appearance?: AppearanceData;
   featureFields?: FeatureField[];
 }
@@ -95,24 +97,30 @@ const HairStyleRow = (props: {
   const { act } = useBackend<AppearanceContext>();
   const { label, kind, style } = props;
   return (
-    <FieldRow label={label}>
+    <FieldRow label={label} labelBasis="30%">
       <Stack align="center" style={{ width: '100%' }}>
         <Stack.Item grow>
-          <Box
-            title={style}
-            color={style ? undefined : 'label'}
-            style={{
-              overflow: 'hidden',
-              textAlign: 'center',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            }}
+          <CycleChoice
+            arrowsTogether
+            onCycle={(dir) => act('cycle_hair_style', { kind, dir })}
           >
-            {style || 'по умолчанию'}
-          </Box>
+            <Box
+              title={style}
+              color={style ? undefined : 'label'}
+              style={{
+                overflow: 'hidden',
+                textAlign: 'center',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {style || 'по умолчанию'}
+            </Box>
+          </CycleChoice>
         </Stack.Item>
         <Stack.Item>
           <Button
+            className="CharacterSetup__icon-button"
             icon="brush"
             tooltip="Выбрать из списка"
             onClick={() => act('pick_hair_style', { kind })}
@@ -124,7 +132,7 @@ const HairStyleRow = (props: {
 };
 
 const MutantPartCard = (props: { part: MutantPart }) => {
-  const { act } = useBackend<AppearanceContext>();
+  const { act, data } = useBackend<AppearanceContext>();
   const { part } = props;
   return (
     <Box
@@ -139,18 +147,24 @@ const MutantPartCard = (props: { part: MutantPart }) => {
       </Box>
       <Stack align="center">
         <Stack.Item grow>
-          <Dropdown
-            width="100%"
-            options={part.options || []}
-            selected={part.value || ''}
-            onSelected={(next) =>
-              act('set_mutant_part', { part: part.key, value: next })
-            }
-          />
+          <CycleChoice
+            disabled={(part.options || []).length < 2}
+            onCycle={(dir) => act('set_mutant_part', { part: part.key, dir })}
+          >
+            <Dropdown
+              width="100%"
+              options={part.options || []}
+              selected={part.value || ''}
+              onSelected={(next) =>
+                act('set_mutant_part', { part: part.key, value: next })
+              }
+            />
+          </CycleChoice>
         </Stack.Item>
-        {!!part.hasGlow && (
+        {!!data.emissivesAllowed && !!part.hasGlow && (
           <Stack.Item>
             <Button
+              className="CharacterSetup__icon-button"
               icon="lightbulb"
               selected={!!part.glow}
               tooltip="Свечение части"
@@ -270,6 +284,7 @@ export const AppearanceTab = () => {
                 }
                 options={appearance.skinToneOptions || []}
                 action="set_skin_tone"
+                onCycle={(dir) => act('set_skin_tone', { dir })}
               />
               {!!appearance.useCustomSkinTone && (
                 <ColorField
@@ -320,6 +335,7 @@ export const AppearanceTab = () => {
                 value={appearance.eyeType}
                 options={appearance.eyeTypes || []}
                 action="set_eye_type"
+                onCycle={(dir) => act('set_eye_type', { dir })}
               />
               <ToggleRow
                 label="Светящиеся глаза"

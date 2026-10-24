@@ -100,6 +100,7 @@
 	data["siliconLawsDisabled"] = !CONFIG_GET(flag/allow_silicon_choosing_laws)
 	data["featureFields"] = get_feature_fields()
 	data["languageIcons"] = build_language_icons()
+	data["markingOptions"] = build_marking_options_data()
 	return data
 
 /datum/character_setup/proc/get_feature_fields()
@@ -114,7 +115,7 @@
 	var/list/consent_binary = list("Yes" = "Да", "No" = "Нет")
 
 	fields += list(ff("show_mismatched_markings", "Чужие части и маркинги", FEATURE_BOOL, FEATURE_SCOPE_PREF, FEATURE_MISMATCH_HINT))
-	fields += list(ff("allow_emissives", "Свечение", FEATURE_BOOL))
+	fields += list(ff("allow_emissives", "Разрешить свечение", FEATURE_BOOL, FEATURE_SCOPE_FEATURE, "Общий переключатель свечения глаз, частей тела, гениталий и маркингов. Отдельные элементы включаются кнопками с лампочкой."))
 	fields += list(ff("be_random_body", "Всегда случайное тело", FEATURE_BOOL, FEATURE_SCOPE_PREF))
 
 	fields += list(color_ff("mcolor", "Основной цвет тела", FEATURE_COLOR_MUTANT))
@@ -360,15 +361,8 @@
 	data["useSkintones"] = !!species.use_skintones
 	data["skinTone"] = prefs.skin_tone
 	data["useCustomSkinTone"] = !!prefs.use_custom_skin_tone
-	var/list/skin_tones = GLOB.skin_tones - GLOB.nonstandard_skin_tones
-	var/list/skin_tone_options = list()
-	for(var/tone in skin_tones)
-		skin_tone_options += tone
-	var/can_custom_skin = !!CONFIG_GET(flag/allow_custom_skintones)
-	if(can_custom_skin)
-		skin_tone_options += "custom"
-	data["skinToneOptions"] = skin_tone_options
-	data["skinToneCustom"] = can_custom_skin
+	data["skinToneOptions"] = skin_tone_options()
+	data["skinToneCustom"] = !!CONFIG_GET(flag/allow_custom_skintones)
 	data["hasMutantColors"] = (MUTCOLORS in species.species_traits) || (MUTCOLORS_PARTSONLY in species.species_traits)
 
 	if(prefs.left_eye_color != prefs.right_eye_color)
@@ -455,7 +449,7 @@
 	var/list/feats = prefs.features
 	return feats ? feats[key] : null
 
-/datum/character_setup/proc/mutant_part_options(part)
+/datum/character_setup/proc/mutant_part_options(part, for_cycle = FALSE)
 	var/list/options = list()
 	var/list/reference = mutant_part_reference_list(part)
 	if(!reference || !prefs.parent)
@@ -474,7 +468,8 @@
 			continue
 		if(needs_species_filter && accessory.recommended_species && !accessory.recommended_species.Find(prefs.pref_species.id))
 			continue
-		if(part == "taur" && accessory.ignore)
+		// Пасхалка: Как в старом редакторе, стрелки обходят ignore, а меню скрывает такие варианты.
+		if(part == "taur" && accessory.ignore && !for_cycle)
 			continue
 		if(!accessory.is_allowed_for(prefs.parent.ckey))
 			continue
@@ -603,7 +598,7 @@
 	var/list/shown = list()
 	if(feats[active_key])
 		for(var/field_key in fields)
-			if(field_key == "anus_glow" || genital_field_visible(field_key))
+			if(genital_field_visible(field_key))
 				shown += field_key
 
 	var/list/block = list(
@@ -624,7 +619,7 @@
 	switch(key)
 		if("womb_fluid")
 			return !!feats["has_womb"]
-		if("anus_color", "anus_shape", "anus_visibility", "anus_accessible", "anus_stuffing")
+		if("anus_glow", "anus_color", "anus_shape", "anus_visibility", "anus_accessible", "anus_stuffing")
 			return !!feats["has_anus"]
 		if("breasts_sprite_variant")
 			return feats["breasts_shape"] == "Pair"
@@ -705,6 +700,17 @@
 	entry[3] = colors
 	return colors
 
+/datum/character_setup/proc/build_marking_options_data()
+	// Списки зависят от владельца и части тела, поэтому передаём их один раз при открытии окна.
+	var/list/data = list()
+	for(var/limb in marking_limb_choices())
+		var/list/options = marking_name_options(limb)
+		var/list/names = list()
+		for(var/option in options)
+			names += option
+		data[limb] = names
+	return data
+
 /datum/character_setup/proc/marking_color_chips(list/entry, matrixed)
 	var/list/all_colors = marking_colors(entry)
 	var/primary = 1
@@ -783,17 +789,14 @@
 	var/list/entries = markings_list()
 	if(!entries)
 		return
-	var/mob/user = prefs.parent?.mob
 	var/list/limb_choices = marking_limb_choices()
 	var/selected_limb = params["limb"]
 	if(!(selected_limb in limb_choices))
-		selected_limb = tgui_input_list(user, "Выберите часть тела для отметины.", "Настройка персонажа", limb_choices)
-	if(!selected_limb)
 		return
 	var/list/options = marking_name_options(selected_limb)
 	if(!length(options))
 		return
-	var/selected_marking = tgui_input_list(user, "Выберите разметку для нанесения.", "Настройка персонажа", options)
+	var/selected_marking = params["value"]
 	if(!(selected_marking in options))
 		return
 
@@ -1054,6 +1057,9 @@
 
 /datum/character_setup/proc/set_laugh(list/params)
 	var/value = params["value"]
+	if(!isnull(params["dir"]))
+		var/count = min(length(GLOB.mob_laughs), length(GLOB.mob_laughs_ru))
+		value = cycle_choice(prefs.custom_laugh, GLOB.mob_laughs.Copy(1, count + 1), params["dir"])
 	if(!(value in GLOB.mob_laughs))
 		return
 	prefs.custom_laugh = value
@@ -1162,22 +1168,6 @@
 
 /datum/character_setup/proc/build_bark_data()
 	var/list/data = list()
-	var/datum/bark/path = GLOB.bark_list[prefs.bark_id]
-	if(!path)
-		data["valid"] = FALSE
-		return data
-	data["valid"] = TRUE
-	data["id"] = prefs.bark_id
-	data["name"] = initial(path.name)
-	data["speed"] = prefs.bark_speed
-	data["pitch"] = prefs.bark_pitch
-	data["variance"] = prefs.bark_variance
-	data["minSpeed"] = initial(path.minspeed)
-	data["maxSpeed"] = initial(path.maxspeed)
-	data["minPitch"] = initial(path.minpitch)
-	data["maxPitch"] = initial(path.maxpitch)
-	data["minVariance"] = initial(path.minvariance)
-	data["maxVariance"] = initial(path.maxvariance)
 	var/list/options = list()
 	if(prefs.parent)
 		for(var/bark_id in GLOB.bark_datums)
@@ -1188,11 +1178,35 @@
 				continue
 			options += list(list("value" = B.id, "label" = B.name))
 	data["options"] = options
+	data["id"] = prefs.bark_id
+	var/datum/bark/path = GLOB.bark_list[prefs.bark_id]
+	if(!path)
+		data["valid"] = FALSE
+		return data
+	data["valid"] = TRUE
+	data["name"] = initial(path.name)
+	data["speed"] = prefs.bark_speed
+	data["pitch"] = prefs.bark_pitch
+	data["variance"] = prefs.bark_variance
+	data["minSpeed"] = initial(path.minspeed)
+	data["maxSpeed"] = initial(path.maxspeed)
+	data["minPitch"] = initial(path.minpitch)
+	data["maxPitch"] = initial(path.maxpitch)
+	data["minVariance"] = initial(path.minvariance)
+	data["maxVariance"] = initial(path.maxvariance)
 	return data
 
 /datum/character_setup/proc/set_bark_sound(list/params)
 	var/id = params["value"]
-	if(!istext(id) || !prefs.parent)
+	if(!prefs.parent)
+		return
+	if(!isnull(params["dir"]))
+		var/list/bark_data = build_bark_data()
+		var/list/options = list()
+		for(var/list/option in bark_data["options"])
+			options += option["value"]
+		id = cycle_choice(prefs.bark_id, options, params["dir"])
+	if(!istext(id))
 		return
 	var/datum/bark/B = GLOB.bark_datums[id]
 	if(!B || B.ignore)
@@ -1998,6 +2012,26 @@
 
 	var/scope = field["scope"]
 	var/raw = params["value"]
+	if(!isnull(params["dir"]))
+		var/list/options = list()
+		var/current = read_feature_raw(key, scope)
+		switch(field["type"])
+			if(FEATURE_LIST)
+				for(var/option in field["options"])
+					options += option
+				if(field["deletable"])
+					options.Insert(1, "")
+					if(!current)
+						current = ""
+			if(FEATURE_REAGENT)
+				for(var/list/option in field["options"])
+					options += option["type"]
+				current = "[current]"
+			else
+				return
+		raw = cycle_choice(current, options, params["dir"])
+		if(isnull(raw))
+			return
 	switch(field["type"])
 		if(FEATURE_BOOL)
 			write_feature(key, raw ? TRUE : FALSE, scope)
@@ -2101,6 +2135,9 @@
 
 /datum/character_setup/proc/set_cock_shape(list/params)
 	var/choice = params["value"]
+	if(!isnull(params["dir"]))
+		var/list/shapes = build_cock_shape_data()
+		choice = cycle_choice(shapes["value"], shapes["options"], params["dir"])
 	if(!istext(choice))
 		return
 	var/list/tauric = cock_taur_shapes()
@@ -2147,15 +2184,53 @@
 
 /datum/character_setup/proc/set_mutant_part(list/params)
 	var/part = params["part"]
-	var/new_value = params["value"]
-	if(!istext(part) || !istext(new_value))
+	if(!istext(part))
 		return
 	if(!(part in GLOB.all_mutant_parts) || part == "mam_body_markings")
 		return
-	if(!(new_value in mutant_part_options(part)))
+	var/is_cycle = !isnull(params["dir"])
+	var/list/options = mutant_part_options(part, is_cycle)
+	var/new_value = is_cycle ? cycle_choice(prefs.features[part], options, params["dir"]) : params["value"]
+	if(!istext(new_value) || !(new_value in options))
 		return
 	prefs.features[part] = new_value
 	apply_mutant_part_cascade(part, new_value)
+	preview_dirty = TRUE
+
+/datum/character_setup/proc/cycle_choice(current, list/options, direction)
+	if(!length(options) || !(direction in list("prev", "next")))
+		return null
+	// После смены вида сохранённая часть может отсутствовать среди доступных вариантов.
+	if(!options.Find(current))
+		return direction == "next" ? options[1] : options[length(options)]
+	return direction == "next" ? next_list_item(current, options) : previous_list_item(current, options)
+
+/datum/character_setup/proc/cycle_hair_style(list/params)
+	if(!prefs.parent || !prefs.pref_species)
+		return
+	var/pref_key
+	var/list/reference
+	var/required_trait = HAIR
+	switch(params["kind"])
+		if("hair")
+			pref_key = "hair_style"
+			reference = GLOB.hair_styles_list
+		if("facial")
+			pref_key = "facial_hair_style"
+			reference = GLOB.facial_hair_styles_list
+			required_trait = FACEHAIR
+		if("grad")
+			pref_key = "grad_style"
+			reference = GLOB.hair_gradients_list
+		else
+			return
+	if(!(required_trait in prefs.pref_species.species_traits))
+		return
+	var/list/options = prefs.filter_accessories_by_ckey(reference, prefs.parent.ckey)
+	var/new_value = cycle_choice(prefs.vars[pref_key], options, params["dir"])
+	if(isnull(new_value))
+		return
+	prefs.vars[pref_key] = new_value
 	preview_dirty = TRUE
 
 /datum/character_setup/proc/bg_state_options()
@@ -2200,19 +2275,24 @@
 		if(features[color_key] == "#000000" || (!(MUTCOLORS_PARTSONLY in species.species_traits) && ReadHSV(temp_hsv)[3] < ReadHSV("#202020")[3]))
 			features[color_key] = species.default_color
 
+/datum/character_setup/proc/skin_tone_options()
+	var/list/choices = list()
+	for(var/tone in (GLOB.skin_tones - GLOB.nonstandard_skin_tones))
+		choices += tone
+	if(CONFIG_GET(flag/allow_custom_skintones))
+		choices += "custom"
+	return choices
+
 /datum/character_setup/proc/apply_skin_tone(value)
 	if(!istext(value))
 		return
-	var/list/choices = GLOB.skin_tones - GLOB.nonstandard_skin_tones
-	var/can_custom = !!CONFIG_GET(flag/allow_custom_skintones)
-	if(can_custom)
-		choices += "custom"
+	var/list/choices = skin_tone_options()
 
 	if(value == "custom")
-		if(!can_custom)
+		if(!("custom" in choices))
 			return
 		var/default = prefs.use_custom_skin_tone ? prefs.skin_tone : null
-		var/custom_tone = input(usr, "Choose your custom skin tone:", "Character Preference", default) as color|null
+		var/custom_tone = tgui_input_color(usr, "Выберите свой тон кожи.", "Настройка персонажа", default)
 		if(!custom_tone)
 			return
 		apply_custom_skin_tone(custom_tone)
@@ -2321,6 +2401,7 @@
 	data["characterName"] = prefs.real_name
 	data["speciesName"] = prefs.pref_species.name
 	data["tab"] = prefs.character_settings_tab
+	data["emissivesAllowed"] = !!prefs.features["allow_emissives"]
 
 	data["localStorageName"] = prefs.get_local_storage_name(user.client)
 	data["offerActive"] = !!prefs.offer
@@ -2648,14 +2729,6 @@
 	preview_dirty = TRUE
 	to_chat(user, span_notice("Персонаж импортирован из локальной копии."))
 	prefs.save_character(TRUE)
-
-/datum/character_setup/proc/slot_delete_local()
-	var/mob/user = prefs.parent?.mob
-	if(!user?.client)
-		return
-	user.client.local_storage_name_read = FALSE
-	user.client.clear_export()
-	tgui_alert_async(user, "Локальная копия персонажа стёрта.")
 
 /datum/character_setup/proc/slot_give()
 	var/mob/user = prefs.parent?.mob
@@ -3107,6 +3180,9 @@
 
 		if("set_deathsound")
 			var/new_sound = params["value"]
+			if(!isnull(params["dir"]))
+				var/current_sound = prefs.features["custom_deathsound"] || "По умолчанию"
+				new_sound = cycle_choice(current_sound, GLOB.deathgasp_sounds, params["dir"])
 			if(!(new_sound in GLOB.deathgasp_sounds))
 				return
 			prefs.features["custom_deathsound"] = new_sound
@@ -3336,10 +3412,6 @@
 			slot_import()
 			return TRUE
 
-		if("slot_delete_local")
-			slot_delete_local()
-			return TRUE
-
 		if("slot_give")
 			slot_give()
 			return TRUE
@@ -3398,13 +3470,16 @@
 
 		if("set_skin_tone")
 			var/tone_value = params["value"]
+			if(!isnull(params["dir"]))
+				var/current_tone = prefs.use_custom_skin_tone ? "custom" : prefs.skin_tone
+				tone_value = cycle_choice(current_tone, skin_tone_options(), params["dir"])
 			if(isnull(tone_value))
 				tone_value = params["color"]
 			apply_skin_tone(tone_value)
 			return TRUE
 
 		if("set_eye_type")
-			var/new_eye_type = params["value"]
+			var/new_eye_type = isnull(params["dir"]) ? params["value"] : cycle_choice(prefs.eye_type, GLOB.eye_types, params["dir"])
 			if(!(new_eye_type in GLOB.eye_types))
 				return
 			prefs.eye_type = new_eye_type
@@ -3429,7 +3504,7 @@
 			return TRUE
 
 		if("set_bgstate")
-			var/new_bgstate = params["value"]
+			var/new_bgstate = isnull(params["dir"]) ? params["value"] : cycle_choice(prefs.bgstate, bg_state_options(), params["dir"])
 			if(!(new_bgstate in bg_state_options()))
 				return
 			prefs.bgstate = new_bgstate
@@ -3462,6 +3537,10 @@
 
 		if("set_body_weight")
 			apply_body_weight(params["value"])
+			return TRUE
+
+		if("cycle_hair_style")
+			cycle_hair_style(params)
 			return TRUE
 
 		if("pick_hair_style")

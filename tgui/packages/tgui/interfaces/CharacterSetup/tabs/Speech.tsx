@@ -187,8 +187,12 @@ export const SpeechTab = () => {
             value={speech.laugh}
             options={speech.laughOptions || []}
             action="set_laugh"
+            labelBasis="30%"
+            arrowsTogether
+            onCycle={(dir) => act('set_laugh', { dir })}
             extra={
               <Button
+                className="CharacterSetup__icon-button"
                 icon="volume-up"
                 tooltip="Прослушать смех"
                 disabled={!speech.laughPreviewable}
@@ -211,25 +215,29 @@ export const SpeechTab = () => {
         </Section>
 
         <Section title="Голос">
-          {!bark.valid ? (
+          {!bark.valid && (
             <NoticeBox>
               Звук речи из сейва больше не существует - выберите другой.
             </NoticeBox>
-          ) : (
-            <SelectRow
-              label="Звук голоса"
-              value={bark.id}
-              options={bark.options || []}
-              action="set_bark_sound"
-              extra={
-                <Button
-                  icon="volume-up"
-                  tooltip="Прослушать звук"
-                  onClick={() => act('preview_bark')}
-                />
-              }
-            />
           )}
+          <SelectRow
+            label="Звук голоса"
+            labelBasis="30%"
+            arrowsTogether
+            value={bark.id}
+            options={bark.options || []}
+            action="set_bark_sound"
+            onCycle={(dir) => act('set_bark_sound', { dir })}
+            extra={
+              <Button
+                className="CharacterSetup__icon-button"
+                icon="volume-up"
+                tooltip="Прослушать звук"
+                disabled={!bark.valid}
+                onClick={() => act('preview_bark')}
+              />
+            }
+          />
           {!!bark.valid && (
             <>
               <BarkNumberRow
@@ -264,8 +272,12 @@ export const SpeechTab = () => {
             value={speech.deathsound || 'По умолчанию'}
             options={speech.deathsounds || []}
             action="set_deathsound"
+            labelBasis="30%"
+            arrowsTogether
+            onCycle={(dir) => act('set_deathsound', { dir })}
             extra={
               <Button
+                className="CharacterSetup__icon-button"
                 icon="volume-up"
                 tooltip="Прослушать звук смерти"
                 onClick={() => act('preview_deathsound')}

@@ -283,15 +283,6 @@ const SlotTools = () => {
           </Stack.Item>
           <Stack.Item>
             <Button.Confirm
-              icon="trash"
-              color="bad"
-              content="Стереть локальную копию"
-              confirmContent="Стереть локальную копию?"
-              onClick={() => act('slot_delete_local')}
-            />
-          </Stack.Item>
-          <Stack.Item>
-            <Button.Confirm
               icon="share-alt"
               color={offerActive ? 'bad' : undefined}
               content={offerActive ? 'Отменить передачу' : 'Предложить слот'}
@@ -383,6 +374,7 @@ const Preview = () => {
             label="Фон превью"
             value={data.previewBackground}
             options={data.previewBackgrounds || []}
+            onCycle={(dir) => act('set_bgstate', { dir })}
             action="set_bgstate"
           />
         </Box>
