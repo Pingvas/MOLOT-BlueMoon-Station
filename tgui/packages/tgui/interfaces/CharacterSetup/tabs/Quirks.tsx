@@ -10,7 +10,6 @@ import {
 import {
   FieldRow,
   quirkColor,
-  QuirkNames,
   SelectRow,
   TabDataMissing,
 } from '../components';
@@ -180,13 +179,6 @@ export const QuirksTab = () => {
       </Section>
 
       <Section title="Выбранные особенности">
-        <Box color="label" mb={1} style={{ overflowWrap: 'anywhere' }}>
-          {current.length ? (
-            <QuirkNames names={current} values={quirks.quirkValues} />
-          ) : (
-            'Особенности не выбраны'
-          )}
-        </Box>
         <Stack mb={1} wrap>
           <Stack.Item>
             <Box inline bold mr={1} color="good">

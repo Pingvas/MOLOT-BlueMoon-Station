@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { useBackend } from '../../backend';
 import {
@@ -12,7 +12,6 @@ import {
   Stack,
   Tabs,
 } from '../../components';
-import { getScreenSize } from '../../drag';
 import { Window } from '../../layouts';
 import { SelectRow } from './components';
 import { AppearanceTab } from './tabs/Appearance';
@@ -53,41 +52,7 @@ const PREVIEW_MODES: Record<string, { label: string; icon: string }> = {
 
 export const CharacterSetup = () => {
   const { act, data } = useBackend<CharacterSetupData>();
-  const [maximized, setMaximized] = useState(false);
   const [slotsOpen, setSlotsOpen] = useState(true);
-  const restoreGeometry = useRef<{ pos: string; size: string } | null>(null);
-
-  const toggleMaximize = async () => {
-    const windowId = window.__windowId__;
-    const next = !maximized;
-    setMaximized(next);
-    if (next) {
-      const [pos, size] = await Promise.all([
-        Byond.winget(windowId, 'pos'),
-        Byond.winget(windowId, 'size'),
-      ]);
-      if (pos && size) {
-        restoreGeometry.current = {
-          pos: `${pos.x},${pos.y}`,
-          size: `${size.x}x${size.y}`,
-        };
-      }
-      const [screenWidth, screenHeight] = getScreenSize();
-      Byond.winset(windowId, {
-        pos: '0,0',
-        size: `${screenWidth}x${screenHeight}`,
-      });
-    } else {
-      const geometry = restoreGeometry.current;
-      if (geometry) {
-        Byond.winset(windowId, {
-          pos: geometry.pos,
-          size: geometry.size,
-        });
-        restoreGeometry.current = null;
-      }
-    }
-  };
 
   return (
     <Window
@@ -95,14 +60,7 @@ export const CharacterSetup = () => {
       height={1080}
       resizable
       title="Настройка персонажа"
-      buttons={
-        <Button
-          icon={maximized ? 'compress' : 'expand'}
-          color="transparent"
-          tooltip={maximized ? 'Восстановить размер окна' : 'Развернуть окно'}
-          onClick={toggleMaximize}
-        />
-      }
+      canMaximize
     >
       <Window.Content>
         <div className="CharacterSetup">
