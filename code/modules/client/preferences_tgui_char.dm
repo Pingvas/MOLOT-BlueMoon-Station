@@ -38,14 +38,14 @@
 	var/list/feature_field_cache
 	var/character_revision = 0
 	var/loadout_selected = FALSE
-	var/list/preview_images
+	var/list/viewer_screens
 
 /datum/character_setup/New(datum/preferences/new_prefs)
 	prefs = new_prefs
 
 /datum/character_setup/Destroy(force, ...)
 	SStgui.close_uis(src)
-	preview_images = null
+	QDEL_LIST_ASSOC_VAL(viewer_screens)
 	prefs = null
 	return ..()
 
@@ -65,12 +65,24 @@
 		return UI_CLOSE
 	return .
 
+/datum/character_setup/ui_close(mob/user)
+	var/atom/movable/screen/map_view/character_setup_screen/viewer_screen = LAZYACCESS(viewer_screens, user)
+	LAZYREMOVE(viewer_screens, user)
+	qdel(viewer_screen)
+
 /datum/character_setup/ui_interact(mob/user, datum/tgui/ui)
+	var/atom/movable/screen/map_view/character_setup_screen/viewer_screen = LAZYACCESS(viewer_screens, user)
+	if(!viewer_screen)
+		viewer_screen = new
+		viewer_screen.generate_view("character_setup_[REF(src)]_[REF(user)]_map")
+		LAZYSET(viewer_screens, user, viewer_screen)
+		preview_dirty = TRUE
 	update_preview(user)
 	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
 		ui = new(user, src, CHARACTER_SETUP_INTERFACE, "Создание персонажа")
 		ui.open()
+		viewer_screen.display_to(user, ui.window)
 
 /datum/character_setup/ui_static_data(mob/user, datum/tgui/ui, datum/ui_state/state)
 	var/list/data = list()
@@ -2327,7 +2339,8 @@
 		data["appearance"] = build_appearance_data(user)
 
 	update_preview(user)
-	data["previewImages"] = preview_images || list()
+	var/atom/movable/screen/map_view/character_setup_screen/viewer_screen = LAZYACCESS(viewer_screens, user)
+	data["previewRef"] = viewer_screen?.assigned_map
 	if(preview_dirty)
 		data["previewDirty"] = TRUE
 
@@ -2820,34 +2833,14 @@
 	return slots
 
 /datum/character_setup/proc/update_preview(mob/user)
-	if(!prefs?.parent || !preview_dirty)
+	if(!prefs?.parent || !preview_dirty || !length(viewer_screens))
 		return
-	// Манекен собирается один раз; полные изображения ракурсов сохраняем до следующего изменения внешности.
 	var/mutable_appearance/appearance_source = prefs.build_preview_appearance()
 	if(!appearance_source)
 		return
-	var/matrix/appearance_matrix = appearance_source.transform
-	var/scale_x = appearance_matrix?.a || 1
-	var/scale_y = appearance_matrix?.e || 1
-	var/list/images = list()
-	var/list/view_labels = list("[SOUTH]" = "Спереди", "[WEST]" = "Слева", "[EAST]" = "Справа", "[NORTH]" = "Сзади")
-	for(var/direction in list(SOUTH, WEST, EAST, NORTH))
-		appearance_source.setDir(direction)
-		// getFlatIcon сохраняет выступающие слои и отрицательные смещения, в том числе длинные тела тавров.
-		var/icon/full_icon = getFlatIcon(appearance_source, defdir = direction, no_anim = TRUE)
-		if(!isicon(full_icon))
-			return
-		var/scaled_width = max(1, round(full_icon.Width() * abs(scale_x)))
-		var/scaled_height = max(1, round(full_icon.Height() * abs(scale_y)))
-		if(scaled_width != full_icon.Width() || scaled_height != full_icon.Height())
-			full_icon.Scale(scaled_width, scaled_height)
-		if(scale_x < 0)
-			full_icon.Flip(EAST)
-		if(scale_y < 0)
-			full_icon.Flip(NORTH)
-		full_icon.Crop(-1, -1, full_icon.Width() + 2, full_icon.Height() + 2)
-		images += list(list("id" = dir_to_text(direction), "label" = view_labels["[direction]"], "icon" = icon2base64(full_icon)))
-	preview_images = images
+	for(var/viewer in viewer_screens)
+		var/atom/movable/screen/map_view/character_setup_screen/viewer_screen = viewer_screens[viewer]
+		viewer_screen.update_character(appearance_source)
 	preview_dirty = FALSE
 
 /datum/character_setup/ui_act(action, list/params)
@@ -3409,6 +3402,7 @@
 			if(!(new_bgstate in bg_state_options()))
 				return
 			prefs.bgstate = new_bgstate
+			preview_dirty = TRUE
 			return TRUE
 
 		if("set_body_sprite")
@@ -3536,3 +3530,55 @@
 
 #undef CHARACTER_SETUP_INTERFACE
 #undef CHARACTER_SETUP_HEADSHOT_MAX_LEN
+
+// Четыре исходные внешности в нативной карте BYOND, как в старом редакторе.
+/atom/movable/screen/map_view/character_setup_screen
+	name = "character setup screen"
+	var/list/previews = list()
+	var/shown_offset = 0
+
+/atom/movable/screen/map_view/character_setup_screen/Destroy()
+	hide_from()
+	QDEL_LIST_ASSOC_VAL(previews)
+	return ..()
+
+/atom/movable/screen/map_view/character_setup_screen/display_to_client(client/show_to)
+	if(!show_to)
+		return
+	registered_client = show_to
+	for(var/direction in previews)
+		var/atom/movable/screen/preview = previews[direction]
+		show_to.register_map_obj(preview)
+	ensure_plane_group().register_to_client(show_to)
+
+/atom/movable/screen/map_view/character_setup_screen/ensure_plane_group()
+	if(!popup_plane_group)
+		popup_plane_group = new /datum/plane_master_group/popup/on_demand(PLANE_GROUP_POPUP_WINDOW(src), assigned_map)
+	popup_plane_group.ensure_popup_depth(shown_offset)
+	for(var/plane_key in popup_plane_group.plane_masters)
+		var/atom/movable/screen/plane_master/plane_master = popup_plane_group.plane_masters[plane_key]
+		plane_master.refresh_backdrop(registered_client?.mob)
+		plane_master.screen_loc = "[assigned_map]:0,CENTER"
+		// На карте предпросмотра нет освещения: его маски закрывали бы внешность.
+		if(istype(plane_master, /atom/movable/screen/plane_master/lighting) || istype(plane_master, /atom/movable/screen/plane_master/emissive))
+			plane_master.set_alpha(LIGHTING_PLANE_ALPHA_INVISIBLE)
+			plane_master.filters = null
+	return popup_plane_group
+
+/atom/movable/screen/map_view/character_setup_screen/proc/update_character(mutable_appearance/appearance_source)
+	var/position = 0
+	for(var/direction in GLOB.cardinals)
+		position++
+		var/atom/movable/screen/preview = previews["[direction]"]
+		if(!preview)
+			preview = new
+			preview.assigned_map = assigned_map
+			preview.del_on_map_removal = FALSE
+			previews["[direction]"] = preview
+			registered_client?.register_map_obj(preview)
+		// Не пересобираем матрицу, слои или пиксельные смещения: их отрисовывает сам BYOND.
+		preview.appearance = appearance_source
+		preview.dir = direction
+		preview.screen_loc = "[assigned_map]:0,[position]"
+	shown_offset = PLANE_TO_OFFSET(appearance_source.plane)
+	ensure_plane_group()

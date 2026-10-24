@@ -46,7 +46,7 @@
 	var/mob/living/carbon/human/dummy/mannequin = generate_or_wait_for_human_dummy(DUMMY_HUMAN_SLOT_PREFERENCES, regenerate = FALSE)
 	if(!mannequin)
 		return null
-	// Apply the Dummy's preview background first so we properly layer everything else on top of it.
+	// Как в старом редакторе: фон входит в исходную внешность нативного предпросмотра.
 	mannequin.add_overlay(mutable_appearance('modular_citadel/icons/ui/backgrounds.dmi', bgstate, layer = SPACE_LAYER))
 	copy_to(mannequin, icon_updates = FALSE, initial_spawn = TRUE)
 

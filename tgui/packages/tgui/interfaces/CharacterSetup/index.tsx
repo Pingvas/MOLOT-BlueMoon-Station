@@ -4,6 +4,7 @@ import { useBackend } from '../../backend';
 import {
   Box,
   Button,
+  ByondUi,
   Icon,
   Input,
   NoticeBox,
@@ -30,7 +31,7 @@ interface CharacterSetupData {
   characterName: string;
   speciesName: string;
   tab: number;
-  previewImages: { id: string; label: string; icon: string }[];
+  previewRef: string;
   previewPref: string;
   previewModes: string[];
   localStorageName: string | null;
@@ -365,7 +366,6 @@ const Preview = () => {
   return (
     <Section
       fill
-      scrollable
       title="Внешний вид"
       className="CharacterSetup__preview"
     >
@@ -386,22 +386,17 @@ const Preview = () => {
           ))}
         </div>
       </div>
-      <div className="CharacterSetup__views">
-        {(data.previewImages || []).map((view) => (
-          <div key={view.id} className="CharacterSetup__view">
-            <Box color="label" textAlign="center">
-              {view.label}
-            </Box>
-            <img
-              className="CharacterSetup__preview-image"
-              src={'data:image/png;base64,' + view.icon}
-              alt={view.label}
-              draggable={false}
-            />
-          </div>
-        ))}
-      </div>
-      {!data.previewImages?.length && (
+      {data.previewRef ? (
+        <ByondUi
+          className="CharacterSetup__preview-map"
+          params={{
+            id: data.previewRef,
+            type: 'map',
+            zoom: 0,
+            'zoom-mode': 'normal',
+          }}
+        />
+      ) : (
         <NoticeBox>Предпросмотр загружается…</NoticeBox>
       )}
     </Section>
