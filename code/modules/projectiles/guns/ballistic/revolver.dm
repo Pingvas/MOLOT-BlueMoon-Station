@@ -449,6 +449,37 @@
 		user.drop_all_held_items()
 		user.DefaultCombatKnockdown(80)
 
+// -------------- Gatfruit Revolver -------------
+// Вырастает из гатфрута. Барабан намертво запечатан смолой, поэтому перезарядить его нельзя.
+/obj/item/gun/ballistic/revolver/gatfruit
+	name = "\improper .357 gatfruit revolver"
+	desc = "A suspicious revolver grown from a gatfruit. Its cylinder is fused shut by hardened plant resin, making reloading impossible."
+
+/obj/item/gun/ballistic/revolver/gatfruit/attackby(obj/item/A, mob/user, params)
+	if(istype(A, /obj/item/ammo_box) || istype(A, /obj/item/ammo_casing))
+		to_chat(user, span_warning("The [src]'s cylinder is fused shut — you can't reload it!"))
+		return TRUE
+	return ..()
+
+/obj/item/gun/ballistic/revolver/gatfruit/examine(mob/user)
+	. = ..()
+	. += span_notice("The cylinder is sealed with hardened plant resin. It cannot be reloaded.")
+
+// Испорченный плод. Внешне неотличим от обычного револьвера: имя, описание и иконка наследуются.
+/obj/item/gun/ballistic/revolver/gatfruit/bad
+
+/obj/item/gun/ballistic/revolver/gatfruit/bad/process_fire(atom/target, mob/living/user, message = TRUE, params = null, zone_override = "", bonus_spread = 0, stam_cost = 0)
+	if(user && chambered?.BB)
+		user.visible_message(
+			span_danger("[user]'s [src] jerks in [user.ru_ego()] hands and goes off right in [user.ru_ego()] face!"),
+			span_userdanger("The [src] jerks in your hands and fires straight into your face!"),
+			span_italics("You hear a gunshot!"),
+		)
+		target = user
+		zone_override = BODY_ZONE_HEAD
+		message = FALSE
+	return ..()
+
 // -------------- HoS Modular Weapon System -------------
 // ---------- Code originally from VoreStation ----------
 /obj/item/gun/ballistic/revolver/mws
@@ -881,3 +912,20 @@
 	// Полностью очищаем память пушки
 	active_beacons.Cut()
 	return TRUE
+
+/obj/item/gun/ballistic/revolver/anathema
+	name = "Anathema"
+	desc = "A single action baptism of fire. This setup leaves no room for prayer, instantly scarring the flesh of the unholy with a relentless, mechanical crown of thorns. It looks like a single action revolver, but the hammer is too tight to cock with one hand."
+	icon_state = "anathema"
+	w_class = WEIGHT_CLASS_NORMAL
+	weapon_weight = WEAPON_HEAVY
+	mag_type = /obj/item/ammo_box/magazine/internal/cylinder/apostle
+	fire_delay = 5
+	fire_select_modes = list(SELECT_SEMI_AUTOMATIC, SELECT_FULLY_AUTOMATIC)
+	icon = 'modular_bluemoon/icons/obj/guns/revolvers.dmi'
+	item_state = "apostle"
+	fire_sound = "modular_bluemoon/sound/weapons/anathema.ogg"
+	load_sound = "modular_bluemoon/sound/weapons/anathema_reload.ogg"
+	load_empty_sound = "modular_bluemoon/sound/weapons/anathema_reload.ogg"
+	lefthand_file = 'modular_bluemoon/icons/mob/inhands/weapons/revolver_lefthand.dmi'
+	righthand_file = 'modular_bluemoon/icons/mob/inhands/weapons/revolver_righthand.dmi'

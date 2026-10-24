@@ -5,7 +5,7 @@
 //	You do not need to raise this if you are adding new values that have sane defaults.
 //	Only raise this value when changing the meaning/format/name/layout of an existing value
 //	where you would want the updater procs below to run
-#define SAVEFILE_VERSION_MAX	85
+#define SAVEFILE_VERSION_MAX	86
 
 /// Upper bound for character slot indices during savefile migration (loop over S.dir).
 /// Prevents corrupted or garbage directory names (e.g. huge slot numbers) from inflating max_save_slots
@@ -188,6 +188,9 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	// уже включённая антаг-роль поднимает порог согласия, так что HK-47 его не меняет
 	if(current_version < 85 && antag_opt_in_prefs_force_minimum(src) && !(ROLE_HK47 in be_special))
 		be_special[ROLE_HK47] = ANTAG_PRIORITY_HIGH
+
+	if(current_version < 86 && antag_opt_in_prefs_force_minimum(src) && !(ROLE_BROTHER in be_special))
+		be_special[ROLE_BROTHER] = ANTAG_PRIORITY_HIGH
 
 /datum/preferences/proc/update_character(current_version, savefile/S)
 	if(current_version < 19)
@@ -612,6 +615,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	S["tgui_panel_theme"]		>> tgui_panel_theme
 	S["tgui_panel_state"]		>> tgui_panel_state
 	S["ui_zoom_preferences"]	>> ui_zoom_preferences
+	S["vending_layouts"]		>> vending_layouts
 	S["windowflash"] 			>> windowflashing
 	S["adminhelp_windowflash"]	>> adminhelp_windowflash
 	S["windownoise"] 			>> windownoise
@@ -779,6 +783,17 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	tgui_swapped_buttons	= sanitize_integer(tgui_swapped_buttons, 0, 1, initial(tgui_swapped_buttons))
 	tgui_panel_theme = sanitize_inlist(tgui_panel_theme, list("default", "light", "dark"), initial(tgui_panel_theme))
 	tgui_panel_state = sanitize_text(tgui_panel_state, initial(tgui_panel_state))
+	var/list/sanitized_vending_layouts = list()
+	if(islist(vending_layouts))
+		for(var/machine_key in vending_layouts)
+			if(!istext(machine_key))
+				continue
+			var/machine_type = text2path(machine_key)
+			if(!(ispath(machine_type, /obj/machinery/vending) || ispath(machine_type, /obj/machinery/smartfridge) || ispath(machine_type, /obj/machinery/equipment_vendor)))
+				continue
+			if(vending_layouts[machine_key] in list("grid", "list"))
+				sanitized_vending_layouts[machine_key] = vending_layouts[machine_key]
+	vending_layouts = sanitized_vending_layouts
 	if(length(tgui_panel_state) > 16384)
 		tgui_panel_state = initial(tgui_panel_state)
 	if(!islist(ui_zoom_preferences))
@@ -1265,6 +1280,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	WRITE_FILE(S["tgui_panel_theme"], tgui_panel_theme)
 	WRITE_FILE(S["tgui_panel_state"], tgui_panel_state)
 	WRITE_FILE(S["ui_zoom_preferences"], ui_zoom_preferences)
+	WRITE_FILE(S["vending_layouts"], vending_layouts)
 	WRITE_FILE(S["windowflash"], windowflashing)
 	WRITE_FILE(S["adminhelp_windowflash"], adminhelp_windowflash)
 	WRITE_FILE(S["windownoise"], windownoise)
