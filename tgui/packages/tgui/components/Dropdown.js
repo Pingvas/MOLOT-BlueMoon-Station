@@ -9,6 +9,7 @@ import { Component } from 'react';
 
 import { Box, unit } from './Box';
 import { Icon } from './Icon';
+import { Tooltip } from './Tooltip';
 
 // Вариант списка — либо примитив (значение и подпись совпадают), либо пара
 // { value, displayText }: она позволяет вызывающему держать выбор на
@@ -131,6 +132,7 @@ export class Dropdown extends Component {
       disabled,
       displayText,
       searchable,
+      tooltip,
       ...boxProps
     } = props;
     const {
@@ -206,40 +208,49 @@ export class Dropdown extends Component {
       </div>
     ) : null;
 
+    const control = (
+      <Box
+        width={width}
+        className={classes([
+          'Dropdown__control',
+          'Button',
+          'Button--color--' + color,
+          disabled && 'Button--disabled',
+          className,
+        ])}
+        {...rest}
+        onClick={() => {
+          if (disabled && !this.state.open) {
+            return;
+          }
+          this.setOpen(!this.state.open);
+        }}>
+        {icon && (
+          <Icon
+            name={icon}
+            rotation={iconRotation}
+            spin={iconSpin}
+            mr={1} />
+        )}
+        <span className="Dropdown__selected-text">
+          {displayText ? displayText : selectedLabel}
+        </span>
+        {!!nochevron || (
+          <span className="Dropdown__arrow-button">
+            <Icon name={adjustedOpen ? 'chevron-up' : 'chevron-down'} />
+          </span>
+        )}
+      </Box>
+    );
     return (
       <div className="Dropdown">
-        <Box
-          width={width}
-          className={classes([
-            'Dropdown__control',
-            'Button',
-            'Button--color--' + color,
-            disabled && 'Button--disabled',
-            className,
-          ])}
-          {...rest}
-          onClick={() => {
-            if (disabled && !this.state.open) {
-              return;
-            }
-            this.setOpen(!this.state.open);
-          }}>
-          {icon && (
-            <Icon
-              name={icon}
-              rotation={iconRotation}
-              spin={iconSpin}
-              mr={1} />
-          )}
-          <span className="Dropdown__selected-text">
-            {displayText ? displayText : selectedLabel}
-          </span>
-          {!!nochevron || (
-            <span className="Dropdown__arrow-button">
-              <Icon name={adjustedOpen ? 'chevron-up' : 'chevron-down'} />
-            </span>
-          )}
-        </Box>
+        {tooltip ? (
+          <Tooltip content={<span className="Tooltip__text">{tooltip}</span>}>
+            <div>{control}</div>
+          </Tooltip>
+        ) : (
+          control
+        )}
         {menu}
       </div>
     );

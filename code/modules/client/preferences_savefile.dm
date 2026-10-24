@@ -2294,7 +2294,9 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	split_eye_colors = sanitize_integer(split_eye_colors, FALSE, TRUE, FALSE)
 	if(!(bgstate in bgstate_options))
 		bgstate = initial(bgstate)
-	if(!(preview_pref in list(PREVIEW_PREF_JOB, PREVIEW_PREF_LOADOUT, PREVIEW_PREF_NAKED, PREVIEW_PREF_NAKED_AROUSED)))
+	if(preview_pref == PREVIEW_PREF_NAKED_AROUSED)
+		preview_pref = PREVIEW_PREF_NAKED
+	if(!(preview_pref in list(PREVIEW_PREF_JOB, PREVIEW_PREF_LOADOUT, PREVIEW_PREF_NAKED)))
 		preview_pref = PREVIEW_PREF_JOB
 
 	sand_character_pref_load(S)
@@ -2304,6 +2306,8 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	bluemoon_character_pref_load(S)
 
 	load_tattoo_prefs(S) // BLUEMOON ADD - загрузка татуировок
+	if(!provided)
+		character_setup_ui?.record_saved_state()
 
 	if(parent?.prefs == src)
 		parent.tgui_panel?.emotes_send_list()
@@ -2729,6 +2733,8 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 			to_chat(parent, span_notice("Персонаж сохранён!"))
 
 	blocking_call_finish(blocking_started_ms, "savefile (персонаж)", "персонаж [parent?.ckey || "?"] слот [default_slot]")
+	if(!export)
+		character_setup_ui?.record_saved_state()
 	return S
 
 /datum/preferences/proc/queue_save_char(save_in, silent)

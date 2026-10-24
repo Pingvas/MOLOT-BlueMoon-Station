@@ -1,10 +1,10 @@
 import { useBackend } from '../../../backend';
-import { Box, Dropdown, Section } from '../../../components';
+import { Box, Section } from '../../../components';
 import {
   ColorField,
   FeatureField,
   FeatureFieldView,
-  FieldRow,
+  SelectRow,
   SettingsGrid,
   ToggleRow,
 } from '../components';
@@ -68,7 +68,14 @@ export const GenitalsSection = (props: {
         />
       );
     }
-    return <FeatureFieldView key={key} field={field} value={values[key]} />;
+    return (
+      <FeatureFieldView
+        key={key}
+        field={field}
+        value={values[key]}
+        cycle={field.type === 'list' && !key.endsWith('_visibility')}
+      />
+    );
   };
 
   return (
@@ -77,6 +84,7 @@ export const GenitalsSection = (props: {
         {(genitals.parts || []).map((part) => (
           <Box
             key={part.key}
+            data-search-label={part.label}
             p={1}
             style={{
               border: '1px solid rgba(255,255,255,0.15)',
@@ -86,29 +94,30 @@ export const GenitalsSection = (props: {
             <Box mb={1}>
               <b>{part.label}</b>
             </Box>
-            <ToggleRow
-              label="Свечение"
-              value={part.glow}
-              action="toggle_emissive_part"
-              params={{ part: part.key }}
-              onLabel="Да"
-              offLabel="Нет"
-            />
             {renderField(part.activeKey)}
+            {!!part.active && (
+              <ToggleRow
+                label="Свечение"
+                value={part.glow}
+                action="toggle_emissive_part"
+                params={{ part: part.key }}
+                onLabel="Да"
+                offLabel="Нет"
+              />
+            )}
             {!!part.active &&
               part.fields.map((key) => {
                 if (key === 'cock_shape' && genitals.cockShape) {
                   return (
-                    <FieldRow key={key} label="Форма пениса">
-                      <Dropdown
-                        width="100%"
-                        options={genitals.cockShape.options || []}
-                        selected={genitals.cockShape.value || ''}
-                        onSelected={(next) =>
-                          act('set_cock_shape', { value: next })
-                        }
-                      />
-                    </FieldRow>
+                    <SelectRow
+                      key={key}
+                      label="Форма пениса"
+                      labelBasis="34%"
+                      options={genitals.cockShape.options || []}
+                      value={genitals.cockShape.value || ''}
+                      action="set_cock_shape"
+                      onCycle={(dir) => act('set_cock_shape', { dir })}
+                    />
                   );
                 }
                 if (key === 'anus_glow') {

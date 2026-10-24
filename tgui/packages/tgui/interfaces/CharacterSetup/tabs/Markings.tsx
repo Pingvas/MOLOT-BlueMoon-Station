@@ -1,5 +1,5 @@
 import { useBackend } from '../../../backend';
-import { Box, Button, Section, Stack } from '../../../components';
+import { Box, Button, Dropdown, Section, Stack } from '../../../components';
 import { ColorChip, SettingsGrid, TabDataMissing } from '../components';
 
 export interface MarkingColor {
@@ -28,11 +28,13 @@ export interface MarkingsData {
 }
 
 interface MarkingsContext {
+  emissivesAllowed: boolean;
   markings?: MarkingsData;
+  markingOptions?: Record<string, string[]>;
 }
 
-const MarkingRowView = (props: { row: MarkingRow; total: number }) => {
-  const { act } = useBackend<MarkingsContext>();
+const MarkingRowView = (props: { row: MarkingRow; total: number; limb: string }) => {
+  const { act, data } = useBackend<MarkingsContext>();
   const { row, total } = props;
   const first = row.index <= 1;
   const last = row.index >= total;
@@ -58,7 +60,9 @@ const MarkingRowView = (props: { row: MarkingRow; total: number }) => {
             icon="angle-double-up"
             disabled={first}
             tooltip="В начало"
-            onClick={() => act('marking_move', { index: row.index, mode: 'top' })}
+            onClick={() =>
+              act('marking_move', { index: row.index, mode: 'top' })
+            }
           />
         </Stack.Item>
         <Stack.Item>
@@ -66,7 +70,9 @@ const MarkingRowView = (props: { row: MarkingRow; total: number }) => {
             icon="angle-up"
             disabled={first}
             tooltip="Вверх"
-            onClick={() => act('marking_move', { index: row.index, mode: 'up' })}
+            onClick={() =>
+              act('marking_move', { index: row.index, mode: 'up' })
+            }
           />
         </Stack.Item>
         <Stack.Item>
@@ -90,16 +96,18 @@ const MarkingRowView = (props: { row: MarkingRow; total: number }) => {
           />
         </Stack.Item>
         <Stack.Item grow={1} />
-        <Stack.Item>
-          <Button
-            icon="lightbulb"
-            width="68px"
-            content={row.glow ? 'Да' : 'Нет'}
-            selected={row.glow}
-            tooltip="Свечение"
-            onClick={() => act('marking_glow', { index: row.index })}
-          />
-        </Stack.Item>
+        {!!data.emissivesAllowed && (
+          <Stack.Item>
+            <Button
+              className="CharacterSetup__icon-button"
+              icon="lightbulb"
+              selected={row.glow}
+              tooltip={row.glow ? 'Свечение включено' : 'Свечение выключено'}
+              aria-label="Свечение маркинга"
+              onClick={() => act('marking_glow', { index: row.index })}
+            />
+          </Stack.Item>
+        )}
         <Stack.Item>
           <Button
             icon="times"
@@ -113,6 +121,7 @@ const MarkingRowView = (props: { row: MarkingRow; total: number }) => {
       <Stack align="center" mt={1}>
         <Stack.Item>
           <Button
+            className="CharacterSetup__cycle-arrow"
             icon="chevron-left"
             tooltip="Предыдущая разметка"
             onClick={() =>
@@ -121,10 +130,13 @@ const MarkingRowView = (props: { row: MarkingRow; total: number }) => {
           />
         </Stack.Item>
         <Stack.Item grow textAlign="center">
-          {row.name}
+          <Dropdown width="100%" searchable selected={row.name}
+            options={data.markingOptions?.[props.limb] || []}
+            onSelected={(value) => act('marking_set', { index: row.index, value })} />
         </Stack.Item>
         <Stack.Item>
           <Button
+            className="CharacterSetup__cycle-arrow"
             icon="chevron-right"
             tooltip="Следующая разметка"
             onClick={() =>
@@ -155,12 +167,14 @@ const MarkingRowView = (props: { row: MarkingRow; total: number }) => {
 };
 
 const MarkingLimbCard = (props: { limb: MarkingLimb; total: number }) => {
-  const { act } = useBackend<MarkingsContext>();
+  const { act, data } = useBackend<MarkingsContext>();
   const { limb, total } = props;
   const hasMarkings = limb.markings.length > 0;
+  const options = data.markingOptions?.[limb.name] || [];
 
   return (
     <Box
+      data-search-label={limb.label}
       p={1}
       style={{
         width: '100%',
@@ -171,13 +185,6 @@ const MarkingLimbCard = (props: { limb: MarkingLimb; total: number }) => {
       <Stack align="center" mb={1}>
         <Stack.Item grow>
           <Box bold>{limb.label}</Box>
-        </Stack.Item>
-        <Stack.Item>
-          <Button
-            icon="plus"
-            content="Добавить"
-            onClick={() => act('marking_add', { limb: limb.name })}
-          />
         </Stack.Item>
         <Stack.Item>
           <Button.Confirm
@@ -191,11 +198,24 @@ const MarkingLimbCard = (props: { limb: MarkingLimb; total: number }) => {
         </Stack.Item>
       </Stack>
 
+      <Box mb={1}>
+        <Dropdown
+          width="100%"
+          icon="plus"
+          selected={null}
+          displayText="Добавить маркинг…"
+          aria-label={'Добавить маркинг: ' + limb.label}
+          options={options}
+          disabled={!options.length}
+          onSelected={(value) => act('marking_add', { limb: limb.name, value })}
+        />
+      </Box>
+
       {!hasMarkings ? (
         <Box color="label">На этой части тела нет разметок.</Box>
       ) : (
         limb.markings.map((row) => (
-          <MarkingRowView key={row.index} row={row} total={total} />
+          <MarkingRowView key={row.index} row={row} total={total} limb={limb.name} />
         ))
       )}
     </Box>
@@ -220,7 +240,7 @@ export const MarkingsTab = () => {
 
   return (
     <Section fill scrollable title="Маркинги">
-      <Stack align="center" mb={1}>
+      <Stack align="center" wrap="wrap" mb={1}>
         <Stack.Item>
           <Button
             icon="user-tag"
@@ -229,14 +249,18 @@ export const MarkingsTab = () => {
             onClick={() => act('open_tattoo_manager')}
           />
         </Stack.Item>
-        <Stack.Item>
-          <Button
+        <Stack.Item grow basis="230px">
+          <Dropdown
+            width="100%"
             icon="plus"
-            content="Добавить"
-            onClick={() => act('marking_add')}
+            selected={null}
+            displayText="Добавить на всё тело…"
+            aria-label="Добавить маркинг на всё тело"
+            options={data.markingOptions?.All || []}
+            disabled={!data.markingOptions?.All?.length}
+            onSelected={(value) => act('marking_add', { limb: 'All', value })}
           />
         </Stack.Item>
-        <Stack.Item grow={1} />
         <Stack.Item>
           <Button.Confirm
             icon="trash"

@@ -14,6 +14,7 @@ import {
 } from '../../components';
 import { Window } from '../../layouts';
 import { SelectRow } from './components';
+import { SearchSettings } from './SearchSettings';
 import { AppearanceTab } from './tabs/Appearance';
 import { BackgroundTab } from './tabs/Background';
 import { GeneralTab } from './tabs/General';
@@ -35,19 +36,21 @@ interface CharacterSetupData {
   previewAutoFit: boolean;
   previewViewportReady: boolean;
   previewPref: string;
+  previewAroused: boolean;
   previewModes: string[];
   previewBackground: string;
   previewBackgrounds: string[];
   localStorageName: string | null;
   offerActive: boolean;
   redemptionCode?: string;
+  hasUnsavedChanges: boolean;
+  saveNotice?: string;
 }
 
 const PREVIEW_MODES: Record<string, { label: string; icon: string }> = {
   Job: { label: 'По профессии', icon: 'briefcase' },
   Loadout: { label: 'Экипировка', icon: 'tshirt' },
   Naked: { label: 'Без одежды', icon: 'user' },
-  'Naked - Aroused': { label: 'Без одежды (возбужд.)', icon: 'heart' },
 };
 
 export const CharacterSetup = () => {
@@ -81,6 +84,12 @@ export const CharacterSetup = () => {
                 </Box>
               </Stack.Item>
               <Stack.Item>
+                <Box color={data.hasUnsavedChanges ? 'average' : 'good'} title={data.saveNotice}>
+                  <Icon name={data.hasUnsavedChanges ? 'pencil-alt' : 'check'} />{' '}
+                  {data.hasUnsavedChanges ? 'Есть изменения' : 'Сохранено'}
+                </Box>
+              </Stack.Item>
+              <Stack.Item>
                 <Button
                   icon="save"
                   color="good"
@@ -105,6 +114,7 @@ export const CharacterSetup = () => {
           >
             {slotsOpen && <SlotPanel />}
             <div className="CharacterSetup__editor">
+              <SearchSettings />
               <Tabs className="CharacterSetup__tabs">
                 {(data.tabs || []).map((tab) => (
                   <Tabs.Tab
@@ -216,7 +226,7 @@ const SlotPanel = () => {
         </div>
         <div className="CharacterSetup__slot-tools">
           <Box color="label" mb={1}>
-            При переключении текущий персонаж сохраняется.
+            {data.saveNotice || 'При переключении текущий персонаж сохраняется.'}
           </Box>
           <Button.Confirm
             fluid
@@ -283,15 +293,6 @@ const SlotTools = () => {
           </Stack.Item>
           <Stack.Item>
             <Button.Confirm
-              icon="trash"
-              color="bad"
-              content="Стереть локальную копию"
-              confirmContent="Стереть локальную копию?"
-              onClick={() => act('slot_delete_local')}
-            />
-          </Stack.Item>
-          <Stack.Item>
-            <Button.Confirm
               icon="share-alt"
               color={offerActive ? 'bad' : undefined}
               content={offerActive ? 'Отменить передачу' : 'Предложить слот'}
@@ -335,11 +336,7 @@ const Preview = () => {
     [act]
   );
   return (
-    <Section
-      fill
-      title="Внешний вид"
-      className="CharacterSetup__preview"
-    >
+    <Section fill title="Внешний вид" className="CharacterSetup__preview">
       <div className="CharacterSetup__preview-toolbar">
         <Box color="label" mb={1}>
           Показать персонажа
@@ -355,6 +352,15 @@ const Preview = () => {
               onClick={() => act('set_preview_mode', { mode })}
             />
           ))}
+          <Button.Checkbox
+            fluid
+            checked={!!data.previewAroused}
+            content="Возбуждён"
+            tooltip="Показывать возбуждённые гениталии в выбранном режиме просмотра"
+            onClick={() =>
+              act('set_preview_aroused', { value: !data.previewAroused })
+            }
+          />
         </div>
         <Box color="label" mt={1} mb={0.5}>
           Масштаб просмотра
@@ -383,6 +389,7 @@ const Preview = () => {
             label="Фон превью"
             value={data.previewBackground}
             options={data.previewBackgrounds || []}
+            onCycle={(dir) => act('set_bgstate', { dir })}
             action="set_bgstate"
           />
         </Box>

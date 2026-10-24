@@ -15,14 +15,14 @@
 #define FEATURE_MISMATCH_HINT "Показывать части и маркинги, не соответствующие текущему виду."
 #define FEATURE_HETEROCHROMIA_HINT "Особые глаза с гетерохромией: wide, big, bigcyclops, skrell, third, thirdbig."
 #define FEATURE_ERP_HINT "Эротические взаимодействия."
-#define FEATURE_NONCON_HINT "Принудительные сцены без согласия вашего персонажа."
+#define FEATURE_NONCON_HINT "No — сексуальное насилие над персонажем запрещено, включая применение секс-игрушек и ERP-реагентов без отдельного OOC-согласия.\n\nAsk — согласие на насильственные ERP-действия с правом потребовать остановить сцену в LOOC. Секс-игрушки — только с отдельного OOC-согласия.\n\nYes — автоматическое согласие на сексуальное насилие над персонажем.\n\nЭмоуты и непристойные глаголы при No/Ask требуют OOC-согласия. Промывка мозгов и законы силиконов согласие не заменяют. После начала сцены, включая похищение и другие подготовительные агрессивные действия, запрещено менять Non-Con/Unholy/Extreme/Harmful со значения Yes."
 #define FEATURE_VORE_HINT "Пожирание и переваривание."
 #define FEATURE_MOBSEX_HINT "Особые мобы попытаются вас изнасиловать."
 #define FEATURE_TATTOO_HINT "Другие игроки смогут оставлять тату на вас."
-#define FEATURE_UNHOLY_HINT "Разрешение на грязные взаимодействия: моча, смегма, запахи и вкусы."
-#define FEATURE_UNHOLY_HARD_HINT "Особые грязные взаимодействия: выделения, газы, другое."
+#define FEATURE_UNHOLY_HINT "Разрешение на грязные взаимодействия: моча, смегма."
+#define FEATURE_UNHOLY_HARD_HINT "Особые грязные взаимодействия: копро, выделения, газы."
 #define FEATURE_EXTREME_HINT "Экстремальные сцены: в глаза, уши, удушение, укусы."
-#define FEATURE_EXTREME_HARM_HINT "Особые жестокие сцены: сдавливание головы ляжками, другое."
+#define FEATURE_EXTREME_HARM_HINT "Особые жестокие сцены с возможным летальным исходом: сдавливание головы ляжками, отстрел яиц, другое."
 #define FEATURE_SPRITE_SCALE_HINT "Размер вашего спрайта повлияет на это."
 #define FEATURE_REAGENT "reagent"
 #define FEATURE_GENITAL_SIZE_HINT "0 - отключить ограничение."
@@ -40,15 +40,53 @@
 	var/loadout_selected = FALSE
 	var/list/viewer_screens
 	var/preview_auto_fit = TRUE
+	var/preview_aroused = FALSE
+	var/saved_character_state
+	var/save_notice
+	var/sound_preview_channel
+	var/sound_preview_kind
+	var/sound_preview_until = 0
+	var/sound_preview_generation = 0
+	var/next_sound_preview = 0
 
 /datum/character_setup/New(datum/preferences/new_prefs)
 	prefs = new_prefs
+	record_saved_state()
 
 /datum/character_setup/Destroy(force, ...)
+	stop_sound_preview()
 	SStgui.close_uis(src)
 	QDEL_LIST_ASSOC_VAL(viewer_screens)
 	prefs = null
 	return ..()
+
+// Сравниваем значения, а не нажатия: отменённый диалог и возврат к сохранённому значению не создают изменений.
+/datum/character_setup/proc/character_state()
+	var/static/list/keys = list(
+		"real_name", "nameless", "age", "gender", "custom_species", "custom_names", "be_random_name",
+		"hide_ckey", "custom_blood_color", "blood_color", "prefered_security_department", "preferred_ai_core_display",
+		"pda_color", "pda_style", "pda_skin", "pda_ringtone", "pda_theme", "silicon_lawset", "jumpsuit_style",
+		"features", "skin_tone", "use_custom_skin_tone", "eye_type", "split_eye_colors", "left_eye_color", "right_eye_color",
+		"hair_style", "hair_color", "facial_hair_style", "facial_hair_color", "grad_style", "grad_color",
+		"modified_limbs", "chosen_limb_id", "body_weight", "scars_list", "bgstate", "preview_pref",
+		"custom_speech_verb", "custom_speech_verb_ru", "custom_tongue", "custom_laugh", "language",
+		"bark_id", "bark_speed", "bark_pitch", "bark_variance", "enable_personal_chat_color", "personal_chat_color",
+		"loadout_slot", "loadout_enabled", "loadout_data", "all_quirks", "antag_opt_in_level",
+		"phobia_type", "shriek_type", "onelife_death_type", "summon_nickname", "vore_taste", "vore_smell",
+		"security_records", "medical_records", "underwear", "undershirt", "socks", "undie_color", "shirt_color", "socks_color",
+		"job_preferences", "joblessrole", "alt_titles_preferences", "persistent_tattoos", "tattoos_string", "pending_tattoo_removals",
+	)
+	var/list/state = list("slot" = prefs.default_slot, "species" = prefs.pref_species?.type)
+	for(var/key in keys)
+		state[key] = prefs.vars[key]
+	for(var/list/field in get_feature_fields())
+		if(field["scope"] == FEATURE_SCOPE_PREF && field["key"] != "show_mismatched_markings")
+			state[field["key"]] = prefs.vars[field["key"]]
+	return md5(json_encode(state))
+
+/datum/character_setup/proc/record_saved_state()
+	if(prefs)
+		saved_character_state = character_state()
 
 /datum/preferences/proc/open_character_setup(mob/user)
 	if(QDELETED(character_setup_ui))
@@ -70,6 +108,8 @@
 	var/atom/movable/screen/map_view/character_setup_screen/viewer_screen = LAZYACCESS(viewer_screens, user)
 	LAZYREMOVE(viewer_screens, user)
 	qdel(viewer_screen)
+	if(!length(viewer_screens))
+		stop_sound_preview()
 
 /datum/character_setup/ui_interact(mob/user, datum/tgui/ui)
 	var/atom/movable/screen/map_view/character_setup_screen/viewer_screen = LAZYACCESS(viewer_screens, user)
@@ -92,7 +132,7 @@
 
 	data["tabs"] = build_tabs_data()
 	data["maxSlots"] = prefs.max_save_slots
-	data["previewModes"] = list(PREVIEW_PREF_JOB, PREVIEW_PREF_LOADOUT, PREVIEW_PREF_NAKED, PREVIEW_PREF_NAKED_AROUSED)
+	data["previewModes"] = list(PREVIEW_PREF_JOB, PREVIEW_PREF_LOADOUT, PREVIEW_PREF_NAKED)
 	data["options"] = build_options_static()
 	data["ageMin"] = AGE_MIN
 	data["ageMax"] = AGE_MAX_INPUT
@@ -100,6 +140,12 @@
 	data["siliconLawsDisabled"] = !CONFIG_GET(flag/allow_silicon_choosing_laws)
 	data["featureFields"] = get_feature_fields()
 	data["languageIcons"] = build_language_icons()
+	data["markingOptions"] = build_marking_options_data()
+	var/list/part_labels = list()
+	for(var/part in GLOB.all_mutant_parts)
+		if(part != "mam_body_markings")
+			part_labels[part] = ru_strings["[part]"] || GLOB.all_mutant_parts[part] || part
+	data["mutantPartLabels"] = part_labels
 	return data
 
 /datum/character_setup/proc/get_feature_fields()
@@ -114,7 +160,7 @@
 	var/list/consent_binary = list("Yes" = "Да", "No" = "Нет")
 
 	fields += list(ff("show_mismatched_markings", "Чужие части и маркинги", FEATURE_BOOL, FEATURE_SCOPE_PREF, FEATURE_MISMATCH_HINT))
-	fields += list(ff("allow_emissives", "Свечение", FEATURE_BOOL))
+	fields += list(ff("allow_emissives", "Разрешить свечение", FEATURE_BOOL, FEATURE_SCOPE_FEATURE, "Общий переключатель свечения глаз, частей тела, гениталий и маркингов. Отдельные элементы включаются кнопками с лампочкой."))
 	fields += list(ff("be_random_body", "Всегда случайное тело", FEATURE_BOOL, FEATURE_SCOPE_PREF))
 
 	fields += list(color_ff("mcolor", "Основной цвет тела", FEATURE_COLOR_MUTANT))
@@ -360,15 +406,8 @@
 	data["useSkintones"] = !!species.use_skintones
 	data["skinTone"] = prefs.skin_tone
 	data["useCustomSkinTone"] = !!prefs.use_custom_skin_tone
-	var/list/skin_tones = GLOB.skin_tones - GLOB.nonstandard_skin_tones
-	var/list/skin_tone_options = list()
-	for(var/tone in skin_tones)
-		skin_tone_options += tone
-	var/can_custom_skin = !!CONFIG_GET(flag/allow_custom_skintones)
-	if(can_custom_skin)
-		skin_tone_options += "custom"
-	data["skinToneOptions"] = skin_tone_options
-	data["skinToneCustom"] = can_custom_skin
+	data["skinToneOptions"] = skin_tone_options()
+	data["skinToneCustom"] = !!CONFIG_GET(flag/allow_custom_skintones)
 	data["hasMutantColors"] = (MUTCOLORS in species.species_traits) || (MUTCOLORS_PARTSONLY in species.species_traits)
 
 	if(prefs.left_eye_color != prefs.right_eye_color)
@@ -383,6 +422,11 @@
 	data["hairStyle"] = prefs.hair_style
 	data["facialHairStyle"] = prefs.facial_hair_style
 	data["gradStyle"] = prefs.grad_style
+	data["hairOptions"] = list(
+		"hair" = hair_style_options(GLOB.hair_styles_list, user?.ckey),
+		"facial" = hair_style_options(GLOB.facial_hair_styles_list, user?.ckey),
+		"grad" = hair_style_options(GLOB.hair_gradients_list, user?.ckey),
+	)
 
 	data["mutantParts"] = build_mutant_parts_data(user)
 
@@ -455,7 +499,7 @@
 	var/list/feats = prefs.features
 	return feats ? feats[key] : null
 
-/datum/character_setup/proc/mutant_part_options(part)
+/datum/character_setup/proc/mutant_part_options(part, for_cycle = FALSE)
 	var/list/options = list()
 	var/list/reference = mutant_part_reference_list(part)
 	if(!reference || !prefs.parent)
@@ -474,7 +518,8 @@
 			continue
 		if(needs_species_filter && accessory.recommended_species && !accessory.recommended_species.Find(prefs.pref_species.id))
 			continue
-		if(part == "taur" && accessory.ignore)
+		// Пасхалка: Как в старом редакторе, стрелки обходят ignore, а меню скрывает такие варианты.
+		if(part == "taur" && accessory.ignore && !for_cycle)
 			continue
 		if(!accessory.is_allowed_for(prefs.parent.ckey))
 			continue
@@ -603,7 +648,7 @@
 	var/list/shown = list()
 	if(feats[active_key])
 		for(var/field_key in fields)
-			if(field_key == "anus_glow" || genital_field_visible(field_key))
+			if(genital_field_visible(field_key))
 				shown += field_key
 
 	var/list/block = list(
@@ -624,7 +669,7 @@
 	switch(key)
 		if("womb_fluid")
 			return !!feats["has_womb"]
-		if("anus_color", "anus_shape", "anus_visibility", "anus_accessible", "anus_stuffing")
+		if("anus_glow", "anus_color", "anus_shape", "anus_visibility", "anus_accessible", "anus_stuffing")
 			return !!feats["has_anus"]
 		if("breasts_sprite_variant")
 			return feats["breasts_shape"] == "Pair"
@@ -705,6 +750,17 @@
 	entry[3] = colors
 	return colors
 
+/datum/character_setup/proc/build_marking_options_data()
+	// Списки зависят от владельца и части тела, поэтому передаём их один раз при открытии окна.
+	var/list/data = list()
+	for(var/limb in marking_limb_choices())
+		var/list/options = marking_name_options(limb)
+		var/list/names = list()
+		for(var/option in options)
+			names += option
+		data[limb] = names
+	return data
+
 /datum/character_setup/proc/marking_color_chips(list/entry, matrixed)
 	var/list/all_colors = marking_colors(entry)
 	var/primary = 1
@@ -783,17 +839,14 @@
 	var/list/entries = markings_list()
 	if(!entries)
 		return
-	var/mob/user = prefs.parent?.mob
 	var/list/limb_choices = marking_limb_choices()
 	var/selected_limb = params["limb"]
 	if(!(selected_limb in limb_choices))
-		selected_limb = tgui_input_list(user, "Выберите часть тела для отметины.", "Настройка персонажа", limb_choices)
-	if(!selected_limb)
 		return
 	var/list/options = marking_name_options(selected_limb)
 	if(!length(options))
 		return
-	var/selected_marking = tgui_input_list(user, "Выберите разметку для нанесения.", "Настройка персонажа", options)
+	var/selected_marking = params["value"]
 	if(!(selected_marking in options))
 		return
 
@@ -882,7 +935,7 @@
 	var/direction = params["dir"]
 	if(!index || index < 1 || index > length(entries))
 		return
-	if(direction != "prev" && direction != "next")
+	if(isnull(params["value"]) && direction != "prev" && direction != "next")
 		return
 	var/list/entry = entries[index]
 	if(!islist(entry) || length(entry) < 2)
@@ -902,6 +955,14 @@
 		if(S.is_allowed_for(user_key))
 			available += name
 	if(!length(available))
+		return
+	if(!isnull(params["value"]))
+		if(!(params["value"] in available))
+			return
+		entry[2] = params["value"]
+		if(length(entry) >= 3 && entry[3])
+			entry[3] = list("#FFFFFF", "#FFFFFF", "#FFFFFF")
+		preview_dirty = TRUE
 		return
 	var/current_pos = available.Find(entry[2])
 	if(!current_pos)
@@ -1054,6 +1115,9 @@
 
 /datum/character_setup/proc/set_laugh(list/params)
 	var/value = params["value"]
+	if(!isnull(params["dir"]))
+		var/count = min(length(GLOB.mob_laughs), length(GLOB.mob_laughs_ru))
+		value = cycle_choice(prefs.custom_laugh, GLOB.mob_laughs.Copy(1, count + 1), params["dir"])
 	if(!(value in GLOB.mob_laughs))
 		return
 	prefs.custom_laugh = value
@@ -1065,10 +1129,9 @@
 	if(SSticker.current_state == GAME_STATE_STARTUP)
 		to_chat(user, span_warning("Звук смеха нельзя прослушать во время инициализации!"))
 		return
-	if(!COOLDOWN_FINISHED(prefs, laugh_preview))
+	if(!start_sound_preview("laugh", 3 SECONDS))
 		return
-	COOLDOWN_START(prefs, laugh_preview, (3 SECONDS))
-	user.playsound_local(user, pick(get_laugh_sound(prefs.custom_laugh, FALSE)), 50)
+	user.playsound_local(user, pick(get_laugh_sound(prefs.custom_laugh, FALSE)), 50, channel = sound_preview_channel)
 
 /datum/character_setup/proc/build_language_options()
 	var/list/options = list()
@@ -1162,22 +1225,6 @@
 
 /datum/character_setup/proc/build_bark_data()
 	var/list/data = list()
-	var/datum/bark/path = GLOB.bark_list[prefs.bark_id]
-	if(!path)
-		data["valid"] = FALSE
-		return data
-	data["valid"] = TRUE
-	data["id"] = prefs.bark_id
-	data["name"] = initial(path.name)
-	data["speed"] = prefs.bark_speed
-	data["pitch"] = prefs.bark_pitch
-	data["variance"] = prefs.bark_variance
-	data["minSpeed"] = initial(path.minspeed)
-	data["maxSpeed"] = initial(path.maxspeed)
-	data["minPitch"] = initial(path.minpitch)
-	data["maxPitch"] = initial(path.maxpitch)
-	data["minVariance"] = initial(path.minvariance)
-	data["maxVariance"] = initial(path.maxvariance)
 	var/list/options = list()
 	if(prefs.parent)
 		for(var/bark_id in GLOB.bark_datums)
@@ -1188,11 +1235,35 @@
 				continue
 			options += list(list("value" = B.id, "label" = B.name))
 	data["options"] = options
+	data["id"] = prefs.bark_id
+	var/datum/bark/path = GLOB.bark_list[prefs.bark_id]
+	if(!path)
+		data["valid"] = FALSE
+		return data
+	data["valid"] = TRUE
+	data["name"] = initial(path.name)
+	data["speed"] = prefs.bark_speed
+	data["pitch"] = prefs.bark_pitch
+	data["variance"] = prefs.bark_variance
+	data["minSpeed"] = initial(path.minspeed)
+	data["maxSpeed"] = initial(path.maxspeed)
+	data["minPitch"] = initial(path.minpitch)
+	data["maxPitch"] = initial(path.maxpitch)
+	data["minVariance"] = initial(path.minvariance)
+	data["maxVariance"] = initial(path.maxvariance)
 	return data
 
 /datum/character_setup/proc/set_bark_sound(list/params)
 	var/id = params["value"]
-	if(!istext(id) || !prefs.parent)
+	if(!prefs.parent)
+		return
+	if(!isnull(params["dir"]))
+		var/list/bark_data = build_bark_data()
+		var/list/options = list()
+		for(var/list/option in bark_data["options"])
+			options += option["value"]
+		id = cycle_choice(prefs.bark_id, options, params["dir"])
+	if(!istext(id))
 		return
 	var/datum/bark/B = GLOB.bark_datums[id]
 	if(!B || B.ignore)
@@ -1232,19 +1303,45 @@
 	if(SSticker.current_state == GAME_STATE_STARTUP)
 		to_chat(user, span_warning("Звук речи нельзя прослушать во время инициализации!"))
 		return
-	if(!COOLDOWN_FINISHED(prefs, bark_previewing))
-		return
 	var/datum/bark/path = GLOB.bark_list[prefs.bark_id]
 	if(!path || prefs.bark_speed <= 0)
 		return
-	COOLDOWN_START(prefs, bark_previewing, (5 SECONDS))
-	var/atom/movable/barkbox = new(get_turf(user))
-	barkbox.set_bark(prefs.bark_id)
+	if(!start_sound_preview("voice", 5 SECONDS))
+		return
+	var/generation = sound_preview_generation
 	var/total_delay
 	for(var/i in 1 to (round((32 / prefs.bark_speed)) + 1))
-		addtimer(CALLBACK(barkbox, TYPE_PROC_REF(/atom/movable, bark), list(user), 7, 70, BARK_DO_VARY(prefs.bark_pitch, prefs.bark_variance)), total_delay)
+		addtimer(CALLBACK(src, PROC_REF(play_bark_preview), generation, initial(path.soundpath), BARK_DO_VARY(prefs.bark_pitch, prefs.bark_variance)), total_delay)
 		total_delay += rand(DS2TICKS(prefs.bark_speed/4), DS2TICKS(prefs.bark_speed/4) + DS2TICKS(prefs.bark_speed/4)) TICKS
-	QDEL_IN(barkbox, total_delay)
+	sound_preview_until = world.time + total_delay + 1 SECONDS
+
+// Один канал и номер сеанса не дают прошлому голосу продолжить играть после запуска нового звука.
+/datum/character_setup/proc/start_sound_preview(kind, duration)
+	if(world.time < next_sound_preview)
+		return FALSE
+	next_sound_preview = world.time + 0.3 SECONDS
+	stop_sound_preview()
+	if(!sound_preview_channel)
+		sound_preview_channel = SSsounds.reserve_sound_channel(src)
+	if(!sound_preview_channel)
+		return FALSE
+	sound_preview_kind = kind
+	sound_preview_until = world.time + duration
+	return TRUE
+
+/datum/character_setup/proc/stop_sound_preview()
+	sound_preview_generation++
+	sound_preview_kind = null
+	sound_preview_until = 0
+	if(sound_preview_channel)
+		prefs?.parent?.mob?.stop_sound_channel(sound_preview_channel)
+
+/datum/character_setup/proc/play_bark_preview(generation, sound_path, pitch)
+	if(generation != sound_preview_generation || world.time >= sound_preview_until)
+		return
+	var/mob/user = prefs?.parent?.mob
+	if(user)
+		user.playsound_local(user, sound_path, round(user.client.prefs.get_sound_volume("bark") * 0.7), vary = TRUE, frequency = pitch, channel = sound_preview_channel)
 
 /proc/loadout_ui_label(key)
 	switch(key)
@@ -1352,6 +1449,8 @@
 	data["slotCount"] = MAXIMUM_LOADOUT_SAVES
 	data["enabled"] = !!prefs.loadout_enabled
 	data["selectedView"] = loadout_selected
+	var/datum/job/planned_job = prefs.get_highest_job()
+	data["plannedJob"] = planned_job?.title
 	var/list/selected_items = list()
 	var/selected_count = 0
 	var/list/chosen_gear = prefs.loadout_data["SAVE_[prefs.loadout_slot]"]
@@ -1426,7 +1525,7 @@
 
 	var/restrictions = gear.restricted_desc
 	if(!restrictions && islist(gear.restricted_roles) && length(gear.restricted_roles))
-		restrictions = gear.restricted_roles.Join(";")
+		restrictions = "Разрешённые профессии: [gear.restricted_roles.Join(", ")]"
 	row["restrictions"] = restrictions
 
 	var/unlocked = TRUE
@@ -1442,7 +1541,38 @@
 	var/list/entry = prefs.has_loadout_gear(prefs.loadout_slot, "[gear.type]")
 	row["selected"] = !!entry
 	row["noPoints"] = !entry && (prefs.gear_points < gear.cost)
-	row["canBuy"] = !entry && !row["noPoints"] && unlocked
+	var/availability_reason
+	if(gear.donoritem && !gear.donator_ckey_check(prefs.parent?.key))
+		availability_reason = "Нет доступа к донатному предмету."
+	else if(!unlocked)
+		availability_reason = "Не выполнены условия разблокировки. Прогресс: [row["progress"]]."
+	else if(!entry && !prefs.is_loadout_slot_available(gear.category))
+		availability_reason = "Достигнут лимит вещей этой категории. Сначала уберите одну из выбранных."
+	else if(row["noPoints"])
+		availability_reason = "Не хватает очков: нужно [gear.cost], осталось [prefs.gear_points]."
+	row["availabilityReason"] = availability_reason
+	row["canBuy"] = !entry && !availability_reason
+	var/datum/job/planned_job = prefs.get_highest_job()
+	row["roleMismatch"] = planned_job && length(gear.restricted_roles) && !(planned_job.title in gear.restricted_roles)
+	if(row["roleMismatch"])
+		row["roleWarning"] = "Не выдаётся для профессии «[planned_job.title]». Итоговая проверка зависит от назначенной профессии."
+
+	// Для отдельных носимых слотов показываем конфликты между доступными предметами набора.
+	if(gear.slot && !(gear.slot in list(ITEM_SLOT_BACKPACK, ITEM_SLOT_HANDS, ITEM_SLOT_ACCESSORY)))
+		var/list/conflicts = list()
+		var/list/chosen_gear = prefs.loadout_data["SAVE_[prefs.loadout_slot]"]
+		for(var/list/other_entry in chosen_gear)
+			var/datum/gear/other = find_loadout_gear(other_entry[LOADOUT_ITEM])
+			if(!other || other.type == gear.type || other.slot != gear.slot)
+				continue
+			if(planned_job && length(other.restricted_roles) && !(planned_job.title in other.restricted_roles))
+				continue
+			if(other.donoritem && !other.donator_ckey_check(prefs.parent?.key))
+				continue
+			conflicts += other_entry[LOADOUT_CUSTOM_NAME] || other.name
+		row["conflicts"] = conflicts
+	if(row["roleMismatch"])
+		row["conflicts"] = list()
 
 	if(!entry)
 		return row
@@ -1998,6 +2128,26 @@
 
 	var/scope = field["scope"]
 	var/raw = params["value"]
+	if(!isnull(params["dir"]))
+		var/list/options = list()
+		var/current = read_feature_raw(key, scope)
+		switch(field["type"])
+			if(FEATURE_LIST)
+				for(var/option in field["options"])
+					options += option
+				if(field["deletable"])
+					options.Insert(1, "")
+					if(!current)
+						current = ""
+			if(FEATURE_REAGENT)
+				for(var/list/option in field["options"])
+					options += option["type"]
+				current = "[current]"
+			else
+				return
+		raw = cycle_choice(current, options, params["dir"])
+		if(isnull(raw))
+			return
 	switch(field["type"])
 		if(FEATURE_BOOL)
 			write_feature(key, raw ? TRUE : FALSE, scope)
@@ -2101,6 +2251,9 @@
 
 /datum/character_setup/proc/set_cock_shape(list/params)
 	var/choice = params["value"]
+	if(!isnull(params["dir"]))
+		var/list/shapes = build_cock_shape_data()
+		choice = cycle_choice(shapes["value"], shapes["options"], params["dir"])
 	if(!istext(choice))
 		return
 	var/list/tauric = cock_taur_shapes()
@@ -2147,15 +2300,61 @@
 
 /datum/character_setup/proc/set_mutant_part(list/params)
 	var/part = params["part"]
-	var/new_value = params["value"]
-	if(!istext(part) || !istext(new_value))
+	if(!istext(part))
 		return
 	if(!(part in GLOB.all_mutant_parts) || part == "mam_body_markings")
 		return
-	if(!(new_value in mutant_part_options(part)))
+	var/is_cycle = !isnull(params["dir"])
+	var/list/options = mutant_part_options(part, is_cycle)
+	var/new_value = is_cycle ? cycle_choice(prefs.features[part], options, params["dir"]) : params["value"]
+	if(!istext(new_value) || !(new_value in options))
 		return
 	prefs.features[part] = new_value
 	apply_mutant_part_cascade(part, new_value)
+	preview_dirty = TRUE
+
+/datum/character_setup/proc/cycle_choice(current, list/options, direction)
+	if(!length(options) || !(direction in list("prev", "next")))
+		return null
+	// После смены вида сохранённая часть может отсутствовать среди доступных вариантов.
+	if(!options.Find(current))
+		return direction == "next" ? options[1] : options[length(options)]
+	return direction == "next" ? next_list_item(current, options) : previous_list_item(current, options)
+
+/datum/character_setup/proc/hair_style_options(list/reference, user_key)
+	var/list/options = list()
+	for(var/style in prefs.filter_accessories_by_ckey(reference, user_key))
+		options += style
+	return options
+
+/datum/character_setup/proc/cycle_hair_style(list/params)
+	if(!prefs.parent || !prefs.pref_species)
+		return
+	var/pref_key
+	var/list/reference
+	var/required_trait = HAIR
+	switch(params["kind"])
+		if("hair")
+			pref_key = "hair_style"
+			reference = GLOB.hair_styles_list
+		if("facial")
+			pref_key = "facial_hair_style"
+			reference = GLOB.facial_hair_styles_list
+			required_trait = FACEHAIR
+		if("grad")
+			pref_key = "grad_style"
+			reference = GLOB.hair_gradients_list
+		else
+			return
+	if(!(required_trait in prefs.pref_species.species_traits))
+		return
+	var/list/options = prefs.filter_accessories_by_ckey(reference, prefs.parent.ckey)
+	var/new_value = isnull(params["dir"]) ? params["value"] : cycle_choice(prefs.vars[pref_key], options, params["dir"])
+	if(!(new_value in options))
+		return
+	if(isnull(new_value))
+		return
+	prefs.vars[pref_key] = new_value
 	preview_dirty = TRUE
 
 /datum/character_setup/proc/bg_state_options()
@@ -2200,19 +2399,24 @@
 		if(features[color_key] == "#000000" || (!(MUTCOLORS_PARTSONLY in species.species_traits) && ReadHSV(temp_hsv)[3] < ReadHSV("#202020")[3]))
 			features[color_key] = species.default_color
 
+/datum/character_setup/proc/skin_tone_options()
+	var/list/choices = list()
+	for(var/tone in (GLOB.skin_tones - GLOB.nonstandard_skin_tones))
+		choices += tone
+	if(CONFIG_GET(flag/allow_custom_skintones))
+		choices += "custom"
+	return choices
+
 /datum/character_setup/proc/apply_skin_tone(value)
 	if(!istext(value))
 		return
-	var/list/choices = GLOB.skin_tones - GLOB.nonstandard_skin_tones
-	var/can_custom = !!CONFIG_GET(flag/allow_custom_skintones)
-	if(can_custom)
-		choices += "custom"
+	var/list/choices = skin_tone_options()
 
 	if(value == "custom")
-		if(!can_custom)
+		if(!("custom" in choices))
 			return
 		var/default = prefs.use_custom_skin_tone ? prefs.skin_tone : null
-		var/custom_tone = input(usr, "Choose your custom skin tone:", "Character Preference", default) as color|null
+		var/custom_tone = tgui_input_color(usr, "Выберите свой тон кожи.", "Настройка персонажа", default)
 		if(!custom_tone)
 			return
 		apply_custom_skin_tone(custom_tone)
@@ -2312,6 +2516,7 @@
 		return data
 
 	data["previewPref"] = prefs.preview_pref
+	data["previewAroused"] = preview_aroused
 	data["previewBackground"] = prefs.bgstate
 	data["previewBackgrounds"] = bg_state_options()
 
@@ -2321,6 +2526,10 @@
 	data["characterName"] = prefs.real_name
 	data["speciesName"] = prefs.pref_species.name
 	data["tab"] = prefs.character_settings_tab
+	data["emissivesAllowed"] = !!prefs.features["allow_emissives"]
+	data["hasUnsavedChanges"] = character_state() != saved_character_state
+	data["saveNotice"] = save_notice
+	data["playingSoundPreview"] = world.time < sound_preview_until ? sound_preview_kind : null
 
 	data["localStorageName"] = prefs.get_local_storage_name(user.client)
 	data["offerActive"] = !!prefs.offer
@@ -2649,14 +2858,6 @@
 	to_chat(user, span_notice("Персонаж импортирован из локальной копии."))
 	prefs.save_character(TRUE)
 
-/datum/character_setup/proc/slot_delete_local()
-	var/mob/user = prefs.parent?.mob
-	if(!user?.client)
-		return
-	user.client.local_storage_name_read = FALSE
-	user.client.clear_export()
-	tgui_alert_async(user, "Локальная копия персонажа стёрта.")
-
 /datum/character_setup/proc/slot_give()
 	var/mob/user = prefs.parent?.mob
 	if(!user)
@@ -2846,7 +3047,7 @@
 /datum/character_setup/proc/update_preview(mob/user)
 	if(!prefs?.parent || !preview_dirty || !length(viewer_screens))
 		return
-	var/mutable_appearance/appearance_source = prefs.build_preview_appearance()
+	var/mutable_appearance/appearance_source = prefs.build_preview_appearance(preview_aroused)
 	if(!appearance_source)
 		return
 	for(var/viewer in viewer_screens)
@@ -2874,6 +3075,7 @@
 			var/new_slot = num_param(params["slot"])
 			if(isnull(new_slot) || new_slot != round(new_slot) || new_slot < 1 || new_slot > prefs.max_save_slots || new_slot == prefs.default_slot)
 				return
+			var/previous_name = prefs.real_name
 			// Завершаем запись старого слота до загрузки нового, включая отложенное сохранение.
 			if(!prefs.save_character(bypass_cooldown = TRUE, silent = TRUE))
 				return
@@ -2888,16 +3090,24 @@
 					return
 			prefs.save_preferences(bypass_cooldown = TRUE, silent = TRUE)
 			prefs.parent?.tgui_panel?.emotes_send_list()
+			stop_sound_preview()
+			save_notice = "[previous_name]: сохранён автоматически при переключении."
 			character_revision++
 			preview_dirty = TRUE
 			return TRUE
 
 		if("save")
-			prefs.save_character(bypass_cooldown = TRUE)
+			if(prefs.save_character(bypass_cooldown = TRUE))
+				save_notice = "Персонаж сохранён."
+			else
+				save_notice = "Не удалось сохранить персонажа. Изменения остаются в редакторе."
 			return TRUE
 
 		if("load")
-			prefs.load_character(prefs.default_slot, bypass_cooldown = TRUE)
+			if(!prefs.load_character(prefs.default_slot, bypass_cooldown = TRUE))
+				save_notice = "Не удалось загрузить сохранённого персонажа."
+				return TRUE
+			save_notice = "Восстановлено последнее сохранение."
 			character_revision++
 			preview_dirty = TRUE
 			return TRUE
@@ -2918,9 +3128,14 @@
 
 		if("set_preview_mode")
 			var/new_mode = params["mode"]
-			if(!(new_mode in list(PREVIEW_PREF_JOB, PREVIEW_PREF_LOADOUT, PREVIEW_PREF_NAKED, PREVIEW_PREF_NAKED_AROUSED)))
+			if(!(new_mode in list(PREVIEW_PREF_JOB, PREVIEW_PREF_LOADOUT, PREVIEW_PREF_NAKED)))
 				return
 			prefs.preview_pref = new_mode
+			preview_dirty = TRUE
+			return TRUE
+
+		if("set_preview_aroused")
+			preview_aroused = !!params["value"]
 			preview_dirty = TRUE
 			return TRUE
 
@@ -3107,6 +3322,9 @@
 
 		if("set_deathsound")
 			var/new_sound = params["value"]
+			if(!isnull(params["dir"]))
+				var/current_sound = prefs.features["custom_deathsound"] || "По умолчанию"
+				new_sound = cycle_choice(current_sound, GLOB.deathgasp_sounds, params["dir"])
 			if(!(new_sound in GLOB.deathgasp_sounds))
 				return
 			prefs.features["custom_deathsound"] = new_sound
@@ -3157,6 +3375,10 @@
 			return TRUE
 
 		if("marking_cycle")
+			cycle_marking(params)
+			return TRUE
+
+		if("marking_set")
 			cycle_marking(params)
 			return TRUE
 
@@ -3218,6 +3440,10 @@
 
 		if("preview_bark")
 			preview_bark()
+			return TRUE
+
+		if("stop_sound_preview")
+			stop_sound_preview()
 			return TRUE
 
 		if("loadout_select_slot")
@@ -3336,10 +3562,6 @@
 			slot_import()
 			return TRUE
 
-		if("slot_delete_local")
-			slot_delete_local()
-			return TRUE
-
 		if("slot_give")
 			slot_give()
 			return TRUE
@@ -3398,13 +3620,16 @@
 
 		if("set_skin_tone")
 			var/tone_value = params["value"]
+			if(!isnull(params["dir"]))
+				var/current_tone = prefs.use_custom_skin_tone ? "custom" : prefs.skin_tone
+				tone_value = cycle_choice(current_tone, skin_tone_options(), params["dir"])
 			if(isnull(tone_value))
 				tone_value = params["color"]
 			apply_skin_tone(tone_value)
 			return TRUE
 
 		if("set_eye_type")
-			var/new_eye_type = params["value"]
+			var/new_eye_type = isnull(params["dir"]) ? params["value"] : cycle_choice(prefs.eye_type, GLOB.eye_types, params["dir"])
 			if(!(new_eye_type in GLOB.eye_types))
 				return
 			prefs.eye_type = new_eye_type
@@ -3429,7 +3654,7 @@
 			return TRUE
 
 		if("set_bgstate")
-			var/new_bgstate = params["value"]
+			var/new_bgstate = isnull(params["dir"]) ? params["value"] : cycle_choice(prefs.bgstate, bg_state_options(), params["dir"])
 			if(!(new_bgstate in bg_state_options()))
 				return
 			prefs.bgstate = new_bgstate
@@ -3462,6 +3687,10 @@
 
 		if("set_body_weight")
 			apply_body_weight(params["value"])
+			return TRUE
+
+		if("cycle_hair_style", "set_hair_style")
+			cycle_hair_style(params)
 			return TRUE
 
 		if("pick_hair_style")
@@ -3522,11 +3751,8 @@
 
 /datum/character_setup/proc/preview_deathsound()
 	if(SSticker.current_state == GAME_STATE_STARTUP)
-		to_chat(usr, "<span class='warning'>Предпросмотр звука смерти недоступен при инициализации!</span>")
+		to_chat(usr, span_warning("Предпросмотр звука смерти недоступен при инициализации!"))
 		return
-	if(!COOLDOWN_FINISHED(prefs, deathsound_preview))
-		return
-	COOLDOWN_START(prefs, deathsound_preview, (3 SECONDS))
 
 	var/picked_name = prefs.features["custom_deathsound"]
 	var/picked_path
@@ -3538,9 +3764,11 @@
 		if(GLOB.deathgasp_sounds[picked_name])
 			picked_path = GLOB.deathgasp_sounds[picked_name]
 	if(picked_path)
-		usr.playsound_local(usr, picked_path, 60)
+		if(start_sound_preview("death", 3 SECONDS))
+			usr.playsound_local(usr, picked_path, 60, channel = sound_preview_channel)
 	else
-		to_chat(usr, "<span class='warning'>Выбран беззвучный deathgasp или выбранный звук отсутствует!</span>")
+		stop_sound_preview()
+		to_chat(usr, span_warning("Выбран беззвучный вариант или звук отсутствует!"))
 
 /datum/character_setup/proc/num_param(value)
 	if(isnum(value))

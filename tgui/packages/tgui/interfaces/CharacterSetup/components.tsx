@@ -18,6 +18,7 @@ import {
   NumberInput,
   Stack,
   TextArea,
+  Tooltip,
 } from '../../components';
 import {
   ColorPicker,
@@ -70,7 +71,7 @@ export const SettingsGrid = (props: {
     >
       {Children.toArray(props.children).map((child, index) => (
         <div
-          key={isValidElement(child) ? child.key ?? index : index}
+          key={isValidElement(child) ? (child.key ?? index) : index}
           className="CharacterSetup__settings-item"
         >
           <div className="CharacterSetup__settings-content">{child}</div>
@@ -125,27 +126,34 @@ export const FieldRow = (props: {
   children: React.ReactNode;
 }) => {
   const { label, tooltip, labelBasis, children } = props;
+  const fieldLabel = <div className="CharacterSetup__field-label">{label}</div>;
   return (
-    <Stack align="center" mb={1}>
-      <Stack.Item basis={labelBasis || '48%'}>
-        <Box className="CharacterSetup__field-label" title={tooltip}>
-          {label}
-        </Box>
-      </Stack.Item>
-      <Stack.Item grow basis={0} style={{ minWidth: 0 }}>
-        <Box
-          className="CharacterSetup__field-control"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'flex-end',
-            width: '100%',
-          }}
-        >
-          {children}
-        </Box>
-      </Stack.Item>
-    </Stack>
+    <div data-search-label={label}>
+      <Stack align="center" mb={1}>
+        <Stack.Item basis={labelBasis || '48%'}>
+          {tooltip ? (
+            <Tooltip content={<span className="Tooltip__text">{tooltip}</span>}>
+              {fieldLabel}
+            </Tooltip>
+          ) : (
+            fieldLabel
+          )}
+        </Stack.Item>
+        <Stack.Item grow basis={0} style={{ minWidth: 0 }}>
+          <Box
+            className="CharacterSetup__field-control"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'flex-end',
+              width: '100%',
+            }}
+          >
+            {children}
+          </Box>
+        </Stack.Item>
+      </Stack>
+    </div>
   );
 };
 
@@ -251,7 +259,7 @@ export const ToggleRow = (props: {
   tooltip?: string;
   labelBasis?: string;
 }) => {
-  const { act } = useBackend<any>();
+  const { act, data } = useBackend<{ emissivesAllowed: boolean }>();
   const {
     label,
     value,
@@ -262,12 +270,23 @@ export const ToggleRow = (props: {
     tooltip,
     labelBasis,
   } = props;
+  const glow = action === 'toggle_emissive_part';
+  const glowButton =
+    glow || (action === 'set_feature' && params?.key === 'allow_emissives');
+  if (glow && !data.emissivesAllowed) return null;
   return (
     <FieldRow label={label} tooltip={tooltip} labelBasis={labelBasis}>
       <Button
-        icon={value ? 'check' : 'times'}
+        className={glowButton ? 'CharacterSetup__icon-button' : undefined}
+        icon={glowButton ? 'lightbulb' : value ? 'check' : 'times'}
         selected={!!value}
-        content={value ? onLabel : offLabel}
+        content={glowButton ? undefined : value ? onLabel : offLabel}
+        tooltip={
+          glowButton
+            ? `${tooltip || label}: ${value ? onLabel : offLabel}`
+            : tooltip
+        }
+        aria-label={glowButton ? label : undefined}
         onClick={() => (params ? act(action, params) : act(action))}
       />
     </FieldRow>
@@ -299,6 +318,38 @@ const normalizeOptions = (
     };
   });
 
+export const CycleChoice = (props: {
+  children: React.ReactNode;
+  onCycle: (direction: 'prev' | 'next') => void;
+  disabled?: boolean;
+  arrowsTogether?: boolean;
+}) => {
+  const arrow = (direction: 'prev' | 'next') => (
+    <Stack.Item>
+      <Button
+        className="CharacterSetup__cycle-arrow"
+        icon={direction === 'prev' ? 'chevron-left' : 'chevron-right'}
+        tooltip={
+          direction === 'prev' ? 'Предыдущий вариант' : 'Следующий вариант'
+        }
+        aria-label={
+          direction === 'prev' ? 'Предыдущий вариант' : 'Следующий вариант'
+        }
+        disabled={props.disabled}
+        onClick={() => props.onCycle(direction)}
+      />
+    </Stack.Item>
+  );
+  return (
+    <Stack align="center" className="CharacterSetup__cycle">
+      {!props.arrowsTogether && arrow('prev')}
+      <Stack.Item grow>{props.children}</Stack.Item>
+      {props.arrowsTogether && arrow('prev')}
+      {arrow('next')}
+    </Stack>
+  );
+};
+
 export const SelectRow = (props: {
   label: string;
   value: string | number | null | undefined;
@@ -310,6 +361,8 @@ export const SelectRow = (props: {
   labelBasis?: string;
   extra?: React.ReactNode;
   over?: boolean;
+  onCycle?: (direction: 'prev' | 'next') => void;
+  arrowsTogether?: boolean;
 }) => {
   const { act } = useBackend<any>();
   const {
@@ -323,25 +376,39 @@ export const SelectRow = (props: {
     labelBasis,
     extra,
     over,
+    onCycle,
+    arrowsTogether,
   } = props;
   const dropdown = (
     <Dropdown
       over={over}
+      tooltip={tooltip}
       width={width || '100%'}
       options={normalizeOptions(options || [])}
       selected={value}
       onSelected={(next) => act(action, { ...params, value: next })}
     />
   );
+  const choice = onCycle ? (
+    <CycleChoice
+      onCycle={onCycle}
+      disabled={options.length < 2}
+      arrowsTogether={arrowsTogether}
+    >
+      {dropdown}
+    </CycleChoice>
+  ) : (
+    dropdown
+  );
   return (
     <FieldRow label={label} tooltip={tooltip} labelBasis={labelBasis}>
       {extra ? (
         <Stack align="center" style={{ width: '100%' }}>
-          <Stack.Item grow>{dropdown}</Stack.Item>
+          <Stack.Item grow>{choice}</Stack.Item>
           <Stack.Item>{extra}</Stack.Item>
         </Stack>
       ) : (
-        dropdown
+        choice
       )}
     </FieldRow>
   );
@@ -404,6 +471,7 @@ export const TextAreaRow = (props: {
   };
   return (
     <Box
+      data-search-label={label}
       mb={1}
       onKeyDownCapture={(event) => {
         if (event.key === 'Escape') {
@@ -497,9 +565,23 @@ const asReagentOptions = (source: unknown): SelectOption[] => {
 export const FeatureFieldView = (props: {
   field: FeatureField;
   value: unknown;
+  cycle?: boolean;
+}) => (
+  <div data-search-id={props.field.key} data-search-label={props.field.label}>
+    <FeatureFieldControl {...props} />
+  </div>
+);
+
+const FeatureFieldControl = (props: {
+  field: FeatureField;
+  value: unknown;
+  cycle?: boolean;
 }) => {
   const { act } = useBackend<any>();
-  const { field, value } = props;
+  const { field, value, cycle } = props;
+  const onCycle = cycle
+    ? (dir: 'prev' | 'next') => act('set_feature', { key: field.key, dir })
+    : undefined;
 
   if (field.type === 'bool') {
     return (
@@ -559,13 +641,15 @@ export const FeatureFieldView = (props: {
         tooltip={field.hint}
         value={value as string}
         options={asReagentOptions(field.options)}
+        onCycle={onCycle}
+        labelBasis={cycle ? '34%' : undefined}
         action="set_feature"
         params={{ key: field.key }}
       />
     );
   }
 
-  const listOptions = asOptions(field.options);
+  const listOptions = [...asOptions(field.options)];
   if (field.deletable) {
     listOptions.unshift({
       value: '',
@@ -580,6 +664,8 @@ export const FeatureFieldView = (props: {
         field.deletable && !value ? ('' as string) : (value as string | number)
       }
       options={listOptions}
+      onCycle={onCycle}
+      labelBasis={cycle ? '34%' : undefined}
       action="set_feature"
       params={{ key: field.key }}
     />

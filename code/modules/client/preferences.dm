@@ -159,7 +159,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/age = 30							//age of character
 	//Sandstorm CHANGES BEGIN
 	var/erppref = "Ask"
-	var/nonconpref = "Ask"
+	var/nonconpref = "No"
 	var/vorepref = "Ask"
 	var/mobsexpref = "No" 					//Added by Gardelin0 - Sex(mostly non-con) with hostile mobs(tentacles)
 	var/tattoopref = "Ask"					//BLUEMOON ADD - Tattoo consent preference

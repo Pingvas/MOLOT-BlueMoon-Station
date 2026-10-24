@@ -1,7 +1,11 @@
+import { createSearch } from 'common/string';
+import { useState } from 'react';
+
 import { useBackend } from '../../../backend';
 import {
   Box,
   Button,
+  Input,
   NoticeBox,
   Section,
   Stack,
@@ -110,6 +114,7 @@ const QuirkRowView = (props: { row: QuirkRow }) => {
 
 export const QuirksTab = () => {
   const { act, data } = useBackend<QuirksContext>();
+  const [search, setSearch] = useState('');
   const quirks = data.quirksTab;
 
   if (!quirks) {
@@ -132,7 +137,7 @@ export const QuirksTab = () => {
     );
   }
 
-  const items = quirks.items || [];
+  const items = (quirks.items || []).filter(createSearch(search, (row: QuirkRow) => `${row.name} ${row.desc}`));
   const current = quirks.current || [];
   const balance = quirks.balance ?? 0;
   const positiveCount = quirks.positiveCount ?? 0;
@@ -244,8 +249,10 @@ export const QuirksTab = () => {
           ))}
         </Tabs>
 
+        <Input fluid mb={1} placeholder="Поиск особенностей по названию или описанию" value={search}
+          onInput={(event, value) => setSearch(value)} />
         {items.length === 0 ? (
-          <Box color="label">В этой категории нет особенностей.</Box>
+          <Box color="label">{search.trim() ? 'Особенности не найдены.' : 'В этой категории нет особенностей.'}</Box>
         ) : (
           items.map((row) => <QuirkRowView key={row.name} row={row} />)
         )}
