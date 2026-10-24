@@ -1,4 +1,12 @@
-import { useState } from 'react';
+import { sortBy } from 'common/collections';
+import {
+  Children,
+  isValidElement,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 
 import { useBackend } from '../../backend';
 import {
@@ -11,17 +19,91 @@ import {
   Stack,
   TextArea,
 } from '../../components';
-import { ColorPicker, normalizeHex, safeHex } from './ColorPicker';
+import {
+  ColorPicker,
+  normalizeHex,
+  safeHex,
+  uppercaseHexInput,
+} from '../../components/ColorPicker';
 
-const textTimers = new Map<HTMLTextAreaElement, ReturnType<typeof setTimeout>>();
+export const SettingsGrid = (props: {
+  compact?: boolean;
+  children: React.ReactNode;
+}) => {
+  const gridRef = useRef<HTMLDivElement>(null);
 
-const commitText = (
-  element: HTMLTextAreaElement,
-  commit: (value: string) => void,
-) => {
-  clearTimeout(textTimers.get(element));
-  textTimers.set(element, setTimeout(() => commit(element.value), 600));
+  useLayoutEffect(() => {
+    const grid = gridRef.current;
+    if (!grid) return;
+    let frame = 0;
+    const contents = Array.from(grid.children).map(
+      (item) => item.firstElementChild as HTMLElement
+    );
+    const measure = () => {
+      for (const content of contents) {
+        // Высота в локальных пикселях учитывает переносы текста без поправок на DPI и zoom TGUI.
+        const span = `span ${Math.max(1, Math.ceil(content.offsetHeight))}`;
+        const item = content.parentElement!;
+        if (item.style.gridRowEnd !== span) item.style.gridRowEnd = span;
+      }
+    };
+    const schedule = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(measure);
+    };
+    const observer = new ResizeObserver(schedule);
+    contents.forEach((content) => observer.observe(content));
+    measure();
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(frame);
+    };
+  }, [props.children]);
+
+  return (
+    <div
+      ref={gridRef}
+      className={
+        'CharacterSetup__settings-grid' +
+        (props.compact ? ' CharacterSetup__settings-grid--compact' : '')
+      }
+    >
+      {Children.toArray(props.children).map((child, index) => (
+        <div
+          key={isValidElement(child) ? child.key ?? index : index}
+          className="CharacterSetup__settings-item"
+        >
+          <div className="CharacterSetup__settings-content">{child}</div>
+        </div>
+      ))}
+    </div>
+  );
 };
+
+export const quirkColor = (value: number): string | undefined => {
+  if (value > 0) return 'good';
+  if (value < 0) return 'bad';
+  return undefined;
+};
+
+export const QuirkNames = (props: {
+  names: string[];
+  values?: Record<string, number>;
+}) => (
+  <>
+    {sortBy((name: string) => {
+      const value = props.values?.[name] ?? 0;
+      return value > 0 ? 0 : value < 0 ? 1 : 2;
+    })(props.names).map((name, index) => (
+      <span key={name}>
+        {index > 0 && ', '}
+        <Box as="span" color={quirkColor(props.values?.[name] ?? 0)}>
+          {name}
+        </Box>
+      </span>
+    ))}
+  </>
+);
 
 export const TabDataMissing = (props: { title: string }) => (
   <NoticeBox>
@@ -46,10 +128,13 @@ export const FieldRow = (props: {
   return (
     <Stack align="center" mb={1}>
       <Stack.Item basis={labelBasis || '48%'}>
-        <Box title={tooltip}>{label}</Box>
+        <Box className="CharacterSetup__field-label" title={tooltip}>
+          {label}
+        </Box>
       </Stack.Item>
-      <Stack.Item grow>
+      <Stack.Item grow basis={0} style={{ minWidth: 0 }}>
         <Box
+          className="CharacterSetup__field-control"
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -109,6 +194,7 @@ export const ColorField = (props: {
         <Stack align="center" style={{ width: '100%' }}>
           <Stack.Item>
             <ColorPicker
+              portalRoot=".CharacterSetup__editor"
               value={hex}
               tooltip={`Пикер цвета: ${hex}`}
               onCommit={(next) => act(action, { ...params, color: next })}
@@ -117,9 +203,9 @@ export const ColorField = (props: {
           <Stack.Item grow>
             <Input
               width="100%"
-              placeholder="#rrggbb"
+              placeholder="#RRGGBB"
               value={draft ?? hex}
-              onInput={(e, next) => setDraft(next)}
+              onInput={(e, next) => setDraft(uppercaseHexInput(e, next))}
               onChange={(e, next) => {
                 const normalized = normalizeHex(next);
                 setDraft(null);
@@ -145,6 +231,7 @@ export const ColorChip = (props: {
   const { value, action, params, tooltip } = props;
   return (
     <ColorPicker
+      portalRoot=".CharacterSetup__editor"
       value={value}
       tooltip={tooltip}
       width="30px"
@@ -178,6 +265,7 @@ export const ToggleRow = (props: {
   return (
     <FieldRow label={label} tooltip={tooltip} labelBasis={labelBasis}>
       <Button
+        icon={value ? 'check' : 'times'}
         selected={!!value}
         content={value ? onLabel : offLabel}
         onClick={() => (params ? act(action, params) : act(action))}
@@ -192,14 +280,14 @@ export const asOptions = (source: unknown): SelectOption[] => {
   }
   if (source && typeof source === 'object') {
     return Object.entries(source as Record<string, string | number>).map(
-      ([value, label]) => ({ value, displayText: `${label}` }),
+      ([value, label]) => ({ value, displayText: `${label}` })
     );
   }
   return [];
 };
 
 const normalizeOptions = (
-  options: unknown,
+  options: unknown
 ): (string | { value: string | number; displayText: string })[] =>
   asOptions(options).map((option) => {
     if (typeof option === 'string') {
@@ -221,6 +309,7 @@ export const SelectRow = (props: {
   tooltip?: string;
   labelBasis?: string;
   extra?: React.ReactNode;
+  over?: boolean;
 }) => {
   const { act } = useBackend<any>();
   const {
@@ -233,9 +322,11 @@ export const SelectRow = (props: {
     tooltip,
     labelBasis,
     extra,
+    over,
   } = props;
   const dropdown = (
     <Dropdown
+      over={over}
       width={width || '100%'}
       options={normalizeOptions(options || [])}
       selected={value}
@@ -287,7 +378,7 @@ export const TextAreaRow = (props: {
   placeholder?: string;
   editField?: string;
 }) => {
-  const { act } = useBackend<any>();
+  const { act, data } = useBackend<{ defaultSlot: number }>();
   const {
     label,
     value,
@@ -299,8 +390,28 @@ export const TextAreaRow = (props: {
     editField,
   } = props;
   const [expanded, setExpanded] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const lastSent = useRef(value || '');
+  const cancelled = useRef(false);
+  useEffect(() => () => clearTimeout(timer.current), []);
+  const commit = (text: string) => {
+    clearTimeout(timer.current);
+    if (text === lastSent.current) {
+      return;
+    }
+    lastSent.current = text;
+    act(action, { text, character_slot: data.defaultSlot });
+  };
   return (
-    <Box mb={1}>
+    <Box
+      mb={1}
+      onKeyDownCapture={(event) => {
+        if (event.key === 'Escape') {
+          clearTimeout(timer.current);
+          cancelled.current = true;
+        }
+      }}
+    >
       <Stack align="center" mb={1}>
         <Stack.Item grow>
           <Box title={tooltip}>{label}</Box>
@@ -336,11 +447,15 @@ export const TextAreaRow = (props: {
         maxLength={maxLength}
         placeholder={placeholder}
         value={value || ''}
-        onInput={(e) =>
-          commitText(e.target as HTMLTextAreaElement, (next) =>
-            act(action, { text: next }),
-          )
-        }
+        onInput={(event, next) => {
+          cancelled.current = false;
+          clearTimeout(timer.current);
+          timer.current = setTimeout(() => commit(next), 600);
+        }}
+        onChange={(event, next) => {
+          if (!cancelled.current) commit(next);
+          cancelled.current = false;
+        }}
       />
     </Box>
   );
@@ -474,7 +589,7 @@ export const FeatureFieldView = (props: {
 export const renderFeatureField = (
   fields: FeatureField[],
   values: Record<string, unknown>,
-  key: string,
+  key: string
 ) => {
   const field = fields.find((entry) => entry.key === key);
   if (!field) {

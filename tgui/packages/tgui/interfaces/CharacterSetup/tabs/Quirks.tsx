@@ -7,7 +7,12 @@ import {
   Stack,
   Tabs,
 } from '../../../components';
-import { FieldRow, SelectRow, TabDataMissing } from '../components';
+import {
+  FieldRow,
+  quirkColor,
+  SelectRow,
+  TabDataMissing,
+} from '../components';
 
 interface QuirkRow {
   name: string;
@@ -28,6 +33,7 @@ interface QuirksData {
   category: string;
   categories: { value: string; label: string }[];
   current?: string[];
+  quirkValues?: Record<string, number>;
   shriek?: string;
   shriekOptions?: string[];
   summonNickname?: string | null;
@@ -41,16 +47,6 @@ interface QuirksData {
 interface QuirksContext {
   quirksTab?: QuirksData;
 }
-
-const costColor = (value: number): string | undefined => {
-  if (value > 0) {
-    return 'good';
-  }
-  if (value < 0) {
-    return 'bad';
-  }
-  return undefined;
-};
 
 const QuirkRowView = (props: { row: QuirkRow }) => {
   const { act } = useBackend<QuirksContext>();
@@ -81,7 +77,7 @@ const QuirkRowView = (props: { row: QuirkRow }) => {
       <Stack align="flex-start">
         <Stack.Item grow>
           <Box
-            color={costColor(row.value)}
+            color={quirkColor(row.value)}
             bold
             title={row.name}
             nowrap
@@ -94,7 +90,7 @@ const QuirkRowView = (props: { row: QuirkRow }) => {
         </Stack.Item>
         <Stack.Item>
           <Box
-            color={costColor(row.value)}
+            color={quirkColor(row.value)}
             bold
             nowrap
             style={{ width: '66px', textAlign: 'right' }}
@@ -140,6 +136,12 @@ export const QuirksTab = () => {
   const current = quirks.current || [];
   const balance = quirks.balance ?? 0;
   const positiveCount = quirks.positiveCount ?? 0;
+  const negativeCount = current.filter(
+    (name) => (quirks.quirkValues?.[name] ?? 0) < 0
+  ).length;
+  const neutralCount = current.filter(
+    (name) => (quirks.quirkValues?.[name] ?? 0) === 0
+  ).length;
   const maxPositive = quirks.maxPositive ?? 0;
   const nickname = quirks.summonNickname;
 
@@ -177,34 +179,29 @@ export const QuirksTab = () => {
       </Section>
 
       <Section title="Выбранные особенности">
-        <Stack mb={1} align="flex-start">
+        <Stack mb={1} wrap>
           <Stack.Item>
-            <Box bold nowrap>
-              Текущие:
+            <Box inline bold mr={1} color="good">
+              Положительных:
             </Box>
-          </Stack.Item>
-          <Stack.Item grow>
-            <Box
-              color="label"
-              title={current.join(', ')}
-              style={{
-                display: '-webkit-box',
-                WebkitBoxOrient: 'vertical',
-                WebkitLineClamp: 2,
-                overflow: 'hidden',
-              }}
-            >
-              {current.length ? current.join(', ') : 'нет'}
-            </Box>
-          </Stack.Item>
-        </Stack>
-        <Stack mb={1}>
-          <Stack.Item>
-            <Box inline bold mr={1}>
-              Позитивных:
-            </Box>
-            <Box inline color={positiveCount >= maxPositive ? 'bad' : undefined}>
+            <Box inline color="good">
               {positiveCount} / {maxPositive}
+            </Box>
+          </Stack.Item>
+          <Stack.Item>
+            <Box inline bold mr={1} color="bad">
+              Отрицательных:
+            </Box>
+            <Box inline color="bad">
+              {negativeCount}
+            </Box>
+          </Stack.Item>
+          <Stack.Item>
+            <Box inline bold mr={1} color="label">
+              Нейтральных:
+            </Box>
+            <Box inline color="label">
+              {neutralCount}
             </Box>
           </Stack.Item>
           <Stack.Item>

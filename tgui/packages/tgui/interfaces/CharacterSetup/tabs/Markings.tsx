@@ -1,6 +1,6 @@
 import { useBackend } from '../../../backend';
 import { Box, Button, Section, Stack } from '../../../components';
-import { ColorChip, TabDataMissing } from '../components';
+import { ColorChip, SettingsGrid, TabDataMissing } from '../components';
 
 export interface MarkingColor {
   index: number;
@@ -250,17 +250,15 @@ export const MarkingsTab = () => {
         </Stack.Item>
       </Stack>
 
-      <Stack wrap>
+      <SettingsGrid>
         {(markings.limbs || []).map((limb) => (
-          <Stack.Item
+          <MarkingLimbCard
             key={limb.name}
-            mb={1}
-            style={{ flex: '1 1 330px', minWidth: '330px' }}
-          >
-            <MarkingLimbCard limb={limb} total={markings.total || 0} />
-          </Stack.Item>
+            limb={limb}
+            total={markings.total || 0}
+          />
         ))}
-      </Stack>
+      </SettingsGrid>
     </Section>
   );
 };

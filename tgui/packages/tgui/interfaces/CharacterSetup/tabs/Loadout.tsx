@@ -1,7 +1,10 @@
+import { useState } from 'react';
+
 import { useBackend } from '../../../backend';
 import {
   Box,
   Button,
+  Input,
   NoticeBox,
   Section,
   Stack,
@@ -14,6 +17,8 @@ interface LoadoutColor {
 }
 
 interface LoadoutRow {
+  id: string;
+  category: string;
   name: string;
   cost: number;
   preview: string | null;
@@ -53,6 +58,8 @@ interface LoadoutData {
   empty?: boolean;
   categories: CategoryEntry[];
   category: string;
+  selectedView: boolean;
+  selectedCount: number;
   subcategories: CategoryEntry[];
   subcategory: string;
   points: number;
@@ -69,6 +76,23 @@ interface LoadoutContext {
   loadout?: LoadoutData;
 }
 
+const CATEGORY_ICONS: Record<string, string> = {
+  Accessory: 'gem',
+  'In backpack': 'briefcase',
+  Neck: 'user-tie',
+  Mask: 'mask',
+  Hands: 'hand-paper',
+  Uniform: 'tshirt',
+  Suit: 'vest',
+  Head: 'hat-cowboy',
+  Shoes: 'shoe-prints',
+  Gloves: 'mitten',
+  Glasses: 'glasses',
+  Donator: 'star',
+  Unlockable: 'unlock',
+  Errors: 'exclamation-triangle',
+};
+
 const ColorView = (props: { color: LoadoutColor }) => {
   const { color } = props;
   if (color.matrix) {
@@ -78,12 +102,17 @@ const ColorView = (props: { color: LoadoutColor }) => {
       </Box>
     );
   }
-  return <Box color={color.value || '#ffffff'} title={color.value || ''}>■</Box>;
+  return (
+    <Box color={color.value || '#ffffff'} title={color.value || ''}>
+      ■
+    </Box>
+  );
 };
 
 const GearRow = (props: { row: LoadoutRow }) => {
   const { act } = useBackend<LoadoutContext>();
   const { row } = props;
+  const [expanded, setExpanded] = useState(false);
   const colors = row.colors || [];
   const mainColor = colors[0];
   const cantAfford = !row.selected && !!row.noPoints;
@@ -93,8 +122,11 @@ const GearRow = (props: { row: LoadoutRow }) => {
       mb={1}
       p={1}
       style={{
-        border: '1px solid '
-          + (row.selected ? 'rgba(120, 205, 148, 0.5)' : 'rgba(255, 255, 255, 0.1)'),
+        border:
+          '1px solid ' +
+          (row.selected
+            ? 'rgba(120, 205, 148, 0.5)'
+            : 'rgba(255, 255, 255, 0.1)'),
         borderRadius: '3px',
         backgroundColor: row.selected
           ? 'rgba(70, 165, 108, 0.12)'
@@ -119,7 +151,10 @@ const GearRow = (props: { row: LoadoutRow }) => {
         </Stack.Item>
         <Stack.Item grow>
           <Box bold title={row.name}>
-            {row.name}
+            {row.customName || row.name}
+          </Box>
+          <Box color="label" fontSize="0.9em">
+            {row.category}
           </Box>
           {!!row.progress && (
             <Box color="label" fontSize="0.9em">
@@ -132,6 +167,20 @@ const GearRow = (props: { row: LoadoutRow }) => {
             </Box>
           )}
         </Stack.Item>
+        {!!row.selected && (
+          <Stack.Item>
+            <Button
+              icon={expanded ? 'chevron-up' : 'sliders-h'}
+              selected={expanded}
+              tooltip={
+                expanded
+                  ? 'Свернуть настройки вещи'
+                  : 'Настроить цвет, имя и описание'
+              }
+              onClick={() => setExpanded(!expanded)}
+            />
+          </Stack.Item>
+        )}
         <Stack.Item width="76px">
           <Box textAlign="right" color={cantAfford ? 'red' : undefined}>
             {row.cost} оч.
@@ -140,10 +189,11 @@ const GearRow = (props: { row: LoadoutRow }) => {
         <Stack.Item width="88px">
           <Button
             fluid
+            icon={row.selected ? 'minus' : 'plus'}
             content={row.selected ? 'Убрать' : 'Взять'}
             selected={row.selected}
             disabled={!row.selected && !row.canBuy}
-            onClick={() => act('loadout_toggle_gear', { name: row.name })}
+            onClick={() => act('loadout_toggle_gear', { name: row.id })}
           />
         </Stack.Item>
       </Stack>
@@ -165,7 +215,7 @@ const GearRow = (props: { row: LoadoutRow }) => {
             Не хватает очков.
           </Box>
         )
-      ) : (
+      ) : expanded ? (
         <Box
           mt={1}
           pl={1}
@@ -178,7 +228,7 @@ const GearRow = (props: { row: LoadoutRow }) => {
           >
             <Button
               content="Колормейт"
-              onClick={() => act('loadout_open_color', { name: row.name })}
+              onClick={() => act('loadout_open_color', { name: row.id })}
             />
             {!!mainColor && (
               <Box inline ml={1}>
@@ -188,7 +238,7 @@ const GearRow = (props: { row: LoadoutRow }) => {
                   <ColorChip
                     value={mainColor.value}
                     action="loadout_set_poly_color"
-                    params={{ name: row.name, index: 1 }}
+                    params={{ name: row.id, index: 1 }}
                   />
                 )}
               </Box>
@@ -206,12 +256,12 @@ const GearRow = (props: { row: LoadoutRow }) => {
                       <ColorChip
                         value={color.value}
                         action="loadout_set_poly_color"
-                        params={{ name: row.name, index: index + 1 }}
+                        params={{ name: row.id, index: index + 1 }}
                         tooltip={`Канал ${index + 1}`}
                       />
                     )}
                   </Box>
-                ),
+                )
               )}
             </FieldRow>
           )}
@@ -221,7 +271,7 @@ const GearRow = (props: { row: LoadoutRow }) => {
               <Button
                 icon="pen"
                 content={row.customName || 'Переименовать'}
-                onClick={() => act('loadout_set_name', { name: row.name })}
+                onClick={() => act('loadout_set_name', { name: row.id })}
               />
             </FieldRow>
           )}
@@ -231,9 +281,7 @@ const GearRow = (props: { row: LoadoutRow }) => {
               <Button
                 icon="file-alt"
                 content={row.description ? 'Изменить' : 'Добавить'}
-                onClick={() =>
-                  act('loadout_set_description', { name: row.name })
-                }
+                onClick={() => act('loadout_set_description', { name: row.id })}
               />
             </FieldRow>
           )}
@@ -245,7 +293,7 @@ const GearRow = (props: { row: LoadoutRow }) => {
               selected={!!row.isHeirloom}
               onClick={() =>
                 act('loadout_set_heirloom', {
-                  name: row.name,
+                  name: row.id,
                   value: row.isHeirloom ? 0 : 1,
                 })
               }
@@ -257,7 +305,7 @@ const GearRow = (props: { row: LoadoutRow }) => {
               <Button
                 icon="comment"
                 content={row.examTooltip ? 'Изменить' : 'Добавить'}
-                onClick={() => act('loadout_set_examtooltip', { name: row.name })}
+                onClick={() => act('loadout_set_examtooltip', { name: row.id })}
               />
             </FieldRow>
           )}
@@ -267,7 +315,7 @@ const GearRow = (props: { row: LoadoutRow }) => {
               <Button
                 icon="tag"
                 content={row.tagName || 'Задать'}
-                onClick={() => act('loadout_set_tagname', { name: row.name })}
+                onClick={() => act('loadout_set_tagname', { name: row.id })}
               />
             </FieldRow>
           )}
@@ -278,13 +326,13 @@ const GearRow = (props: { row: LoadoutRow }) => {
                 icon="palette"
                 content="Выбрать"
                 onClick={() =>
-                  act('loadout_pick_lipstick_color', { name: row.name })
+                  act('loadout_pick_lipstick_color', { name: row.id })
                 }
               />
             </FieldRow>
           )}
         </Box>
-      )}
+      ) : null}
     </Box>
   );
 };
@@ -292,6 +340,7 @@ const GearRow = (props: { row: LoadoutRow }) => {
 export const LoadoutTab = () => {
   const { act, data } = useBackend<LoadoutContext>();
   const loadout = data.loadout;
+  const [search, setSearch] = useState('');
 
   if (!loadout) {
     return <TabDataMissing title="Экипировка" />;
@@ -310,10 +359,22 @@ export const LoadoutTab = () => {
     slots.push(i);
   }
 
-  const isErrors = loadout.category === 'Errors';
+  const isErrors = !loadout.selectedView && loadout.category === 'Errors';
+  const query = search.trim().toLocaleLowerCase();
+  const items = loadout.items.filter((row) =>
+    [row.name, row.customName, row.description, row.category].some((text) =>
+      text?.toLocaleLowerCase().includes(query)
+    )
+  );
 
   return (
     <Section fill scrollable title="Экипировка">
+      {!loadout.enabled && (
+        <NoticeBox warning>
+          Стандартная одежда останется на персонаже. Вещи лодаута для занятых
+          слотов будут помещены в сумку; пустые слоты заполнятся как обычно.
+        </NoticeBox>
+      )}
       <Stack align="center" mb={1} wrap>
         <Stack.Item>
           <Stack>
@@ -340,7 +401,8 @@ export const LoadoutTab = () => {
           <Button
             icon={loadout.enabled ? 'check-square-o' : 'square-o'}
             selected={loadout.enabled}
-            content="Появляться с этой экипировкой"
+            content="Заменять стандартную одежду"
+            tooltip="Включено: одежда лодаута заменяет стандартную, снятые вещи помещаются в сумку. Выключено: стандартная одежда остаётся, а вещи лодаута для занятых слотов отправляются в сумку. Пустые слоты заполняются в обоих режимах."
             onClick={() => act('loadout_toggle_enabled')}
           />
         </Stack.Item>
@@ -363,36 +425,53 @@ export const LoadoutTab = () => {
       </Stack>
 
       <Box mb={1} style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+        <Button
+          icon="check-double"
+          selected={loadout.selectedView}
+          content={'Выбрано (' + loadout.selectedCount + ')'}
+          onClick={() => {
+            setSearch('');
+            act('loadout_selected');
+          }}
+        />
         {loadout.categories.map((category) => (
           <Button
             key={category.value}
-            selected={loadout.category === category.value}
+            icon={CATEGORY_ICONS[category.value] || 'box'}
+            selected={
+              !loadout.selectedView && loadout.category === category.value
+            }
             content={
               category.value === 'Errors' && loadout.errors > 0
                 ? `${category.label} (!)`
                 : category.label
             }
-            onClick={() =>
-              act('loadout_select_category', { value: category.value })
-            }
+            onClick={() => {
+              setSearch('');
+              act('loadout_select_category', { value: category.value });
+            }}
           />
         ))}
       </Box>
 
-      {!isErrors && loadout.subcategories.length > 0 && (
-        <Box mb={1} style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-          {loadout.subcategories.map((subcategory) => (
-            <Button
-              key={subcategory.value}
-              selected={loadout.subcategory === subcategory.value}
-              content={subcategory.label}
-              onClick={() =>
-                act('loadout_select_subcategory', { value: subcategory.value })
-              }
-            />
-          ))}
-        </Box>
-      )}
+      {!isErrors &&
+        !loadout.selectedView &&
+        loadout.subcategories.length > 0 && (
+          <Box mb={1} style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+            {loadout.subcategories.map((subcategory) => (
+              <Button
+                key={subcategory.value}
+                selected={loadout.subcategory === subcategory.value}
+                content={subcategory.label}
+                onClick={() =>
+                  act('loadout_select_subcategory', {
+                    value: subcategory.value,
+                  })
+                }
+              />
+            ))}
+          </Box>
+        )}
 
       {!!loadout.showCkeyId && (
         <Button
@@ -403,6 +482,19 @@ export const LoadoutTab = () => {
         />
       )}
 
+      {!isErrors && (
+        <Input
+          fluid
+          mb={1}
+          placeholder={
+            loadout.selectedView
+              ? 'Поиск среди выбранных вещей'
+              : 'Поиск в категории'
+          }
+          value={search}
+          onInput={(event, value) => setSearch(value)}
+        />
+      )}
       {isErrors ? (
         <Section>
           {loadout.invalid.length === 0 ? (
@@ -416,7 +508,9 @@ export const LoadoutTab = () => {
                     color="bad"
                     content={row.item || 'без пути'}
                     disabled={!row.item}
-                    onClick={() => act('loadout_clear_invalid', { item: row.item })}
+                    onClick={() =>
+                      act('loadout_clear_invalid', { item: row.item })
+                    }
                   />
                 </Stack.Item>
                 <Stack.Item grow>
@@ -428,10 +522,16 @@ export const LoadoutTab = () => {
         </Section>
       ) : (
         <Section>
-          {loadout.items.length === 0 ? (
-            <Box color="label">В этой подкатегории нет доступных вещей.</Box>
+          {items.length === 0 ? (
+            <Box color="label">
+              {query
+                ? 'По вашему запросу ничего не найдено.'
+                : loadout.selectedView
+                  ? 'В этом наборе пока ничего не выбрано. Добавьте вещи из каталога.'
+                  : 'В этой подкатегории нет доступных вещей.'}
+            </Box>
           ) : (
-            loadout.items.map((row) => <GearRow key={row.name} row={row} />)
+            items.map((row) => <GearRow key={row.id} row={row} />)
           )}
         </Section>
       )}

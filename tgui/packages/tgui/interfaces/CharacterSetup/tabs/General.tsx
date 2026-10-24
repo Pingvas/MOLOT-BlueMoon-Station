@@ -3,7 +3,7 @@ import {
   Box,
   Button,
   Collapsible,
-  Divider,
+  Icon,
   Input,
   NumberInput,
   Section,
@@ -14,9 +14,11 @@ import {
   ColorField,
   FeatureField,
   FieldRow,
+  QuirkNames,
   renderFeatureField,
   SelectOption,
   SelectRow,
+  SettingsGrid,
   TabDataMissing,
   ToggleRow,
 } from '../components';
@@ -50,6 +52,7 @@ interface GeneralData {
   siliconLaws?: string[];
   quirkBalance?: number;
   quirks?: string[];
+  quirkValues?: Record<string, number>;
   customNames: CustomNameEntry[];
 }
 
@@ -122,6 +125,19 @@ const PERSONAL_KEYS = [
   'egg_shell',
 ];
 
+const SettingsSection = (props: {
+  title: string;
+  icon: string;
+  children: React.ReactNode;
+}) => (
+  <Section className="CharacterSetup__card">
+    <Box className="CharacterSetup__card-title">
+      <Icon name={props.icon} /> {props.title}
+    </Box>
+    {props.children}
+  </Section>
+);
+
 export const GeneralTab = () => {
   const { act, data } = useBackend<GeneralContext>();
 
@@ -139,235 +155,220 @@ export const GeneralTab = () => {
 
   const antag = appearance?.antagOptIn;
   const currentLevel = asArray(antag?.levels).find(
-    (level) => level.value === antag?.level,
+    (level) => level.value === antag?.level
   );
 
   return (
-    <Section fill scrollable title="Общее">
+    <Section fill scrollable className="CharacterSetup__general">
       <QuirksSummary />
 
-      <Stack>
-        <Stack.Item grow basis={0} pr={2}>
-          <Section title="Личность">
-            <NameRow />
-            <FieldRow label="Возраст">
-              <NumberInput
-                value={general.age}
-                minValue={data.ageMin}
-                maxValue={data.ageMax}
-                width="90px"
-                onChange={(e, value) => act('set_age', { age: value })}
-              />
-            </FieldRow>
-            <ToggleRow
-              label="Без имени"
-              tooltip="Имя генерируется автоматически по роли"
-              value={general.nameless}
-              action="toggle_nameless"
+      <SettingsGrid>
+        <SettingsSection title="Личность" icon="id-card">
+          <NameRow />
+          <FieldRow label="Возраст">
+            <NumberInput
+              value={general.age}
+              minValue={data.ageMin}
+              maxValue={data.ageMax}
+              width="90px"
+              onChange={(e, value) => act('set_age', { age: value })}
             />
-            <ToggleRow
-              label="Всегда случайное имя"
-              value={general.beRandomName}
-              action="toggle_random_name"
-            />
-            <ToggleRow
-              label="Скрывать ckey"
-              tooltip="Не показывать ckey в конце раунда"
-              value={general.hideCkey}
-              action="toggle_hide_ckey"
-            />
-            <ToggleRow
-              label="Свой цвет крови"
-              value={general.customBloodColor}
-              action="toggle_custom_blood_color"
-            />
-            <ColorField
-              label="Цвет крови"
-              value={general.bloodColor}
-              action="set_blood_color"
-              disabled={!general.customBloodColor}
-            />
-            <ToggleRow
-              label="Скафандр поверх хвоста"
-              tooltip="Хвост остаётся виден поверх надетого скафандра."
-              value={general.hardsuitWithTail}
-              action="toggle_hardsuit_with_tail"
-            />
-          </Section>
-        </Stack.Item>
+          </FieldRow>
+          <ToggleRow
+            label="Без имени"
+            tooltip="Имя генерируется автоматически по роли"
+            value={general.nameless}
+            action="toggle_nameless"
+          />
+          <ToggleRow
+            label="Всегда случайное имя"
+            value={general.beRandomName}
+            action="toggle_random_name"
+          />
+          <ToggleRow
+            label="Скрывать ckey"
+            tooltip="Не показывать ckey в конце раунда"
+            value={general.hideCkey}
+            action="toggle_hide_ckey"
+          />
+          <ToggleRow
+            label="Свой цвет крови"
+            value={general.customBloodColor}
+            action="toggle_custom_blood_color"
+          />
+          <ColorField
+            label="Цвет крови"
+            value={general.bloodColor}
+            action="set_blood_color"
+            disabled={!general.customBloodColor}
+          />
+          <ToggleRow
+            label="Скафандр поверх хвоста"
+            tooltip="Хвост остаётся виден поверх надетого скафандра."
+            value={general.hardsuitWithTail}
+            action="toggle_hardsuit_with_tail"
+          />
+        </SettingsSection>
 
-        <Stack.Item grow basis={0} pr={2}>
-          <Section title="Профессии и особые имена">
-            <Button
-              fluid
-              icon="briefcase"
-              content="Настройка профессий"
-              onClick={() => act('open_jobs')}
-            />
-            <SelectRow
-              label="Отдел охраны"
-              tooltip="Отдел, за который вы играете офицером брига"
-              value={general.secDept}
-              options={options.securityDepts || []}
-              action="set_sec_dept"
-            />
-            <SelectRow
-              label="Экран ядра ИИ"
-              value={general.aiCoreDisplay}
-              options={options.aiCoreScreens || []}
-              action="set_ai_core"
-            />
-            <Divider mt={1} mb={1} />
-            <Box mb={1}>
-              <b>Особые имена</b>
-            </Box>
-            {(general.customNames || []).map((entry) => (
-              <FieldRow key={entry.id} label={entry.label} tooltip={entry.hint}>
-                <Input
-                  width="100%"
-                  value={entry.value || ''}
-                  onChange={(e, value) =>
-                    act('set_custom_name', { id: entry.id, value })
-                  }
-                />
-              </FieldRow>
-            ))}
-          </Section>
-        </Stack.Item>
-
-        <Stack.Item grow basis={0}>
-          <Section title="КПК и синтетики">
-            <ColorField
-              label="Цвет интерфейса КПК"
-              value={general.pdaColor}
-              action="set_pda_color"
-            />
-            <SelectRow
-              label="Стиль КПК"
-              value={general.pdaStyle}
-              options={options.pdaStyles || []}
-              action="set_pda_style"
-            />
-            <SelectRow
-              label="Модель КПК"
-              value={general.pdaSkin}
-              options={options.pdaReskins || []}
-              action="set_pda_skin"
-            />
-            <FieldRow label="Рингтон КПК">
+        <SettingsSection title="Профессии" icon="briefcase">
+          <Button
+            fluid
+            icon="briefcase"
+            content="Настройка профессий"
+            onClick={() => act('open_jobs')}
+          />
+          <SelectRow
+            label="Отдел охраны"
+            tooltip="Отдел, за который вы играете офицером брига"
+            value={general.secDept}
+            options={options.securityDepts || []}
+            action="set_sec_dept"
+          />
+          <SelectRow
+            label="Экран ядра ИИ"
+            value={general.aiCoreDisplay}
+            options={options.aiCoreScreens || []}
+            action="set_ai_core"
+          />
+        </SettingsSection>
+        <SettingsSection title="Особые имена" icon="tags">
+          {(general.customNames || []).map((entry) => (
+            <FieldRow key={entry.id} label={entry.label} tooltip={entry.hint}>
               <Input
                 width="100%"
-                value={general.pdaRingtone || ''}
-                onChange={(e, value) => act('set_pda_ringtone', { value })}
+                value={entry.value || ''}
+                onChange={(e, value) =>
+                  act('set_custom_name', { id: entry.id, value })
+                }
               />
             </FieldRow>
-            <SelectRow
-              label="Тема КПК"
-              value={general.pdaTheme}
-              options={options.pdaThemes || []}
-              action="set_pda_theme"
-            />
-            <Divider mt={1} mb={1} />
-            {!!data.siliconLawsDisabled && (
-              <Box color="label" italic mb={1}>
-                Сервер запретил выбирать собственные законы: выбор сохранится,
-                но в игре не будет действовать.
-              </Box>
-            )}
-            <SelectRow
-              label="Свод законов"
-              value={general.siliconLawset || 'None'}
-              options={options.lawsets || []}
-              action="set_silicon_lawset"
-            />
-            {!!general.siliconLaws?.length && (
-              <Collapsible title={general.siliconLawTitle || 'Текст законов'}>
-                {(general.siliconLaws || []).map((law, index) => (
-                  <Box key={index} mb={1}>
-                    {law}
-                  </Box>
-                ))}
-              </Collapsible>
-            )}
-          </Section>
-        </Stack.Item>
-      </Stack>
+          ))}
+        </SettingsSection>
 
-      <Stack mt={1}>
-        <Stack.Item grow basis={0} pr={2}>
-          <Section title="Одежда и снаряжение">
-            {field('backbag')}
-            {field('uplink_spawn_loc')}
-            <SelectRow
-              label="Стиль комбинезона"
-              value={appearance?.jumpsuitStyle}
-              options={appearance?.jumpsuitStyles || []}
-              action="set_jumpsuit"
+        <SettingsSection title="КПК" icon="tablet-alt">
+          <ColorField
+            label="Цвет интерфейса КПК"
+            value={general.pdaColor}
+            action="set_pda_color"
+          />
+          <SelectRow
+            label="Стиль КПК"
+            value={general.pdaStyle}
+            options={options.pdaStyles || []}
+            action="set_pda_style"
+          />
+          <SelectRow
+            label="Модель КПК"
+            value={general.pdaSkin}
+            options={options.pdaReskins || []}
+            action="set_pda_skin"
+          />
+          <FieldRow label="Рингтон КПК">
+            <Input
+              width="100%"
+              value={general.pdaRingtone || ''}
+              onChange={(e, value) => act('set_pda_ringtone', { value })}
             />
-            {!!appearance?.hasScars && (
-              <>
-                {field('persistent_scars')}
-                <Box mb={1}>
-                  <Button
-                    icon="trash"
-                    content="Очистить шрамы"
-                    onClick={() => act('clear_scars')}
-                  />
+          </FieldRow>
+          <SelectRow
+            label="Тема КПК"
+            value={general.pdaTheme}
+            options={options.pdaThemes || []}
+            action="set_pda_theme"
+          />
+        </SettingsSection>
+        <SettingsSection title="Синтетики" icon="robot">
+          {!!data.siliconLawsDisabled && (
+            <Box color="label" italic mb={1}>
+              Сервер запретил выбирать собственные законы: выбор сохранится, но
+              в игре не будет действовать.
+            </Box>
+          )}
+          <SelectRow
+            label="Свод законов"
+            value={general.siliconLawset || 'None'}
+            options={options.lawsets || []}
+            action="set_silicon_lawset"
+          />
+          {!!general.siliconLaws?.length && (
+            <Collapsible title={general.siliconLawTitle || 'Текст законов'}>
+              {(general.siliconLaws || []).map((law, index) => (
+                <Box key={index} mb={1}>
+                  {law}
                 </Box>
-              </>
-            )}
-            {!!appearance?.hasPuddleSlime && (
-              <ToggleRow
-                label="Капля слизи"
-                tooltip="Оставлять за собой слизистый след."
-                value={appearance.puddleSlime}
-                action="set_puddle_slime"
-              />
-            )}
-          </Section>
-        </Stack.Item>
+              ))}
+            </Collapsible>
+          )}
+        </SettingsSection>
 
-        <Stack.Item grow basis={0} pr={2}>
-          <Section title="Согласие">
-            {CONSENT_KEYS.map((key) => field(key))}
-          </Section>
-        </Stack.Item>
-
-        <Stack.Item grow basis={0}>
-          <Section title="Секс, беременность и цели">
-            {PERSONAL_KEYS.map((key) => field(key))}
-            {!!antag && (
-              <>
-                <SelectRow
-                  label="Задания антагов"
-                  tooltip={antag.disclaimer}
-                  value={antag.level}
-                  options={asArray(antag.levels).map((level) => ({
-                    value: level.value,
-                    displayText: antag.custom
-                      ? level.name
-                      : `${level.name} (по умолчанию)`,
-                  }))}
-                  action="set_antag_opt_in"
+        <SettingsSection title="Одежда и снаряжение" icon="tshirt">
+          {field('backbag')}
+          {field('uplink_spawn_loc')}
+          <SelectRow
+            label="Стиль комбинезона"
+            value={appearance?.jumpsuitStyle}
+            options={appearance?.jumpsuitStyles || []}
+            action="set_jumpsuit"
+          />
+          {!!appearance?.hasScars && (
+            <>
+              {field('persistent_scars')}
+              <Box mb={1}>
+                <Button
+                  icon="trash"
+                  content="Очистить шрамы"
+                  onClick={() => act('clear_scars')}
                 />
-                {!!currentLevel?.description && (
-                  <Box color="label" mb={1}>
-                    {currentLevel.description}
-                  </Box>
-                )}
+              </Box>
+            </>
+          )}
+          {!!appearance?.hasPuddleSlime && (
+            <ToggleRow
+              label="Капля слизи"
+              tooltip="Оставлять за собой слизистый след."
+              value={appearance.puddleSlime}
+              action="set_puddle_slime"
+            />
+          )}
+        </SettingsSection>
+
+        <SettingsSection title="Согласие" icon="handshake">
+          {CONSENT_KEYS.map((key) => field(key))}
+          {!!antag && (
+            <>
+              <SelectRow
+                label="Задания антагов"
+                tooltip={antag.disclaimer}
+                value={antag.level}
+                options={asArray(antag.levels).map((level) => ({
+                  value: level.value,
+                  displayText: antag.custom
+                    ? level.name
+                    : `${level.name} (по умолчанию)`,
+                }))}
+                action="set_antag_opt_in"
+              />
+              {!!currentLevel?.description && (
                 <Box color="label" mb={1}>
-                  {antag.thresholds}
+                  {currentLevel.description}
                 </Box>
-                {!!antag.forced && (
-                  <Box color={antag.forced.color} mb={1}>
-                    В раунде не ниже «{antag.forced.name}»: включены антаг-роли
-                  </Box>
-                )}
-              </>
-            )}
-          </Section>
-        </Stack.Item>
-      </Stack>
+              )}
+              <Box color="label" mb={1}>
+                {antag.thresholds}
+              </Box>
+              {!!antag.forced && (
+                <Box color={antag.forced.color} mb={1}>
+                  В раунде не ниже «{antag.forced.name}»: включены антаг-роли
+                </Box>
+              )}
+            </>
+          )}
+        </SettingsSection>
+
+        <SettingsSection title="Секс и беременность" icon="heart">
+          {PERSONAL_KEYS.map((key) => field(key))}
+        </SettingsSection>
+      </SettingsGrid>
     </Section>
   );
 };
@@ -419,15 +420,13 @@ const QuirksSummary = () => {
         <Stack.Item grow basis={0}>
           <Box
             color="label"
-            title={quirks.join(', ')}
-            style={{
-              display: '-webkit-box',
-              WebkitBoxOrient: 'vertical',
-              WebkitLineClamp: 2,
-              overflow: 'hidden',
-            }}
+            style={{ overflowWrap: 'anywhere' }}
           >
-            {quirks.length ? quirks.join(', ') : 'Особенности не выбраны'}
+            {quirks.length ? (
+              <QuirkNames names={quirks} values={general?.quirkValues} />
+            ) : (
+              'Особенности не выбраны'
+            )}
           </Box>
         </Stack.Item>
         <Stack.Item>

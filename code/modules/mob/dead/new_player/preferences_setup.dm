@@ -33,7 +33,7 @@
 	// Determine what job is marked as 'High' priority, and dress them up as such.
 	var/datum/job/previewJob = get_highest_job()
 
-	if(previewJob)
+	if(previewJob && preview_pref == PREVIEW_PREF_JOB)
 		// Silicons only need a very basic preview since there is no customization for them.
 		if(istype(previewJob,/datum/job/ai))
 			return mutable_appearance('icons/mob/AI.dmi', resolve_ai_icon(preferred_ai_core_display), FLOAT_LAYER, GAME_PLANE)
@@ -46,8 +46,6 @@
 	var/mob/living/carbon/human/dummy/mannequin = generate_or_wait_for_human_dummy(DUMMY_HUMAN_SLOT_PREFERENCES, regenerate = FALSE)
 	if(!mannequin)
 		return null
-	// Apply the Dummy's preview background first so we properly layer everything else on top of it.
-	mannequin.add_overlay(mutable_appearance('modular_citadel/icons/ui/backgrounds.dmi', bgstate, layer = SPACE_LAYER))
 	copy_to(mannequin, icon_updates = FALSE, initial_spawn = TRUE)
 
 	switch(preview_pref)
@@ -77,6 +75,8 @@
 	mannequin.regenerate_icons()
 
 	var/mutable_appearance/result = new /mutable_appearance(mannequin)
+	// Конструктор mutable_appearance сбрасывает plane: сохраняем настоящую плоскость манекена.
+	result.plane = mannequin.plane
 	unset_busy_human_dummy(DUMMY_HUMAN_SLOT_PREFERENCES)
 	return result
 
