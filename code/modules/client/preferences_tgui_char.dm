@@ -39,6 +39,7 @@
 	var/character_revision = 0
 	var/loadout_selected = FALSE
 	var/list/viewer_screens
+	var/preview_auto_fit = TRUE
 
 /datum/character_setup/New(datum/preferences/new_prefs)
 	prefs = new_prefs
@@ -2341,6 +2342,7 @@
 	update_preview(user)
 	var/atom/movable/screen/map_view/character_setup_screen/viewer_screen = LAZYACCESS(viewer_screens, user)
 	data["previewRef"] = viewer_screen?.assigned_map
+	data["previewAutoFit"] = preview_auto_fit
 	if(preview_dirty)
 		data["previewDirty"] = TRUE
 
@@ -2840,7 +2842,7 @@
 		return
 	for(var/viewer in viewer_screens)
 		var/atom/movable/screen/map_view/character_setup_screen/viewer_screen = viewer_screens[viewer]
-		viewer_screen.update_character(appearance_source, prefs.bgstate)
+		viewer_screen.update_character(appearance_source, prefs.bgstate, preview_auto_fit)
 	preview_dirty = FALSE
 
 /datum/character_setup/ui_act(action, list/params)
@@ -2910,6 +2912,11 @@
 			if(!(new_mode in list(PREVIEW_PREF_JOB, PREVIEW_PREF_LOADOUT, PREVIEW_PREF_NAKED, PREVIEW_PREF_NAKED_AROUSED)))
 				return
 			prefs.preview_pref = new_mode
+			preview_dirty = TRUE
+			return TRUE
+
+		if("set_preview_auto_fit")
+			preview_auto_fit = !!params["value"]
 			preview_dirty = TRUE
 			return TRUE
 
@@ -3561,14 +3568,16 @@
 			plane_master.filters = null
 	return popup_plane_group
 
-/atom/movable/screen/map_view/character_setup_screen/proc/update_character(mutable_appearance/appearance_source, background_state)
+/atom/movable/screen/map_view/character_setup_screen/proc/update_character(mutable_appearance/appearance_source, background_state, auto_fit = TRUE)
 	var/list/view_bounds = list()
 	var/reference_width = world.icon_size * 2
 	var/reference_height = world.icon_size
 	var/max_width = 0
 	var/max_height = 0
-	var/mutable_appearance/reference = new /mutable_appearance(appearance_source)
-	reference.transform = null
+	var/mutable_appearance/reference
+	if(!auto_fit)
+		reference = new /mutable_appearance(appearance_source)
+		reference.transform = null
 	for(var/direction in GLOB.cardinals)
 		var/atom/movable/screen/preview = previews["[direction]"]
 		if(!preview)
@@ -3588,17 +3597,22 @@
 		view_bounds["[direction]"] = bounds
 		max_width = max(max_width, bounds[3] - bounds[1])
 		max_height = max(max_height, bounds[4] - bounds[2])
-		reference.setDir(direction)
-		var/list/reference_bounds = measure_preview_bounds(reference, icon_bounds_cache)
-		if(reference_bounds)
-			reference_width = max(reference_width, reference_bounds[3] - reference_bounds[1])
-			reference_height = max(reference_height, reference_bounds[4] - reference_bounds[2])
+		if(reference)
+			reference.setDir(direction)
+			var/list/reference_bounds = measure_preview_bounds(reference, icon_bounds_cache)
+			if(reference_bounds)
+				reference_width = max(reference_width, reference_bounds[3] - reference_bounds[1])
+				reference_height = max(reference_height, reference_bounds[4] - reference_bounds[2])
 
-	// Одна камера на весь разрешённый диапазон размеров: автозум не уравнивает куклы 100% и 200%.
-	var/max_scale = max(2, CONFIG_GET(number/body_size_max))
 	var/padding = 2
-	var/frame_width = CEILING(max(reference_width * max_scale, max_width) + padding * 2, 1)
-	var/frame_height = CEILING(max(reference_height * max_scale, max_height) + padding * 2, 1)
+	// По умолчанию приближаем текущее тело; тела меньше 100% сохраняют относительный размер.
+	var/frame_width = CEILING(max(world.icon_size, max_width) + padding * 2, 1)
+	var/frame_height = CEILING(max(world.icon_size, max_height) + padding * 2, 1)
+	if(!auto_fit)
+		// Общая камера нужна для сравнения размеров, но оставляет запас вокруг обычного тела.
+		var/max_scale = max(2, CONFIG_GET(number/body_size_max))
+		frame_width = max(frame_width, CEILING(reference_width * max_scale + padding * 2, 1))
+		frame_height = max(frame_height, CEILING(reference_height * max_scale + padding * 2, 1))
 	var/map_height = frame_height * length(previews)
 	var/icon/map_bounds = icon('icons/mob/map_backgrounds.dmi', "clear")
 	map_bounds.Crop(1, 1, frame_width, map_height)

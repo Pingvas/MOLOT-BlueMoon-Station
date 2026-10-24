@@ -32,6 +32,7 @@ interface CharacterSetupData {
   speciesName: string;
   tab: number;
   previewRef: string;
+  previewAutoFit: boolean;
   previewPref: string;
   previewModes: string[];
   localStorageName: string | null;
@@ -363,6 +364,7 @@ const SlotTools = () => {
 
 const Preview = () => {
   const { act, data } = useBackend<CharacterSetupData>();
+  const autoFit = !!(data.previewAutoFit ?? true);
   return (
     <Section
       fill
@@ -384,6 +386,27 @@ const Preview = () => {
               onClick={() => act('set_preview_mode', { mode })}
             />
           ))}
+        </div>
+        <Box color="label" mt={1} mb={0.5}>
+          Масштаб просмотра
+        </Box>
+        <div className="CharacterSetup__preview-modes">
+          <Button
+            fluid
+            icon="search-plus"
+            selected={autoFit}
+            content="Крупно"
+            tooltip="Подогнать область под текущее тело, чтобы лучше рассмотреть персонажа"
+            onClick={() => act('set_preview_auto_fit', { value: true })}
+          />
+          <Button
+            fluid
+            icon="ruler"
+            selected={!autoFit}
+            content="Сравнение размеров"
+            tooltip="Сохранять общий масштаб камеры при изменении размера тела"
+            onClick={() => act('set_preview_auto_fit', { value: false })}
+          />
         </div>
       </div>
       {data.previewRef ? (
