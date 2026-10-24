@@ -2840,7 +2840,7 @@
 		return
 	for(var/viewer in viewer_screens)
 		var/atom/movable/screen/map_view/character_setup_screen/viewer_screen = viewer_screens[viewer]
-		viewer_screen.update_character(appearance_source)
+		viewer_screen.update_character(appearance_source, prefs.bgstate)
 	preview_dirty = FALSE
 
 /datum/character_setup/ui_act(action, list/params)
@@ -3534,22 +3534,19 @@
 // Четыре исходные внешности в нативной карте BYOND, как в старом редакторе.
 /atom/movable/screen/map_view/character_setup_screen
 	name = "character setup screen"
+	icon = null
+	layer = SPACE_LAYER
+	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
 	var/list/previews = list()
 	var/shown_offset = 0
+	var/list/icon_bounds_cache = list()
 
 /atom/movable/screen/map_view/character_setup_screen/Destroy()
 	hide_from()
+	vis_contents.Cut()
 	QDEL_LIST_ASSOC_VAL(previews)
+	icon_bounds_cache = null
 	return ..()
-
-/atom/movable/screen/map_view/character_setup_screen/display_to_client(client/show_to)
-	if(!show_to)
-		return
-	registered_client = show_to
-	for(var/direction in previews)
-		var/atom/movable/screen/preview = previews[direction]
-		show_to.register_map_obj(preview)
-	ensure_plane_group().register_to_client(show_to)
 
 /atom/movable/screen/map_view/character_setup_screen/ensure_plane_group()
 	if(!popup_plane_group)
@@ -3558,27 +3555,161 @@
 	for(var/plane_key in popup_plane_group.plane_masters)
 		var/atom/movable/screen/plane_master/plane_master = popup_plane_group.plane_masters[plane_key]
 		plane_master.refresh_backdrop(registered_client?.mob)
-		plane_master.screen_loc = "[assigned_map]:0,CENTER"
 		// На карте предпросмотра нет освещения: его маски закрывали бы внешность.
 		if(istype(plane_master, /atom/movable/screen/plane_master/lighting) || istype(plane_master, /atom/movable/screen/plane_master/emissive))
 			plane_master.set_alpha(LIGHTING_PLANE_ALPHA_INVISIBLE)
 			plane_master.filters = null
 	return popup_plane_group
 
-/atom/movable/screen/map_view/character_setup_screen/proc/update_character(mutable_appearance/appearance_source)
-	var/position = 0
+/atom/movable/screen/map_view/character_setup_screen/proc/update_character(mutable_appearance/appearance_source, background_state)
+	var/list/view_bounds = list()
+	var/reference_width = world.icon_size * 2
+	var/reference_height = world.icon_size
+	var/max_width = 0
+	var/max_height = 0
+	var/mutable_appearance/reference = new /mutable_appearance(appearance_source)
+	reference.transform = null
 	for(var/direction in GLOB.cardinals)
-		position++
 		var/atom/movable/screen/preview = previews["[direction]"]
 		if(!preview)
 			preview = new
-			preview.assigned_map = assigned_map
-			preview.del_on_map_removal = FALSE
 			previews["[direction]"] = preview
-			registered_client?.register_map_obj(preview)
-		// Не пересобираем матрицу, слои или пиксельные смещения: их отрисовывает сам BYOND.
+			vis_contents += preview
+		// Фигура — содержимое единого холста, а не отдельный экран с собственным screen_loc.
 		preview.appearance = appearance_source
 		preview.dir = direction
-		preview.screen_loc = "[assigned_map]:0,[position]"
+		preview.vis_flags = VIS_INHERIT_PLANE
+		// В том числе FLOAT_LAYER у ИИ и боргов должен оказаться над фоном холста.
+		preview.layer = max(MOB_LAYER, preview.layer)
+		preview.appearance_flags &= ~TILE_BOUND
+		var/list/bounds = measure_preview_bounds(preview, icon_bounds_cache)
+		if(!bounds)
+			bounds = list(0, 0, world.icon_size, world.icon_size)
+		view_bounds["[direction]"] = bounds
+		max_width = max(max_width, bounds[3] - bounds[1])
+		max_height = max(max_height, bounds[4] - bounds[2])
+		reference.setDir(direction)
+		var/list/reference_bounds = measure_preview_bounds(reference, icon_bounds_cache)
+		if(reference_bounds)
+			reference_width = max(reference_width, reference_bounds[3] - reference_bounds[1])
+			reference_height = max(reference_height, reference_bounds[4] - reference_bounds[2])
+
+	// Одна камера на весь разрешённый диапазон размеров: автозум не уравнивает куклы 100% и 200%.
+	var/max_scale = max(2, CONFIG_GET(number/body_size_max))
+	var/padding = 2
+	var/frame_width = CEILING(max(reference_width * max_scale, max_width) + padding * 2, 1)
+	var/frame_height = CEILING(max(reference_height * max_scale, max_height) + padding * 2, 1)
+	var/map_height = frame_height * length(previews)
+	var/icon/map_bounds = icon('icons/mob/map_backgrounds.dmi', "clear")
+	map_bounds.Crop(1, 1, frame_width, map_height)
+	// Фон — отдельная неподвижная сетка, без матрицы и размеров персонажа.
+	var/icon/background_tile = icon('modular_citadel/icons/ui/backgrounds.dmi', background_state, SOUTH, 1)
+	var/icon/background_canvas = icon(map_bounds)
+	for(var/x = 0, x < frame_width, x += background_tile.Width())
+		for(var/y = 0, y < map_height, y += background_tile.Height())
+			background_canvas.Blend(background_tile, ICON_OVERLAY, x + 1, y + 1)
+	icon = background_canvas
+	plane = appearance_source.plane
+
+	var/position = 0
+	for(var/direction in GLOB.cardinals)
+		var/atom/movable/screen/preview = previews["[direction]"]
+		var/list/bounds = view_bounds["[direction]"]
+		// Центрируем в координатах фона; pixel_x/y хранят только целые пиксели.
+		preview.pixel_x = round(frame_width / 2 - (bounds[1] + bounds[3]) / 2, 1)
+		preview.pixel_y = round((position + 0.5) * frame_height - (bounds[2] + bounds[4]) / 2, 1)
+		position++
 	shown_offset = PLANE_TO_OFFSET(appearance_source.plane)
 	ensure_plane_group()
+
+// Границы видимых пикселей слоёв: слева, снизу, справа, сверху. Картинку персонажа не пересобираем.
+/atom/movable/screen/map_view/character_setup_screen/proc/measure_preview_bounds(image/source, list/icon_sizes, inherited_icon, inherited_state, inherited_dir = SOUTH)
+	if(source.alpha <= 0)
+		return null
+	var/icon_file = source.icon || inherited_icon
+	var/state = source.icon_state || inherited_state
+	var/direction = (!source.dir || source.dir == SOUTH) ? inherited_dir : source.dir
+	var/width = world.icon_size
+	var/height = world.icon_size
+	var/list/bounds
+	if(icon_file)
+		var/icon_dir = icon_state_has_directional_frames(icon_file, state) ? direction : SOUTH
+		var/cache_key = "[REF(icon_file)]-[state]-[icon_dir]"
+		var/list/size = icon_sizes[cache_key]
+		if(!size)
+			var/icon/measured = icon(icon_file, state, icon_dir, 1)
+			width = measured.Width()
+			height = measured.Height()
+			var/list/pixel_bounds
+			for(var/x in 1 to width)
+				for(var/y in 1 to height)
+					if(!measured.GetPixel(x, y))
+						continue
+					if(!pixel_bounds)
+						pixel_bounds = list(x - 1, y - 1, x, y)
+					else
+						pixel_bounds[1] = min(pixel_bounds[1], x - 1)
+						pixel_bounds[2] = min(pixel_bounds[2], y - 1)
+						pixel_bounds[3] = max(pixel_bounds[3], x)
+						pixel_bounds[4] = max(pixel_bounds[4], y)
+			size = list(width, height, pixel_bounds)
+			icon_sizes[cache_key] = size
+			// Храним только числа; смена одежды и причёсок не должна растить кэш бесконечно.
+			if(length(icon_sizes) > 512)
+				icon_sizes.Cut(1, 129)
+		width = size[1]
+		height = size[2]
+		var/list/pixel_bounds = size[3]
+		bounds = pixel_bounds?.Copy()
+
+	var/list/untransformed_bounds
+	for(var/image/child as anything in source.underlays + source.overlays)
+		var/list/child_bounds = measure_preview_bounds(child, icon_sizes, icon_file, state, direction)
+		if(!child_bounds)
+			continue
+		child_bounds[1] += child.pixel_x + child.pixel_w
+		child_bounds[2] += child.pixel_y + child.pixel_z
+		child_bounds[3] += child.pixel_x + child.pixel_w
+		child_bounds[4] += child.pixel_y + child.pixel_z
+		var/keep_together = (source.appearance_flags & KEEP_TOGETHER) && !(child.appearance_flags & KEEP_APART)
+		if((child.appearance_flags & RESET_TRANSFORM) && !keep_together)
+			if(!untransformed_bounds)
+				untransformed_bounds = child_bounds.Copy()
+			else
+				untransformed_bounds[1] = min(untransformed_bounds[1], child_bounds[1])
+				untransformed_bounds[2] = min(untransformed_bounds[2], child_bounds[2])
+				untransformed_bounds[3] = max(untransformed_bounds[3], child_bounds[3])
+				untransformed_bounds[4] = max(untransformed_bounds[4], child_bounds[4])
+			continue
+		if(!bounds)
+			bounds = child_bounds.Copy()
+		else
+			bounds[1] = min(bounds[1], child_bounds[1])
+			bounds[2] = min(bounds[2], child_bounds[2])
+			bounds[3] = max(bounds[3], child_bounds[3])
+			bounds[4] = max(bounds[4], child_bounds[4])
+
+	var/matrix/transform = source.transform
+	if(bounds && transform)
+		var/list/transformed_bounds
+		for(var/x in list(bounds[1], bounds[3]))
+			for(var/y in list(bounds[2], bounds[4]))
+				// BYOND применяет матрицу относительно центра базовой иконки, а не всей стопки оверлеев.
+				var/transformed_x = transform.a * (x - width / 2) + transform.b * (y - height / 2) + transform.c + width / 2
+				var/transformed_y = transform.d * (x - width / 2) + transform.e * (y - height / 2) + transform.f + height / 2
+				if(!transformed_bounds)
+					transformed_bounds = list(transformed_x, transformed_y, transformed_x, transformed_y)
+				else
+					transformed_bounds[1] = min(transformed_bounds[1], transformed_x)
+					transformed_bounds[2] = min(transformed_bounds[2], transformed_y)
+					transformed_bounds[3] = max(transformed_bounds[3], transformed_x)
+					transformed_bounds[4] = max(transformed_bounds[4], transformed_y)
+		bounds = transformed_bounds
+	if(untransformed_bounds)
+		if(!bounds)
+			return untransformed_bounds
+		bounds[1] = min(bounds[1], untransformed_bounds[1])
+		bounds[2] = min(bounds[2], untransformed_bounds[2])
+		bounds[3] = max(bounds[3], untransformed_bounds[3])
+		bounds[4] = max(bounds[4], untransformed_bounds[4])
+	return bounds
