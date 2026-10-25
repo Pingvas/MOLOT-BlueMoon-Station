@@ -105,15 +105,33 @@
 		character_setup_ui = new(src)
 	character_setup_ui.ui_interact(user)
 
+// Большинство игроков открывает редактор: справочники готовим после входа, без создания манекена.
+/datum/preferences/proc/prewarm_character_setup()
+	if(!parent || QDELETED(parent))
+		return
+	if(!SSjob.initialized || !SSlanguage.initialized)
+		addtimer(CALLBACK(src, PROC_REF(prewarm_character_setup)), 2 SECONDS, TIMER_UNIQUE | TIMER_OVERRIDE)
+		return
+	if(QDELETED(character_setup_ui))
+		character_setup_ui = new(src)
+	character_setup_ui.prewarm()
+	character_setup_ui.heavy_static_ready = TRUE
+
 // Единый список стилей окна.
-/datum/preferences/proc/valid_setup_theme(theme)
-	var/static/list/valid = list(
-		"default", "kpk", "terminal", "syndie", "cat", "synth", "hotpink",
-		"hackerman", "malfunction", "heretic", "wizard", "darkmode", "pact",
-		"abductor", "neutral", "inteq", "chat", "chat_pink", "chat_violet",
-		"chat_green", "chat_amber",
+/datum/preferences/proc/setup_theme_options()
+	var/static/list/themes = list(
+		"default" = "Стандарт", "kpk" = "КПК", "terminal" = "Терминал",
+		"syndie" = "Синдикат", "cat" = "Котик", "synth" = "Синт", "hotpink" = "Фуксия",
+		"hackerman" = "Хакер", "malfunction" = "Сбой", "heretic" = "Еретик",
+		"wizard" = "Волшебник", "darkmode" = "Графит", "pact" = "Пакт",
+		"abductor" = "Абдуктор", "neutral" = "Янтарь", "inteq" = "Охра",
+		"chat" = "Чат", "chat_pink" = "Розовый", "chat_violet" = "Фиолет",
+		"chat_green" = "Зелёный", "chat_amber" = "Янтарный",
 	)
-	return (theme in valid)
+	return themes
+
+/datum/preferences/proc/valid_setup_theme(theme)
+	return (theme in setup_theme_options())
 
 /datum/character_setup/ui_state(mob/user)
 	return GLOB.always_state
@@ -3201,6 +3219,19 @@
 		return
 
 	switch(action)
+		if("pick_theme")
+			var/list/themes = prefs.setup_theme_options()
+			var/list/choices = list()
+			for(var/theme_id in themes)
+				choices[themes[theme_id]] = theme_id
+			var/mob/user = usr
+			var/choice = tgui_input_list(user, "Выберите оформление окна настройки персонажа.", "Тема меню персонажа", choices, themes[prefs.character_setup_theme])
+			if(!choice || !choices[choice] || !prefs || user?.client?.prefs != prefs)
+				return
+			prefs.character_setup_theme = choices[choice]
+			prefs.save_pref_var("character_setup_theme")
+			return TRUE
+
 		if("set_tab")
 			var/new_tab = num_param(params["tab"])
 			if(isnull(new_tab) || new_tab < GENERAL_CHAR_TAB || new_tab > QUIRKS_CHAR_TAB)
@@ -4044,7 +4075,7 @@
 
 /atom/movable/screen/map_view/character_setup_screen/ensure_plane_group()
 	if(!popup_plane_group)
-		popup_plane_group = new /datum/plane_master_group/popup/on_demand(PLANE_GROUP_POPUP_WINDOW(src), assigned_map)
+		popup_plane_group = new /datum/plane_master_group/popup/on_demand/character_setup(PLANE_GROUP_POPUP_WINDOW(src), assigned_map)
 	popup_plane_group.ensure_popup_depth(shown_offset)
 	// Фильтры зависят от зрителя и набора плоскостей, но не от поворота или масштаба камеры.
 	if(prepared_plane_count == length(popup_plane_group.plane_masters) && prepared_for_client == registered_client)
@@ -4053,12 +4084,25 @@
 	prepared_for_client = registered_client
 	for(var/plane_key in popup_plane_group.plane_masters)
 		var/atom/movable/screen/plane_master/plane_master = popup_plane_group.plane_masters[plane_key]
-		plane_master.refresh_backdrop(registered_client?.mob)
-		// На карте предпросмотра нет освещения: его маски закрывали бы внешность.
-		if(istype(plane_master, /atom/movable/screen/plane_master/lighting) || istype(plane_master, /atom/movable/screen/plane_master/emissive))
-			plane_master.set_alpha(LIGHTING_PLANE_ALPHA_INVISIBLE)
-			plane_master.filters = null
+		// Предпросмотр не использует маски зрения, свет и общие render_target основной карты.
+		plane_master.filters = null
 	return popup_plane_group
+
+/datum/plane_master_group/popup/on_demand/character_setup/get_plane_types()
+	return list(
+		/atom/movable/screen/plane_master/character_setup,
+		/atom/movable/screen/plane_master/character_setup/emissive,
+	)
+
+// Нативная внешность сохраняет матрицы и слои, но не участвует в графе рендера игровой карты.
+/atom/movable/screen/plane_master/character_setup
+	name = "character preview plane master"
+	plane = GAME_PLANE
+
+/atom/movable/screen/plane_master/character_setup/emissive
+	name = "character preview emissive mask"
+	plane = EMISSIVE_PLANE
+	alpha = 0
 
 /atom/movable/screen/map_view/character_setup_screen/proc/set_viewport_size(width, height)
 	var/new_aspect = clamp(width / height, 0.1, 10)

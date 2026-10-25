@@ -552,6 +552,8 @@ GLOBAL_VAR_INIT(last_churn_alert, 0)
 		GLOB.preferences_datums[ckey] = prefs
 
 	addtimer(CALLBACK(src, PROC_REF(ensure_keys_set), prefs), 10)	//prevents possible race conditions
+	// Разносим прогрев справочников по времени, чтобы массовый вход не собирал их в одном тике.
+	addtimer(CALLBACK(prefs, TYPE_PROC_REF(/datum/preferences, prewarm_character_setup)), rand(2 SECONDS, 5 SECONDS), TIMER_UNIQUE | TIMER_OVERRIDE)
 
 	prefs.last_ip = address				//these are gonna be used for banning
 	prefs.last_id = computer_id			//these are gonna be used for banning

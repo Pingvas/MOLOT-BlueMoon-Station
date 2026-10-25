@@ -5,7 +5,6 @@ import {
   Box,
   Button,
   ByondUi,
-  Dropdown,
   Icon,
   Input,
   NoticeBox,
@@ -54,30 +53,6 @@ interface CharacterSetupData {
   saveNotice?: string;
   theme: string;
 }
-
-const THEME_OPTIONS: { value: string; displayText: string }[] = [
-  { value: 'default', displayText: 'Стандарт' },
-  { value: 'kpk', displayText: 'КПК' },
-  { value: 'terminal', displayText: 'Терминал' },
-  { value: 'syndie', displayText: 'Синдикат' },
-  { value: 'cat', displayText: 'Котик' },
-  { value: 'synth', displayText: 'Синт' },
-  { value: 'hotpink', displayText: 'Фуксия' },
-  { value: 'hackerman', displayText: 'Хакер' },
-  { value: 'malfunction', displayText: 'Сбой' },
-  { value: 'heretic', displayText: 'Еретик' },
-  { value: 'wizard', displayText: 'Волшебник' },
-  { value: 'darkmode', displayText: 'Графит' },
-  { value: 'pact', displayText: 'Пакт' },
-  { value: 'abductor', displayText: 'Абдуктор' },
-  { value: 'neutral', displayText: 'Янтарь' },
-  { value: 'inteq', displayText: 'Охра' },
-  { value: 'chat', displayText: 'Чат' },
-  { value: 'chat_pink', displayText: 'Розовый' },
-  { value: 'chat_violet', displayText: 'Фиолет' },
-  { value: 'chat_green', displayText: 'Зелёный' },
-  { value: 'chat_amber', displayText: 'Янтарный' },
-];
 
 // Готовые tgui-темы окна.
 const WINDOW_THEMES: Record<string, string> = {
@@ -145,17 +120,6 @@ export const CharacterSetup = () => {
                   <Icon name={data.hasUnsavedChanges ? 'pencil-alt' : 'check'} />{' '}
                   {data.hasUnsavedChanges ? 'Есть изменения' : 'Сохранено'}
                 </Box>
-              </Stack.Item>
-              <Stack.Item>
-                <Dropdown
-                  icon="palette"
-                  width="120px"
-                  className="CharacterSetup__theme-picker"
-                  tooltip="Стиль оформления окна"
-                  options={THEME_OPTIONS}
-                  selected={theme}
-                  onSelected={(next) => act('set_theme', { theme: next })}
-                />
               </Stack.Item>
               <Stack.Item>
                 <Button
@@ -421,7 +385,10 @@ const Preview = () => {
     [act]
   );
   return (
-    <Section fill title="Внешний вид" className="CharacterSetup__preview">
+    <Section fill title="Внешний вид" className="CharacterSetup__preview"
+      buttons={<Button icon="palette" tooltip="Выбрать тему" aria-label="Выбрать тему"
+        onClick={() => act('pick_theme')} />}>
+
       <div className="CharacterSetup__preview-toolbar">
         <Box color="label" mb={1}>
           Показать персонажа
