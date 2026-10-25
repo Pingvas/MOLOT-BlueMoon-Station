@@ -54,6 +54,11 @@
 	var/sound_preview_until = 0
 	var/sound_preview_generation = 0
 	var/next_sound_preview = 0
+	var/preview_single_view = FALSE
+	var/preview_direction = SOUTH
+	var/preview_zoom = 1
+	var/preview_reference = FALSE
+	var/preview_background_style = "texture"
 
 /datum/character_setup/New(datum/preferences/new_prefs)
 	prefs = new_prefs
@@ -2581,6 +2586,11 @@
 
 	data["previewPref"] = prefs.preview_pref
 	data["previewAroused"] = preview_aroused
+	data["previewSingleView"] = preview_single_view
+	data["previewDirection"] = preview_direction
+	data["previewZoom"] = preview_zoom
+	data["previewReference"] = preview_reference
+	data["previewBackgroundStyle"] = preview_background_style
 	data["previewBackground"] = prefs.bgstate
 	data["previewBackgrounds"] = bg_state_options()
 
@@ -3137,8 +3147,15 @@
 		return
 	for(var/viewer in viewer_screens)
 		var/atom/movable/screen/map_view/character_setup_screen/viewer_screen = viewer_screens[viewer]
-		viewer_screen.update_character(appearance_source, prefs.bgstate, preview_auto_fit)
+		viewer_screen.update_character(appearance_source, prefs.bgstate, preview_auto_fit, preview_single_view, preview_direction, preview_zoom, preview_reference, preview_background_style)
 	preview_dirty = FALSE
+
+// Камера использует готовую внешность: поворот, фон и масштаб не пересоздают манекен.
+/datum/character_setup/proc/refresh_preview_camera()
+	for(var/viewer in viewer_screens)
+		var/atom/movable/screen/map_view/character_setup_screen/viewer_screen = viewer_screens[viewer]
+		if(viewer_screen.cached_source)
+			viewer_screen.update_character(viewer_screen.cached_source, prefs.bgstate, preview_auto_fit, preview_single_view, preview_direction, preview_zoom, preview_reference, preview_background_style)
 
 /datum/character_setup/ui_act(action, list/params)
 	. = ..()
@@ -3234,7 +3251,60 @@
 
 		if("set_preview_auto_fit")
 			preview_auto_fit = !!params["value"]
-			preview_dirty = TRUE
+			refresh_preview_camera()
+			return TRUE
+
+		if("set_preview_single_view")
+			preview_single_view = !!params["value"]
+			refresh_preview_camera()
+			return TRUE
+
+		if("rotate_preview")
+			if(params["direction"] == "left")
+				preview_direction = turn(preview_direction, 90)
+			else if(params["direction"] == "right")
+				preview_direction = turn(preview_direction, -90)
+			else if(params["direction"] == "front")
+				preview_direction = SOUTH
+			else
+				return
+			refresh_preview_camera()
+			return TRUE
+
+		if("set_preview_zoom")
+			var/new_zoom = num_param(params["value"])
+			if(isnull(new_zoom))
+				return
+			preview_zoom = clamp(round(new_zoom, 0.05), 0.5, 3)
+			refresh_preview_camera()
+			return TRUE
+
+		if("reset_preview_camera")
+			preview_zoom = 1
+			refresh_preview_camera()
+			return TRUE
+
+		if("set_preview_reference")
+			preview_reference = !!params["value"]
+			refresh_preview_camera()
+			return TRUE
+
+		if("set_preview_background")
+			var/list/options = list("transparent", "checker", "light", "dark")
+			for(var/state in bg_state_options())
+				options += "texture:[state]"
+			var/choice = params["value"]
+			if(!isnull(params["dir"]))
+				var/current = preview_background_style == "texture" ? "texture:[prefs.bgstate]" : preview_background_style
+				choice = cycle_choice(current, options, params["dir"])
+			if(!(choice in options))
+				return
+			if(findtext(choice, "texture:") == 1)
+				preview_background_style = "texture"
+				prefs.bgstate = copytext(choice, length("texture:") + 1)
+			else
+				preview_background_style = choice
+			refresh_preview_camera()
 			return TRUE
 
 		if("set_preview_viewport")
@@ -3883,7 +3953,7 @@
 #undef CHARACTER_SETUP_INTERFACE
 #undef CHARACTER_SETUP_HEADSHOT_MAX_LEN
 
-// Четыре исходные внешности в нативной карте BYOND, как в старом редакторе.
+// Исходная внешность в нативной карте BYOND: четыре ракурса или один поворачиваемый.
 /atom/movable/screen/map_view/character_setup_screen
 	name = "character setup screen"
 	icon = null
@@ -3896,14 +3966,32 @@
 	var/mutable_appearance/cached_source
 	var/cached_background_state
 	var/cached_auto_fit
+	var/list/reference_previews = list()
+	var/viewport_width
+	var/viewport_height
+	var/cached_single_view = FALSE
+	var/cached_direction = SOUTH
+	var/cached_zoom = 1
+	var/cached_reference = FALSE
+	var/cached_background_style = "texture"
+	var/native_zoom = 0
 
 /atom/movable/screen/map_view/character_setup_screen/Destroy()
 	hide_from()
 	vis_contents.Cut()
 	QDEL_LIST_ASSOC_VAL(previews)
+	QDEL_LIST_ASSOC_VAL(reference_previews)
 	icon_bounds_cache = null
 	cached_source = null
 	return ..()
+
+/atom/movable/screen/map_view/character_setup_screen/display_to_client(client/show_to)
+	. = ..()
+	apply_native_camera()
+
+/atom/movable/screen/map_view/character_setup_screen/proc/apply_native_camera()
+	if(registered_client)
+		winset(registered_client, assigned_map, list("zoom" = native_zoom, "background-color" = cached_background_style == "transparent" ? "none" : "#202020"))
 
 /atom/movable/screen/map_view/character_setup_screen/ensure_plane_group()
 	if(!popup_plane_group)
@@ -3920,18 +4008,29 @@
 
 /atom/movable/screen/map_view/character_setup_screen/proc/set_viewport_size(width, height)
 	var/new_aspect = clamp(width / height, 0.1, 10)
-	if(viewport_aspect == new_aspect)
+	if(viewport_width == width && viewport_height == height)
 		return FALSE
 	viewport_aspect = new_aspect
+	viewport_width = width
+	viewport_height = height
 	if(cached_source)
-		update_character(cached_source, cached_background_state, cached_auto_fit)
+		update_character(cached_source, cached_background_state, cached_auto_fit, cached_single_view, cached_direction, cached_zoom, cached_reference, cached_background_style)
 	return TRUE
 
-/atom/movable/screen/map_view/character_setup_screen/proc/update_character(mutable_appearance/appearance_source, background_state, auto_fit = TRUE)
+/atom/movable/screen/map_view/character_setup_screen/proc/update_character(mutable_appearance/appearance_source, background_state, auto_fit = TRUE, single_view = FALSE, view_direction = SOUTH, zoom_factor = 1, show_reference = FALSE, background_style = "texture")
 	cached_source = appearance_source
 	cached_background_state = background_state
 	cached_auto_fit = auto_fit
+	cached_single_view = single_view
+	cached_direction = view_direction
+	cached_zoom = zoom_factor
+	cached_reference = show_reference
+	cached_background_style = background_style
 	var/list/view_bounds = list()
+	var/list/reference_bounds_by_dir = list()
+	var/list/directions = single_view ? list(view_direction) : GLOB.cardinals
+	var/draw_reference = show_reference && !auto_fit
+	vis_contents.Cut()
 	var/reference_width = world.icon_size * 2
 	var/reference_height = world.icon_size
 	var/max_width = 0
@@ -3945,6 +4044,7 @@
 		if(!preview)
 			preview = new
 			previews["[direction]"] = preview
+		if(direction in directions)
 			vis_contents += preview
 		// Фигура — содержимое единого холста, а не отдельный экран с собственным screen_loc.
 		preview.appearance = appearance_source
@@ -3963,19 +4063,40 @@
 			reference.setDir(direction)
 			var/list/reference_bounds = measure_preview_bounds(reference, icon_bounds_cache)
 			if(reference_bounds)
+				reference_bounds_by_dir["[direction]"] = reference_bounds
 				reference_width = max(reference_width, reference_bounds[3] - reference_bounds[1])
 				reference_height = max(reference_height, reference_bounds[4] - reference_bounds[2])
+			if(draw_reference)
+				var/atom/movable/screen/reference_preview = reference_previews["[direction]"]
+				if(!reference_preview)
+					reference_preview = new
+					reference_previews["[direction]"] = reference_preview
+				reference_preview.appearance = reference
+				reference_preview.dir = direction
+				reference_preview.vis_flags = VIS_INHERIT_PLANE
+				reference_preview.layer = MOB_LAYER - 0.1
+				reference_preview.appearance_flags |= KEEP_TOGETHER
+				reference_preview.appearance_flags &= ~TILE_BOUND
+				reference_preview.color = list(0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,1, 0.5,0.6,0.7,0)
+				reference_preview.alpha = 90
+				if(direction in directions)
+					vis_contents += reference_preview
 
 	var/padding = 2
 	// По умолчанию приближаем текущее тело; тела меньше 100% сохраняют относительный размер.
 	var/frame_width = CEILING(max(world.icon_size, max_width) + padding * 2, 1)
 	var/frame_height = CEILING(max(world.icon_size, max_height) + padding * 2, 1)
+	if(single_view)
+		frame_width = CEILING(max(world.icon_size, max_width + padding * 2), 1)
+		frame_height = CEILING(max(world.icon_size, max_height + padding * 2), 1)
 	if(!auto_fit)
 		// Общая камера нужна для сравнения размеров, но оставляет запас вокруг обычного тела.
 		var/max_scale = max(2, CONFIG_GET(number/body_size_max))
 		frame_width = max(frame_width, CEILING(reference_width * max_scale + padding * 2, 1))
 		frame_height = max(frame_height, CEILING(reference_height * max_scale + padding * 2, 1))
-	var/map_height = frame_height * length(previews)
+		if(draw_reference)
+			frame_width = max(frame_width, CEILING(reference_width * (max_scale + 1) + 6 + padding * 2, 1))
+	var/map_height = frame_height * length(directions)
 	// Вторичная карта округляет габариты до клеток: закрашиваем также её правый и верхний запас.
 	var/canvas_width = CEILING(frame_width, world.icon_size)
 	var/canvas_height = CEILING(map_height, world.icon_size)
@@ -3985,27 +4106,55 @@
 			canvas_width = CEILING(canvas_height * viewport_aspect, world.icon_size)
 		else
 			canvas_height = CEILING(canvas_width / viewport_aspect, world.icon_size)
+	// Явный zoom карты сохраняет нативную отрисовку спрайтов. Размер контрола уже передан в физических пикселях.
+	native_zoom = 0
+	if(zoom_factor != 1 && viewport_width && viewport_height)
+		native_zoom = max(viewport_width / canvas_width, viewport_height / canvas_height) * zoom_factor
+		if(zoom_factor < 1)
+			// При отдалении продолжаем фон за исходный холст, чтобы не возникали чёрные полосы.
+			canvas_width = CEILING(canvas_width / zoom_factor, world.icon_size)
+			canvas_height = CEILING(canvas_height / zoom_factor, world.icon_size)
 	var/icon/map_bounds = icon('icons/mob/map_backgrounds.dmi', "clear")
 	map_bounds.Crop(1, 1, canvas_width, canvas_height)
 	// Фон — отдельная неподвижная сетка, без матрицы и размеров персонажа.
-	var/icon/background_tile = icon('modular_citadel/icons/ui/backgrounds.dmi', background_state, SOUTH, 1)
 	var/icon/background_canvas = icon(map_bounds)
-	for(var/x = 0, x < canvas_width, x += background_tile.Width())
-		for(var/y = 0, y < canvas_height, y += background_tile.Height())
-			background_canvas.Blend(background_tile, ICON_OVERLAY, x + 1, y + 1)
+	switch(background_style)
+		if("light", "dark")
+			background_canvas.DrawBox(background_style == "light" ? "#E4E4E4" : "#202020", 1, 1, canvas_width, canvas_height)
+		if("checker")
+			for(var/x = 0, x < canvas_width, x += 8)
+				for(var/y = 0, y < canvas_height, y += 8)
+					background_canvas.DrawBox((x / 8 + y / 8) % 2 ? "#7A7A7A" : "#B0B0B0", x + 1, y + 1, min(x + 8, canvas_width), min(y + 8, canvas_height))
+		if("texture")
+			var/icon/background_tile = icon('modular_citadel/icons/ui/backgrounds.dmi', background_state, SOUTH, 1)
+			for(var/x = 0, x < canvas_width, x += background_tile.Width())
+				for(var/y = 0, y < canvas_height, y += background_tile.Height())
+					background_canvas.Blend(background_tile, ICON_OVERLAY, x + 1, y + 1)
 	icon = background_canvas
 	plane = appearance_source.plane
 
 	var/position = 0
-	for(var/direction in GLOB.cardinals)
+	for(var/direction in directions)
 		var/atom/movable/screen/preview = previews["[direction]"]
 		var/list/bounds = view_bounds["[direction]"]
 		// Центрируем в координатах фона; pixel_x/y хранят только целые пиксели.
 		preview.pixel_x = round(canvas_width / 2 - (bounds[1] + bounds[3]) / 2, 1)
 		preview.pixel_y = round((canvas_height - map_height) / 2 + (position + 0.5) * frame_height - (bounds[2] + bounds[4]) / 2, 1)
+		if(draw_reference)
+			var/list/reference_bounds = reference_bounds_by_dir["[direction]"] || list(0, 0, world.icon_size, world.icon_size)
+			var/width = bounds[3] - bounds[1]
+			var/ref_width = reference_bounds[3] - reference_bounds[1]
+			var/group_left = (canvas_width - width - ref_width - 6) / 2
+			var/baseline = (canvas_height - map_height) / 2 + position * frame_height + (frame_height - max(bounds[4] - bounds[2], reference_bounds[4] - reference_bounds[2])) / 2
+			var/atom/movable/screen/reference_preview = reference_previews["[direction]"]
+			reference_preview.pixel_x = round(group_left - reference_bounds[1], 1)
+			reference_preview.pixel_y = round(baseline - reference_bounds[2], 1)
+			preview.pixel_x = round(group_left + ref_width + 6 - bounds[1], 1)
+			preview.pixel_y = round(baseline - bounds[2], 1)
 		position++
 	shown_offset = PLANE_TO_OFFSET(appearance_source.plane)
 	ensure_plane_group()
+	apply_native_camera()
 
 // Границы видимых пикселей слоёв: слева, снизу, справа, сверху. Картинку персонажа не пересобираем.
 /atom/movable/screen/map_view/character_setup_screen/proc/measure_preview_bounds(image/source, list/icon_sizes, inherited_icon, inherited_state, inherited_dir = SOUTH)
