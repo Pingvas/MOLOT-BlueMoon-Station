@@ -35,7 +35,13 @@
 /datum/character_setup
 	var/datum/preferences/prefs
 	var/tmp/preview_dirty = TRUE
+	var/tmp/preview_update_pending = FALSE
 	var/list/feature_field_cache
+	var/list/marking_options_cache
+	var/list/language_icons_cache
+	var/list/options_cache
+	var/list/mutant_labels_cache
+	var/tmp/heavy_static_pending = FALSE
 	var/character_revision = 0
 	var/loadout_selected = FALSE
 	var/list/viewer_screens
@@ -93,6 +99,24 @@
 		character_setup_ui = new(src)
 	character_setup_ui.ui_interact(user)
 
+// Прогрев до первого открытия.
+/datum/preferences/proc/prewarm_character_setup()
+	if(!parent)
+		return
+	if(QDELETED(character_setup_ui))
+		character_setup_ui = new(src)
+	character_setup_ui.prewarm()
+
+// Единый список стилей окна.
+/datum/preferences/proc/valid_setup_theme(theme)
+	var/static/list/valid = list(
+		"default", "kpk", "terminal", "syndie", "cat", "synth", "hotpink",
+		"hackerman", "malfunction", "heretic", "wizard", "darkmode", "pact",
+		"abductor", "neutral", "inteq", "chat", "chat_pink", "chat_violet",
+		"chat_green", "chat_amber",
+	)
+	return (theme in valid)
+
 /datum/character_setup/ui_state(mob/user)
 	return GLOB.always_state
 
@@ -118,12 +142,18 @@
 		viewer_screen.generate_view("character_setup_[REF(src)]_[REF(user)]_map")
 		LAZYSET(viewer_screens, user, viewer_screen)
 		preview_dirty = TRUE
-	update_preview(user)
+	// Превью собирается отдельным тиком.
+	schedule_preview_update()
 	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
+		// Окно стартует с лёгкой нагрузки.
+		heavy_static_pending = FALSE
 		ui = new(user, src, CHARACTER_SETUP_INTERFACE, "Создание персонажа")
 		ui.open()
 		viewer_screen.display_to(user, ui.window)
+		heavy_static_pending = TRUE
+		addtimer(CALLBACK(src, PROC_REF(push_heavy_static)), 0.1 SECONDS, TIMER_UNIQUE | TIMER_OVERRIDE)
+	ui.set_autoupdate(FALSE)
 
 /datum/character_setup/ui_static_data(mob/user, datum/tgui/ui, datum/ui_state/state)
 	var/list/data = list()
@@ -133,20 +163,38 @@
 	data["tabs"] = build_tabs_data()
 	data["maxSlots"] = prefs.max_save_slots
 	data["previewModes"] = list(PREVIEW_PREF_JOB, PREVIEW_PREF_LOADOUT, PREVIEW_PREF_NAKED)
-	data["options"] = build_options_static()
 	data["ageMin"] = AGE_MIN
 	data["ageMax"] = AGE_MAX_INPUT
 	data["quirksEnabled"] = !!CONFIG_GET(flag/roundstart_traits)
 	data["siliconLawsDisabled"] = !CONFIG_GET(flag/allow_silicon_choosing_laws)
-	data["featureFields"] = get_feature_fields()
-	data["languageIcons"] = build_language_icons()
-	data["markingOptions"] = build_marking_options_data()
+	return data
+
+// Тяжелые статические ключи.
+/datum/character_setup/proc/push_heavy_static()
+	SStgui.update_uis(src)
+
+// Прогрев гоев
+/datum/character_setup/proc/prewarm()
+	if(!prefs)
+		return
+	get_feature_fields()
+	build_options_static()
+	build_mutant_labels()
+	build_marking_options_data()
+	build_language_icons()
+	// Манекен строим только когда SSjob готов: превью зависит от экипировки вакансии.
+	//if(SSjob.initialized && prefs.parent)
+	//	build_preview_appearance()
+
+/datum/character_setup/proc/build_mutant_labels()
+	if(mutant_labels_cache)
+		return mutant_labels_cache
 	var/list/part_labels = list()
 	for(var/part in GLOB.all_mutant_parts)
 		if(part != "mam_body_markings")
 			part_labels[part] = ru_strings["[part]"] || GLOB.all_mutant_parts[part] || part
-	data["mutantPartLabels"] = part_labels
-	return data
+	mutant_labels_cache = part_labels
+	return mutant_labels_cache
 
 /datum/character_setup/proc/get_feature_fields()
 	if(!feature_field_cache)
@@ -372,13 +420,28 @@
 	field["options"] = cycle
 	return field
 
-/datum/character_setup/proc/build_appearance_data(mob/user)
+/datum/character_setup/proc/build_appearance_data(mob/user, full = TRUE)
 	var/list/data = list()
 	var/datum/species/species = prefs.pref_species
 	if(!species)
 		return data
 
 	data["values"] = build_feature_values()
+
+	if(prefs.left_eye_color != prefs.right_eye_color)
+		prefs.split_eye_colors = TRUE
+	if(length(species.allowed_limb_ids) && (!prefs.chosen_limb_id || !(prefs.chosen_limb_id in species.allowed_limb_ids)))
+		prefs.chosen_limb_id = species.limbs_id || species.id
+	data["hasPuddleSlime"] = (species.type == /datum/species/jelly/roundstartslime)
+	data["puddleSlime"] = !!prefs.features["puddle_slime_fea"]
+	data["hasScars"] = (HAS_FLESH in species.species_traits) || (HAS_BONE in species.species_traits)
+	data["jumpsuitStyle"] = prefs.jumpsuit_style
+	data["jumpsuitStyles"] = list(PREF_SUIT = "Комбинезон", PREF_SKIRT = "Юбка")
+	data["antagOptIn"] = build_antag_opt_in_data()
+
+	// срезаю часть меню, чтобы оно рендерилось только при открытии.
+	if(!full)
+		return data
 
 	data["gender"] = prefs.gender
 	data["genderOptions"] = list(MALE = "Мужской", FEMALE = "Женский", PLURAL = "Небинарный", NEUTER = "Объект")
@@ -410,8 +473,6 @@
 	data["skinToneCustom"] = !!CONFIG_GET(flag/allow_custom_skintones)
 	data["hasMutantColors"] = (MUTCOLORS in species.species_traits) || (MUTCOLORS_PARTSONLY in species.species_traits)
 
-	if(prefs.left_eye_color != prefs.right_eye_color)
-		prefs.split_eye_colors = TRUE
 	data["hasEyes"] = !(NOEYES in species.species_traits)
 	data["hasEyecolor"] = (EYECOLOR in species.species_traits)
 	data["eyeType"] = prefs.eye_type
@@ -432,23 +493,13 @@
 
 	data["genitals"] = build_genitals_data()
 
-	if(length(species.allowed_limb_ids) && (!prefs.chosen_limb_id || !(prefs.chosen_limb_id in species.allowed_limb_ids)))
-		prefs.chosen_limb_id = species.limbs_id || species.id
 	data["bodySprite"] = prefs.chosen_limb_id
 	data["bodySprites"] = species.allowed_limb_ids ? species.allowed_limb_ids.Copy() : list()
-	data["hasPuddleSlime"] = (species.type == /datum/species/jelly/roundstartslime)
-	data["puddleSlime"] = !!prefs.features["puddle_slime_fea"]
-
-	data["hasScars"] = (HAS_FLESH in species.species_traits) || (HAS_BONE in species.species_traits)
-	data["jumpsuitStyle"] = prefs.jumpsuit_style
-	data["jumpsuitStyles"] = list(PREF_SUIT = "Комбинезон", PREF_SKIRT = "Юбка")
 
 	var/weight_locked = !!prefs.all_quirks.Find(/datum/quirk/bluemoon_devourer::name)
 	data["bodyWeight"] = weight_locked ? NAME_WEIGHT_NORMAL : prefs.body_weight
 	data["weightOptions"] = GLOB.mob_sizes
 	data["weightLocked"] = weight_locked
-
-	data["antagOptIn"] = build_antag_opt_in_data()
 
 	return data
 
@@ -751,7 +802,8 @@
 	return colors
 
 /datum/character_setup/proc/build_marking_options_data()
-	// Списки зависят от владельца и части тела, поэтому передаём их один раз при открытии окна.
+	if(marking_options_cache)
+		return marking_options_cache
 	var/list/data = list()
 	for(var/limb in marking_limb_choices())
 		var/list/options = marking_name_options(limb)
@@ -759,6 +811,7 @@
 		for(var/option in options)
 			names += option
 		data[limb] = names
+	marking_options_cache = data
 	return data
 
 /datum/character_setup/proc/marking_color_chips(list/entry, matrixed)
@@ -1191,6 +1244,8 @@
 	return cached || null
 
 /datum/character_setup/proc/build_language_icons()
+	if(language_icons_cache)
+		return language_icons_cache
 	var/list/icons = list()
 	if(!SSlanguage)
 		return icons
@@ -1205,6 +1260,8 @@
 		var/encoded = language_icon_b64(icon_file, icon_state)
 		if(encoded)
 			icons[lang_name] = encoded
+	if(length(icons))
+		language_icons_cache = icons
 	return icons
 
 /datum/character_setup/proc/toggle_personal_chat_color()
@@ -1327,7 +1384,11 @@
 		return FALSE
 	sound_preview_kind = kind
 	sound_preview_until = world.time + duration
+	addtimer(CALLBACK(src, PROC_REF(sound_preview_finished)), duration, TIMER_UNIQUE | TIMER_OVERRIDE)
 	return TRUE
+
+/datum/character_setup/proc/sound_preview_finished()
+	SStgui.update_uis(src)
 
 /datum/character_setup/proc/stop_sound_preview()
 	sound_preview_generation++
@@ -2488,6 +2549,8 @@
 	preview_dirty = TRUE
 
 /datum/character_setup/proc/build_options_static()
+	if(options_cache)
+		return options_cache
 	var/list/pda_theme_options = list()
 	for(var/theme_name in GLOB.pda_name_to_theme)
 		pda_theme_options += list(list("label" = theme_name, "value" = GLOB.pda_name_to_theme[theme_name]))
@@ -2501,7 +2564,7 @@
 	for(var/lawset_name in config_laws)
 		lawset_options += lawset_name
 
-	return list(
+	options_cache = list(
 		"securityDepts" = GLOB.security_depts_prefs,
 		"aiCoreScreens" = GLOB.ai_core_display_screens,
 		"pdaStyles" = GLOB.pda_styles,
@@ -2509,6 +2572,7 @@
 		"pdaThemes" = pda_theme_options,
 		"lawsets" = lawset_options,
 	)
+	return options_cache
 
 /datum/character_setup/ui_data(mob/user)
 	var/list/data = list()
@@ -2526,6 +2590,7 @@
 	data["characterName"] = prefs.real_name
 	data["speciesName"] = prefs.pref_species.name
 	data["tab"] = prefs.character_settings_tab
+	data["theme"] = prefs.character_setup_theme
 	data["emissivesAllowed"] = !!prefs.features["allow_emissives"]
 	data["hasUnsavedChanges"] = character_state() != saved_character_state
 	data["saveNotice"] = save_notice
@@ -2536,6 +2601,13 @@
 	if(prefs.offer)
 		data["redemptionCode"] = prefs.offer.redemption_code
 
+	// Хеви-статик
+	if(heavy_static_pending)
+		heavy_static_pending = FALSE
+		data["featureFields"] = get_feature_fields()
+		data["options"] = build_options_static()
+		data["mutantPartLabels"] = build_mutant_labels()
+
 	switch(prefs.character_settings_tab)
 		if(GENERAL_CHAR_TAB)
 			data["general"] = build_general_data(user)
@@ -2543,17 +2615,19 @@
 			data["background"] = build_background_data()
 		if(MARKINGS_CHAR_TAB)
 			data["markings"] = build_markings_data()
+			data["markingOptions"] = build_marking_options_data()
 		if(SPEECH_CHAR_TAB)
 			data["speech"] = build_speech_data()
+			data["languageIcons"] = build_language_icons()
 		if(LOADOUT_CHAR_TAB)
 			data["loadout"] = build_loadout_data(user)
 		if(QUIRKS_CHAR_TAB)
 			data["quirksTab"] = build_quirks_data()
 
 	if(prefs.character_settings_tab == GENERAL_CHAR_TAB || prefs.character_settings_tab == APPEARANCE_CHAR_TAB)
-		data["appearance"] = build_appearance_data(user)
+		data["appearance"] = build_appearance_data(user, prefs.character_settings_tab == APPEARANCE_CHAR_TAB)
 
-	update_preview(user)
+	schedule_preview_update()
 	var/atom/movable/screen/map_view/character_setup_screen/viewer_screen = LAZYACCESS(viewer_screens, user)
 	data["previewRef"] = viewer_screen?.assigned_map
 	data["previewAutoFit"] = preview_auto_fit
@@ -3044,7 +3118,18 @@
 			slots[index] = links[index]
 	return slots
 
-/datum/character_setup/proc/update_preview(mob/user)
+/datum/character_setup/proc/schedule_preview_update()
+	// Превью собирается отдельным тиком: сборка манекена в тике открытия или действия даёт статтер.
+	if(!preview_dirty || preview_update_pending)
+		return
+	preview_update_pending = TRUE
+	addtimer(CALLBACK(src, PROC_REF(run_preview_update)), 0.1 SECONDS)
+
+/datum/character_setup/proc/run_preview_update()
+	preview_update_pending = FALSE
+	update_preview()
+
+/datum/character_setup/proc/update_preview()
 	if(!prefs?.parent || !preview_dirty || !length(viewer_screens))
 		return
 	var/mutable_appearance/appearance_source = prefs.build_preview_appearance(preview_aroused)
@@ -3069,6 +3154,14 @@
 			if(isnull(new_tab) || new_tab < GENERAL_CHAR_TAB || new_tab > QUIRKS_CHAR_TAB)
 				return
 			prefs.character_settings_tab = new_tab
+			return TRUE
+
+		if("set_theme")
+			var/new_theme = params["theme"]
+			if(!prefs.valid_setup_theme(new_theme) || new_theme == prefs.character_setup_theme)
+				return
+			prefs.character_setup_theme = new_theme
+			prefs.save_pref_var("character_setup_theme")
 			return TRUE
 
 		if("switch_slot")

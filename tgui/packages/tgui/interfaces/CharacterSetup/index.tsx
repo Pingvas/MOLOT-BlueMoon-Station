@@ -5,6 +5,7 @@ import {
   Box,
   Button,
   ByondUi,
+  Dropdown,
   Icon,
   Input,
   NoticeBox,
@@ -45,7 +46,51 @@ interface CharacterSetupData {
   redemptionCode?: string;
   hasUnsavedChanges: boolean;
   saveNotice?: string;
+  theme: string;
 }
+
+const THEME_OPTIONS: { value: string; displayText: string }[] = [
+  { value: 'default', displayText: 'Стандарт' },
+  { value: 'kpk', displayText: 'КПК' },
+  { value: 'terminal', displayText: 'Терминал' },
+  { value: 'syndie', displayText: 'Синдикат' },
+  { value: 'cat', displayText: 'Котик' },
+  { value: 'synth', displayText: 'Синт' },
+  { value: 'hotpink', displayText: 'Фуксия' },
+  { value: 'hackerman', displayText: 'Хакер' },
+  { value: 'malfunction', displayText: 'Сбой' },
+  { value: 'heretic', displayText: 'Еретик' },
+  { value: 'wizard', displayText: 'Волшебник' },
+  { value: 'darkmode', displayText: 'Графит' },
+  { value: 'pact', displayText: 'Пакт' },
+  { value: 'abductor', displayText: 'Абдуктор' },
+  { value: 'neutral', displayText: 'Янтарь' },
+  { value: 'inteq', displayText: 'Охра' },
+  { value: 'chat', displayText: 'Чат' },
+  { value: 'chat_pink', displayText: 'Розовый' },
+  { value: 'chat_violet', displayText: 'Фиолет' },
+  { value: 'chat_green', displayText: 'Зелёный' },
+  { value: 'chat_amber', displayText: 'Янтарный' },
+];
+
+// Готовые tgui-темы окна.
+const WINDOW_THEMES: Record<string, string> = {
+  kpk: 'ntos',
+  terminal: 'ntos_terminal',
+  syndie: 'syndicate',
+  cat: 'ntos_cat',
+  synth: 'ntos_synth',
+  hotpink: 'hotpink',
+  hackerman: 'hackerman',
+  malfunction: 'malfunction',
+  heretic: 'heretic',
+  wizard: 'wizard',
+  darkmode: 'ntos_darkmode',
+  pact: 'pact',
+  abductor: 'abductor',
+  neutral: 'neutral',
+  inteq: 'inteq',
+};
 
 const PREVIEW_MODES: Record<string, { label: string; icon: string }> = {
   Job: { label: 'По профессии', icon: 'briefcase' },
@@ -56,6 +101,7 @@ const PREVIEW_MODES: Record<string, { label: string; icon: string }> = {
 export const CharacterSetup = () => {
   const { act, data } = useBackend<CharacterSetupData>();
   const [slotsOpen, setSlotsOpen] = useState(true);
+  const theme = data.theme || 'default';
 
   return (
     <Window
@@ -64,8 +110,13 @@ export const CharacterSetup = () => {
       resizable
       title="Настройка персонажа"
       canMaximize
+      theme={WINDOW_THEMES[theme]}
     >
-      <Window.Content>
+      <Window.Content
+        className={
+          theme !== 'default' ? 'CharacterSetupTheme--' + theme : undefined
+        }
+      >
         <div className="CharacterSetup">
           <Section className="CharacterSetup__header">
             <Stack align="center">
@@ -88,6 +139,17 @@ export const CharacterSetup = () => {
                   <Icon name={data.hasUnsavedChanges ? 'pencil-alt' : 'check'} />{' '}
                   {data.hasUnsavedChanges ? 'Есть изменения' : 'Сохранено'}
                 </Box>
+              </Stack.Item>
+              <Stack.Item>
+                <Dropdown
+                  icon="palette"
+                  width="120px"
+                  className="CharacterSetup__theme-picker"
+                  tooltip="Стиль оформления окна"
+                  options={THEME_OPTIONS}
+                  selected={theme}
+                  onSelected={(next) => act('set_theme', { theme: next })}
+                />
               </Stack.Item>
               <Stack.Item>
                 <Button

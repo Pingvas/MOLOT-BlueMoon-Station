@@ -553,6 +553,9 @@ GLOBAL_VAR_INIT(last_churn_alert, 0)
 
 	addtimer(CALLBACK(src, PROC_REF(ensure_keys_set), prefs), 10)	//prevents possible race conditions
 
+	// Прогрев настроек персонажа заранее, чтобы первое открытие окна не ждало сборку.
+	// addtimer(CALLBACK(prefs, PROC_REF(prewarm_character_setup)), 10)
+
 	prefs.last_ip = address				//these are gonna be used for banning
 	prefs.last_id = computer_id			//these are gonna be used for banning
 	fps = sanitize_clientfps(prefs.clientfps)

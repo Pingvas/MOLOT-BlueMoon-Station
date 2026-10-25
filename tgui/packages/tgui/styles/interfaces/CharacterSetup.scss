@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 .CharacterSetup {
   display: flex;
   flex-direction: column;
@@ -335,6 +337,299 @@
     white-space: normal;
     overflow-wrap: anywhere;
   }
+
+  // Кнопка выбора стиля.
+  &__theme-picker {
+    min-height: 0;
+    padding: 0 0.45rem;
+    line-height: 1.667em;
+    margin-right: 2px;
+  }
+}
+
+// Блоки темы панели, кнопки, вкладки и поля в акцент темы.
+@mixin character-setup-theme($accent, $alpha-buttons: false, $text: null, $border: null, $radius: null) {
+  $bg-c: null;
+  $panel-c: rgba(0, 0, 0, 0.4);
+  $radius-c: 0px;
+  $btn-radius: 0px;
+  $font-c: (Consolas, 'Courier New', monospace);
+  $text-c: $accent;
+  $border-c: rgba(color.scale($accent, $saturation: -30%), 0.55);
+  $title-border-c: $border-c;
+  $btn-rest: color.scale($accent, $lightness: -30%);
+  $btn-hover: $accent;
+  $btn-sel: color.scale($accent, $lightness: 30%);
+  $btn-sel-hover: color.scale($accent, $lightness: 45%);
+  $btn-sel-text: #ffffff;
+  $tab-hover: rgba($accent, 0.35);
+  $tab-selected: $accent;
+  $tab-underline: color.scale($accent, $lightness: 70%);
+  $menu-bg: color.scale($accent, $lightness: -60%, $saturation: -55%);
+  $track-c: $menu-bg;
+  $thumb-c: $accent;
+  $input-bg: rgba(0, 0, 0, 0.45);
+  $input-border: rgba($accent, 0.9);
+  $menuentry-hover: rgba($accent, 0.6);
+
+  @if $text {
+    $text-c: $text;
+  }
+
+  @if $border {
+    $border-c: $border;
+  }
+
+  @if $radius {
+    $radius-c: $radius;
+    $btn-radius: $radius;
+  }
+
+  @if $alpha-buttons {
+    // Чат-темы.
+    $bg-c: #202020;
+    $panel-c: #1b1b1b;
+    $radius-c: 6px;
+    $btn-radius: 4px;
+    $font-c: (Verdana, Geneva, sans-serif);
+    $text-c: $accent;
+    $title-border-c: rgba($accent, 0.3);
+    $btn-rest: rgba($accent, 0.1);
+    $btn-hover: rgba($accent, 0.2);
+    $btn-sel: rgba($accent, 0.3);
+    $btn-sel-hover: rgba($accent, 0.42);
+    $btn-sel-text: $accent;
+    $tab-hover: rgba($accent, 0.12);
+    $tab-selected: rgba($accent, 0.14);
+    $tab-underline: $accent;
+    $menu-bg: rgba(24, 24, 24, 0.97);
+    $track-c: #161616;
+    $thumb-c: #3a3a3a;
+    $input-bg: #111111;
+    $input-border: #3a3a3a;
+    $menuentry-hover: rgba($accent, 0.12);
+  }
+
+  $label-c: rgba($text-c, 0.62);
+
+  @if $bg-c {
+    background-color: $bg-c;
+  }
+
+  .CharacterSetup {
+    color: $text-c;
+    font-family: $font-c;
+  }
+
+  .Section {
+    background-color: $panel-c;
+    border: 1px solid $border-c;
+    border-radius: $radius-c;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+
+    .Section__title {
+      border-bottom-color: $title-border-c;
+    }
+  }
+
+  .CharacterSetup__header {
+    @if $alpha-buttons {
+      background-color: rgba(0, 0, 0, 0.4);
+      border-bottom: 1px solid #333333;
+    } @else {
+      background-color: rgba(0, 0, 0, 0.5);
+      border-bottom: 2px solid $accent;
+    }
+  }
+
+  .CharacterSetup__search-results {
+    background-color: $menu-bg;
+    border-color: $border-c;
+    border-radius: $radius-c;
+  }
+
+  .CharacterSetup__slot-list::-webkit-scrollbar-track {
+    background: $track-c;
+  }
+
+  .CharacterSetup__slot-list::-webkit-scrollbar-thumb {
+    background: $thumb-c;
+    border-color: $track-c;
+  }
+
+  .CharacterSetup__slot-number {
+    color: $label-c;
+  }
+
+  .CharacterSetup__slot-tools {
+    border-top-color: $border-c;
+  }
+
+  .CharacterSetup__card-title {
+    border-bottom-color: $border-c;
+
+    .Icon {
+      color: rgba($text-c, 0.8);
+    }
+  }
+
+  .CharacterSetup__field-label {
+    color: $label-c;
+  }
+
+  .color-label {
+    color: $label-c !important;
+  }
+
+  .Tabs {
+    background-color: rgba(0, 0, 0, 0.35);
+  }
+
+  .Tab {
+    color: rgba($text-c, 0.6);
+
+    &:hover {
+      background-color: $tab-hover;
+    }
+
+    &.Tab--selected {
+      background-color: $tab-selected;
+      color: $btn-sel-text;
+      border-bottom-color: $tab-underline;
+    }
+  }
+
+  .Input {
+    background-color: $input-bg;
+    border-color: $input-border;
+    border-radius: $btn-radius;
+  }
+
+  .Input__input {
+    font-family: $font-c;
+  }
+
+  .Dropdown__menu,
+  .Dropdown__menu-noscroll {
+    background-color: $menu-bg;
+    border-radius: $radius-c;
+  }
+
+  .Dropdown__search {
+    background-color: $menu-bg;
+  }
+
+  .Dropdown__menuentry:hover {
+    background-color: $menuentry-hover;
+  }
+
+  .Button {
+    border-radius: $btn-radius;
+  }
+
+  // Шкала кнопок темы: покой, наведение и выбор отличаются яркостью акцента.
+  .Button--color--default {
+    background-color: $btn-rest;
+
+    &:hover,
+    &:focus {
+      background-color: $btn-hover;
+    }
+  }
+
+  .Button.Button--selected,
+  .Button.Button--selected:hover,
+  .Button.Button--selected:focus {
+    background-color: $btn-sel;
+    color: $btn-sel-text;
+  }
+
+  .Button.Button--selected:hover,
+  .Button.Button--selected:focus {
+    background-color: $btn-sel-hover;
+  }
+}
+
+// Темы КПК: оболочку (шапку и фон) красит tgui-тема окна, здесь — панели и элементы интерфейса.
+.Window__content.CharacterSetupTheme--kpk {
+  @include character-setup-theme(#384e68, $text: #cfe0f2);
+}
+
+.Window__content.CharacterSetupTheme--terminal {
+  @include character-setup-theme(#1a7a1a, $text: #8ce694);
+}
+
+.Window__content.CharacterSetupTheme--syndie {
+  @include character-setup-theme(#397439, $text: #f0c9c9);
+}
+
+.Window__content.CharacterSetupTheme--cat {
+  @include character-setup-theme(#c07550, $text: #efd6c4, $radius: 6px);
+}
+
+.Window__content.CharacterSetupTheme--synth {
+  @include character-setup-theme(#7b2fbe, $text: #e0ccf5);
+}
+
+.Window__content.CharacterSetupTheme--hotpink {
+  @include character-setup-theme(#ae4ab8, $text: #f2cef4);
+}
+
+.Window__content.CharacterSetupTheme--hackerman {
+  @include character-setup-theme(#00ff00, $text: #b4ffbc);
+}
+
+.Window__content.CharacterSetupTheme--malfunction {
+  @include character-setup-theme(#910101, $text: #dce7f0);
+}
+
+.Window__content.CharacterSetupTheme--heretic {
+  @include character-setup-theme(#a83232, $text: #e0d4cc);
+}
+
+.Window__content.CharacterSetupTheme--wizard {
+  @include character-setup-theme(#1596b6, $text: #d4e9f0);
+}
+
+.Window__content.CharacterSetupTheme--darkmode {
+  @include character-setup-theme(#4a5568, $text: #dce0e8);
+}
+
+.Window__content.CharacterSetupTheme--pact {
+  @include character-setup-theme(#397439, $text: #d2daee);
+}
+
+.Window__content.CharacterSetupTheme--abductor {
+  @include character-setup-theme(#ad2350, $text: #ecd6e2);
+}
+
+.Window__content.CharacterSetupTheme--neutral {
+  @include character-setup-theme(#ffb300, $text: #ffe9c4);
+}
+
+.Window__content.CharacterSetupTheme--inteq {
+  @include character-setup-theme(#397439, $text: #f2e2c8);
+}
+
+// Темы чата.
+.Window__content.CharacterSetupTheme--chat {
+  @include character-setup-theme(#abc6ec, $alpha-buttons: true, $border: #2b2b2b);
+}
+
+.Window__content.CharacterSetupTheme--chat_pink {
+  @include character-setup-theme(#ff9ec7, $alpha-buttons: true, $border: #2b2b2b);
+}
+
+.Window__content.CharacterSetupTheme--chat_violet {
+  @include character-setup-theme(#c9b6ff, $alpha-buttons: true, $border: #2b2b2b);
+}
+
+.Window__content.CharacterSetupTheme--chat_green {
+  @include character-setup-theme(#a5e8bc, $alpha-buttons: true, $border: #2b2b2b);
+}
+
+.Window__content.CharacterSetupTheme--chat_amber {
+  @include character-setup-theme(#f0c98a, $alpha-buttons: true, $border: #2b2b2b);
 }
 
 @container (max-width: 1100px) {

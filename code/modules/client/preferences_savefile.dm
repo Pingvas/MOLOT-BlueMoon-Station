@@ -614,6 +614,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	S["tgui_swapped_buttons"]	>> tgui_swapped_buttons
 	S["tgui_panel_theme"]		>> tgui_panel_theme
 	S["tgui_panel_state"]		>> tgui_panel_state
+	S["character_setup_theme"]	>> character_setup_theme
 	S["ui_zoom_preferences"]	>> ui_zoom_preferences
 	S["vending_layouts"]		>> vending_layouts
 	S["windowflash"] 			>> windowflashing
@@ -783,6 +784,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	tgui_swapped_buttons	= sanitize_integer(tgui_swapped_buttons, 0, 1, initial(tgui_swapped_buttons))
 	tgui_panel_theme = sanitize_inlist(tgui_panel_theme, list("default", "light", "dark"), initial(tgui_panel_theme))
 	tgui_panel_state = sanitize_text(tgui_panel_state, initial(tgui_panel_state))
+	character_setup_theme = valid_setup_theme(character_setup_theme) ? character_setup_theme : initial(character_setup_theme)
 	var/list/sanitized_vending_layouts = list()
 	if(islist(vending_layouts))
 		for(var/machine_key in vending_layouts)
