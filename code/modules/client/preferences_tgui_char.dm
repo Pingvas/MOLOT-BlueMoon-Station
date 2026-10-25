@@ -59,6 +59,7 @@
 	var/preview_zoom = 1
 	var/preview_reference = FALSE
 	var/preview_background_style = "texture"
+	var/heavy_static_ready = FALSE
 
 /datum/character_setup/New(datum/preferences/new_prefs)
 	prefs = new_prefs
@@ -104,14 +105,6 @@
 		character_setup_ui = new(src)
 	character_setup_ui.ui_interact(user)
 
-// Прогрев до первого открытия.
-/datum/preferences/proc/prewarm_character_setup()
-	if(!parent)
-		return
-	if(QDELETED(character_setup_ui))
-		character_setup_ui = new(src)
-	character_setup_ui.prewarm()
-
 // Единый список стилей окна.
 /datum/preferences/proc/valid_setup_theme(theme)
 	var/static/list/valid = list(
@@ -147,15 +140,12 @@
 		viewer_screen.generate_view("character_setup_[REF(src)]_[REF(user)]_map")
 		LAZYSET(viewer_screens, user, viewer_screen)
 		preview_dirty = TRUE
-	// Превью собирается отдельным тиком.
-	schedule_preview_update()
 	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		// Окно стартует с лёгкой нагрузки.
-		heavy_static_pending = FALSE
 		ui = new(user, src, CHARACTER_SETUP_INTERFACE, "Создание персонажа")
 		ui.open()
-		viewer_screen.display_to(user, ui.window)
+	// Справочники отправляем отдельно; повторное открытие использует уже готовый кэш.
+	if(!heavy_static_ready && !heavy_static_pending)
 		heavy_static_pending = TRUE
 		addtimer(CALLBACK(src, PROC_REF(push_heavy_static)), 0.1 SECONDS, TIMER_UNIQUE | TIMER_OVERRIDE)
 	ui.set_autoupdate(FALSE)
@@ -172,13 +162,28 @@
 	data["ageMax"] = AGE_MAX_INPUT
 	data["quirksEnabled"] = !!CONFIG_GET(flag/roundstart_traits)
 	data["siliconLawsDisabled"] = !CONFIG_GET(flag/allow_silicon_choosing_laws)
+	if(heavy_static_ready)
+		data["featureFields"] = get_feature_fields()
+		data["options"] = build_options_static()
+		data["mutantPartLabels"] = build_mutant_labels()
+		data["markingOptions"] = build_marking_options_data()
+		data["languageIcons"] = build_language_icons()
 	return data
 
-// Тяжелые статические ключи.
+// Статика принадлежит окну, а не одноразовому флагу в ui_data(): её не потеряет соседнее обновление.
 /datum/character_setup/proc/push_heavy_static()
-	SStgui.update_uis(src)
+	if(!heavy_static_ready)
+		prewarm()
+		heavy_static_ready = TRUE
+	update_static_data_for_all_viewers(ignore_cooldown = TRUE)
+	for(var/datum/tgui/ui as anything in SStgui.get_all_open_uis(src))
+		if(!ui.initialized)
+			// При холодной загрузке браузер ещё не принимает обновления; справочники не должны потеряться.
+			addtimer(CALLBACK(src, PROC_REF(push_heavy_static)), 0.1 SECONDS, TIMER_UNIQUE | TIMER_OVERRIDE)
+			return
+	heavy_static_pending = FALSE
 
-// Прогрев гоев
+// Справочники строятся по требованию. Манекен до готовности нативной карты не создаём.
 /datum/character_setup/proc/prewarm()
 	if(!prefs)
 		return
@@ -187,9 +192,6 @@
 	build_mutant_labels()
 	build_marking_options_data()
 	build_language_icons()
-	// Манекен строим только когда SSjob готов: превью зависит от экипировки вакансии.
-	//if(SSjob.initialized && prefs.parent)
-	//	build_preview_appearance()
 
 /datum/character_setup/proc/build_mutant_labels()
 	if(mutant_labels_cache)
@@ -1517,6 +1519,11 @@
 	data["selectedView"] = loadout_selected
 	var/datum/job/planned_job = prefs.get_highest_job()
 	data["plannedJob"] = planned_job?.title
+	// Индексы общие для всей выдачи: строки каталога не обходят выбранные вещи заново.
+	var/list/selected_by_type = list()
+	var/list/conflicts_by_slot = list()
+	var/list/selected_gear = list()
+	var/list/row_context = list("selected" = selected_by_type, "conflicts" = conflicts_by_slot, "job" = planned_job)
 	var/list/selected_items = list()
 	var/selected_count = 0
 	var/list/chosen_gear = prefs.loadout_data["SAVE_[prefs.loadout_slot]"]
@@ -1524,12 +1531,20 @@
 		var/datum/gear/gear = find_loadout_gear(entry[LOADOUT_ITEM])
 		if(istype(gear))
 			selected_count++
-			if(loadout_selected)
-				selected_items += list(build_loadout_row(gear, gear.name))
+			selected_gear += gear
+			if(!selected_by_type["[gear.type]"])
+				selected_by_type["[gear.type]"] = entry
+			if(planned_job && length(gear.restricted_roles) && !(planned_job.title in gear.restricted_roles))
+				continue
+			if(gear.donoritem && !gear.donator_ckey_check(prefs.parent?.key))
+				continue
+			LAZYADD(conflicts_by_slot["[gear.slot]"], list(list("type" = gear.type, "name" = entry[LOADOUT_CUSTOM_NAME] || gear.name)))
 	data["selectedCount"] = selected_count
 
 	data["showCkeyId"] = (prefs.gear_category == LOADOUT_CATEGORY_DONATOR && prefs.gear_subcategory == LOADOUT_SUBCATEGORIES_DON03)
 	if(loadout_selected)
+		for(var/datum/gear/gear as anything in selected_gear)
+			selected_items += list(build_loadout_row(gear, gear.name, row_context))
 		data["items"] = selected_items
 		data["invalid"] = list()
 		return data
@@ -1540,7 +1555,7 @@
 		return data
 
 	data["invalid"] = list()
-	data["items"] = build_loadout_rows(user)
+	data["items"] = build_loadout_rows(user, row_context)
 	return data
 
 /datum/character_setup/proc/calc_gear_points(mob/user)
@@ -1563,7 +1578,7 @@
 		else
 			prefs.loadout_errors++
 
-/datum/character_setup/proc/build_loadout_rows(mob/user)
+/datum/character_setup/proc/build_loadout_rows(mob/user, list/row_context)
 	var/list/rows = list()
 	var/list/subcategory_items = GLOB.loadout_items[prefs.gear_category]?[prefs.gear_subcategory]
 	for(var/item_name in subcategory_items)
@@ -1572,10 +1587,10 @@
 			continue
 		if(gear.donoritem && !gear.donator_ckey_check(user?.key))
 			continue
-		rows += list(build_loadout_row(gear, item_name))
+		rows += list(build_loadout_row(gear, item_name, row_context))
 	return rows
 
-/datum/character_setup/proc/build_loadout_row(datum/gear/gear, item_name)
+/datum/character_setup/proc/build_loadout_row(datum/gear/gear, item_name, list/row_context)
 	var/list/row = list("name" = item_name)
 	row["id"] = "[gear.type]"
 	row["category"] = loadout_ui_label(gear.category)
@@ -1604,7 +1619,8 @@
 
 	row["description"] = gear.description
 
-	var/list/entry = prefs.has_loadout_gear(prefs.loadout_slot, "[gear.type]")
+	var/list/selected_by_type = row_context["selected"]
+	var/list/entry = selected_by_type["[gear.type]"]
 	row["selected"] = !!entry
 	row["noPoints"] = !entry && (prefs.gear_points < gear.cost)
 	var/availability_reason
@@ -1618,7 +1634,7 @@
 		availability_reason = "Не хватает очков: нужно [gear.cost], осталось [prefs.gear_points]."
 	row["availabilityReason"] = availability_reason
 	row["canBuy"] = !entry && !availability_reason
-	var/datum/job/planned_job = prefs.get_highest_job()
+	var/datum/job/planned_job = row_context["job"]
 	row["roleMismatch"] = planned_job && length(gear.restricted_roles) && !(planned_job.title in gear.restricted_roles)
 	if(row["roleMismatch"])
 		row["roleWarning"] = "Не выдаётся для профессии «[planned_job.title]». Итоговая проверка зависит от назначенной профессии."
@@ -1626,16 +1642,11 @@
 	// Для отдельных носимых слотов показываем конфликты между доступными предметами набора.
 	if(gear.slot && !(gear.slot in list(ITEM_SLOT_BACKPACK, ITEM_SLOT_HANDS, ITEM_SLOT_ACCESSORY)))
 		var/list/conflicts = list()
-		var/list/chosen_gear = prefs.loadout_data["SAVE_[prefs.loadout_slot]"]
-		for(var/list/other_entry in chosen_gear)
-			var/datum/gear/other = find_loadout_gear(other_entry[LOADOUT_ITEM])
-			if(!other || other.type == gear.type || other.slot != gear.slot)
+		var/list/conflicts_by_slot = row_context["conflicts"]
+		for(var/list/other in conflicts_by_slot["[gear.slot]"])
+			if(other["type"] == gear.type)
 				continue
-			if(planned_job && length(other.restricted_roles) && !(planned_job.title in other.restricted_roles))
-				continue
-			if(other.donoritem && !other.donator_ckey_check(prefs.parent?.key))
-				continue
-			conflicts += other_entry[LOADOUT_CUSTOM_NAME] || other.name
+			conflicts += other["name"]
 		row["conflicts"] = conflicts
 	if(row["roleMismatch"])
 		row["conflicts"] = list()
@@ -2580,19 +2591,9 @@
 	return options_cache
 
 /datum/character_setup/ui_data(mob/user)
-	var/list/data = list()
+	var/list/data = preview_data(user)
 	if(!prefs)
 		return data
-
-	data["previewPref"] = prefs.preview_pref
-	data["previewAroused"] = preview_aroused
-	data["previewSingleView"] = preview_single_view
-	data["previewDirection"] = preview_direction
-	data["previewZoom"] = preview_zoom
-	data["previewReference"] = preview_reference
-	data["previewBackgroundStyle"] = preview_background_style
-	data["previewBackground"] = prefs.bgstate
-	data["previewBackgrounds"] = bg_state_options()
 
 	data["slotNames"] = prefs.get_slot_names() || list()
 	data["defaultSlot"] = prefs.default_slot
@@ -2611,13 +2612,6 @@
 	if(prefs.offer)
 		data["redemptionCode"] = prefs.offer.redemption_code
 
-	// Хеви-статик
-	if(heavy_static_pending)
-		heavy_static_pending = FALSE
-		data["featureFields"] = get_feature_fields()
-		data["options"] = build_options_static()
-		data["mutantPartLabels"] = build_mutant_labels()
-
 	switch(prefs.character_settings_tab)
 		if(GENERAL_CHAR_TAB)
 			data["general"] = build_general_data(user)
@@ -2625,10 +2619,8 @@
 			data["background"] = build_background_data()
 		if(MARKINGS_CHAR_TAB)
 			data["markings"] = build_markings_data()
-			data["markingOptions"] = build_marking_options_data()
 		if(SPEECH_CHAR_TAB)
 			data["speech"] = build_speech_data()
-			data["languageIcons"] = build_language_icons()
 		if(LOADOUT_CHAR_TAB)
 			data["loadout"] = build_loadout_data(user)
 		if(QUIRKS_CHAR_TAB)
@@ -2638,13 +2630,27 @@
 		data["appearance"] = build_appearance_data(user, prefs.character_settings_tab == APPEARANCE_CHAR_TAB)
 
 	schedule_preview_update()
+	return data
+
+// Камера не меняет настройки вкладки: отправляем только её собственные поля.
+/datum/character_setup/proc/preview_data(mob/user)
+	var/list/data = list()
+	if(!prefs)
+		return data
+	data["previewPref"] = prefs.preview_pref
+	data["previewAroused"] = preview_aroused
+	data["previewSingleView"] = preview_single_view
+	data["previewDirection"] = preview_direction
+	data["previewZoom"] = preview_zoom
+	data["previewReference"] = preview_reference
+	data["previewBackgroundStyle"] = preview_background_style
+	data["previewBackground"] = prefs.bgstate
+	data["previewBackgrounds"] = bg_state_options()
 	var/atom/movable/screen/map_view/character_setup_screen/viewer_screen = LAZYACCESS(viewer_screens, user)
 	data["previewRef"] = viewer_screen?.assigned_map
 	data["previewAutoFit"] = preview_auto_fit
 	data["previewViewportReady"] = viewer_screen && !isnull(viewer_screen.viewport_aspect)
-	if(preview_dirty)
-		data["previewDirty"] = TRUE
-
+	data["previewDirty"] = preview_dirty
 	return data
 
 /datum/character_setup/proc/build_tabs_data()
@@ -3132,30 +3138,59 @@
 	// Превью собирается отдельным тиком: сборка манекена в тике открытия или действия даёт статтер.
 	if(!preview_dirty || preview_update_pending)
 		return
+	var/viewport_ready = FALSE
+	for(var/viewer in viewer_screens)
+		var/atom/movable/screen/map_view/character_setup_screen/viewer_screen = viewer_screens[viewer]
+		if(viewer_screen.viewport_width)
+			viewport_ready = TRUE
+			break
+	if(!viewport_ready)
+		return
 	preview_update_pending = TRUE
-	addtimer(CALLBACK(src, PROC_REF(run_preview_update)), 0.1 SECONDS)
+	addtimer(CALLBACK(src, PROC_REF(run_preview_update)), SSjob.initialized ? 0.1 SECONDS : 1 SECONDS)
 
 /datum/character_setup/proc/run_preview_update()
+	try
+		update_preview()
+	catch(var/exception/error)
+		preview_dirty = TRUE
+		preview_update_pending = FALSE
+		stack_trace("Ошибка сборки превью персонажа: [error]")
+		return
 	preview_update_pending = FALSE
-	update_preview()
+	if(!QDELETED(src))
+		schedule_preview_update()
 
 /datum/character_setup/proc/update_preview()
-	if(!prefs?.parent || !preview_dirty || !length(viewer_screens))
+	if(!prefs?.parent || !SSjob.initialized || !preview_dirty || !length(viewer_screens))
 		return
+	// Пока общий манекен занят, сборка может уснуть. Новая правка должна оставить новую заявку.
+	preview_dirty = FALSE
 	var/mutable_appearance/appearance_source = prefs.build_preview_appearance(preview_aroused)
 	if(!appearance_source)
+		preview_dirty = TRUE
+		return
+	if(QDELETED(src) || !prefs || preview_dirty)
 		return
 	for(var/viewer in viewer_screens)
 		var/atom/movable/screen/map_view/character_setup_screen/viewer_screen = viewer_screens[viewer]
 		viewer_screen.update_character(appearance_source, prefs.bgstate, preview_auto_fit, preview_single_view, preview_direction, preview_zoom, preview_reference, preview_background_style)
-	preview_dirty = FALSE
+	push_preview_update()
+
+/datum/character_setup/proc/push_preview_update(character_changed = FALSE)
+	for(var/datum/tgui/ui as anything in SStgui.get_all_open_uis(src))
+		var/list/data = preview_data(ui.user)
+		if(character_changed)
+			data["hasUnsavedChanges"] = character_state() != saved_character_state
+		ui.send_update(data)
 
 // Камера использует готовую внешность: поворот, фон и масштаб не пересоздают манекен.
-/datum/character_setup/proc/refresh_preview_camera()
+/datum/character_setup/proc/refresh_preview_camera(character_changed = FALSE)
 	for(var/viewer in viewer_screens)
 		var/atom/movable/screen/map_view/character_setup_screen/viewer_screen = viewer_screens[viewer]
 		if(viewer_screen.cached_source)
 			viewer_screen.update_character(viewer_screen.cached_source, prefs.bgstate, preview_auto_fit, preview_single_view, preview_direction, preview_zoom, preview_reference, preview_background_style)
+	push_preview_update(character_changed)
 
 /datum/character_setup/ui_act(action, list/params)
 	. = ..()
@@ -3252,12 +3287,12 @@
 		if("set_preview_auto_fit")
 			preview_auto_fit = !!params["value"]
 			refresh_preview_camera()
-			return TRUE
+			return FALSE
 
 		if("set_preview_single_view")
 			preview_single_view = !!params["value"]
 			refresh_preview_camera()
-			return TRUE
+			return FALSE
 
 		if("rotate_preview")
 			if(params["direction"] == "left")
@@ -3269,7 +3304,7 @@
 			else
 				return
 			refresh_preview_camera()
-			return TRUE
+			return FALSE
 
 		if("set_preview_zoom")
 			var/new_zoom = num_param(params["value"])
@@ -3277,17 +3312,17 @@
 				return
 			preview_zoom = clamp(round(new_zoom, 0.05), 0.5, 3)
 			refresh_preview_camera()
-			return TRUE
+			return FALSE
 
 		if("reset_preview_camera")
 			preview_zoom = 1
 			refresh_preview_camera()
-			return TRUE
+			return FALSE
 
 		if("set_preview_reference")
 			preview_reference = !!params["value"]
 			refresh_preview_camera()
-			return TRUE
+			return FALSE
 
 		if("set_preview_background")
 			var/list/options = list("transparent", "checker", "light", "dark")
@@ -3304,8 +3339,8 @@
 				prefs.bgstate = copytext(choice, length("texture:") + 1)
 			else
 				preview_background_style = choice
-			refresh_preview_camera()
-			return TRUE
+			refresh_preview_camera(character_changed = TRUE)
+			return FALSE
 
 		if("set_preview_viewport")
 			var/width = num_param(params["width"])
@@ -3318,8 +3353,12 @@
 			var/was_ready = !isnull(viewer_screen.viewport_aspect)
 			if(!viewer_screen.set_viewport_size(width, height))
 				return
-			// После первого замера обновляем только нативный холст, без повторной отправки всех настроек.
-			return !was_ready
+			if(!was_ready)
+				// Замер приходит после winset из ByondUi: подкарту уже создали, можно регистрировать плоскости.
+				viewer_screen.display_to_client(usr.client)
+				push_preview_update()
+			schedule_preview_update()
+			return FALSE
 
 		if("set_name")
 			var/new_name = reject_bad_name("[params["name"]]", allow_numbers = TRUE)
@@ -3975,6 +4014,12 @@
 	var/cached_reference = FALSE
 	var/cached_background_style = "texture"
 	var/native_zoom = 0
+	var/list/view_bounds_cache = list()
+	var/list/reference_bounds_cache = list()
+	var/icon/background_cache
+	var/background_cache_key
+	var/prepared_plane_count = 0
+	var/client/prepared_for_client
 
 /atom/movable/screen/map_view/character_setup_screen/Destroy()
 	hide_from()
@@ -3983,6 +4028,10 @@
 	QDEL_LIST_ASSOC_VAL(reference_previews)
 	icon_bounds_cache = null
 	cached_source = null
+	view_bounds_cache = null
+	reference_bounds_cache = null
+	background_cache = null
+	prepared_for_client = null
 	return ..()
 
 /atom/movable/screen/map_view/character_setup_screen/display_to_client(client/show_to)
@@ -3997,6 +4046,11 @@
 	if(!popup_plane_group)
 		popup_plane_group = new /datum/plane_master_group/popup/on_demand(PLANE_GROUP_POPUP_WINDOW(src), assigned_map)
 	popup_plane_group.ensure_popup_depth(shown_offset)
+	// Фильтры зависят от зрителя и набора плоскостей, но не от поворота или масштаба камеры.
+	if(prepared_plane_count == length(popup_plane_group.plane_masters) && prepared_for_client == registered_client)
+		return popup_plane_group
+	prepared_plane_count = length(popup_plane_group.plane_masters)
+	prepared_for_client = registered_client
 	for(var/plane_key in popup_plane_group.plane_masters)
 		var/atom/movable/screen/plane_master/plane_master = popup_plane_group.plane_masters[plane_key]
 		plane_master.refresh_backdrop(registered_client?.mob)
@@ -4018,6 +4072,10 @@
 	return TRUE
 
 /atom/movable/screen/map_view/character_setup_screen/proc/update_character(mutable_appearance/appearance_source, background_state, auto_fit = TRUE, single_view = FALSE, view_direction = SOUTH, zoom_factor = 1, show_reference = FALSE, background_style = "texture")
+	var/source_changed = cached_source != appearance_source
+	if(source_changed)
+		view_bounds_cache.Cut()
+		reference_bounds_cache.Cut()
 	cached_source = appearance_source
 	cached_background_state = background_state
 	cached_auto_fit = auto_fit
@@ -4053,15 +4111,20 @@
 		// В том числе FLOAT_LAYER у ИИ и боргов должен оказаться над фоном холста.
 		preview.layer = max(MOB_LAYER, preview.layer)
 		preview.appearance_flags &= ~TILE_BOUND
-		var/list/bounds = measure_preview_bounds(preview, icon_bounds_cache)
+		var/list/bounds = view_bounds_cache["[direction]"]
 		if(!bounds)
-			bounds = list(0, 0, world.icon_size, world.icon_size)
+			bounds = measure_preview_bounds(preview, icon_bounds_cache) || list(0, 0, world.icon_size, world.icon_size)
+			view_bounds_cache["[direction]"] = bounds
 		view_bounds["[direction]"] = bounds
 		max_width = max(max_width, bounds[3] - bounds[1])
 		max_height = max(max_height, bounds[4] - bounds[2])
 		if(reference)
 			reference.setDir(direction)
-			var/list/reference_bounds = measure_preview_bounds(reference, icon_bounds_cache)
+			var/list/reference_bounds = reference_bounds_cache["[direction]"]
+			if(!reference_bounds)
+				reference_bounds = measure_preview_bounds(reference, icon_bounds_cache)
+				if(reference_bounds)
+					reference_bounds_cache["[direction]"] = reference_bounds
 			if(reference_bounds)
 				reference_bounds_by_dir["[direction]"] = reference_bounds
 				reference_width = max(reference_width, reference_bounds[3] - reference_bounds[1])
@@ -4114,23 +4177,26 @@
 			// При отдалении продолжаем фон за исходный холст, чтобы не возникали чёрные полосы.
 			canvas_width = CEILING(canvas_width / zoom_factor, world.icon_size)
 			canvas_height = CEILING(canvas_height / zoom_factor, world.icon_size)
-	var/icon/map_bounds = icon('icons/mob/map_backgrounds.dmi', "clear")
-	map_bounds.Crop(1, 1, canvas_width, canvas_height)
-	// Фон — отдельная неподвижная сетка, без матрицы и размеров персонажа.
-	var/icon/background_canvas = icon(map_bounds)
-	switch(background_style)
-		if("light", "dark")
-			background_canvas.DrawBox(background_style == "light" ? "#E4E4E4" : "#202020", 1, 1, canvas_width, canvas_height)
-		if("checker")
-			for(var/x = 0, x < canvas_width, x += 8)
-				for(var/y = 0, y < canvas_height, y += 8)
-					background_canvas.DrawBox((x / 8 + y / 8) % 2 ? "#7A7A7A" : "#B0B0B0", x + 1, y + 1, min(x + 8, canvas_width), min(y + 8, canvas_height))
-		if("texture")
-			var/icon/background_tile = icon('modular_citadel/icons/ui/backgrounds.dmi', background_state, SOUTH, 1)
-			for(var/x = 0, x < canvas_width, x += background_tile.Width())
-				for(var/y = 0, y < canvas_height, y += background_tile.Height())
-					background_canvas.Blend(background_tile, ICON_OVERLAY, x + 1, y + 1)
-	icon = background_canvas
+	var/background_key = "[canvas_width]x[canvas_height]|[background_style]|[background_style == "texture" ? background_state : ""]"
+	if(background_cache_key != background_key)
+		// Один готовый фон на окно: повороты не создают и не рассылают новую иконку.
+		var/icon/background_canvas = icon('icons/mob/map_backgrounds.dmi', "clear")
+		background_canvas.Crop(1, 1, canvas_width, canvas_height)
+		switch(background_style)
+			if("light", "dark")
+				background_canvas.DrawBox(background_style == "light" ? "#E4E4E4" : "#202020", 1, 1, canvas_width, canvas_height)
+			if("checker")
+				for(var/x = 0, x < canvas_width, x += 8)
+					for(var/y = 0, y < canvas_height, y += 8)
+						background_canvas.DrawBox((x / 8 + y / 8) % 2 ? "#7A7A7A" : "#B0B0B0", x + 1, y + 1, min(x + 8, canvas_width), min(y + 8, canvas_height))
+			if("texture")
+				var/icon/background_tile = icon('modular_citadel/icons/ui/backgrounds.dmi', background_state, SOUTH, 1)
+				for(var/x = 0, x < canvas_width, x += background_tile.Width())
+					for(var/y = 0, y < canvas_height, y += background_tile.Height())
+						background_canvas.Blend(background_tile, ICON_OVERLAY, x + 1, y + 1)
+		background_cache = fcopy_rsc(background_canvas)
+		background_cache_key = background_key
+	icon = background_cache
 	plane = appearance_source.plane
 
 	var/position = 0

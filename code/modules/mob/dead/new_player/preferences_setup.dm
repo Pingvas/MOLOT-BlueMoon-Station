@@ -40,35 +40,42 @@
 		if(istype(previewJob,/datum/job/cyborg))
 			return mutable_appearance('icons/mob/robots.dmi', "robot", FLOAT_LAYER, GAME_PLANE)
 
-	// Set up the dummy for its photoshoot. regenerate = FALSE: манекен всё равно
+	// regenerate = FALSE: манекен всё равно
 	// сразу переодевается и в конце проходит regenerate_icons() - восстанавливать
 	// срезанные wipe_state() иконки на входе значит рендерить его дважды.
 	var/mob/living/carbon/human/dummy/mannequin = generate_or_wait_for_human_dummy(DUMMY_HUMAN_SLOT_PREFERENCES, regenerate = FALSE)
 	if(!mannequin)
 		return null
-	copy_to(mannequin, icon_updates = FALSE, initial_spawn = TRUE)
+	var/mutable_appearance/result
+	try
+		// Новый манекен и взятый из пула начинают с одинаково очищенного состояния.
+		mannequin.wipe_state()
+		copy_to(mannequin, icon_updates = FALSE, initial_spawn = TRUE)
 
-	switch(preview_pref)
-		if(PREVIEW_PREF_JOB)
-			if(previewJob)
-				mannequin.job = previewJob.title
-				previewJob.equip(mannequin, TRUE, preference_source = parent)
-		if(PREVIEW_PREF_LOADOUT)
-			SSjob.equip_loadout(parent?.mob, mannequin, bypass_prereqs = TRUE, can_drop = FALSE, is_dummy = TRUE, preferences_source = src)
-			SSjob.post_equip_loadout(parent?.mob, mannequin, bypass_prereqs = TRUE, can_drop = FALSE, is_dummy = TRUE, preferences_source = src)
+		switch(preview_pref)
+			if(PREVIEW_PREF_JOB)
+				if(previewJob)
+					mannequin.job = previewJob.title
+					previewJob.equip(mannequin, TRUE, preference_source = parent)
+			if(PREVIEW_PREF_LOADOUT)
+				SSjob.equip_loadout(parent?.mob, mannequin, bypass_prereqs = TRUE, can_drop = FALSE, is_dummy = TRUE, preferences_source = src)
+				SSjob.post_equip_loadout(parent?.mob, mannequin, bypass_prereqs = TRUE, can_drop = FALSE, is_dummy = TRUE, preferences_source = src)
 
-	// Органы манекена переиспользуются: каждый кадр явно задаёт выбранную позу,
-	// независимо от прошлого превью и игровых ограничений возбуждения.
-	for(var/obj/item/organ/genital/genital in mannequin.internal_organs)
-		if(CHECK_BITFIELD(genital.genital_flags, GENITAL_CAN_AROUSE))
-			genital.aroused_state = aroused_preview
-			genital.update_appearance()
+		// Органы манекена переиспользуются: каждый кадр явно задаёт выбранную позу,
+		// независимо от прошлого превью и игровых ограничений возбуждения.
+		for(var/obj/item/organ/genital/genital in mannequin.internal_organs)
+			if(CHECK_BITFIELD(genital.genital_flags, GENITAL_CAN_AROUSE))
+				genital.aroused_state = aroused_preview
+				genital.update_appearance()
 
-	mannequin.regenerate_icons()
+		mannequin.regenerate_icons()
 
-	var/mutable_appearance/result = new /mutable_appearance(mannequin)
-	// Конструктор mutable_appearance сбрасывает plane: сохраняем настоящую плоскость манекена.
-	result.plane = mannequin.plane
+		result = new /mutable_appearance(mannequin)
+		// Конструктор mutable_appearance сбрасывает plane: сохраняем настоящую плоскость манекена.
+		result.plane = mannequin.plane
+	catch(var/exception/error)
+		unset_busy_human_dummy(DUMMY_HUMAN_SLOT_PREFERENCES)
+		throw error
 	unset_busy_human_dummy(DUMMY_HUMAN_SLOT_PREFERENCES)
 	return result
 

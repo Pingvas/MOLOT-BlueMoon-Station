@@ -84,22 +84,26 @@ export const SearchSettings = () => {
     for (const [id, label] of Object.entries(data.mutantPartLabels || {})) {
       result.push({ tab: 2, group: 'Части тела', label, id: 'part:' + id });
     }
-    return result;
+    return result.map((entry) => ({
+      ...entry,
+      searchText: normalize([entry.label, entry.keywords || '', entry.id || ''].join(' ')),
+      searchLabel: normalize(entry.label),
+      searchGroup: normalize(entry.group),
+    }));
   }, [data.featureFields, data.mutantPartLabels]);
   const normalizedQuery = normalize(query).trim();
   const words = normalizedQuery.split(/\s+/).filter(Boolean);
-  const matches = words.length
-    ? entries.filter((entry) => {
-      const text = normalize(
-        [entry.label, entry.keywords || '', entry.id || ''].join(' ')
-      );
-      return words.every((word) => text.includes(word))
-        || normalize(entry.group).includes(normalizedQuery);
+  const matches = useMemo(() => {
+    if (!normalizedQuery) return [];
+    const queryWords = normalizedQuery.split(/\s+/);
+    return entries.filter((entry) => {
+      return queryWords.every((word) => entry.searchText.includes(word))
+        || entry.searchGroup.includes(normalizedQuery);
     }).sort((a, b) =>
-      Number(normalize(b.label).includes(normalizedQuery))
-      - Number(normalize(a.label).includes(normalizedQuery))
-    )
-    : [];
+      Number(b.searchLabel.includes(normalizedQuery))
+      - Number(a.searchLabel.includes(normalizedQuery))
+    );
+  }, [entries, normalizedQuery]);
 
   useEffect(() => {
     const hotkey = (event: KeyboardEvent) => {
