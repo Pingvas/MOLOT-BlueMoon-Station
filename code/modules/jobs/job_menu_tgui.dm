@@ -783,8 +783,10 @@ GLOBAL_LIST_INIT(job_menu_antag_spawners, list(
 		if("reset")
 			if(mode != JOB_MENU_PREFS || !prefs)
 				return
+			var/datum/job/previous_job = prefs.get_highest_job()
 			prefs.ResetJobs()
 			prefs.save_character(silent = TRUE)
+			refresh_character_setup(previous_job)
 			return
 
 		if("alt_title")
@@ -851,6 +853,7 @@ GLOBAL_LIST_INIT(job_menu_antag_spawners, list(
 	if(isnull(new_level) || new_level < 0 || new_level > JP_HIGH)
 		return
 
+	var/datum/job/previous_job = prefs.get_highest_job()
 	if(job_title == SSjob.overflow_role)
 		// Переполнение - это простое "Да/Нет": Да означает JP_LOW.
 		if(new_level)
@@ -865,6 +868,16 @@ GLOBAL_LIST_INIT(job_menu_antag_spawners, list(
 		prefs.SetJobPreferenceLevel(job_datum, new_level)
 
 	prefs.save_character(silent = TRUE)
+	refresh_character_setup(previous_job)
+
+/datum/job_menu/proc/refresh_character_setup(datum/job/previous_job)
+	var/datum/character_setup/setup = prefs?.character_setup_ui
+	if(QDELETED(setup))
+		return
+	// Пересобираем куклу только при смене отображаемой профессии в режиме «По профессии».
+	if(setup.preview_mode == PREVIEW_PREF_JOB && prefs.get_highest_job() != previous_job)
+		setup.preview_dirty = TRUE
+	SStgui.update_uis(setup)
 
 #undef JOB_MENU_LATEJOIN
 #undef JOB_MENU_PREFS
