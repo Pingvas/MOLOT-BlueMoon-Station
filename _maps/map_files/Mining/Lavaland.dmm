@@ -825,7 +825,6 @@
 	name = "Armory Shutters"
 	},
 /obj/machinery/door/firedoor,
-/obj/machinery/door/firedoor,
 /turf/open/floor/mineral/plastitanium,
 /area/ruin/lavaland/unpowered/deepspaceone/armory)
 "aBC" = (
@@ -4807,9 +4806,6 @@
 	icon_state = "4-8"
 	},
 /obj/structure/fans/tiny,
-/obj/structure/cable{
-	icon_state = "4-8"
-	},
 /turf/open/floor/plating,
 /area/ruin/lavaland/unpowered/deepspaceone/engineering)
 "cTS" = (
@@ -5493,9 +5489,6 @@
 	},
 /obj/machinery/atmospherics/pipe/simple/supply/hidden,
 /obj/machinery/atmospherics/pipe/simple/scrubbers/hidden/layer4,
-/obj/structure/cable{
-	icon_state = "1-2"
-	},
 /obj/structure/cable{
 	icon_state = "1-2"
 	},
@@ -8450,7 +8443,7 @@
 /area/ruin/lavaland/unpowered/deepspaceone/dormitories)
 "fid" = (
 /obj/effect/spawner/structure/window/plastitanium,
-/turf/open/space/basic,
+/turf/open/floor/plating,
 /area/ruin/lavaland/unpowered/deepspaceone/virology)
 "fiq" = (
 /obj/structure/stone_tile/block{
@@ -9252,9 +9245,6 @@
 /obj/structure/fans/tiny,
 /obj/effect/mapping_helpers/airlock/cyclelink_helper{
 	dir = 4
-	},
-/obj/structure/cable{
-	icon_state = "4-8"
 	},
 /obj/structure/disposalpipe/segment{
 	dir = 4
@@ -12981,7 +12971,6 @@
 /obj/machinery/door/firedoor,
 /obj/machinery/atmospherics/pipe/simple/supply/hidden/layer2,
 /obj/machinery/atmospherics/pipe/simple/scrubbers/hidden,
-/obj/machinery/door/firedoor,
 /turf/open/floor/plasteel/white/smooth/large,
 /area/mine/xenoarch_area_c)
 "hQh" = (
@@ -13067,9 +13056,6 @@
 	},
 /obj/machinery/atmospherics/pipe/simple/scrubbers/hidden/layer4,
 /obj/machinery/atmospherics/pipe/simple/supply/hidden,
-/obj/structure/cable/yellow{
-	icon_state = "1-2"
-	},
 /obj/structure/cable/yellow{
 	icon_state = "1-2"
 	},
@@ -14432,7 +14418,7 @@
 	},
 /obj/machinery/atmospherics/pipe/simple/scrubbers/hidden/layer4,
 /obj/machinery/atmospherics/pipe/simple/supply/hidden,
-/turf/open/space/basic,
+/turf/open/floor/mineral/plastitanium,
 /area/ruin/lavaland/unpowered/deepspaceone/comms_officer)
 "iJX" = (
 /obj/effect/decal/cleanable/dirt/dust,
@@ -23255,9 +23241,6 @@
 /obj/structure/cable/yellow{
 	icon_state = "1-4"
 	},
-/obj/structure/cable/yellow{
-	icon_state = "1-2"
-	},
 /turf/open/floor/plasteel/dark,
 /area/ruin/lavaland/unpowered/deepspaceone/reactor)
 "nDZ" = (
@@ -31653,6 +31636,9 @@
 /turf/open/floor/plasteel/smooth/half,
 /area/mine/xenoarch_area_b)
 "syI" = (
+/obj/structure/disposalpipe/trunk{
+	dir = 2
+	},
 /obj/machinery/disposal/bin,
 /obj/effect/turf_decal/bot/yellow,
 /obj/effect/turf_decal/trimline/purple/warning{
@@ -32598,9 +32584,6 @@
 	},
 /obj/structure/disposalpipe/segment{
 	dir = 4
-	},
-/obj/structure/cable/yellow{
-	icon_state = "4-8"
 	},
 /obj/structure/cable/yellow{
 	icon_state = "4-8"
@@ -34503,7 +34486,6 @@
 	name = "Medbay";
 	req_access_txt = "5"
 	},
-/obj/machinery/door/firedoor,
 /turf/open/floor/plasteel/white/smooth/large,
 /area/mine/xenoarch_area_c)
 "uiE" = (
@@ -36253,9 +36235,6 @@
 /obj/structure/fans/tiny,
 /obj/machinery/atmospherics/pipe/simple/supply/hidden,
 /obj/machinery/atmospherics/pipe/simple/scrubbers/hidden/layer4,
-/obj/structure/cable/yellow{
-	icon_state = "1-2"
-	},
 /obj/structure/cable/yellow{
 	icon_state = "1-2"
 	},
@@ -40478,10 +40457,9 @@
 	dir = 4
 	},
 /obj/machinery/vending/wardrobe/syndie_wardrobe{
-	contraband = list(/obj/item/knife/combat=1, /obj/item/clothing/under/syndicate/coldres=6, /obj/item/clothing/shoes/combat/coldres=6, /obj/item/flashlight/lantern/syndicate=4);
+	contraband = list(/obj/item/kitchen/knife/combat=1, /obj/item/clothing/under/syndicate/coldres=6, /obj/item/clothing/shoes/combat/coldres=6, /obj/item/flashlight/lantern=4);
 	extended_inventory = 1;
 	onstation = 0;
-	all_products_free = 1;
 	pixel_y = 2
 	},
 /obj/effect/turf_decal/bot,
