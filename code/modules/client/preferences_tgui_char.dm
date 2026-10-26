@@ -314,6 +314,10 @@
 		return UI_CLOSE
 	return .
 
+/datum/character_setup/ui_assets()
+	. = ..() || list()
+	. += get_asset_datum(/datum/asset/spritesheet_batched/jobs)
+
 /datum/character_setup/ui_close(mob/user)
 	var/atom/movable/screen/map_view/character_setup_screen/viewer_screen = LAZYACCESS(viewer_screens, user)
 	LAZYREMOVE(viewer_screens, user)
@@ -2810,9 +2814,19 @@
 	data["autoSaveOnSwitch"] = prefs.character_setup_autosave
 	data["autoSaveActivePreset"] = prefs.character_setup_preset_autosave
 	var/list/presets_data = list()
+	var/static/list/job_icon_states = icon_states('icons/ui_icons/tgui/jobs.dmi')
 	for(var/preset_name in prefs.character_presets)
 		var/list/preset = prefs.character_presets[preset_name]
-		presets_data += list(list("name" = preset_name, "jobs" = length(preset["job_preferences"]), "quirks" = length(preset["all_quirks"]), "items" = length(preset["loadout"])))
+		var/datum/job/highest_job = prefs.get_highest_job(preset["job_preferences"])
+		var/job_icon = ckey(highest_job?.title)
+		presets_data += list(list(
+			"name" = preset_name,
+			"jobs" = length(preset["job_preferences"]),
+			"quirks" = length(preset["all_quirks"]),
+			"items" = length(preset["loadout"]),
+			"jobTitle" = highest_job?.title,
+			"jobIcon" = (highest_job && (job_icon in job_icon_states)) ? job_icon : "no_id",
+		))
 	data["characterPresets"] = presets_data
 	data["presetLimit"] = MAX_CHARACTER_PRESETS
 	data["activeCharacterPreset"] = prefs.active_character_preset

@@ -79,11 +79,13 @@
 	unset_busy_human_dummy(DUMMY_HUMAN_SLOT_PREFERENCES)
 	return result
 
-/datum/preferences/proc/get_highest_job()
+/datum/preferences/proc/get_highest_job(list/priorities)
+	if(isnull(priorities))
+		priorities = job_preferences
 	var/highest_pref = 0
 	var/datum/job/highest_job
-	for(var/job in job_preferences)
-		if(job_preferences["[job]"] > highest_pref)
+	for(var/job in priorities)
+		if(priorities["[job]"] > highest_pref)
 			highest_job = SSjob.GetJob(job)
-			highest_pref = job_preferences["[job]"]
+			highest_pref = priorities["[job]"]
 	return highest_job

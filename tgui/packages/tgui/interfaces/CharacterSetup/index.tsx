@@ -26,6 +26,15 @@ import { MarkingsTab } from './tabs/Markings';
 import { QuirksTab } from './tabs/Quirks';
 import { SpeechTab } from './tabs/Speech';
 
+interface CharacterPreset {
+  name: string;
+  jobs: number;
+  quirks: number;
+  items: number;
+  jobTitle: string | null;
+  jobIcon: string;
+}
+
 interface CharacterSetupData {
   tabs: { id: number; label: string; icon: string }[];
   maxSlots: number;
@@ -54,7 +63,7 @@ interface CharacterSetupData {
   hasUnsavedChanges: boolean;
   autoSaveOnSwitch: boolean;
   autoSaveActivePreset: boolean;
-  characterPresets: { name: string; jobs: number; quirks: number; items: number }[];
+  characterPresets: CharacterPreset[];
   activeCharacterPreset?: string | null;
   selectedCharacterPreset?: string | null;
   presetLimit: number;
@@ -86,6 +95,18 @@ const PREVIEW_MODES: Record<string, { label: string; icon: string }> = {
   Loadout: { label: 'Экипировка', icon: 'tshirt' },
   Naked: { label: 'Без одежды', icon: 'user' },
 };
+
+const presetOptions = (presets: CharacterPreset[]) => presets.map(preset => ({
+  value: preset.name,
+  displayText: (
+    <span className="CharacterSetup__preset-label" title={preset.jobTitle || 'Профессия не выбрана'}>
+      <span className="CharacterSetup__preset-job-icon">
+        <Box className={'jobs8x8 ' + preset.jobIcon} />
+      </span>
+      <span className="CharacterSetup__preset-name">{preset.name}</span>
+    </span>
+  ),
+}));
 
 export const CharacterSetup = () => {
   const { act, data } = useBackend<CharacterSetupData>();
@@ -159,10 +180,11 @@ export const CharacterSetup = () => {
                   width="180px"
                   searchable
                   selected={data.activeCharacterPreset ?? undefined}
-                  displayText={data.activeCharacterPreset || 'Выберите пресет'}
-                  options={(data.characterPresets || []).map(preset => preset.name)}
+                  displayText={data.activeCharacterPreset ? undefined : 'Выберите пресет'}
+                  options={presetOptions(data.characterPresets || [])}
                   disabled={!data.characterPresets?.length}
                   tooltip="Применить пресет профессий, квирков и экипировки"
+                  tooltipPosition="top"
                   onSelected={name => act('preset_apply', {
                     name, character_slot: data.defaultSlot,
                   })}
@@ -281,18 +303,19 @@ const CharacterPresets = (props: { onClose: () => void }) => {
         {!!current && (
           <>
             <Stack align="center" mb={1}>
-              <Stack.Item grow>
+              <Stack.Item grow basis={0} minWidth={0}>
                 <Dropdown
-                  fluid
+                  className="CharacterSetup__preset-selector"
+                  width="100%"
                   searchable
                   selected={current.name}
-                  options={presets.map(preset => preset.name)}
+                  options={presetOptions(presets)}
                   onSelected={name => act('preset_select', {
                     name, character_slot: data.defaultSlot,
                   })}
                 />
               </Stack.Item>
-              <Stack.Item>
+              <Stack.Item className="CharacterSetup__header-actions">
                 <Button
                   icon="pen"
                   tooltip="Переименовать пресет"
