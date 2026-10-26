@@ -384,6 +384,9 @@ const Preview = () => {
       act('set_preview_viewport', { width, height }),
     [act]
   );
+  // Панели ракурсов, поворота, приближения и силуэта должны оставаться под ByondUi.
+  // Их перенос над картой сдвигает её верхнюю границу и вызывает баг первого открытия:
+  // вместо персонажа видны лишь отдельные оверлеи. Переоткрытие окна скрывает проблему.
   return (
     <Section fill title="Внешний вид" className="CharacterSetup__preview"
       buttons={<Button icon="palette" tooltip="Выбрать тему" aria-label="Выбрать тему"
@@ -414,24 +417,6 @@ const Preview = () => {
             }
           />
         </div>
-        <Box mt={1}>
-          <div className="CharacterSetup__preview-modes" data-search-label="Ракурсы">
-            <Button fluid icon="th" selected={!data.previewSingleView} content="Четыре ракурса"
-              onClick={() => act('set_preview_single_view', { value: false })} />
-            <Button fluid icon="user" selected={!!data.previewSingleView} content="Один ракурс"
-              onClick={() => act('set_preview_single_view', { value: true })} />
-          </div>
-        </Box>
-        {!!data.previewSingleView && (
-          <div className="CharacterSetup__preview-rotation" data-search-label="Поворот">
-            <Button className="CharacterSetup__icon-button" icon="undo" tooltip="Повернуть влево" aria-label="Повернуть влево"
-              onClick={() => act('rotate_preview', { direction: 'left' })} />
-            <Button fluid content={directionLabel} tooltip="Вернуть вид спереди"
-              onClick={() => act('rotate_preview', { direction: 'front' })} />
-            <Button className="CharacterSetup__icon-button" icon="redo" tooltip="Повернуть вправо" aria-label="Повернуть вправо"
-              onClick={() => act('rotate_preview', { direction: 'right' })} />
-          </div>
-        )}
         <Box color="label" mt={1} mb={0.5}>
           Масштаб просмотра
         </Box>
@@ -453,22 +438,6 @@ const Preview = () => {
             onClick={() => act('set_preview_auto_fit', { value: false })}
           />
         </div>
-        <div className="CharacterSetup__preview-zoom" data-search-label="Приближение">
-          <Button className="CharacterSetup__icon-button" icon="search-minus" tooltip="Отдалить" aria-label="Отдалить"
-            disabled={zoom <= 0.5} onClick={() => act('set_preview_zoom', { value: zoom - 0.25 })} />
-          <NumberInput width="100%" height="28px" value={Math.round(zoom * 100)} minValue={50} maxValue={300} step={25}
-            format={(value: number) => `${value}%`}
-            onChange={(event, value) => act('set_preview_zoom', { value: value / 100 })} />
-          <Button className="CharacterSetup__icon-button" icon="search-plus" tooltip="Приблизить" aria-label="Приблизить"
-            disabled={zoom >= 3} onClick={() => act('set_preview_zoom', { value: zoom + 0.25 })} />
-          <Button className="CharacterSetup__icon-button" icon="expand-arrows-alt" tooltip="Сбросить приближение до 100%" aria-label="Сбросить масштаб"
-            disabled={zoom === 1} onClick={() => act('reset_preview_camera')} />
-        </div>
-        {!autoFit && (
-          <Button.Checkbox fluid mt={0.5} checked={!!data.previewReference} content="Силуэт 100%"
-            tooltip="Показать слева полупрозрачный силуэт текущего персонажа в размере 100%, выровненный по ногам"
-            onClick={() => act('set_preview_reference', { value: !data.previewReference })} />
-        )}
         <Box mt={1}>
           <SelectRow
             over
@@ -487,6 +456,7 @@ const Preview = () => {
           params={{
             id: data.previewRef,
             type: 'map',
+            ...(zoom === 1 ? { zoom: 0 } : {}),
             'zoom-mode': 'normal',
             letterbox: !data.previewViewportReady,
           }}
@@ -494,6 +464,42 @@ const Preview = () => {
       ) : (
         <NoticeBox>Предпросмотр загружается…</NoticeBox>
       )}
+      <div style={{ flexShrink: 0 }}>
+        <Box mt={1}>
+          <div className="CharacterSetup__preview-modes" data-search-label="Ракурсы">
+            <Button fluid icon="th" selected={!data.previewSingleView} content="Четыре ракурса"
+              onClick={() => act('set_preview_single_view', { value: false })} />
+            <Button fluid icon="user" selected={!!data.previewSingleView} content="Один ракурс"
+              onClick={() => act('set_preview_single_view', { value: true })} />
+          </div>
+        </Box>
+        {!!data.previewSingleView && (
+          <div className="CharacterSetup__preview-rotation" data-search-label="Поворот">
+            <Button className="CharacterSetup__icon-button" icon="undo" tooltip="Повернуть влево" aria-label="Повернуть влево"
+              onClick={() => act('rotate_preview', { direction: 'left' })} />
+            <Button fluid content={directionLabel} tooltip="Вернуть вид спереди"
+              onClick={() => act('rotate_preview', { direction: 'front' })} />
+            <Button className="CharacterSetup__icon-button" icon="redo" tooltip="Повернуть вправо" aria-label="Повернуть вправо"
+              onClick={() => act('rotate_preview', { direction: 'right' })} />
+          </div>
+        )}
+        <div className="CharacterSetup__preview-zoom" data-search-label="Приближение">
+          <Button className="CharacterSetup__icon-button" icon="search-minus" tooltip="Отдалить" aria-label="Отдалить"
+            disabled={zoom <= 0.5} onClick={() => act('set_preview_zoom', { value: zoom - 0.25 })} />
+          <NumberInput width="100%" height="28px" value={Math.round(zoom * 100)} minValue={50} maxValue={300} step={25}
+            format={(value: number) => `${value}%`}
+            onChange={(event, value) => act('set_preview_zoom', { value: value / 100 })} />
+          <Button className="CharacterSetup__icon-button" icon="search-plus" tooltip="Приблизить" aria-label="Приблизить"
+            disabled={zoom >= 3} onClick={() => act('set_preview_zoom', { value: zoom + 0.25 })} />
+          <Button className="CharacterSetup__icon-button" icon="expand-arrows-alt" tooltip="Сбросить приближение до 100%" aria-label="Сбросить масштаб"
+            disabled={zoom === 1} onClick={() => act('reset_preview_camera')} />
+        </div>
+        {!autoFit && (
+          <Button.Checkbox fluid mt={0.5} checked={!!data.previewReference} content="Силуэт 100%"
+            tooltip="Показать слева полупрозрачный силуэт текущего персонажа в размере 100%, выровненный по ногам"
+            onClick={() => act('set_preview_reference', { value: !data.previewReference })} />
+        )}
+      </div>
     </Section>
   );
 };
