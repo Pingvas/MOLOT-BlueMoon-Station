@@ -76,7 +76,7 @@
 // Сравниваем значения, а не нажатия: отменённый диалог и возврат к сохранённому значению не создают изменений.
 /datum/character_setup/proc/character_state()
 	var/static/list/keys = list(
-		"real_name", "nameless", "age", "gender", "custom_species", "custom_names", "be_random_name",
+		"real_name", "character_slot_name", "nameless", "age", "gender", "custom_species", "custom_names", "be_random_name",
 		"hide_ckey", "custom_blood_color", "blood_color", "prefered_security_department", "preferred_ai_core_display",
 		"pda_color", "pda_style", "pda_skin", "pda_ringtone", "pda_theme", "silicon_lawset", "jumpsuit_style",
 		"features", "skin_tone", "use_custom_skin_tone", "eye_type", "split_eye_colors", "left_eye_color", "right_eye_color",
@@ -2805,6 +2805,9 @@
 		return data
 
 	data["slotNames"] = prefs.get_slot_names() || list()
+	data["slotCustomNames"] = prefs.get_slot_custom_names() || list()
+	data["characterSlotName"] = prefs.character_slot_name
+	data["slotNameReplace"] = prefs.character_slot_name_replace
 	data["defaultSlot"] = prefs.default_slot
 	data["characterRevision"] = character_revision
 	data["characterName"] = prefs.real_name
@@ -3434,6 +3437,21 @@
 		return
 
 	switch(action)
+		if("edit_slot_name")
+			var/slot = prefs.default_slot
+			var/revision = character_revision
+			var/mob/user = usr
+			var/new_name = tgui_input_text(user, "Название выбранного слота. Оставьте пустым, чтобы убрать название.", "Название слота [slot]", prefs.character_slot_name, MAX_NAME_LEN)
+			if(QDELETED(src) || !prefs || user?.client?.prefs != prefs || prefs.default_slot != slot || character_revision != revision || isnull(new_name))
+				return
+			prefs.character_slot_name = copytext_char(trimtext(strip_control_chars(new_name)), 1, MAX_NAME_LEN + 1)
+			return TRUE
+
+		if("set_slot_name_replace")
+			prefs.character_slot_name_replace = !!params["value"]
+			prefs.save_pref_var("character_slot_name_replace")
+			return TRUE
+
 		if("preset_select", "preset_create", "preset_save", "preset_rename", "preset_delete", "preset_apply")
 			manage_character_preset(action, params, usr)
 			return TRUE

@@ -172,6 +172,16 @@
     gap: 0.6rem;
   }
 
+  &__slot-label-tools {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+
+    .Button {
+      margin: 0;
+    }
+  }
+
   &__slot-list {
     flex: 1;
     min-height: 0;

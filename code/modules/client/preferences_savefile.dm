@@ -618,6 +618,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	S["character_setup_single_view"] >> character_setup_single_view
 	S["character_setup_autosave"] >> character_setup_autosave
 	S["character_setup_preset_autosave"] >> character_setup_preset_autosave
+	S["character_slot_name_replace"] >> character_slot_name_replace
 	S["ui_zoom_preferences"]	>> ui_zoom_preferences
 	S["vending_layouts"]		>> vending_layouts
 	S["windowflash"] 			>> windowflashing
@@ -791,6 +792,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	character_setup_single_view = sanitize_integer(character_setup_single_view, FALSE, TRUE, initial(character_setup_single_view))
 	character_setup_autosave = sanitize_integer(character_setup_autosave, FALSE, TRUE, initial(character_setup_autosave))
 	character_setup_preset_autosave = sanitize_integer(character_setup_preset_autosave, FALSE, TRUE, initial(character_setup_preset_autosave))
+	character_slot_name_replace = sanitize_integer(character_slot_name_replace, FALSE, TRUE, initial(character_slot_name_replace))
 	var/list/sanitized_vending_layouts = list()
 	if(islist(vending_layouts))
 		for(var/machine_key in vending_layouts)
@@ -1290,6 +1292,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	WRITE_FILE(S["character_setup_single_view"], character_setup_single_view)
 	WRITE_FILE(S["character_setup_autosave"], character_setup_autosave)
 	WRITE_FILE(S["character_setup_preset_autosave"], character_setup_preset_autosave)
+	WRITE_FILE(S["character_slot_name_replace"], character_slot_name_replace)
 	WRITE_FILE(S["ui_zoom_preferences"], ui_zoom_preferences)
 	WRITE_FILE(S["vending_layouts"], vending_layouts)
 	WRITE_FILE(S["windowflash"], windowflashing)
@@ -1623,6 +1626,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 
 	//Character
 	S["real_name"] 							>> real_name
+	S["character_slot_name"] >> character_slot_name
 	S["nameless"] 							>> nameless
 	S["custom_species"] 					>> custom_species
 	S["name_is_always_random"] 				>> be_random_name
@@ -2009,6 +2013,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	//Sanitize
 
 	real_name = reject_bad_name(real_name, TRUE)
+	character_slot_name = copytext_char(trimtext(strip_control_chars(sanitize_text(character_slot_name))), 1, MAX_NAME_LEN + 1)
 	gender = sanitize_gender(gender, TRUE, TRUE)
 	features["body_model"] = sanitize_gender(features["body_model"], FALSE, FALSE, gender == FEMALE ? FEMALE : MALE)
 	if(!real_name)
@@ -2323,9 +2328,9 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 
 	return S
 
-/// Имена персонажей по слотам (null - слот пуст). Сейвфайл читается только после сброса кэша.
+// Имена персонажей и названия слотов читаем вместе; реальные имена также определяют занятость слотов.
 /datum/preferences/proc/get_slot_names()
-	if(length(slot_names_cache) == max_save_slots)
+	if(length(slot_names_cache) == max_save_slots && length(slot_custom_names_cache) == max_save_slots)
 		return slot_names_cache
 	if(!path)
 		return null
@@ -2333,13 +2338,22 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	if(!S)
 		return null
 	var/list/names = new /list(max_save_slots)
+	var/list/custom_slot_names = new /list(max_save_slots)
 	for(var/slot in 1 to max_save_slots)
 		var/name
 		S.cd = "/character[slot]"
 		S["real_name"] >> name
 		names[slot] = name
+		var/custom_name
+		S["character_slot_name"] >> custom_name
+		custom_slot_names[slot] = copytext_char(trimtext(strip_control_chars(sanitize_text(custom_name))), 1, MAX_NAME_LEN + 1)
 	slot_names_cache = names
+	slot_custom_names_cache = custom_slot_names
 	return names
+
+/datum/preferences/proc/get_slot_custom_names()
+	get_slot_names()
+	return slot_custom_names_cache
 
 /// Имя персонажа в локальном экспорте клиента, читается один раз до следующего экспорта или удаления
 /datum/preferences/proc/get_local_storage_name(client/viewer)
@@ -2448,6 +2462,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 
 	//Character
 	WRITE_FILE(S["real_name"]							, real_name)
+	WRITE_FILE(S["character_slot_name"], character_slot_name)
 	WRITE_FILE(S["nameless"]							, nameless)
 	WRITE_FILE(S["custom_species"]						, custom_species)
 	WRITE_FILE(S["name_is_always_random"]				, be_random_name)

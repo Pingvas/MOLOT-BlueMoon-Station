@@ -6,6 +6,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/vr_path
 	var/default_slot = 1				//Holder so it doesn't default to slot 1, rather the last one used
 	var/max_save_slots = 40
+	var/character_slot_name = ""
 	var/last_ip
 	/// Last CID the person was seen on
 	var/last_id
@@ -92,6 +93,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/character_setup_single_view = FALSE
 	var/character_setup_autosave = FALSE
 	var/character_setup_preset_autosave = FALSE
+	var/character_slot_name_replace = FALSE
 	var/list/ui_zoom_preferences = list()
 	var/windowflashing = TRUE
 	var/adminhelp_windowflash = TRUE
@@ -564,6 +566,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/collapse_empty_character_slots = FALSE
 	/// Имена персонажей по номеру слота для окна настройки; null - перечитать из сейвфайла
 	var/tmp/list/slot_names_cache
+	var/tmp/list/slot_custom_names_cache
 	/// UI decoration level for modern theme: "minimal" (performance), "standard" (current), "enhanced" (gradients)
 	var/ui_decoration_level = "enhanced"
 	var/unholypref = "No"

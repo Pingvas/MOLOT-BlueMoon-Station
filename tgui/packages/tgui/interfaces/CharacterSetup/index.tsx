@@ -39,6 +39,9 @@ interface CharacterSetupData {
   tabs: { id: number; label: string; icon: string }[];
   maxSlots: number;
   slotNames: (string | null)[];
+  slotCustomNames: (string | null)[];
+  characterSlotName: string | null;
+  slotNameReplace: boolean;
   defaultSlot: number;
   characterRevision: number;
   characterName: string;
@@ -113,6 +116,8 @@ export const CharacterSetup = () => {
   const [slotsOpen, setSlotsOpen] = useState(true);
   const [presetsOpen, setPresetsOpen] = useState(false);
   const theme = data.theme || 'default';
+  const characterTitle = data.characterName
+    + (data.characterSlotName ? ` (${data.characterSlotName})` : '');
 
   return (
     <Window
@@ -140,7 +145,7 @@ export const CharacterSetup = () => {
                 />
               </Stack.Item>
               <Stack.Item grow basis={0}>
-                <Box className="CharacterSetup__name">{data.characterName}</Box>
+                <Box className="CharacterSetup__name" title={characterTitle}>{characterTitle}</Box>
                 <Box color="label">
                   Слот {data.defaultSlot} · {data.speciesName}
                 </Box>
@@ -364,6 +369,15 @@ const SlotPanel = () => {
   const [search, setSearch] = useState('');
   const [showEmpty, setShowEmpty] = useState(false);
   const names = data.slotNames || [];
+  const customNames = data.slotCustomNames || [];
+  const customName = (slot: number) => slot === data.defaultSlot
+    ? data.characterSlotName
+    : customNames[slot - 1];
+  const slotLabel = (slot: number) => {
+    const name = names[slot - 1] || '';
+    const label = customName(slot);
+    return label ? (data.slotNameReplace ? label : `${name} (${label})`) : name;
+  };
   const slots = Array.from(
     { length: data.maxSlots || 1 },
     (_, index) => index + 1
@@ -374,7 +388,8 @@ const SlotPanel = () => {
   const visible = occupied.filter(
     (slot) =>
       String(slot) === query ||
-      names[slot - 1]?.toLocaleLowerCase().includes(query)
+      names[slot - 1]?.toLocaleLowerCase().includes(query) ||
+      customName(slot)?.toLocaleLowerCase().includes(query)
   );
 
   return (
@@ -383,15 +398,33 @@ const SlotPanel = () => {
       title="Персонажи"
       className="CharacterSetup__slots"
       buttons={
-        <Box color="label">
-          {occupied.length}/{slots.length}
+        <Box color="label" className="CharacterSetup__slot-label-tools">
+          <Button
+            compact
+            icon="pen"
+            tooltip="Задать название выбранного слота. Пустая строка убирает название."
+            aria-label="Название выбранного слота"
+            onClick={() => act('edit_slot_name', { character_slot: data.defaultSlot })}
+          />
+          <Button
+            compact
+            icon={data.slotNameReplace ? 'exchange-alt' : 'feather'}
+            selected={data.slotNameReplace}
+            aria-pressed={data.slotNameReplace}
+            aria-label="Заменять имя персонажа названием слота"
+            tooltip={data.slotNameReplace
+              ? 'Замена имени: в списке показывается название слота. Нажмите для дополнения имени в скобках.'
+              : 'Дополнение: название слота показывается в скобках после имени. Нажмите для замены имени.'}
+            onClick={() => act('set_slot_name_replace', { value: !data.slotNameReplace })}
+          />
+          <span>{occupied.length}/{slots.length}</span>
         </Box>
       }
     >
       <div className="CharacterSetup__slot-panel">
         <Input
           fluid
-          placeholder="Имя или номер слота"
+          placeholder="Имя, название или номер слота"
           value={search}
           onInput={(event, value) => setSearch(value)}
         />
@@ -402,11 +435,12 @@ const SlotPanel = () => {
               fluid
               selected={slot === data.defaultSlot}
               className="CharacterSetup__slot"
+              tooltip={customName(slot) ? `${names[slot - 1]} (${customName(slot)})` : undefined}
               onClick={() => act('switch_slot', { slot })}
             >
               <span className="CharacterSetup__slot-number">{slot}</span>
               <span className="CharacterSetup__slot-name">
-                {names[slot - 1]}
+                {slotLabel(slot)}
               </span>
               {slot === data.defaultSlot && <Icon name="check" />}
             </Button>
