@@ -37,29 +37,46 @@ export const SettingsGrid = (props: {
     const grid = gridRef.current;
     if (!grid) return;
     let frame = 0;
-    const contents = Array.from(grid.children).map(
-      (item) => item.firstElementChild as HTMLElement
-    );
+    let contents: HTMLElement[] = [];
     const measure = () => {
-      for (const content of contents) {
-        // Высота в локальных пикселях учитывает переносы текста без поправок на DPI и zoom TGUI.
-        const span = `span ${Math.max(1, Math.ceil(content.offsetHeight))}`;
+      // Сначала все чтения размеров, затем записи: не заставляем браузер пересчитывать сетку после каждой карточки.
+      const spans = contents.map((content) =>
+        `span ${Math.max(1, Math.ceil(content.offsetHeight))}`
+      );
+      contents.forEach((content, index) => {
         const item = content.parentElement!;
+        const span = spans[index];
         if (item.style.gridRowEnd !== span) item.style.gridRowEnd = span;
-      }
+      });
     };
     const schedule = () => {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(measure);
     };
     const observer = new ResizeObserver(schedule);
-    contents.forEach((content) => observer.observe(content));
-    measure();
+    const syncContents = () => {
+      const next = Array.from(grid.children).map(
+        (item) => item.firstElementChild as HTMLElement
+      );
+      for (const content of contents) {
+        if (!next.includes(content)) observer.unobserve(content);
+      }
+      for (const content of next) {
+        if (!contents.includes(content)) observer.observe(content);
+      }
+      contents = next;
+      measure();
+    };
+    // Наблюдатель живёт до размонтирования сетки; обычное обновление данных его не пересоздаёт.
+    const mutations = new MutationObserver(syncContents);
+    mutations.observe(grid, { childList: true });
+    syncContents();
     return () => {
       observer.disconnect();
+      mutations.disconnect();
       cancelAnimationFrame(frame);
     };
-  }, [props.children]);
+  }, []);
 
   return (
     <div

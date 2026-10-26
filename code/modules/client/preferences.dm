@@ -6,6 +6,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/vr_path
 	var/default_slot = 1				//Holder so it doesn't default to slot 1, rather the last one used
 	var/max_save_slots = 40
+	var/character_slot_name = ""
 	var/last_ip
 	/// Last CID the person was seen on
 	var/last_id
@@ -89,6 +90,10 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/tgui_panel_theme = "default"
 	var/tgui_panel_state = ""
 	var/character_setup_theme = "default"
+	var/character_setup_single_view = FALSE
+	var/character_setup_autosave = FALSE
+	var/character_setup_preset_autosave = FALSE
+	var/character_slot_name_replace = FALSE
 	var/list/ui_zoom_preferences = list()
 	var/windowflashing = TRUE
 	var/adminhelp_windowflash = TRUE
@@ -444,7 +449,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 
 	var/character_settings_tab = GENERAL_CHAR_TAB
 	var/preferences_tab = GAME_PREFS_TAB
-	var/preview_pref = PREVIEW_PREF_JOB
 
 	var/no_tetris_storage = FALSE
 
@@ -453,7 +457,9 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/list/gear_categories
 	var/list/list/loadout_data = list()
 	var/list/unlockable_loadout_data = list()
-	var/loadout_slot = 1 //goes from 1 to MAXIMUM_LOADOUT_SAVES
+	var/loadout_slot = 1 // LOADOUT_PRESET_SLOT или один из общих слотов 1..MAXIMUM_LOADOUT_SAVES.
+	var/list/character_presets = list()
+	var/active_character_preset
 	var/loadout_enabled = TRUE // BLUEMOON ADD - переключатель: спавниться с лодаутом или нет
 	var/gear_category
 	var/gear_subcategory
@@ -560,6 +566,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/collapse_empty_character_slots = FALSE
 	/// Имена персонажей по номеру слота для окна настройки; null - перечитать из сейвфайла
 	var/tmp/list/slot_names_cache
+	var/tmp/list/slot_custom_names_cache
 	/// UI decoration level for modern theme: "minimal" (performance), "standard" (current), "enhanced" (gradients)
 	var/ui_decoration_level = "enhanced"
 	var/unholypref = "No"

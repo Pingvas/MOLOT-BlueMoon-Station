@@ -133,6 +133,7 @@ export class Dropdown extends Component {
       displayText,
       searchable,
       tooltip,
+      tooltipPosition,
       ...boxProps
     } = props;
     const {
@@ -245,7 +246,7 @@ export class Dropdown extends Component {
     return (
       <div className="Dropdown">
         {tooltip ? (
-          <Tooltip content={<span className="Tooltip__text">{tooltip}</span>}>
+          <Tooltip content={<span className="Tooltip__text">{tooltip}</span>} position={tooltipPosition}>
             <div>{control}</div>
           </Tooltip>
         ) : (

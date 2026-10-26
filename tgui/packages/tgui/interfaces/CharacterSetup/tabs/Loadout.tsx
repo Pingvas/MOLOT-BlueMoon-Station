@@ -70,6 +70,8 @@ interface LoadoutData {
   errors: number;
   slot: number;
   slotCount: number;
+  presetSlot: number;
+  presetName?: string | null;
   enabled: boolean;
   showCkeyId: boolean;
   items: LoadoutRow[];
@@ -386,7 +388,7 @@ export const LoadoutTab = () => {
 
   return (
     <Section fill scrollable title="Экипировка">
-      {loadout.selectedView && (
+      {!!loadout.selectedView && (
         <Box color="label" mb={1}>
           Проверка профессии: {loadout.plannedJob || 'профессия с приоритетом не выбрана'}.{' '}
         </Box>
@@ -400,6 +402,18 @@ export const LoadoutTab = () => {
       <Stack align="center" mb={1} wrap>
         <Stack.Item>
           <Stack>
+            <Stack.Item>
+              <Button
+                compact
+                icon="layer-group"
+                selected={loadout.slot === loadout.presetSlot}
+                content="Пресет"
+                tooltip={loadout.presetName
+                  ? `Отдельный комплект пресета «${loadout.presetName}»`
+                  : 'Отдельный комплект для пресета. Его можно настроить вручную или скопировать из общего слота.'}
+                onClick={() => act('loadout_select_slot', { slot: loadout.presetSlot })}
+              />
+            </Stack.Item>
             {slots.map((slot) => (
               <Stack.Item key={slot}>
                 <Button
@@ -423,7 +437,7 @@ export const LoadoutTab = () => {
           <Button
             icon={loadout.enabled ? 'check-square-o' : 'square-o'}
             selected={loadout.enabled}
-            content="Заменять стандартную одежду"
+            content="Заменять"
             tooltip="Включено: одежда лодаута заменяет стандартную, снятые вещи помещаются в сумку. Выключено: стандартная одежда остаётся, а вещи лодаута для занятых слотов отправляются в сумку. Пустые слоты заполняются в обоих режимах."
             onClick={() => act('loadout_toggle_enabled')}
           />
@@ -444,6 +458,18 @@ export const LoadoutTab = () => {
             onClick={() => act('loadout_copy_slot')}
           />
         </Stack.Item>
+        {loadout.slot !== loadout.presetSlot && (
+          <Stack.Item>
+            <Button
+              icon="file-import"
+              content="В пресет"
+              tooltip="Скопировать текущий общий лодаут в отдельный комплект пресета и перейти к нему"
+              onClick={() => act('loadout_copy_slot', {
+                target: loadout.presetSlot, activate: true,
+              })}
+            />
+          </Stack.Item>
+        )}
       </Stack>
 
       <Box mb={1} style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>

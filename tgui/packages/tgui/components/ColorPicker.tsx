@@ -127,31 +127,89 @@ const hslToHsv = (
   ];
 };
 
-const PALETTE_RADIUS = 5;
-const PALETTE_ROWS = Array.from(
-  { length: PALETTE_RADIUS * 2 + 1 },
-  (_, row) => {
-    const r = row - PALETTE_RADIUS;
-    const start = Math.max(-PALETTE_RADIUS, -r - PALETTE_RADIUS);
-    const end = Math.min(PALETTE_RADIUS, -r + PALETTE_RADIUS);
-    return Array.from({ length: end - start + 1 }, (_, column) => {
-      const q = start + column;
-      const distance = (Math.abs(q) + Math.abs(r) + Math.abs(q + r)) / 2;
-      const hue =
-        ((Math.atan2((r * Math.sqrt(3)) / 2, q + r / 2) * 180) / Math.PI +
-          690) %
-        360;
-      return hsvToHex(
-        hue,
-        Math.min(distance / (PALETTE_RADIUS - 1), 1),
-        distance === PALETTE_RADIUS ? 0.65 : 1
-      );
-    });
-  }
-);
-const GRAYSCALE = Array.from({ length: 11 }, (_, index) =>
-  hsvToHex(0, 0, 1 - index / 10)
-);
+// RGB сняты с центров ячеек старого диалога: ряды идут сверху вниз, цвета слева направо.
+// Не заменяем их расчётной HSV-палитрой: в оригинале есть нестандартные оттенки.
+const PALETTE_ROWS = [
+  [
+    '#003366', '#336699', '#3366CC', '#003399', '#000099', '#0000CC', '#000066',
+  ],
+  [
+    '#006666', '#006699', '#0099CC', '#0066CC', '#0033CC', '#0000FF', '#3333FF',
+    '#333399',
+  ],
+  [
+    '#008080', '#009999', '#33CCCC', '#00CCFF', '#0099FF', '#0066FF', '#3366FF',
+    '#3333CC', '#666699',
+  ],
+  [
+    '#339966', '#00CC99', '#00FFCC', '#00FFFF', '#33CCFF', '#3399FF', '#6699FF',
+    '#6666FF', '#6600FF', '#6600CC',
+  ],
+  [
+    '#339933', '#00CC66', '#00FF99', '#66FFCC', '#66FFFF', '#66CCFF', '#99CCFF',
+    '#9999FF', '#9966FF', '#9933FF', '#9900FF',
+  ],
+  [
+    '#006600', '#00CC00', '#00FF00', '#66FF99', '#99FFCC', '#CCFFFF', '#CCECFF',
+    '#CCCCFF', '#CC99FF', '#CC66FF', '#CC00FF', '#9900CC',
+  ],
+  [
+    '#003300', '#008000', '#33CC33', '#66FF66', '#99FF99', '#CCFFCC', '#FFFFFF',
+    '#FFCCFF', '#FF99FF', '#FF66FF', '#FF00FF', '#CC00CC', '#660066',
+  ],
+  [
+    '#336600', '#009900', '#66FF33', '#99FF66', '#CCFF99', '#FFFFCC', '#FFCCCC',
+    '#FF99CC', '#FF66CC', '#FF33CC', '#CC0099', '#800080',
+  ],
+  [
+    '#333300', '#669900', '#99FF33', '#CCFF66', '#FFFF99', '#FFCC99', '#FF9999',
+    '#FF6699', '#FF3399', '#CC3399', '#990099',
+  ],
+  [
+    '#666633', '#99CC00', '#CCFF33', '#FFFF66', '#FFCC66', '#FF9966', '#FF7C80',
+    '#FF0066', '#D60093', '#993366',
+  ],
+  [
+    '#808000', '#CCCC00', '#FFFF00', '#FFCC00', '#FF9933', '#FF6600', '#FF5050',
+    '#CC0066', '#660033',
+  ],
+  [
+    '#996633', '#CC9900', '#FF9900', '#CC6600', '#FF3300', '#FF0000', '#CC0000',
+    '#990033',
+  ],
+  [
+    '#663300', '#996600', '#CC3300', '#993300', '#990000', '#800000', '#A50021',
+  ],
+];
+const GRAYSCALE_ROWS = [
+  [
+    '#F8F8F8', '#DDDDDD', '#B2B2B2', '#808080', '#5F5F5F', '#333333', '#1C1C1C',
+    '#080808',
+  ],
+  [
+    '#EAEAEA', '#C0C0C0', '#969696', '#777777', '#4D4D4D', '#292929', '#111111',
+  ],
+];
+const HEX_WIDTH = 14;
+const HEX_HEIGHT = 16;
+const HEX_ROW_STEP = 12;
+const PALETTE_WIDTH = HEX_WIDTH * 13;
+const PALETTE_HEIGHT = HEX_ROW_STEP * 12 + HEX_HEIGHT;
+const GRAYSCALE_HEIGHT = HEX_HEIGHT * 2;
+
+// Процентные координаты сохраняют геометрию оригинала при изменении размера окна.
+const paletteSwatchStyle = (
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  canvasHeight: number
+): React.CSSProperties => ({
+  left: `${(x / PALETTE_WIDTH) * 100}%`,
+  top: `${(y / canvasHeight) * 100}%`,
+  width: `${(width / PALETTE_WIDTH) * 100}%`,
+  height: `${(height / canvasHeight) * 100}%`,
+});
 
 const WHEEL_SIZE = 260;
 const TRIANGLE_TOP = 77;
@@ -371,13 +429,19 @@ export const ColorPickerPanel = (props: {
   const apply = () => {
     if (valid) commit(valid);
   };
-  const swatches = (colors: string[]) =>
-    colors.map((color) => (
+  const swatches = (
+    colors: string[],
+    position?: (index: number) => React.CSSProperties
+  ) =>
+    colors.map((color, index) => (
       <button
         key={color}
         type="button"
         className="ColorPicker__swatch"
-        style={{ '--swatch-color': color } as React.CSSProperties}
+        style={{
+          '--swatch-color': color,
+          ...position?.(index),
+        } as React.CSSProperties}
         title={color}
         aria-label={'Выбрать цвет ' + color}
         aria-pressed={hex.toLowerCase() === color.toLowerCase()}
@@ -401,23 +465,52 @@ export const ColorPickerPanel = (props: {
       )}
       <div className="ColorPicker__layout">
         <div>
-          <div
-            className="ColorPicker__honeycomb"
-            role="group"
-            aria-label="Цветовая палитра"
-          >
-            {PALETTE_ROWS.map((row, index) => (
-              <div key={index} className="ColorPicker__palette-row">
-                {swatches(row)}
-              </div>
-            ))}
-          </div>
-          <div
-            className="ColorPicker__palette ColorPicker__palette--grayscale"
-            role="group"
-            aria-label="Оттенки серого"
-          >
-            {swatches(GRAYSCALE)}
+          <div className="ColorPicker__presets">
+            <div
+              className="ColorPicker__honeycomb"
+              style={{ aspectRatio: `${PALETTE_WIDTH} / ${PALETTE_HEIGHT}` }}
+              role="group"
+              aria-label="Цветовая палитра"
+            >
+              {PALETTE_ROWS.flatMap((row, rowIndex) =>
+                swatches(row, (column) =>
+                  paletteSwatchStyle(
+                    (PALETTE_WIDTH - row.length * HEX_WIDTH) / 2 + column * HEX_WIDTH,
+                    rowIndex * HEX_ROW_STEP,
+                    HEX_WIDTH,
+                    HEX_HEIGHT,
+                    PALETTE_HEIGHT
+                  )
+                )
+              )}
+            </div>
+            <div
+              className="ColorPicker__grayscale"
+              style={{ aspectRatio: `${PALETTE_WIDTH} / ${GRAYSCALE_HEIGHT}` }}
+              role="group"
+              aria-label="Оттенки серого"
+            >
+              {swatches(['#FFFFFF', '#000000'], (index) =>
+                paletteSwatchStyle(
+                  index * (PALETTE_WIDTH - HEX_WIDTH * 2),
+                  0,
+                  HEX_WIDTH * 2,
+                  GRAYSCALE_HEIGHT,
+                  GRAYSCALE_HEIGHT
+                )
+              )}
+              {GRAYSCALE_ROWS.flatMap((row, rowIndex) =>
+                swatches(row, (column) =>
+                  paletteSwatchStyle(
+                    (PALETTE_WIDTH - row.length * HEX_WIDTH) / 2 + column * HEX_WIDTH,
+                    HEX_HEIGHT / 4 + rowIndex * HEX_ROW_STEP,
+                    HEX_WIDTH,
+                    HEX_HEIGHT,
+                    GRAYSCALE_HEIGHT
+                  )
+                )
+              )}
+            </div>
           </div>
           {!!recent.length && (
             <>

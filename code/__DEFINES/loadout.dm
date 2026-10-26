@@ -81,6 +81,8 @@
 
 //loadout saving/loading specific defines
 #define MAXIMUM_LOADOUT_SAVES		10
+// Отдельный рабочий комплект пресета, не занимающий один из десяти общих слотов.
+#define LOADOUT_PRESET_SLOT 0
 #define LOADOUT_ITEM				"loadout_item"
 #define LOADOUT_COLOR				"loadout_color"
 #define LOADOUT_COLOR_MODE			"loadout_color_mode"

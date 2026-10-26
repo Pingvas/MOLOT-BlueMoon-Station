@@ -40,10 +40,10 @@ const GROUPS: [number, string, string[]][] = [
   [4, 'Речевые предпочтения', ['Глагол речи', 'Использовать русские глаголы', 'Акцент', 'Смех', 'Свой цвет руначата', 'Цвет руначата']],
   [4, 'Голос', ['Звук голоса', 'Скорость голоса', 'Высота голоса', 'Разброс голоса', 'Звук смерти']],
   [4, 'Дополнительные языки', ['Дополнительные языки']],
-  [5, 'Экипировка', ['Выбрано', 'Заменять стандартную одежду', 'Каталог экипировки']],
+  [5, 'Экипировка', ['Выбрано', 'Заменять', 'Каталог экипировки']],
   [6, 'Особенности', ['Особенности']],
   [6, 'Настройки отдельных особенностей', ['Фобия', 'Тип крика', 'Прозвище призываемого', 'Останки «Одной Жизни»']],
-  [-1, 'Внешний вид', ['Фон превью', 'Возбуждён', 'Масштаб просмотра']],
+  [-1, 'Внешний вид', ['Фон превью', 'Возбуждён', 'Масштаб просмотра', 'Ракурсы', 'Поворот', 'Приближение', 'Силуэт 100%']],
 ];
 
 const GENERAL_GROUPS: Record<string, string> = {
@@ -84,38 +84,33 @@ export const SearchSettings = () => {
     for (const [id, label] of Object.entries(data.mutantPartLabels || {})) {
       result.push({ tab: 2, group: 'Части тела', label, id: 'part:' + id });
     }
-    return result;
+    return result.map((entry) => ({
+      ...entry,
+      searchText: normalize([entry.label, entry.keywords || '', entry.id || ''].join(' ')),
+      searchLabel: normalize(entry.label),
+      searchGroup: normalize(entry.group),
+    }));
   }, [data.featureFields, data.mutantPartLabels]);
   const normalizedQuery = normalize(query).trim();
   const words = normalizedQuery.split(/\s+/).filter(Boolean);
-  const matches = words.length
-    ? entries.filter((entry) => {
-      const text = normalize(
-        [entry.label, entry.keywords || '', entry.id || ''].join(' ')
-      );
-      return words.every((word) => text.includes(word))
-        || normalize(entry.group).includes(normalizedQuery);
+  const matches = useMemo(() => {
+    if (!normalizedQuery) return [];
+    const queryWords = normalizedQuery.split(/\s+/);
+    return entries.filter((entry) => {
+      return queryWords.every((word) => entry.searchText.includes(word))
+        || entry.searchGroup.includes(normalizedQuery);
     }).sort((a, b) =>
-      Number(normalize(b.label).includes(normalizedQuery))
-      - Number(normalize(a.label).includes(normalizedQuery))
-    )
-    : [];
+      Number(b.searchLabel.includes(normalizedQuery))
+      - Number(a.searchLabel.includes(normalizedQuery))
+    );
+  }, [entries, normalizedQuery]);
 
   useEffect(() => {
-    const hotkey = (event: KeyboardEvent) => {
-      if (event.ctrlKey && event.code === 'KeyF') {
-        event.preventDefault();
-        setOpen(true);
-        root.current?.querySelector('input')?.focus();
-      }
-    };
-    document.addEventListener('keydown', hotkey);
     const outside = (event: PointerEvent) => {
       if (!root.current?.contains(event.target as Node)) setOpen(false);
     };
     document.addEventListener('pointerdown', outside);
     return () => {
-      document.removeEventListener('keydown', hotkey);
       document.removeEventListener('pointerdown', outside);
     };
   }, []);
@@ -193,7 +188,7 @@ export const SearchSettings = () => {
         <Stack.Item grow>
           <Input
             fluid
-            placeholder="Поиск настроек во всех вкладках · Ctrl+F"
+            placeholder="Поиск настроек во всех вкладках"
             value={query}
             onFocus={() => setOpen(true)}
             onInput={(event, value) => {

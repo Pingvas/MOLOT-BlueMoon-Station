@@ -45,15 +45,22 @@
 	var/character_revision = 0
 	var/loadout_selected = FALSE
 	var/list/viewer_screens
+	var/preview_mode = PREVIEW_PREF_JOB
 	var/preview_auto_fit = TRUE
 	var/preview_aroused = FALSE
 	var/saved_character_state
 	var/save_notice
+	var/selected_character_preset
 	var/sound_preview_channel
 	var/sound_preview_kind
 	var/sound_preview_until = 0
 	var/sound_preview_generation = 0
 	var/next_sound_preview = 0
+	var/preview_direction = SOUTH
+	var/preview_zoom = 1
+	var/preview_reference = FALSE
+	var/preview_background_style = "texture"
+	var/heavy_static_ready = FALSE
 
 /datum/character_setup/New(datum/preferences/new_prefs)
 	prefs = new_prefs
@@ -69,18 +76,19 @@
 // Сравниваем значения, а не нажатия: отменённый диалог и возврат к сохранённому значению не создают изменений.
 /datum/character_setup/proc/character_state()
 	var/static/list/keys = list(
-		"real_name", "nameless", "age", "gender", "custom_species", "custom_names", "be_random_name",
+		"real_name", "character_slot_name", "nameless", "age", "gender", "custom_species", "custom_names", "be_random_name",
 		"hide_ckey", "custom_blood_color", "blood_color", "prefered_security_department", "preferred_ai_core_display",
 		"pda_color", "pda_style", "pda_skin", "pda_ringtone", "pda_theme", "silicon_lawset", "jumpsuit_style",
 		"features", "skin_tone", "use_custom_skin_tone", "eye_type", "split_eye_colors", "left_eye_color", "right_eye_color",
 		"hair_style", "hair_color", "facial_hair_style", "facial_hair_color", "grad_style", "grad_color",
-		"modified_limbs", "chosen_limb_id", "body_weight", "scars_list", "bgstate", "preview_pref",
+		"modified_limbs", "chosen_limb_id", "body_weight", "scars_list", "bgstate",
 		"custom_speech_verb", "custom_speech_verb_ru", "custom_tongue", "custom_laugh", "language",
 		"bark_id", "bark_speed", "bark_pitch", "bark_variance", "enable_personal_chat_color", "personal_chat_color",
 		"loadout_slot", "loadout_enabled", "loadout_data", "all_quirks", "antag_opt_in_level",
 		"phobia_type", "shriek_type", "onelife_death_type", "summon_nickname", "vore_taste", "vore_smell",
 		"security_records", "medical_records", "underwear", "undershirt", "socks", "undie_color", "shirt_color", "socks_color",
 		"job_preferences", "joblessrole", "alt_titles_preferences", "persistent_tattoos", "tattoos_string", "pending_tattoo_removals",
+		"character_presets", "active_character_preset",
 	)
 	var/list/state = list("slot" = prefs.default_slot, "species" = prefs.pref_species?.type)
 	for(var/key in keys)
@@ -94,28 +102,206 @@
 	if(prefs)
 		saved_character_state = character_state()
 
+// Белый список не позволяет пресету менять внешность, описания и остальные настройки куклы.
+/datum/preferences/proc/character_preset_fields()
+	var/static/list/fields = list(
+		"job_preferences", "joblessrole", "alt_titles_preferences", "prefered_security_department",
+		"all_quirks", "phobia_type", "shriek_type", "onelife_death_type", "summon_nickname", "loadout_enabled",
+	)
+	return fields
+
+/datum/preferences/proc/sanitize_character_presets()
+	var/list/sanitized = list()
+	if(islist(character_presets))
+		for(var/preset_name in character_presets)
+			if(length(sanitized) >= MAX_CHARACTER_PRESETS)
+				break
+			if(!istext(preset_name) || !length(trimtext(preset_name)) || length_char(preset_name) > MAX_NAME_LEN)
+				continue
+			var/list/preset = character_presets[preset_name]
+			if(!islist(preset) || !islist(preset["job_preferences"]) || !islist(preset["all_quirks"]) || !islist(preset["loadout"]))
+				continue
+			var/list/snapshot = list()
+			for(var/field in character_preset_fields())
+				snapshot[field] = deepCopyList(preset[field])
+			snapshot["alt_titles_preferences"] = SANITIZE_LIST(snapshot["alt_titles_preferences"])
+			snapshot["loadout"] = deepCopyList(preset["loadout"])
+			sanitized[preset_name] = snapshot
+	character_presets = sanitized
+	if(!istext(active_character_preset) || !islist(character_presets[active_character_preset]))
+		active_character_preset = null
+
+/datum/preferences/proc/capture_character_preset()
+	var/list/snapshot = list()
+	for(var/field in character_preset_fields())
+		snapshot[field] = deepCopyList(vars[field])
+	// Копируем только выбранный комплект; вложенные цвета, матрицы и подписи тоже независимы.
+	snapshot["loadout"] = deepCopyList(SANITIZE_LIST(loadout_data["SAVE_[loadout_slot]"]))
+	return snapshot
+
+/datum/character_setup/proc/character_preset_error(list/preset, mob/user)
+	if(!SSquirks || !length(SSquirks.quirks) || !SSjob?.initialized || !length(GLOB.loadout_items))
+		return "Справочники профессий, квирков или экипировки ещё загружаются."
+	var/list/quirks = preset["all_quirks"]
+	var/positive_count = 0
+	for(var/quirk_name in quirks)
+		if(!istext(quirk_name))
+			return "Список квирков пресета повреждён."
+		var/datum/quirk/quirk_datum = SSquirks.quirks[quirk_name]
+		if(!quirk_datum)
+			return "В пресете есть квирк, которого больше нет: [quirk_name]."
+		var/reason = quirk_lock_reason(quirk_name, quirk_datum, quirks)
+		if(reason)
+			return "Квирк «[quirk_name]» недоступен: [reason]."
+		if(initial(quirk_datum.value) > 0)
+			positive_count++
+	if(positive_count > MAX_QUIRKS)
+		return "В пресете больше [MAX_QUIRKS] положительных квирков."
+	if(quirk_balance(quirks) < 0)
+		return "Для этих квирков не хватает баланса при текущем весе и протезах персонажа."
+	var/points = available_gear_points(user)
+	var/list/seen_gear = list()
+	for(var/raw_entry in preset["loadout"])
+		if(!islist(raw_entry))
+			return "Комплект пресета содержит повреждённую запись."
+		var/list/entry = raw_entry
+		if(!istext(entry[LOADOUT_ITEM]))
+			return "Комплект пресета содержит повреждённый идентификатор предмета."
+		var/datum/gear/gear = find_loadout_gear(entry[LOADOUT_ITEM])
+		if(!gear)
+			return "В комплекте пресета есть предмет, которого больше нет: [entry[LOADOUT_ITEM]]."
+		if(gear.type in seen_gear)
+			return "В комплекте пресета повторяется предмет «[gear.name]»."
+		seen_gear += gear.type
+		if(gear.donoritem && !gear.donator_ckey_check(user?.key))
+			return "Предмет «[gear.name]» недоступен по уровню поддержки."
+		if(istype(gear, /datum/gear/unlockable) && !prefs.can_use_unlockable(gear))
+			return "Предмет «[gear.name]» ещё не разблокирован."
+		points -= gear.cost
+	if(points < 0)
+		return "Для комплекта пресета не хватает очков экипировки."
+	return null
+
+/datum/character_setup/proc/manage_character_preset(action, list/params, mob/user)
+	var/slot = prefs.default_slot
+	var/revision = character_revision
+	var/preset_name = params["name"]
+	var/list/preset = istext(preset_name) ? prefs.character_presets[preset_name] : null
+	if(action == "preset_select")
+		if(islist(preset))
+			selected_character_preset = preset_name
+		return
+	if(action == "preset_create" || action == "preset_rename")
+		if(action == "preset_rename" && !islist(preset))
+			return
+		if(action == "preset_create" && length(prefs.character_presets) >= MAX_CHARACTER_PRESETS)
+			save_notice = "У персонажа уже есть [MAX_CHARACTER_PRESETS] пресетов."
+			return
+		var/new_name = tgui_input_text(user, "Название пресета персонажа:", "Пресеты", action == "preset_rename" ? preset_name : null, MAX_NAME_LEN)
+		// Пока открыт диалог, другое окно могло переключить персонажа или применить пресет.
+		if(QDELETED(src) || !prefs || user?.client?.prefs != prefs || prefs.default_slot != slot || character_revision != revision || isnull(new_name))
+			return
+		new_name = trimtext(strip_control_chars(new_name))
+		if(!length(new_name) || length_char(new_name) > MAX_NAME_LEN)
+			return
+		if(new_name == preset_name && action == "preset_rename")
+			return
+		if(new_name in prefs.character_presets)
+			save_notice = "Пресет «[new_name]» уже существует."
+			return
+		if(action == "preset_create")
+			if(length(prefs.character_presets) >= MAX_CHARACTER_PRESETS)
+				return
+			prefs.character_presets[new_name] = prefs.capture_character_preset()
+			activate_character_preset_loadout(new_name, prefs.character_presets[new_name])
+		else
+			if(prefs.character_presets[preset_name] != preset)
+				return
+			prefs.character_presets[new_name] = preset
+			prefs.character_presets -= preset_name
+			if(prefs.active_character_preset == preset_name)
+				prefs.active_character_preset = new_name
+		selected_character_preset = new_name
+		save_notice = "Пресет «[new_name]» [action == "preset_create" ? "создан" : "переименован"]. Нажмите «Сохранить», чтобы записать персонажа."
+		return
+	if(!islist(preset))
+		return
+	switch(action)
+		if("preset_save")
+			prefs.character_presets[preset_name] = prefs.capture_character_preset()
+			activate_character_preset_loadout(preset_name, prefs.character_presets[preset_name])
+			save_notice = "Пресет «[preset_name]» обновлён из текущих настроек. Нажмите «Сохранить», чтобы записать персонажа."
+		if("preset_delete")
+			prefs.character_presets -= preset_name
+			if(prefs.active_character_preset == preset_name)
+				prefs.active_character_preset = null
+			selected_character_preset = null
+			save_notice = "Пресет «[preset_name]» удалён. Текущие настройки персонажа оставлены без изменений."
+		if("preset_apply")
+			var/error = character_preset_error(preset, user)
+			if(error)
+				save_notice = "Пресет не применён: [error]"
+				return
+			// Сначала проверяем весь пресет и лишь затем меняем настройки: частичного применения нет.
+			for(var/field in prefs.character_preset_fields())
+				prefs.vars[field] = deepCopyList(preset[field])
+			prefs.joblessrole = sanitize_inlist(prefs.joblessrole, list(RETURNTOLOBBY, BEOVERFLOW, BERANDOMJOB), RETURNTOLOBBY)
+			prefs.loadout_enabled = sanitize_integer(prefs.loadout_enabled, FALSE, TRUE, TRUE)
+			prefs.prefered_security_department = sanitize_inlist(prefs.prefered_security_department, GLOB.security_depts_prefs, SEC_DEPT_RANDOM)
+			prefs.shriek_type = sanitize_inlist(prefs.shriek_type, GLOB.shriek_types, SHRIEK_TYPE_GENERIC)
+			prefs.onelife_death_type = sanitize_inlist(prefs.onelife_death_type, GLOB.onelife_death_forms, "Пепел")
+			if(SStraumas)
+				prefs.phobia_type = SStraumas.sanitize_phobia_type(prefs.phobia_type)
+			activate_character_preset_loadout(preset_name, preset)
+			if(prefs.job_menu)
+				prefs.job_menu.previews.Cut()
+				prefs.job_menu.pushed_preview = null
+				SStgui.update_uis(prefs.job_menu)
+			save_notice = "Применён пресет «[preset_name]». Используется отдельный комплект «Пресет»."
+
+/datum/character_setup/proc/activate_character_preset_loadout(preset_name, list/preset)
+	prefs.loadout_data["SAVE_[LOADOUT_PRESET_SLOT]"] = deepCopyList(preset["loadout"])
+	prefs.loadout_slot = LOADOUT_PRESET_SLOT
+	prefs.active_character_preset = preset_name
+	selected_character_preset = preset_name
+	if(prefs.loadout_color_handler)
+		SStgui.close_uis(prefs.loadout_color_handler)
+		QDEL_NULL(prefs.loadout_color_handler)
+	character_revision++
+	preview_dirty = TRUE
+
 /datum/preferences/proc/open_character_setup(mob/user)
 	if(QDELETED(character_setup_ui))
 		character_setup_ui = new(src)
 	character_setup_ui.ui_interact(user)
 
-// Прогрев до первого открытия.
+// Большинство игроков открывает редактор: справочники готовим после входа, без создания манекена.
 /datum/preferences/proc/prewarm_character_setup()
-	if(!parent)
+	if(!parent || QDELETED(parent))
+		return
+	if(!SSjob.initialized || !SSlanguage.initialized)
+		addtimer(CALLBACK(src, PROC_REF(prewarm_character_setup)), 2 SECONDS, TIMER_UNIQUE | TIMER_OVERRIDE)
 		return
 	if(QDELETED(character_setup_ui))
 		character_setup_ui = new(src)
 	character_setup_ui.prewarm()
+	character_setup_ui.heavy_static_ready = TRUE
 
 // Единый список стилей окна.
-/datum/preferences/proc/valid_setup_theme(theme)
-	var/static/list/valid = list(
-		"default", "kpk", "terminal", "syndie", "cat", "synth", "hotpink",
-		"hackerman", "malfunction", "heretic", "wizard", "darkmode", "pact",
-		"abductor", "neutral", "inteq", "chat", "chat_pink", "chat_violet",
-		"chat_green", "chat_amber",
+/datum/preferences/proc/setup_theme_options()
+	var/static/list/themes = list(
+		"default" = "Стандарт", "kpk" = "КПК", "terminal" = "Терминал",
+		"syndie" = "Синдикат", "cat" = "Котик", "synth" = "Синт", "hotpink" = "Фуксия",
+		"hackerman" = "Хакер", "malfunction" = "Сбой", "heretic" = "Еретик",
+		"wizard" = "Волшебник", "darkmode" = "Графит", "pact" = "Пакт",
+		"abductor" = "Абдуктор", "neutral" = "Янтарь", "inteq" = "Охра",
+		"chat" = "Чат", "chat_pink" = "Розовый", "chat_violet" = "Фиолет",
+		"chat_green" = "Зелёный", "chat_amber" = "Янтарный",
 	)
-	return (theme in valid)
+	return themes
+
+/datum/preferences/proc/valid_setup_theme(theme)
+	return (theme in setup_theme_options())
 
 /datum/character_setup/ui_state(mob/user)
 	return GLOB.always_state
@@ -127,6 +313,10 @@
 	if(!user?.client || !prefs || user.client.prefs != prefs)
 		return UI_CLOSE
 	return .
+
+/datum/character_setup/ui_assets()
+	. = ..() || list()
+	. += get_asset_datum(/datum/asset/spritesheet_batched/jobs)
 
 /datum/character_setup/ui_close(mob/user)
 	var/atom/movable/screen/map_view/character_setup_screen/viewer_screen = LAZYACCESS(viewer_screens, user)
@@ -142,15 +332,12 @@
 		viewer_screen.generate_view("character_setup_[REF(src)]_[REF(user)]_map")
 		LAZYSET(viewer_screens, user, viewer_screen)
 		preview_dirty = TRUE
-	// Превью собирается отдельным тиком.
-	schedule_preview_update()
 	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		// Окно стартует с лёгкой нагрузки.
-		heavy_static_pending = FALSE
 		ui = new(user, src, CHARACTER_SETUP_INTERFACE, "Создание персонажа")
 		ui.open()
-		viewer_screen.display_to(user, ui.window)
+	// Справочники отправляем отдельно; повторное открытие использует уже готовый кэш.
+	if(!heavy_static_ready && !heavy_static_pending)
 		heavy_static_pending = TRUE
 		addtimer(CALLBACK(src, PROC_REF(push_heavy_static)), 0.1 SECONDS, TIMER_UNIQUE | TIMER_OVERRIDE)
 	ui.set_autoupdate(FALSE)
@@ -167,13 +354,28 @@
 	data["ageMax"] = AGE_MAX_INPUT
 	data["quirksEnabled"] = !!CONFIG_GET(flag/roundstart_traits)
 	data["siliconLawsDisabled"] = !CONFIG_GET(flag/allow_silicon_choosing_laws)
+	if(heavy_static_ready)
+		data["featureFields"] = get_feature_fields()
+		data["options"] = build_options_static()
+		data["mutantPartLabels"] = build_mutant_labels()
+		data["markingOptions"] = build_marking_options_data()
+		data["languageIcons"] = build_language_icons()
 	return data
 
-// Тяжелые статические ключи.
+// Статика принадлежит окну, а не одноразовому флагу в ui_data(): её не потеряет соседнее обновление.
 /datum/character_setup/proc/push_heavy_static()
-	SStgui.update_uis(src)
+	if(!heavy_static_ready)
+		prewarm()
+		heavy_static_ready = TRUE
+	update_static_data_for_all_viewers(ignore_cooldown = TRUE)
+	for(var/datum/tgui/ui as anything in SStgui.get_all_open_uis(src))
+		if(!ui.initialized)
+			// При холодной загрузке браузер ещё не принимает обновления; справочники не должны потеряться.
+			addtimer(CALLBACK(src, PROC_REF(push_heavy_static)), 0.1 SECONDS, TIMER_UNIQUE | TIMER_OVERRIDE)
+			return
+	heavy_static_pending = FALSE
 
-// Прогрев гоев
+// Справочники строятся по требованию. Манекен до готовности нативной карты не создаём.
 /datum/character_setup/proc/prewarm()
 	if(!prefs)
 		return
@@ -182,9 +384,6 @@
 	build_mutant_labels()
 	build_marking_options_data()
 	build_language_icons()
-	// Манекен строим только когда SSjob готов: превью зависит от экипировки вакансии.
-	//if(SSjob.initialized && prefs.parent)
-	//	build_preview_appearance()
 
 /datum/character_setup/proc/build_mutant_labels()
 	if(mutant_labels_cache)
@@ -1508,10 +1707,17 @@
 
 	data["slot"] = prefs.loadout_slot
 	data["slotCount"] = MAXIMUM_LOADOUT_SAVES
+	data["presetSlot"] = LOADOUT_PRESET_SLOT
+	data["presetName"] = prefs.active_character_preset
 	data["enabled"] = !!prefs.loadout_enabled
 	data["selectedView"] = loadout_selected
 	var/datum/job/planned_job = prefs.get_highest_job()
 	data["plannedJob"] = planned_job?.title
+	// Индексы общие для всей выдачи: строки каталога не обходят выбранные вещи заново.
+	var/list/selected_by_type = list()
+	var/list/conflicts_by_slot = list()
+	var/list/selected_gear = list()
+	var/list/row_context = list("selected" = selected_by_type, "conflicts" = conflicts_by_slot, "job" = planned_job)
 	var/list/selected_items = list()
 	var/selected_count = 0
 	var/list/chosen_gear = prefs.loadout_data["SAVE_[prefs.loadout_slot]"]
@@ -1519,12 +1725,20 @@
 		var/datum/gear/gear = find_loadout_gear(entry[LOADOUT_ITEM])
 		if(istype(gear))
 			selected_count++
-			if(loadout_selected)
-				selected_items += list(build_loadout_row(gear, gear.name))
+			selected_gear += gear
+			if(!selected_by_type["[gear.type]"])
+				selected_by_type["[gear.type]"] = entry
+			if(planned_job && length(gear.restricted_roles) && !(planned_job.title in gear.restricted_roles))
+				continue
+			if(gear.donoritem && !gear.donator_ckey_check(prefs.parent?.key))
+				continue
+			LAZYADD(conflicts_by_slot["[gear.slot]"], list(list("type" = gear.type, "name" = entry[LOADOUT_CUSTOM_NAME] || gear.name)))
 	data["selectedCount"] = selected_count
 
 	data["showCkeyId"] = (prefs.gear_category == LOADOUT_CATEGORY_DONATOR && prefs.gear_subcategory == LOADOUT_SUBCATEGORIES_DON03)
 	if(loadout_selected)
+		for(var/datum/gear/gear as anything in selected_gear)
+			selected_items += list(build_loadout_row(gear, gear.name, row_context))
 		data["items"] = selected_items
 		data["invalid"] = list()
 		return data
@@ -1535,15 +1749,18 @@
 		return data
 
 	data["invalid"] = list()
-	data["items"] = build_loadout_rows(user)
+	data["items"] = build_loadout_rows(user, row_context)
 	return data
 
-/datum/character_setup/proc/calc_gear_points(mob/user)
-	prefs.gear_points = CONFIG_GET(number/initial_gear_points)
+/datum/character_setup/proc/available_gear_points(mob/user)
+	. = CONFIG_GET(number/initial_gear_points)
 	if(IS_CKEY_DONATOR_GROUP(user?.ckey, DONATOR_GROUP_TIER_1))
-		prefs.gear_points += CONFIG_GET(number/subscriber_extra_gear_points)
+		. += CONFIG_GET(number/subscriber_extra_gear_points)
 	if(IS_CKEY_DONATOR_GROUP(user?.ckey, DONATOR_GROUP_TIER_2))
-		prefs.gear_points += CONFIG_GET(number/sponsor_extra_gear_points)
+		. += CONFIG_GET(number/sponsor_extra_gear_points)
+
+/datum/character_setup/proc/calc_gear_points(mob/user)
+	prefs.gear_points = available_gear_points(user)
 
 	prefs.loadout_errors = 0
 	var/list/chosen_gear = prefs.loadout_data["SAVE_[prefs.loadout_slot]"]
@@ -1558,7 +1775,7 @@
 		else
 			prefs.loadout_errors++
 
-/datum/character_setup/proc/build_loadout_rows(mob/user)
+/datum/character_setup/proc/build_loadout_rows(mob/user, list/row_context)
 	var/list/rows = list()
 	var/list/subcategory_items = GLOB.loadout_items[prefs.gear_category]?[prefs.gear_subcategory]
 	for(var/item_name in subcategory_items)
@@ -1567,10 +1784,10 @@
 			continue
 		if(gear.donoritem && !gear.donator_ckey_check(user?.key))
 			continue
-		rows += list(build_loadout_row(gear, item_name))
+		rows += list(build_loadout_row(gear, item_name, row_context))
 	return rows
 
-/datum/character_setup/proc/build_loadout_row(datum/gear/gear, item_name)
+/datum/character_setup/proc/build_loadout_row(datum/gear/gear, item_name, list/row_context)
 	var/list/row = list("name" = item_name)
 	row["id"] = "[gear.type]"
 	row["category"] = loadout_ui_label(gear.category)
@@ -1599,7 +1816,8 @@
 
 	row["description"] = gear.description
 
-	var/list/entry = prefs.has_loadout_gear(prefs.loadout_slot, "[gear.type]")
+	var/list/selected_by_type = row_context["selected"]
+	var/list/entry = selected_by_type["[gear.type]"]
 	row["selected"] = !!entry
 	row["noPoints"] = !entry && (prefs.gear_points < gear.cost)
 	var/availability_reason
@@ -1613,7 +1831,7 @@
 		availability_reason = "Не хватает очков: нужно [gear.cost], осталось [prefs.gear_points]."
 	row["availabilityReason"] = availability_reason
 	row["canBuy"] = !entry && !availability_reason
-	var/datum/job/planned_job = prefs.get_highest_job()
+	var/datum/job/planned_job = row_context["job"]
 	row["roleMismatch"] = planned_job && length(gear.restricted_roles) && !(planned_job.title in gear.restricted_roles)
 	if(row["roleMismatch"])
 		row["roleWarning"] = "Не выдаётся для профессии «[planned_job.title]». Итоговая проверка зависит от назначенной профессии."
@@ -1621,16 +1839,11 @@
 	// Для отдельных носимых слотов показываем конфликты между доступными предметами набора.
 	if(gear.slot && !(gear.slot in list(ITEM_SLOT_BACKPACK, ITEM_SLOT_HANDS, ITEM_SLOT_ACCESSORY)))
 		var/list/conflicts = list()
-		var/list/chosen_gear = prefs.loadout_data["SAVE_[prefs.loadout_slot]"]
-		for(var/list/other_entry in chosen_gear)
-			var/datum/gear/other = find_loadout_gear(other_entry[LOADOUT_ITEM])
-			if(!other || other.type == gear.type || other.slot != gear.slot)
+		var/list/conflicts_by_slot = row_context["conflicts"]
+		for(var/list/other in conflicts_by_slot["[gear.slot]"])
+			if(other["type"] == gear.type)
 				continue
-			if(planned_job && length(other.restricted_roles) && !(planned_job.title in other.restricted_roles))
-				continue
-			if(other.donoritem && !other.donator_ckey_check(prefs.parent?.key))
-				continue
-			conflicts += other_entry[LOADOUT_CUSTOM_NAME] || other.name
+			conflicts += other["name"]
 		row["conflicts"] = conflicts
 	if(row["roleMismatch"])
 		row["conflicts"] = list()
@@ -1683,7 +1896,7 @@
 	if(isnull(next_slot))
 		return
 	next_slot = floor(next_slot)
-	if(next_slot < 1 || next_slot > MAXIMUM_LOADOUT_SAVES)
+	if(next_slot < LOADOUT_PRESET_SLOT || next_slot > MAXIMUM_LOADOUT_SAVES)
 		return
 	prefs.loadout_slot = next_slot
 	sanitize_loadout_navigation(prefs)
@@ -1702,18 +1915,30 @@
 
 /datum/character_setup/proc/loadout_copy_slot(list/params)
 	var/mob/user = prefs.parent?.mob
+	var/character_slot = prefs.default_slot
+	var/revision = character_revision
+	var/source_slot = prefs.loadout_slot
 	var/list/slots = list()
+	if(source_slot != LOADOUT_PRESET_SLOT)
+		slots["Пресет"] = LOADOUT_PRESET_SLOT
 	for(var/i in 1 to MAXIMUM_LOADOUT_SAVES)
-		if(i == prefs.loadout_slot)
+		if(i == source_slot)
 			continue
-		slots += "[i]"
-	var/asked = tgui_input_list(user, "Выберите слот для копирования текущего лодаута.", "Копирование лодаута", slots)
-	if(isnull(asked))
+		slots["[i]"] = i
+	var/next_slot = num_param(params["target"])
+	if(isnull(next_slot))
+		var/asked = tgui_input_list(user, "Выберите слот для копирования текущего лодаута.", "Копирование лодаута", slots)
+		if(isnull(asked) || !(asked in slots))
+			return
+		next_slot = slots[asked]
+	if(QDELETED(src) || !prefs || prefs.default_slot != character_slot || character_revision != revision)
 		return
-	var/next_slot = num_param(asked)
-	if(isnull(next_slot) || next_slot < 1 || next_slot > MAXIMUM_LOADOUT_SAVES)
+	if(next_slot != round(next_slot) || next_slot < LOADOUT_PRESET_SLOT || next_slot > MAXIMUM_LOADOUT_SAVES || next_slot == source_slot)
 		return
-	prefs.loadout_data["SAVE_[next_slot]"] = LAZYCOPY(prefs.loadout_data["SAVE_[prefs.loadout_slot]"])
+	// Правки цветов и подписей копии не должны менять исходный общий лодаут или сохранённый пресет.
+	prefs.loadout_data["SAVE_[next_slot]"] = deepCopyList(SANITIZE_LIST(prefs.loadout_data["SAVE_[source_slot]"]))
+	if(params["activate"])
+		prefs.loadout_slot = next_slot
 
 /datum/character_setup/proc/loadout_toggle_gear(list/params)
 	var/datum/gear/gear = find_loadout_gear("[params["name"]]")
@@ -2575,22 +2800,40 @@
 	return options_cache
 
 /datum/character_setup/ui_data(mob/user)
-	var/list/data = list()
+	var/list/data = preview_data(user)
 	if(!prefs)
 		return data
 
-	data["previewPref"] = prefs.preview_pref
-	data["previewAroused"] = preview_aroused
-	data["previewBackground"] = prefs.bgstate
-	data["previewBackgrounds"] = bg_state_options()
-
 	data["slotNames"] = prefs.get_slot_names() || list()
+	data["slotCustomNames"] = prefs.get_slot_custom_names() || list()
+	data["characterSlotName"] = prefs.character_slot_name
+	data["slotNameReplace"] = prefs.character_slot_name_replace
 	data["defaultSlot"] = prefs.default_slot
 	data["characterRevision"] = character_revision
 	data["characterName"] = prefs.real_name
 	data["speciesName"] = prefs.pref_species.name
 	data["tab"] = prefs.character_settings_tab
 	data["theme"] = prefs.character_setup_theme
+	data["autoSaveOnSwitch"] = prefs.character_setup_autosave
+	data["autoSaveActivePreset"] = prefs.character_setup_preset_autosave
+	var/list/presets_data = list()
+	var/static/list/job_icon_states = icon_states('icons/ui_icons/tgui/jobs.dmi')
+	for(var/preset_name in prefs.character_presets)
+		var/list/preset = prefs.character_presets[preset_name]
+		var/datum/job/highest_job = prefs.get_highest_job(preset["job_preferences"])
+		var/job_icon = ckey(highest_job?.title)
+		presets_data += list(list(
+			"name" = preset_name,
+			"jobs" = length(preset["job_preferences"]),
+			"quirks" = length(preset["all_quirks"]),
+			"items" = length(preset["loadout"]),
+			"jobTitle" = highest_job?.title,
+			"jobIcon" = (highest_job && (job_icon in job_icon_states)) ? job_icon : "no_id",
+		))
+	data["characterPresets"] = presets_data
+	data["presetLimit"] = MAX_CHARACTER_PRESETS
+	data["activeCharacterPreset"] = prefs.active_character_preset
+	data["selectedCharacterPreset"] = selected_character_preset
 	data["emissivesAllowed"] = !!prefs.features["allow_emissives"]
 	data["hasUnsavedChanges"] = character_state() != saved_character_state
 	data["saveNotice"] = save_notice
@@ -2601,13 +2844,6 @@
 	if(prefs.offer)
 		data["redemptionCode"] = prefs.offer.redemption_code
 
-	// Хеви-статик
-	if(heavy_static_pending)
-		heavy_static_pending = FALSE
-		data["featureFields"] = get_feature_fields()
-		data["options"] = build_options_static()
-		data["mutantPartLabels"] = build_mutant_labels()
-
 	switch(prefs.character_settings_tab)
 		if(GENERAL_CHAR_TAB)
 			data["general"] = build_general_data(user)
@@ -2615,10 +2851,8 @@
 			data["background"] = build_background_data()
 		if(MARKINGS_CHAR_TAB)
 			data["markings"] = build_markings_data()
-			data["markingOptions"] = build_marking_options_data()
 		if(SPEECH_CHAR_TAB)
 			data["speech"] = build_speech_data()
-			data["languageIcons"] = build_language_icons()
 		if(LOADOUT_CHAR_TAB)
 			data["loadout"] = build_loadout_data(user)
 		if(QUIRKS_CHAR_TAB)
@@ -2628,13 +2862,27 @@
 		data["appearance"] = build_appearance_data(user, prefs.character_settings_tab == APPEARANCE_CHAR_TAB)
 
 	schedule_preview_update()
+	return data
+
+// Камера не меняет настройки вкладки: отправляем только её собственные поля.
+/datum/character_setup/proc/preview_data(mob/user)
+	var/list/data = list()
+	if(!prefs)
+		return data
+	data["previewPref"] = preview_mode
+	data["previewAroused"] = preview_aroused
+	data["previewSingleView"] = prefs.character_setup_single_view
+	data["previewDirection"] = preview_direction
+	data["previewZoom"] = preview_zoom
+	data["previewReference"] = preview_reference
+	data["previewBackgroundStyle"] = preview_background_style
+	data["previewBackground"] = prefs.bgstate
+	data["previewBackgrounds"] = bg_state_options()
 	var/atom/movable/screen/map_view/character_setup_screen/viewer_screen = LAZYACCESS(viewer_screens, user)
 	data["previewRef"] = viewer_screen?.assigned_map
 	data["previewAutoFit"] = preview_auto_fit
 	data["previewViewportReady"] = viewer_screen && !isnull(viewer_screen.viewport_aspect)
-	if(preview_dirty)
-		data["previewDirty"] = TRUE
-
+	data["previewDirty"] = preview_dirty
 	return data
 
 /datum/character_setup/proc/build_tabs_data()
@@ -2644,8 +2892,8 @@
 		list("id" = APPEARANCE_CHAR_TAB, "label" = "Внешность", "icon" = "palette"),
 		list("id" = MARKINGS_CHAR_TAB, "label" = "Маркинги", "icon" = "highlighter"),
 		list("id" = SPEECH_CHAR_TAB, "label" = "Речь", "icon" = "comment"),
-		list("id" = LOADOUT_CHAR_TAB, "label" = "Экипировка", "icon" = "tshirt"),
 		list("id" = QUIRKS_CHAR_TAB, "label" = "Особенности", "icon" = "brain"),
+		list("id" = LOADOUT_CHAR_TAB, "label" = "Экипировка", "icon" = "tshirt"),
 	)
 
 /datum/character_setup/proc/build_general_data(mob/user)
@@ -2710,10 +2958,12 @@
 			values[quirk_name] = SSquirks.quirk_points_by_name(quirk_name)
 	return values
 
-/datum/character_setup/proc/quirk_balance()
+/datum/character_setup/proc/quirk_balance(list/selected_quirks)
+	if(isnull(selected_quirks))
+		selected_quirks = prefs.all_quirks
 	var/balance = 0
 	var/list/quirk_datums = SSquirks ? SSquirks.quirks : list()
-	for(var/quirk_name in prefs.all_quirks)
+	for(var/quirk_name in selected_quirks)
 		var/datum/quirk/quirk_datum = quirk_datums[quirk_name]
 		if(!quirk_datum)
 			continue
@@ -2724,7 +2974,9 @@
 	balance -= prefs.mob_size_name_to_quirk_cost(prefs.body_weight)
 	return balance
 
-/datum/character_setup/proc/quirk_lock_reason(quirk_name, datum/quirk/quirk_datum)
+/datum/character_setup/proc/quirk_lock_reason(quirk_name, datum/quirk/quirk_datum, list/selected_quirks)
+	if(isnull(selected_quirks))
+		selected_quirks = prefs.all_quirks
 	if(!SSquirks)
 		return "Подсистема особенностей не готова."
 	if(initial(quirk_datum.mood_quirk) && CONFIG_GET(flag/disable_human_mood))
@@ -2732,7 +2984,7 @@
 	for(var/list/blacklist in SSquirks.quirk_blacklist)
 		if(!(quirk_name in blacklist))
 			continue
-		for(var/other in prefs.all_quirks)
+		for(var/other in selected_quirks)
 			if(other == quirk_name)
 				continue
 			if(other in blacklist)
@@ -3122,23 +3374,59 @@
 	// Превью собирается отдельным тиком: сборка манекена в тике открытия или действия даёт статтер.
 	if(!preview_dirty || preview_update_pending)
 		return
+	var/viewport_ready = FALSE
+	for(var/viewer in viewer_screens)
+		var/atom/movable/screen/map_view/character_setup_screen/viewer_screen = viewer_screens[viewer]
+		if(viewer_screen.viewport_width)
+			viewport_ready = TRUE
+			break
+	if(!viewport_ready)
+		return
 	preview_update_pending = TRUE
-	addtimer(CALLBACK(src, PROC_REF(run_preview_update)), 0.1 SECONDS)
+	addtimer(CALLBACK(src, PROC_REF(run_preview_update)), SSjob.initialized ? 0.1 SECONDS : 1 SECONDS)
 
 /datum/character_setup/proc/run_preview_update()
+	try
+		update_preview()
+	catch(var/exception/error)
+		preview_dirty = TRUE
+		preview_update_pending = FALSE
+		stack_trace("Ошибка сборки превью персонажа: [error]")
+		return
 	preview_update_pending = FALSE
-	update_preview()
+	if(!QDELETED(src))
+		schedule_preview_update()
 
 /datum/character_setup/proc/update_preview()
-	if(!prefs?.parent || !preview_dirty || !length(viewer_screens))
+	if(!prefs?.parent || !SSjob.initialized || !preview_dirty || !length(viewer_screens))
 		return
-	var/mutable_appearance/appearance_source = prefs.build_preview_appearance(preview_aroused)
+	// Пока общий манекен занят, сборка может уснуть. Новая правка должна оставить новую заявку.
+	preview_dirty = FALSE
+	var/mutable_appearance/appearance_source = prefs.build_preview_appearance(preview_aroused, preview_mode)
 	if(!appearance_source)
+		preview_dirty = TRUE
+		return
+	if(QDELETED(src) || !prefs || preview_dirty)
 		return
 	for(var/viewer in viewer_screens)
 		var/atom/movable/screen/map_view/character_setup_screen/viewer_screen = viewer_screens[viewer]
-		viewer_screen.update_character(appearance_source, prefs.bgstate, preview_auto_fit)
-	preview_dirty = FALSE
+		viewer_screen.update_character(appearance_source, prefs.bgstate, preview_auto_fit, prefs.character_setup_single_view, preview_direction, preview_zoom, preview_reference, preview_background_style)
+	push_preview_update()
+
+/datum/character_setup/proc/push_preview_update(character_changed = FALSE)
+	for(var/datum/tgui/ui as anything in SStgui.get_all_open_uis(src))
+		var/list/data = preview_data(ui.user)
+		if(character_changed)
+			data["hasUnsavedChanges"] = character_state() != saved_character_state
+		ui.send_update(data)
+
+// Камера использует готовую внешность: поворот, фон и масштаб не пересоздают манекен.
+/datum/character_setup/proc/refresh_preview_camera(character_changed = FALSE)
+	for(var/viewer in viewer_screens)
+		var/atom/movable/screen/map_view/character_setup_screen/viewer_screen = viewer_screens[viewer]
+		if(viewer_screen.cached_source)
+			viewer_screen.update_character(viewer_screen.cached_source, prefs.bgstate, preview_auto_fit, prefs.character_setup_single_view, preview_direction, preview_zoom, preview_reference, preview_background_style)
+	push_preview_update(character_changed)
 
 /datum/character_setup/ui_act(action, list/params)
 	. = ..()
@@ -3149,6 +3437,38 @@
 		return
 
 	switch(action)
+		if("edit_slot_name")
+			var/slot = prefs.default_slot
+			var/revision = character_revision
+			var/mob/user = usr
+			var/new_name = tgui_input_text(user, "Название выбранного слота. Оставьте пустым, чтобы убрать название.", "Название слота [slot]", prefs.character_slot_name, MAX_NAME_LEN)
+			if(QDELETED(src) || !prefs || user?.client?.prefs != prefs || prefs.default_slot != slot || character_revision != revision || isnull(new_name))
+				return
+			prefs.character_slot_name = copytext_char(trimtext(strip_control_chars(new_name)), 1, MAX_NAME_LEN + 1)
+			return TRUE
+
+		if("set_slot_name_replace")
+			prefs.character_slot_name_replace = !!params["value"]
+			prefs.save_pref_var("character_slot_name_replace")
+			return TRUE
+
+		if("preset_select", "preset_create", "preset_save", "preset_rename", "preset_delete", "preset_apply")
+			manage_character_preset(action, params, usr)
+			return TRUE
+
+		if("pick_theme")
+			var/list/themes = prefs.setup_theme_options()
+			var/list/choices = list()
+			for(var/theme_id in themes)
+				choices[themes[theme_id]] = theme_id
+			var/mob/user = usr
+			var/choice = tgui_input_list(user, "Выберите оформление окна настройки персонажа.", "Тема меню персонажа", choices, themes[prefs.character_setup_theme])
+			if(!choice || !choices[choice] || !prefs || user?.client?.prefs != prefs)
+				return
+			prefs.character_setup_theme = choices[choice]
+			prefs.save_pref_var("character_setup_theme")
+			return TRUE
+
 		if("set_tab")
 			var/new_tab = num_param(params["tab"])
 			if(isnull(new_tab) || new_tab < GENERAL_CHAR_TAB || new_tab > QUIRKS_CHAR_TAB)
@@ -3169,9 +3489,17 @@
 			if(isnull(new_slot) || new_slot != round(new_slot) || new_slot < 1 || new_slot > prefs.max_save_slots || new_slot == prefs.default_slot)
 				return
 			var/previous_name = prefs.real_name
-			// Завершаем запись старого слота до загрузки нового, включая отложенное сохранение.
-			if(!prefs.save_character(bypass_cooldown = TRUE, silent = TRUE))
-				return
+			var/save_previous = prefs.character_setup_autosave
+			if(save_previous)
+				// Завершаем запись старого слота до загрузки нового, включая отложенное сохранение.
+				if(!prefs.save_character(bypass_cooldown = TRUE, silent = TRUE))
+					return
+			else
+				// Отложенное сохранение старого персонажа не должно сработать уже в новом слоте.
+				if(prefs.char_queue)
+					deltimer(prefs.char_queue)
+				prefs.char_queue = null
+				prefs.char_queue_deadline = 0
 			var/list/slot_names = prefs.get_slot_names()
 			if(slot_names?[new_slot])
 				var/old_slot = prefs.default_slot
@@ -3184,14 +3512,25 @@
 			prefs.save_preferences(bypass_cooldown = TRUE, silent = TRUE)
 			prefs.parent?.tgui_panel?.emotes_send_list()
 			stop_sound_preview()
-			save_notice = "[previous_name]: сохранён автоматически при переключении."
+			save_notice = save_previous ? "[previous_name]: сохранён автоматически при переключении." : null
 			character_revision++
 			preview_dirty = TRUE
 			return TRUE
 
+		if("set_autosave_on_switch")
+			prefs.character_setup_autosave = !!params["value"]
+			prefs.save_pref_var("character_setup_autosave")
+			save_notice = null
+			return TRUE
+
+		if("set_active_preset_autosave")
+			prefs.character_setup_preset_autosave = !!params["value"]
+			prefs.save_pref_var("character_setup_preset_autosave")
+			return TRUE
+
 		if("save")
 			if(prefs.save_character(bypass_cooldown = TRUE))
-				save_notice = "Персонаж сохранён."
+				save_notice = prefs.character_setup_preset_autosave && prefs.active_character_preset ? "Персонаж и активный пресет сохранены." : "Персонаж сохранён."
 			else
 				save_notice = "Не удалось сохранить персонажа. Изменения остаются в редакторе."
 			return TRUE
@@ -3223,7 +3562,7 @@
 			var/new_mode = params["mode"]
 			if(!(new_mode in list(PREVIEW_PREF_JOB, PREVIEW_PREF_LOADOUT, PREVIEW_PREF_NAKED)))
 				return
-			prefs.preview_pref = new_mode
+			preview_mode = new_mode
 			preview_dirty = TRUE
 			return TRUE
 
@@ -3234,8 +3573,62 @@
 
 		if("set_preview_auto_fit")
 			preview_auto_fit = !!params["value"]
-			preview_dirty = TRUE
-			return TRUE
+			refresh_preview_camera()
+			return FALSE
+
+		if("set_preview_single_view")
+			prefs.character_setup_single_view = !!params["value"]
+			prefs.save_pref_var("character_setup_single_view")
+			refresh_preview_camera()
+			return FALSE
+
+		if("rotate_preview")
+			if(params["direction"] == "left")
+				preview_direction = turn(preview_direction, 90)
+			else if(params["direction"] == "right")
+				preview_direction = turn(preview_direction, -90)
+			else if(params["direction"] == "front")
+				preview_direction = SOUTH
+			else
+				return
+			refresh_preview_camera()
+			return FALSE
+
+		if("set_preview_zoom")
+			var/new_zoom = num_param(params["value"])
+			if(isnull(new_zoom))
+				return
+			preview_zoom = clamp(round(new_zoom, 0.05), 0.5, 3)
+			refresh_preview_camera()
+			return FALSE
+
+		if("reset_preview_camera")
+			preview_zoom = 1
+			refresh_preview_camera()
+			return FALSE
+
+		if("set_preview_reference")
+			preview_reference = !!params["value"]
+			refresh_preview_camera()
+			return FALSE
+
+		if("set_preview_background")
+			var/list/options = list("transparent", "checker", "light", "dark")
+			for(var/state in bg_state_options())
+				options += "texture:[state]"
+			var/choice = params["value"]
+			if(!isnull(params["dir"]))
+				var/current = preview_background_style == "texture" ? "texture:[prefs.bgstate]" : preview_background_style
+				choice = cycle_choice(current, options, params["dir"])
+			if(!(choice in options))
+				return
+			if(findtext(choice, "texture:") == 1)
+				preview_background_style = "texture"
+				prefs.bgstate = copytext(choice, length("texture:") + 1)
+			else
+				preview_background_style = choice
+			refresh_preview_camera(character_changed = TRUE)
+			return FALSE
 
 		if("set_preview_viewport")
 			var/width = num_param(params["width"])
@@ -3248,8 +3641,12 @@
 			var/was_ready = !isnull(viewer_screen.viewport_aspect)
 			if(!viewer_screen.set_viewport_size(width, height))
 				return
-			// После первого замера обновляем только нативный холст, без повторной отправки всех настроек.
-			return !was_ready
+			if(!was_ready)
+				// Замер приходит после winset из ByondUi: подкарту уже создали, можно регистрировать плоскости.
+				viewer_screen.display_to_client(usr.client)
+				push_preview_update()
+			schedule_preview_update()
+			return FALSE
 
 		if("set_name")
 			var/new_name = reject_bad_name("[params["name"]]", allow_numbers = TRUE)
@@ -3883,7 +4280,7 @@
 #undef CHARACTER_SETUP_INTERFACE
 #undef CHARACTER_SETUP_HEADSHOT_MAX_LEN
 
-// Четыре исходные внешности в нативной карте BYOND, как в старом редакторе.
+// Исходная внешность в нативной карте BYOND: четыре ракурса или один поворачиваемый.
 /atom/movable/screen/map_view/character_setup_screen
 	name = "character setup screen"
 	icon = null
@@ -3896,42 +4293,103 @@
 	var/mutable_appearance/cached_source
 	var/cached_background_state
 	var/cached_auto_fit
+	var/list/reference_previews = list()
+	var/viewport_width
+	var/viewport_height
+	var/cached_single_view = FALSE
+	var/cached_direction = SOUTH
+	var/cached_zoom = 1
+	var/cached_reference = FALSE
+	var/cached_background_style = "texture"
+	var/native_zoom = 0
+	var/list/view_bounds_cache = list()
+	var/list/reference_bounds_cache = list()
+	var/icon/background_cache
+	var/background_cache_key
+	var/prepared_plane_count = 0
+	var/client/prepared_for_client
 
 /atom/movable/screen/map_view/character_setup_screen/Destroy()
 	hide_from()
 	vis_contents.Cut()
 	QDEL_LIST_ASSOC_VAL(previews)
+	QDEL_LIST_ASSOC_VAL(reference_previews)
 	icon_bounds_cache = null
 	cached_source = null
+	view_bounds_cache = null
+	reference_bounds_cache = null
+	background_cache = null
+	prepared_for_client = null
 	return ..()
+
+/atom/movable/screen/map_view/character_setup_screen/display_to_client(client/show_to)
+	. = ..()
+	apply_native_camera()
+
+/atom/movable/screen/map_view/character_setup_screen/proc/apply_native_camera()
+	if(registered_client)
+		winset(registered_client, assigned_map, list("zoom" = native_zoom, "background-color" = cached_background_style == "transparent" ? "none" : "#202020"))
 
 /atom/movable/screen/map_view/character_setup_screen/ensure_plane_group()
 	if(!popup_plane_group)
-		popup_plane_group = new /datum/plane_master_group/popup/on_demand(PLANE_GROUP_POPUP_WINDOW(src), assigned_map)
+		popup_plane_group = new /datum/plane_master_group/popup/on_demand/character_setup(PLANE_GROUP_POPUP_WINDOW(src), assigned_map)
 	popup_plane_group.ensure_popup_depth(shown_offset)
+	// Фильтры зависят от зрителя и набора плоскостей, но не от поворота или масштаба камеры.
+	if(prepared_plane_count == length(popup_plane_group.plane_masters) && prepared_for_client == registered_client)
+		return popup_plane_group
+	prepared_plane_count = length(popup_plane_group.plane_masters)
+	prepared_for_client = registered_client
 	for(var/plane_key in popup_plane_group.plane_masters)
 		var/atom/movable/screen/plane_master/plane_master = popup_plane_group.plane_masters[plane_key]
-		plane_master.refresh_backdrop(registered_client?.mob)
-		// На карте предпросмотра нет освещения: его маски закрывали бы внешность.
-		if(istype(plane_master, /atom/movable/screen/plane_master/lighting) || istype(plane_master, /atom/movable/screen/plane_master/emissive))
-			plane_master.set_alpha(LIGHTING_PLANE_ALPHA_INVISIBLE)
-			plane_master.filters = null
+		// Предпросмотр не использует маски зрения, свет и общие render_target основной карты.
+		plane_master.filters = null
 	return popup_plane_group
+
+/datum/plane_master_group/popup/on_demand/character_setup/get_plane_types()
+	return list(
+		/atom/movable/screen/plane_master/character_setup,
+		/atom/movable/screen/plane_master/character_setup/emissive,
+	)
+
+// Нативная внешность сохраняет матрицы и слои, но не участвует в графе рендера игровой карты.
+/atom/movable/screen/plane_master/character_setup
+	name = "character preview plane master"
+	plane = GAME_PLANE
+
+/atom/movable/screen/plane_master/character_setup/emissive
+	name = "character preview emissive mask"
+	plane = EMISSIVE_PLANE
+	alpha = 0
 
 /atom/movable/screen/map_view/character_setup_screen/proc/set_viewport_size(width, height)
 	var/new_aspect = clamp(width / height, 0.1, 10)
-	if(viewport_aspect == new_aspect)
+	if(viewport_width == width && viewport_height == height)
 		return FALSE
 	viewport_aspect = new_aspect
+	viewport_width = width
+	viewport_height = height
 	if(cached_source)
-		update_character(cached_source, cached_background_state, cached_auto_fit)
+		update_character(cached_source, cached_background_state, cached_auto_fit, cached_single_view, cached_direction, cached_zoom, cached_reference, cached_background_style)
 	return TRUE
 
-/atom/movable/screen/map_view/character_setup_screen/proc/update_character(mutable_appearance/appearance_source, background_state, auto_fit = TRUE)
+/atom/movable/screen/map_view/character_setup_screen/proc/update_character(mutable_appearance/appearance_source, background_state, auto_fit = TRUE, single_view = FALSE, view_direction = SOUTH, zoom_factor = 1, show_reference = FALSE, background_style = "texture")
+	var/source_changed = cached_source != appearance_source
+	if(source_changed)
+		view_bounds_cache.Cut()
+		reference_bounds_cache.Cut()
 	cached_source = appearance_source
 	cached_background_state = background_state
 	cached_auto_fit = auto_fit
+	cached_single_view = single_view
+	cached_direction = view_direction
+	cached_zoom = zoom_factor
+	cached_reference = show_reference
+	cached_background_style = background_style
 	var/list/view_bounds = list()
+	var/list/reference_bounds_by_dir = list()
+	var/list/directions = single_view ? list(view_direction) : GLOB.cardinals
+	var/draw_reference = show_reference && !auto_fit
+	vis_contents.Cut()
 	var/reference_width = world.icon_size * 2
 	var/reference_height = world.icon_size
 	var/max_width = 0
@@ -3945,6 +4403,7 @@
 		if(!preview)
 			preview = new
 			previews["[direction]"] = preview
+		if(direction in directions)
 			vis_contents += preview
 		// Фигура — содержимое единого холста, а не отдельный экран с собственным screen_loc.
 		preview.appearance = appearance_source
@@ -3953,29 +4412,55 @@
 		// В том числе FLOAT_LAYER у ИИ и боргов должен оказаться над фоном холста.
 		preview.layer = max(MOB_LAYER, preview.layer)
 		preview.appearance_flags &= ~TILE_BOUND
-		var/list/bounds = measure_preview_bounds(preview, icon_bounds_cache)
+		var/list/bounds = view_bounds_cache["[direction]"]
 		if(!bounds)
-			bounds = list(0, 0, world.icon_size, world.icon_size)
+			bounds = measure_preview_bounds(preview, icon_bounds_cache) || list(0, 0, world.icon_size, world.icon_size)
+			view_bounds_cache["[direction]"] = bounds
 		view_bounds["[direction]"] = bounds
 		max_width = max(max_width, bounds[3] - bounds[1])
 		max_height = max(max_height, bounds[4] - bounds[2])
 		if(reference)
 			reference.setDir(direction)
-			var/list/reference_bounds = measure_preview_bounds(reference, icon_bounds_cache)
+			var/list/reference_bounds = reference_bounds_cache["[direction]"]
+			if(!reference_bounds)
+				reference_bounds = measure_preview_bounds(reference, icon_bounds_cache)
+				if(reference_bounds)
+					reference_bounds_cache["[direction]"] = reference_bounds
 			if(reference_bounds)
+				reference_bounds_by_dir["[direction]"] = reference_bounds
 				reference_width = max(reference_width, reference_bounds[3] - reference_bounds[1])
 				reference_height = max(reference_height, reference_bounds[4] - reference_bounds[2])
+			if(draw_reference)
+				var/atom/movable/screen/reference_preview = reference_previews["[direction]"]
+				if(!reference_preview)
+					reference_preview = new
+					reference_previews["[direction]"] = reference_preview
+				reference_preview.appearance = reference
+				reference_preview.dir = direction
+				reference_preview.vis_flags = VIS_INHERIT_PLANE
+				reference_preview.layer = MOB_LAYER - 0.1
+				reference_preview.appearance_flags |= KEEP_TOGETHER
+				reference_preview.appearance_flags &= ~TILE_BOUND
+				reference_preview.color = list(0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,1, 0.5,0.6,0.7,0)
+				reference_preview.alpha = 90
+				if(direction in directions)
+					vis_contents += reference_preview
 
 	var/padding = 2
 	// По умолчанию приближаем текущее тело; тела меньше 100% сохраняют относительный размер.
 	var/frame_width = CEILING(max(world.icon_size, max_width) + padding * 2, 1)
 	var/frame_height = CEILING(max(world.icon_size, max_height) + padding * 2, 1)
+	if(single_view)
+		frame_width = CEILING(max(world.icon_size, max_width + padding * 2), 1)
+		frame_height = CEILING(max(world.icon_size, max_height + padding * 2), 1)
 	if(!auto_fit)
 		// Общая камера нужна для сравнения размеров, но оставляет запас вокруг обычного тела.
 		var/max_scale = max(2, CONFIG_GET(number/body_size_max))
 		frame_width = max(frame_width, CEILING(reference_width * max_scale + padding * 2, 1))
 		frame_height = max(frame_height, CEILING(reference_height * max_scale + padding * 2, 1))
-	var/map_height = frame_height * length(previews)
+		if(draw_reference)
+			frame_width = max(frame_width, CEILING(reference_width * (max_scale + 1) + 6 + padding * 2, 1))
+	var/map_height = frame_height * length(directions)
 	// Вторичная карта округляет габариты до клеток: закрашиваем также её правый и верхний запас.
 	var/canvas_width = CEILING(frame_width, world.icon_size)
 	var/canvas_height = CEILING(map_height, world.icon_size)
@@ -3985,27 +4470,58 @@
 			canvas_width = CEILING(canvas_height * viewport_aspect, world.icon_size)
 		else
 			canvas_height = CEILING(canvas_width / viewport_aspect, world.icon_size)
-	var/icon/map_bounds = icon('icons/mob/map_backgrounds.dmi', "clear")
-	map_bounds.Crop(1, 1, canvas_width, canvas_height)
-	// Фон — отдельная неподвижная сетка, без матрицы и размеров персонажа.
-	var/icon/background_tile = icon('modular_citadel/icons/ui/backgrounds.dmi', background_state, SOUTH, 1)
-	var/icon/background_canvas = icon(map_bounds)
-	for(var/x = 0, x < canvas_width, x += background_tile.Width())
-		for(var/y = 0, y < canvas_height, y += background_tile.Height())
-			background_canvas.Blend(background_tile, ICON_OVERLAY, x + 1, y + 1)
-	icon = background_canvas
+	// Явный zoom карты сохраняет нативную отрисовку спрайтов. Размер контрола уже передан в физических пикселях.
+	native_zoom = 0
+	if(zoom_factor != 1 && viewport_width && viewport_height)
+		native_zoom = max(viewport_width / canvas_width, viewport_height / canvas_height) * zoom_factor
+		if(zoom_factor < 1)
+			// При отдалении продолжаем фон за исходный холст, чтобы не возникали чёрные полосы.
+			canvas_width = CEILING(canvas_width / zoom_factor, world.icon_size)
+			canvas_height = CEILING(canvas_height / zoom_factor, world.icon_size)
+	var/background_key = "[canvas_width]x[canvas_height]|[background_style]|[background_style == "texture" ? background_state : ""]"
+	if(background_cache_key != background_key)
+		// Один готовый фон на окно: повороты не создают и не рассылают новую иконку.
+		var/icon/background_canvas = icon('icons/mob/map_backgrounds.dmi', "clear")
+		background_canvas.Crop(1, 1, canvas_width, canvas_height)
+		switch(background_style)
+			if("light", "dark")
+				background_canvas.DrawBox(background_style == "light" ? "#E4E4E4" : "#202020", 1, 1, canvas_width, canvas_height)
+			if("checker")
+				for(var/x = 0, x < canvas_width, x += 8)
+					for(var/y = 0, y < canvas_height, y += 8)
+						background_canvas.DrawBox((x / 8 + y / 8) % 2 ? "#7A7A7A" : "#B0B0B0", x + 1, y + 1, min(x + 8, canvas_width), min(y + 8, canvas_height))
+			if("texture")
+				var/icon/background_tile = icon('modular_citadel/icons/ui/backgrounds.dmi', background_state, SOUTH, 1)
+				for(var/x = 0, x < canvas_width, x += background_tile.Width())
+					for(var/y = 0, y < canvas_height, y += background_tile.Height())
+						background_canvas.Blend(background_tile, ICON_OVERLAY, x + 1, y + 1)
+		background_cache = fcopy_rsc(background_canvas)
+		background_cache_key = background_key
+	icon = background_cache
 	plane = appearance_source.plane
 
 	var/position = 0
-	for(var/direction in GLOB.cardinals)
+	for(var/direction in directions)
 		var/atom/movable/screen/preview = previews["[direction]"]
 		var/list/bounds = view_bounds["[direction]"]
 		// Центрируем в координатах фона; pixel_x/y хранят только целые пиксели.
 		preview.pixel_x = round(canvas_width / 2 - (bounds[1] + bounds[3]) / 2, 1)
 		preview.pixel_y = round((canvas_height - map_height) / 2 + (position + 0.5) * frame_height - (bounds[2] + bounds[4]) / 2, 1)
+		if(draw_reference)
+			var/list/reference_bounds = reference_bounds_by_dir["[direction]"] || list(0, 0, world.icon_size, world.icon_size)
+			var/width = bounds[3] - bounds[1]
+			var/ref_width = reference_bounds[3] - reference_bounds[1]
+			var/group_left = (canvas_width - width - ref_width - 6) / 2
+			var/baseline = (canvas_height - map_height) / 2 + position * frame_height + (frame_height - max(bounds[4] - bounds[2], reference_bounds[4] - reference_bounds[2])) / 2
+			var/atom/movable/screen/reference_preview = reference_previews["[direction]"]
+			reference_preview.pixel_x = round(group_left - reference_bounds[1], 1)
+			reference_preview.pixel_y = round(baseline - reference_bounds[2], 1)
+			preview.pixel_x = round(group_left + ref_width + 6 - bounds[1], 1)
+			preview.pixel_y = round(baseline - bounds[2], 1)
 		position++
 	shown_offset = PLANE_TO_OFFSET(appearance_source.plane)
 	ensure_plane_group()
+	apply_native_camera()
 
 // Границы видимых пикселей слоёв: слева, снизу, справа, сверху. Картинку персонажа не пересобираем.
 /atom/movable/screen/map_view/character_setup_screen/proc/measure_preview_bounds(image/source, list/icon_sizes, inherited_icon, inherited_state, inherited_dir = SOUTH)
