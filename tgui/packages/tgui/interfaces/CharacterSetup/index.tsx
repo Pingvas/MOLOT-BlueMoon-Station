@@ -381,8 +381,8 @@ const Preview = () => {
   const directionLabel = ({ 2: 'Спереди', 1: 'Сзади', 4: 'Справа', 8: 'Слева' })[data.previewDirection || 2];
   const handleResize = useCallback(
     ({ width, height }: { width: number; height: number }) =>
-      act('set_preview_viewport', { width, height, map: data.previewRef }),
-    [act, data.previewRef]
+      act('set_preview_viewport', { width, height }),
+    [act]
   );
   return (
     <Section fill title="Внешний вид" className="CharacterSetup__preview"
@@ -482,7 +482,6 @@ const Preview = () => {
       </div>
       {data.previewRef ? (
         <ByondUi
-          key={data.previewRef}
           className="CharacterSetup__preview-map"
           onResize={handleResize}
           params={{

@@ -60,9 +60,6 @@
 	var/preview_reference = FALSE
 	var/preview_background_style = "texture"
 	var/heavy_static_ready = FALSE
-	var/tmp/preview_window_warmed = FALSE
-	var/tmp/preview_window_generation = 0
-	var/preview_map_generation = 0
 
 /datum/character_setup/New(datum/preferences/new_prefs)
 	prefs = new_prefs
@@ -158,8 +155,7 @@
 	var/atom/movable/screen/map_view/character_setup_screen/viewer_screen = LAZYACCESS(viewer_screens, user)
 	if(!viewer_screen)
 		viewer_screen = new
-		preview_map_generation++
-		viewer_screen.generate_view("character_setup_[REF(src)]_[REF(user)]_[preview_map_generation]_map")
+		viewer_screen.generate_view("character_setup_[REF(src)]_[REF(user)]_map")
 		LAZYSET(viewer_screens, user, viewer_screen)
 		preview_dirty = TRUE
 	ui = SStgui.try_update_ui(user, src, ui)
@@ -3197,34 +3193,6 @@
 	for(var/viewer in viewer_screens)
 		var/atom/movable/screen/map_view/character_setup_screen/viewer_screen = viewer_screens[viewer]
 		viewer_screen.update_character(appearance_source, prefs.bgstate, preview_auto_fit, preview_single_view, preview_direction, preview_zoom, preview_reference, preview_background_style)
-		if(!preview_window_warmed && !viewer_screen.preview_warmup_scheduled && viewer_screen.viewport_width)
-			viewer_screen.preview_warmup_scheduled = TRUE
-			// Временный обход первого открытия: после первого кадра пересоздаём только нативную подкарту.
-			addtimer(CALLBACK(src, PROC_REF(finish_preview_window_warmup), WEAKREF(viewer), WEAKREF(viewer_screen), preview_window_generation), 1 SECONDS)
-	push_preview_update()
-
-/datum/character_setup/proc/reset_preview_window_warmup()
-	preview_window_generation++
-	preview_window_warmed = FALSE
-
-/datum/character_setup/proc/finish_preview_window_warmup(datum/weakref/viewer_ref, datum/weakref/screen_ref, generation)
-	var/mob/user = viewer_ref.resolve()
-	var/atom/movable/screen/map_view/character_setup_screen/old_screen = screen_ref.resolve()
-	if(!prefs || preview_window_warmed || generation != preview_window_generation || !user?.client || user.client.prefs != prefs)
-		return
-	if(QDELETED(old_screen) || LAZYACCESS(viewer_screens, user) != old_screen)
-		return
-	var/datum/tgui/ui = SStgui.get_open_ui(user, src)
-	if(!ui || ui.closing)
-		return
-	preview_window_warmed = TRUE
-	var/atom/movable/screen/map_view/character_setup_screen/viewer_screen = new
-	preview_map_generation++
-	viewer_screen.generate_view("character_setup_[REF(src)]_[REF(user)]_[preview_map_generation]_map")
-	LAZYSET(viewer_screens, user, viewer_screen)
-	qdel(old_screen)
-	preview_dirty = TRUE
-	// Новый идентификатор заставляет React пересоздать ByondUi; вкладка и несохранённый ввод остаются на месте.
 	push_preview_update()
 
 /datum/character_setup/proc/push_preview_update(character_changed = FALSE)
@@ -3412,8 +3380,6 @@
 				return
 			var/atom/movable/screen/map_view/character_setup_screen/viewer_screen = LAZYACCESS(viewer_screens, usr)
 			if(!viewer_screen)
-				return
-			if(params["map"] != viewer_screen.assigned_map)
 				return
 			var/was_ready = !isnull(viewer_screen.viewport_aspect)
 			if(!viewer_screen.set_viewport_size(width, height))
@@ -4085,7 +4051,6 @@
 	var/background_cache_key
 	var/prepared_plane_count = 0
 	var/client/prepared_for_client
-	var/tmp/preview_warmup_scheduled = FALSE
 
 /atom/movable/screen/map_view/character_setup_screen/Destroy()
 	hide_from()

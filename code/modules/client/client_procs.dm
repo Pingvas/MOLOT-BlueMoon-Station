@@ -550,8 +550,6 @@ GLOBAL_VAR_INIT(last_churn_alert, 0)
 	else
 		prefs = new /datum/preferences(src)
 		GLOB.preferences_datums[ckey] = prefs
-	if(!QDELETED(prefs.character_setup_ui))
-		prefs.character_setup_ui.reset_preview_window_warmup()
 
 	addtimer(CALLBACK(src, PROC_REF(ensure_keys_set), prefs), 10)	//prevents possible race conditions
 	// Разносим прогрев справочников по времени, чтобы массовый вход не собирал их в одном тике.
