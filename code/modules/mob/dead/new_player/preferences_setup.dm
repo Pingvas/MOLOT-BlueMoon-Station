@@ -36,15 +36,11 @@
 	if(previewJob && preview_mode == PREVIEW_PREF_JOB)
 		var/mutable_appearance/silicon_sprite
 		if(istype(previewJob,/datum/job/ai))
-			silicon_sprite = mutable_appearance('icons/mob/AI.dmi', resolve_ai_icon(preferred_ai_core_display), MOB_LAYER)
+			silicon_sprite = mutable_appearance('icons/mob/AI.dmi', resolve_ai_icon(preferred_ai_core_display), MOB_LAYER, GAME_PLANE)
 		else if(istype(previewJob,/datum/job/cyborg))
-			silicon_sprite = mutable_appearance('icons/mob/robots.dmi', "robot", MOB_LAYER)
+			silicon_sprite = mutable_appearance('icons/mob/robots.dmi', "robot", MOB_LAYER, GAME_PLANE)
 		if(silicon_sprite)
-			// Как и тело человека, спрайт синтетика рисуем оверлеем над холстом превью.
-			// Плоскость и направление оверлей наследует от поворачиваемой фигуры.
-			var/mutable_appearance/silicon_preview = mutable_appearance(layer = MOB_LAYER, plane = GAME_PLANE)
-			silicon_preview.overlays += silicon_sprite
-			return silicon_preview
+			return silicon_sprite
 
 	// regenerate = FALSE: манекен всё равно
 	// сразу переодевается и в конце проходит regenerate_icons() - восстанавливать
