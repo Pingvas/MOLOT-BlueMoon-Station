@@ -212,6 +212,15 @@ GLOBAL_VAR_INIT(last_churn_alert, 0)
 			return
 	if(href_list["reload_tguipanel"])
 		nuke_chat()
+	if(href_list["statbrowser_pick_color"])
+		var/color_key = href_list["statbrowser_pick_color"]
+		var/static/list/color_keys = list("--bg-primary", "--bg-secondary", "--text-primary", "--text-secondary", "--text-muted", "--accent", "--border", "--health-good", "--health-warn", "--health-bad")
+		if(!(color_key in color_keys))
+			return
+		var/new_color = tgui_input_color(src, "Выберите цвет оформления панели.", "Цвет панели", href_list["color"])
+		if(new_color && statbrowser_ready)
+			src << output("[url_encode(color_key)];[url_encode(new_color)]", "statbrowser:set_settings_color")
+		return
 	if(href_list["reload_statbrowser"])
 		statbrowser_ready = FALSE
 		statpanel_protocol_acked = FALSE

@@ -10,11 +10,7 @@
 	if(!istype(user) || !user.client)
 		return null
 	default = uppertext(sanitize_hexcolor(default, 6, TRUE, COLOR_WHITE))
-	if(!user.client.prefs.tgui_input_mode)
-		var/mob/prompt_mob = begin_native_prompt(user)
-		var/choice = input(user, message, title, default) as null|color
-		end_native_prompt(prompt_mob)
-		return isnull(choice) ? null : uppertext(choice)
+	// Цвет всегда выбирается через общий TGUI-пикер, независимо от режима остальных инпутов.
 	var/datum/tgui_input_color/color_input = new(user, message, title, default, timeout)
 	color_input.ui_interact(user)
 	color_input.wait()
