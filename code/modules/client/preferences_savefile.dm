@@ -617,6 +617,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	S["character_setup_theme"]	>> character_setup_theme
 	S["character_setup_single_view"] >> character_setup_single_view
 	S["character_setup_autosave"] >> character_setup_autosave
+	S["character_setup_preset_autosave"] >> character_setup_preset_autosave
 	S["ui_zoom_preferences"]	>> ui_zoom_preferences
 	S["vending_layouts"]		>> vending_layouts
 	S["windowflash"] 			>> windowflashing
@@ -789,6 +790,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	character_setup_theme = valid_setup_theme(character_setup_theme) ? character_setup_theme : initial(character_setup_theme)
 	character_setup_single_view = sanitize_integer(character_setup_single_view, FALSE, TRUE, initial(character_setup_single_view))
 	character_setup_autosave = sanitize_integer(character_setup_autosave, FALSE, TRUE, initial(character_setup_autosave))
+	character_setup_preset_autosave = sanitize_integer(character_setup_preset_autosave, FALSE, TRUE, initial(character_setup_preset_autosave))
 	var/list/sanitized_vending_layouts = list()
 	if(islist(vending_layouts))
 		for(var/machine_key in vending_layouts)
@@ -1287,6 +1289,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	WRITE_FILE(S["tgui_panel_state"], tgui_panel_state)
 	WRITE_FILE(S["character_setup_single_view"], character_setup_single_view)
 	WRITE_FILE(S["character_setup_autosave"], character_setup_autosave)
+	WRITE_FILE(S["character_setup_preset_autosave"], character_setup_preset_autosave)
 	WRITE_FILE(S["ui_zoom_preferences"], ui_zoom_preferences)
 	WRITE_FILE(S["vending_layouts"], vending_layouts)
 	WRITE_FILE(S["windowflash"], windowflashing)
@@ -1905,7 +1908,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 		if(!islist(loadout_data))
 			loadout_data = list()
 
-		for(var/loadout_save_index = 1, loadout_save_index <= MAXIMUM_LOADOUT_SAVES, loadout_save_index++)
+		for(var/loadout_save_index = LOADOUT_PRESET_SLOT, loadout_save_index <= MAXIMUM_LOADOUT_SAVES, loadout_save_index++)
 			var/save_key = "SAVE_[loadout_save_index]"
 			var/list/sanitize_entries = loadout_data[save_key]
 			if(islist(sanitize_entries) && LAZYLEN(sanitize_entries))
@@ -1991,6 +1994,9 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 
 	//let's remember their last used slot, i'm sure "oops i brought the wrong stuff" will be an issue now
 	S["loadout_slot"] >> loadout_slot
+	S["character_presets"] >> character_presets
+	S["active_character_preset"] >> active_character_preset
+	sanitize_character_presets()
 	// BLUEMOON ADD - загрузка переключателя лодаута
 	S["loadout_enabled"] >> loadout_enabled
 	// BLUEMOON ADD END
@@ -2284,7 +2290,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	S["pregnancy_breast_growth"] >> pregnancy_breast_growth
 	//SPLURT EDIT END
 
-	loadout_slot = sanitize_num_clamp(loadout_slot, 1, MAXIMUM_LOADOUT_SAVES, 1, TRUE)
+	loadout_slot = sanitize_num_clamp(loadout_slot, LOADOUT_PRESET_SLOT, MAXIMUM_LOADOUT_SAVES, 1, TRUE)
 	loadout_enabled = sanitize_integer(loadout_enabled, FALSE, TRUE, TRUE) // BLUEMOON ADD
 
 	alt_titles_preferences = SANITIZE_LIST(alt_titles_preferences)
@@ -2434,6 +2440,9 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	if(!export)
 		S.cd = "/character[default_slot]"
 		slot_names_cache = null
+		// Обновляем только активный пресет при реальном сохранении, без смены выбранного лодаута.
+		if(character_setup_preset_autosave && istext(active_character_preset) && islist(character_presets[active_character_preset]))
+			character_presets[active_character_preset] = capture_character_preset()
 
 	WRITE_FILE(S["version"]			, SAVEFILE_VERSION_MAX)	//load_character will sanitize any bad data, so assume up-to-date.)
 
@@ -2701,6 +2710,8 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	else
 		S["loadout"] << safe_json_encode(list())
 	WRITE_FILE(S["loadout_slot"], loadout_slot)
+	WRITE_FILE(S["character_presets"], character_presets)
+	WRITE_FILE(S["active_character_preset"], active_character_preset)
 	WRITE_FILE(S["loadout_enabled"], loadout_enabled) // BLUEMOON ADD
 
 	if(length(tcg_cards))

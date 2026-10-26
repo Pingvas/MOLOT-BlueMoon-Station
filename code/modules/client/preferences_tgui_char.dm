@@ -50,6 +50,7 @@
 	var/preview_aroused = FALSE
 	var/saved_character_state
 	var/save_notice
+	var/selected_character_preset
 	var/sound_preview_channel
 	var/sound_preview_kind
 	var/sound_preview_until = 0
@@ -87,6 +88,7 @@
 		"phobia_type", "shriek_type", "onelife_death_type", "summon_nickname", "vore_taste", "vore_smell",
 		"security_records", "medical_records", "underwear", "undershirt", "socks", "undie_color", "shirt_color", "socks_color",
 		"job_preferences", "joblessrole", "alt_titles_preferences", "persistent_tattoos", "tattoos_string", "pending_tattoo_removals",
+		"character_presets", "active_character_preset",
 	)
 	var/list/state = list("slot" = prefs.default_slot, "species" = prefs.pref_species?.type)
 	for(var/key in keys)
@@ -99,6 +101,174 @@
 /datum/character_setup/proc/record_saved_state()
 	if(prefs)
 		saved_character_state = character_state()
+
+// Белый список не позволяет пресету менять внешность, описания и остальные настройки куклы.
+/datum/preferences/proc/character_preset_fields()
+	var/static/list/fields = list(
+		"job_preferences", "joblessrole", "alt_titles_preferences", "prefered_security_department",
+		"all_quirks", "phobia_type", "shriek_type", "onelife_death_type", "summon_nickname", "loadout_enabled",
+	)
+	return fields
+
+/datum/preferences/proc/sanitize_character_presets()
+	var/list/sanitized = list()
+	if(islist(character_presets))
+		for(var/preset_name in character_presets)
+			if(length(sanitized) >= MAX_CHARACTER_PRESETS)
+				break
+			if(!istext(preset_name) || !length(trimtext(preset_name)) || length_char(preset_name) > MAX_NAME_LEN)
+				continue
+			var/list/preset = character_presets[preset_name]
+			if(!islist(preset) || !islist(preset["job_preferences"]) || !islist(preset["all_quirks"]) || !islist(preset["loadout"]))
+				continue
+			var/list/snapshot = list()
+			for(var/field in character_preset_fields())
+				snapshot[field] = deepCopyList(preset[field])
+			snapshot["alt_titles_preferences"] = SANITIZE_LIST(snapshot["alt_titles_preferences"])
+			snapshot["loadout"] = deepCopyList(preset["loadout"])
+			sanitized[preset_name] = snapshot
+	character_presets = sanitized
+	if(!istext(active_character_preset) || !islist(character_presets[active_character_preset]))
+		active_character_preset = null
+
+/datum/preferences/proc/capture_character_preset()
+	var/list/snapshot = list()
+	for(var/field in character_preset_fields())
+		snapshot[field] = deepCopyList(vars[field])
+	// Копируем только выбранный комплект; вложенные цвета, матрицы и подписи тоже независимы.
+	snapshot["loadout"] = deepCopyList(SANITIZE_LIST(loadout_data["SAVE_[loadout_slot]"]))
+	return snapshot
+
+/datum/character_setup/proc/character_preset_error(list/preset, mob/user)
+	if(!SSquirks || !length(SSquirks.quirks) || !SSjob?.initialized || !length(GLOB.loadout_items))
+		return "Справочники профессий, квирков или экипировки ещё загружаются."
+	var/list/quirks = preset["all_quirks"]
+	var/positive_count = 0
+	for(var/quirk_name in quirks)
+		if(!istext(quirk_name))
+			return "Список квирков пресета повреждён."
+		var/datum/quirk/quirk_datum = SSquirks.quirks[quirk_name]
+		if(!quirk_datum)
+			return "В пресете есть квирк, которого больше нет: [quirk_name]."
+		var/reason = quirk_lock_reason(quirk_name, quirk_datum, quirks)
+		if(reason)
+			return "Квирк «[quirk_name]» недоступен: [reason]."
+		if(initial(quirk_datum.value) > 0)
+			positive_count++
+	if(positive_count > MAX_QUIRKS)
+		return "В пресете больше [MAX_QUIRKS] положительных квирков."
+	if(quirk_balance(quirks) < 0)
+		return "Для этих квирков не хватает баланса при текущем весе и протезах персонажа."
+	var/points = available_gear_points(user)
+	var/list/seen_gear = list()
+	for(var/raw_entry in preset["loadout"])
+		if(!islist(raw_entry))
+			return "Комплект пресета содержит повреждённую запись."
+		var/list/entry = raw_entry
+		if(!istext(entry[LOADOUT_ITEM]))
+			return "Комплект пресета содержит повреждённый идентификатор предмета."
+		var/datum/gear/gear = find_loadout_gear(entry[LOADOUT_ITEM])
+		if(!gear)
+			return "В комплекте пресета есть предмет, которого больше нет: [entry[LOADOUT_ITEM]]."
+		if(gear.type in seen_gear)
+			return "В комплекте пресета повторяется предмет «[gear.name]»."
+		seen_gear += gear.type
+		if(gear.donoritem && !gear.donator_ckey_check(user?.key))
+			return "Предмет «[gear.name]» недоступен по уровню поддержки."
+		if(istype(gear, /datum/gear/unlockable) && !prefs.can_use_unlockable(gear))
+			return "Предмет «[gear.name]» ещё не разблокирован."
+		points -= gear.cost
+	if(points < 0)
+		return "Для комплекта пресета не хватает очков экипировки."
+	return null
+
+/datum/character_setup/proc/manage_character_preset(action, list/params, mob/user)
+	var/slot = prefs.default_slot
+	var/revision = character_revision
+	var/preset_name = params["name"]
+	var/list/preset = istext(preset_name) ? prefs.character_presets[preset_name] : null
+	if(action == "preset_select")
+		if(islist(preset))
+			selected_character_preset = preset_name
+		return
+	if(action == "preset_create" || action == "preset_rename")
+		if(action == "preset_rename" && !islist(preset))
+			return
+		if(action == "preset_create" && length(prefs.character_presets) >= MAX_CHARACTER_PRESETS)
+			save_notice = "У персонажа уже есть [MAX_CHARACTER_PRESETS] пресетов."
+			return
+		var/new_name = tgui_input_text(user, "Название пресета персонажа:", "Пресеты", action == "preset_rename" ? preset_name : null, MAX_NAME_LEN)
+		// Пока открыт диалог, другое окно могло переключить персонажа или применить пресет.
+		if(QDELETED(src) || !prefs || user?.client?.prefs != prefs || prefs.default_slot != slot || character_revision != revision || isnull(new_name))
+			return
+		new_name = trimtext(strip_control_chars(new_name))
+		if(!length(new_name) || length_char(new_name) > MAX_NAME_LEN)
+			return
+		if(new_name == preset_name && action == "preset_rename")
+			return
+		if(new_name in prefs.character_presets)
+			save_notice = "Пресет «[new_name]» уже существует."
+			return
+		if(action == "preset_create")
+			if(length(prefs.character_presets) >= MAX_CHARACTER_PRESETS)
+				return
+			prefs.character_presets[new_name] = prefs.capture_character_preset()
+			activate_character_preset_loadout(new_name, prefs.character_presets[new_name])
+		else
+			if(prefs.character_presets[preset_name] != preset)
+				return
+			prefs.character_presets[new_name] = preset
+			prefs.character_presets -= preset_name
+			if(prefs.active_character_preset == preset_name)
+				prefs.active_character_preset = new_name
+		selected_character_preset = new_name
+		save_notice = "Пресет «[new_name]» [action == "preset_create" ? "создан" : "переименован"]. Нажмите «Сохранить», чтобы записать персонажа."
+		return
+	if(!islist(preset))
+		return
+	switch(action)
+		if("preset_save")
+			prefs.character_presets[preset_name] = prefs.capture_character_preset()
+			activate_character_preset_loadout(preset_name, prefs.character_presets[preset_name])
+			save_notice = "Пресет «[preset_name]» обновлён из текущих настроек. Нажмите «Сохранить», чтобы записать персонажа."
+		if("preset_delete")
+			prefs.character_presets -= preset_name
+			if(prefs.active_character_preset == preset_name)
+				prefs.active_character_preset = null
+			selected_character_preset = null
+			save_notice = "Пресет «[preset_name]» удалён. Текущие настройки персонажа оставлены без изменений."
+		if("preset_apply")
+			var/error = character_preset_error(preset, user)
+			if(error)
+				save_notice = "Пресет не применён: [error]"
+				return
+			// Сначала проверяем весь пресет и лишь затем меняем настройки: частичного применения нет.
+			for(var/field in prefs.character_preset_fields())
+				prefs.vars[field] = deepCopyList(preset[field])
+			prefs.joblessrole = sanitize_inlist(prefs.joblessrole, list(RETURNTOLOBBY, BEOVERFLOW, BERANDOMJOB), RETURNTOLOBBY)
+			prefs.loadout_enabled = sanitize_integer(prefs.loadout_enabled, FALSE, TRUE, TRUE)
+			prefs.prefered_security_department = sanitize_inlist(prefs.prefered_security_department, GLOB.security_depts_prefs, SEC_DEPT_RANDOM)
+			prefs.shriek_type = sanitize_inlist(prefs.shriek_type, GLOB.shriek_types, SHRIEK_TYPE_GENERIC)
+			prefs.onelife_death_type = sanitize_inlist(prefs.onelife_death_type, GLOB.onelife_death_forms, "Пепел")
+			if(SStraumas)
+				prefs.phobia_type = SStraumas.sanitize_phobia_type(prefs.phobia_type)
+			activate_character_preset_loadout(preset_name, preset)
+			if(prefs.job_menu)
+				prefs.job_menu.previews.Cut()
+				prefs.job_menu.pushed_preview = null
+				SStgui.update_uis(prefs.job_menu)
+			save_notice = "Применён пресет «[preset_name]». Используется отдельный комплект «Пресет»."
+
+/datum/character_setup/proc/activate_character_preset_loadout(preset_name, list/preset)
+	prefs.loadout_data["SAVE_[LOADOUT_PRESET_SLOT]"] = deepCopyList(preset["loadout"])
+	prefs.loadout_slot = LOADOUT_PRESET_SLOT
+	prefs.active_character_preset = preset_name
+	selected_character_preset = preset_name
+	if(prefs.loadout_color_handler)
+		SStgui.close_uis(prefs.loadout_color_handler)
+		QDEL_NULL(prefs.loadout_color_handler)
+	character_revision++
+	preview_dirty = TRUE
 
 /datum/preferences/proc/open_character_setup(mob/user)
 	if(QDELETED(character_setup_ui))
@@ -1533,6 +1703,8 @@
 
 	data["slot"] = prefs.loadout_slot
 	data["slotCount"] = MAXIMUM_LOADOUT_SAVES
+	data["presetSlot"] = LOADOUT_PRESET_SLOT
+	data["presetName"] = prefs.active_character_preset
 	data["enabled"] = !!prefs.loadout_enabled
 	data["selectedView"] = loadout_selected
 	var/datum/job/planned_job = prefs.get_highest_job()
@@ -1576,12 +1748,15 @@
 	data["items"] = build_loadout_rows(user, row_context)
 	return data
 
-/datum/character_setup/proc/calc_gear_points(mob/user)
-	prefs.gear_points = CONFIG_GET(number/initial_gear_points)
+/datum/character_setup/proc/available_gear_points(mob/user)
+	. = CONFIG_GET(number/initial_gear_points)
 	if(IS_CKEY_DONATOR_GROUP(user?.ckey, DONATOR_GROUP_TIER_1))
-		prefs.gear_points += CONFIG_GET(number/subscriber_extra_gear_points)
+		. += CONFIG_GET(number/subscriber_extra_gear_points)
 	if(IS_CKEY_DONATOR_GROUP(user?.ckey, DONATOR_GROUP_TIER_2))
-		prefs.gear_points += CONFIG_GET(number/sponsor_extra_gear_points)
+		. += CONFIG_GET(number/sponsor_extra_gear_points)
+
+/datum/character_setup/proc/calc_gear_points(mob/user)
+	prefs.gear_points = available_gear_points(user)
 
 	prefs.loadout_errors = 0
 	var/list/chosen_gear = prefs.loadout_data["SAVE_[prefs.loadout_slot]"]
@@ -1717,7 +1892,7 @@
 	if(isnull(next_slot))
 		return
 	next_slot = floor(next_slot)
-	if(next_slot < 1 || next_slot > MAXIMUM_LOADOUT_SAVES)
+	if(next_slot < LOADOUT_PRESET_SLOT || next_slot > MAXIMUM_LOADOUT_SAVES)
 		return
 	prefs.loadout_slot = next_slot
 	sanitize_loadout_navigation(prefs)
@@ -1736,18 +1911,30 @@
 
 /datum/character_setup/proc/loadout_copy_slot(list/params)
 	var/mob/user = prefs.parent?.mob
+	var/character_slot = prefs.default_slot
+	var/revision = character_revision
+	var/source_slot = prefs.loadout_slot
 	var/list/slots = list()
+	if(source_slot != LOADOUT_PRESET_SLOT)
+		slots["Пресет"] = LOADOUT_PRESET_SLOT
 	for(var/i in 1 to MAXIMUM_LOADOUT_SAVES)
-		if(i == prefs.loadout_slot)
+		if(i == source_slot)
 			continue
-		slots += "[i]"
-	var/asked = tgui_input_list(user, "Выберите слот для копирования текущего лодаута.", "Копирование лодаута", slots)
-	if(isnull(asked))
+		slots["[i]"] = i
+	var/next_slot = num_param(params["target"])
+	if(isnull(next_slot))
+		var/asked = tgui_input_list(user, "Выберите слот для копирования текущего лодаута.", "Копирование лодаута", slots)
+		if(isnull(asked) || !(asked in slots))
+			return
+		next_slot = slots[asked]
+	if(QDELETED(src) || !prefs || prefs.default_slot != character_slot || character_revision != revision)
 		return
-	var/next_slot = num_param(asked)
-	if(isnull(next_slot) || next_slot < 1 || next_slot > MAXIMUM_LOADOUT_SAVES)
+	if(next_slot != round(next_slot) || next_slot < LOADOUT_PRESET_SLOT || next_slot > MAXIMUM_LOADOUT_SAVES || next_slot == source_slot)
 		return
-	prefs.loadout_data["SAVE_[next_slot]"] = LAZYCOPY(prefs.loadout_data["SAVE_[prefs.loadout_slot]"])
+	// Правки цветов и подписей копии не должны менять исходный общий лодаут или сохранённый пресет.
+	prefs.loadout_data["SAVE_[next_slot]"] = deepCopyList(SANITIZE_LIST(prefs.loadout_data["SAVE_[source_slot]"]))
+	if(params["activate"])
+		prefs.loadout_slot = next_slot
 
 /datum/character_setup/proc/loadout_toggle_gear(list/params)
 	var/datum/gear/gear = find_loadout_gear("[params["name"]]")
@@ -2621,6 +2808,15 @@
 	data["tab"] = prefs.character_settings_tab
 	data["theme"] = prefs.character_setup_theme
 	data["autoSaveOnSwitch"] = prefs.character_setup_autosave
+	data["autoSaveActivePreset"] = prefs.character_setup_preset_autosave
+	var/list/presets_data = list()
+	for(var/preset_name in prefs.character_presets)
+		var/list/preset = prefs.character_presets[preset_name]
+		presets_data += list(list("name" = preset_name, "jobs" = length(preset["job_preferences"]), "quirks" = length(preset["all_quirks"]), "items" = length(preset["loadout"])))
+	data["characterPresets"] = presets_data
+	data["presetLimit"] = MAX_CHARACTER_PRESETS
+	data["activeCharacterPreset"] = prefs.active_character_preset
+	data["selectedCharacterPreset"] = selected_character_preset
 	data["emissivesAllowed"] = !!prefs.features["allow_emissives"]
 	data["hasUnsavedChanges"] = character_state() != saved_character_state
 	data["saveNotice"] = save_notice
@@ -2679,8 +2875,8 @@
 		list("id" = APPEARANCE_CHAR_TAB, "label" = "Внешность", "icon" = "palette"),
 		list("id" = MARKINGS_CHAR_TAB, "label" = "Маркинги", "icon" = "highlighter"),
 		list("id" = SPEECH_CHAR_TAB, "label" = "Речь", "icon" = "comment"),
-		list("id" = LOADOUT_CHAR_TAB, "label" = "Экипировка", "icon" = "tshirt"),
 		list("id" = QUIRKS_CHAR_TAB, "label" = "Особенности", "icon" = "brain"),
+		list("id" = LOADOUT_CHAR_TAB, "label" = "Экипировка", "icon" = "tshirt"),
 	)
 
 /datum/character_setup/proc/build_general_data(mob/user)
@@ -2745,10 +2941,12 @@
 			values[quirk_name] = SSquirks.quirk_points_by_name(quirk_name)
 	return values
 
-/datum/character_setup/proc/quirk_balance()
+/datum/character_setup/proc/quirk_balance(list/selected_quirks)
+	if(isnull(selected_quirks))
+		selected_quirks = prefs.all_quirks
 	var/balance = 0
 	var/list/quirk_datums = SSquirks ? SSquirks.quirks : list()
-	for(var/quirk_name in prefs.all_quirks)
+	for(var/quirk_name in selected_quirks)
 		var/datum/quirk/quirk_datum = quirk_datums[quirk_name]
 		if(!quirk_datum)
 			continue
@@ -2759,7 +2957,9 @@
 	balance -= prefs.mob_size_name_to_quirk_cost(prefs.body_weight)
 	return balance
 
-/datum/character_setup/proc/quirk_lock_reason(quirk_name, datum/quirk/quirk_datum)
+/datum/character_setup/proc/quirk_lock_reason(quirk_name, datum/quirk/quirk_datum, list/selected_quirks)
+	if(isnull(selected_quirks))
+		selected_quirks = prefs.all_quirks
 	if(!SSquirks)
 		return "Подсистема особенностей не готова."
 	if(initial(quirk_datum.mood_quirk) && CONFIG_GET(flag/disable_human_mood))
@@ -2767,7 +2967,7 @@
 	for(var/list/blacklist in SSquirks.quirk_blacklist)
 		if(!(quirk_name in blacklist))
 			continue
-		for(var/other in prefs.all_quirks)
+		for(var/other in selected_quirks)
 			if(other == quirk_name)
 				continue
 			if(other in blacklist)
@@ -3220,6 +3420,10 @@
 		return
 
 	switch(action)
+		if("preset_select", "preset_create", "preset_save", "preset_rename", "preset_delete", "preset_apply")
+			manage_character_preset(action, params, usr)
+			return TRUE
+
 		if("pick_theme")
 			var/list/themes = prefs.setup_theme_options()
 			var/list/choices = list()
@@ -3287,9 +3491,14 @@
 			save_notice = null
 			return TRUE
 
+		if("set_active_preset_autosave")
+			prefs.character_setup_preset_autosave = !!params["value"]
+			prefs.save_pref_var("character_setup_preset_autosave")
+			return TRUE
+
 		if("save")
 			if(prefs.save_character(bypass_cooldown = TRUE))
-				save_notice = "Персонаж сохранён."
+				save_notice = prefs.character_setup_preset_autosave && prefs.active_character_preset ? "Персонаж и активный пресет сохранены." : "Персонаж сохранён."
 			else
 				save_notice = "Не удалось сохранить персонажа. Изменения остаются в редакторе."
 			return TRUE

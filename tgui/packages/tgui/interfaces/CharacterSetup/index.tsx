@@ -5,8 +5,10 @@ import {
   Box,
   Button,
   ByondUi,
+  Dropdown,
   Icon,
   Input,
+  Modal,
   NoticeBox,
   NumberInput,
   Section,
@@ -51,6 +53,11 @@ interface CharacterSetupData {
   redemptionCode?: string;
   hasUnsavedChanges: boolean;
   autoSaveOnSwitch: boolean;
+  autoSaveActivePreset: boolean;
+  characterPresets: { name: string; jobs: number; quirks: number; items: number }[];
+  activeCharacterPreset?: string | null;
+  selectedCharacterPreset?: string | null;
+  presetLimit: number;
   saveNotice?: string;
   theme: string;
 }
@@ -83,6 +90,7 @@ const PREVIEW_MODES: Record<string, { label: string; icon: string }> = {
 export const CharacterSetup = () => {
   const { act, data } = useBackend<CharacterSetupData>();
   const [slotsOpen, setSlotsOpen] = useState(true);
+  const [presetsOpen, setPresetsOpen] = useState(false);
   const theme = data.theme || 'default';
 
   return (
@@ -116,13 +124,57 @@ export const CharacterSetup = () => {
                   Слот {data.defaultSlot} · {data.speciesName}
                 </Box>
               </Stack.Item>
+              <Stack.Item className="CharacterSetup__header-actions">
+                <Button
+                  icon="link"
+                  selected={data.autoSaveActivePreset}
+                  aria-pressed={data.autoSaveActivePreset}
+                  aria-label="Автосохранение активного пресета вместе с персонажем"
+                  tooltip={'Обновлять активный пресет при сохранении персонажа: '
+                    + (data.autoSaveActivePreset ? 'включено' : 'выключено')}
+                  onClick={() => act('set_active_preset_autosave', {
+                    value: !data.autoSaveActivePreset,
+                  })}
+                />
+                <Button
+                  icon="layer-group"
+                  tooltip="Управление пресетами персонажа"
+                  aria-label="Управление пресетами персонажа"
+                  onClick={() => setPresetsOpen(true)}
+                />
+                <Button
+                  icon="save"
+                  disabled={!data.activeCharacterPreset}
+                  tooltip="Сохранить текущие профессии, квирки и активный лодаут в активный пресет"
+                  aria-label="Сохранить активный пресет"
+                  onClick={() => act('preset_save', {
+                    name: data.activeCharacterPreset,
+                    character_slot: data.defaultSlot,
+                  })}
+                />
+              </Stack.Item>
+              <Stack.Item>
+                <Dropdown
+                  className="CharacterSetup__preset-selector"
+                  width="180px"
+                  searchable
+                  selected={data.activeCharacterPreset ?? undefined}
+                  displayText={data.activeCharacterPreset || 'Выберите пресет'}
+                  options={(data.characterPresets || []).map(preset => preset.name)}
+                  disabled={!data.characterPresets?.length}
+                  tooltip="Применить пресет профессий, квирков и экипировки"
+                  onSelected={name => act('preset_apply', {
+                    name, character_slot: data.defaultSlot,
+                  })}
+                />
+              </Stack.Item>
               <Stack.Item>
                 <Box color={data.hasUnsavedChanges ? 'average' : 'good'} title={data.saveNotice}>
                   <Icon name={data.hasUnsavedChanges ? 'pencil-alt' : 'check'} />{' '}
                   {data.hasUnsavedChanges ? 'Есть изменения' : 'Сохранено'}
                 </Box>
               </Stack.Item>
-              <Stack.Item>
+              <Stack.Item className="CharacterSetup__header-actions">
                 <Button
                   icon="save"
                   color="good"
@@ -189,9 +241,98 @@ export const CharacterSetup = () => {
             </div>
             <Preview />
           </div>
+          {presetsOpen && <CharacterPresets onClose={() => setPresetsOpen(false)} />}
         </div>
       </Window.Content>
     </Window>
+  );
+};
+
+const CharacterPresets = (props: { onClose: () => void }) => {
+  const { act, data } = useBackend<CharacterSetupData>();
+  const presets = data.characterPresets || [];
+  const current = presets.find(preset => preset.name === data.selectedCharacterPreset)
+    || presets.find(preset => preset.name === data.activeCharacterPreset)
+    || presets[0];
+  const params = { name: current?.name, character_slot: data.defaultSlot };
+
+  return (
+    <Modal width="580px">
+      <Section
+        title={`Пресеты: ${data.characterName} (${presets.length}/${data.presetLimit})`}
+        buttons={<Button icon="times" tooltip="Закрыть" onClick={props.onClose} />}
+      >
+        <Box mb={1}>
+          Пресет хранит предпочтения работы, квирки с их настройками и один
+          комплект экипировки. Внешность и описания персонажа сохраняются.
+        </Box>
+        <Box color="label" mb={1}>
+          При создании или обновлении копируется текущий активный лодаут.
+          Применённый комплект доступен по кнопке «Пресет» во вкладке экипировки;
+          десять общих слотов остаются прежними.
+        </Box>
+        <Button
+          icon="plus"
+          content="Создать из текущих настроек"
+          disabled={presets.length >= data.presetLimit}
+          mb={1}
+          onClick={() => act('preset_create', { character_slot: data.defaultSlot })}
+        />
+        {!!current && (
+          <>
+            <Stack align="center" mb={1}>
+              <Stack.Item grow>
+                <Dropdown
+                  fluid
+                  searchable
+                  selected={current.name}
+                  options={presets.map(preset => preset.name)}
+                  onSelected={name => act('preset_select', {
+                    name, character_slot: data.defaultSlot,
+                  })}
+                />
+              </Stack.Item>
+              <Stack.Item>
+                <Button
+                  icon="pen"
+                  tooltip="Переименовать пресет"
+                  onClick={() => act('preset_rename', params)}
+                />
+                <Button.Confirm
+                  icon="trash"
+                  color="bad"
+                  tooltip="Удалить пресет"
+                  confirmContent="Удалить?"
+                  onClick={() => act('preset_delete', params)}
+                />
+              </Stack.Item>
+            </Stack>
+            <Box color="label" mb={1}>
+              Профессий с приоритетом: {current.jobs}. Квирков: {current.quirks}.
+              Предметов: {current.items}.
+            </Box>
+            <Button
+              icon="check"
+              color="good"
+              content="Применить"
+              onClick={() => act('preset_apply', params)}
+            />
+            <Button
+              icon="save"
+              content="Сохранить текущие настройки в пресет"
+              tooltip="Заменить содержимое выбранного пресета текущими профессиями, квирками и активным лодаутом"
+              onClick={() => act('preset_save', params)}
+            />
+          </>
+        )}
+        {!!data.saveNotice && <NoticeBox mt={1}>{data.saveNotice}</NoticeBox>}
+        <Box color="label" mt={1}>
+          Пресеты принадлежат этому персонажу. Для записи изменений на диск
+          нажмите «Сохранить» вверху редактора или используйте автосохранение
+          при смене персонажа.
+        </Box>
+      </Section>
+    </Modal>
   );
 };
 

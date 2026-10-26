@@ -91,6 +91,7 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/character_setup_theme = "default"
 	var/character_setup_single_view = FALSE
 	var/character_setup_autosave = TRUE
+	var/character_setup_preset_autosave = FALSE
 	var/list/ui_zoom_preferences = list()
 	var/windowflashing = TRUE
 	var/adminhelp_windowflash = TRUE
@@ -454,7 +455,9 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/list/gear_categories
 	var/list/list/loadout_data = list()
 	var/list/unlockable_loadout_data = list()
-	var/loadout_slot = 1 //goes from 1 to MAXIMUM_LOADOUT_SAVES
+	var/loadout_slot = 1 // LOADOUT_PRESET_SLOT или один из общих слотов 1..MAXIMUM_LOADOUT_SAVES.
+	var/list/character_presets = list()
+	var/active_character_preset
 	var/loadout_enabled = TRUE // BLUEMOON ADD - переключатель: спавниться с лодаутом или нет
 	var/gear_category
 	var/gear_subcategory
