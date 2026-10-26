@@ -3542,6 +3542,10 @@
 			save_notice = "Восстановлено последнее сохранение."
 			character_revision++
 			preview_dirty = TRUE
+			if(prefs.job_menu)
+				prefs.job_menu.previews.Cut()
+				prefs.job_menu.pushed_preview = null
+				SStgui.update_uis(prefs.job_menu)
 			return TRUE
 
 		if("delete_slot")
