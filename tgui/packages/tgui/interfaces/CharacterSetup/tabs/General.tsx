@@ -11,6 +11,7 @@ import {
 } from '../../../components';
 import {
   asArray,
+  asOptions,
   ColorField,
   FeatureField,
   FieldRow,
@@ -137,6 +138,43 @@ const SettingsSection = (props: {
     {props.children}
   </Section>
 );
+
+const ConsentRow = (props: { field: FeatureField; value: unknown }) => {
+  const { act } = useBackend<GeneralContext>();
+  const { field, value } = props;
+  const states = {
+    Yes: { icon: 'check', color: 'green', label: 'Да' },
+    Ask: { icon: 'question', color: 'yellow', label: 'Спросить' },
+    No: { icon: 'times', color: 'red', label: 'Нет' },
+  };
+
+  return (
+    <div data-search-id={field.key}>
+      <FieldRow label={field.label} tooltip={field.hint}>
+        <Stack align="center">
+          {asOptions(field.options).map((option) => {
+            const choice = typeof option === 'string' ? option : option.value;
+            const state = states[choice as keyof typeof states];
+            return (
+              <Stack.Item key={choice}>
+                <Button
+                  width="2.2em"
+                  textAlign="center"
+                  icon={state.icon}
+                  color={value === choice ? state.color : 'default'}
+                  tooltip={state.label}
+                  aria-label={`${field.label}: ${state.label}`}
+                  aria-pressed={value === choice}
+                  onClick={() => act('set_feature', { key: field.key, value: choice })}
+                />
+              </Stack.Item>
+            );
+          })}
+        </Stack>
+      </FieldRow>
+    </div>
+  );
+};
 
 export const GeneralTab = () => {
   const { act, data } = useBackend<GeneralContext>();
@@ -333,7 +371,10 @@ export const GeneralTab = () => {
         </SettingsSection>
 
         <SettingsSection title="Согласие" icon="handshake">
-          {CONSENT_KEYS.map((key) => field(key))}
+          {CONSENT_KEYS.map((key) => {
+            const consent = fields.find((entry) => entry.key === key);
+            return consent ? <ConsentRow key={key} field={consent} value={values[key]} /> : null;
+          })}
           {!!antag && (
             <>
               <SelectRow
