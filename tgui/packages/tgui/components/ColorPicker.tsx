@@ -293,7 +293,6 @@ const HueTriangle = (props: {
       tabIndex={0}
       role="group"
       aria-label="Круг цветового тона и треугольник насыщенности и яркости"
-      title="Круг — цветовой тон. Треугольник — насыщенность и яркость. Стрелки изменяют насыщенность и яркость."
       onKeyDown={(event) => {
         const changes: Record<string, [number, number]> = {
           ArrowLeft: [-0.01, 0],
@@ -403,10 +402,6 @@ export const ColorPickerPanel = (props: {
   const hex = hsvToHex(...hsv);
   const hsl = hsvToHsl(...hsv);
   const channels = colorModel === 'RGB' ? ['R', 'G', 'B'] : ['H', 'S', 'L'];
-  const channelDescriptions =
-    colorModel === 'RGB'
-      ? ['Красный', 'Зелёный', 'Синий']
-      : ['Цветовой тон', 'Насыщенность', 'Светлота'];
   const select = (next: string) => {
     setHsv(hexToHsv(next));
     setDraft(safeHex(next));
@@ -442,7 +437,6 @@ export const ColorPickerPanel = (props: {
           '--swatch-color': color,
           ...position?.(index),
         } as React.CSSProperties}
-        title={color}
         aria-label={'Выбрать цвет ' + color}
         aria-pressed={hex.toLowerCase() === color.toLowerCase()}
         onClick={() => select(color)}
@@ -534,10 +528,7 @@ export const ColorPickerPanel = (props: {
                   onSelected={setColorModel}
                 />
                 {channels.map((channel, index) => (
-                  <div
-                    key={colorModel + channel}
-                    title={channelDescriptions[index]}
-                  >
+                  <div key={colorModel + channel}>
                     <Box color="label" mb={0.5}>
                       {channel}
                     </Box>
@@ -615,7 +606,6 @@ export const ColorPickerPanel = (props: {
                   className="ColorPicker__sample"
                   type="button"
                   style={{ background: value }}
-                  title="Вернуть исходный цвет"
                   aria-label="Вернуть исходный цвет"
                   onClick={() => select(value)}
                 />
