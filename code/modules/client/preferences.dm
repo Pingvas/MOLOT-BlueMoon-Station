@@ -444,7 +444,6 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 
 	var/character_settings_tab = GENERAL_CHAR_TAB
 	var/preferences_tab = GAME_PREFS_TAB
-	var/preview_pref = PREVIEW_PREF_JOB
 
 	var/no_tetris_storage = FALSE
 

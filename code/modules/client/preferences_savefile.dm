@@ -2292,14 +2292,9 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 
 	S["split_eye_colors"] >> split_eye_colors
 	S["bgstate"] >> bgstate
-	S["preview_pref"] >> preview_pref
 	split_eye_colors = sanitize_integer(split_eye_colors, FALSE, TRUE, FALSE)
 	if(!(bgstate in bgstate_options))
 		bgstate = initial(bgstate)
-	if(preview_pref == PREVIEW_PREF_NAKED_AROUSED)
-		preview_pref = PREVIEW_PREF_NAKED
-	if(!(preview_pref in list(PREVIEW_PREF_JOB, PREVIEW_PREF_LOADOUT, PREVIEW_PREF_NAKED)))
-		preview_pref = PREVIEW_PREF_JOB
 
 	sand_character_pref_load(S)
 
@@ -2714,7 +2709,6 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 
 	WRITE_FILE(S["split_eye_colors"], split_eye_colors)
 	WRITE_FILE(S["bgstate"], bgstate)
-	WRITE_FILE(S["preview_pref"], preview_pref)
 
 	cit_character_pref_save(S)
 

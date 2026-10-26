@@ -204,11 +204,11 @@ const HeadshotGrid = (props: {
 
   return (
     <Section title={title} mt={1}>
-      <Stack wrap>
+      <Stack vertical>
         {(slots || []).map((link, index) => (
           <Stack.Item
             key={index}
-            style={{ width: '100%', marginBottom: '0.5em' }}
+            style={{ width: '100%' }}
           >
             {link ? (
               <Box

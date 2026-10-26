@@ -29,11 +29,11 @@
 	bark_variance = BARK_VARIANCE_RAND
 	age = rand(AGE_MIN,AGE_MAX)
 
-/datum/preferences/proc/build_preview_appearance(aroused_preview = FALSE)
+/datum/preferences/proc/build_preview_appearance(aroused_preview = FALSE, preview_mode = PREVIEW_PREF_JOB)
 	// Determine what job is marked as 'High' priority, and dress them up as such.
 	var/datum/job/previewJob = get_highest_job()
 
-	if(previewJob && preview_pref == PREVIEW_PREF_JOB)
+	if(previewJob && preview_mode == PREVIEW_PREF_JOB)
 		// Silicons only need a very basic preview since there is no customization for them.
 		if(istype(previewJob,/datum/job/ai))
 			return mutable_appearance('icons/mob/AI.dmi', resolve_ai_icon(preferred_ai_core_display), FLOAT_LAYER, GAME_PLANE)
@@ -52,7 +52,7 @@
 		mannequin.wipe_state()
 		copy_to(mannequin, icon_updates = FALSE, initial_spawn = TRUE)
 
-		switch(preview_pref)
+		switch(preview_mode)
 			if(PREVIEW_PREF_JOB)
 				if(previewJob)
 					mannequin.job = previewJob.title

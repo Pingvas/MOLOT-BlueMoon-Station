@@ -45,6 +45,7 @@
 	var/character_revision = 0
 	var/loadout_selected = FALSE
 	var/list/viewer_screens
+	var/preview_mode = PREVIEW_PREF_JOB
 	var/preview_auto_fit = TRUE
 	var/preview_aroused = FALSE
 	var/saved_character_state
@@ -80,7 +81,7 @@
 		"pda_color", "pda_style", "pda_skin", "pda_ringtone", "pda_theme", "silicon_lawset", "jumpsuit_style",
 		"features", "skin_tone", "use_custom_skin_tone", "eye_type", "split_eye_colors", "left_eye_color", "right_eye_color",
 		"hair_style", "hair_color", "facial_hair_style", "facial_hair_color", "grad_style", "grad_color",
-		"modified_limbs", "chosen_limb_id", "body_weight", "scars_list", "bgstate", "preview_pref",
+		"modified_limbs", "chosen_limb_id", "body_weight", "scars_list", "bgstate",
 		"custom_speech_verb", "custom_speech_verb_ru", "custom_tongue", "custom_laugh", "language",
 		"bark_id", "bark_speed", "bark_pitch", "bark_variance", "enable_personal_chat_color", "personal_chat_color",
 		"loadout_slot", "loadout_enabled", "loadout_data", "all_quirks", "antag_opt_in_level",
@@ -2655,7 +2656,7 @@
 	var/list/data = list()
 	if(!prefs)
 		return data
-	data["previewPref"] = prefs.preview_pref
+	data["previewPref"] = preview_mode
 	data["previewAroused"] = preview_aroused
 	data["previewSingleView"] = preview_single_view
 	data["previewDirection"] = preview_direction
@@ -3184,7 +3185,7 @@
 		return
 	// Пока общий манекен занят, сборка может уснуть. Новая правка должна оставить новую заявку.
 	preview_dirty = FALSE
-	var/mutable_appearance/appearance_source = prefs.build_preview_appearance(preview_aroused)
+	var/mutable_appearance/appearance_source = prefs.build_preview_appearance(preview_aroused, preview_mode)
 	if(!appearance_source)
 		preview_dirty = TRUE
 		return
@@ -3306,7 +3307,7 @@
 			var/new_mode = params["mode"]
 			if(!(new_mode in list(PREVIEW_PREF_JOB, PREVIEW_PREF_LOADOUT, PREVIEW_PREF_NAKED)))
 				return
-			prefs.preview_pref = new_mode
+			preview_mode = new_mode
 			preview_dirty = TRUE
 			return TRUE
 
