@@ -89,6 +89,8 @@ GLOBAL_LIST_EMPTY(preferences_datums)
 	var/tgui_panel_theme = "default"
 	var/tgui_panel_state = ""
 	var/character_setup_theme = "default"
+	var/character_setup_single_view = FALSE
+	var/character_setup_autosave = TRUE
 	var/list/ui_zoom_preferences = list()
 	var/windowflashing = TRUE
 	var/adminhelp_windowflash = TRUE

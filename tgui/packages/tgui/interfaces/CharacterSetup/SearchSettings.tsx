@@ -106,20 +106,11 @@ export const SearchSettings = () => {
   }, [entries, normalizedQuery]);
 
   useEffect(() => {
-    const hotkey = (event: KeyboardEvent) => {
-      if (event.ctrlKey && event.code === 'KeyF') {
-        event.preventDefault();
-        setOpen(true);
-        root.current?.querySelector('input')?.focus();
-      }
-    };
-    document.addEventListener('keydown', hotkey);
     const outside = (event: PointerEvent) => {
       if (!root.current?.contains(event.target as Node)) setOpen(false);
     };
     document.addEventListener('pointerdown', outside);
     return () => {
-      document.removeEventListener('keydown', hotkey);
       document.removeEventListener('pointerdown', outside);
     };
   }, []);
@@ -197,7 +188,7 @@ export const SearchSettings = () => {
         <Stack.Item grow>
           <Input
             fluid
-            placeholder="Поиск настроек во всех вкладках · Ctrl+F"
+            placeholder="Поиск настроек во всех вкладках"
             value={query}
             onFocus={() => setOpen(true)}
             onInput={(event, value) => {

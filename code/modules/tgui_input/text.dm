@@ -174,7 +174,8 @@
 	// the DM<->TGUI round-trip and any savefile key built from this text.
 	entry = strip_control_chars(entry)
 	var/converted_entry = encode ? html_encode_readable(entry) : entry
-	src.entry = trim(converted_entry, max_length)
+	// trim использует исключающую правую границу copytext_char: сохраняем все max_length символов.
+	src.entry = trim(converted_entry, max_length ? max_length + 1 : null)
 
 /**
  * Creates an asynchronous TGUI input text window with an associated callback.

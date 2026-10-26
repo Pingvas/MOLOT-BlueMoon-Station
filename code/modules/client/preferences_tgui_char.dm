@@ -55,7 +55,6 @@
 	var/sound_preview_until = 0
 	var/sound_preview_generation = 0
 	var/next_sound_preview = 0
-	var/preview_single_view = FALSE
 	var/preview_direction = SOUTH
 	var/preview_zoom = 1
 	var/preview_reference = FALSE
@@ -2621,6 +2620,7 @@
 	data["speciesName"] = prefs.pref_species.name
 	data["tab"] = prefs.character_settings_tab
 	data["theme"] = prefs.character_setup_theme
+	data["autoSaveOnSwitch"] = prefs.character_setup_autosave
 	data["emissivesAllowed"] = !!prefs.features["allow_emissives"]
 	data["hasUnsavedChanges"] = character_state() != saved_character_state
 	data["saveNotice"] = save_notice
@@ -2658,7 +2658,7 @@
 		return data
 	data["previewPref"] = preview_mode
 	data["previewAroused"] = preview_aroused
-	data["previewSingleView"] = preview_single_view
+	data["previewSingleView"] = prefs.character_setup_single_view
 	data["previewDirection"] = preview_direction
 	data["previewZoom"] = preview_zoom
 	data["previewReference"] = preview_reference
@@ -3193,7 +3193,7 @@
 		return
 	for(var/viewer in viewer_screens)
 		var/atom/movable/screen/map_view/character_setup_screen/viewer_screen = viewer_screens[viewer]
-		viewer_screen.update_character(appearance_source, prefs.bgstate, preview_auto_fit, preview_single_view, preview_direction, preview_zoom, preview_reference, preview_background_style)
+		viewer_screen.update_character(appearance_source, prefs.bgstate, preview_auto_fit, prefs.character_setup_single_view, preview_direction, preview_zoom, preview_reference, preview_background_style)
 	push_preview_update()
 
 /datum/character_setup/proc/push_preview_update(character_changed = FALSE)
@@ -3208,7 +3208,7 @@
 	for(var/viewer in viewer_screens)
 		var/atom/movable/screen/map_view/character_setup_screen/viewer_screen = viewer_screens[viewer]
 		if(viewer_screen.cached_source)
-			viewer_screen.update_character(viewer_screen.cached_source, prefs.bgstate, preview_auto_fit, preview_single_view, preview_direction, preview_zoom, preview_reference, preview_background_style)
+			viewer_screen.update_character(viewer_screen.cached_source, prefs.bgstate, preview_auto_fit, prefs.character_setup_single_view, preview_direction, preview_zoom, preview_reference, preview_background_style)
 	push_preview_update(character_changed)
 
 /datum/character_setup/ui_act(action, list/params)
@@ -3253,9 +3253,17 @@
 			if(isnull(new_slot) || new_slot != round(new_slot) || new_slot < 1 || new_slot > prefs.max_save_slots || new_slot == prefs.default_slot)
 				return
 			var/previous_name = prefs.real_name
-			// Завершаем запись старого слота до загрузки нового, включая отложенное сохранение.
-			if(!prefs.save_character(bypass_cooldown = TRUE, silent = TRUE))
-				return
+			var/save_previous = prefs.character_setup_autosave
+			if(save_previous)
+				// Завершаем запись старого слота до загрузки нового, включая отложенное сохранение.
+				if(!prefs.save_character(bypass_cooldown = TRUE, silent = TRUE))
+					return
+			else
+				// Отложенное сохранение старого персонажа не должно сработать уже в новом слоте.
+				if(prefs.char_queue)
+					deltimer(prefs.char_queue)
+				prefs.char_queue = null
+				prefs.char_queue_deadline = 0
 			var/list/slot_names = prefs.get_slot_names()
 			if(slot_names?[new_slot])
 				var/old_slot = prefs.default_slot
@@ -3268,9 +3276,15 @@
 			prefs.save_preferences(bypass_cooldown = TRUE, silent = TRUE)
 			prefs.parent?.tgui_panel?.emotes_send_list()
 			stop_sound_preview()
-			save_notice = "[previous_name]: сохранён автоматически при переключении."
+			save_notice = save_previous ? "[previous_name]: сохранён автоматически при переключении." : null
 			character_revision++
 			preview_dirty = TRUE
+			return TRUE
+
+		if("set_autosave_on_switch")
+			prefs.character_setup_autosave = !!params["value"]
+			prefs.save_pref_var("character_setup_autosave")
+			save_notice = null
 			return TRUE
 
 		if("save")
@@ -3322,7 +3336,8 @@
 			return FALSE
 
 		if("set_preview_single_view")
-			preview_single_view = !!params["value"]
+			prefs.character_setup_single_view = !!params["value"]
+			prefs.save_pref_var("character_setup_single_view")
 			refresh_preview_camera()
 			return FALSE
 

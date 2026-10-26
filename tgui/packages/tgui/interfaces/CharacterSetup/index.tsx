@@ -50,6 +50,7 @@ interface CharacterSetupData {
   offerActive: boolean;
   redemptionCode?: string;
   hasUnsavedChanges: boolean;
+  autoSaveOnSwitch: boolean;
   saveNotice?: string;
   theme: string;
 }
@@ -127,6 +128,20 @@ export const CharacterSetup = () => {
                   color="good"
                   content="Сохранить"
                   onClick={() => act('save')}
+                />
+                <Button
+                  icon="sync-alt"
+                  selected={data.autoSaveOnSwitch}
+                  aria-pressed={data.autoSaveOnSwitch}
+                  aria-label="Автосохранение при смене персонажа"
+                  tooltip={
+                    'Автосохранение при смене персонажа: ' +
+                    (data.autoSaveOnSwitch ? 'включено.' : 'выключено.') +
+                    ' Если выключить, несохранённые изменения будут сброшены при переключении слота.'
+                  }
+                  onClick={() => act('set_autosave_on_switch', {
+                    value: !data.autoSaveOnSwitch,
+                  })}
                 />
                 <Button.Confirm
                   icon="undo"
@@ -258,7 +273,9 @@ const SlotPanel = () => {
         </div>
         <div className="CharacterSetup__slot-tools">
           <Box color="label" mb={1}>
-            {data.saveNotice || 'При переключении текущий персонаж сохраняется.'}
+            {data.saveNotice || (data.autoSaveOnSwitch
+              ? 'При переключении текущий персонаж сохраняется.'
+              : 'Автосохранение выключено. Перед переключением сохраните нужные изменения.')}
           </Box>
           <Button.Confirm
             fluid
