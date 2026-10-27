@@ -235,6 +235,16 @@ const HueTriangle = (props: {
   } = props;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const drag = useRef<'hue' | 'triangle' | null>(null);
+  // Цветная вершина исходного треугольника направлена на 300°, поэтому добавляем 60°.
+  const triangleRotation = hue + 60;
+  const radians = (triangleRotation * Math.PI) / 180;
+  const cos = Math.cos(radians);
+  const sin = Math.sin(radians);
+  // Для выбора цвета переводим указатель обратно в координаты исходного треугольника.
+  const weightsAt = (x: number, y: number) => triangleWeights(
+    130 + (x - 130) * cos + (y - 130) * sin,
+    130 - (x - 130) * sin + (y - 130) * cos
+  );
   useEffect(() => {
     const context = canvasRef.current?.getContext('2d');
     if (!context) return;
@@ -272,7 +282,7 @@ const HueTriangle = (props: {
       onChange([next, saturation, brightness]);
     } else if (drag.current === 'triangle') {
       // За пределами треугольника прижимаем выбор к его границам.
-      const weights = triangleWeights(x, y).map((weight) =>
+      const weights = weightsAt(x, y).map((weight) =>
         Math.max(0, weight)
       );
       const total = weights.reduce((sum, weight) => sum + weight, 0);
@@ -314,7 +324,7 @@ const HueTriangle = (props: {
         const [x, y] = point(event);
         const radius = Math.hypot(x - 130, y - 130);
         if (radius >= 109 && radius <= 130) drag.current = 'hue';
-        else if (triangleWeights(x, y).every((weight) => weight >= 0)) {
+        else if (weightsAt(x, y).every((weight) => weight >= 0)) {
           drag.current = 'triangle';
         } else return;
         event.currentTarget.focus();
@@ -341,29 +351,36 @@ const HueTriangle = (props: {
       }}
     >
       <div className="ColorPicker__hue-ring" />
-      <canvas ref={canvasRef} width={WHEEL_SIZE} height={WHEEL_SIZE} />
+      <canvas
+        ref={canvasRef}
+        width={WHEEL_SIZE}
+        height={WHEEL_SIZE}
+        style={{ transform: `rotate(${triangleRotation}deg)` }}
+      />
       <svg viewBox="0 0 260 260" aria-hidden="true">
-        <polygon
-          points={TRIANGLE_LEFT + ',77 ' + TRIANGLE_RIGHT + ',77 130,236'}
-          fill="none"
-          stroke="rgba(255,255,255,0.4)"
-        />
         <circle
           cx={130 + 119 * Math.sin((hue * Math.PI) / 180)}
           cy={130 - 119 * Math.cos((hue * Math.PI) / 180)}
           r="4"
           className="ColorPicker__wheel-marker"
         />
-        <circle
-          cx={
-            hueWeight * TRIANGLE_LEFT +
-            whiteWeight * TRIANGLE_RIGHT +
-            blackWeight * 130
-          }
-          cy={brightness * TRIANGLE_TOP + blackWeight * TRIANGLE_BOTTOM}
-          r="4"
-          className="ColorPicker__wheel-marker"
-        />
+        <g transform={`rotate(${triangleRotation} 130 130)`}>
+          <polygon
+            points={TRIANGLE_LEFT + ',77 ' + TRIANGLE_RIGHT + ',77 130,236'}
+            fill="none"
+            stroke="rgba(255,255,255,0.4)"
+          />
+          <circle
+            cx={
+              hueWeight * TRIANGLE_LEFT +
+              whiteWeight * TRIANGLE_RIGHT +
+              blackWeight * 130
+            }
+            cy={brightness * TRIANGLE_TOP + blackWeight * TRIANGLE_BOTTOM}
+            r="4"
+            className="ColorPicker__wheel-marker"
+          />
+        </g>
       </svg>
     </div>
   );

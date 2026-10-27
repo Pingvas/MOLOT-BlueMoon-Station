@@ -3542,6 +3542,10 @@
 			save_notice = "Восстановлено последнее сохранение."
 			character_revision++
 			preview_dirty = TRUE
+			if(prefs.job_menu)
+				prefs.job_menu.previews.Cut()
+				prefs.job_menu.pushed_preview = null
+				SStgui.update_uis(prefs.job_menu)
 			return TRUE
 
 		if("delete_slot")
@@ -4389,7 +4393,10 @@
 	var/list/reference_bounds_by_dir = list()
 	var/list/directions = single_view ? list(view_direction) : GLOB.cardinals
 	var/draw_reference = show_reference && !auto_fit
+	// Простые спрайты рисуем оверлеями карты, как в меню профессий.
+	var/use_overlays = !length(appearance_source.overlays) && !length(appearance_source.underlays)
 	vis_contents.Cut()
+	cut_overlays()
 	var/reference_width = world.icon_size * 2
 	var/reference_height = world.icon_size
 	var/max_width = 0
@@ -4403,13 +4410,13 @@
 		if(!preview)
 			preview = new
 			previews["[direction]"] = preview
-		if(direction in directions)
+		if(!use_overlays && (direction in directions))
 			vis_contents += preview
-		// Фигура — содержимое единого холста, а не отдельный экран с собственным screen_loc.
+		// Положение обеих разновидностей фигур рассчитывается в координатах общего холста.
 		preview.appearance = appearance_source
 		preview.dir = direction
 		preview.vis_flags = VIS_INHERIT_PLANE
-		// В том числе FLOAT_LAYER у ИИ и боргов должен оказаться над фоном холста.
+		// Фигура должна оставаться над фоном независимо от слоя исходной внешности.
 		preview.layer = max(MOB_LAYER, preview.layer)
 		preview.appearance_flags &= ~TILE_BOUND
 		var/list/bounds = view_bounds_cache["[direction]"]
@@ -4443,7 +4450,7 @@
 				reference_preview.appearance_flags &= ~TILE_BOUND
 				reference_preview.color = list(0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,1, 0.5,0.6,0.7,0)
 				reference_preview.alpha = 90
-				if(direction in directions)
+				if(!use_overlays && (direction in directions))
 					vis_contents += reference_preview
 
 	var/padding = 2
@@ -4519,6 +4526,17 @@
 			preview.pixel_x = round(group_left + ref_width + 6 - bounds[1], 1)
 			preview.pixel_y = round(baseline - bounds[2], 1)
 		position++
+	if(use_overlays)
+		var/list/figures = list()
+		for(var/direction in directions)
+			var/image/figure = image(previews["[direction]"], dir = direction)
+			figure.plane = FLOAT_PLANE
+			figures += figure
+			if(draw_reference)
+				var/image/reference_figure = image(reference_previews["[direction]"], dir = direction)
+				reference_figure.plane = FLOAT_PLANE
+				figures += reference_figure
+		add_overlay(figures)
 	shown_offset = PLANE_TO_OFFSET(appearance_source.plane)
 	ensure_plane_group()
 	apply_native_camera()
