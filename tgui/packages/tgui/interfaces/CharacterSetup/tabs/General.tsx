@@ -385,7 +385,7 @@ export const GeneralTab = () => {
                   value: level.value,
                   displayText: antag.custom
                     ? level.name
-                    : `${level.name} (по умолчанию)`,
+                    : `${level.name}`,
                 }))}
                 action="set_antag_opt_in"
               />

@@ -80,7 +80,7 @@
 
 /datum/language/modular_sand/moffic
 	name = "Moffic"
-	desc = "Язык мотыльковых людей почти невозможно разобрать."
+	desc = "Язык мотыльковых, почти невозможно разобрать."
 	speech_verb = "flutters"
 	ask_verb = "flits"
 	exclaim_verb = "flaps"
