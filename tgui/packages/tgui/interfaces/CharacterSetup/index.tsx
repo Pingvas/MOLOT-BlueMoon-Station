@@ -23,6 +23,7 @@ import { BackgroundTab } from './tabs/Background';
 import { GeneralTab } from './tabs/General';
 import { LoadoutTab } from './tabs/Loadout';
 import { MarkingsTab } from './tabs/Markings';
+import { ModificationsTab } from './tabs/Modifications';
 import { QuirksTab } from './tabs/Quirks';
 import { SpeechTab } from './tabs/Speech';
 
@@ -290,8 +291,9 @@ const CharacterPresets = (props: { onClose: () => void }) => {
         buttons={<Button icon="times" tooltip="Закрыть" onClick={props.onClose} />}
       >
         <Box mb={1}>
-          Пресет хранит предпочтения работы, квирки с их настройками и один
-          комплект экипировки. Внешность и описания персонажа сохраняются.
+          Пресет хранит предпочтения работы, квирки с их настройками,
+          модификации органов и импланты, а также один комплект экипировки.
+          Внешность и описания персонажа сохраняются.
         </Box>
         <Box color="label" mb={1}>
           При создании или обновлении копируется текущий активный лодаут.
@@ -737,6 +739,8 @@ const TabContent = (props: { tab: number }) => {
       return <LoadoutTab />;
     case 6:
       return <QuirksTab />;
+    case 7:
+      return <ModificationsTab />;
     default:
       return (
         <Section fill scrollable>
