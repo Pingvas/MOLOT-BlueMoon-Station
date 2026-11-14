@@ -63,6 +63,21 @@
 	associated_safe_turfs = list(/turf/open/water)
 	unlock_requirement = 8
 
+/datum/fish_source/holodeck
+	catalog_description = "Голодек"
+	background = "background_default"
+	fishing_difficulty = FISHING_EASY_DIFFICULTY
+	fish_table = list(
+		FISHING_DUD = 8,
+		/obj/item/fish/holo = 20,
+		/obj/item/fish/holo/crab = 10,
+		/obj/item/fish/holo/puffer = 8,
+		/obj/item/fish/holo/angel = 8,
+		/obj/item/fish/holo/clown = 8,
+		/obj/item/fish/holo/checkered = 4,
+		/obj/item/fish/holo/halffish = 2,
+	)
+
 /datum/fish_source/portal/chasm
 	background = "background_chasm"
 	fish_table = list(
@@ -131,6 +146,109 @@
 		return "Для рыбалки в плазме нужна укреплённая или огнеупорная леска."
 	return ..()
 
+/datum/fish_source/portal/garden
+	background = "background_tray"
+	fish_table = list(
+		FISHING_DUD = 20,
+		/obj/item/seeds/grass = 10,
+		/obj/item/seeds/wheat = 6,
+		/obj/item/seeds/corn = 6,
+		/obj/item/seeds/carrot = 6,
+		/obj/item/seeds/tomato = 6,
+		/obj/item/seeds/potato = 6,
+		/obj/item/seeds/watermelon = 4,
+		/obj/item/seeds/random = 2,
+	)
+	catalog_description = "Оранжерея (Фиш-портер 3000)"
+	fishing_difficulty = FISHING_DEFAULT_DIFFICULTY + 10
+	radial_name = "Оранжерея"
+	radial_state = "hydro"
+	overlay_state = "portal_tray"
+	unlock_requirement = 16
+
+/datum/fish_source/deepfryer
+	background = "background_lavaland"
+	fish_table = list(
+		/obj/item/food/badrecipe = 15,
+		/obj/item/food/nugget/fish = 5,
+		/obj/item/fish/fryish = 40,
+		/obj/item/fish/fryish/fritterish = 4,
+		/obj/item/fish/fryish/nessie = 1,
+	)
+	fish_counts = list(
+		/obj/item/fish/fryish = 10,
+		/obj/item/fish/fryish/fritterish = 4,
+		/obj/item/fish/fryish/nessie = 1,
+	)
+	fish_count_regen = list(
+		/obj/item/fish/fryish = 2 MINUTES,
+		/obj/item/fish/fryish/fritterish = 6 MINUTES,
+		/obj/item/fish/fryish/nessie = 22 MINUTES,
+	)
+	catalog_description = "Кухонный фритюр"
+	fishing_difficulty = FISHING_DEFAULT_DIFFICULTY + 23
+	radial_state = "fryer"
+	overlay_state = "portal_fry"
+
+/datum/fish_source/deepfryer/reason_we_cant_fish(obj/item/fishing_rod/rod, mob/fisherman, atom/parent)
+	if(!istype(parent, /obj/machinery/deepfryer))
+		return ..()
+	var/obj/machinery/deepfryer/fryer = parent
+	if(fryer.frying)
+		return "Во фритюре уже что-то жарится."
+	if(!fryer.reagents?.has_reagent(/datum/reagent/consumable/cooking_oil))
+		return "Во фритюре нет масла."
+	return ..()
+
+/datum/fish_source/portal/fry
+	background = "background_lavaland"
+	fish_table = list(
+		/obj/item/food/badrecipe = 15,
+		/obj/item/food/nugget/fish = 5,
+		/obj/item/fish/fryish = 40,
+		/obj/item/fish/fryish/fritterish = 4,
+		/obj/item/fish/fryish/nessie = 1,
+	)
+	fish_counts = list(
+		/obj/item/fish/fryish = 10,
+		/obj/item/fish/fryish/fritterish = 4,
+		/obj/item/fish/fryish/nessie = 1,
+	)
+	fish_count_regen = list(
+		/obj/item/fish/fryish = 2 MINUTES,
+		/obj/item/fish/fryish/fritterish = 6 MINUTES,
+		/obj/item/fish/fryish/nessie = 22 MINUTES,
+	)
+	catalog_description = "Фритюр (Фиш-портер 3000)"
+	fishing_difficulty = FISHING_DEFAULT_DIFFICULTY + 23
+	radial_name = "Фритюр"
+	radial_state = "fryer"
+	overlay_state = "portal_fry"
+	unlock_requirement = 22
+
+/datum/fish_source/portal/rift
+	background = "background_carp_rift"
+	fish_table = list(
+		FISHING_DUD = 10,
+		/obj/item/fish/baby_carp = 5,
+		/mob/living/basic/carp = 1,
+		/mob/living/basic/carp/mega = 1,
+		/obj/item/toy/plush/carpplushie = 1,
+		/obj/item/toy/plush/carpplushie/dehy_carp = 1,
+	)
+	fish_counts = list(
+		/mob/living/basic/carp/mega = 2,
+	)
+	fish_count_regen = list(
+		/mob/living/basic/carp/mega = 9 MINUTES,
+	)
+	catalog_description = "Карповый разлом (Фиш-портер 3000)"
+	fishing_difficulty = FISHING_DEFAULT_DIFFICULTY + 28
+	radial_name = "Разлом"
+	radial_state = "carp"
+	overlay_state = "portal_rift"
+	unlock_requirement = 26
+
 /datum/fish_source/portal/mansus
 	background = "background_mansus"
 	fish_table = list(
@@ -141,14 +259,17 @@
 		/obj/item/fish/gullion = 4,
 		/obj/item/fish/mossglob = 2,
 		/obj/item/fish/babbelfish = 1,
+		/obj/structure/closet/crate/necropolis/mansus = 1,
 	)
 	fish_counts = list(
 		/obj/item/fish/mossglob = 2,
 		/obj/item/fish/babbelfish = 1,
+		/obj/structure/closet/crate/necropolis/mansus = 1,
 	)
 	fish_count_regen = list(
 		/obj/item/fish/mossglob = 15 MINUTES,
 		/obj/item/fish/babbelfish = 25 MINUTES,
+		/obj/structure/closet/crate/necropolis/mansus = 30 MINUTES,
 	)
 	catalog_description = "Мансус (Фиш-портер 3000)"
 	fishing_difficulty = FISHING_DEFAULT_DIFFICULTY + 35
@@ -414,3 +535,65 @@
 	portal.anchored = TRUE
 	user.visible_message(span_notice("[user] разворачивает [src]."), span_notice("Вы разворачиваете [src]."))
 	qdel(src)
+
+/obj/structure/closet/crate/necropolis/mansus
+	name = "Mansus fish chest"
+	desc = "Сундук, который пахнет мокрой рыбой и чем-то потусторонним."
+	var/next_food = 0
+	var/food_cap = 8
+	var/static/list/fish_food = list(
+		/obj/item/food/fishmeat = 10,
+		/obj/item/food/fishmeat/quality = 5,
+		/obj/item/food/fishmeat/salmon = 6,
+		/obj/item/food/fishmeat/carp = 5,
+		/obj/item/food/fishmeat/carp/imitation = 3,
+		/obj/item/food/fishmeat/moonfish = 3,
+		/obj/item/food/fishmeat/gunner_jellyfish = 2,
+		/obj/item/food/fishmeat/armorfish = 2,
+		/obj/item/food/fishmeat/donkfish = 2,
+		/obj/item/food/fishmeat/octopus = 2,
+		/obj/item/food/fishmeat/fish_tail = 2,
+		/obj/item/food/cooked_fish = 8,
+		/obj/item/food/cooked_fish/quality = 4,
+		/obj/item/food/cooked_fish/salmon = 4,
+		/obj/item/food/cooked_fish/carp = 4,
+		/obj/item/food/cooked_fish/imitation = 3,
+		/obj/item/food/cooked_fish/donkfish = 2,
+		/obj/item/food/cooked_fish/fish_tail = 3,
+		/obj/item/food/cooked_fish/jellyfish = 2,
+		/obj/item/food/cooked_fish/armorfish = 2,
+		/obj/item/food/cooked_fish/crab = 2,
+		/obj/item/food/nugget/fish = 3,
+		/obj/item/food/grilled_moonfish = 2,
+		/obj/item/food/grilled_octopus = 2,
+		/obj/item/food/moonfish_caviar = 1,
+	)
+
+/obj/structure/closet/crate/necropolis/mansus/Initialize(mapload)
+	. = ..()
+	next_food = world.time + 1 MINUTES
+	START_PROCESSING(SSobj, src)
+	spawn_food()
+
+/obj/structure/closet/crate/necropolis/mansus/Destroy()
+	STOP_PROCESSING(SSobj, src)
+	return ..()
+
+/obj/structure/closet/crate/necropolis/mansus/examine(mob/user)
+	. = ..()
+	. += span_notice("Раз в минуту внутри появляется случайная рыбная еда. Всего помещается [food_cap] порций.")
+
+/obj/structure/closet/crate/necropolis/mansus/process(delta_time)
+	if(world.time < next_food)
+		return
+	next_food = world.time + 1 MINUTES
+	spawn_food()
+
+/obj/structure/closet/crate/necropolis/mansus/proc/spawn_food()
+	if(length(contents) >= food_cap)
+		return
+	var/food_type = pick_weight(fish_food)
+	if(!food_type)
+		return
+	new food_type(src)
+	visible_message(span_notice("[src] выпускает новую порцию рыбной еды."))

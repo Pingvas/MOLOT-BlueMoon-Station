@@ -1,6 +1,9 @@
 // Удочки. Собраны под старый API взаимодействия с предметами. attackby навешивает
 // компоненты, afterattack забрасывает в место рыбалки, attack_self открывает меню настройки.
 
+/obj/effect/ebeam/fishing_line
+	layer = ABOVE_MOB_LAYER
+
 /obj/item/fishing_rod
 	name = "fishing rod"
 	desc = "Этим можно ловить рыбу."
@@ -29,7 +32,7 @@
 	var/atom/movable/currently_hooked
 	var/datum/beam/fishing_line/fishing_line
 	var/casting = FALSE
-	var/default_line_color = "gray"
+	var/default_line_color = COLOR_GRAY
 	var/internal = FALSE
 	var/reel_overlay = "reel_overlay"
 	var/frame_state = "frame_wood"
@@ -125,6 +128,11 @@
 		line_overlay.color = line_color
 		. += line_overlay
 		. += mutable_appearance(icon, hook.rod_overlay_icon_state || "hook_overlay")
+	// Наживка цепляется к кончику, поэтому её оверлей кладём поверх крючка.
+	var/obj/item/bait/used_bait = bait
+	if(used_bait?.rod_overlay_icon_state)
+		var/mutable_appearance/bait_overlay = mutable_appearance(icon, used_bait.rod_overlay_icon_state)
+		. += bait_overlay
 
 /// Рисует катушку, свисающую леску и крючок на спрайтах в руках.
 /// Направление не задаём, оверлеи сами поворачиваются вместе с персонажем.
@@ -140,7 +148,8 @@
 		var/mutable_appearance/line_dangle = mutable_appearance(icon_file, "line_overlay")
 		line_dangle.color = line_color
 		. += line_dangle
-		. += mutable_appearance(icon_file, "hook_overlay")
+		if(hook)
+			. += mutable_appearance(icon_file, "hook_overlay")
 
 /obj/item/fishing_rod/examine(mob/user)
 	. = ..()
@@ -224,12 +233,17 @@
 	COOLDOWN_START(src, casting_cd, 1 SECONDS)
 	if(!HAS_TRAIT(target, TRAIT_FISHING_SPOT))
 		var/turf/target_turf = get_turf(target)
-		if(target_turf?.liquids?.reagent_list[/datum/reagent/water])
+		var/area/target_area = get_area(target_turf)
+		if(istype(target_area, /area/holodeck))
+			target.AddComponent(/datum/component/fishing_spot, GLOB.preset_fish_sources[/datum/fish_source/holodeck])
+		else if(target_turf?.liquids?.reagent_list[/datum/reagent/water])
 			target.AddComponent(/datum/component/fishing_spot, GLOB.preset_fish_sources[/datum/fish_source/water/any])
 		else if(isspaceturf(target_turf))
 			target.AddComponent(/datum/component/fishing_spot, GLOB.preset_fish_sources[/datum/fish_source/space])
 		else if(istype(target_turf, /turf/open/lava))
 			target.AddComponent(/datum/component/fishing_spot, GLOB.preset_fish_sources[/datum/fish_source/lava])
+		else if(ischasm(target_turf))
+			target.AddComponent(/datum/component/fishing_spot, GLOB.preset_fish_sources[/datum/fish_source/chasm])
 	if(SEND_SIGNAL(target, COMSIG_FISHING_ROD_CAST, src, user) & FISHING_ROD_CAST_HANDLED)
 		return
 	hook_item(user, target)
@@ -246,15 +260,16 @@
 	hook.hook_attached(target_atom, src)
 	SEND_SIGNAL(src, COMSIG_FISHING_ROD_HOOKED_ITEM, target_atom, user)
 
-/obj/item/fishing_rod/proc/create_fishing_line(atom/movable/target, mob/living/firer, target_py = null)
+/obj/item/fishing_rod/proc/create_fishing_line(atom/movable/target, mob/living/firer, target_py = null, target_px = null)
 	if(internal)
 		return null
 	if(fishing_line)
 		QDEL_NULL(fishing_line)
 	var/line_color = line?.line_color || default_line_color
-	fishing_line = new /datum/beam/fishing_line(firer, target, 'icons/effects/beam.dmi', "fishing_line", INFINITY, 20)
+	fishing_line = new /datum/beam/fishing_line(firer, target, 'icons/effects/beam.dmi', "fishing_line", INFINITY, 20, /obj/effect/ebeam/fishing_line)
 	fishing_line.beam_color = line_color
 	fishing_line.set_holder(firer, src)
+	fishing_line.override_target_pixel_x = target_px || 0
 	fishing_line.override_target_pixel_y = target_py || 0
 	RegisterSignal(fishing_line, COMSIG_PARENT_QDELETING, PROC_REF(on_fishing_line_deleted))
 	INVOKE_ASYNC(fishing_line, TYPE_PROC_REF(/datum/beam, Start))
@@ -511,6 +526,10 @@
 	experience_multiplier = 1.25
 	ui_description = "Грубая удочка. Сложнее в использовании, но странно щедрая."
 
+/obj/item/fishing_rod/science/update_overlays()
+	. = ..()
+	. += mutable_appearance(icon, "battery_overlay")
+
 /obj/item/fishing_rod/science
 	name = "science fishing rod"
 	desc = "Точная удочка со встроенной катушкой."
@@ -524,6 +543,12 @@
 	completion_speed_mult = 1.25
 	bait_speed_mult = 1.1
 	ui_description = "Высокотехнологичная удочка с отличным контролем. Не требует наживки."
+
+/obj/item/fishing_rod/master/AltClick(mob/user)
+	. = ..()
+	collapsed = !collapsed
+	update_icon()
+	user.balloon_alert(user, collapsed ? "сложена" : "разложена")
 
 /obj/item/fishing_rod/master
 	name = "master fishing rod"
@@ -544,23 +569,23 @@
 	/// Удочка зажата в левой руке?
 	var/lefthand = FALSE
 
-	var/righthand_s_px = 13
+	var/righthand_s_px = 12
 	var/righthand_s_py = 16
-	var/righthand_e_px = 18
+	var/righthand_e_px = 17
 	var/righthand_e_py = 16
-	var/righthand_w_px = -20
+	var/righthand_w_px = -24
 	var/righthand_w_py = 18
 	var/righthand_n_px = -14
 	var/righthand_n_py = 16
 
-	var/lefthand_s_px = -13
-	var/lefthand_s_py = 15
-	var/lefthand_e_px = 24
+	var/lefthand_s_px = -14
+	var/lefthand_s_py = 16
+	var/lefthand_e_px = 23
 	var/lefthand_e_py = 18
-	var/lefthand_w_px = -17
+	var/lefthand_w_px = -18
 	var/lefthand_w_py = 16
-	var/lefthand_n_px = 13
-	var/lefthand_n_py = 15
+	var/lefthand_n_px = 12
+	var/lefthand_n_py = 16
 
 /datum/beam/fishing_line/proc/set_holder(mob/living/firer, obj/item/fishing_rod/rod)
 	if(!firer || !rod)
@@ -608,6 +633,50 @@
 	if(origin)
 		override_origin_pixel_x += origin.pixel_x
 		override_origin_pixel_y += origin.pixel_y
+
+/// Фикс отрисовки лески удочки думайте
+/datum/beam/fishing_line/Draw()
+	if(!origin_oldloc || !target_oldloc)
+		return
+	var/start_x = origin_oldloc.pixel_x + override_origin_pixel_x
+	var/start_y = origin_oldloc.pixel_y + override_origin_pixel_y
+	var/DX = (32 * target_oldloc.x + target_oldloc.pixel_x + override_target_pixel_x) - (32 * origin_oldloc.x + start_x)
+	var/DY = (32 * target_oldloc.y + target_oldloc.pixel_y + override_target_pixel_y) - (32 * origin_oldloc.y + start_y)
+	var/length = round(sqrt(DX ** 2 + DY ** 2))
+	if(length <= 0)
+		return
+	var/Angle = round(Get_Pixel_Angle(DY, DX))
+	var/matrix/rot_matrix = matrix()
+	rot_matrix.Turn(Angle)
+	for(var/N in 0 to length - 1 step 32)
+		if(finished)
+			break
+		var/obj/effect/ebeam/X = new beam_type(origin_oldloc)
+		X.owner = src
+		X.color = beam_color
+		elements += X
+		if(N + 32 > length)
+			var/icon/II = new(icon, icon_state)
+			II.DrawBox(null, 1, (length - N), 32, 32)
+			X.icon = II
+		else
+			X.icon = base_icon
+		X.transform = rot_matrix
+		var/Pixel_x = start_x + round(sin(Angle) + 32 * sin(Angle) * (N + 16) / 32)
+		var/Pixel_y = start_y + round(cos(Angle) + 32 * cos(Angle) * (N + 16) / 32)
+		var/a
+		if(abs(Pixel_x) > 32)
+			a = Pixel_x > 0 ? round(Pixel_x / 32) : CEILING(Pixel_x / 32, 1)
+			X.x += a
+			Pixel_x %= 32
+		if(abs(Pixel_y) > 32)
+			a = Pixel_y > 0 ? round(Pixel_y / 32) : CEILING(Pixel_y / 32, 1)
+			X.y += a
+			Pixel_y %= 32
+		X.pixel_x = Pixel_x
+		X.pixel_y = Pixel_y
+		CHECK_TICK
+	afterDraw()
 
 
 // Рецепты протолата на удочки.

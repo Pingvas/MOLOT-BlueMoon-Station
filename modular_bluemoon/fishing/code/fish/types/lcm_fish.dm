@@ -81,7 +81,6 @@
 	desc = "Эта масса пытается вцепиться в детрит и живые организмы, чтобы расти."
 	fish_id = "lcm_mosb"
 	icon_state = "mosb"
-	show_in_catalog = FALSE
 	random_case_rarity = FISH_RARITY_GOOD_LUCK_FINDING_THIS
 	required_fluid_type = AQUARIUM_FLUID_ANADROMOUS
 	average_size = 100
@@ -118,6 +117,23 @@
 	average_size = 50
 	average_weight = 5600
 	beauty = FISH_BEAUTY_GOOD
+	fish_traits = list(/datum/fish_trait/amphibious)
+
+/obj/item/fish/lcm/walkin_man/do_fish_process(seconds_per_tick)
+	. = ..()
+	if(QDELETED(src) || status != FISH_ALIVE || !isturf(loc))
+		return
+	// Рыба с ногами топчется по полу сама, а не лежит дохлая льдинка.
+	if(prob(55))
+		step(src, pick(GLOB.cardinals))
+
+/obj/item/fish/lcm/walkin_man/Moved(atom/old_loc, movement_dir, forced, list/old_locs, momentum_change = TRUE)
+	. = ..()
+	if(forced || QDELETED(src) || status != FISH_ALIVE || !movement_dir)
+		return
+	if(!isturf(loc) || !isturf(old_loc))
+		return
+	setDir(movement_dir)
 
 /obj/item/fish/lcm/boxin_man
 	name = "Boxin Man"
@@ -128,6 +144,55 @@
 	average_size = 50
 	average_weight = 5600
 	beauty = FISH_BEAUTY_GOOD
+	force = 12
+	attack_verb_continuous = list("бьёт", "лупит", "нокутирует")
+	attack_verb_simple = list("бьёт", "лупит", "нокаутирует")
+	hitsound = 'sound/weapons/punch1.ogg'
+	fish_traits = list(/datum/fish_trait/amphibious, /datum/fish_trait/predator)
+	COOLDOWN_DECLARE(boxing_cooldown)
+	COOLDOWN_DECLARE(boxing_combo_cooldown)
+
+/obj/item/fish/lcm/boxin_man/calculate_fish_force_bonus(bonus_malus)
+	. = ..()
+	force += bonus_malus * 0.6
+	wound_bonus += bonus_malus * 2
+
+/obj/item/fish/lcm/boxin_man/attack(mob/living/target, mob/living/user, attackchain_flags = NONE, damage_multiplier = 1)
+	var/brute_before = target.getBruteLoss()
+	. = ..()
+	if(QDELETED(target) || QDELETED(user) || target == user || target.stat == DEAD)
+		return
+	// Комбинация только если базовый удар реально прошёл по цели.
+	if(target.getBruteLoss() <= brute_before)
+		return
+	if(!COOLDOWN_FINISHED(src, boxing_combo_cooldown))
+		return
+	COOLDOWN_START(src, boxing_combo_cooldown, 8 SECONDS)
+	target.visible_message(
+		span_danger("[src] проводит комбинацию и валит [target]!"),
+		span_userdanger("[src] проводит комбинацию, и тебя валит на пол!"))
+	target.Stun(1.5 SECONDS)
+	target.Knockdown(1.5 SECONDS)
+	target.adjustBruteLoss(rand(4, 7))
+
+/obj/item/fish/lcm/boxin_man/do_fish_process(seconds_per_tick)
+	. = ..()
+	if(QDELETED(src) || status != FISH_ALIVE || !COOLDOWN_FINISHED(src, boxing_cooldown))
+		return
+	var/turf/box_turf = get_turf(src)
+	if(!box_turf)
+		return
+	for(var/mob/living/target in view(1, box_turf))
+		if(target.stat == DEAD || (isliving(loc) && target == loc))
+			continue
+		COOLDOWN_START(src, boxing_cooldown, 3 SECONDS)
+		target.visible_message(
+			span_danger("[src] бьёт [target]!"),
+			span_userdanger("[src] бьёт тебя!"))
+		target.adjustBruteLoss(rand(3, 6))
+		if(prob(20))
+			target.Stun(1 SECONDS)
+		break
 
 /obj/item/fish/lcm/weever_blue_album
 	name = "Weever Blue Album"
@@ -221,7 +286,6 @@
 	desc = "Мы спустимся в чёрные бездны... и поселимся в логове Глубинных."
 	fish_id = "lcm_deep_fry"
 	icon_state = "deep_fry"
-	show_in_catalog = FALSE
 	required_fluid_type = AQUARIUM_FLUID_ANADROMOUS
 	random_case_rarity = FISH_RARITY_GOOD_LUCK_FINDING_THIS
 	average_size = 100
@@ -244,7 +308,6 @@
 	desc = "Карп, переживший воздействие пения русалки."
 	fish_id = "lcm_piscine_mermaid"
 	icon_state = "mermaid"
-	show_in_catalog = FALSE
 	required_fluid_type = AQUARIUM_FLUID_SALTWATER
 	random_case_rarity = FISH_RARITY_GOOD_LUCK_FINDING_THIS
 	average_size = 100
@@ -268,7 +331,6 @@
 	desc = "Если позволите, зовите меня Фишмаэль."
 	fish_id = "lcm_fishmael"
 	icon_state = "fishmael"
-	show_in_catalog = FALSE
 	required_fluid_type = AQUARIUM_FLUID_SALTWATER
 	random_case_rarity = FISH_RARITY_RARE
 	average_size = 30
@@ -280,7 +342,6 @@
 	desc = "Существо похоже на маленького белого кролика. Но оно очень ядовито."
 	fish_id = "lcm_seabunny"
 	icon_state = "seabunny"
-	show_in_catalog = FALSE
 	required_fluid_type = AQUARIUM_FLUID_SALTWATER
 	random_case_rarity = FISH_RARITY_RARE
 	average_size = 30
@@ -293,7 +354,6 @@
 	desc = "Существо похоже на маленького кролика R-Corp. Но не очень ядовито... наверное."
 	fish_id = "lcm_searabbit"
 	icon_state = "searabbit"
-	show_in_catalog = FALSE
 	required_fluid_type = AQUARIUM_FLUID_SALTWATER
 	random_case_rarity = FISH_RARITY_RARE
 	average_size = 30
@@ -306,17 +366,6 @@
 	desc = "Странная тяжёлая рыба, на ощупь как мокрый камень."
 	fish_id = "lcm_siltcurrent"
 	icon_state = "siltcurrent"
-	show_in_catalog = FALSE
 	average_size = 60
 	average_weight = 9000
 	beauty = FISH_BEAUTY_BAD
-
-/obj/item/fish/lcm/victim
-	name = "victim fish"
-	desc = "Она знавала лучшие дни."
-	fish_id = "lcm_victim"
-	icon_state = "unidentified-fish-object"
-	show_in_catalog = FALSE
-	average_size = 40
-	average_weight = 3000
-	beauty = FISH_BEAUTY_DISGUSTING

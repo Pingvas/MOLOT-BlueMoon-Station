@@ -4,7 +4,8 @@
 	fish_id = "hologoldfish"
 	desc = "Голограмма обычной золотой рыбки, медленно мерцающая вдали от родного голо-обиталища."
 	icon_state = /obj/item/fish/goldfish::icon_state
-	fish_flags = parent_type::fish_flags & ~(FISH_FLAG_SHOW_IN_CATALOG|FISH_FLAG_EXPERIMENT_SCANNABLE)
+	fish_flags = parent_type::fish_flags & ~FISH_FLAG_EXPERIMENT_SCANNABLE
+	available_in_random_cases = FALSE
 	random_case_rarity = FISH_RARITY_NOPE
 	dedicated_in_aquarium_icon_state = /obj/item/fish/goldfish::dedicated_in_aquarium_icon_state
 	aquarium_vc_color = /obj/item/fish/goldfish::aquarium_vc_color
@@ -21,11 +22,11 @@
 
 /obj/item/fish/holo/Initialize(mapload, apply_qualities = TRUE)
 	. = ..()
-	var/area/station/holodeck/holo_area = get_area(src)
-	if(!istype(holo_area))
+	var/area/holodeck/holo_area = get_area(src)
+	if(!istype(holo_area) || !holo_area.linked)
 		addtimer(CALLBACK(src, PROC_REF(set_status), FISH_DEAD), 1 MINUTES)
 		return
-	holo_area.linked.add_to_spawned(src)
+	holo_area.linked.spawned += src
 
 /obj/item/fish/holo/make_edible(weight_val)
 	return
@@ -38,11 +39,11 @@
 
 /obj/item/fish/holo/suicide_act(mob/living/user)
 	visible_message(span_suicide("[user] проглатывает [src] целиком! Похоже, [user] пытается стереть себя из реальности!"))
-	var/area/station/holodeck/holo_area = get_area(src)
-	if(!istype(holo_area))
+	var/area/holodeck/holo_area = get_area(src)
+	if(!istype(holo_area) || !holo_area.linked)
 		user.dust(just_ash = TRUE, drop_items = TRUE)
 		return MANUAL_SUICIDE
-	holo_area.linked.add_to_spawned(user) // ой
+	holo_area.linked.spawned += user // ой
 	return MANUAL_SUICIDE_NONLETHAL
 
 /obj/item/fish/holo/crab

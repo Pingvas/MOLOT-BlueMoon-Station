@@ -9,7 +9,6 @@
 	pixel_w = -16
 	sprite_width = 12
 	sprite_height = 7
-	fish_flags = parent_type::fish_flags & ~FISH_FLAG_SHOW_IN_CATALOG
 	random_case_rarity = FISH_RARITY_NOPE
 	fishing_difficulty_modifier = 30
 	required_fluid_type = AQUARIUM_FLUID_ANY_WATER
@@ -72,7 +71,6 @@
 	average_size = 60
 	average_weight = 1200
 	stable_population = 4
-	fish_flags = parent_type::fish_flags & ~FISH_FLAG_SHOW_IN_CATALOG
 	beauty = FISH_BEAUTY_EXCELLENT
 	fish_movement_type = /datum/fish_movement/choppy //движение из легаси без скольжения? в моей рыболовной мини-игре?
 	favorite_bait = list(
@@ -139,7 +137,6 @@
 	average_size = 40
 	average_weight = 750
 	stable_population = 5
-	fish_flags = parent_type::fish_flags & ~FISH_FLAG_SHOW_IN_CATALOG
 	beauty = FISH_BEAUTY_GREAT
 	favorite_bait = list(
 		list(

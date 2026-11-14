@@ -245,7 +245,7 @@ GLOBAL_LIST_EMPTY(fishing_challenges_by_user)
 /datum/fishing_challenge/proc/start(mob/living/user)
 	/// создаём визуал лески
 	if(!used_rod.internal)
-		fishing_line = used_rod.create_fishing_line(float, user, target_py = float.pixel_y + 4)
+		fishing_line = used_rod.create_fishing_line(float, user, target_py = float.pixel_y + 4, target_px = float.pixel_x)
 		if(isnull(fishing_line)) // леску создать не вышло, скорее всего её не видно
 			qdel(src)
 			return

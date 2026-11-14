@@ -85,6 +85,8 @@ GLOBAL_LIST_INIT(fish_compatible_fluid_types, list(
 	/// Сообщение, которое прозвучит при смерти рыбы.
 	var/death_text = "%SRC dies."
 
+	/// Может ли рыба попасться в случайном рыбном кейсе
+	var/available_in_random_cases = TRUE
 	/// Насколько редко рыба попадается в случайных случаях
 	var/random_case_rarity = FISH_RARITY_BASIC
 
@@ -602,11 +604,25 @@ GLOBAL_LIST_INIT(fish_compatible_fluid_types, list(
 	if(HAS_TRAIT(src, TRAIT_FISH_STASIS) || status != FISH_ALIVE)
 		return
 	do_fish_process(seconds_per_tick)
-	if(status != FISH_ALIVE || !loc || !isturf(loc))
+	if(status != FISH_ALIVE || !is_fish_submerging_spot(loc))
+		time_passed_on_safe_turf = 0 SECONDS
 		return
 	time_passed_on_safe_turf += seconds_per_tick SECONDS
 	if(time_passed_on_safe_turf >= (get_starvation_mult() ? STARVING_FISH_SUBMERGING_THRESHOLD : FISH_SUBMERGING_THRESHOLD))
+		visible_message(span_notice("[src] disperses into \the [loc]."), span_notice("You hear a splash."))
 		released(loc)
+
+/obj/item/fish/proc/is_fish_submerging_spot(atom/spot)
+	if(!isturf(spot))
+		return FALSE
+	if(istype(spot, /turf/open/water))
+		return TRUE
+	if(HAS_TRAIT(spot, TRAIT_FISHING_SPOT))
+		return TRUE
+	var/turf/spot_turf = spot
+	if(spot_turf.liquids?.total_reagents && spot_turf.liquids.reagent_list[/datum/reagent/water])
+		return TRUE
+	return FALSE
 
 /obj/item/fish/proc/do_fish_process(seconds_per_tick)
 	if(loc && HAS_TRAIT(loc, TRAIT_STOP_FISH_REPRODUCTION_AND_GROWTH))

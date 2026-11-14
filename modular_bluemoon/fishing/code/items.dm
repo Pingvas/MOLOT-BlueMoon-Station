@@ -26,6 +26,21 @@
 		STR.max_items = 14
 		STR.can_hold = typecacheof(list(/obj/item/fish, /obj/item/bait, /obj/item/fishing_line, /obj/item/fishing_hook, /obj/item/fishing_lure, /obj/item/fishing_rod))
 
+/proc/get_random_fish_type()
+	var/list/weights = list()
+	for(var/obj/item/fish/fish_path as anything in subtypesof(/obj/item/fish))
+		if(fish_path == /obj/item/fish)
+			continue
+		if(!initial(fish_path.fish_id))
+			continue
+		if(!initial(fish_path.available_in_random_cases))
+			continue
+		var/rarity = initial(fish_path.random_case_rarity)
+		if(rarity <= 0)
+			continue
+		weights[fish_path] = rarity
+	return pick_weight(weights)
+
 /obj/item/storage/fish_case
 	name = "fish case"
 	desc = "Небольшой кейс для одной рыбы. Внутри рыба не портится и не погибает."
@@ -51,6 +66,19 @@
 	desc = "Бездонный кейс для рыбы. Внутри рыба не портится и не погибает."
 	icon_state = "fishbox_bluespace"
 	case_capacity = 12
+
+/obj/item/storage/fish_case/random
+	name = "sealed fish case"
+	desc = "Запечатанный кейс со случайной рыбой. Редкость улова зависит от удачи."
+
+/obj/item/storage/fish_case/random/Initialize(mapload)
+	ADD_TRAIT(src, TRAIT_FISH_SAFE_STORAGE, REF(src))
+	. = ..()
+
+/obj/item/storage/fish_case/random/PopulateContents()
+	var/fish_type = get_random_fish_type()
+	if(fish_type)
+		new fish_type(src)
 
 /obj/item/fishing_net
 	name = "fishing net"
@@ -277,7 +305,9 @@
 			var/datum/fish_source/source = GLOB.preset_fish_sources[source_type]
 			if(!source || !source.fish_table || !source.fish_table[fish_path])
 				continue
-			source_names += source.catalog_description || source.radial_name || "Рыбалка"
+			var/source_name = source.catalog_description || source.radial_name || "Рыбалка"
+			if(!(source_name in source_names))
+				source_names += source_name
 		var/list/fish_data = list(
 			"name" = initial(fish_path.name),
 			"desc" = initial(fish_path.desc),
@@ -315,6 +345,8 @@
 		/obj/item/fishing_hook/weighted = 4,
 		/obj/item/fishing_hook/shiny = 4,
 		/obj/item/fishing_hook/magnet = 3,
+		/obj/item/fishing_hook/stabilized = 2,
+		/obj/item/fishing_hook/rescue = 2,
 		/obj/item/bait_can/worm = 8,
 		/obj/item/bait/doughball = 10,
 		/obj/item/fishing_lure/minnow = 5,
@@ -322,11 +354,13 @@
 		/obj/item/fishing_lure/grub = 4,
 		/obj/item/fish_catalog = 4,
 		/obj/item/fish_analyzer = 4,
+		/obj/item/fish_genegun = 2,
 		/obj/item/aquarium_kit = 2,
 		/obj/item/aquarium_conductivity_kit = 2,
 		/obj/item/reagent_containers/cup/fish_feed = 6,
 		/obj/item/storage/backpack/fishing_bag = 3,
 		/obj/item/storage/fish_case = 4,
+		/obj/item/storage/fish_case/random = 4,
 		/obj/item/fishing_portal_kit = 2,
 		/obj/item/fishing_net = 4,
 	)
@@ -359,6 +393,7 @@
 	new /obj/item/fish_catalog(src)
 	new /obj/item/bait/doughball(src)
 	new /obj/item/storage/fish_case(src)
+	new /obj/item/storage/fish_case/random(src)
 
 /obj/item/storage/box/fishing
 	name = "fishing kit"
@@ -372,3 +407,4 @@
 	new /obj/item/bait/worm(src)
 	new /obj/item/fish_catalog(src)
 	new /obj/item/fishing_portal_kit(src)
+	new /obj/item/storage/fish_case/random(src)

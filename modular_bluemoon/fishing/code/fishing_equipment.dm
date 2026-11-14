@@ -110,7 +110,7 @@
 	name = "shiny lure hook"
 	desc = "Позолоченный крючок, приманивающий рыбу из верхних и средних слоёв воды."
 	icon_state = "gold_shiny"
-	rod_overlay_icon_state = "hook_shiny_overlay"
+	rod_overlay_icon_state = "fishing_rod_hook_shiny_overlay"
 
 /obj/item/fishing_hook/shiny/get_hook_bonus_multiplicative(fish_type)
 	if(fish_type == FISHING_DUD)
@@ -402,6 +402,10 @@
 	icon_state = "led"
 	spin_frequency = list(3 SECONDS, 3.8 SECONDS)
 
+/obj/item/fishing_lure/led/update_overlays()
+	. = ..()
+	. += emissive_appearance(icon, "led_emissive", layer = layer, offset_spokesman = src)
+
 /obj/item/fishing_lure/lucky_coin
 	name = "\improper Maneki-Coin lure"
 	desc = "Позолоченная блесна. Привлекает любителей блестящего."
@@ -497,3 +501,188 @@
 	desc = "В этой банке нектар богов."
 	bait_type = /obj/item/bait/doughball/synthetic/super
 	uses_left = 12
+
+// Генетическая пушка для рыбов.
+/obj/item/fish_genegun
+	name = "fish gene-gun"
+	desc = "Устройство для извлечения и введения рыбных черт. Берёт пустой шприц, который после извлечения становится инжектором рыбы. Повторное вмешательство может убить рыбу."
+	icon = 'modular_bluemoon/fishing/icons/obj/fishing.dmi'
+	icon_state = "fish_gun"
+	base_icon_state = "fish_gun"
+	inhand_icon_state = "gun"
+	item_state = "gun"
+	lefthand_file = 'icons/mob/inhands/weapons/guns_lefthand.dmi'
+	righthand_file = 'icons/mob/inhands/weapons/guns_righthand.dmi'
+	w_class = WEIGHT_CLASS_SMALL
+	force = 7
+	throwforce = 5
+	attack_verb_continuous = list("колет", "тыкает")
+	attack_verb_simple = list("кольнуть", "ткнуть")
+	hitsound = 'sound/items/medi/hypospray.ogg'
+	var/obj/item/loaded_injector
+
+/obj/item/fish_genegun/examine(mob/user)
+	. = ..()
+	if(!loaded_injector)
+		. += span_info("Пушка пуста. Вставь пустой шприц или инжектор рыбной черты.")
+		return
+	var/info = "Внутри [loaded_injector]. "
+	if(istype(loaded_injector, /obj/item/reagent_containers/syringe))
+		info += "Используй на рыбе, чтобы извлечь черту."
+	else
+		info += "Используй на рыбе, чтобы ввести черту."
+	. += span_info(info)
+
+/obj/item/fish_genegun/update_icon_state()
+	icon_state = base_icon_state
+	// inject-стейт это анимация на 7 кадров, поэтому постоянно показывать его нельзя.
+	if(istype(loaded_injector, /obj/item/reagent_containers/syringe))
+		icon_state += "_extract"
+	return ..()
+
+/obj/item/fish_genegun/attack_self(mob/user)
+	. = ..()
+	if(!loaded_injector)
+		balloon_alert(user, "пушка пуста")
+		return
+	var/obj/item/loaded = loaded_injector
+	loaded.forceMove(drop_location())
+	user.put_in_hands(loaded)
+	balloon_alert(user, "пушка разряжена")
+	playsound(src, 'sound/weapons/gun_magazine_remove_full.ogg', 30, TRUE)
+
+/obj/item/fish_genegun/Exited(atom/movable/gone, atom/newLoc)
+	. = ..()
+	if(gone == loaded_injector)
+		loaded_injector = null
+		update_icon()
+
+/obj/item/fish_genegun/attackby(obj/item/item, mob/living/user, params)
+	var/is_syringe = istype(item, /obj/item/reagent_containers/syringe)
+	if(!is_syringe && !istype(item, /obj/item/fish_gene))
+		return ..()
+	if(loaded_injector)
+		to_chat(user, span_warning("В [src] уже вставлен [loaded_injector]."))
+		return TRUE
+	if(is_syringe && item.reagents?.total_volume)
+		to_chat(user, span_warning("[src] принимает только пустой шприц."))
+		return TRUE
+	if(!user.transferItemToLoc(item, src))
+		to_chat(user, span_warning("[item] застрял в руке."))
+		return TRUE
+	to_chat(user, span_info("Ты вставляешь [item] в [src]."))
+	loaded_injector = item
+	update_icon()
+	playsound(src, 'sound/weapons/gun_magazine_insert_full_1.ogg', 30, TRUE)
+	if(!is_syringe)
+		flick("fish_gun_inject", src)
+	return TRUE
+
+/obj/item/fish_genegun/afterattack(atom/target, mob/living/user, proximity_flag, click_parameters)
+	if(!proximity_flag || !isfish(target))
+		return ..()
+	var/obj/item/fish/fish = target
+	if(!loaded_injector)
+		balloon_alert(user, "пушка пуста")
+		return TRUE
+	if(fish.status == FISH_DEAD)
+		to_chat(user, span_warning("[src] не работает с мёртвой рыбой."))
+		return TRUE
+	if(istype(loaded_injector, /obj/item/reagent_containers/syringe))
+		return extract_trait(fish, user)
+	var/obj/item/fish_gene/injector = loaded_injector
+	if(!istype(injector))
+		return TRUE
+	flick("fish_gun_inject", src)
+	return injector.inject_into_fish(fish, user, src)
+
+/obj/item/fish_genegun/proc/extract_trait(obj/item/fish/fish, mob/living/user)
+	if(!length(fish.fish_traits))
+		to_chat(user, span_warning("У [fish] нет черт, которые можно извлечь."))
+		return TRUE
+	var/list/choices = list()
+	for(var/trait_type in fish.fish_traits)
+		var/datum/fish_trait/trait = GLOB.fish_traits[trait_type]
+		if(trait)
+			choices[trait.name] = trait_type
+	if(!length(choices))
+		return TRUE
+	var/choice = tgui_input_list(user, "Выбери черту для извлечения", "Извлечение рыбной черты", choices)
+	if(!choice || QDELETED(fish) || !user.is_holding(src) || get_dist(fish, user) > 1)
+		return TRUE
+	var/trait_type = choices[choice]
+	if(!(trait_type in fish.fish_traits))
+		to_chat(user, span_warning("У [fish] больше нет этой черты."))
+		return TRUE
+	var/datum/fish_trait/trait = GLOB.fish_traits[trait_type]
+	QDEL_NULL(loaded_injector)
+	trait?.remove_from_fish(fish)
+	fish.fish_traits -= trait_type
+	loaded_injector = new /obj/item/fish_gene(src, trait_type)
+	user.visible_message(span_notice("[user] извлекает черту из [fish] с помощью [src]."), span_notice("Ты извлекаешь черту [trait?.name || "неизвестно"]."))
+	if(HAS_TRAIT(fish, TRAIT_FISH_GENEGUNNED))
+		fish.set_status(FISH_DEAD)
+	ADD_TRAIT(fish, TRAIT_FISH_GENEGUNNED, TRAIT_GENERIC)
+	playsound(fish, 'sound/items/medi/hypospray.ogg', 30, TRUE)
+	update_icon()
+	return TRUE
+
+/obj/item/fish_gene
+	name = "fish trait injector"
+	desc = "Одноразовый инжектор с рыбной чертой."
+	icon = 'modular_bluemoon/fishing/icons/obj/fishing.dmi'
+	icon_state = "fish_trait_injector"
+	inhand_icon_state = "dnainjector"
+	item_state = "dnainjector"
+	lefthand_file = 'icons/mob/inhands/equipment/medical_lefthand.dmi'
+	righthand_file = 'icons/mob/inhands/equipment/medical_righthand.dmi'
+	w_class = WEIGHT_CLASS_TINY
+	throw_speed = 3
+	throw_range = 5
+	var/datum/fish_trait/trait_type
+
+/obj/item/fish_gene/Initialize(mapload, datum/fish_trait/trait_type)
+	. = ..()
+	if(trait_type)
+		src.trait_type = trait_type
+	if(src.trait_type)
+		update_name()
+
+/obj/item/fish_gene/update_name()
+	. = ..()
+	var/datum/fish_trait/trait = GLOB.fish_traits[trait_type]
+	name = "fish trait injector ([trait?.name || "unknown"])"
+
+/obj/item/fish_gene/afterattack(atom/target, mob/living/user, proximity_flag, click_parameters)
+	if(!proximity_flag || !isfish(target))
+		return ..()
+	var/obj/item/fish/fish = target
+	if(fish.status == FISH_DEAD)
+		to_chat(user, span_warning("[src] не работает с мёртвой рыбой."))
+		return TRUE
+	return inject_into_fish(fish, user, src)
+
+/obj/item/fish_gene/proc/inject_into_fish(obj/item/fish/fish, mob/living/user, obj/item/tool = src)
+	if(!trait_type)
+		return FALSE
+	var/datum/fish_trait/trait = GLOB.fish_traits[trait_type]
+	if(!trait)
+		return FALSE
+	if(trait_type in fish.fish_traits)
+		to_chat(user, span_warning("У [fish] уже есть эта черта."))
+		return FALSE
+	if(!isnull(trait.fish_whitelist) && !is_type_in_list(fish, trait.fish_whitelist))
+		to_chat(user, span_warning("Эта черта не подходит для [fish]."))
+		return FALSE
+	if(LAZYLEN(trait.incompatible_traits) && length(fish.fish_traits & trait.incompatible_traits))
+		to_chat(user, span_warning("Эта черта несовместима с текущими чертами [fish]."))
+		return FALSE
+	fish.fish_traits += trait_type
+	trait.apply_to_fish(fish)
+	user.visible_message(span_notice("[user] вводит черту в [fish] с помощью [tool]."), span_notice("Ты вводишь черту [trait.name]."))
+	if(HAS_TRAIT(fish, TRAIT_FISH_GENEGUNNED))
+		fish.set_status(FISH_DEAD)
+	ADD_TRAIT(fish, TRAIT_FISH_GENEGUNNED, TRAIT_GENERIC)
+	playsound(fish, 'sound/items/medi/hypospray.ogg', 25, TRUE)
+	qdel(src)
+	return TRUE

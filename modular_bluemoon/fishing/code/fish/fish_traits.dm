@@ -256,6 +256,17 @@ GLOBAL_LIST_EMPTY(spontaneous_fish_traits)
 /datum/fish_trait/lubed/difficulty_mod(datum/fish_source/source, mob/fisherman)
 	return 3
 
+/datum/fish_trait/lubed/apply_to_fish(obj/item/fish/fish)
+	fish.AddComponent(/datum/component/slippery, 8 SECONDS, SLIDE|GALOSHES_DONT_HELP)
+
+/datum/fish_trait/lubed/remove_from_fish(obj/item/fish/fish)
+	var/datum/component/slippery/slippery = fish.GetComponent(/datum/component/slippery)
+	qdel(slippery)
+
+/datum/fish_trait/lubed/minigame_mod(obj/item/fishing_rod/rod, mob/fisherman, datum/fishing_challenge/minigame)
+	minigame.reeling_velocity *= 1.4
+	minigame.gravity_velocity *= 1.4
+
 /datum/fish_trait/amphibious
 	name = "Amphibious"
 	desc = "Эта рыба может выживать вне воды."
@@ -263,6 +274,9 @@ GLOBAL_LIST_EMPTY(spontaneous_fish_traits)
 
 /datum/fish_trait/amphibious/apply_to_fish(obj/item/fish/fish)
 	ADD_TRAIT(fish, TRAIT_FISH_AMPHIBIOUS, INNATE_TRAIT)
+
+/datum/fish_trait/amphibious/remove_from_fish(obj/item/fish/fish)
+	REMOVE_TRAIT(fish, TRAIT_FISH_AMPHIBIOUS, INNATE_TRAIT)
 
 /datum/fish_trait/antigrav
 	name = "Antigravity"
@@ -272,7 +286,10 @@ GLOBAL_LIST_EMPTY(spontaneous_fish_traits)
 	minigame.special_effects |= FISHING_MINIGAME_RULE_ANTIGRAV
 
 /datum/fish_trait/antigrav/apply_to_fish(obj/item/fish/fish)
-	ADD_TRAIT(fish, TRAIT_FISH_AMPHIBIOUS, INNATE_TRAIT)
+	fish.AddElement(/datum/element/forced_gravity, NEGATIVE_GRAVITY)
+
+/datum/fish_trait/antigrav/remove_from_fish(obj/item/fish/fish)
+	fish.RemoveElement(/datum/element/forced_gravity, NEGATIVE_GRAVITY)
 
 /datum/fish_trait/anxiety
 	name = "Anxious"
@@ -281,6 +298,24 @@ GLOBAL_LIST_EMPTY(spontaneous_fish_traits)
 
 /datum/fish_trait/anxiety/difficulty_mod(datum/fish_source/source, mob/fisherman)
 	return 4
+
+/datum/fish_trait/anxiety/apply_to_fish(obj/item/fish/fish)
+	RegisterSignal(fish, COMSIG_FISH_LIFE, PROC_REF(on_fish_life))
+
+/datum/fish_trait/anxiety/remove_from_fish(obj/item/fish/fish)
+	UnregisterSignal(fish, COMSIG_FISH_LIFE)
+
+/datum/fish_trait/anxiety/proc/on_fish_life(obj/item/fish/source, seconds_per_tick)
+	SIGNAL_HANDLER
+	if(!source.loc || source.status == FISH_DEAD)
+		return
+	var/count = 0
+	for(var/obj/item/fish/other in source.loc)
+		count++
+	if(count <= 3)
+		return
+	source.loc.visible_message(span_warning("[source] паникует и перестаёт двигаться..."))
+	source.set_status(FISH_DEAD)
 
 /datum/fish_trait/electrogenesis
 	name = "Electrogenesis"
@@ -318,9 +353,19 @@ GLOBAL_LIST_EMPTY(spontaneous_fish_traits)
 	desc = "Эта рыба растёт очень медленно."
 	inheritability = 30
 
+/datum/fish_trait/stunted/apply_to_fish(obj/item/fish/fish)
+	var/datum/component/fish_growth/growth = fish.GetComponent(/datum/component/fish_growth)
+	qdel(growth)
+
 /datum/fish_trait/mixotroph
 	name = "Mixotroph"
 	desc = "Эта рыба питается и растениями, и мясом."
+
+/datum/fish_trait/mixotroph/apply_to_fish(obj/item/fish/fish)
+	ADD_TRAIT(fish, TRAIT_FISH_NO_HUNGER, INNATE_TRAIT)
+
+/datum/fish_trait/mixotroph/remove_from_fish(obj/item/fish/fish)
+	REMOVE_TRAIT(fish, TRAIT_FISH_NO_HUNGER, INNATE_TRAIT)
 
 /datum/fish_trait/camouflage
 	name = "Camouflage"
@@ -333,9 +378,47 @@ GLOBAL_LIST_EMPTY(spontaneous_fish_traits)
 	name = "Ink"
 	desc = "Эта рыба может выпускать чернила."
 
+/datum/fish_trait/ink/apply_to_fish(obj/item/fish/fish)
+	RegisterSignal(fish, COMSIG_ITEM_ATTACK_ZONE, PROC_REF(attacked_someone))
+
+/datum/fish_trait/ink/remove_from_fish(obj/item/fish/fish)
+	UnregisterSignal(fish, COMSIG_ITEM_ATTACK_ZONE)
+
+/datum/fish_trait/ink/proc/attacked_someone(obj/item/fish/source, mob/living/target, mob/living/user, zone)
+	SIGNAL_HANDLER
+	if(HAS_TRAIT(source, TRAIT_FISH_INK_ON_COOLDOWN) || source.status == FISH_DEAD)
+		return
+	if(iscarbon(target))
+		target.adjust_blindness(8)
+		target.confused = max(target.confused, 4)
+		target.AddComponent(/datum/component/face_decal/splat, color = COLOR_NEARLY_ALL_BLACK)
+	target.visible_message(span_warning("[target] облит чернилами из [source]!"), span_userdanger("Тебя облили чернилами из [source]!"))
+	ADD_TRAIT(source, TRAIT_FISH_INK_ON_COOLDOWN, REF(src))
+	addtimer(TRAIT_CALLBACK_REMOVE(source, TRAIT_FISH_INK_ON_COOLDOWN, REF(src)), 9 SECONDS)
+
 /datum/fish_trait/emulsijack
 	name = "Emulsijack"
 	desc = "Эта рыба может эмульгировать реагенты."
+
+/datum/fish_trait/emulsijack/apply_to_fish(obj/item/fish/fish)
+	RegisterSignal(fish, COMSIG_FISH_LIFE, PROC_REF(emulsify))
+
+/datum/fish_trait/emulsijack/remove_from_fish(obj/item/fish/fish)
+	UnregisterSignal(fish, COMSIG_FISH_LIFE)
+
+/datum/fish_trait/emulsijack/proc/emulsify(obj/item/fish/source, seconds_per_tick)
+	SIGNAL_HANDLER
+	if(!source.loc || !HAS_TRAIT(source.loc, TRAIT_IS_AQUARIUM))
+		return
+	var/emulsified = FALSE
+	for(var/obj/item/fish/victim in source.loc)
+		if(victim == source || victim.status == FISH_DEAD || HAS_TRAIT(victim, TRAIT_FISH_TOXIN_IMMUNE))
+			continue
+		victim.damage_fish(3 * seconds_per_tick)
+		emulsified = TRUE
+	if(emulsified)
+		source.repair_fish_damage(3 * seconds_per_tick)
+		source.sate_hunger()
 
 /datum/fish_trait/emulsijack/psychic
 	name = "Psychic emulsijack"

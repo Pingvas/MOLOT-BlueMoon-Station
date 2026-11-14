@@ -184,18 +184,6 @@
 	desc = "Выпученные глаза улитки, которые смотрят в разные стороны."
 	icon_state = "eyeballs"
 
-/datum/holodeck_program
-	var/list/spawned_atoms = list()
-
-/datum/holodeck_program/proc/add_to_spawned(atom/movable/thing)
-	spawned_atoms += thing
-
-/area/station/holodeck
-	var/datum/holodeck_program/linked
-
-/area/station/holodeck/proc/add_to_spawned(atom/movable/thing)
-	return
-
 GLOBAL_LIST_INIT(carp_colors, list("#ffffff", "#cccccc", "#999999"))
 
 /proc/skintone2hex(skin_tone)
