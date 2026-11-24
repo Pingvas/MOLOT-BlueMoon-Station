@@ -310,7 +310,7 @@
 		spawner.director_source_action = control
 		spawner.director_intensity = control ? control.intensity / length(spawners) : 0
 		spawner.director_refund_cost = triggered_randomly && control ? control.cost / length(spawners) : 0
-		notify_ghosts("Доступна [spawner.name]. Чтобы присоединиться к инспекции, найдите её в Spawners Menu.", source = spawner, action = NOTIFY_ORBIT, header = "Всеобщее Бюро Контроля")
+		notify_ghosts("Доступна [spawner.name]. Чтобы присоединиться к инспекции, найдите её в меню гост-ролей.", source = spawner, action = NOTIFY_ORBIT, header = "Всеобщее Бюро Контроля")
 
 #undef SOL_INSPECTION_DEMAND_MIN
 #undef SOL_INSPECTION_DEMAND_CARGO_SHARE

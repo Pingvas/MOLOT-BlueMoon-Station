@@ -99,7 +99,7 @@ GLOBAL_LIST_INIT(job_menu_antag_spawners, list(
 			window_title = "Гост-роли"
 		ui = new(user, src, "JobMenu", window_title)
 		ui.open()
-		ui.set_autoupdate(FALSE)
+		ui.set_autoupdate(mode == JOB_MENU_GHOST)
 		preview_screen.display_to(user, ui.window)
 
 /datum/job_menu/ui_close(mob/user)
@@ -339,11 +339,15 @@ GLOBAL_LIST_INIT(job_menu_antag_spawners, list(
 		var/obj/first = first_spawn
 		if(!first)
 			first = usable[1]
+		var/can_jump = FALSE
+		if(ghost_mode && first_ghost_jump_target(usable))
+			can_jump = TRUE
 		var/list/entry = list(
 			"name" = spawner_key,
 			"category" = first_spawn ? first_spawn.category : "misc",
 			"group" = ghost_role_group(usable),
 			"amount" = length(usable),
+			"canJump" = can_jump,
 		)
 
 		var/can_load = 0
@@ -562,6 +566,21 @@ GLOBAL_LIST_INIT(job_menu_antag_spawners, list(
 	if(!length(usable))
 		return null
 	return usable[1]
+
+/datum/job_menu/proc/first_ghost_jump_target(list/usable)
+	for(var/atom/spawn_target in usable)
+		if(istype(spawn_target, /obj/effect/mob_spawn/antag_training))
+			var/datum/antag_training_arena/shared = GLOB.antag_training_arenas["shared"]
+			if(shared?.ready && shared.entry_turf)
+				return shared.entry_turf
+			continue
+		var/turf/destination = get_turf(spawn_target)
+		if(destination)
+			return destination
+	return null
+
+/datum/job_menu/proc/ghost_jump_target(spawner_key)
+	return first_ghost_jump_target(collect_ghost_spawners(spawner_key))
 
 /// Чистим описания
 /datum/job_menu/proc/clean_ghost_text(text, limit)
@@ -829,13 +848,7 @@ GLOBAL_LIST_INIT(job_menu_antag_spawners, list(
 			var/spawner_key = params["spawner"]
 			if(!istext(spawner_key))
 				return
-			var/atom/spawn_target = find_ghost_spawner(spawner_key)
-			if(!spawn_target)
-				return
-			var/turf/destination = get_turf(spawn_target)
-			if(istype(spawn_target, /obj/effect/mob_spawn/antag_training))
-				var/datum/antag_training_arena/shared = GLOB.antag_training_arenas["shared"]
-				destination = shared?.ready ? shared.entry_turf : null
+			var/turf/destination = ghost_jump_target(spawner_key)
 			if(destination)
 				ui_user.forceMove(destination)
 			return

@@ -45,6 +45,7 @@ type GhostRole = {
   infinite?: BooleanLike;
   antag?: BooleanLike;
   previewable?: BooleanLike;
+  canJump?: BooleanLike;
   kind?: 'silicon' | 'animal' | 'other';
 };
 
@@ -623,7 +624,11 @@ export const JobMenu = () => {
                     <Button
                       color="transparent"
                       icon="sync"
-                      tooltip="Обновить список вакансий"
+                      tooltip={
+                        isGhost
+                          ? 'Обновить список гост-ролей'
+                          : 'Обновить список вакансий'
+                      }
                       tooltipPosition="bottom-end"
                       onClick={() => act('refresh', {})} />
                   </Stack.Item>
@@ -728,6 +733,7 @@ export const JobMenu = () => {
 const buildJoinButton = (
   canJoin: boolean,
   isGhost: boolean,
+  canJump: boolean,
   selectedJob: JobEntry | undefined,
   selectedGhost: string | null,
   act: (action: string, params?: Record<string, unknown>) => void,
@@ -749,6 +755,10 @@ const buildJoinButton = (
             color="transparent"
             icon="map-marker-alt"
             content="Переместиться"
+            disabled={!canJump}
+            tooltip={
+              canJump ? undefined : 'Нет доступной точки перемещения'
+            }
             onClick={() => act('jump', { spawner: selectedGhost })}
           />
         )}
@@ -823,6 +833,7 @@ const InfoColumn = (props: {
   const joinButton = buildJoinButton(
     canJoin,
     isGhost,
+    !!ghostRole?.canJump,
     selectedJob,
     selectedGhost,
     act,
